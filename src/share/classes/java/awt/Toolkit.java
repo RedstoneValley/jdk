@@ -110,7 +110,12 @@ import sun.util.CoreResourceBundleControl;
  * @author      Fred Ecks
  * @since       JDK1.0
  */
-public abstract class Toolkit {
+public class Toolkit {
+
+    private static final Toolkit INSTANCE = new Toolkit();
+
+    /** Singleton unless subclassed. */
+    protected Toolkit() {}
 
     /**
      * Creates this toolkit's implementation of the <code>Desktop</code>
@@ -769,56 +774,9 @@ public abstract class Toolkit {
     }
 
     /**
-     * Loads additional classes into the VM, using the property
-     * 'assistive_technologies' specified in the Sun reference
-     * implementation by a line in the 'accessibility.properties'
-     * file.  The form is "assistive_technologies=..." where
-     * the "..." is a comma-separated list of assistive technology
-     * classes to load.  Each class is loaded in the order given
-     * and a single instance of each is created using
-     * Class.forName(class).newInstance().  All errors are handled
-     * via an AWTError exception.
-     *
-     * <p>The assumption is made that assistive technology classes are supplied
-     * as part of INSTALLED (as opposed to: BUNDLED) extensions or specified
-     * on the class path
-     * (and therefore can be loaded using the class loader returned by
-     * a call to <code>ClassLoader.getSystemClassLoader</code>, whose
-     * delegation parent is the extension class loader for installed
-     * extensions).
+     * TODO: Delete this method, since it's not necessary in Skinjob.
      */
-    private static void loadAssistiveTechnologies() {
-        // Load any assistive technologies
-        if (atNames != null) {
-            ClassLoader cl = ClassLoader.getSystemClassLoader();
-            StringTokenizer parser = new StringTokenizer(atNames," ,");
-            String atName;
-            while (parser.hasMoreTokens()) {
-                atName = parser.nextToken();
-                try {
-                    Class<?> clazz;
-                    if (cl != null) {
-                        clazz = cl.loadClass(atName);
-                    } else {
-                        clazz = Class.forName(atName);
-                    }
-                    clazz.newInstance();
-                } catch (ClassNotFoundException e) {
-                    throw new AWTError("Assistive Technology not found: "
-                            + atName);
-                } catch (InstantiationException e) {
-                    throw new AWTError("Could not instantiate Assistive"
-                            + " Technology: " + atName);
-                } catch (IllegalAccessException e) {
-                    throw new AWTError("Could not access Assistive"
-                            + " Technology: " + atName);
-                } catch (Exception e) {
-                    throw new AWTError("Error trying to install Assistive"
-                            + " Technology: " + atName + " " + e);
-                }
-            }
-        }
-    }
+    private static void loadAssistiveTechnologies() {}
 
     /**
      * Gets the default toolkit.
@@ -856,6 +814,9 @@ public abstract class Toolkit {
                 public Void run() {
                     Class<?> cls = null;
                     String nm = System.getProperty("awt.toolkit");
+                    if (nm == null) {
+                        return INSTANCE;
+                    }
                     try {
                         cls = Class.forName(nm);
                     } catch (ClassNotFoundException e) {
