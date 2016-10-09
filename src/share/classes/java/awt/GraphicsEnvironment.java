@@ -52,7 +52,7 @@ import sun.security.action.GetPropertyAction;
  * @see GraphicsConfiguration
  */
 
-public abstract class GraphicsEnvironment {
+public class GraphicsEnvironment {
     private static GraphicsEnvironment localEnv;
 
     /**
@@ -66,11 +66,9 @@ public abstract class GraphicsEnvironment {
     private static Boolean defaultHeadless;
 
     /**
-     * This is an abstract class and cannot be instantiated directly.
-     * Instances must be obtained from a suitable factory or query method.
+     * Singleton unless subclassed.
      */
-    protected GraphicsEnvironment() {
-    }
+    protected GraphicsEnvironment() {}
 
     /**
      * Returns the local <code>GraphicsEnvironment</code>.
@@ -93,6 +91,9 @@ public abstract class GraphicsEnvironment {
     private static GraphicsEnvironment createGE() {
         GraphicsEnvironment ge;
         String nm = AccessController.doPrivileged(new GetPropertyAction("java.awt.graphicsenv", null));
+        if (nm == null) {
+            return new GraphicsEnvironment();
+        }
         try {
 //          long t0 = System.currentTimeMillis();
             Class<GraphicsEnvironment> geCls;
@@ -125,19 +126,13 @@ public abstract class GraphicsEnvironment {
     }
 
     /**
-     * Tests whether or not a display, keyboard, and mouse can be
-     * supported in this environment.  If this method returns true,
-     * a HeadlessException is thrown from areas of the Toolkit
-     * and GraphicsEnvironment that are dependent on a display,
-     * keyboard, or mouse.
-     * @return <code>true</code> if this environment cannot support
-     * a display, keyboard, and mouse; <code>false</code>
-     * otherwise
-     * @see java.awt.HeadlessException
+     * Included for backward-compatibility.
+     *
+     * @return false
      * @since 1.4
      */
     public static boolean isHeadless() {
-        return getHeadlessProperty();
+        return false;
     }
 
     /**
@@ -154,77 +149,25 @@ public abstract class GraphicsEnvironment {
             "but this program performed an operation which requires it.";
     }
 
-    /**
-     * @return the value of the property "java.awt.headless"
-     * @since 1.4
-     */
+    /** TODO: Inline this method. */
     private static boolean getHeadlessProperty() {
-        if (headless == null) {
-            java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction<Object>() {
-                public Object run() {
-                    String nm = System.getProperty("java.awt.headless");
-
-                    if (nm == null) {
-                        /* No need to ask for DISPLAY when run in a browser */
-                        if (System.getProperty("javaplugin.version") != null) {
-                            headless = defaultHeadless = Boolean.FALSE;
-                        } else {
-                            String osName = System.getProperty("os.name");
-                            if (osName.contains("OS X") && "sun.awt.HToolkit".equals(
-                                    System.getProperty("awt.toolkit")))
-                            {
-                                headless = defaultHeadless = Boolean.TRUE;
-                            } else {
-                                headless = defaultHeadless =
-                                    Boolean.valueOf(("Linux".equals(osName) ||
-                                                     "SunOS".equals(osName) ||
-                                                     "FreeBSD".equals(osName) ||
-                                                     "NetBSD".equals(osName) ||
-                                                     "OpenBSD".equals(osName)) &&
-                                                     (System.getenv("DISPLAY") == null));
-                            }
-                        }
-                    } else if (nm.equals("true")) {
-                        headless = Boolean.TRUE;
-                    } else {
-                        headless = Boolean.FALSE;
-                    }
-                    return null;
-                }
-                }
-            );
-        }
-        return headless.booleanValue();
+        return false;
     }
 
     /**
-     * Check for headless state and throw HeadlessException if headless
+     * No-op included for backward-compatibility.
      * @since 1.4
      */
-    static void checkHeadless() throws HeadlessException {
-        if (isHeadless()) {
-            throw new HeadlessException();
-        }
-    }
+    static void checkHeadless() throws HeadlessException {}
 
-    /**
-     * Returns whether or not a display, keyboard, and mouse can be
-     * supported in this graphics environment.  If this returns true,
-     * <code>HeadlessException</code> will be thrown from areas of the
-     * graphics environment that are dependent on a display, keyboard, or
-     * mouse.
-     * @return <code>true</code> if a display, keyboard, and mouse
-     * can be supported in this environment; <code>false</code>
-     * otherwise
-     * @see java.awt.HeadlessException
-     * @see #isHeadless
+     /**
+     * Included for backward-compatibility.
+     *
+     * @return false
      * @since 1.4
      */
     public boolean isHeadlessInstance() {
-        // By default (local graphics environment), simply check the
-        // headless property.
-        return getHeadlessProperty();
+        return false;
     }
 
     /**
