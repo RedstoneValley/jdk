@@ -25,13 +25,14 @@
 
 package java.awt;
 
+import android.view.View;
+
 import java.awt.peer.ButtonPeer;
 import java.util.EventListener;
 import java.awt.event.*;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
 
 /**
  * This class creates a labeled button. The application can cause
@@ -84,7 +85,7 @@ import javax.accessibility.*;
  * @see         java.awt.Component#addMouseListener
  * @since       JDK1.0
  */
-public class Button extends Component implements Accessible {
+public class Button extends Component {
 
     /**
      * The button's label.  This value may be null.
@@ -113,20 +114,10 @@ public class Button extends Component implements Accessible {
      */
     private static final long serialVersionUID = -8774683716313001058L;
 
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
+    @Override
+    protected View createAndroidComponent() {
+        return new android.widget.Button(androidContext);
     }
-
-    /**
-     * Initialize JNI field and method IDs for fields that may be
-     * accessed from C.
-     */
-    private static native void initIDs();
 
     /**
      * Constructs a button with an empty string for its label.
@@ -149,8 +140,11 @@ public class Button extends Component implements Accessible {
      * @see java.awt.GraphicsEnvironment#isHeadless
      */
     public Button(String label) throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
+        super(SkinJobWrappedAndroidObjectsSupplier.forClass(android.widget.Button.class));
         this.label = label;
+        SkinJobButtonPeer peer = new SkinJobButtonPeer(this);
+        this.peer = peer;
+        peer.setLabel(label);
     }
 
     /**
@@ -494,182 +488,4 @@ public class Button extends Component implements Accessible {
           s.readObject();
       }
     }
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-    /**
-     * Gets the <code>AccessibleContext</code> associated with
-     * this <code>Button</code>. For buttons, the
-     * <code>AccessibleContext</code> takes the form of an
-     * <code>AccessibleAWTButton</code>.
-     * A new <code>AccessibleAWTButton</code> instance is
-     * created if necessary.
-     *
-     * @return an <code>AccessibleAWTButton</code> that serves as the
-     *         <code>AccessibleContext</code> of this <code>Button</code>
-     * @beaninfo
-     *       expert: true
-     *  description: The AccessibleContext associated with this Button.
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTButton();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Button</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to button user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTButton extends AccessibleAWTComponent
-        implements AccessibleAction, AccessibleValue
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = -5932203980244017102L;
-
-        /**
-         * Get the accessible name of this object.
-         *
-         * @return the localized name of the object -- can be null if this
-         * object does not have a name
-         */
-        public String getAccessibleName() {
-            if (accessibleName != null) {
-                return accessibleName;
-            } else {
-                if (getLabel() == null) {
-                    return super.getAccessibleName();
-                } else {
-                    return getLabel();
-                }
-            }
-        }
-
-        /**
-         * Get the AccessibleAction associated with this object.  In the
-         * implementation of the Java Accessibility API for this class,
-         * return this object, which is responsible for implementing the
-         * AccessibleAction interface on behalf of itself.
-         *
-         * @return this object
-         */
-        public AccessibleAction getAccessibleAction() {
-            return this;
-        }
-
-        /**
-         * Get the AccessibleValue associated with this object.  In the
-         * implementation of the Java Accessibility API for this class,
-         * return this object, which is responsible for implementing the
-         * AccessibleValue interface on behalf of itself.
-         *
-         * @return this object
-         */
-        public AccessibleValue getAccessibleValue() {
-            return this;
-        }
-
-        /**
-         * Returns the number of Actions available in this object.  The
-         * default behavior of a button is to have one action - toggle
-         * the button.
-         *
-         * @return 1, the number of Actions in this object
-         */
-        public int getAccessibleActionCount() {
-            return 1;
-        }
-
-        /**
-         * Return a description of the specified action of the object.
-         *
-         * @param i zero-based index of the actions
-         */
-        public String getAccessibleActionDescription(int i) {
-            if (i == 0) {
-                // [[[PENDING:  WDW -- need to provide a localized string]]]
-                return "click";
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * Perform the specified Action on the object
-         *
-         * @param i zero-based index of actions
-         * @return true if the the action was performed; else false.
-         */
-        public boolean doAccessibleAction(int i) {
-            if (i == 0) {
-                // Simulate a button click
-                Toolkit.getEventQueue().postEvent(
-                        new ActionEvent(Button.this,
-                                        ActionEvent.ACTION_PERFORMED,
-                                        Button.this.getActionCommand()));
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * Get the value of this object as a Number.
-         *
-         * @return An Integer of 0 if this isn't selected or an Integer of 1 if
-         * this is selected.
-         * @see javax.swing.AbstractButton#isSelected()
-         */
-        public Number getCurrentAccessibleValue() {
-            return Integer.valueOf(0);
-        }
-
-        /**
-         * Set the value of this object as a Number.
-         *
-         * @return True if the value was set.
-         */
-        public boolean setCurrentAccessibleValue(Number n) {
-            return false;
-        }
-
-        /**
-         * Get the minimum value of this object as a Number.
-         *
-         * @return An Integer of 0.
-         */
-        public Number getMinimumAccessibleValue() {
-            return Integer.valueOf(0);
-        }
-
-        /**
-         * Get the maximum value of this object as a Number.
-         *
-         * @return An Integer of 0.
-         */
-        public Number getMaximumAccessibleValue() {
-            return Integer.valueOf(0);
-        }
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.PUSH_BUTTON;
-        }
-    } // inner class AccessibleAWTButton
-
 }

@@ -57,7 +57,6 @@ public class Label extends Component implements Accessible {
         /* ensure that the necessary native libraries are loaded */
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
         }
     }
 
@@ -280,81 +279,5 @@ public class Label extends Component implements Accessible {
         }
         return super.paramString() + ",align=" + align + ",text=" + text;
     }
-
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-
-    /**
-     * Gets the AccessibleContext associated with this Label.
-     * For labels, the AccessibleContext takes the form of an
-     * AccessibleAWTLabel.
-     * A new AccessibleAWTLabel instance is created if necessary.
-     *
-     * @return an AccessibleAWTLabel that serves as the
-     *         AccessibleContext of this Label
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTLabel();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Label</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to label user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTLabel extends AccessibleAWTComponent
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = -3568967560160480438L;
-
-        public AccessibleAWTLabel() {
-            super();
-        }
-
-        /**
-         * Get the accessible name of this object.
-         *
-         * @return the localized name of the object -- can be null if this
-         * object does not have a name
-         * @see AccessibleContext#setAccessibleName
-         */
-        public String getAccessibleName() {
-            if (accessibleName != null) {
-                return accessibleName;
-            } else {
-                if (getText() == null) {
-                    return super.getAccessibleName();
-                } else {
-                    return getText();
-                }
-            }
-        }
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.LABEL;
-        }
-
-    } // inner class AccessibleAWTLabel
 
 }

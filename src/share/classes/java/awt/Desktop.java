@@ -25,6 +25,8 @@
 
 package java.awt;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -123,6 +125,7 @@ public class Desktop {
      */
     private Desktop() {
         peer = Toolkit.getDefaultToolkit().createDesktopPeer(this);
+        androidContext = SkinJobUtil.getAndroidApplicationContext();
     }
 
     /**

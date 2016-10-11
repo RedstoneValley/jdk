@@ -108,7 +108,6 @@ public class Choice extends Component implements ItemSelectable, Accessible {
         Toolkit.loadLibraries();
         /* initialize JNI field and method ids */
         if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
         }
     }
 
@@ -716,110 +715,5 @@ public class Choice extends Component implements ItemSelectable, Accessible {
           s.readObject();
       }
     }
-
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-/////////////////
-// Accessibility support
-////////////////
-
-
-    /**
-     * Gets the <code>AccessibleContext</code> associated with this
-     * <code>Choice</code>. For <code>Choice</code> components,
-     * the <code>AccessibleContext</code> takes the form of an
-     * <code>AccessibleAWTChoice</code>. A new <code>AccessibleAWTChoice</code>
-     * instance is created if necessary.
-     *
-     * @return an <code>AccessibleAWTChoice</code> that serves as the
-     *         <code>AccessibleContext</code> of this <code>Choice</code>
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTChoice();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Choice</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to choice user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTChoice extends AccessibleAWTComponent
-        implements AccessibleAction
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 7175603582428509322L;
-
-        public AccessibleAWTChoice() {
-            super();
-        }
-
-        /**
-         * Get the AccessibleAction associated with this object.  In the
-         * implementation of the Java Accessibility API for this class,
-         * return this object, which is responsible for implementing the
-         * AccessibleAction interface on behalf of itself.
-         *
-         * @return this object
-         * @see AccessibleAction
-         */
-        public AccessibleAction getAccessibleAction() {
-            return this;
-        }
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.COMBO_BOX;
-        }
-
-        /**
-         * Returns the number of accessible actions available in this object
-         * If there are more than one, the first one is considered the "default"
-         * action of the object.
-         *
-         * @return the zero-based number of Actions in this object
-         */
-        public int getAccessibleActionCount() {
-            return 0;  //  To be fully implemented in a future release
-        }
-
-        /**
-         * Returns a description of the specified action of the object.
-         *
-         * @param i zero-based index of the actions
-         * @return a String description of the action
-         * @see #getAccessibleActionCount
-         */
-        public String getAccessibleActionDescription(int i) {
-            return null;  //  To be fully implemented in a future release
-        }
-
-        /**
-         * Perform the specified Action on the object
-         *
-         * @param i zero-based index of actions
-         * @return true if the action was performed; otherwise false.
-         * @see #getAccessibleActionCount
-         */
-        public boolean doAccessibleAction(int i) {
-            return false;  //  To be fully implemented in a future release
-        }
-
-    } // inner class AccessibleAWTChoice
 
 }

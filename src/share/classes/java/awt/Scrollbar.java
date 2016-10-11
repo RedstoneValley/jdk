@@ -24,14 +24,14 @@
  */
 package java.awt;
 
+import android.view.View;
+
 import java.awt.peer.ScrollbarPeer;
 import java.awt.event.*;
 import java.util.EventListener;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
-
 
 /**
  * The <code>Scrollbar</code> class embodies a scroll bar, a
@@ -163,7 +163,7 @@ import javax.accessibility.*;
  * @see         java.awt.event.AdjustmentListener
  * @since       JDK1.0
  */
-public class Scrollbar extends Component implements Adjustable, Accessible {
+public class Scrollbar extends Component implements Adjustable {
 
     /**
      * A constant that indicates a horizontal scroll bar.
@@ -278,17 +278,16 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
      */
     private static final long serialVersionUID = 8451667562882310543L;
 
-    /**
-     * Initialize JNI field and method IDs.
-     */
-    private static native void initIDs();
-
     static {
         /* ensure that the necessary native libraries are loaded */
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
         }
+    }
+
+    @Override
+    protected View createAndroidComponent() {
+        return null; // TODO
     }
 
     /**
@@ -481,14 +480,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                 addNotify();
                 invalidate();
             }
-        }
-        if (accessibleContext != null) {
-            accessibleContext.firePropertyChange(
-                    AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                    ((orientation == VERTICAL)
-                     ? AccessibleState.HORIZONTAL : AccessibleState.VERTICAL),
-                    ((orientation == VERTICAL)
-                     ? AccessibleState.VERTICAL : AccessibleState.HORIZONTAL));
         }
     }
 
@@ -913,13 +904,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
                 peer.setValues(value, visibleAmount, minimum, maximum);
             }
         }
-
-        if ((oldValue != value) && (accessibleContext != null))  {
-            accessibleContext.firePropertyChange(
-                    AccessibleContext.ACCESSIBLE_VALUE_PROPERTY,
-                    Integer.valueOf(oldValue),
-                    Integer.valueOf(value));
-        }
     }
 
     /**
@@ -947,13 +931,6 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
         synchronized (this) {
             oldValue = isAdjusting;
             isAdjusting = b;
-        }
-
-        if ((oldValue != b) && (accessibleContext != null)) {
-            accessibleContext.firePropertyChange(
-                    AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                    ((oldValue) ? AccessibleState.BUSY : null),
-                    ((b) ? AccessibleState.BUSY : null));
         }
     }
 
@@ -1215,129 +1192,4 @@ public class Scrollbar extends Component implements Adjustable, Accessible {
           s.readObject();
       }
     }
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-    /**
-     * Gets the <code>AccessibleContext</code> associated with this
-     * <code>Scrollbar</code>. For scrollbars, the
-     * <code>AccessibleContext</code> takes the form of an
-     * <code>AccessibleAWTScrollBar</code>. A new
-     * <code>AccessibleAWTScrollBar</code> instance is created if necessary.
-     *
-     * @return an <code>AccessibleAWTScrollBar</code> that serves as the
-     *         <code>AccessibleContext</code> of this <code>ScrollBar</code>
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTScrollBar();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Scrollbar</code> class.  It provides an implementation of
-     * the Java Accessibility API appropriate to scrollbar
-     * user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTScrollBar extends AccessibleAWTComponent
-        implements AccessibleValue
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = -344337268523697807L;
-
-        /**
-         * Get the state set of this object.
-         *
-         * @return an instance of <code>AccessibleState</code>
-         *     containing the current state of the object
-         * @see AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            if (getValueIsAdjusting()) {
-                states.add(AccessibleState.BUSY);
-            }
-            if (getOrientation() == VERTICAL) {
-                states.add(AccessibleState.VERTICAL);
-            } else {
-                states.add(AccessibleState.HORIZONTAL);
-            }
-            return states;
-        }
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of <code>AccessibleRole</code>
-         *     describing the role of the object
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.SCROLL_BAR;
-        }
-
-        /**
-         * Get the <code>AccessibleValue</code> associated with this
-         * object.  In the implementation of the Java Accessibility
-         * API for this class, return this object, which is
-         * responsible for implementing the
-         * <code>AccessibleValue</code> interface on behalf of itself.
-         *
-         * @return this object
-         */
-        public AccessibleValue getAccessibleValue() {
-            return this;
-        }
-
-        /**
-         * Get the accessible value of this object.
-         *
-         * @return The current value of this object.
-         */
-        public Number getCurrentAccessibleValue() {
-            return Integer.valueOf(getValue());
-        }
-
-        /**
-         * Set the value of this object as a Number.
-         *
-         * @return True if the value was set.
-         */
-        public boolean setCurrentAccessibleValue(Number n) {
-            if (n instanceof Integer) {
-                setValue(n.intValue());
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        /**
-         * Get the minimum accessible value of this object.
-         *
-         * @return The minimum value of this object.
-         */
-        public Number getMinimumAccessibleValue() {
-            return Integer.valueOf(getMinimum());
-        }
-
-        /**
-         * Get the maximum accessible value of this object.
-         *
-         * @return The maximum value of this object.
-         */
-        public Number getMaximumAccessibleValue() {
-            return Integer.valueOf(getMaximum());
-        }
-
-    } // AccessibleAWTScrollBar
-
 }

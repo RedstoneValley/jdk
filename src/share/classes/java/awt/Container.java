@@ -24,44 +24,42 @@
  */
 package java.awt;
 
+import android.util.Log;
+import android.view.View;
+
 import java.awt.dnd.DropTarget;
-
-import java.awt.event.*;
-
-import java.awt.peer.ContainerPeer;
+import java.awt.event.AWTEventListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ContainerEvent;
+import java.awt.event.ContainerListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.peer.ComponentPeer;
+import java.awt.peer.ContainerPeer;
 import java.awt.peer.LightweightPeer;
-
 import java.beans.PropertyChangeListener;
-
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-
-import java.security.AccessController;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.accessibility.*;
-
-import sun.util.logging.PlatformLogger;
-
-import sun.awt.AppContext;
 import sun.awt.AWTAccessor;
+import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
-
 import sun.awt.dnd.SunDropTargetEvent;
-
 import sun.java2d.pipe.Region;
-
-import sun.security.action.GetBooleanAction;
 
 /**
  * A generic Abstract Window Toolkit(AWT) container object is a component
@@ -89,8 +87,7 @@ import sun.security.action.GetBooleanAction;
  */
 public class Container extends Component {
 
-    private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.Container");
-    private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.Container");
+    private static final String TAG = "java.awt.Container";
 
     private static final Component[] EMPTY_ARRAY = new Component[0];
 
@@ -205,8 +202,6 @@ public class Container extends Component {
     private transient int numOfHWComponents = 0;
     private transient int numOfLWComponents = 0;
 
-    private static final PlatformLogger mixingLog = PlatformLogger.getLogger("java.awt.mixing.Container");
-
     /**
      * @serialField ncomponents                     int
      *       The number of components in this container.
@@ -248,9 +243,6 @@ public class Container extends Component {
     static {
         /* ensure that the necessary native libraries are loaded */
         Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
 
         AWTAccessor.setContainerAccessor(new AWTAccessor.ContainerAccessor() {
             @Override
@@ -266,11 +258,10 @@ public class Container extends Component {
         });
     }
 
-    /**
-     * Initialize JNI field and method IDs for fields that may be
-       called from C.
-     */
-    private static native void initIDs();
+    @Override
+    protected View createAndroidComponent() {
+        return null; // TODO
+    }
 
     /**
      * Constructs a new Container. Containers can be extended directly,
@@ -408,7 +399,6 @@ public class Container extends Component {
      * @see #addImpl
      * @see #invalidate
      * @see #validate
-     * @see javax.swing.JComponent#revalidate()
      * @return    the component argument
      */
     public Component add(Component comp) {
@@ -963,7 +953,6 @@ public class Container extends Component {
      * @see #addImpl
      * @see #invalidate
      * @see #validate
-     * @see javax.swing.JComponent#revalidate()
      * @see       LayoutManager
      * @since     JDK1.1
      */
@@ -1325,33 +1314,33 @@ public class Container extends Component {
         int superListening = super.numListening(mask);
 
         if (mask == AWTEvent.HIERARCHY_EVENT_MASK) {
-            if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
+            if (true) {
                 // Verify listeningChildren is correct
                 int sum = 0;
                 for (Component comp : component) {
                     sum += comp.numListening(mask);
                 }
                 if (listeningChildren != sum) {
-                    eventLog.fine("Assertion (listeningChildren == sum) failed");
+                    Log.d(TAG, "Event: Assertion (listeningChildren == sum) failed");
                 }
             }
             return listeningChildren + superListening;
         } else if (mask == AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) {
-            if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
+            if (true) {
                 // Verify listeningBoundsChildren is correct
                 int sum = 0;
                 for (Component comp : component) {
                     sum += comp.numListening(mask);
                 }
                 if (listeningBoundsChildren != sum) {
-                    eventLog.fine("Assertion (listeningBoundsChildren == sum) failed");
+                    Log.d(TAG, "Event: Assertion (listeningBoundsChildren == sum) failed");
                 }
             }
             return listeningBoundsChildren + superListening;
         } else {
             // assert false;
-            if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                eventLog.fine("This code must never be reached");
+            if (true) {
+                Log.d(TAG, "Event: This code must never be reached");
             }
             return superListening;
         }
@@ -1359,13 +1348,13 @@ public class Container extends Component {
 
     // Should only be called while holding tree lock
     void adjustListeningChildren(long mask, int num) {
-        if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
+        if (true) {
             boolean toAssert = (mask == AWTEvent.HIERARCHY_EVENT_MASK ||
                                 mask == AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK ||
                                 mask == (AWTEvent.HIERARCHY_EVENT_MASK |
                                          AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK));
             if (!toAssert) {
-                eventLog.fine("Assertion failed");
+                Log.d(TAG, "Event: Assertion failed");
             }
         }
 
@@ -1400,14 +1389,14 @@ public class Container extends Component {
 
     // Should only be called while holding tree lock
     int countHierarchyMembers() {
-        if (log.isLoggable(PlatformLogger.Level.FINE)) {
+        if (true) {
             // Verify descendantsCount is correct
             int sum = 0;
             for (Component comp : component) {
                 sum += comp.countHierarchyMembers();
             }
             if (descendantsCount != sum) {
-                log.fine("Assertion (descendantsCount == sum) failed");
+                Log.d(TAG, "Assertion (descendantsCount == sum) failed");
             }
         }
         return descendantsCount + 1;
@@ -1534,8 +1523,6 @@ public class Container extends Component {
      * @return whether this container is a validate root
      * @see #invalidate
      * @see java.awt.Component#invalidate
-     * @see javax.swing.JComponent#isValidateRoot
-     * @see javax.swing.JComponent#revalidate
      * @since 1.7
      */
     public boolean isValidateRoot() {
@@ -1545,8 +1532,7 @@ public class Container extends Component {
     private static final boolean isJavaAwtSmartInvalidate;
     static {
         // Don't lazy-read because every app uses invalidate()
-        isJavaAwtSmartInvalidate = AccessController.doPrivileged(
-                new GetBooleanAction("java.awt.smartInvalidate"));
+        isJavaAwtSmartInvalidate = "true".equals(System.getProperty("java.awt.smartInvalidate"));
     }
 
     /**
@@ -1609,7 +1595,6 @@ public class Container extends Component {
      * @see #add(java.awt.Component)
      * @see #invalidate
      * @see Container#isValidateRoot
-     * @see javax.swing.JComponent#revalidate()
      * @see #validateTree
      */
     public void validate() {
@@ -2868,7 +2853,15 @@ public class Container extends Component {
         // keep the KeyEvents from being dispatched
         // until the focus has been transfered
         long time = Toolkit.getEventQueue().getMostRecentKeyEventTime();
-        Component predictedFocusOwner = (Component.isInstanceOf(this, "javax.swing.JInternalFrame")) ? ((javax.swing.JInternalFrame)(this)).getMostRecentFocusOwner() : null;
+        Component predictedFocusOwner = null;
+        try {
+            Class<?> jInternalFrameClass = Class.forName("javax.swing.JInternalFrame");
+            if (jInternalFrameClass.isInstance(this)) {
+                Method getMostRecentFocusOwner = jInternalFrameClass.getDeclaredMethod("getMostRecentFocusOwner");
+                predictedFocusOwner = (Component) getMostRecentFocusOwner.invoke(this);
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
+                | InvocationTargetException ignored) {}
         if (predictedFocusOwner != null) {
             KeyboardFocusManager.getCurrentKeyboardFocusManager().
                 enqueueKeyEvents(time, predictedFocusOwner);
@@ -3781,233 +3774,6 @@ public class Container extends Component {
         }
     }
 
-    /*
-     * --- Accessibility Support ---
-     */
-
-    /**
-     * Inner class of Container used to provide default support for
-     * accessibility.  This class is not meant to be used directly by
-     * application developers, but is instead meant only to be
-     * subclassed by container developers.
-     * <p>
-     * The class used to obtain the accessible role for this object,
-     * as well as implementing many of the methods in the
-     * AccessibleContainer interface.
-     * @since 1.3
-     */
-    protected class AccessibleAWTContainer extends AccessibleAWTComponent {
-
-        /**
-         * JDK1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 5081320404842566097L;
-
-        /**
-         * Returns the number of accessible children in the object.  If all
-         * of the children of this object implement <code>Accessible</code>,
-         * then this method should return the number of children of this object.
-         *
-         * @return the number of accessible children in the object
-         */
-        public int getAccessibleChildrenCount() {
-            return Container.this.getAccessibleChildrenCount();
-        }
-
-        /**
-         * Returns the nth <code>Accessible</code> child of the object.
-         *
-         * @param i zero-based index of child
-         * @return the nth <code>Accessible</code> child of the object
-         */
-        public Accessible getAccessibleChild(int i) {
-            return Container.this.getAccessibleChild(i);
-        }
-
-        /**
-         * Returns the <code>Accessible</code> child, if one exists,
-         * contained at the local coordinate <code>Point</code>.
-         *
-         * @param p the point defining the top-left corner of the
-         *    <code>Accessible</code>, given in the coordinate space
-         *    of the object's parent
-         * @return the <code>Accessible</code>, if it exists,
-         *    at the specified location; else <code>null</code>
-         */
-        public Accessible getAccessibleAt(Point p) {
-            return Container.this.getAccessibleAt(p);
-        }
-
-        /**
-         * Number of PropertyChangeListener objects registered. It's used
-         * to add/remove ContainerListener to track target Container's state.
-         */
-        private volatile transient int propertyListenersCount = 0;
-
-        protected ContainerListener accessibleContainerHandler = null;
-
-        /**
-         * Fire <code>PropertyChange</code> listener, if one is registered,
-         * when children are added or removed.
-         * @since 1.3
-         */
-        protected class AccessibleContainerHandler
-            implements ContainerListener {
-            public void componentAdded(ContainerEvent e) {
-                Component c = e.getChild();
-                if (c != null && c instanceof Accessible) {
-                    AccessibleAWTContainer.this.firePropertyChange(
-                        AccessibleContext.ACCESSIBLE_CHILD_PROPERTY,
-                        null, ((Accessible) c).getAccessibleContext());
-                }
-            }
-            public void componentRemoved(ContainerEvent e) {
-                Component c = e.getChild();
-                if (c != null && c instanceof Accessible) {
-                    AccessibleAWTContainer.this.firePropertyChange(
-                        AccessibleContext.ACCESSIBLE_CHILD_PROPERTY,
-                        ((Accessible) c).getAccessibleContext(), null);
-                }
-            }
-        }
-
-        /**
-         * Adds a PropertyChangeListener to the listener list.
-         *
-         * @param listener  the PropertyChangeListener to be added
-         */
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
-            if (accessibleContainerHandler == null) {
-                accessibleContainerHandler = new AccessibleContainerHandler();
-            }
-            if (propertyListenersCount++ == 0) {
-                Container.this.addContainerListener(accessibleContainerHandler);
-            }
-            super.addPropertyChangeListener(listener);
-        }
-
-        /**
-         * Remove a PropertyChangeListener from the listener list.
-         * This removes a PropertyChangeListener that was registered
-         * for all properties.
-         *
-         * @param listener the PropertyChangeListener to be removed
-         */
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
-            if (--propertyListenersCount == 0) {
-                Container.this.removeContainerListener(accessibleContainerHandler);
-            }
-            super.removePropertyChangeListener(listener);
-        }
-
-    } // inner class AccessibleAWTContainer
-
-    /**
-     * Returns the <code>Accessible</code> child contained at the local
-     * coordinate <code>Point</code>, if one exists.  Otherwise
-     * returns <code>null</code>.
-     *
-     * @param p the point defining the top-left corner of the
-     *    <code>Accessible</code>, given in the coordinate space
-     *    of the object's parent
-     * @return the <code>Accessible</code> at the specified location,
-     *    if it exists; otherwise <code>null</code>
-     */
-    Accessible getAccessibleAt(Point p) {
-        synchronized (getTreeLock()) {
-            if (this instanceof Accessible) {
-                Accessible a = (Accessible)this;
-                AccessibleContext ac = a.getAccessibleContext();
-                if (ac != null) {
-                    AccessibleComponent acmp;
-                    Point location;
-                    int nchildren = ac.getAccessibleChildrenCount();
-                    for (int i=0; i < nchildren; i++) {
-                        a = ac.getAccessibleChild(i);
-                        if ((a != null)) {
-                            ac = a.getAccessibleContext();
-                            if (ac != null) {
-                                acmp = ac.getAccessibleComponent();
-                                if ((acmp != null) && (acmp.isShowing())) {
-                                    location = acmp.getLocation();
-                                    Point np = new Point(p.x-location.x,
-                                                         p.y-location.y);
-                                    if (acmp.contains(np)){
-                                        return a;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                return (Accessible)this;
-            } else {
-                Component ret = this;
-                if (!this.contains(p.x,p.y)) {
-                    ret = null;
-                } else {
-                    int ncomponents = this.getComponentCount();
-                    for (int i=0; i < ncomponents; i++) {
-                        Component comp = this.getComponent(i);
-                        if ((comp != null) && comp.isShowing()) {
-                            Point location = comp.getLocation();
-                            if (comp.contains(p.x-location.x,p.y-location.y)) {
-                                ret = comp;
-                            }
-                        }
-                    }
-                }
-                if (ret instanceof Accessible) {
-                    return (Accessible) ret;
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * Returns the number of accessible children in the object.  If all
-     * of the children of this object implement <code>Accessible</code>,
-     * then this method should return the number of children of this object.
-     *
-     * @return the number of accessible children in the object
-     */
-    int getAccessibleChildrenCount() {
-        synchronized (getTreeLock()) {
-            int count = 0;
-            Component[] children = this.getComponents();
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] instanceof Accessible) {
-                    count++;
-                }
-            }
-            return count;
-        }
-    }
-
-    /**
-     * Returns the nth <code>Accessible</code> child of the object.
-     *
-     * @param i zero-based index of child
-     * @return the nth <code>Accessible</code> child of the object
-     */
-    Accessible getAccessibleChild(int i) {
-        synchronized (getTreeLock()) {
-            Component[] children = this.getComponents();
-            int count = 0;
-            for (int j = 0; j < children.length; j++) {
-                if (children[j] instanceof Accessible) {
-                    if (count == i) {
-                        return (Accessible) children[j];
-                    } else {
-                        count++;
-                    }
-                }
-            }
-            return null;
-        }
-    }
-
     // ************************** MIXING CODE *******************************
 
     final void increaseComponentCount(Component c) {
@@ -4114,10 +3880,8 @@ public class Container extends Component {
 
     final void recursiveSubtractAndApplyShape(Region shape, int fromZorder, int toZorder) {
         checkTreeLock();
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("this = " + this +
-                "; shape=" + shape + "; fromZ=" + fromZorder + "; toZ=" + toZorder);
-        }
+        Log.d(TAG, "Mixing: this = " + this +
+                    "; shape=" + shape + "; fromZ=" + fromZorder + "; toZ=" + toZorder);
         if (fromZorder == -1) {
             return;
         }
@@ -4151,10 +3915,8 @@ public class Container extends Component {
 
     final void recursiveApplyCurrentShape(int fromZorder, int toZorder) {
         checkTreeLock();
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("this = " + this +
+        Log.d(TAG, "Mixing: this = " + this +
                 "; fromZ=" + fromZorder + "; toZ=" + toZorder);
-        }
         if (fromZorder == -1) {
             return;
         }
@@ -4268,9 +4030,7 @@ public class Container extends Component {
     @Override
     void mixOnShowing() {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this);
-            }
+            Log.d(TAG, "Mixing: mixOnShowing: this = " + this);
 
             boolean isLightweight = isLightweight();
 
@@ -4282,7 +4042,7 @@ public class Container extends Component {
                 return;
             }
 
-            if (!isLightweight || (isLightweight && hasHeavyweightDescendants())) {
+            if (!isLightweight || hasHeavyweightDescendants()) {
                 recursiveApplyCurrentShape();
             }
 
@@ -4293,10 +4053,8 @@ public class Container extends Component {
     @Override
     void mixOnHiding(boolean isLightweight) {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this +
+            Log.d(TAG, "Mixing: mixOnHiding: this = " + this +
                         "; isLightweight=" + isLightweight);
-            }
             if (isLightweight) {
                 recursiveHideHeavyweightChildren();
             }
@@ -4307,9 +4065,7 @@ public class Container extends Component {
     @Override
     void mixOnReshaping() {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this);
-            }
+            Log.d(TAG, "Mixing: mixOnReshaping: this = " + this);
 
             boolean isMixingNeeded = isMixingNeeded();
 
@@ -4342,10 +4098,8 @@ public class Container extends Component {
     @Override
     void mixOnZOrderChanging(int oldZorder, int newZorder) {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this +
+            Log.d(TAG, "Mixing: mixOnZOrderChanging: this = " + this +
                     "; oldZ=" + oldZorder + "; newZ=" + newZorder);
-            }
 
             if (!isMixingNeeded()) {
                 return;
@@ -4363,9 +4117,7 @@ public class Container extends Component {
     @Override
     void mixOnValidating() {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this);
-            }
+            Log.d(TAG, "Mixing: mixOnValidating: this = " + this);
 
             if (!isMixingNeeded()) {
                 return;
@@ -4409,7 +4161,7 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
      */
     private static final int  LWD_MOUSE_DRAGGED_OVER = 1500;
 
-    private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.LightweightDispatcher");
+    private static final String TAG = "LightweightDispatcher";
 
     LightweightDispatcher(Container nativeContainer) {
         this.nativeContainer = nativeContainer;
@@ -4554,11 +4306,9 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
             // This may send it somewhere that doesn't have MouseWheelEvents
             // enabled.  In this case, Component.dispatchEventImpl() will
             // retarget the event to a parent that DOES have the events enabled.
-            if (eventLog.isLoggable(PlatformLogger.Level.FINEST) && (mouseOver != null)) {
-                eventLog.finest("retargeting mouse wheel to " +
+            Log.v(TAG, "retargeting mouse wheel to " +
                                 mouseOver.getName() + ", " +
                                 mouseOver.getClass());
-            }
             retargetMouseEvent(mouseOver, id, e);
         break;
             }

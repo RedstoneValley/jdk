@@ -27,17 +27,15 @@ package java.awt;
 import java.awt.peer.FramePeer;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Vector;
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import sun.awt.AppContext;
+
 import sun.awt.SunToolkit;
 import sun.awt.AWTAccessor;
-import java.lang.ref.WeakReference;
+
 import javax.accessibility.*;
 
 /**
@@ -1252,72 +1250,4 @@ public class Frame extends Window implements MenuContainer {
      * Initialize JNI field and method IDs
      */
     private static native void initIDs();
-
-    /*
-     * --- Accessibility Support ---
-     *
-     */
-
-    /**
-     * Gets the AccessibleContext associated with this Frame.
-     * For frames, the AccessibleContext takes the form of an
-     * AccessibleAWTFrame.
-     * A new AccessibleAWTFrame instance is created if necessary.
-     *
-     * @return an AccessibleAWTFrame that serves as the
-     *         AccessibleContext of this Frame
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTFrame();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Frame</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to frame user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTFrame extends AccessibleAWTWindow
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = -6172960752956030250L;
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.FRAME;
-        }
-
-        /**
-         * Get the state of this object.
-         *
-         * @return an instance of AccessibleStateSet containing the current
-         * state set of the object
-         * @see AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            if (getFocusOwner() != null) {
-                states.add(AccessibleState.ACTIVE);
-            }
-            if (isResizable()) {
-                states.add(AccessibleState.RESIZABLE);
-            }
-            return states;
-        }
-
-
-    } // inner class AccessibleAWTFrame
-
 }

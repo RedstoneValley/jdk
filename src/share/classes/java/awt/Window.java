@@ -24,12 +24,13 @@
  */
 package java.awt;
 
+import android.util.Log;
+
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 import java.awt.geom.Point2D;
 import java.awt.im.InputContext;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.WindowPeer;
 import java.beans.PropertyChangeListener;
@@ -40,7 +41,7 @@ import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
-import java.security.AccessController;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EventListener;
@@ -49,17 +50,12 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.accessibility.*;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.SunToolkit;
 import sun.awt.util.IdentityArrayList;
-import sun.java2d.Disposer;
 import sun.java2d.pipe.Region;
-import sun.security.action.GetPropertyAction;
-import sun.security.util.SecurityConstants;
-import sun.util.logging.PlatformLogger;
 
 /**
  * A {@code Window} object is a top-level window with no borders and no
@@ -145,7 +141,9 @@ import sun.util.logging.PlatformLogger;
  * @see java.awt.BorderLayout
  * @since       JDK1.0
  */
-public class Window extends Container implements Accessible {
+public class Window extends Container {
+
+    private static final String TAG = "java.awt.Window";
 
     /**
      * Enumeration of available <i>window types</i>.
@@ -369,8 +367,6 @@ public class Window extends Container implements Accessible {
      */
     private static final long serialVersionUID = 4497834738069338734L;
 
-    private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.Window");
-
     private static final boolean locationByPlatformProp;
 
     transient boolean isTrayIconWindow = false;
@@ -396,22 +392,13 @@ public class Window extends Container implements Accessible {
         /* ensure that the necessary native libraries are loaded */
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
         }
 
-        String s = java.security.AccessController.doPrivileged(
-            new GetPropertyAction("java.awt.syncLWRequests"));
+        String s = System.getProperty("java.awt.syncLWRequests");
         systemSyncLWRequests = (s != null && s.equals("true"));
-        s = java.security.AccessController.doPrivileged(
-            new GetPropertyAction("java.awt.Window.locationByPlatform"));
+        s = System.getProperty("java.awt.Window.locationByPlatform");
         locationByPlatformProp = (s != null && s.equals("true"));
     }
-
-    /**
-     * Initialize JNI field and method IDs for fields that may be
-       accessed from C.
-     */
-    private static native void initIDs();
 
     /**
      * Constructs a new, initially invisible window in default size with the
@@ -1382,20 +1369,7 @@ public class Window extends Container implements Accessible {
     }
 
     private void setWarningString() {
-        warningString = null;
-        SecurityManager sm = System.getSecurityManager();
-        if (sm != null) {
-            try {
-                sm.checkPermission(SecurityConstants.AWT.TOPLEVEL_WINDOW_PERMISSION);
-            } catch (SecurityException se) {
-                // make sure the privileged action is only
-                // for getting the property! We don't want the
-                // above checkPermission call to always succeed!
-                warningString = AccessController.doPrivileged(
-                      new GetPropertyAction("awt.appletWarning",
-                                            "Java Applet Window"));
-            }
-        }
+        warningString = System.getProperty("awt.appletWarning", "Java Applet Window");
     }
 
     /**
@@ -1676,12 +1650,6 @@ public class Window extends Container implements Accessible {
         }
         if (modalExclusionType == exclusionType) {
             return;
-        }
-        if (exclusionType == Dialog.ModalExclusionType.TOOLKIT_EXCLUDE) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(SecurityConstants.AWT.TOOLKIT_MODALITY_PERMISSION);
-            }
         }
         modalExclusionType = exclusionType;
 
@@ -2226,11 +2194,6 @@ public class Window extends Container implements Accessible {
      * @since 1.5
      */
     public final void setAlwaysOnTop(boolean alwaysOnTop) throws SecurityException {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(SecurityConstants.AWT.SET_WINDOW_ALWAYS_ON_TOP_PERMISSION);
-        }
-
         boolean oldAlwaysOnTop;
         synchronized(this) {
             oldAlwaysOnTop = this.alwaysOnTop;
@@ -3109,64 +3072,6 @@ public class Window extends Container implements Accessible {
      *
      */
 
-    /**
-     * Gets the AccessibleContext associated with this Window.
-     * For windows, the AccessibleContext takes the form of an
-     * AccessibleAWTWindow.
-     * A new AccessibleAWTWindow instance is created if necessary.
-     *
-     * @return an AccessibleAWTWindow that serves as the
-     *         AccessibleContext of this Window
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTWindow();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * {@code Window} class.  It provides an implementation of the
-     * Java Accessibility API appropriate to window user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTWindow extends AccessibleAWTContainer
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 4215068635060671780L;
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see javax.accessibility.AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.WINDOW;
-        }
-
-        /**
-         * Get the state of this object.
-         *
-         * @return an instance of AccessibleStateSet containing the current
-         * state set of the object
-         * @see javax.accessibility.AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            if (getFocusOwner() != null) {
-                states.add(AccessibleState.ACTIVE);
-            }
-            return states;
-        }
-
-    } // inner class AccessibleAWTWindow
-
     @Override
     void setGraphicsConfiguration(GraphicsConfiguration gc) {
         if (gc == null) {
@@ -3177,8 +3082,8 @@ public class Window extends Container implements Accessible {
         }
         synchronized (getTreeLock()) {
             super.setGraphicsConfiguration(gc);
-            if (log.isLoggable(PlatformLogger.Level.FINER)) {
-                log.finer("+ Window.setGraphicsConfiguration(): new GC is \n+ " + getGraphicsConfiguration_NoClientCode() + "\n+ this is " + this);
+            if (true) {
+                Log.v(TAG, "+ Window.setGraphicsConfiguration(): new GC is \n+ " + getGraphicsConfiguration_NoClientCode() + "\n+ this is " + this);
             }
         }
     }
@@ -3912,29 +3817,40 @@ public class Window extends Container implements Accessible {
         super.paint(g);
     }
 
+    private static Object tryInvokeMethod(Object o, String name, Object... args) {
+        if (o == null) {
+            return null;
+        }
+        try {
+            Class<?> oClass = o.getClass();
+            Method method = oClass.getMethod(name);
+            return method.invoke(o, (Object[]) args);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            return null;
+        }
+    }
+
     private static void setLayersOpaque(Component component, boolean isOpaque) {
         // Shouldn't use instanceof to avoid loading Swing classes
         //    if it's a pure AWT application.
         if (SunToolkit.isInstanceOf(component, "javax.swing.RootPaneContainer")) {
-            javax.swing.RootPaneContainer rpc = (javax.swing.RootPaneContainer)component;
-            javax.swing.JRootPane root = rpc.getRootPane();
-            javax.swing.JLayeredPane lp = root.getLayeredPane();
-            Container c = root.getContentPane();
-            javax.swing.JComponent content =
-                (c instanceof javax.swing.JComponent) ? (javax.swing.JComponent)c : null;
-            lp.setOpaque(isOpaque);
-            root.setOpaque(isOpaque);
+            Object root = tryInvokeMethod(component, "getRootPane");
+            Object lp = tryInvokeMethod(component, "getLayeredPane");
+            Object c = tryInvokeMethod(root, "getContentPane");
+            Object content = null;
+            if (SunToolkit.isInstanceOf(c, "javax.swing.JComponent")) {
+                content = c;
+            }
+            tryInvokeMethod(lp, "setOpaque", isOpaque);
+            tryInvokeMethod(root, "setOpaque", isOpaque);
             if (content != null) {
-                content.setOpaque(isOpaque);
-
+                tryInvokeMethod(content, "setOpaque", isOpaque);
+                Integer numChildren = (Integer) tryInvokeMethod(content, "getComponentCount");
                 // Iterate down one level to see whether we have a JApplet
                 // (which is also a RootPaneContainer) which requires processing
-                int numChildren = content.getComponentCount();
-                if (numChildren > 0) {
-                    Component child = content.getComponent(0);
-                    // It's OK to use instanceof here because we've
-                    // already loaded the RootPaneContainer class by now
-                    if (child instanceof javax.swing.RootPaneContainer) {
+                if (numChildren != null && numChildren > 0) {
+                    Component child = (Component) tryInvokeMethod(content, "getComponent", 0);
+                    if (SunToolkit.isInstanceOf(child, "javax.swing.RootPaneContainer")) {
                         setLayersOpaque(child, isOpaque);
                     }
                 }

@@ -27,8 +27,6 @@ package java.awt;
 
 import java.awt.event.*;
 
-import java.lang.annotation.Native;
-
 /**
  * The interface for objects which have an adjustable numeric value
  * contained within a bounded range of values.
@@ -41,17 +39,17 @@ public interface Adjustable {
     /**
      * Indicates that the <code>Adjustable</code> has horizontal orientation.
      */
-    @Native public static final int HORIZONTAL = 0;
+    public static final int HORIZONTAL = 0;
 
     /**
      * Indicates that the <code>Adjustable</code> has vertical orientation.
      */
-    @Native public static final int VERTICAL = 1;
+    public static final int VERTICAL = 1;
 
     /**
      * Indicates that the <code>Adjustable</code> has no orientation.
      */
-    @Native public static final int NO_ORIENTATION = 2;
+    public static final int NO_ORIENTATION = 2;
 
     /**
      * Gets the orientation of the adjustable object.

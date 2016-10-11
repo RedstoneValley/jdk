@@ -40,8 +40,6 @@ import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.dnd.peer.DragSourceContextPeer;
 import java.net.URL;
-import java.io.File;
-import java.io.FileInputStream;
 
 import java.util.*;
 import java.beans.PropertyChangeListener;
@@ -52,10 +50,6 @@ import sun.awt.HeadlessToolkit;
 import sun.awt.NullComponentPeer;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
-import sun.awt.AWTAccessor;
-import sun.security.util.SecurityConstants;
-
-import sun.util.CoreResourceBundleControl;
 
 /**
  * This class is the abstract superclass of all actual
@@ -110,84 +104,86 @@ import sun.util.CoreResourceBundleControl;
  * @author      Fred Ecks
  * @since       JDK1.0
  */
-public class Toolkit {
+public abstract class Toolkit {
 
-    private static final Toolkit INSTANCE = new Toolkit();
-
-    /** Singleton unless subclassed. */
-    protected Toolkit() {}
+    private static final Toolkit INSTANCE = new SkinJobToolkit();
 
     /**
      * Creates this toolkit's implementation of the <code>Desktop</code>
      * using the specified peer interface.
-     * @param     target the desktop to be implemented
-     * @return    this toolkit's implementation of the <code>Desktop</code>
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see       java.awt.GraphicsEnvironment#isHeadless
-     * @see       java.awt.Desktop
-     * @see       java.awt.peer.DesktopPeer
+     *
+     * @param target the desktop to be implemented
+     * @return this toolkit's implementation of the <code>Desktop</code>
+     * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+     *                           returns true
+     * @see java.awt.GraphicsEnvironment#isHeadless
+     * @see java.awt.Desktop
+     * @see java.awt.peer.DesktopPeer
      * @since 1.6
      */
     protected abstract DesktopPeer createDesktopPeer(Desktop target)
-      throws HeadlessException;
+            throws HeadlessException;
 
 
     /**
      * Creates this toolkit's implementation of <code>Button</code> using
      * the specified peer interface.
-     * @param     target the button to be implemented.
-     * @return    this toolkit's implementation of <code>Button</code>.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see       java.awt.GraphicsEnvironment#isHeadless
-     * @see       java.awt.Button
-     * @see       java.awt.peer.ButtonPeer
+     *
+     * @param target the button to be implemented.
+     * @return this toolkit's implementation of <code>Button</code>.
+     * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+     *                           returns true
+     * @see java.awt.GraphicsEnvironment#isHeadless
+     * @see java.awt.Button
+     * @see java.awt.peer.ButtonPeer
      */
     protected abstract ButtonPeer createButton(Button target)
-        throws HeadlessException;
+            throws HeadlessException;
 
     /**
      * Creates this toolkit's implementation of <code>TextField</code> using
      * the specified peer interface.
-     * @param     target the text field to be implemented.
-     * @return    this toolkit's implementation of <code>TextField</code>.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see       java.awt.GraphicsEnvironment#isHeadless
-     * @see       java.awt.TextField
-     * @see       java.awt.peer.TextFieldPeer
+     *
+     * @param target the text field to be implemented.
+     * @return this toolkit's implementation of <code>TextField</code>.
+     * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+     *                           returns true
+     * @see java.awt.GraphicsEnvironment#isHeadless
+     * @see java.awt.TextField
+     * @see java.awt.peer.TextFieldPeer
      */
     protected abstract TextFieldPeer createTextField(TextField target)
-        throws HeadlessException;
+            throws HeadlessException;
 
     /**
      * Creates this toolkit's implementation of <code>Label</code> using
      * the specified peer interface.
-     * @param     target the label to be implemented.
-     * @return    this toolkit's implementation of <code>Label</code>.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see       java.awt.GraphicsEnvironment#isHeadless
-     * @see       java.awt.Label
-     * @see       java.awt.peer.LabelPeer
+     *
+     * @param target the label to be implemented.
+     * @return this toolkit's implementation of <code>Label</code>.
+     * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+     *                           returns true
+     * @see java.awt.GraphicsEnvironment#isHeadless
+     * @see java.awt.Label
+     * @see java.awt.peer.LabelPeer
      */
     protected abstract LabelPeer createLabel(Label target)
-        throws HeadlessException;
+            throws HeadlessException;
 
     /**
      * Creates this toolkit's implementation of <code>List</code> using
      * the specified peer interface.
-     * @param     target the list to be implemented.
-     * @return    this toolkit's implementation of <code>List</code>.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see       java.awt.GraphicsEnvironment#isHeadless
-     * @see       java.awt.List
-     * @see       java.awt.peer.ListPeer
+     *
+     * @param target the list to be implemented.
+     * @return this toolkit's implementation of <code>List</code>.
+     * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+     *                           returns true
+     * @see java.awt.GraphicsEnvironment#isHeadless
+     * @see java.awt.List
+     * @see java.awt.peer.ListPeer
      */
     protected abstract ListPeer createList(java.awt.List target)
-        throws HeadlessException;
+            throws HeadlessException;
 
     /**
      * Creates this toolkit's implementation of <code>Checkbox</code> using
@@ -692,93 +688,6 @@ public class Toolkit {
     private static String atNames;
 
     /**
-     * Initializes properties related to assistive technologies.
-     * These properties are used both in the loadAssistiveProperties()
-     * function below, as well as other classes in the jdk that depend
-     * on the properties (such as the use of the screen_magnifier_present
-     * property in Java2D hardware acceleration initialization).  The
-     * initialization of the properties must be done before the platform-
-     * specific Toolkit class is instantiated so that all necessary
-     * properties are set up properly before any classes dependent upon them
-     * are initialized.
-     */
-    private static void initAssistiveTechnologies() {
-
-        // Get accessibility properties
-        final String sep = File.separator;
-        final Properties properties = new Properties();
-
-
-        atNames = java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction<String>() {
-            public String run() {
-
-                // Try loading the per-user accessibility properties file.
-                try {
-                    File propsFile = new File(
-                      System.getProperty("user.home") +
-                      sep + ".accessibility.properties");
-                    FileInputStream in =
-                        new FileInputStream(propsFile);
-
-                    // Inputstream has been buffered in Properties class
-                    properties.load(in);
-                    in.close();
-                } catch (Exception e) {
-                    // Per-user accessibility properties file does not exist
-                }
-
-                // Try loading the system-wide accessibility properties
-                // file only if a per-user accessibility properties
-                // file does not exist or is empty.
-                if (properties.size() == 0) {
-                    try {
-                        File propsFile = new File(
-                            System.getProperty("java.home") + sep + "lib" +
-                            sep + "accessibility.properties");
-                        FileInputStream in =
-                            new FileInputStream(propsFile);
-
-                        // Inputstream has been buffered in Properties class
-                        properties.load(in);
-                        in.close();
-                    } catch (Exception e) {
-                        // System-wide accessibility properties file does
-                        // not exist;
-                    }
-                }
-
-                // Get whether a screen magnifier is present.  First check
-                // the system property and then check the properties file.
-                String magPresent = System.getProperty("javax.accessibility.screen_magnifier_present");
-                if (magPresent == null) {
-                    magPresent = properties.getProperty("screen_magnifier_present", null);
-                    if (magPresent != null) {
-                        System.setProperty("javax.accessibility.screen_magnifier_present", magPresent);
-                    }
-                }
-
-                // Get the names of any assistive technolgies to load.  First
-                // check the system property and then check the properties
-                // file.
-                String classNames = System.getProperty("javax.accessibility.assistive_technologies");
-                if (classNames == null) {
-                    classNames = properties.getProperty("assistive_technologies", null);
-                    if (classNames != null) {
-                        System.setProperty("javax.accessibility.assistive_technologies", classNames);
-                    }
-                }
-                return classNames;
-            }
-        });
-    }
-
-    /**
-     * TODO: Delete this method, since it's not necessary in Skinjob.
-     */
-    private static void loadAssistiveTechnologies() {}
-
-    /**
      * Gets the default toolkit.
      * <p>
      * If a system property named <code>"java.awt.headless"</code> is set
@@ -815,7 +724,7 @@ public class Toolkit {
                     Class<?> cls = null;
                     String nm = System.getProperty("awt.toolkit");
                     if (nm == null) {
-                        return INSTANCE;
+                        return null;
                     }
                     try {
                         cls = Class.forName(nm);
@@ -844,7 +753,6 @@ public class Toolkit {
                     return null;
                 }
             });
-            loadAssistiveTechnologies();
         }
         return toolkit;
     }
@@ -1280,7 +1188,6 @@ public class Toolkit {
      * @see java.awt.event.FocusEvent#FOCUS_GAINED
      * @see java.awt.event.FocusEvent#FOCUS_LOST
      * @see TextComponent
-     * @see javax.swing.text.JTextComponent
      * @see AWTPermission
      * @see GraphicsEnvironment#isHeadless
      * @since 1.4
@@ -1543,94 +1450,8 @@ public class Toolkit {
         }
     }
 
-    /**
-     * Support for I18N: any visible strings should be stored in
-     * sun.awt.resources.awt.properties.  The ResourceBundle is stored
-     * here, so that only one copy is maintained.
-     */
-    private static ResourceBundle resources;
-    private static ResourceBundle platformResources;
-
-    // called by platform toolkit
-    private static void setPlatformResources(ResourceBundle bundle) {
-        platformResources = bundle;
-    }
-
-    /**
-     * Initialize JNI field and method ids
-     */
-    private static native void initIDs();
-
-    /**
-     * WARNING: This is a temporary workaround for a problem in the
-     * way the AWT loads native libraries. A number of classes in the
-     * AWT package have a native method, initIDs(), which initializes
-     * the JNI field and method ids used in the native portion of
-     * their implementation.
-     *
-     * Since the use and storage of these ids is done by the
-     * implementation libraries, the implementation of these method is
-     * provided by the particular AWT implementations (for example,
-     * "Toolkit"s/Peer), such as Motif, Microsoft Windows, or Tiny. The
-     * problem is that this means that the native libraries must be
-     * loaded by the java.* classes, which do not necessarily know the
-     * names of the libraries to load. A better way of doing this
-     * would be to provide a separate library which defines java.awt.*
-     * initIDs, and exports the relevant symbols out to the
-     * implementation libraries.
-     *
-     * For now, we know it's done by the implementation, and we assume
-     * that the name of the library is "awt".  -br.
-     *
-     * If you change loadLibraries(), please add the change to
-     * java.awt.image.ColorModel.loadLibraries(). Unfortunately,
-     * classes can be loaded in java.awt.image that depend on
-     * libawt and there is no way to call Toolkit.loadLibraries()
-     * directly.  -hung
-     */
-    private static boolean loaded = false;
     static void loadLibraries() {
-        if (!loaded) {
-            java.security.AccessController.doPrivileged(
-                new java.security.PrivilegedAction<Void>() {
-                    public Void run() {
-                        System.loadLibrary("awt");
-                        return null;
-                    }
-                });
-            loaded = true;
-        }
-    }
-
-    static {
-        AWTAccessor.setToolkitAccessor(
-                new AWTAccessor.ToolkitAccessor() {
-                    @Override
-                    public void setPlatformResources(ResourceBundle bundle) {
-                        Toolkit.setPlatformResources(bundle);
-                    }
-                });
-
-        java.security.AccessController.doPrivileged(
-                                 new java.security.PrivilegedAction<Void>() {
-            public Void run() {
-                try {
-                    resources =
-                        ResourceBundle.getBundle("sun.awt.resources.awt",
-                                                 CoreResourceBundleControl.getRBControlInstance());
-                } catch (MissingResourceException e) {
-                    // No resource file; defaults will be used.
-                }
-                return null;
-            }
-        });
-
-        // ensure that the proper libraries are loaded
-        loadLibraries();
-        initAssistiveTechnologies();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
+        // No-op, included for backward compatibility.
     }
 
     /**
@@ -1638,23 +1459,7 @@ public class Toolkit {
      * This method returns defaultValue if the property is not found.
      */
     public static String getProperty(String key, String defaultValue) {
-        // first try platform specific bundle
-        if (platformResources != null) {
-            try {
-                return platformResources.getString(key);
-            }
-            catch (MissingResourceException e) {}
-        }
-
-        // then shared one
-        if (resources != null) {
-            try {
-                return resources.getString(key);
-            }
-            catch (MissingResourceException e) {}
-        }
-
-        return defaultValue;
+        return System.getProperty(key, defaultValue);
     }
 
     /**
@@ -1664,21 +1469,9 @@ public class Toolkit {
      * therefore not assume that the EventQueue instance returned
      * by this method will be shared by other applets or the system.
      *
-     * <p> If there is a security manager then its
-     * {@link SecurityManager#checkPermission checkPermission} method
-     * is called to check {@code AWTPermission("accessEventQueue")}.
-     *
      * @return    the <code>EventQueue</code> object
-     * @throws  SecurityException
-     *          if a security manager is set and it denies access to
-     *          the {@code EventQueue}
-     * @see     java.awt.AWTPermission
-    */
+     */
     public final EventQueue getSystemEventQueue() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(SecurityConstants.AWT.CHECK_AWT_EVENTQUEUE_PERMISSION);
-        }
         return getSystemEventQueueImpl();
     }
 
@@ -2007,10 +1800,6 @@ public class Toolkit {
         if (localL == null) {
             return;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-          security.checkPermission(SecurityConstants.AWT.ALL_AWT_EVENTS_PERMISSION);
-        }
         synchronized (this) {
             SelectiveAWTEventListener selectiveListener =
                 listener2SelectiveListener.get(localL);
@@ -2076,10 +1865,6 @@ public class Toolkit {
         if (listener == null) {
             return;
         }
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(SecurityConstants.AWT.ALL_AWT_EVENTS_PERMISSION);
-        }
 
         synchronized (this) {
             SelectiveAWTEventListener selectiveListener =
@@ -2141,10 +1926,6 @@ public class Toolkit {
      * @since 1.4
      */
     public AWTEventListener[] getAWTEventListeners() {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(SecurityConstants.AWT.ALL_AWT_EVENTS_PERMISSION);
-        }
         synchronized (this) {
             EventListener[] la = ToolkitEventMulticaster.getListeners(eventListener,AWTEventListener.class);
 
@@ -2193,10 +1974,6 @@ public class Toolkit {
      * @since 1.4
      */
     public AWTEventListener[] getAWTEventListeners(long eventMask) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkPermission(SecurityConstants.AWT.ALL_AWT_EVENTS_PERMISSION);
-        }
         synchronized (this) {
             EventListener[] la = ToolkitEventMulticaster.getListeners(eventListener,AWTEventListener.class);
 
@@ -2563,4 +2340,5 @@ public class Toolkit {
 
         return Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled();
     }
+
 }

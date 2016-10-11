@@ -24,15 +24,11 @@
  */
 package java.awt;
 
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.awt.peer.TextAreaPeer;
-import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-import javax.accessibility.*;
 
 /**
  * A <code>TextArea</code> object is a multi-line region
@@ -658,57 +654,4 @@ public class TextArea extends TextComponent {
                                   backwardTraversalKeys);
         }
     }
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-
-    /**
-     * Returns the <code>AccessibleContext</code> associated with
-     * this <code>TextArea</code>. For text areas, the
-     * <code>AccessibleContext</code> takes the form of an
-     * <code>AccessibleAWTTextArea</code>.
-     * A new <code>AccessibleAWTTextArea</code> instance is created if necessary.
-     *
-     * @return an <code>AccessibleAWTTextArea</code> that serves as the
-     *         <code>AccessibleContext</code> of this <code>TextArea</code>
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTTextArea();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>TextArea</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to text area user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTTextArea extends AccessibleAWTTextComponent
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 3472827823632144419L;
-
-        /**
-         * Gets the state set of this object.
-         *
-         * @return an instance of AccessibleStateSet describing the states
-         * of the object
-         * @see AccessibleStateSet
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            states.add(AccessibleState.MULTI_LINE);
-            return states;
-        }
-    }
-
-
 }

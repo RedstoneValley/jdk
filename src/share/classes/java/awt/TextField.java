@@ -30,7 +30,6 @@ import java.util.EventListener;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
 
 
 /**
@@ -134,7 +133,7 @@ public class TextField extends TextComponent {
     /**
      * Initialize JNI field and method ids
      */
-    private static native void initIDs();
+    private static void initIDs() {}
 
     static {
         /* ensure that the necessary native libraries are loaded */
@@ -707,55 +706,4 @@ public class TextField extends TextComponent {
             }
         }
     }
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-
-    /**
-     * Gets the AccessibleContext associated with this TextField.
-     * For text fields, the AccessibleContext takes the form of an
-     * AccessibleAWTTextField.
-     * A new AccessibleAWTTextField instance is created if necessary.
-     *
-     * @return an AccessibleAWTTextField that serves as the
-     *         AccessibleContext of this TextField
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTTextField();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>TextField</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to text field user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTTextField extends AccessibleAWTTextComponent
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 6219164359235943158L;
-
-        /**
-         * Gets the state set of this object.
-         *
-         * @return an instance of AccessibleStateSet describing the states
-         * of the object
-         * @see AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            states.add(AccessibleState.SINGLE_LINE);
-            return states;
-        }
-    }
-
 }

@@ -24,9 +24,10 @@
  */
 package java.awt;
 
+import android.view.View;
+
 import java.awt.image.BufferStrategy;
 import java.awt.peer.CanvasPeer;
-import javax.accessibility.*;
 
 /**
  * A <code>Canvas</code> component represents a blank rectangular
@@ -41,7 +42,7 @@ import javax.accessibility.*;
  * @author      Sami Shaio
  * @since       JDK1.0
  */
-public class Canvas extends Component implements Accessible {
+public class Canvas extends Component {
 
     private static final String base = "canvas";
     private static int nameCounter = 0;
@@ -50,6 +51,11 @@ public class Canvas extends Component implements Accessible {
      * JDK 1.1 serialVersionUID
      */
      private static final long serialVersionUID = -2284879212465893870L;
+
+    @Override
+    protected View createAndroidComponent() {
+        return null;
+    }
 
     /**
      * Constructs a new Canvas.
@@ -206,49 +212,4 @@ public class Canvas extends Component implements Accessible {
     public BufferStrategy getBufferStrategy() {
         return super.getBufferStrategy();
     }
-
-    /*
-     * --- Accessibility Support ---
-     *
-     */
-
-    /**
-     * Gets the AccessibleContext associated with this Canvas.
-     * For canvases, the AccessibleContext takes the form of an
-     * AccessibleAWTCanvas.
-     * A new AccessibleAWTCanvas instance is created if necessary.
-     *
-     * @return an AccessibleAWTCanvas that serves as the
-     *         AccessibleContext of this Canvas
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTCanvas();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Canvas</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to canvas user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTCanvas extends AccessibleAWTComponent
-    {
-        private static final long serialVersionUID = -6325592262103146699L;
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.CANVAS;
-        }
-
-    } // inner class AccessibleAWTCanvas
 }

@@ -25,6 +25,8 @@
 
 package java.awt;
 
+import android.util.Log;
+
 import java.awt.event.*;
 
 import java.awt.peer.ComponentPeer;
@@ -39,16 +41,10 @@ import java.util.EmptyStackException;
 
 import sun.awt.*;
 import sun.awt.dnd.SunDropTargetEvent;
-import sun.util.logging.PlatformLogger;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import java.security.AccessControlContext;
-
-import sun.misc.SharedSecrets;
-import sun.misc.JavaSecurityAccess;
 
 /**
  * <code>EventQueue</code> is a platform-independent class
@@ -95,6 +91,7 @@ import sun.misc.JavaSecurityAccess;
  * @since       1.1
  */
 public class EventQueue {
+    private static final String TAG = "java.awt.EventQueue";
     private static final AtomicInteger threadInitNumber = new AtomicInteger(0);
 
     private static final int LOW_PRIORITY = 0;
@@ -181,8 +178,6 @@ public class EventQueue {
     private final String name = "AWT-EventQueue-" + threadInitNumber.getAndIncrement();
 
     private FwDispatcher fwDispatcher;
-
-    private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.EventQueue");
 
     static {
         AWTAccessor.setEventQueueAccessor(
@@ -650,9 +645,6 @@ public class EventQueue {
         return null;
     }
 
-    private static final JavaSecurityAccess javaSecurityAccess =
-        SharedSecrets.getJavaSecurityAccess();
-
     /**
      * Dispatches an event. The manner in which the event is
      * dispatched depends upon the type of the event and the
@@ -693,49 +685,19 @@ public class EventQueue {
      */
     protected void dispatchEvent(final AWTEvent event) {
         final Object src = event.getSource();
-        final PrivilegedAction<Void> action = new PrivilegedAction<Void>() {
-            public Void run() {
-                // In case fwDispatcher is installed and we're already on the
-                // dispatch thread (e.g. performing DefaultKeyboardFocusManager.sendMessage),
-                // dispatch the event straight away.
-                if (fwDispatcher == null || isDispatchThreadImpl()) {
-                    dispatchEventImpl(event, src);
-                } else {
-                    fwDispatcher.scheduleDispatch(new Runnable() {
-                        @Override
-                        public void run() {
-                            dispatchEventImpl(event, src);
-                        }
-                    });
-                }
-                return null;
-            }
-        };
-
-        final AccessControlContext stack = AccessController.getContext();
-        final AccessControlContext srcAcc = getAccessControlContextFrom(src);
-        final AccessControlContext eventAcc = event.getAccessControlContext();
-        if (srcAcc == null) {
-            javaSecurityAccess.doIntersectionPrivilege(action, stack, eventAcc);
+        // In case fwDispatcher is installed and we're already on the
+        // dispatch thread (e.g. performing DefaultKeyboardFocusManager.sendMessage),
+        // dispatch the event straight away.
+        if (fwDispatcher == null || isDispatchThreadImpl()) {
+            dispatchEventImpl(event, src);
         } else {
-            javaSecurityAccess.doIntersectionPrivilege(
-                new PrivilegedAction<Void>() {
-                    public Void run() {
-                        javaSecurityAccess.doIntersectionPrivilege(action, eventAcc);
-                        return null;
-                    }
-                }, stack, srcAcc);
+            fwDispatcher.scheduleDispatch(new Runnable() {
+                @Override
+                public void run() {
+                    dispatchEventImpl(event, src);
+                }
+            });
         }
-    }
-
-    private static AccessControlContext getAccessControlContextFrom(Object src) {
-        return src instanceof Component ?
-            ((Component)src).getAccessControlContext() :
-            src instanceof MenuComponent ?
-                ((MenuComponent)src).getAccessControlContext() :
-                src instanceof TrayIcon ?
-                    ((TrayIcon)src).getAccessControlContext() :
-                    null;
     }
 
     /**
@@ -759,9 +721,7 @@ public class EventQueue {
                 dispatchThread.stopDispatching();
             }
         } else {
-            if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                eventLog.fine("Unable to dispatch event: " + event);
-            }
+            Log.d(TAG, "Unable to dispatch event: " + event);
         }
     }
 
@@ -857,9 +817,7 @@ public class EventQueue {
      * @since           1.2
      */
     public void push(EventQueue newEventQueue) {
-        if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-            eventLog.fine("EventQueue.push(" + newEventQueue + ")");
-        }
+        Log.d(TAG, "EventQueue.push(" + newEventQueue + ")");
 
         pushPopLock.lock();
         try {
@@ -883,9 +841,7 @@ public class EventQueue {
                     // Use getNextEventPrivate() as it doesn't call flushPendingEvents()
                     newEventQueue.postEventPrivate(topQueue.getNextEventPrivate());
                 } catch (InterruptedException ie) {
-                    if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                        eventLog.fine("Interrupted push", ie);
-                    }
+                    Log.d(TAG, "Interrupted push", ie);
                 }
             }
 
@@ -922,9 +878,7 @@ public class EventQueue {
      * @since           1.2
      */
     protected void pop() throws EmptyStackException {
-        if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-            eventLog.fine("EventQueue.pop(" + this + ")");
-        }
+        Log.d(TAG, "EventQueue.pop(" + this + ")");
 
         pushPopLock.lock();
         try {
@@ -945,9 +899,7 @@ public class EventQueue {
                 try {
                     prevQueue.postEventPrivate(topQueue.getNextEventPrivate());
                 } catch (InterruptedException ie) {
-                    if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                        eventLog.fine("Interrupted pop", ie);
-                    }
+                    Log.d(TAG, "Interrupted pop", ie);
                 }
             }
 

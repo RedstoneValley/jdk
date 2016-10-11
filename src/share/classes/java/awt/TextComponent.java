@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.view.View;
+
 import java.awt.peer.TextComponentPeer;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -31,11 +33,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import sun.awt.InputMethodSupport;
-import java.text.BreakIterator;
-import javax.swing.text.AttributeSet;
-import javax.accessibility.*;
 import java.awt.im.InputMethodRequests;
-import sun.security.util.SecurityConstants;
 
 /**
  * The <code>TextComponent</code> class is the superclass of
@@ -57,7 +55,7 @@ import sun.security.util.SecurityConstants;
  * @author      Arthur van Hoff
  * @since       JDK1.0
  */
-public class TextComponent extends Component implements Accessible {
+public class TextComponent extends Component {
 
     /**
      * The value of the text.
@@ -148,6 +146,11 @@ public class TextComponent extends Component implements Accessible {
                 // if something bad happens, just don't enable input methods
             }
         }
+    }
+
+    @Override
+    protected View createAndroidComponent() {
+        return null; // TODO
     }
 
     /**
@@ -722,19 +725,6 @@ public class TextComponent extends Component implements Accessible {
         return str + ",selection=" + getSelectionStart() + "-" + getSelectionEnd();
     }
 
-    /**
-     * Assigns a valid value to the canAccessClipboard instance variable.
-     */
-    private boolean canAccessClipboard() {
-        SecurityManager sm = System.getSecurityManager();
-        if (sm == null) return true;
-        try {
-            sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
-            return true;
-        } catch (SecurityException e) {}
-        return false;
-    }
-
     /*
      * Serialization support.
      */
@@ -816,379 +806,6 @@ public class TextComponent extends Component implements Accessible {
         }
         enableInputMethodsIfNecessary();
     }
-
-
-/////////////////
-// Accessibility support
-////////////////
-
-    /**
-     * Gets the AccessibleContext associated with this TextComponent.
-     * For text components, the AccessibleContext takes the form of an
-     * AccessibleAWTTextComponent.
-     * A new AccessibleAWTTextComponent instance is created if necessary.
-     *
-     * @return an AccessibleAWTTextComponent that serves as the
-     *         AccessibleContext of this TextComponent
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTTextComponent();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>TextComponent</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to text component user-interface
-     * elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTTextComponent extends AccessibleAWTComponent
-        implements AccessibleText, TextListener
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 3631432373506317811L;
-
-        /**
-         * Constructs an AccessibleAWTTextComponent.  Adds a listener to track
-         * caret change.
-         */
-        public AccessibleAWTTextComponent() {
-            TextComponent.this.addTextListener(this);
-        }
-
-        /**
-         * TextListener notification of a text value change.
-         */
-        public void textValueChanged(TextEvent textEvent)  {
-            Integer cpos = Integer.valueOf(TextComponent.this.getCaretPosition());
-            firePropertyChange(ACCESSIBLE_TEXT_PROPERTY, null, cpos);
-        }
-
-        /**
-         * Gets the state set of the TextComponent.
-         * The AccessibleStateSet of an object is composed of a set of
-         * unique AccessibleStates.  A change in the AccessibleStateSet
-         * of an object will cause a PropertyChangeEvent to be fired
-         * for the AccessibleContext.ACCESSIBLE_STATE_PROPERTY property.
-         *
-         * @return an instance of AccessibleStateSet containing the
-         * current state set of the object
-         * @see AccessibleStateSet
-         * @see AccessibleState
-         * @see #addPropertyChangeListener
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            if (TextComponent.this.isEditable()) {
-                states.add(AccessibleState.EDITABLE);
-            }
-            return states;
-        }
-
-
-        /**
-         * Gets the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object (AccessibleRole.TEXT)
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.TEXT;
-        }
-
-        /**
-         * Get the AccessibleText associated with this object.  In the
-         * implementation of the Java Accessibility API for this class,
-         * return this object, which is responsible for implementing the
-         * AccessibleText interface on behalf of itself.
-         *
-         * @return this object
-         */
-        public AccessibleText getAccessibleText() {
-            return this;
-        }
-
-
-        // --- interface AccessibleText methods ------------------------
-
-        /**
-         * Many of these methods are just convenience methods; they
-         * just call the equivalent on the parent
-         */
-
-        /**
-         * Given a point in local coordinates, return the zero-based index
-         * of the character under that Point.  If the point is invalid,
-         * this method returns -1.
-         *
-         * @param p the Point in local coordinates
-         * @return the zero-based index of the character under Point p.
-         */
-        public int getIndexAtPoint(Point p) {
-            return -1;
-        }
-
-        /**
-         * Determines the bounding box of the character at the given
-         * index into the string.  The bounds are returned in local
-         * coordinates.  If the index is invalid a null rectangle
-         * is returned.
-         *
-         * @param i the index into the String &gt;= 0
-         * @return the screen coordinates of the character's bounding box
-         */
-        public Rectangle getCharacterBounds(int i) {
-            return null;
-        }
-
-        /**
-         * Returns the number of characters (valid indicies)
-         *
-         * @return the number of characters &gt;= 0
-         */
-        public int getCharCount() {
-            return TextComponent.this.getText().length();
-        }
-
-        /**
-         * Returns the zero-based offset of the caret.
-         *
-         * Note: The character to the right of the caret will have the
-         * same index value as the offset (the caret is between
-         * two characters).
-         *
-         * @return the zero-based offset of the caret.
-         */
-        public int getCaretPosition() {
-            return TextComponent.this.getCaretPosition();
-        }
-
-        /**
-         * Returns the AttributeSet for a given character (at a given index).
-         *
-         * @param i the zero-based index into the text
-         * @return the AttributeSet of the character
-         */
-        public AttributeSet getCharacterAttribute(int i) {
-            return null; // No attributes in TextComponent
-        }
-
-        /**
-         * Returns the start offset within the selected text.
-         * If there is no selection, but there is
-         * a caret, the start and end offsets will be the same.
-         * Return 0 if the text is empty, or the caret position
-         * if no selection.
-         *
-         * @return the index into the text of the start of the selection &gt;= 0
-         */
-        public int getSelectionStart() {
-            return TextComponent.this.getSelectionStart();
-        }
-
-        /**
-         * Returns the end offset within the selected text.
-         * If there is no selection, but there is
-         * a caret, the start and end offsets will be the same.
-         * Return 0 if the text is empty, or the caret position
-         * if no selection.
-         *
-         * @return the index into the text of the end of the selection &gt;= 0
-         */
-        public int getSelectionEnd() {
-            return TextComponent.this.getSelectionEnd();
-        }
-
-        /**
-         * Returns the portion of the text that is selected.
-         *
-         * @return the text, null if no selection
-         */
-        public String getSelectedText() {
-            String selText = TextComponent.this.getSelectedText();
-            // Fix for 4256662
-            if (selText == null || selText.equals("")) {
-                return null;
-            }
-            return selText;
-        }
-
-        /**
-         * Returns the String at a given index.
-         *
-         * @param part the AccessibleText.CHARACTER, AccessibleText.WORD,
-         * or AccessibleText.SENTENCE to retrieve
-         * @param index an index within the text &gt;= 0
-         * @return the letter, word, or sentence,
-         *   null for an invalid index or part
-         */
-        public String getAtIndex(int part, int index) {
-            if (index < 0 || index >= TextComponent.this.getText().length()) {
-                return null;
-            }
-            switch (part) {
-            case AccessibleText.CHARACTER:
-                return TextComponent.this.getText().substring(index, index+1);
-            case AccessibleText.WORD:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator words = BreakIterator.getWordInstance();
-                    words.setText(s);
-                    int end = words.following(index);
-                    return s.substring(words.previous(), end);
-                }
-            case AccessibleText.SENTENCE:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator sentence = BreakIterator.getSentenceInstance();
-                    sentence.setText(s);
-                    int end = sentence.following(index);
-                    return s.substring(sentence.previous(), end);
-                }
-            default:
-                return null;
-            }
-        }
-
-        private static final boolean NEXT = true;
-        private static final boolean PREVIOUS = false;
-
-        /**
-         * Needed to unify forward and backward searching.
-         * The method assumes that s is the text assigned to words.
-         */
-        private int findWordLimit(int index, BreakIterator words, boolean direction,
-                                         String s) {
-            // Fix for 4256660 and 4256661.
-            // Words iterator is different from character and sentence iterators
-            // in that end of one word is not necessarily start of another word.
-            // Please see java.text.BreakIterator JavaDoc. The code below is
-            // based on nextWordStartAfter example from BreakIterator.java.
-            int last = (direction == NEXT) ? words.following(index)
-                                           : words.preceding(index);
-            int current = (direction == NEXT) ? words.next()
-                                              : words.previous();
-            while (current != BreakIterator.DONE) {
-                for (int p = Math.min(last, current); p < Math.max(last, current); p++) {
-                    if (Character.isLetter(s.charAt(p))) {
-                        return last;
-                    }
-                }
-                last = current;
-                current = (direction == NEXT) ? words.next()
-                                              : words.previous();
-            }
-            return BreakIterator.DONE;
-        }
-
-        /**
-         * Returns the String after a given index.
-         *
-         * @param part the AccessibleText.CHARACTER, AccessibleText.WORD,
-         * or AccessibleText.SENTENCE to retrieve
-         * @param index an index within the text &gt;= 0
-         * @return the letter, word, or sentence, null for an invalid
-         *  index or part
-         */
-        public String getAfterIndex(int part, int index) {
-            if (index < 0 || index >= TextComponent.this.getText().length()) {
-                return null;
-            }
-            switch (part) {
-            case AccessibleText.CHARACTER:
-                if (index+1 >= TextComponent.this.getText().length()) {
-                   return null;
-                }
-                return TextComponent.this.getText().substring(index+1, index+2);
-            case AccessibleText.WORD:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator words = BreakIterator.getWordInstance();
-                    words.setText(s);
-                    int start = findWordLimit(index, words, NEXT, s);
-                    if (start == BreakIterator.DONE || start >= s.length()) {
-                        return null;
-                    }
-                    int end = words.following(start);
-                    if (end == BreakIterator.DONE || end >= s.length()) {
-                        return null;
-                    }
-                    return s.substring(start, end);
-                }
-            case AccessibleText.SENTENCE:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator sentence = BreakIterator.getSentenceInstance();
-                    sentence.setText(s);
-                    int start = sentence.following(index);
-                    if (start == BreakIterator.DONE || start >= s.length()) {
-                        return null;
-                    }
-                    int end = sentence.following(start);
-                    if (end == BreakIterator.DONE || end >= s.length()) {
-                        return null;
-                    }
-                    return s.substring(start, end);
-                }
-            default:
-                return null;
-            }
-        }
-
-
-        /**
-         * Returns the String before a given index.
-         *
-         * @param part the AccessibleText.CHARACTER, AccessibleText.WORD,
-         *   or AccessibleText.SENTENCE to retrieve
-         * @param index an index within the text &gt;= 0
-         * @return the letter, word, or sentence, null for an invalid index
-         *  or part
-         */
-        public String getBeforeIndex(int part, int index) {
-            if (index < 0 || index > TextComponent.this.getText().length()-1) {
-                return null;
-            }
-            switch (part) {
-            case AccessibleText.CHARACTER:
-                if (index == 0) {
-                    return null;
-                }
-                return TextComponent.this.getText().substring(index-1, index);
-            case AccessibleText.WORD:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator words = BreakIterator.getWordInstance();
-                    words.setText(s);
-                    int end = findWordLimit(index, words, PREVIOUS, s);
-                    if (end == BreakIterator.DONE) {
-                        return null;
-                    }
-                    int start = words.preceding(end);
-                    if (start == BreakIterator.DONE) {
-                        return null;
-                    }
-                    return s.substring(start, end);
-                }
-            case AccessibleText.SENTENCE:  {
-                    String s = TextComponent.this.getText();
-                    BreakIterator sentence = BreakIterator.getSentenceInstance();
-                    sentence.setText(s);
-                    int end = sentence.following(index);
-                    end = sentence.previous();
-                    int start = sentence.previous();
-                    if (start == BreakIterator.DONE) {
-                        return null;
-                    }
-                    return s.substring(start, end);
-                }
-            default:
-                return null;
-            }
-        }
-    }  // end of AccessibleAWTTextComponent
 
     private boolean checkForEnableIM = true;
 }

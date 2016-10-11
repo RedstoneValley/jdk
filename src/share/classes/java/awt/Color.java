@@ -25,7 +25,6 @@
 
 package java.awt;
 
-import java.beans.ConstructorProperties;
 import java.awt.image.ColorModel;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
@@ -258,12 +257,7 @@ public class Color implements Paint, java.io.Serializable {
      */
      private static final long serialVersionUID = 118526816881161077L;
 
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-    static {
+   static {
         /** 4112352 - Calling getDefaultToolkit()
          ** here can cause this class to be accessed before it is fully
          ** initialized. DON'T DO IT!!!
@@ -273,9 +267,6 @@ public class Color implements Paint, java.io.Serializable {
 
         /* ensure that the necessary native libraries are loaded */
         Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
     }
 
     /**
@@ -386,7 +377,6 @@ public class Color implements Paint, java.io.Serializable {
      * @see #getAlpha
      * @see #getRGB
      */
-    @ConstructorProperties({"red", "green", "blue", "alpha"})
     public Color(int r, int g, int b, int a) {
         value = ((a & 0xFF) << 24) |
                 ((r & 0xFF) << 16) |

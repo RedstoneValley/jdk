@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.util.Log;
+
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -34,9 +36,6 @@ import java.awt.peer.LightweightPeer;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.beans.VetoableChangeSupport;
 
 import java.lang.ref.WeakReference;
 
@@ -52,8 +51,6 @@ import java.util.LinkedList;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
-
-import sun.util.logging.PlatformLogger;
 
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
@@ -108,15 +105,9 @@ public abstract class KeyboardFocusManager
     implements KeyEventDispatcher, KeyEventPostProcessor
 {
 
-    // Shared focus engine logger
-    private static final PlatformLogger focusLog = PlatformLogger.getLogger("java.awt.focus.KeyboardFocusManager");
+    private static final String TAG = "KeyboardFocusManager";
 
     static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
         AWTAccessor.setKeyboardFocusManagerAccessor(
             new AWTAccessor.KeyboardFocusManagerAccessor() {
                 public int shouldNativelyFocusHeavyweight(Component heavyweight,
@@ -155,13 +146,6 @@ public abstract class KeyboardFocusManager
     }
 
     transient KeyboardFocusManagerPeer peer;
-
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-    private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.KeyboardFocusManager");
 
     /**
      * The identifier for the Forward focus traversal keys.
@@ -362,7 +346,7 @@ public abstract class KeyboardFocusManager
     /**
      * A description of any VetoableChangeListeners which have been registered.
      */
-    private VetoableChangeSupport vetoableSupport;
+    private PropertyChangeSupport vetoableSupport;
 
     /**
      * A description of any PropertyChangeListeners which have been registered.
@@ -542,13 +526,7 @@ public abstract class KeyboardFocusManager
 
                 oldFocusOwner = getFocusOwner();
 
-                try {
-                    fireVetoableChange("focusOwner", oldFocusOwner,
-                                       focusOwner);
-                } catch (PropertyVetoException e) {
-                    // rejected
-                    return;
-                }
+                fireVetoableChange("focusOwner", oldFocusOwner, focusOwner);
 
                 KeyboardFocusManager.focusOwner = focusOwner;
 
@@ -758,14 +736,9 @@ public abstract class KeyboardFocusManager
 
                 oldPermanentFocusOwner = getPermanentFocusOwner();
 
-                try {
-                    fireVetoableChange("permanentFocusOwner",
-                                       oldPermanentFocusOwner,
-                                       permanentFocusOwner);
-                } catch (PropertyVetoException e) {
-                    // rejected
-                    return;
-                }
+                fireVetoableChange("permanentFocusOwner",
+                                   oldPermanentFocusOwner,
+                                   permanentFocusOwner);
 
                 KeyboardFocusManager.permanentFocusOwner = permanentFocusOwner;
 
@@ -861,14 +834,8 @@ public abstract class KeyboardFocusManager
 
                 oldFocusedWindow = getFocusedWindow();
 
-                try {
-                    fireVetoableChange("focusedWindow", oldFocusedWindow,
+                fireVetoableChange("focusedWindow", oldFocusedWindow,
                                        focusedWindow);
-                } catch (PropertyVetoException e) {
-                    // rejected
-                    return;
-                }
-
                 KeyboardFocusManager.focusedWindow = focusedWindow;
                 shouldFire = true;
             }
@@ -962,17 +929,10 @@ public abstract class KeyboardFocusManager
             checkKFMSecurity();
 
             oldActiveWindow = getActiveWindow();
-            if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-                focusLog.finer("Setting global active window to " + activeWindow + ", old active " + oldActiveWindow);
-            }
+            Log.v(TAG, "Focus: Setting global active window to " + activeWindow + ", old active " + oldActiveWindow);
 
-            try {
-                fireVetoableChange("activeWindow", oldActiveWindow,
+            fireVetoableChange("activeWindow", oldActiveWindow,
                                    activeWindow);
-            } catch (PropertyVetoException e) {
-                // rejected
-                return;
-            }
 
             KeyboardFocusManager.activeWindow = activeWindow;
         }
@@ -1495,155 +1455,6 @@ public abstract class KeyboardFocusManager
     }
 
     /**
-     * Adds a VetoableChangeListener to the listener list. The listener is
-     * registered for all vetoable properties of this class, including the
-     * following:
-     * <ul>
-     *    <li>the focus owner ("focusOwner")</li>
-     *    <li>the permanent focus owner ("permanentFocusOwner")</li>
-     *    <li>the focused Window ("focusedWindow")</li>
-     *    <li>the active Window ("activeWindow")</li>
-     * </ul>
-     * If listener is null, no exception is thrown and no action is performed.
-     *
-     * @param listener the VetoableChangeListener to be added
-     * @see #removeVetoableChangeListener
-     * @see #getVetoableChangeListeners
-     * @see #addVetoableChangeListener(java.lang.String,java.beans.VetoableChangeListener)
-     */
-    public void addVetoableChangeListener(VetoableChangeListener listener) {
-        if (listener != null) {
-            synchronized (this) {
-                if (vetoableSupport == null) {
-                    vetoableSupport =
-                        new VetoableChangeSupport(this);
-                }
-                vetoableSupport.addVetoableChangeListener(listener);
-            }
-        }
-    }
-
-    /**
-     * Removes a VetoableChangeListener from the listener list. This method
-     * should be used to remove the VetoableChangeListeners that were
-     * registered for all vetoable properties of this class.
-     * <p>
-     * If listener is null, no exception is thrown and no action is performed.
-     *
-     * @param listener the VetoableChangeListener to be removed
-     * @see #addVetoableChangeListener
-     * @see #getVetoableChangeListeners
-     * @see #removeVetoableChangeListener(java.lang.String,java.beans.VetoableChangeListener)
-     */
-    public void removeVetoableChangeListener(VetoableChangeListener listener) {
-        if (listener != null) {
-            synchronized (this) {
-                if (vetoableSupport != null) {
-                    vetoableSupport.removeVetoableChangeListener(listener);
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns an array of all the vetoable change listeners
-     * registered on this keyboard focus manager.
-     *
-     * @return all of this keyboard focus manager's
-     *         <code>VetoableChangeListener</code>s
-     *         or an empty array if no vetoable change
-     *         listeners are currently registered
-     *
-     * @see #addVetoableChangeListener
-     * @see #removeVetoableChangeListener
-     * @see #getVetoableChangeListeners(java.lang.String)
-     * @since 1.4
-     */
-    public synchronized VetoableChangeListener[] getVetoableChangeListeners() {
-        if (vetoableSupport == null) {
-            vetoableSupport = new VetoableChangeSupport(this);
-        }
-        return vetoableSupport.getVetoableChangeListeners();
-    }
-
-    /**
-     * Adds a VetoableChangeListener to the listener list for a specific
-     * property. The specified property may be user-defined, or one of the
-     * following:
-     * <ul>
-     *    <li>the focus owner ("focusOwner")</li>
-     *    <li>the permanent focus owner ("permanentFocusOwner")</li>
-     *    <li>the focused Window ("focusedWindow")</li>
-     *    <li>the active Window ("activeWindow")</li>
-     * </ul>
-     * If listener is null, no exception is thrown and no action is performed.
-     *
-     * @param propertyName one of the property names listed above
-     * @param listener the VetoableChangeListener to be added
-     * @see #addVetoableChangeListener(java.beans.VetoableChangeListener)
-     * @see #removeVetoableChangeListener
-     * @see #getVetoableChangeListeners
-     */
-    public void addVetoableChangeListener(String propertyName,
-                                          VetoableChangeListener listener) {
-        if (listener != null) {
-            synchronized (this) {
-                if (vetoableSupport == null) {
-                    vetoableSupport =
-                        new VetoableChangeSupport(this);
-                }
-                vetoableSupport.addVetoableChangeListener(propertyName,
-                                                          listener);
-            }
-        }
-    }
-
-    /**
-     * Removes a VetoableChangeListener from the listener list for a specific
-     * property. This method should be used to remove VetoableChangeListeners
-     * that were registered for a specific bound property.
-     * <p>
-     * If listener is null, no exception is thrown and no action is performed.
-     *
-     * @param propertyName a valid property name
-     * @param listener the VetoableChangeListener to be removed
-     * @see #addVetoableChangeListener
-     * @see #getVetoableChangeListeners
-     * @see #removeVetoableChangeListener(java.beans.VetoableChangeListener)
-     */
-    public void removeVetoableChangeListener(String propertyName,
-                                             VetoableChangeListener listener) {
-        if (listener != null) {
-            synchronized (this) {
-                if (vetoableSupport != null) {
-                    vetoableSupport.removeVetoableChangeListener(propertyName,
-                                                                 listener);
-                }
-            }
-        }
-    }
-
-    /**
-     * Returns an array of all the <code>VetoableChangeListener</code>s
-     * associated with the named property.
-     *
-     * @return all of the <code>VetoableChangeListener</code>s associated with
-     *         the named property or an empty array if no such listeners have
-     *         been added.
-     *
-     * @see #addVetoableChangeListener(java.lang.String,java.beans.VetoableChangeListener)
-     * @see #removeVetoableChangeListener(java.lang.String,java.beans.VetoableChangeListener)
-     * @see #getVetoableChangeListeners
-     * @since 1.4
-     */
-    public synchronized VetoableChangeListener[] getVetoableChangeListeners(String propertyName) {
-        if (vetoableSupport == null) {
-            vetoableSupport = new VetoableChangeSupport(this);
-        }
-        return vetoableSupport.getVetoableChangeListeners(propertyName);
-    }
-
-    /**
      * Fires a PropertyChangeEvent in response to a change in a vetoable
      * property. The event will be delivered to all registered
      * VetoableChangeListeners. If a VetoableChangeListener throws a
@@ -1655,21 +1466,17 @@ public abstract class KeyboardFocusManager
      * @param propertyName the name of the property that has changed
      * @param oldValue the property's previous value
      * @param newValue the property's new value
-     * @throws java.beans.PropertyVetoException if a
-     *         <code>VetoableChangeListener</code> threw
-     *         <code>PropertyVetoException</code>
      */
     protected void fireVetoableChange(String propertyName, Object oldValue,
                                       Object newValue)
-        throws PropertyVetoException
     {
         if (oldValue == newValue) {
             return;
         }
-        VetoableChangeSupport vetoableSupport =
+        PropertyChangeSupport vetoableSupport =
             this.vetoableSupport;
         if (vetoableSupport != null) {
-            vetoableSupport.fireVetoableChange(propertyName, oldValue,
+            vetoableSupport.firePropertyChange(propertyName, oldValue,
                                                newValue);
         }
     }
@@ -1908,7 +1715,7 @@ public abstract class KeyboardFocusManager
      */
     static synchronized Component getMostRecentFocusOwner(Window window) {
         WeakReference<Component> weakValue =
-            (WeakReference)mostRecentFocusOwners.get(window);
+            mostRecentFocusOwners.get(window);
         return weakValue == null ? null : (Component)weakValue.get();
     }
 
@@ -2197,10 +2004,8 @@ public abstract class KeyboardFocusManager
 
         HeavyweightFocusRequest(Component heavyweight, Component descendant,
                                 boolean temporary, CausedFocusEvent.Cause cause) {
-            if (log.isLoggable(PlatformLogger.Level.FINE)) {
-                if (heavyweight == null) {
-                    log.fine("Assertion (heavyweight != null) failed");
-                }
+            if (heavyweight == null) {
+                Log.d(TAG, "Assertion (heavyweight != null) failed");
             }
 
             this.heavyweight = heavyweight;
@@ -2209,13 +2014,11 @@ public abstract class KeyboardFocusManager
         }
         boolean addLightweightRequest(Component descendant,
                                       boolean temporary, CausedFocusEvent.Cause cause) {
-            if (log.isLoggable(PlatformLogger.Level.FINE)) {
-                if (this == HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) {
-                    log.fine("Assertion (this != HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) failed");
-                }
-                if (descendant == null) {
-                    log.fine("Assertion (descendant != null) failed");
-                }
+            if (this == HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) {
+                Log.d(TAG, "Assertion (this != HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) failed");
+            }
+            if (descendant == null) {
+                Log.d(TAG, "Assertion (descendant != null) failed");
             }
 
             Component lastDescendant = ((lightweightRequests.size() > 0)
@@ -2387,13 +2190,11 @@ public abstract class KeyboardFocusManager
         (Component heavyweight, Component descendant, boolean temporary,
          boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause)
     {
-        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-            if (heavyweight == null) {
-                log.fine("Assertion (heavyweight != null) failed");
+        if (heavyweight == null) {
+            Log.d(TAG, "Assertion (heavyweight != null) failed");
             }
             if (time == 0) {
-                log.fine("Assertion (time != 0) failed");
-            }
+                Log.d(TAG, "Assertion (time != 0) failed");
         }
 
         if (descendant == null) {
@@ -2409,32 +2210,23 @@ public abstract class KeyboardFocusManager
         Component currentFocusOwner = thisManager.getGlobalFocusOwner();
         Component nativeFocusOwner = thisManager.getNativeFocusOwner();
         Window nativeFocusedWindow = thisManager.getNativeFocusedWindow();
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("SNFH for {0} in {1}",
-                       String.valueOf(descendant), String.valueOf(heavyweight));
-        }
-        if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-            focusLog.finest("0. Current focus owner {0}",
-                            String.valueOf(currentFocusOwner));
-            focusLog.finest("0. Native focus owner {0}",
+        Log.v(TAG, "SNFH for {0} in {1}".format(
+                       String.valueOf(descendant), String.valueOf(heavyweight)));
+        Log.v(TAG, "0. Current focus owner " + String.valueOf(currentFocusOwner));
+        Log.v(TAG, "0. Native focus owner {0}" +
                             String.valueOf(nativeFocusOwner));
-            focusLog.finest("0. Native focused window {0}",
+        Log.v(TAG, "0. Native focused window {0}" +
                             String.valueOf(nativeFocusedWindow));
-        }
         synchronized (heavyweightRequests) {
             HeavyweightFocusRequest hwFocusRequest = getLastHWRequest();
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Request {0}", String.valueOf(hwFocusRequest));
-            }
+            Log.v(TAG, "Request " + String.valueOf(hwFocusRequest));
             if (hwFocusRequest == null &&
                 heavyweight == nativeFocusOwner &&
-                heavyweight.getContainingWindow() == nativeFocusedWindow)
+                heavyweight.androidComponent.getWindowId() == nativeFocusedWindow.androidComponent.getWindowId())
             {
                 if (descendant == currentFocusOwner) {
                     // Redundant request.
-                    if (focusLog.isLoggable(PlatformLogger.Level.FINEST))
-                        focusLog.finest("1. SNFH_FAILURE for {0}",
-                                        String.valueOf(descendant));
+                    Log.v(TAG, "1. SNFH_FAILURE for " + String.valueOf(descendant));
                     return SNFH_FAILURE;
                 }
 

@@ -24,6 +24,10 @@
  */
 package java.awt;
 
+import android.content.Context;
+import android.util.Log;
+import android.view.View;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Objects;
@@ -49,7 +53,6 @@ import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.beans.Transient;
 import java.awt.im.InputContext;
 import java.awt.im.InputMethodRequests;
 import java.awt.dnd.DropTarget;
@@ -58,10 +61,7 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.AccessControlContext;
-import javax.accessibility.*;
-import java.applet.Applet;
 
-import sun.security.action.GetPropertyAction;
 import sun.awt.AppContext;
 import sun.awt.AWTAccessor;
 import sun.awt.ConstrainableGraphics;
@@ -69,12 +69,7 @@ import sun.awt.SubRegionShowable;
 import sun.awt.SunToolkit;
 import sun.awt.WindowClosingListener;
 import sun.awt.CausedFocusEvent;
-import sun.awt.EmbeddedFrame;
 import sun.awt.dnd.SunDropTargetEvent;
-import sun.awt.im.CompositionArea;
-import sun.font.FontManager;
-import sun.font.FontManagerFactory;
-import sun.font.SunFontManager;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.pipe.Region;
 import sun.awt.image.VSyncedBSManager;
@@ -82,7 +77,6 @@ import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
 import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.*;
 import sun.awt.RequestFocusController;
 import sun.java2d.SunGraphicsEnvironment;
-import sun.util.logging.PlatformLogger;
 
 /**
  * A <em>component</em> is an object having a graphical representation
@@ -187,10 +181,10 @@ public abstract class Component implements ImageObserver, MenuContainer,
                                            Serializable
 {
 
-    private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.Component");
-    private static final PlatformLogger eventLog = PlatformLogger.getLogger("java.awt.event.Component");
-    private static final PlatformLogger focusLog = PlatformLogger.getLogger("java.awt.focus.Component");
-    private static final PlatformLogger mixingLog = PlatformLogger.getLogger("java.awt.mixing.Component");
+    protected final Context androidContext;
+
+    private static final String TAG = "java.awt.Component";
+    protected transient View androidComponent;
 
     /**
      * The peer of the component. The peer implements the component's
@@ -468,6 +462,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @see #getTreeLock
      */
     static final Object LOCK = new AWTTreeLock();
+    private WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
+
     static class AWTTreeLock {}
 
     /*
@@ -589,19 +585,13 @@ public abstract class Component implements ImageObserver, MenuContainer,
     static boolean isInc;
     static int incRate;
     static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        /* initialize JNI field and method ids */
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
 
-        String s = java.security.AccessController.doPrivileged(
-                                                               new GetPropertyAction("awt.image.incrementaldraw"));
+        /* initialize JNI field and method ids */
+
+        String s = System.getProperty("awt.image.incrementaldraw");
         isInc = (s == null || s.equals("true"));
 
-        s = java.security.AccessController.doPrivileged(
-                                                        new GetPropertyAction("awt.image.redrawrate"));
+        s = System.getProperty("awt.image.redrawrate");
         incRate = (s != null) ? Integer.parseInt(s) : 100;
     }
 
@@ -977,6 +967,10 @@ public abstract class Component implements ImageObserver, MenuContainer,
         });
     }
 
+    protected View createAndroidComponent() {
+        androidComponent = wrappedObjectsSupplier.createWidget();
+    }
+
     /**
      * Constructs a new component. Class <code>Component</code> can be
      * extended directly to create a lightweight component that does not
@@ -984,8 +978,11 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * hosted by a native container somewhere higher up in the component
      * tree (for example, by a <code>Frame</code> object).
      */
-    protected Component() {
+    protected Component(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
         appContext = AppContext.getAppContext();
+        this.wrappedObjectsSupplier = wrappedObjectsSupplier;
+        androidContext = wrappedObjectsSupplier.getAppContext();
+        androidComponent = wrappedObjectsSupplier.createWidget();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -1283,7 +1280,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @see #setVisible
      * @since JDK1.0
      */
-    @Transient
     public boolean isVisible() {
         return isVisible_NoClientCode();
     }
@@ -1478,11 +1474,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
                     }
                 }
             }
-            if (accessibleContext != null) {
-                accessibleContext.firePropertyChange(
-                                                     AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                     null, AccessibleState.ENABLED);
-            }
         }
     }
 
@@ -1526,11 +1517,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
                         updateCursorImmediately();
                     }
                 }
-            }
-            if (accessibleContext != null) {
-                accessibleContext.firePropertyChange(
-                                                     AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                     null, AccessibleState.ENABLED);
             }
         }
     }
@@ -1732,7 +1718,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @beaninfo
      *       bound: true
      */
-    @Transient
     public Color getForeground() {
         Color foreground = this.foreground;
         if (foreground != null) {
@@ -1787,7 +1772,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @see #setBackground
      * @since JDK1.0
      */
-    @Transient
     public Color getBackground() {
         Color background = this.background;
         if (background != null) {
@@ -1847,7 +1831,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @see #setFont
      * @since JDK1.0
      */
-    @Transient
     public Font getFont() {
         return getFont_NoClientCode();
     }
@@ -3079,16 +3062,11 @@ public abstract class Component implements ImageObserver, MenuContainer,
     public FontMetrics getFontMetrics(Font font) {
         // This is an unsupported hack, but left in for a customer.
         // Do not remove.
-        FontManager fm = FontManagerFactory.getInstance();
-        if (fm instanceof SunFontManager
-            && ((SunFontManager) fm).usePlatformFontMetrics()) {
-
-            if (peer != null &&
-                !(peer instanceof LightweightPeer)) {
-                return peer.getFontMetrics(font);
-            }
+        if (peer != null &&
+            !(peer instanceof LightweightPeer)) {
+            return peer.getFontMetrics(font);
         }
-        return sun.font.FontDesignMetrics.getMetrics(font);
+        return new FontMetrics(font) {};
     }
 
     /**
@@ -4710,13 +4688,9 @@ public abstract class Component implements ImageObserver, MenuContainer,
         // Check that this component belongs to this app-context
         AppContext compContext = appContext;
         if (compContext != null && !compContext.equals(AppContext.getAppContext())) {
-            if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                eventLog.fine("Event " + e + " is being dispatched on the wrong AppContext");
-            }
-        }
-
-        if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
-            eventLog.finest("{0}", e);
+            Log.d(TAG, "Event " + e + " is being dispatched on the wrong AppContext");
+        } else {
+            Log.v(TAG, e.toString());
         }
 
         /*
@@ -4754,8 +4728,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
                 return;
             }
         }
-        if ((e instanceof FocusEvent) && focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-            focusLog.finest("" + e);
+        if (e instanceof FocusEvent) {
+            Log.v(TAG, "Focus: " + e);
         }
         // MouseWheel may need to be retargeted here so that
         // AWTEventListener sees the event go to the correct
@@ -4799,7 +4773,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
             // input method adapters send them through the Java
             // event queue instead of directly to the component,
             // and the input context also handles the Java composition window
-            if(((e instanceof InputMethodEvent) && !(this instanceof CompositionArea))
+            if(((e instanceof InputMethodEvent) &&
+                    !(getClass().getName().equals("sun.awt.im.CompositionArea")))
                ||
                // Otherwise, we only pass on input and focus events, because
                // a) input methods shouldn't know about semantic or component-level events
@@ -4812,9 +4787,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
                 if (inputContext != null) {
                     inputContext.dispatchEvent(e);
                     if (e.isConsumed()) {
-                        if ((e instanceof FocusEvent) && focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                            focusLog.finest("3579: Skipping " + e);
-                        }
+                        Log.v(TAG, "Focus: 3579: Skipping " + e);
                         return;
                     }
                 }
@@ -4847,9 +4820,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
               if (p != null) {
                   p.preProcessKeyEvent((KeyEvent)e);
                   if (e.isConsumed()) {
-                        if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                            focusLog.finest("Pre-process consumed event");
-                        }
+                      Log.v(TAG, "Focus: Pre-process consumed event");
                       return;
                   }
               }
@@ -4960,6 +4931,13 @@ public abstract class Component implements ImageObserver, MenuContainer,
     } // dispatchEventImpl()
 
     /*
+     * Replaces a downward instanceof check that was throwing an error.
+     */
+    private boolean isCompositionArea() {
+        return false;
+    }
+
+    /*
      * If newEventsOnly is false, method is called so that ScrollPane can
      * override it and handle common-case mouse wheel scrolling.  NOP
      * for Component.
@@ -4980,10 +4958,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
                                   // position relative to its parent.
         MouseWheelEvent newMWE;
 
-        if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
-            eventLog.finest("dispatchMouseWheelToAncestor");
-            eventLog.finest("orig event src is of " + e.getSource().getClass());
-        }
+        Log.v(TAG, "dispatchMouseWheelToAncestor");
+        Log.v(TAG, "orig event src is of " + e.getSource().getClass());
 
         /* parent field for Window refers to the owning Window.
          * MouseWheelEvents should NOT be propagated into owning Windows
@@ -5003,9 +4979,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
                 }
             }
 
-            if (eventLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                eventLog.finest("new event src is " + anc.getClass());
-            }
+            Log.v(TAG, "new event src is " + anc.getClass());
 
             if (anc != null && anc.eventEnabled(e)) {
                 // Change event to be from new source, with new x,y
@@ -5503,13 +5477,11 @@ public abstract class Component implements ImageObserver, MenuContainer,
     // Should only be called while holding the tree lock
     int numListening(long mask) {
         // One mask or the other, but not neither or both.
-        if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-            if ((mask != AWTEvent.HIERARCHY_EVENT_MASK) &&
+        if ((mask != AWTEvent.HIERARCHY_EVENT_MASK) &&
                 (mask != AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK))
             {
-                eventLog.fine("Assertion failed");
+                Log.d(TAG, "numListening: Assertion failed");
             }
-        }
         if ((mask == AWTEvent.HIERARCHY_EVENT_MASK &&
              (hierarchyListener != null ||
               (eventMask & AWTEvent.HIERARCHY_EVENT_MASK) != 0)) ||
@@ -5544,10 +5516,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
               break;
           case HierarchyEvent.ANCESTOR_MOVED:
           case HierarchyEvent.ANCESTOR_RESIZED:
-              if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                  if (changeFlags != 0) {
-                      eventLog.fine("Assertion (changeFlags == 0) failed");
-                  }
+              if (changeFlags != 0) {
+                  Log.d(TAG, "Assertion (changeFlags == 0) failed");
               }
               if (hierarchyBoundsListener != null ||
                   (eventMask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) != 0 ||
@@ -5560,9 +5530,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
               break;
           default:
               // assert false
-              if (eventLog.isLoggable(PlatformLogger.Level.FINE)) {
-                  eventLog.fine("This code must never be reached");
-              }
+              Log.d(TAG, "This code must never be reached");
               break;
         }
         return 0;
@@ -6180,7 +6148,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
     /**
      * Indicates whether a class or its superclasses override coalesceEvents.
      * Must be called with lock on coalesceMap and privileged.
-     * @see checkCoalsecing
      */
     private static boolean isCoalesceEventsOverriden(Class<?> clazz) {
         assert Thread.holdsLock(coalesceMap);
@@ -7632,7 +7599,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
             // 2) Sanity check: if the mouse event component source belongs to the same containing window.
             Component source = ((MouseEvent)currentEvent).getComponent();
             if (source == null || source.getContainingWindow() == getContainingWindow()) {
-                focusLog.finest("requesting focus by mouse event \"in window\"");
+                Log.v(TAG, "Focus: requesting focus by mouse event \"in window\"");
 
                 // If both the conditions are fulfilled the focus request should be strictly
                 // bounded by the toplevel window. It's assumed that the mouse event activates
@@ -7646,19 +7613,18 @@ public abstract class Component implements ImageObserver, MenuContainer,
             }
         }
         if (!isRequestFocusAccepted(temporary, focusedWindowChangeAllowed, cause)) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("requestFocus is not accepted");
-            }
+            Log.v(TAG, "Focus: requestFocus is not accepted");
             return false;
         }
-        // Update most-recent map
+
+    // Update most-recent map
         KeyboardFocusManager.setMostRecentFocusOwner(this);
 
         Component window = this;
         while ( (window != null) && !(window instanceof Window)) {
             if (!window.isVisible()) {
-                if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                    focusLog.finest("component is recurively invisible");
+                if (true) {
+                    Log.v(TAG, "component is recurively invisible");
                 }
                 return false;
             }
@@ -7669,15 +7635,15 @@ public abstract class Component implements ImageObserver, MenuContainer,
         Component heavyweight = (peer instanceof LightweightPeer)
             ? getNativeContainer() : this;
         if (heavyweight == null || !heavyweight.isVisible()) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Component is not a part of visible hierarchy");
+            if (true) {
+                Log.v(TAG, "Component is not a part of visible hierarchy");
             }
             return false;
         }
         peer = heavyweight.peer;
         if (peer == null) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Peer is null");
+            if (true) {
+                Log.v(TAG, "Peer is null");
             }
             return false;
         }
@@ -7697,12 +7663,12 @@ public abstract class Component implements ImageObserver, MenuContainer,
         if (!success) {
             KeyboardFocusManager.getCurrentKeyboardFocusManager
                 (appContext).dequeueKeyEvents(time, this);
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Peer request failed");
+            if (true) {
+                Log.v(TAG, "Peer request failed");
             }
         } else {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Pass for " + this);
+            if (true) {
+                Log.v(TAG, "Pass for " + this);
             }
         }
         return success;
@@ -7713,25 +7679,19 @@ public abstract class Component implements ImageObserver, MenuContainer,
                                            CausedFocusEvent.Cause cause)
     {
         if (!isFocusable() || !isVisible()) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Not focusable or not visible");
-            }
+            Log.v(TAG, "Not focusable or not visible");
             return false;
         }
 
         ComponentPeer peer = this.peer;
         if (peer == null) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("peer is null");
-            }
+            Log.v(TAG, "peer is null");
             return false;
         }
 
         Window window = getContainingWindow();
         if (window == null || !window.isFocusableWindow()) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("Component doesn't have toplevel");
-            }
+            Log.v(TAG, "Component doesn't have toplevel");
             return false;
         }
 
@@ -7751,9 +7711,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
             // Controller is supposed to verify focus transfers and for this it
             // should know both from and to components.  And it shouldn't verify
             // transfers from when these components are equal.
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("focus owner is null or this");
-            }
+            Log.v(TAG, "focus owner is null or this");
             return true;
         }
 
@@ -7764,9 +7722,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
             // most recent focus owner.  But most recent focus owner can be
             // changed by requestFocsuXXX() call only, so this transfer has
             // been already approved.
-            if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                focusLog.finest("cause is activation");
-            }
+            Log.v(TAG, "cause is activation");
             return true;
         }
 
@@ -7775,8 +7731,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
                                                                           temporary,
                                                                           focusedWindowChangeAllowed,
                                                                           cause);
-        if (focusLog.isLoggable(PlatformLogger.Level.FINEST)) {
-            focusLog.finest("RequestFocusController returns {0}", ret);
+        if (true) {
+            Log.v(TAG, "RequestFocusController returns " + ret);
         }
 
         return ret;
@@ -7867,23 +7823,17 @@ public abstract class Component implements ImageObserver, MenuContainer,
     }
 
     boolean transferFocus(boolean clearOnFailure) {
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("clearOnFailure = " + clearOnFailure);
-        }
+        Log.v(TAG, "Focus: clearOnFailure = " + clearOnFailure);
         Component toFocus = getNextFocusCandidate();
         boolean res = false;
         if (toFocus != null && !toFocus.isFocusOwner() && toFocus != this) {
             res = toFocus.requestFocusInWindow(CausedFocusEvent.Cause.TRAVERSAL_FORWARD);
         }
         if (clearOnFailure && !res) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-                focusLog.finer("clear global focus owner");
-            }
+            Log.v(TAG, "Focus: clear global focus owner");
             KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwnerPriv();
         }
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("returning result: " + res);
-        }
+        Log.v(TAG, "Focus: returning result: " + res);
         return res;
     }
 
@@ -7896,33 +7846,19 @@ public abstract class Component implements ImageObserver, MenuContainer,
             comp = rootAncestor;
             rootAncestor = comp.getFocusCycleRootAncestor();
         }
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("comp = " + comp + ", root = " + rootAncestor);
-        }
+        Log.v(TAG, "Focus: comp = " + comp + ", root = " + rootAncestor);
         Component candidate = null;
         if (rootAncestor != null) {
             FocusTraversalPolicy policy = rootAncestor.getFocusTraversalPolicy();
             Component toFocus = policy.getComponentAfter(rootAncestor, comp);
-            if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-                focusLog.finer("component after is " + toFocus);
-            }
+            Log.v(TAG, "Focus: component after is " + toFocus);
             if (toFocus == null) {
                 toFocus = policy.getDefaultComponent(rootAncestor);
-                if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-                    focusLog.finer("default component is " + toFocus);
-                }
-            }
-            if (toFocus == null) {
-                Applet applet = EmbeddedFrame.getAppletIfAncestorOf(this);
-                if (applet != null) {
-                    toFocus = applet;
-                }
+                Log.v(TAG, "Focus: default component is " + toFocus);
             }
             candidate = toFocus;
         }
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("Focus transfer candidate: " + candidate);
-        }
+        Log.v(TAG, "Focus: Focus transfer candidate: " + candidate);
         return candidate;
     }
 
@@ -7957,14 +7893,10 @@ public abstract class Component implements ImageObserver, MenuContainer,
             }
         }
         if (clearOnFailure && !res) {
-            if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-                focusLog.finer("clear global focus owner");
-            }
+            Log.v(TAG, "Focus: clear global focus owner");
             KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwnerPriv();
         }
-        if (focusLog.isLoggable(PlatformLogger.Level.FINER)) {
-            focusLog.finer("returning result: " + res);
-        }
+        Log.v(TAG, "Focus: returning result: " + res);
         return res;
     }
 
@@ -8845,6 +8777,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
                 popup.parent = this;
             }
         }
+        androidComponent = createAndroidComponent();
     }
 
     /**
@@ -8990,709 +8923,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
     }
 
     /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-    /*
-     * --- Accessibility Support ---
-     *
-     *  Component will contain all of the methods in interface Accessible,
-     *  though it won't actually implement the interface - that will be up
-     *  to the individual objects which extend Component.
-     */
-
-    /**
-     * The {@code AccessibleContext} associated with this {@code Component}.
-     */
-    protected AccessibleContext accessibleContext = null;
-
-    /**
-     * Gets the <code>AccessibleContext</code> associated
-     * with this <code>Component</code>.
-     * The method implemented by this base
-     * class returns null.  Classes that extend <code>Component</code>
-     * should implement this method to return the
-     * <code>AccessibleContext</code> associated with the subclass.
-     *
-     *
-     * @return the <code>AccessibleContext</code> of this
-     *    <code>Component</code>
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        return accessibleContext;
-    }
-
-    /**
-     * Inner class of Component used to provide default support for
-     * accessibility.  This class is not meant to be used directly by
-     * application developers, but is instead meant only to be
-     * subclassed by component developers.
-     * <p>
-     * The class used to obtain the accessible role for this object.
-     * @since 1.3
-     */
-    protected abstract class AccessibleAWTComponent extends AccessibleContext
-        implements Serializable, AccessibleComponent {
-
-        private static final long serialVersionUID = 642321655757800191L;
-
-        /**
-         * Though the class is abstract, this should be called by
-         * all sub-classes.
-         */
-        protected AccessibleAWTComponent() {
-        }
-
-        /**
-         * Number of PropertyChangeListener objects registered. It's used
-         * to add/remove ComponentListener and FocusListener to track
-         * target Component's state.
-         */
-        private volatile transient int propertyListenersCount = 0;
-
-        protected ComponentListener accessibleAWTComponentHandler = null;
-        protected FocusListener accessibleAWTFocusHandler = null;
-
-        /**
-         * Fire PropertyChange listener, if one is registered,
-         * when shown/hidden..
-         * @since 1.3
-         */
-        protected class AccessibleAWTComponentHandler implements ComponentListener {
-            public void componentHidden(ComponentEvent e)  {
-                if (accessibleContext != null) {
-                    accessibleContext.firePropertyChange(
-                                                         AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                         AccessibleState.VISIBLE, null);
-                }
-            }
-
-            public void componentShown(ComponentEvent e)  {
-                if (accessibleContext != null) {
-                    accessibleContext.firePropertyChange(
-                                                         AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                         null, AccessibleState.VISIBLE);
-                }
-            }
-
-            public void componentMoved(ComponentEvent e)  {
-            }
-
-            public void componentResized(ComponentEvent e)  {
-            }
-        } // inner class AccessibleAWTComponentHandler
-
-
-        /**
-         * Fire PropertyChange listener, if one is registered,
-         * when focus events happen
-         * @since 1.3
-         */
-        protected class AccessibleAWTFocusHandler implements FocusListener {
-            public void focusGained(FocusEvent event) {
-                if (accessibleContext != null) {
-                    accessibleContext.firePropertyChange(
-                                                         AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                         null, AccessibleState.FOCUSED);
-                }
-            }
-            public void focusLost(FocusEvent event) {
-                if (accessibleContext != null) {
-                    accessibleContext.firePropertyChange(
-                                                         AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                         AccessibleState.FOCUSED, null);
-                }
-            }
-        }  // inner class AccessibleAWTFocusHandler
-
-
-        /**
-         * Adds a <code>PropertyChangeListener</code> to the listener list.
-         *
-         * @param listener  the property change listener to be added
-         */
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
-            if (accessibleAWTComponentHandler == null) {
-                accessibleAWTComponentHandler = new AccessibleAWTComponentHandler();
-            }
-            if (accessibleAWTFocusHandler == null) {
-                accessibleAWTFocusHandler = new AccessibleAWTFocusHandler();
-            }
-            if (propertyListenersCount++ == 0) {
-                Component.this.addComponentListener(accessibleAWTComponentHandler);
-                Component.this.addFocusListener(accessibleAWTFocusHandler);
-            }
-            super.addPropertyChangeListener(listener);
-        }
-
-        /**
-         * Remove a PropertyChangeListener from the listener list.
-         * This removes a PropertyChangeListener that was registered
-         * for all properties.
-         *
-         * @param listener  The PropertyChangeListener to be removed
-         */
-        public void removePropertyChangeListener(PropertyChangeListener listener) {
-            if (--propertyListenersCount == 0) {
-                Component.this.removeComponentListener(accessibleAWTComponentHandler);
-                Component.this.removeFocusListener(accessibleAWTFocusHandler);
-            }
-            super.removePropertyChangeListener(listener);
-        }
-
-        // AccessibleContext methods
-        //
-        /**
-         * Gets the accessible name of this object.  This should almost never
-         * return <code>java.awt.Component.getName()</code>,
-         * as that generally isn't a localized name,
-         * and doesn't have meaning for the user.  If the
-         * object is fundamentally a text object (e.g. a menu item), the
-         * accessible name should be the text of the object (e.g. "save").
-         * If the object has a tooltip, the tooltip text may also be an
-         * appropriate String to return.
-         *
-         * @return the localized name of the object -- can be
-         *         <code>null</code> if this
-         *         object does not have a name
-         * @see javax.accessibility.AccessibleContext#setAccessibleName
-         */
-        public String getAccessibleName() {
-            return accessibleName;
-        }
-
-        /**
-         * Gets the accessible description of this object.  This should be
-         * a concise, localized description of what this object is - what
-         * is its meaning to the user.  If the object has a tooltip, the
-         * tooltip text may be an appropriate string to return, assuming
-         * it contains a concise description of the object (instead of just
-         * the name of the object - e.g. a "Save" icon on a toolbar that
-         * had "save" as the tooltip text shouldn't return the tooltip
-         * text as the description, but something like "Saves the current
-         * text document" instead).
-         *
-         * @return the localized description of the object -- can be
-         *        <code>null</code> if this object does not have a description
-         * @see javax.accessibility.AccessibleContext#setAccessibleDescription
-         */
-        public String getAccessibleDescription() {
-            return accessibleDescription;
-        }
-
-        /**
-         * Gets the role of this object.
-         *
-         * @return an instance of <code>AccessibleRole</code>
-         *      describing the role of the object
-         * @see javax.accessibility.AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.AWT_COMPONENT;
-        }
-
-        /**
-         * Gets the state of this object.
-         *
-         * @return an instance of <code>AccessibleStateSet</code>
-         *       containing the current state set of the object
-         * @see javax.accessibility.AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            return Component.this.getAccessibleStateSet();
-        }
-
-        /**
-         * Gets the <code>Accessible</code> parent of this object.
-         * If the parent of this object implements <code>Accessible</code>,
-         * this method should simply return <code>getParent</code>.
-         *
-         * @return the <code>Accessible</code> parent of this
-         *      object -- can be <code>null</code> if this
-         *      object does not have an <code>Accessible</code> parent
-         */
-        public Accessible getAccessibleParent() {
-            if (accessibleParent != null) {
-                return accessibleParent;
-            } else {
-                Container parent = getParent();
-                if (parent instanceof Accessible) {
-                    return (Accessible) parent;
-                }
-            }
-            return null;
-        }
-
-        /**
-         * Gets the index of this object in its accessible parent.
-         *
-         * @return the index of this object in its parent; or -1 if this
-         *    object does not have an accessible parent
-         * @see #getAccessibleParent
-         */
-        public int getAccessibleIndexInParent() {
-            return Component.this.getAccessibleIndexInParent();
-        }
-
-        /**
-         * Returns the number of accessible children in the object.  If all
-         * of the children of this object implement <code>Accessible</code>,
-         * then this method should return the number of children of this object.
-         *
-         * @return the number of accessible children in the object
-         */
-        public int getAccessibleChildrenCount() {
-            return 0; // Components don't have children
-        }
-
-        /**
-         * Returns the nth <code>Accessible</code> child of the object.
-         *
-         * @param i zero-based index of child
-         * @return the nth <code>Accessible</code> child of the object
-         */
-        public Accessible getAccessibleChild(int i) {
-            return null; // Components don't have children
-        }
-
-        /**
-         * Returns the locale of this object.
-         *
-         * @return the locale of this object
-         */
-        public Locale getLocale() {
-            return Component.this.getLocale();
-        }
-
-        /**
-         * Gets the <code>AccessibleComponent</code> associated
-         * with this object if one exists.
-         * Otherwise return <code>null</code>.
-         *
-         * @return the component
-         */
-        public AccessibleComponent getAccessibleComponent() {
-            return this;
-        }
-
-
-        // AccessibleComponent methods
-        //
-        /**
-         * Gets the background color of this object.
-         *
-         * @return the background color, if supported, of the object;
-         *      otherwise, <code>null</code>
-         */
-        public Color getBackground() {
-            return Component.this.getBackground();
-        }
-
-        /**
-         * Sets the background color of this object.
-         * (For transparency, see <code>isOpaque</code>.)
-         *
-         * @param c the new <code>Color</code> for the background
-         * @see Component#isOpaque
-         */
-        public void setBackground(Color c) {
-            Component.this.setBackground(c);
-        }
-
-        /**
-         * Gets the foreground color of this object.
-         *
-         * @return the foreground color, if supported, of the object;
-         *     otherwise, <code>null</code>
-         */
-        public Color getForeground() {
-            return Component.this.getForeground();
-        }
-
-        /**
-         * Sets the foreground color of this object.
-         *
-         * @param c the new <code>Color</code> for the foreground
-         */
-        public void setForeground(Color c) {
-            Component.this.setForeground(c);
-        }
-
-        /**
-         * Gets the <code>Cursor</code> of this object.
-         *
-         * @return the <code>Cursor</code>, if supported,
-         *     of the object; otherwise, <code>null</code>
-         */
-        public Cursor getCursor() {
-            return Component.this.getCursor();
-        }
-
-        /**
-         * Sets the <code>Cursor</code> of this object.
-         * <p>
-         * The method may have no visual effect if the Java platform
-         * implementation and/or the native system do not support
-         * changing the mouse cursor shape.
-         * @param cursor the new <code>Cursor</code> for the object
-         */
-        public void setCursor(Cursor cursor) {
-            Component.this.setCursor(cursor);
-        }
-
-        /**
-         * Gets the <code>Font</code> of this object.
-         *
-         * @return the <code>Font</code>, if supported,
-         *    for the object; otherwise, <code>null</code>
-         */
-        public Font getFont() {
-            return Component.this.getFont();
-        }
-
-        /**
-         * Sets the <code>Font</code> of this object.
-         *
-         * @param f the new <code>Font</code> for the object
-         */
-        public void setFont(Font f) {
-            Component.this.setFont(f);
-        }
-
-        /**
-         * Gets the <code>FontMetrics</code> of this object.
-         *
-         * @param f the <code>Font</code>
-         * @return the <code>FontMetrics</code>, if supported,
-         *     the object; otherwise, <code>null</code>
-         * @see #getFont
-         */
-        public FontMetrics getFontMetrics(Font f) {
-            if (f == null) {
-                return null;
-            } else {
-                return Component.this.getFontMetrics(f);
-            }
-        }
-
-        /**
-         * Determines if the object is enabled.
-         *
-         * @return true if object is enabled; otherwise, false
-         */
-        public boolean isEnabled() {
-            return Component.this.isEnabled();
-        }
-
-        /**
-         * Sets the enabled state of the object.
-         *
-         * @param b if true, enables this object; otherwise, disables it
-         */
-        public void setEnabled(boolean b) {
-            boolean old = Component.this.isEnabled();
-            Component.this.setEnabled(b);
-            if (b != old) {
-                if (accessibleContext != null) {
-                    if (b) {
-                        accessibleContext.firePropertyChange(
-                                                             AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                             null, AccessibleState.ENABLED);
-                    } else {
-                        accessibleContext.firePropertyChange(
-                                                             AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                             AccessibleState.ENABLED, null);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Determines if the object is visible.  Note: this means that the
-         * object intends to be visible; however, it may not in fact be
-         * showing on the screen because one of the objects that this object
-         * is contained by is not visible.  To determine if an object is
-         * showing on the screen, use <code>isShowing</code>.
-         *
-         * @return true if object is visible; otherwise, false
-         */
-        public boolean isVisible() {
-            return Component.this.isVisible();
-        }
-
-        /**
-         * Sets the visible state of the object.
-         *
-         * @param b if true, shows this object; otherwise, hides it
-         */
-        public void setVisible(boolean b) {
-            boolean old = Component.this.isVisible();
-            Component.this.setVisible(b);
-            if (b != old) {
-                if (accessibleContext != null) {
-                    if (b) {
-                        accessibleContext.firePropertyChange(
-                                                             AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                             null, AccessibleState.VISIBLE);
-                    } else {
-                        accessibleContext.firePropertyChange(
-                                                             AccessibleContext.ACCESSIBLE_STATE_PROPERTY,
-                                                             AccessibleState.VISIBLE, null);
-                    }
-                }
-            }
-        }
-
-        /**
-         * Determines if the object is showing.  This is determined by checking
-         * the visibility of the object and ancestors of the object.  Note:
-         * this will return true even if the object is obscured by another
-         * (for example, it happens to be underneath a menu that was pulled
-         * down).
-         *
-         * @return true if object is showing; otherwise, false
-         */
-        public boolean isShowing() {
-            return Component.this.isShowing();
-        }
-
-        /**
-         * Checks whether the specified point is within this object's bounds,
-         * where the point's x and y coordinates are defined to be relative to
-         * the coordinate system of the object.
-         *
-         * @param p the <code>Point</code> relative to the
-         *     coordinate system of the object
-         * @return true if object contains <code>Point</code>; otherwise false
-         */
-        public boolean contains(Point p) {
-            return Component.this.contains(p);
-        }
-
-        /**
-         * Returns the location of the object on the screen.
-         *
-         * @return location of object on screen -- can be
-         *    <code>null</code> if this object is not on the screen
-         */
-        public Point getLocationOnScreen() {
-            synchronized (Component.this.getTreeLock()) {
-                if (Component.this.isShowing()) {
-                    return Component.this.getLocationOnScreen();
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        /**
-         * Gets the location of the object relative to the parent in the form
-         * of a point specifying the object's top-left corner in the screen's
-         * coordinate space.
-         *
-         * @return an instance of Point representing the top-left corner of
-         * the object's bounds in the coordinate space of the screen;
-         * <code>null</code> if this object or its parent are not on the screen
-         */
-        public Point getLocation() {
-            return Component.this.getLocation();
-        }
-
-        /**
-         * Sets the location of the object relative to the parent.
-         * @param p  the coordinates of the object
-         */
-        public void setLocation(Point p) {
-            Component.this.setLocation(p);
-        }
-
-        /**
-         * Gets the bounds of this object in the form of a Rectangle object.
-         * The bounds specify this object's width, height, and location
-         * relative to its parent.
-         *
-         * @return a rectangle indicating this component's bounds;
-         *   <code>null</code> if this object is not on the screen
-         */
-        public Rectangle getBounds() {
-            return Component.this.getBounds();
-        }
-
-        /**
-         * Sets the bounds of this object in the form of a
-         * <code>Rectangle</code> object.
-         * The bounds specify this object's width, height, and location
-         * relative to its parent.
-         *
-         * @param r a rectangle indicating this component's bounds
-         */
-        public void setBounds(Rectangle r) {
-            Component.this.setBounds(r);
-        }
-
-        /**
-         * Returns the size of this object in the form of a
-         * <code>Dimension</code> object. The height field of the
-         * <code>Dimension</code> object contains this objects's
-         * height, and the width field of the <code>Dimension</code>
-         * object contains this object's width.
-         *
-         * @return a <code>Dimension</code> object that indicates
-         *     the size of this component; <code>null</code> if
-         *     this object is not on the screen
-         */
-        public Dimension getSize() {
-            return Component.this.getSize();
-        }
-
-        /**
-         * Resizes this object so that it has width and height.
-         *
-         * @param d - the dimension specifying the new size of the object
-         */
-        public void setSize(Dimension d) {
-            Component.this.setSize(d);
-        }
-
-        /**
-         * Returns the <code>Accessible</code> child,
-         * if one exists, contained at the local
-         * coordinate <code>Point</code>.  Otherwise returns
-         * <code>null</code>.
-         *
-         * @param p the point defining the top-left corner of
-         *      the <code>Accessible</code>, given in the
-         *      coordinate space of the object's parent
-         * @return the <code>Accessible</code>, if it exists,
-         *      at the specified location; else <code>null</code>
-         */
-        public Accessible getAccessibleAt(Point p) {
-            return null; // Components don't have children
-        }
-
-        /**
-         * Returns whether this object can accept focus or not.
-         *
-         * @return true if object can accept focus; otherwise false
-         */
-        public boolean isFocusTraversable() {
-            return Component.this.isFocusTraversable();
-        }
-
-        /**
-         * Requests focus for this object.
-         */
-        public void requestFocus() {
-            Component.this.requestFocus();
-        }
-
-        /**
-         * Adds the specified focus listener to receive focus events from this
-         * component.
-         *
-         * @param l the focus listener
-         */
-        public void addFocusListener(FocusListener l) {
-            Component.this.addFocusListener(l);
-        }
-
-        /**
-         * Removes the specified focus listener so it no longer receives focus
-         * events from this component.
-         *
-         * @param l the focus listener
-         */
-        public void removeFocusListener(FocusListener l) {
-            Component.this.removeFocusListener(l);
-        }
-
-    } // inner class AccessibleAWTComponent
-
-
-    /**
-     * Gets the index of this object in its accessible parent.
-     * If this object does not have an accessible parent, returns
-     * -1.
-     *
-     * @return the index of this object in its accessible parent
-     */
-    int getAccessibleIndexInParent() {
-        synchronized (getTreeLock()) {
-            int index = -1;
-            Container parent = this.getParent();
-            if (parent != null && parent instanceof Accessible) {
-                Component ca[] = parent.getComponents();
-                for (int i = 0; i < ca.length; i++) {
-                    if (ca[i] instanceof Accessible) {
-                        index++;
-                    }
-                    if (this.equals(ca[i])) {
-                        return index;
-                    }
-                }
-            }
-            return -1;
-        }
-    }
-
-    /**
-     * Gets the current state set of this object.
-     *
-     * @return an instance of <code>AccessibleStateSet</code>
-     *    containing the current state set of the object
-     * @see AccessibleState
-     */
-    AccessibleStateSet getAccessibleStateSet() {
-        synchronized (getTreeLock()) {
-            AccessibleStateSet states = new AccessibleStateSet();
-            if (this.isEnabled()) {
-                states.add(AccessibleState.ENABLED);
-            }
-            if (this.isFocusTraversable()) {
-                states.add(AccessibleState.FOCUSABLE);
-            }
-            if (this.isVisible()) {
-                states.add(AccessibleState.VISIBLE);
-            }
-            if (this.isShowing()) {
-                states.add(AccessibleState.SHOWING);
-            }
-            if (this.isFocusOwner()) {
-                states.add(AccessibleState.FOCUSED);
-            }
-            if (this instanceof Accessible) {
-                AccessibleContext ac = ((Accessible) this).getAccessibleContext();
-                if (ac != null) {
-                    Accessible ap = ac.getAccessibleParent();
-                    if (ap != null) {
-                        AccessibleContext pac = ap.getAccessibleContext();
-                        if (pac != null) {
-                            AccessibleSelection as = pac.getAccessibleSelection();
-                            if (as != null) {
-                                states.add(AccessibleState.SELECTABLE);
-                                int i = ac.getAccessibleIndexInParent();
-                                if (i >= 0) {
-                                    if (as.isAccessibleChildSelected(i)) {
-                                        states.add(AccessibleState.SELECTED);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if (Component.isInstanceOf(this, "javax.swing.JComponent")) {
-                if (((javax.swing.JComponent) this).isOpaque()) {
-                    states.add(AccessibleState.OPAQUE);
-                }
-            }
-            return states;
-        }
-    }
-
-    /**
      * Checks that the given object is instance of the given class.
      * @param obj Object to be checked
      * @param className The name of the class. Must be fully-qualified class name.
@@ -9737,8 +8967,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
         checkTreeLock();
 
         if (!areBoundsValid()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this + "; areBoundsValid = " + areBoundsValid());
+            if (true) {
+                Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
             }
             return;
         }
@@ -9773,9 +9003,9 @@ public abstract class Component implements ImageObserver, MenuContainer,
                     }
                     this.compoundShape = shape;
                     Point compAbsolute = getLocationOnWindow();
-                    if (mixingLog.isLoggable(PlatformLogger.Level.FINER)) {
-                        mixingLog.fine("this = " + this +
-                                "; compAbsolute=" + compAbsolute + "; shape=" + shape);
+                    if (true) {
+                        Log.d(TAG, "this = " + this +
+                                            "; compAbsolute=" + compAbsolute + "; shape=" + shape);
                     }
                     peer.applyShape(shape.getTranslatedRegion(-compAbsolute.x, -compAbsolute.y));
                 }
@@ -9907,8 +9137,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
         checkTreeLock();
         Region s = getNormalShape();
 
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("this = " + this + "; normalShape=" + s);
+        if (true) {
+            Log.d(TAG, "this = " + this + "; normalShape=" + s);
         }
 
         if (getContainer() != null) {
@@ -9941,8 +9171,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
             }
         }
 
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("currentShape=" + s);
+        if (true) {
+            Log.d(TAG, "currentShape=" + s);
         }
 
         return s;
@@ -9951,13 +9181,13 @@ public abstract class Component implements ImageObserver, MenuContainer,
     void applyCurrentShape() {
         checkTreeLock();
         if (!areBoundsValid()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this + "; areBoundsValid = " + areBoundsValid());
+            if (true) {
+                Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
             }
             return; // Because applyCompoundShape() ignores such components anyway
         }
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("this = " + this);
+        if (true) {
+            Log.d(TAG, "this = " + this);
         }
         applyCompoundShape(calculateCurrentShape());
     }
@@ -9965,8 +9195,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
     final void subtractAndApplyShape(Region s) {
         checkTreeLock();
 
-        if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-            mixingLog.fine("this = " + this + "; s=" + s);
+        if (true) {
+            Log.d(TAG, "this = " + this + "; s=" + s);
         }
 
         applyCompoundShape(getAppliedShape().getDifference(s));
@@ -10012,8 +9242,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
 
     void mixOnShowing() {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this);
+            if (true) {
+                Log.d(TAG, "this = " + this);
             }
             if (!isMixingNeeded()) {
                 return;
@@ -10030,8 +9260,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
         // We cannot be sure that the peer exists at this point, so we need the argument
         //    to find out whether the hiding component is (well, actually was) a LW or a HW.
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this + "; isLightweight = " + isLightweight);
+            if (true) {
+                Log.d(TAG, "this = " + this + "; isLightweight = " + isLightweight);
             }
             if (!isMixingNeeded()) {
                 return;
@@ -10044,8 +9274,8 @@ public abstract class Component implements ImageObserver, MenuContainer,
 
     void mixOnReshaping() {
         synchronized (getTreeLock()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this);
+            if (true) {
+                Log.d(TAG, "this = " + this);
             }
             if (!isMixingNeeded()) {
                 return;
@@ -10063,9 +9293,9 @@ public abstract class Component implements ImageObserver, MenuContainer,
             boolean becameHigher = newZorder < oldZorder;
             Container parent = getContainer();
 
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this +
-                    "; oldZorder=" + oldZorder + "; newZorder=" + newZorder + "; parent=" + parent);
+            if (true) {
+                Log.d(TAG, "this = " + this +
+                        "; oldZorder=" + oldZorder + "; newZorder=" + newZorder + "; parent=" + parent);
             }
             if (!isMixingNeeded()) {
                 return;
@@ -10107,31 +9337,31 @@ public abstract class Component implements ImageObserver, MenuContainer,
 
     final boolean isMixingNeeded() {
         if (SunToolkit.getSunAwtDisableMixing()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINEST)) {
-                mixingLog.finest("this = " + this + "; Mixing disabled via sun.awt.disableMixing");
+            if (true) {
+                Log.v(TAG, "this = " + this + "; Mixing disabled via sun.awt.disableMixing");
             }
             return false;
         }
         if (!areBoundsValid()) {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this + "; areBoundsValid = " + areBoundsValid());
+            if (true) {
+                Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
             }
             return false;
         }
         Window window = getContainingWindow();
         if (window != null) {
             if (!window.hasHeavyweightDescendants() || !window.hasLightweightDescendants() || window.isDisposing()) {
-                if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                    mixingLog.fine("containing window = " + window +
-                            "; has h/w descendants = " + window.hasHeavyweightDescendants() +
-                            "; has l/w descendants = " + window.hasLightweightDescendants() +
-                            "; disposing = " + window.isDisposing());
+                if (true) {
+                    Log.d(TAG, "containing window = " + window +
+                                    "; has h/w descendants = " + window.hasHeavyweightDescendants() +
+                                    "; has l/w descendants = " + window.hasLightweightDescendants() +
+                                    "; disposing = " + window.isDisposing());
                 }
                 return false;
             }
         } else {
-            if (mixingLog.isLoggable(PlatformLogger.Level.FINE)) {
-                mixingLog.fine("this = " + this + "; containing window is null");
+            if (true) {
+                Log.d(TAG, "this = " + this + "; containing window is null");
             }
             return false;
         }

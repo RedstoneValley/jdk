@@ -110,8 +110,8 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
     static final class PaintHeavyweightComponentsCallback
         extends GraphicsCallback
     {
-        private static PaintHeavyweightComponentsCallback instance =
-            new PaintHeavyweightComponentsCallback();
+        private static GraphicsCallback.PaintHeavyweightComponentsCallback instance =
+            new GraphicsCallback.PaintHeavyweightComponentsCallback();
 
         private PaintHeavyweightComponentsCallback() {}
         public void run(Component comp, Graphics cg) {
@@ -121,15 +121,15 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
                 comp.paintAll(cg);
             }
         }
-        static PaintHeavyweightComponentsCallback getInstance() {
+        static GraphicsCallback.PaintHeavyweightComponentsCallback getInstance() {
             return instance;
         }
     }
     static final class PrintHeavyweightComponentsCallback
         extends GraphicsCallback
     {
-        private static PrintHeavyweightComponentsCallback instance =
-            new PrintHeavyweightComponentsCallback();
+        private static GraphicsCallback.PrintHeavyweightComponentsCallback instance =
+            new GraphicsCallback.PrintHeavyweightComponentsCallback();
 
         private PrintHeavyweightComponentsCallback() {}
         public void run(Component comp, Graphics cg) {
@@ -139,7 +139,7 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
                 comp.printAll(cg);
             }
         }
-        static PrintHeavyweightComponentsCallback getInstance() {
+        static GraphicsCallback.PrintHeavyweightComponentsCallback getInstance() {
             return instance;
         }
     }

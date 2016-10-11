@@ -35,7 +35,6 @@ import java.security.PrivilegedAction;
 import javax.accessibility.*;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
-import sun.awt.PeerEvent;
 import sun.awt.util.IdentityArrayList;
 import sun.awt.util.IdentityLinkedList;
 import sun.security.util.SecurityConstants;
@@ -1653,73 +1652,4 @@ public class Dialog extends Window {
         initialized = true;
 
     }
-
-    /*
-     * --- Accessibility Support ---
-     *
-     */
-
-    /**
-     * Gets the AccessibleContext associated with this Dialog.
-     * For dialogs, the AccessibleContext takes the form of an
-     * AccessibleAWTDialog.
-     * A new AccessibleAWTDialog instance is created if necessary.
-     *
-     * @return an AccessibleAWTDialog that serves as the
-     *         AccessibleContext of this Dialog
-     * @since 1.3
-     */
-    public AccessibleContext getAccessibleContext() {
-        if (accessibleContext == null) {
-            accessibleContext = new AccessibleAWTDialog();
-        }
-        return accessibleContext;
-    }
-
-    /**
-     * This class implements accessibility support for the
-     * <code>Dialog</code> class.  It provides an implementation of the
-     * Java Accessibility API appropriate to dialog user-interface elements.
-     * @since 1.3
-     */
-    protected class AccessibleAWTDialog extends AccessibleAWTWindow
-    {
-        /*
-         * JDK 1.3 serialVersionUID
-         */
-        private static final long serialVersionUID = 4837230331833941201L;
-
-        /**
-         * Get the role of this object.
-         *
-         * @return an instance of AccessibleRole describing the role of the
-         * object
-         * @see AccessibleRole
-         */
-        public AccessibleRole getAccessibleRole() {
-            return AccessibleRole.DIALOG;
-        }
-
-        /**
-         * Get the state of this object.
-         *
-         * @return an instance of AccessibleStateSet containing the current
-         * state set of the object
-         * @see AccessibleState
-         */
-        public AccessibleStateSet getAccessibleStateSet() {
-            AccessibleStateSet states = super.getAccessibleStateSet();
-            if (getFocusOwner() != null) {
-                states.add(AccessibleState.ACTIVE);
-            }
-            if (isModal()) {
-                states.add(AccessibleState.MODAL);
-            }
-            if (isResizable()) {
-                states.add(AccessibleState.RESIZABLE);
-            }
-            return states;
-        }
-
-    } // inner class AccessibleAWTDialog
 }
