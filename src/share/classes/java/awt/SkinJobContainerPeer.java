@@ -7,7 +7,7 @@ import java.awt.peer.ContainerPeer;
 /**
  * Created by cryoc on 2016-10-10.
  */
-public class SkinJobContainerPeer<T extends View> extends SkinJobComponentPeer<T> implements ContainerPeer {
+public class SkinJobContainerPeer<T extends View> extends SkinJobComponentPeerForView<T> implements ContainerPeer {
     public SkinJobContainerPeer(T androidComponent, GraphicsConfiguration configuration) {
         super(androidComponent, configuration);
     }

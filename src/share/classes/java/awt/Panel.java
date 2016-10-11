@@ -24,8 +24,6 @@
  */
 package java.awt;
 
-import javax.accessibility.*;
-
 /**
  * <code>Panel</code> is the simplest container class. A panel
  * provides space in which an application can attach any other
@@ -38,7 +36,7 @@ import javax.accessibility.*;
  * @see     java.awt.FlowLayout
  * @since   JDK1.0
  */
-public class Panel extends Container implements Accessible {
+public class Panel extends Container {
     private static final String base = "panel";
     private static int nameCounter = 0;
 

@@ -7,10 +7,9 @@ import java.awt.peer.ScrollPanePeer;
 /**
  * Created by cryoc on 2016-10-10.
  */
-// TODO: All methods are stubs.
 public class SkinJobScrollPanePeer extends SkinJobContainerPeer<ScrollView> implements ScrollPanePeer {
     public SkinJobScrollPanePeer(ScrollPane scrollPane) {
-        super((ScrollView) scrollPane.androidComponent);
+        super((ScrollView) scrollPane.androidWidget);
     }
 
     @Override

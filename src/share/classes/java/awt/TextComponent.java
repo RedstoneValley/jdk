@@ -24,7 +24,7 @@
  */
 package java.awt;
 
-import android.view.View;
+import android.widget.EditText;
 
 import java.awt.peer.TextComponentPeer;
 import java.awt.event.*;
@@ -126,7 +126,7 @@ public class TextComponent extends Component {
      * @see        java.awt.Cursor
      */
     TextComponent(String text) throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
+        super(EditText.class);
         this.text = (text != null) ? text : "";
         setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
     }
@@ -146,11 +146,6 @@ public class TextComponent extends Component {
                 // if something bad happens, just don't enable input methods
             }
         }
-    }
-
-    @Override
-    protected View createAndroidComponent() {
-        return null; // TODO
     }
 
     /**

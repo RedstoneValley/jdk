@@ -279,7 +279,7 @@ public class SkinJobToolkit extends Toolkit {
     @Override
     protected LabelPeer createLabel(Label target)
             throws HeadlessException {
-        return new SkinJobLabelPeer();
+        return new SkinJobLabelPeer(target);
     }
 
     @Override

@@ -26,7 +26,6 @@
 package java.awt.datatransfer;
 
 import sun.awt.datatransfer.DataTransferer;
-import sun.reflect.misc.ReflectUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.CharArrayReader;
@@ -46,8 +45,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Objects;
-
-import static sun.security.util.SecurityConstants.GET_CLASSLOADER_PERMISSION;
 
 /**
  * A {@code DataFlavor} provides meta information about data. {@code DataFlavor}
@@ -134,12 +131,7 @@ public class DataFlavor implements Externalizable, Cloneable {
                                                    ClassLoader fallback)
         throws ClassNotFoundException
     {
-        ReflectUtil.checkPackageAccess(className);
         try {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(GET_CLASSLOADER_PERMISSION);
-            }
             ClassLoader loader = ClassLoader.getSystemClassLoader();
             try {
                 // bootstrap class loader and system class loader if present

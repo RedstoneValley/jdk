@@ -1,5 +1,7 @@
 package java.awt;
 
+import android.widget.EditText;
+
 import java.awt.event.PaintEvent;
 import java.awt.im.InputMethodRequests;
 import java.awt.image.ColorModel;
@@ -15,263 +17,71 @@ import sun.awt.CausedFocusEvent;
 /**
  * Created by cryoc on 2016-10-09.
  */
-class SkinJobTextFieldPeer implements TextFieldPeer {
+class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText> implements TextFieldPeer {
     public SkinJobTextFieldPeer(TextField target) {
-
+        super((EditText) target.androidWidget);
     }
 
     @Override
     public void setEchoChar(char echoChar) {
-
+        // TODO: This means put the EditText in password mode
     }
 
     @Override
     public Dimension getPreferredSize(int columns) {
+        // TODO
         return null;
     }
 
     @Override
     public Dimension getMinimumSize(int columns) {
+        // TODO
         return null;
     }
 
     @Override
     public void setEditable(boolean editable) {
-
+        androidComponent.setEnabled(editable);
     }
 
     @Override
     public String getText() {
-        return null;
+        return androidComponent.getText().toString();
     }
 
     @Override
     public void setText(String text) {
-
+        androidComponent.setText(text);
     }
 
     @Override
     public int getSelectionStart() {
-        return 0;
+        return androidComponent.getSelectionStart();
     }
 
     @Override
     public int getSelectionEnd() {
-        return 0;
+        return androidComponent.getSelectionEnd();
     }
 
     @Override
     public void select(int selStart, int selEnd) {
-
+        androidComponent.setSelection(selStart, selEnd);
     }
 
     @Override
     public void setCaretPosition(int pos) {
-
+        androidComponent.setSelection(pos, pos);
     }
 
     @Override
     public int getCaretPosition() {
-        return 0;
+        return androidComponent.getSelectionEnd();
     }
 
     @Override
     public InputMethodRequests getInputMethodRequests() {
+        // TODO
         return null;
-    }
-
-    @Override
-    public boolean isObscured() {
-        return false;
-    }
-
-    @Override
-    public boolean canDetermineObscurity() {
-        return false;
-    }
-
-    @Override
-    public void setVisible(boolean v) {
-
-    }
-
-    @Override
-    public void setEnabled(boolean e) {
-
-    }
-
-    @Override
-    public void paint(Graphics g) {
-
-    }
-
-    @Override
-    public void print(Graphics g) {
-
-    }
-
-    @Override
-    public void setBounds(int x, int y, int width, int height, int op) {
-
-    }
-
-    @Override
-    public void handleEvent(AWTEvent e) {
-
-    }
-
-    @Override
-    public void coalescePaintEvent(PaintEvent e) {
-
-    }
-
-    @Override
-    public Point getLocationOnScreen() {
-        return null;
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return null;
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return null;
-    }
-
-    @Override
-    public ColorModel getColorModel() {
-        return null;
-    }
-
-    @Override
-    public Graphics getGraphics() {
-        return null;
-    }
-
-    @Override
-    public FontMetrics getFontMetrics(Font font) {
-        return null;
-    }
-
-    @Override
-    public void dispose() {
-
-    }
-
-    @Override
-    public void setForeground(Color c) {
-
-    }
-
-    @Override
-    public void setBackground(Color c) {
-
-    }
-
-    @Override
-    public void setFont(Font f) {
-
-    }
-
-    @Override
-    public void updateCursorImmediately() {
-
-    }
-
-    @Override
-    public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
-        return false;
-    }
-
-    @Override
-    public boolean isFocusable() {
-        return false;
-    }
-
-    @Override
-    public Image createImage(ImageProducer producer) {
-        return null;
-    }
-
-    @Override
-    public Image createImage(int width, int height) {
-        return null;
-    }
-
-    @Override
-    public VolatileImage createVolatileImage(int width, int height) {
-        return null;
-    }
-
-    @Override
-    public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
-        return false;
-    }
-
-    @Override
-    public int checkImage(Image img, int w, int h, ImageObserver o) {
-        return 0;
-    }
-
-    @Override
-    public GraphicsConfiguration getGraphicsConfiguration() {
-        return null;
-    }
-
-    @Override
-    public boolean handlesWheelScrolling() {
-        return false;
-    }
-
-    @Override
-    public void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException {
-
-    }
-
-    @Override
-    public Image getBackBuffer() {
-        return null;
-    }
-
-    @Override
-    public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
-
-    }
-
-    @Override
-    public void destroyBuffers() {
-
-    }
-
-    @Override
-    public void reparent(ContainerPeer newContainer) {
-
-    }
-
-    @Override
-    public boolean isReparentSupported() {
-        return false;
-    }
-
-    @Override
-    public void layout() {
-
-    }
-
-    @Override
-    public void applyShape(Region shape) {
-
-    }
-
-    @Override
-    public void setZOrder(ComponentPeer above) {
-
-    }
-
-    @Override
-    public boolean updateGraphicsData(GraphicsConfiguration gc) {
-        return false;
     }
 }

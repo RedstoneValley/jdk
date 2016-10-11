@@ -184,7 +184,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
     protected final Context androidContext;
 
     private static final String TAG = "java.awt.Component";
-    protected transient View androidComponent;
+    protected transient View androidWidget;
 
     /**
      * The peer of the component. The peer implements the component's
@@ -462,7 +462,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
      * @see #getTreeLock
      */
     static final Object LOCK = new AWTTreeLock();
-    private WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
+    protected WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
 
     static class AWTTreeLock {}
 
@@ -967,10 +967,6 @@ public abstract class Component implements ImageObserver, MenuContainer,
         });
     }
 
-    protected View createAndroidComponent() {
-        androidComponent = wrappedObjectsSupplier.createWidget();
-    }
-
     /**
      * Constructs a new component. Class <code>Component</code> can be
      * extended directly to create a lightweight component that does not
@@ -982,10 +978,21 @@ public abstract class Component implements ImageObserver, MenuContainer,
         appContext = AppContext.getAppContext();
         this.wrappedObjectsSupplier = wrappedObjectsSupplier;
         androidContext = wrappedObjectsSupplier.getAppContext();
-        androidComponent = wrappedObjectsSupplier.createWidget();
+        androidWidget = wrappedObjectsSupplier.createWidget();
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    /**
+     * Constructs a new component. Class <code>Component</code> can be
+     * extended directly to create a lightweight component that does not
+     * utilize an opaque native window. A lightweight component must be
+     * hosted by a native container somewhere higher up in the component
+     * tree (for example, by a <code>Frame</code> object).
+     */
+    protected Component(Class<? extends View> androidWidgetClass) {
+        this(SkinJobWrappedAndroidObjectsSupplier.forClass(androidWidgetClass));
+    }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
     void initializeFocusTraversalKeys() {
         focusTraversalKeys = new Set[3];
     }
@@ -8777,7 +8784,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
                 popup.parent = this;
             }
         }
-        androidComponent = createAndroidComponent();
+        androidWidget = wrappedObjectsSupplier.createWidget();
     }
 
     /**

@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.content.Context;
 import android.view.View;
 
 import java.awt.image.BufferStrategy;
@@ -52,15 +53,26 @@ public class Canvas extends Component {
      */
      private static final long serialVersionUID = -2284879212465893870L;
 
-    @Override
-    protected View createAndroidComponent() {
-        return null;
-    }
+    protected final android.graphics.Canvas androidCanvas;
 
     /**
      * Constructs a new Canvas.
      */
     public Canvas() {
+        // android.graphics.Canvas doesn't extend View
+        super(new WrappedAndroidObjectsSupplier<View>() {
+            @Override
+            public Context getAppContext() {
+                return SkinJobUtil.getAndroidApplicationContext();
+            }
+
+            @Override
+            public View createWidget() {
+                return null;
+            }
+        });
+        androidCanvas = new android.graphics.Canvas();
+        peer = new SkinJobCanvasPeer(androidCanvas);
     }
 
     /**

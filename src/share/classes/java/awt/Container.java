@@ -25,7 +25,6 @@
 package java.awt;
 
 import android.util.Log;
-import android.view.View;
 
 import java.awt.dnd.DropTarget;
 import java.awt.event.AWTEventListener;
@@ -256,11 +255,6 @@ public class Container extends Component {
                 return cont.findComponentAt(x, y, ignoreEnabled);
             }
         });
-    }
-
-    @Override
-    protected View createAndroidComponent() {
-        return null; // TODO
     }
 
     /**

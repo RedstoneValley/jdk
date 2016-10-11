@@ -10,26 +10,27 @@ import java.awt.dnd.peer.DragSourceContextPeer;
  */
 class SkinJobDragSourceContextPeer implements DragSourceContextPeer {
     public SkinJobDragSourceContextPeer(DragGestureEvent dge) {
-
+        // TODO
     }
 
     @Override
     public void startDrag(DragSourceContext dsc, Cursor c, Image dragImage, Point imageOffset) throws InvalidDnDOperationException {
-
+        // TODO
     }
 
     @Override
     public Cursor getCursor() {
+        // TODO
         return null;
     }
 
     @Override
     public void setCursor(Cursor c) throws InvalidDnDOperationException {
-
+        // TODO
     }
 
     @Override
     public void transferablesFlavorsChanged() {
-
+        // TODO
     }
 }

@@ -1,266 +1,126 @@
 package java.awt;
 
-import java.awt.event.PaintEvent;
-import java.awt.image.ColorModel;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
-import java.awt.image.VolatileImage;
-import java.awt.peer.ComponentPeer;
-import java.awt.peer.ContainerPeer;
-import java.awt.peer.ListPeer;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.Spinner;
+import android.widget.TextView;
 
-import sun.awt.CausedFocusEvent;
+import java.awt.peer.ListPeer;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by cryoc on 2016-10-09.
  */
-class SkinJobListPeer implements ListPeer {
+class SkinJobListPeer extends SkinJobComponentPeerForView<Spinner> implements ListPeer {
+    private ArrayList<String> entries = new ArrayList<>();
+    private boolean multipleMode = false;
+
+    private TextView createItem(String text) {
+        TextView textView;
+        if (multipleMode) {
+            textView = new CheckBox(androidComponent.getContext());
+        } else {
+            textView = new TextView(androidComponent.getContext());
+        }
+        textView.setText(text);
+        return textView;
+    }
+
     public SkinJobListPeer(List target) {
-
+        super((Spinner) target.androidWidget);
     }
 
     @Override
-    public int[] getSelectedIndexes() {
-        return new int[0];
+    public synchronized int[] getSelectedIndexes() {
+        if (multipleMode) {
+            int[] selected = new int[entries.size()];
+            int nSelected = 0;
+            for (int i = 0; i < androidComponent.getChildCount(); i++) {
+                if (((CheckBox) androidComponent.getChildAt(i)).isChecked()) {
+                    selected[nSelected++] = i;
+                }
+            }
+            return Arrays.copyOfRange(selected, 0, nSelected);
+        } else {
+            return new int[] {androidComponent.getSelectedItemPosition()};
+        }
     }
 
     @Override
-    public void add(String item, int index) {
-
+    public synchronized void add(String item, int index) {
+        androidComponent.addView(createItem(item), index);
+        entries.add(index, item);
     }
 
     @Override
-    public void delItems(int start, int end) {
-
+    public synchronized void delItems(int start, int end) {
+        int numToRemove = 1 + end - start;
+        androidComponent.removeViews(start, numToRemove);
+        for (int i = 0; i < numToRemove; i++) {
+            entries.remove(start);
+        }
     }
 
     @Override
-    public void removeAll() {
-
+    public synchronized void removeAll() {
+        androidComponent.removeAllViews();
+        entries.clear();
     }
 
     @Override
-    public void select(int index) {
-
+    public synchronized void select(int index) {
+        if (multipleMode) {
+            ((CheckBox) (androidComponent.getItemAtPosition(index))).setChecked(true);
+        } else {
+            androidComponent.setSelection(index, SkinJob.animateListAutoSelection);
+        }
     }
 
     @Override
     public void deselect(int index) {
-
+        if (multipleMode) {
+            ((CheckBox) (androidComponent.getItemAtPosition(index))).setChecked(false);
+        } else {
+            androidComponent.setSelection(-1);
+        }
     }
 
     @Override
-    public void makeVisible(int index) {
-
+    public synchronized void makeVisible(int index) {
+        if (multipleMode) {
+            androidComponent.setSelection(index, SkinJob.animateListAutoSelection);
+        }
     }
 
     @Override
-    public void setMultipleMode(boolean m) {
-
+    public synchronized void setMultipleMode(boolean m) {
+        if (multipleMode == m) {
+            return;
+        }
+        multipleMode = m;
+        androidComponent.removeAllViews();
+        for (String entry : entries) {
+            androidComponent.addView(createItem(entry));
+        }
     }
 
     @Override
     public Dimension getPreferredSize(int rows) {
-        return null;
+        if (rows < 2 || entries.size() < 1) {
+            return new Dimension(androidComponent.getWidth(), androidComponent.getHeight());
+        }
+        View anEntry = androidComponent.getSelectedView();
+        return new Dimension(anEntry.getWidth(), anEntry.getHeight() * rows);
     }
 
     @Override
     public Dimension getMinimumSize(int rows) {
-        return null;
-    }
-
-    @Override
-    public boolean isObscured() {
-        return false;
-    }
-
-    @Override
-    public boolean canDetermineObscurity() {
-        return false;
-    }
-
-    @Override
-    public void setVisible(boolean v) {
-
-    }
-
-    @Override
-    public void setEnabled(boolean e) {
-
-    }
-
-    @Override
-    public void paint(Graphics g) {
-
-    }
-
-    @Override
-    public void print(Graphics g) {
-
-    }
-
-    @Override
-    public void setBounds(int x, int y, int width, int height, int op) {
-
-    }
-
-    @Override
-    public void handleEvent(AWTEvent e) {
-
-    }
-
-    @Override
-    public void coalescePaintEvent(PaintEvent e) {
-
-    }
-
-    @Override
-    public Point getLocationOnScreen() {
-        return null;
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return null;
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return null;
-    }
-
-    @Override
-    public ColorModel getColorModel() {
-        return null;
-    }
-
-    @Override
-    public Graphics getGraphics() {
-        return null;
-    }
-
-    @Override
-    public FontMetrics getFontMetrics(Font font) {
-        return null;
-    }
-
-    @Override
-    public void dispose() {
-
-    }
-
-    @Override
-    public void setForeground(Color c) {
-
-    }
-
-    @Override
-    public void setBackground(Color c) {
-
-    }
-
-    @Override
-    public void setFont(Font f) {
-
-    }
-
-    @Override
-    public void updateCursorImmediately() {
-
-    }
-
-    @Override
-    public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
-        return false;
-    }
-
-    @Override
-    public boolean isFocusable() {
-        return false;
-    }
-
-    @Override
-    public Image createImage(ImageProducer producer) {
-        return null;
-    }
-
-    @Override
-    public Image createImage(int width, int height) {
-        return null;
-    }
-
-    @Override
-    public VolatileImage createVolatileImage(int width, int height) {
-        return null;
-    }
-
-    @Override
-    public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
-        return false;
-    }
-
-    @Override
-    public int checkImage(Image img, int w, int h, ImageObserver o) {
-        return 0;
-    }
-
-    @Override
-    public GraphicsConfiguration getGraphicsConfiguration() {
-        return null;
-    }
-
-    @Override
-    public boolean handlesWheelScrolling() {
-        return false;
-    }
-
-    @Override
-    public void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException {
-
-    }
-
-    @Override
-    public Image getBackBuffer() {
-        return null;
-    }
-
-    @Override
-    public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
-
-    }
-
-    @Override
-    public void destroyBuffers() {
-
-    }
-
-    @Override
-    public void reparent(ContainerPeer newContainer) {
-
-    }
-
-    @Override
-    public boolean isReparentSupported() {
-        return false;
-    }
-
-    @Override
-    public void layout() {
-
-    }
-
-    @Override
-    public void applyShape(Region shape) {
-
-    }
-
-    @Override
-    public void setZOrder(ComponentPeer above) {
-
-    }
-
-    @Override
-    public boolean updateGraphicsData(GraphicsConfiguration gc) {
-        return false;
+        if (rows < 2 || entries.size() < 1) {
+            return new Dimension(androidComponent.getMinimumWidth(),
+                    androidComponent.getMinimumHeight());
+        }
+        View anEntry = androidComponent.getSelectedView();
+        return new Dimension(anEntry.getMinimumWidth(), anEntry.getMinimumHeight() * rows);
     }
 }

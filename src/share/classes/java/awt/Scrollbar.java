@@ -24,8 +24,6 @@
  */
 package java.awt;
 
-import android.view.View;
-
 import java.awt.peer.ScrollbarPeer;
 import java.awt.event.*;
 import java.util.EventListener;
@@ -283,11 +281,6 @@ public class Scrollbar extends Component implements Adjustable {
         Toolkit.loadLibraries();
         if (!GraphicsEnvironment.isHeadless()) {
         }
-    }
-
-    @Override
-    protected View createAndroidComponent() {
-        return null; // TODO
     }
 
     /**

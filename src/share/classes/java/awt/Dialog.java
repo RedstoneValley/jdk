@@ -32,12 +32,10 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import javax.accessibility.*;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 import sun.awt.util.IdentityArrayList;
 import sun.awt.util.IdentityLinkedList;
-import sun.security.util.SecurityConstants;
 import java.security.AccessControlException;
 
 /**
@@ -94,14 +92,6 @@ import java.security.AccessControlException;
  * @since       JDK1.0
  */
 public class Dialog extends Window {
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
-    }
 
     /**
      * A dialog's resizable property. Will be true
@@ -1376,11 +1366,6 @@ public class Dialog extends Window {
         return str;
     }
 
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
     /*
      * --- Modality support ---
      *
@@ -1607,14 +1592,7 @@ public class Dialog extends Window {
     }
 
     private void checkModalityPermission(ModalityType mt) {
-        if (mt == ModalityType.TOOLKIT_MODAL) {
-            SecurityManager sm = System.getSecurityManager();
-            if (sm != null) {
-                sm.checkPermission(
-                    SecurityConstants.AWT.TOOLKIT_MODALITY_PERMISSION
-                );
-            }
-        }
+        // TODO
     }
 
     private void readObject(ObjectInputStream s)

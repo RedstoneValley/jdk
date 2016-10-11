@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.widget.RadioGroup;
+
 /**
  * The <code>CheckboxGroup</code> class is used to group together
  * a set of <code>Checkbox</code> buttons.
@@ -55,6 +57,7 @@ package java.awt;
  * @since       JDK1.0
  */
 public class CheckboxGroup implements java.io.Serializable {
+    protected final RadioGroup androidGroup;
     /**
      * The current choice.
      * @serial
@@ -72,6 +75,11 @@ public class CheckboxGroup implements java.io.Serializable {
      * Creates a new instance of <code>CheckboxGroup</code>.
      */
     public CheckboxGroup() {
+        androidGroup = new RadioGroup(SkinJobUtil.getAndroidApplicationContext());
+    }
+
+    public RadioGroup getAndroidGroup() {
+        return androidGroup;
     }
 
     /**

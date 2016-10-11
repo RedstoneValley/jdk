@@ -25,8 +25,6 @@
 
 package java.awt;
 
-import android.view.View;
-
 import java.awt.peer.ButtonPeer;
 import java.util.EventListener;
 import java.awt.event.*;
@@ -114,11 +112,6 @@ public class Button extends Component {
      */
     private static final long serialVersionUID = -8774683716313001058L;
 
-    @Override
-    protected View createAndroidComponent() {
-        return new android.widget.Button(androidContext);
-    }
-
     /**
      * Constructs a button with an empty string for its label.
      *
@@ -140,7 +133,7 @@ public class Button extends Component {
      * @see java.awt.GraphicsEnvironment#isHeadless
      */
     public Button(String label) throws HeadlessException {
-        super(SkinJobWrappedAndroidObjectsSupplier.forClass(android.widget.Button.class));
+        super(android.widget.Button.class);
         this.label = label;
         SkinJobButtonPeer peer = new SkinJobButtonPeer(this);
         this.peer = peer;
@@ -198,10 +191,7 @@ public class Button extends Component {
             if (label != this.label && (this.label == null ||
                                         !this.label.equals(label))) {
                 this.label = label;
-                ButtonPeer peer = (ButtonPeer)this.peer;
-                if (peer != null) {
-                    peer.setLabel(label);
-                }
+                updateLabel();
                 testvalid = true;
             }
         }
@@ -209,6 +199,14 @@ public class Button extends Component {
         // This could change the preferred size of the Component.
         if (testvalid) {
             invalidateIfValid();
+        }
+    }
+
+    /** Update the {@link ButtonPeer}'s label with the current {@link #label}. */
+    protected void updateLabel() {
+        ButtonPeer peer = (ButtonPeer)this.peer;
+        if (peer != null) {
+            peer.setLabel(this.label);
         }
     }
 
@@ -487,5 +485,6 @@ public class Button extends Component {
         else // skip value for unrecognized key
           s.readObject();
       }
+        updateLabel();
     }
 }

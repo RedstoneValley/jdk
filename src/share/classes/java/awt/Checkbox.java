@@ -24,14 +24,17 @@
  */
 package java.awt;
 
+import android.content.Context;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
+
 import java.awt.peer.CheckboxPeer;
 import java.awt.event.*;
 import java.util.EventListener;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
-
 
 /**
  * A check box is a graphical component that can be in either an
@@ -73,14 +76,7 @@ import javax.accessibility.*;
  * @see         java.awt.CheckboxGroup
  * @since       JDK1.0
  */
-public class Checkbox extends Component implements ItemSelectable, Accessible {
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-        }
-    }
+public class Checkbox extends Component implements ItemSelectable {
 
     /**
      * The label of the Checkbox.
@@ -191,12 +187,46 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
      * @see java.awt.GraphicsEnvironment#isHeadless
      * @since     JDK1.1
      */
-    public Checkbox(String label, boolean state, CheckboxGroup group)
+    public Checkbox(String label, boolean state, final CheckboxGroup group)
         throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
+        // Must use 2 suppliers, because the first one is invoked before Checkbox.this.group is
+        // initialized
+        super(new WrappedAndroidObjectsSupplier<CompoundButton>() {
+            @Override
+            public Context getAppContext() {
+                return SkinJobUtil.getAndroidApplicationContext();
+            }
+
+            @Override
+            public CompoundButton createWidget() {
+                if (group == null) {
+                    return new CheckBox(getAppContext());
+                } else {
+                    RadioButton button = new RadioButton(getAppContext());
+                    group.getAndroidGroup().addView(button);
+                    return button;                }
+            }
+        });
         this.label = label;
         this.state = state;
         this.group = group;
+        wrappedObjectsSupplier = new WrappedAndroidObjectsSupplier<CompoundButton>() {
+            @Override
+            public Context getAppContext() {
+                return SkinJobUtil.getAndroidApplicationContext();
+            }
+
+            @Override
+            public CompoundButton createWidget() {
+                if (Checkbox.this.group == null) {
+                    return new CheckBox(getAppContext());
+                } else {
+                    RadioButton button = new RadioButton(getAppContext());
+                    Checkbox.this.group.getAndroidGroup().addView(button);
+                    return button;
+                }
+            }
+        };
         if (state && (group != null)) {
             group.setSelectedCheckbox(this);
         }
@@ -380,6 +410,9 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
 
         synchronized (this) {
             oldGroup = this.group;
+            if (oldGroup != null) {
+                oldGroup.getAndroidGroup().removeView(androidWidget);
+            }
             oldState = getState();
 
             this.group = g;
@@ -393,6 +426,13 @@ public class Checkbox extends Component implements ItemSelectable, Accessible {
                 } else {
                     this.group.setSelectedCheckbox(this);
                 }
+            }
+            if ((oldGroup == null) != (this.group == null)) {
+                // Change from checkbox to radio button or vice-versa
+                androidWidget = wrappedObjectsSupplier.createWidget();
+                // Copy label and state to the new widget
+                setLabel(getLabel());
+                setState(getState());
             }
         }
 

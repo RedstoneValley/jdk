@@ -24,10 +24,11 @@
  */
 package java.awt;
 
+import android.widget.TextView;
+
 import java.awt.peer.LabelPeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import javax.accessibility.*;
 
 /**
  * A <code>Label</code> object is a component for placing text in a
@@ -51,14 +52,7 @@ import javax.accessibility.*;
  * @author      Sami Shaio
  * @since       JDK1.0
  */
-public class Label extends Component implements Accessible {
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-        }
-    }
+public class Label extends Component {
 
     /**
      * Indicates that the label should be left justified.
@@ -146,8 +140,9 @@ public class Label extends Component implements Accessible {
      * @see java.awt.GraphicsEnvironment#isHeadless
      */
     public Label(String text, int alignment) throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
-        this.text = text;
+        super(TextView.class);
+        peer = new SkinJobLabelPeer(this);
+        setText(text);
         setAlignment(alignment);
     }
 

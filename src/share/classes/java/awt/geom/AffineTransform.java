@@ -26,7 +26,6 @@
 package java.awt.geom;
 
 import java.awt.Shape;
-import java.beans.ConstructorProperties;
 
 /**
  * The <code>AffineTransform</code> class represents a 2D affine transform
@@ -500,24 +499,23 @@ public class AffineTransform implements Cloneable, java.io.Serializable {
      * values representing the 6 specifiable entries of the 3x3
      * transformation matrix.
      *
-     * @param m00 the X coordinate scaling element of the 3x3 matrix
-     * @param m10 the Y coordinate shearing element of the 3x3 matrix
-     * @param m01 the X coordinate shearing element of the 3x3 matrix
-     * @param m11 the Y coordinate scaling element of the 3x3 matrix
-     * @param m02 the X coordinate translation element of the 3x3 matrix
-     * @param m12 the Y coordinate translation element of the 3x3 matrix
+     * @param scaleX the X coordinate scaling element of the 3x3 matrix
+     * @param shearY the Y coordinate shearing element of the 3x3 matrix
+     * @param shearX the X coordinate shearing element of the 3x3 matrix
+     * @param scaleY the Y coordinate scaling element of the 3x3 matrix
+     * @param translateX the X coordinate translation element of the 3x3 matrix
+     * @param translateY the Y coordinate translation element of the 3x3 matrix
      * @since 1.2
      */
-    @ConstructorProperties({ "scaleX", "shearY", "shearX", "scaleY", "translateX", "translateY" })
-    public AffineTransform(float m00, float m10,
-                           float m01, float m11,
-                           float m02, float m12) {
-        this.m00 = m00;
-        this.m10 = m10;
-        this.m01 = m01;
-        this.m11 = m11;
-        this.m02 = m02;
-        this.m12 = m12;
+    public AffineTransform(float scaleX, float shearY,
+                           float shearX, float scaleY,
+                           float translateX, float translateY) {
+        this.m00 = scaleX;
+        this.m10 = shearY;
+        this.m01 = shearX;
+        this.m11 = scaleY;
+        this.m02 = translateX;
+        this.m12 = translateY;
         updateState();
     }
 

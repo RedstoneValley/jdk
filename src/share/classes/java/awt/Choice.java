@@ -24,6 +24,9 @@
  */
 package java.awt;
 
+import android.content.Context;
+import android.view.*;
+
 import java.util.*;
 import java.awt.peer.ChoicePeer;
 import java.awt.event.*;
@@ -31,9 +34,6 @@ import java.util.EventListener;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-
-import javax.accessibility.*;
-
 
 /**
  * The <code>Choice</code> class presents a pop-up menu of choices.
@@ -70,7 +70,7 @@ import javax.accessibility.*;
  * @author      Arthur van Hoff
  * @since       JDK1.0
  */
-public class Choice extends Component implements ItemSelectable, Accessible {
+public class Choice extends Component implements ItemSelectable {
     /**
      * The items for the <code>Choice</code>.
      * This can be a <code>null</code> value.
@@ -124,7 +124,18 @@ public class Choice extends Component implements ItemSelectable, Accessible {
      * @see       #select(java.lang.String)
      */
     public Choice() throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
+        super(new WrappedAndroidObjectsSupplier<View>() {
+            @Override
+            public Context getAppContext() {
+                return SkinJobUtil.getAndroidApplicationContext();
+            }
+
+            @Override
+            public View createWidget() {
+                // TODO
+                return null;
+            }
+        });
         pItems = new Vector<>();
     }
 

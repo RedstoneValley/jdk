@@ -24,15 +24,17 @@
  */
 package java.awt;
 
+import android.content.Context;
+import android.view.View;
+import android.widget.Spinner;
+
 import java.util.Vector;
-import java.util.Locale;
 import java.util.EventListener;
 import java.awt.peer.ListPeer;
 import java.awt.event.*;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
-import javax.accessibility.*;
 
 
 /**
@@ -106,7 +108,7 @@ import javax.accessibility.*;
  * @see         java.awt.event.ActionListener
  * @since       JDK1.0
  */
-public class List extends Component implements ItemSelectable, Accessible {
+public class List extends Component implements ItemSelectable {
     /**
      * A vector created to contain items which will become
      * part of the List Component.
@@ -230,6 +232,7 @@ public class List extends Component implements ItemSelectable, Accessible {
      * @see java.awt.GraphicsEnvironment#isHeadless
      */
     public List(int rows, boolean multipleMode) throws HeadlessException {
+        super(Spinner.class);
         GraphicsEnvironment.checkHeadless();
         this.rows = (rows != 0) ? rows : DEFAULT_VISIBLE_ROWS;
         this.multipleMode = multipleMode;

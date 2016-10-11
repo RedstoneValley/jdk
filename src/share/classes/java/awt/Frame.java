@@ -36,8 +36,6 @@ import java.io.IOException;
 import sun.awt.SunToolkit;
 import sun.awt.AWTAccessor;
 
-import javax.accessibility.*;
-
 /**
  * A <code>Frame</code> is a top-level window with a title and a border.
  * <p>
@@ -360,14 +358,6 @@ public class Frame extends Window implements MenuContainer {
      * JDK 1.1 serialVersionUID
      */
      private static final long serialVersionUID = 2673458971256075116L;
-
-    static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-            initIDs();
-        }
-    }
 
     /**
      * Constructs a new instance of <code>Frame</code> that is
@@ -910,7 +900,6 @@ public class Frame extends Window implements MenuContainer {
      * @see    Window#getShape
      * @see    Window#getOpacity
      * @see    Window#getBackground
-     * @see    javax.swing.JFrame#setDefaultLookAndFeelDecorated(boolean)
      *
      * @since 1.4
      */
@@ -1245,9 +1234,4 @@ public class Frame extends Window implements MenuContainer {
           ownedWindows = null;
       }
     }
-
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
 }
