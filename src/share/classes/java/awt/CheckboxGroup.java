@@ -75,7 +75,7 @@ public class CheckboxGroup implements java.io.Serializable {
      * Creates a new instance of <code>CheckboxGroup</code>.
      */
     public CheckboxGroup() {
-        androidGroup = new RadioGroup(SkinJobUtil.getAndroidApplicationContext());
+        androidGroup = new RadioGroup(SkinJob.getAndroidApplicationContext());
     }
 
     public RadioGroup getAndroidGroup() {

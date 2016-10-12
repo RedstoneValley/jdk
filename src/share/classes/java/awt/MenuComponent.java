@@ -47,7 +47,7 @@ import java.security.AccessController;
  * @author      Arthur van Hoff
  * @since       JDK1.0
  */
-public abstract class MenuComponent implements java.io.Serializable {
+public abstract class MenuComponent extends Component implements java.io.Serializable {
 
     static {
         /* ensure that the necessary native libraries are loaded */
@@ -215,15 +215,6 @@ public abstract class MenuComponent implements java.io.Serializable {
     //       DO NOT INVOKE CLIENT CODE ON THIS THREAD!
     final MenuContainer getParent_NoClientCode() {
         return parent;
-    }
-
-    /**
-     * @deprecated As of JDK version 1.1,
-     * programs should not directly manipulate peers.
-     */
-    @Deprecated
-    public MenuComponentPeer getPeer() {
-        return peer;
     }
 
     /**

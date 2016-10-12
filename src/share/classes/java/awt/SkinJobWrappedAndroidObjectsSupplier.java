@@ -5,7 +5,6 @@ import android.view.View;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.WeakHashMap;
 
 /**
@@ -38,7 +37,7 @@ public class SkinJobWrappedAndroidObjectsSupplier<TWidget extends View>
     }
     @Override
     public Context getAppContext() {
-        return SkinJobUtil.getAndroidApplicationContext();
+        return SkinJob.getAndroidApplicationContext();
     }
 
     @Override

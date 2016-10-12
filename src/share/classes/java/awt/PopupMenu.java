@@ -26,8 +26,6 @@
 package java.awt;
 
 import java.awt.peer.PopupMenuPeer;
-import javax.accessibility.*;
-
 
 import sun.awt.AWTAccessor;
 
@@ -63,6 +61,7 @@ public class PopupMenu extends Menu {
      * JDK 1.1 serialVersionUID
      */
     private static final long serialVersionUID = -4620452533522760060L;
+    protected android.widget.PopupMenu androidPopupMenu;
 
     /**
      * Creates a new popup menu with an empty name.

@@ -127,7 +127,7 @@ public class Choice extends Component implements ItemSelectable {
         super(new WrappedAndroidObjectsSupplier<View>() {
             @Override
             public Context getAppContext() {
-                return SkinJobUtil.getAndroidApplicationContext();
+                return SkinJob.getAndroidApplicationContext();
             }
 
             @Override

@@ -25,20 +25,15 @@
 
 package java.awt;
 
-import android.content.Context;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.awt.AWTPermission;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.awt.peer.DesktopPeer;
 import sun.awt.SunToolkit;
-import sun.awt.HeadlessToolkit;
+
 import java.io.FilePermission;
 import sun.security.util.SecurityConstants;
 
@@ -125,7 +120,7 @@ public class Desktop {
      */
     private Desktop() {
         peer = Toolkit.getDefaultToolkit().createDesktopPeer(this);
-        androidContext = SkinJobUtil.getAndroidApplicationContext();
+        androidContext = SkinJob.getAndroidApplicationContext();
     }
 
     /**

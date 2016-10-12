@@ -670,7 +670,7 @@ public abstract class Component implements ImageObserver, MenuContainer,
     /*
      * Returns the acc this component was constructed with.
      */
-    final AccessControlContext getAccessControlContext() {
+    AccessControlContext getAccessControlContext() {
         if (acc == null) {
             throw new SecurityException("Component is missing AccessControlContext");
         }

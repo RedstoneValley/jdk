@@ -2,9 +2,8 @@ package java.awt;
 
 import android.graphics.*;
 import android.graphics.Canvas;
-import android.hardware.display.DisplayManager;
-import android.view.Display;
 
+import java.awt.peer.CanvasPeer;
 import java.awt.peer.ComponentPeer;
 
 import sun.awt.CausedFocusEvent;
@@ -13,14 +12,9 @@ import sun.awt.CausedFocusEvent;
  * Created by cryoc on 2016-10-11.
  */
 // TODO: Should this actually be backed by a View? An android.graphics.Canvas can be non-displayable
-public class SkinJobCanvasPeer extends SkinJobComponentPeer<Canvas> {
-    public SkinJobCanvasPeer(Canvas androidComponent, GraphicsConfiguration configuration) {
-        super(androidComponent, configuration);
-    }
-
-    public SkinJobCanvasPeer(Canvas androidComponent) {
-        this(androidComponent,
-                new SkinJobGraphicsConfiguration(SkinJobUtil.getAndroidApplicationContext().getSystemService(DisplayManager.class).getDisplay(Display.DEFAULT_DISPLAY)));
+public class SkinJobCanvasPeer extends SkinJobComponentPeer<Canvas> implements CanvasPeer {
+    public SkinJobCanvasPeer(java.awt.Canvas target) {
+        super(target.androidCanvas, SkinJobGraphicsConfiguration.getDefault());
     }
 
     @Override
@@ -51,12 +45,12 @@ public class SkinJobCanvasPeer extends SkinJobComponentPeer<Canvas> {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(androidComponent.getWidth(), androidComponent.getHeight());
+        return new Dimension(androidWidget.getWidth(), androidWidget.getHeight());
     }
 
     @Override
     public Dimension getMinimumSize() {
-        Rect clipBounds = androidComponent.getClipBounds();
+        Rect clipBounds = androidWidget.getClipBounds();
         return new Dimension(clipBounds.width(), clipBounds.height());
     }
 
@@ -83,5 +77,10 @@ public class SkinJobCanvasPeer extends SkinJobComponentPeer<Canvas> {
     @Override
     public void setZOrder(ComponentPeer above) {
         // TODO
+    }
+
+    @Override
+    public GraphicsConfiguration getAppropriateGraphicsConfiguration(GraphicsConfiguration gc) {
+        return gc; // No reason to prefer a different GraphicsConfiguration
     }
 }

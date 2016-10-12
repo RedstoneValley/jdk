@@ -67,7 +67,7 @@ import javax.accessibility.*;
  * @see        java.awt.MenuShortcut
  * @since      JDK1.0
  */
-public class MenuBar extends MenuComponent implements MenuContainer, Accessible {
+public class MenuBar extends MenuComponent implements MenuContainer {
 
     static {
         /* ensure that the necessary native libraries are loaded */
@@ -115,6 +115,7 @@ public class MenuBar extends MenuComponent implements MenuContainer, Accessible 
      * JDK 1.1 serialVersionUID
      */
      private static final long serialVersionUID = -4930327919388951260L;
+    public Object androidWidget;
 
     /**
      * Creates a new menu bar.

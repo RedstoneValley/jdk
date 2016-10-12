@@ -30,7 +30,6 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.awt.peer.MenuPeer;
 import java.awt.event.KeyEvent;
-import javax.accessibility.*;
 import sun.awt.AWTAccessor;
 
 /**
@@ -55,7 +54,7 @@ import sun.awt.AWTAccessor;
  * @see     java.awt.CheckboxMenuItem
  * @since   JDK1.0
  */
-public class Menu extends MenuItem implements MenuContainer, Accessible {
+public class Menu extends MenuItem implements MenuContainer {
 
     static {
         /* ensure that the necessary native libraries are loaded */
@@ -111,6 +110,7 @@ public class Menu extends MenuItem implements MenuContainer, Accessible {
      * JDK 1.1 serialVersionUID
      */
      private static final long serialVersionUID = -8809584163345499784L;
+    public android.view.Menu androidMenu;
 
     /**
      * Constructs a new menu with an empty label. This menu is not

@@ -1,8 +1,6 @@
 package java.awt;
 
 import android.graphics.Canvas;
-import android.util.DisplayMetrics;
-import android.view.View;
 
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
@@ -12,7 +10,6 @@ import java.awt.image.VolatileImage;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.ContainerPeer;
 
-import sun.awt.CausedFocusEvent;
 import sun.java2d.pipe.Region;
 
 /**
@@ -21,13 +18,11 @@ import sun.java2d.pipe.Region;
 
 public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
 
-    protected final T androidComponent;
-    protected Graphics graphics;
+    protected final T androidWidget;
     protected GraphicsConfiguration graphicsConfiguration;
 
-    public SkinJobComponentPeer(T androidComponent, GraphicsConfiguration configuration) {
-        this.androidComponent = androidComponent;
-        graphics = new SkinJobGraphics();
+    public SkinJobComponentPeer(T androidWidget, GraphicsConfiguration configuration) {
+        this.androidWidget = androidWidget;
         graphicsConfiguration = configuration;
     }
 
@@ -71,7 +66,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
 
     @Override
     public Graphics getGraphics() {
-        return graphics;
+        return null; // Most widgets can't be drawn on
     }
 
     @Override

@@ -63,7 +63,7 @@ public class Canvas extends Component {
         super(new WrappedAndroidObjectsSupplier<View>() {
             @Override
             public Context getAppContext() {
-                return SkinJobUtil.getAndroidApplicationContext();
+                return SkinJob.getAndroidApplicationContext();
             }
 
             @Override

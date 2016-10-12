@@ -169,6 +169,7 @@ public class MenuItem extends MenuComponent implements Accessible {
      * JDK 1.1 serialVersionUID
      */
     private static final long serialVersionUID = -21757335363267194L;
+    public android.view.MenuItem androidMenuItem;
 
     /**
      * Constructs a new MenuItem with an empty label and no keyboard

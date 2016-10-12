@@ -20,7 +20,7 @@ class SkinJobCheckboxPeer extends SkinJobComponentPeerForView<CompoundButton> im
 
     @Override
     public void setState(boolean state) {
-        androidComponent.setChecked(state);
+        androidWidget.setChecked(state);
     }
 
     @Override
@@ -37,6 +37,6 @@ class SkinJobCheckboxPeer extends SkinJobComponentPeerForView<CompoundButton> im
 
     @Override
     public void setLabel(String label) {
-        androidComponent.setText(label);
+        androidWidget.setText(label);
     }
 }

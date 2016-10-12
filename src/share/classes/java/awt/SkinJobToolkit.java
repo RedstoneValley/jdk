@@ -1,6 +1,7 @@
 package java.awt;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -36,6 +37,7 @@ import java.awt.peer.ScrollbarPeer;
 import java.awt.peer.TextAreaPeer;
 import java.awt.peer.TextFieldPeer;
 import java.awt.peer.WindowPeer;
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
@@ -71,107 +73,117 @@ public class SkinJobToolkit extends Toolkit {
 
     @Override
     protected TextAreaPeer createTextArea(TextArea target) throws HeadlessException {
-        return null;
+        return new SkinJobTextFieldPeer(target);
     }
 
     @Override
     protected ChoicePeer createChoice(Choice target) throws HeadlessException {
-        return null;
+        return new SkinJobChoicePeer(target);
     }
 
     @Override
     protected FramePeer createFrame(Frame target) throws HeadlessException {
-        return null;
+        return new SkinJobWindowPeer(target);
     }
 
     @Override
     protected CanvasPeer createCanvas(Canvas target) {
-        return null;
+        return new SkinJobCanvasPeer(target);
     }
 
     @Override
     protected PanelPeer createPanel(Panel target) {
-        return null;
+        return new SkinJobPanelPeer(target);
     }
 
     @Override
     protected WindowPeer createWindow(Window target) throws HeadlessException {
-        return null;
+        return new SkinJobWindowPeer(target);
     }
 
     @Override
     protected DialogPeer createDialog(Dialog target) throws HeadlessException {
-        return null;
+        return new SkinJobWindowPeer(target);
     }
 
     @Override
     protected MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException {
-        return null;
+        return new SkinJobMenuBarPeer(target);
     }
 
     @Override
     protected MenuPeer createMenu(Menu target) throws HeadlessException {
-        return null;
+        return new SkinJobMenuPeer(target);
     }
 
     @Override
     protected PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException {
-        return null;
+        return new SkinJobPopupMenuPeer(target);
     }
 
     @Override
     protected MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException {
-        return null;
+        return new SkinJobMenuItemPeer(target);
     }
 
     @Override
     protected FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException {
-        return null;
+        return new SkinJobFileDialogPeer(target);
     }
 
     @Override
     protected CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target) throws HeadlessException {
-        return null;
+        return new SkinJobMenuItemPeer(target);
     }
 
     @Override
     protected FontPeer getFontPeer(String name, int style) {
-        return null;
+        return new SkinJobFontPeer();
     }
 
     @Override
     public Dimension getScreenSize() throws HeadlessException {
-        return null;
+        return SkinJobGraphicsConfiguration.getDefault().getBounds().getSize();
     }
 
     @Override
     public int getScreenResolution() throws HeadlessException {
-        return 0;
+        return (int) (SkinJobGraphicsConfiguration.getDefault().dpi);
     }
 
     @Override
     public ColorModel getColorModel() throws HeadlessException {
-        return null;
+        return ColorModel.getRGBdefault();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String[] getFontList() {
-        return new String[0];
+        Class<Typeface> typefaceClass = Typeface.class;
+        try {
+            Field systemFontMapField = typefaceClass.getField("sSystemFontMap");
+            systemFontMapField.setAccessible(true);
+            return ((Map<String, ?>) (systemFontMapField.get(null)))
+                    .keySet()
+                    .toArray(new String[0]);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public FontMetrics getFontMetrics(Font font) {
-        return null;
+        return new SkinJobFontMetrics(font);
     }
 
     @Override
     public void sync() {
-
+        // No-op
     }
 
     @Override
     public Image getImage(String filename) {
-        return null;
+        return new SkinJobImage(filename);
     }
 
     @Override
@@ -255,7 +267,7 @@ public class SkinJobToolkit extends Toolkit {
     }
 
     protected Context getAndroidContext() {
-        return SkinJobUtil.getAndroidApplicationContext();
+        return SkinJob.getAndroidApplicationContext();
     }
 
     @Override

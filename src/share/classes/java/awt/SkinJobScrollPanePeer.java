@@ -7,24 +7,25 @@ import java.awt.peer.ScrollPanePeer;
 /**
  * Created by cryoc on 2016-10-10.
  */
-public class SkinJobScrollPanePeer extends SkinJobContainerPeer<ScrollView> implements ScrollPanePeer {
+public class SkinJobScrollPanePeer
+        extends SkinJobComponentPeerForView<ScrollView> implements ScrollPanePeer {
     public SkinJobScrollPanePeer(ScrollPane scrollPane) {
         super((ScrollView) scrollPane.androidWidget);
     }
 
     @Override
     public int getHScrollbarHeight() {
-        return androidComponent.getScrollBarSize();
+        return androidWidget.getScrollBarSize();
     }
 
     @Override
     public int getVScrollbarWidth() {
-        return androidComponent.getVerticalScrollbarWidth();
+        return androidWidget.getVerticalScrollbarWidth();
     }
 
     @Override
     public void setScrollPosition(int x, int y) {
-        androidComponent.scrollTo(x, y);
+        androidWidget.scrollTo(x, y);
     }
 
     @Override
@@ -40,5 +41,31 @@ public class SkinJobScrollPanePeer extends SkinJobContainerPeer<ScrollView> impl
     @Override
     public void setValue(Adjustable adj, int v) {
         // TODO
+    }
+
+    @Override
+    public Insets getInsets() {
+        return null;
+        // TODO
+    }
+
+    @Override
+    public void beginValidate() {
+        // No-op.
+    }
+
+    @Override
+    public void endValidate() {
+        // No-op.
+    }
+
+    @Override
+    public void beginLayout() {
+        // No-op.
+    }
+
+    @Override
+    public void endLayout() {
+        // No-op.
     }
 }

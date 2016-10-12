@@ -2,23 +2,20 @@ package java.awt;
 
 import android.widget.EditText;
 
-import java.awt.event.PaintEvent;
 import java.awt.im.InputMethodRequests;
-import java.awt.image.ColorModel;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
-import java.awt.image.VolatileImage;
-import java.awt.peer.ComponentPeer;
-import java.awt.peer.ContainerPeer;
+import java.awt.peer.TextAreaPeer;
 import java.awt.peer.TextFieldPeer;
-
-import sun.awt.CausedFocusEvent;
 
 /**
  * Created by cryoc on 2016-10-09.
  */
-class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText> implements TextFieldPeer {
+class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText>
+        implements TextFieldPeer, TextAreaPeer {
     public SkinJobTextFieldPeer(TextField target) {
+        super((EditText) target.androidWidget);
+    }
+
+    public SkinJobTextFieldPeer(TextArea target) {
         super((EditText) target.androidWidget);
     }
 
@@ -41,46 +38,68 @@ class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText> impleme
 
     @Override
     public void setEditable(boolean editable) {
-        androidComponent.setEnabled(editable);
+        androidWidget.setEnabled(editable);
     }
 
     @Override
     public String getText() {
-        return androidComponent.getText().toString();
+        return androidWidget.getText().toString();
     }
 
     @Override
     public void setText(String text) {
-        androidComponent.setText(text);
+        androidWidget.setText(text);
     }
 
     @Override
     public int getSelectionStart() {
-        return androidComponent.getSelectionStart();
+        return androidWidget.getSelectionStart();
     }
 
     @Override
     public int getSelectionEnd() {
-        return androidComponent.getSelectionEnd();
+        return androidWidget.getSelectionEnd();
     }
 
     @Override
     public void select(int selStart, int selEnd) {
-        androidComponent.setSelection(selStart, selEnd);
+        androidWidget.setSelection(selStart, selEnd);
     }
 
     @Override
     public void setCaretPosition(int pos) {
-        androidComponent.setSelection(pos, pos);
+        androidWidget.setSelection(pos, pos);
     }
 
     @Override
     public int getCaretPosition() {
-        return androidComponent.getSelectionEnd();
+        return androidWidget.getSelectionEnd();
     }
 
     @Override
     public InputMethodRequests getInputMethodRequests() {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public void insert(String text, int pos) {
+        androidWidget.getText().insert(pos, text);
+    }
+
+    @Override
+    public void replaceRange(String text, int start, int end) {
+        androidWidget.getText().replace(start, end, text);
+    }
+
+    @Override
+    public Dimension getPreferredSize(int rows, int columns) {
+        // TODO
+        return null;
+    }
+
+    @Override
+    public Dimension getMinimumSize(int rows, int columns) {
         // TODO
         return null;
     }

@@ -144,6 +144,7 @@ import sun.java2d.pipe.Region;
 public class Window extends Container {
 
     private static final String TAG = "java.awt.Window";
+    protected android.view.Window androidWindow;
 
     /**
      * Enumeration of available <i>window types</i>.
@@ -389,11 +390,6 @@ public class Window extends Container {
     private transient float securityWarningAlignmentY = TOP_ALIGNMENT;
 
     static {
-        /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
-        if (!GraphicsEnvironment.isHeadless()) {
-        }
-
         String s = System.getProperty("java.awt.syncLWRequests");
         systemSyncLWRequests = (s != null && s.equals("true"));
         s = System.getProperty("java.awt.Window.locationByPlatform");
@@ -520,8 +516,7 @@ public class Window extends Container {
      * @see java.awt.GraphicsEnvironment#isHeadless
      */
     Window() throws HeadlessException {
-        GraphicsEnvironment.checkHeadless();
-        init((GraphicsConfiguration)null);
+        this((GraphicsConfiguration) null);
     }
 
     /**

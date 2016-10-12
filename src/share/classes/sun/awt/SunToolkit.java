@@ -1422,7 +1422,7 @@ public abstract class SunToolkit extends Toolkit
     }
 
     protected Context getAndroidContext() {
-        return SkinJobUtil.getAndroidApplicationContext();
+        return SkinJob.getAndroidApplicationContext();
     }
 
     protected void launchIntent(File file, String action) throws IOException {

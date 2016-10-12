@@ -194,7 +194,7 @@ public class Checkbox extends Component implements ItemSelectable {
         super(new WrappedAndroidObjectsSupplier<CompoundButton>() {
             @Override
             public Context getAppContext() {
-                return SkinJobUtil.getAndroidApplicationContext();
+                return SkinJob.getAndroidApplicationContext();
             }
 
             @Override
@@ -213,7 +213,7 @@ public class Checkbox extends Component implements ItemSelectable {
         wrappedObjectsSupplier = new WrappedAndroidObjectsSupplier<CompoundButton>() {
             @Override
             public Context getAppContext() {
-                return SkinJobUtil.getAndroidApplicationContext();
+                return SkinJob.getAndroidApplicationContext();
             }
 
             @Override
