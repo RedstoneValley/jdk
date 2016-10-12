@@ -31,28 +31,26 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.MenuBar;
 import java.awt.Point;
-import java.awt.Event;
+import java.awt.Rectangle;
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
 import java.awt.peer.CanvasPeer;
-import java.awt.peer.LightweightPeer;
-import java.awt.peer.PanelPeer;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.ContainerPeer;
-import java.awt.Rectangle;
+import java.awt.peer.LightweightPeer;
+import java.awt.peer.PanelPeer;
 import sun.java2d.pipe.Region;
-
 
 /**
  * Implements the LightweightPeer interface for use in lightweight components
@@ -61,12 +59,12 @@ import sun.java2d.pipe.Region;
  * extended to create useful components written entirely in java.  These
  * components must be hosted somewhere higher up in the component tree by a
  * native container (such as a Frame).
- *
+ * <p>
  * This implementation provides no useful semantics and serves only as a
  * marker.  One could provide alternative implementations in java that do
  * something useful for some of the other peer interfaces to minimize the
  * native code.
- *
+ * <p>
  * This was renamed from java.awt.LightweightPeer (a horrible and confusing
  * name) and moved from java.awt.Toolkit into sun.awt as a public class in
  * its own file.
@@ -75,234 +73,230 @@ import sun.java2d.pipe.Region;
  * @author Michael Martak
  */
 
-public class NullComponentPeer implements LightweightPeer,
-    CanvasPeer, PanelPeer {
+public class NullComponentPeer implements LightweightPeer, CanvasPeer, PanelPeer {
 
-    public boolean isObscured() {
-        return false;
-    }
+  public boolean isObscured() {
+    return false;
+  }
 
-    public boolean canDetermineObscurity() {
-        return false;
-    }
+  public boolean canDetermineObscurity() {
+    return false;
+  }
 
-    public boolean isFocusable() {
-        return false;
-    }
+  public void setVisible(boolean b) {
+  }
 
-    public void setVisible(boolean b) {
-    }
+  public void setEnabled(boolean b) {
+  }
 
-    public void show() {
-    }
+  public void paint(Graphics g) {
+  }
 
-    public void hide() {
-    }
+  public void print(Graphics g) {
+  }
 
-    public void setEnabled(boolean b) {
-    }
+  public void setBounds(int x, int y, int width, int height, int op) {
+  }
 
-    public void enable() {
-    }
+  public void handleEvent(java.awt.AWTEvent arg0) {
+  }
 
-    public void disable() {
-    }
+  public void coalescePaintEvent(PaintEvent e) {
+  }
 
-    public void paint(Graphics g) {
-    }
+  public Point getLocationOnScreen() {
+    return new Point(0, 0);
+  }
 
-    public void repaint(long tm, int x, int y, int width, int height) {
-    }
+  public Dimension getPreferredSize() {
+    return new Dimension(1, 1);
+  }
 
-    public void print(Graphics g) {
-    }
+  public Dimension getMinimumSize() {
+    return new Dimension(1, 1);
+  }
 
-    public void setBounds(int x, int y, int width, int height, int op) {
-    }
+  public ColorModel getColorModel() {
+    return null;
+  }
 
-    public void reshape(int x, int y, int width, int height) {
-    }
+  public Graphics getGraphics() {
+    return null;
+  }
 
-    public void coalescePaintEvent(PaintEvent e) {
-    }
+  public FontMetrics getFontMetrics(Font font) {
+    return null;
+  }
 
-    public boolean handleEvent(Event e) {
-        return false;
-    }
-
-    public void handleEvent(java.awt.AWTEvent arg0) {
-    }
-
-    public Dimension getPreferredSize() {
-        return new Dimension(1,1);
-    }
-
-    public Dimension getMinimumSize() {
-        return new Dimension(1,1);
-    }
-
-    public ColorModel getColorModel() {
-        return null;
-    }
-
-    public Graphics getGraphics() {
-        return null;
-    }
-
-    public GraphicsConfiguration getGraphicsConfiguration() {
-        return null;
-    }
-
-    public FontMetrics  getFontMetrics(Font font) {
-        return null;
-    }
-
-    public void dispose() {
+  public void dispose() {
     // no native code
-    }
+  }
 
-    public void setForeground(Color c) {
-    }
+  public void setForeground(Color c) {
+  }
 
-    public void setBackground(Color c) {
-    }
+  public void setBackground(Color c) {
+  }
 
-    public void setFont(Font f) {
-    }
+  public void setFont(Font f) {
+  }
 
-    public void updateCursorImmediately() {
-    }
+  public void updateCursorImmediately() {
+  }
 
-    public void setCursor(Cursor cursor) {
-    }
+  public boolean requestFocus(
+      Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time,
+      CausedFocusEvent.Cause cause) {
+    return false;
+  }
 
-    public boolean requestFocus
-        (Component lightweightChild, boolean temporary,
-         boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
-        return false;
-    }
+  public boolean isFocusable() {
+    return false;
+  }
 
-    public Image createImage(ImageProducer producer) {
-        return null;
-    }
+  public Image createImage(ImageProducer producer) {
+    return null;
+  }
 
-    public Image createImage(int width, int height) {
-        return null;
-    }
+  public Image createImage(int width, int height) {
+    return null;
+  }
 
-    public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
-        return false;
-    }
+  public VolatileImage createVolatileImage(int width, int height) {
+    return null;
+  }
 
-    public int  checkImage(Image img, int w, int h, ImageObserver o) {
-        return 0;
-    }
+  public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
+    return false;
+  }
 
-    public Dimension preferredSize() {
-        return getPreferredSize();
-    }
+  public int checkImage(Image img, int w, int h, ImageObserver o) {
+    return 0;
+  }
 
-    public Dimension minimumSize() {
-        return getMinimumSize();
-    }
+  public GraphicsConfiguration getGraphicsConfiguration() {
+    return null;
+  }
 
-    public Point getLocationOnScreen() {
-        return new Point(0,0);
-    }
+  public boolean handlesWheelScrolling() {
+    return false;
+  }
 
-    public Insets getInsets() {
-        return insets();
-    }
+  public void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException {
+    throw new AWTException("Page-flipping is not allowed on a lightweight component");
+  }
 
-    public void beginValidate() {
-    }
+  public Image getBackBuffer() {
+    throw new IllegalStateException("Page-flipping is not allowed on a lightweight component");
+  }
 
-    public void endValidate() {
-    }
+  public void flip(
+      int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+    throw new IllegalStateException("Page-flipping is not allowed on a lightweight component");
+  }
 
-    public Insets insets() {
-        return new Insets(0, 0, 0, 0);
-    }
+  public void destroyBuffers() {
+  }
 
-    public boolean isPaintPending() {
-        return false;
-    }
+  /**
+   * @see java.awt.peer.ComponentPeer#reparent
+   */
+  public void reparent(ContainerPeer newNativeParent) {
+    throw new UnsupportedOperationException();
+  }
 
-    public boolean handlesWheelScrolling() {
-        return false;
-    }
+  /**
+   * @see java.awt.peer.ComponentPeer#isReparentSupported
+   */
+  public boolean isReparentSupported() {
+    return false;
+  }
 
-    public VolatileImage createVolatileImage(int width, int height) {
-        return null;
-    }
+  public void layout() {
+  }
 
-    public void beginLayout() {
-    }
+  /**
+   * Applies the shape to the native component window.
+   *
+   * @since 1.7
+   */
+  public void applyShape(Region shape) {
+  }
 
-    public void endLayout() {
-    }
+  /**
+   * Lowers this component at the bottom of the above HW peer. If the above parameter
+   * is null then the method places this component at the top of the Z-order.
+   */
+  public void setZOrder(ComponentPeer above) {
+  }
 
-    public void createBuffers(int numBuffers, BufferCapabilities caps)
-        throws AWTException {
-        throw new AWTException(
-            "Page-flipping is not allowed on a lightweight component");
-    }
-    public Image getBackBuffer() {
-        throw new IllegalStateException(
-            "Page-flipping is not allowed on a lightweight component");
-    }
-    public void flip(int x1, int y1, int x2, int y2,
-                     BufferCapabilities.FlipContents flipAction)
-    {
-        throw new IllegalStateException(
-            "Page-flipping is not allowed on a lightweight component");
-    }
-    public void destroyBuffers() {
-    }
+  public boolean updateGraphicsData(GraphicsConfiguration gc) {
+    return false;
+  }
 
-    /**
-     * @see java.awt.peer.ComponentPeer#isReparentSupported
-     */
-    public boolean isReparentSupported() {
-        return false;
-    }
+  public void show() {
+  }
 
-    /**
-     * @see java.awt.peer.ComponentPeer#reparent
-     */
-    public void reparent(ContainerPeer newNativeParent) {
-        throw new UnsupportedOperationException();
-    }
+  public void hide() {
+  }
 
-    public void layout() {
-    }
+  public void enable() {
+  }
 
-    public Rectangle getBounds() {
-        return new Rectangle(0, 0, 0, 0);
-    }
+  public void disable() {
+  }
 
+  public void repaint(long tm, int x, int y, int width, int height) {
+  }
 
-    /**
-      * Applies the shape to the native component window.
-      * @since 1.7
-      */
-    public void applyShape(Region shape) {
-    }
+  public void reshape(int x, int y, int width, int height) {
+  }
 
-    /**
-     * Lowers this component at the bottom of the above HW peer. If the above parameter
-     * is null then the method places this component at the top of the Z-order.
-     */
-    public void setZOrder(ComponentPeer above) {
-    }
+  public boolean handleEvent(Event e) {
+    return false;
+  }
 
-    public boolean updateGraphicsData(GraphicsConfiguration gc) {
-        return false;
-    }
+  public void setCursor(Cursor cursor) {
+  }
 
-    public GraphicsConfiguration getAppropriateGraphicsConfiguration(
-                        GraphicsConfiguration gc)
-    {
-        return gc;
-    }
+  public Dimension preferredSize() {
+    return getPreferredSize();
+  }
+
+  public Dimension minimumSize() {
+    return getMinimumSize();
+  }
+
+  public Insets getInsets() {
+    return insets();
+  }
+
+  public void beginValidate() {
+  }
+
+  public void endValidate() {
+  }
+
+  public void beginLayout() {
+  }
+
+  public void endLayout() {
+  }
+
+  public Insets insets() {
+    return new Insets(0, 0, 0, 0);
+  }
+
+  public boolean isPaintPending() {
+    return false;
+  }
+
+  public Rectangle getBounds() {
+    return new Rectangle(0, 0, 0, 0);
+  }
+
+  public GraphicsConfiguration getAppropriateGraphicsConfiguration(
+      GraphicsConfiguration gc) {
+    return gc;
+  }
 }

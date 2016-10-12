@@ -26,7 +26,6 @@
 package java.awt.dnd;
 
 import java.awt.Component;
-
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,7 +34,7 @@ import java.awt.event.MouseMotionListener;
  * This abstract subclass of <code>DragGestureRecognizer</code>
  * defines a <code>DragGestureRecognizer</code>
  * for mouse-based gestures.
- *
+ * <p>
  * Each platform implements its own concrete subclass of this class,
  * available via the Toolkit.createDragGestureRecognizer() method,
  * to encapsulate
@@ -56,153 +55,170 @@ import java.awt.event.MouseMotionListener;
  * follow this convention.
  *
  * @author Laurence P. G. Cable
- *
  * @see java.awt.dnd.DragGestureListener
  * @see java.awt.dnd.DragGestureEvent
  * @see java.awt.dnd.DragSource
  */
 
-public abstract class MouseDragGestureRecognizer extends DragGestureRecognizer implements MouseListener, MouseMotionListener {
+public abstract class MouseDragGestureRecognizer extends DragGestureRecognizer
+    implements MouseListener, MouseMotionListener {
 
-    private static final long serialVersionUID = 6220099344182281120L;
+  private static final long serialVersionUID = 6220099344182281120L;
 
-    /**
-     * Construct a new <code>MouseDragGestureRecognizer</code>
-     * given the <code>DragSource</code> for the
-     * <code>Component</code> c, the <code>Component</code>
-     * to observe, the action(s)
-     * permitted for this drag operation, and
-     * the <code>DragGestureListener</code> to
-     * notify when a drag gesture is detected.
-     * <P>
-     * @param ds  The DragSource for the Component c
-     * @param c   The Component to observe
-     * @param act The actions permitted for this Drag
-     * @param dgl The DragGestureListener to notify when a gesture is detected
-     *
-     */
+  /**
+   * Construct a new <code>MouseDragGestureRecognizer</code>
+   * given the <code>DragSource</code> for the
+   * <code>Component</code> c, the <code>Component</code>
+   * to observe, the action(s)
+   * permitted for this drag operation, and
+   * the <code>DragGestureListener</code> to
+   * notify when a drag gesture is detected.
+   * <p>
+   *
+   * @param ds  The DragSource for the Component c
+   * @param c   The Component to observe
+   * @param act The actions permitted for this Drag
+   * @param dgl The DragGestureListener to notify when a gesture is detected
+   */
 
-    protected MouseDragGestureRecognizer(DragSource ds, Component c, int act, DragGestureListener dgl) {
-        super(ds, c, act, dgl);
-    }
+  protected MouseDragGestureRecognizer(
+      DragSource ds, Component c, int act, DragGestureListener dgl) {
+    super(ds, c, act, dgl);
+  }
 
-    /**
-     * Construct a new <code>MouseDragGestureRecognizer</code>
-     * given the <code>DragSource</code> for
-     * the <code>Component</code> c,
-     * the <code>Component</code> to observe, and the action(s)
-     * permitted for this drag operation.
-     * <P>
-     * @param ds  The DragSource for the Component c
-     * @param c   The Component to observe
-     * @param act The actions permitted for this drag
-     */
+  /**
+   * Construct a new <code>MouseDragGestureRecognizer</code>
+   * given the <code>DragSource</code> for
+   * the <code>Component</code> c,
+   * the <code>Component</code> to observe, and the action(s)
+   * permitted for this drag operation.
+   * <p>
+   *
+   * @param ds  The DragSource for the Component c
+   * @param c   The Component to observe
+   * @param act The actions permitted for this drag
+   */
 
-    protected MouseDragGestureRecognizer(DragSource ds, Component c, int act) {
-        this(ds, c, act, null);
-    }
+  protected MouseDragGestureRecognizer(DragSource ds, Component c, int act) {
+    this(ds, c, act, null);
+  }
 
-    /**
-     * Construct a new <code>MouseDragGestureRecognizer</code>
-     * given the <code>DragSource</code> for the
-     * <code>Component</code> c, and the
-     * <code>Component</code> to observe.
-     * <P>
-     * @param ds  The DragSource for the Component c
-     * @param c   The Component to observe
-     */
+  /**
+   * Construct a new <code>MouseDragGestureRecognizer</code>
+   * given the <code>DragSource</code> for the
+   * <code>Component</code> c, and the
+   * <code>Component</code> to observe.
+   * <p>
+   *
+   * @param ds The DragSource for the Component c
+   * @param c  The Component to observe
+   */
 
-    protected MouseDragGestureRecognizer(DragSource ds, Component c) {
-        this(ds, c, DnDConstants.ACTION_NONE);
-    }
+  protected MouseDragGestureRecognizer(DragSource ds, Component c) {
+    this(ds, c, DnDConstants.ACTION_NONE);
+  }
 
-    /**
-     * Construct a new <code>MouseDragGestureRecognizer</code>
-     * given the <code>DragSource</code> for the <code>Component</code>.
-     * <P>
-     * @param ds  The DragSource for the Component
-     */
+  /**
+   * Construct a new <code>MouseDragGestureRecognizer</code>
+   * given the <code>DragSource</code> for the <code>Component</code>.
+   * <p>
+   *
+   * @param ds The DragSource for the Component
+   */
 
-    protected MouseDragGestureRecognizer(DragSource ds) {
-        this(ds, null);
-    }
+  protected MouseDragGestureRecognizer(DragSource ds) {
+    this(ds, null);
+  }
 
-    /**
-     * register this DragGestureRecognizer's Listeners with the Component
-     */
+  /**
+   * register this DragGestureRecognizer's Listeners with the Component
+   */
 
-    protected void registerListeners() {
-        component.addMouseListener(this);
-        component.addMouseMotionListener(this);
-    }
+  protected void registerListeners() {
+    component.addMouseListener(this);
+    component.addMouseMotionListener(this);
+  }
 
-    /**
-     * unregister this DragGestureRecognizer's Listeners with the Component
-     *
-     * subclasses must override this method
-     */
+  /**
+   * unregister this DragGestureRecognizer's Listeners with the Component
+   * <p>
+   * subclasses must override this method
+   */
 
+  protected void unregisterListeners() {
+    component.removeMouseListener(this);
+    component.removeMouseMotionListener(this);
+  }
 
-    protected void unregisterListeners() {
-        component.removeMouseListener(this);
-        component.removeMouseMotionListener(this);
-    }
+  /**
+   * Invoked when the mouse has been clicked on a component.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when the mouse has been clicked on a component.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mouseClicked(MouseEvent e) {
+  }
 
-    public void mouseClicked(MouseEvent e) { }
+  /**
+   * Invoked when a mouse button has been
+   * pressed on a <code>Component</code>.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when a mouse button has been
-     * pressed on a <code>Component</code>.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mousePressed(MouseEvent e) {
+  }
 
-    public void mousePressed(MouseEvent e) { }
+  /**
+   * Invoked when a mouse button has been released on a component.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when a mouse button has been released on a component.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mouseReleased(MouseEvent e) {
+  }
 
-    public void mouseReleased(MouseEvent e) { }
+  /**
+   * Invoked when the mouse enters a component.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when the mouse enters a component.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mouseEntered(MouseEvent e) {
+  }
 
-    public void mouseEntered(MouseEvent e) { }
+  /**
+   * Invoked when the mouse exits a component.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when the mouse exits a component.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mouseExited(MouseEvent e) {
+  }
 
-    public void mouseExited(MouseEvent e) { }
+  /**
+   * Invoked when a mouse button is pressed on a component.
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when a mouse button is pressed on a component.
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
+  public void mouseDragged(MouseEvent e) {
+  }
 
-    public void mouseDragged(MouseEvent e) { }
+  /**
+   * Invoked when the mouse button has been moved on a component
+   * (with no buttons no down).
+   * <p>
+   *
+   * @param e the <code>MouseEvent</code>
+   */
 
-    /**
-     * Invoked when the mouse button has been moved on a component
-     * (with no buttons no down).
-     * <P>
-     * @param e the <code>MouseEvent</code>
-     */
-
-    public void mouseMoved(MouseEvent e) { }
+  public void mouseMoved(MouseEvent e) {
+  }
 }

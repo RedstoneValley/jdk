@@ -26,19 +26,14 @@
 package java.awt.dnd;
 
 import java.awt.Component;
-
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-
 import java.awt.dnd.peer.DropTargetContextPeer;
-
 import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.Arrays;
 import java.util.List;
-
 
 /**
  * A <code>DropTargetContext</code> is created
@@ -56,365 +51,375 @@ import java.util.List;
 
 public class DropTargetContext implements Serializable {
 
-    private static final long serialVersionUID = -634158968993743371L;
+  private static final long serialVersionUID = -634158968993743371L;
+  /**
+   * The DropTarget associated with this DropTargetContext.
+   *
+   * @serial
+   */
+  private DropTarget dropTarget;
+  private transient DropTargetContextPeer dropTargetContextPeer;
+  private transient Transferable transferable;
 
-    /**
-     * Construct a <code>DropTargetContext</code>
-     * given a specified <code>DropTarget</code>.
-     * <P>
-     * @param dt the DropTarget to associate with
-     */
+  /**
+   * Construct a <code>DropTargetContext</code>
+   * given a specified <code>DropTarget</code>.
+   * <p>
+   *
+   * @param dt the DropTarget to associate with
+   */
 
-    DropTargetContext(DropTarget dt) {
-        super();
+  DropTargetContext(DropTarget dt) {
+    super();
 
-        dropTarget = dt;
+    dropTarget = dt;
+  }
+
+  /**
+   * This method returns the <code>DropTarget</code> associated with this
+   * <code>DropTargetContext</code>.
+   * <p>
+   *
+   * @return the <code>DropTarget</code> associated with this <code>DropTargetContext</code>
+   */
+
+  public DropTarget getDropTarget() {
+    return dropTarget;
+  }
+
+  /**
+   * This method returns the <code>Component</code> associated with
+   * this <code>DropTargetContext</code>.
+   * <p>
+   *
+   * @return the Component associated with this Context
+   */
+
+  public Component getComponent() {
+    return dropTarget.getComponent();
+  }
+
+  /**
+   * Called when associated with the <code>DropTargetContextPeer</code>.
+   * <p>
+   *
+   * @param dtcp the <code>DropTargetContextPeer</code>
+   */
+
+  public void addNotify(DropTargetContextPeer dtcp) {
+    dropTargetContextPeer = dtcp;
+  }
+
+  /**
+   * Called when disassociated with the <code>DropTargetContextPeer</code>.
+   */
+
+  public void removeNotify() {
+    dropTargetContextPeer = null;
+    transferable = null;
+  }
+
+  /**
+   * This method returns an <code>int</code> representing the
+   * current actions this <code>DropTarget</code> will accept.
+   * <p>
+   *
+   * @return the current actions acceptable to this <code>DropTarget</code>
+   */
+
+  protected int getTargetActions() {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    return ((peer != null) ? peer.getTargetActions() : dropTarget.getDefaultActions());
+  }
+
+  /**
+   * This method sets the current actions acceptable to
+   * this <code>DropTarget</code>.
+   * <p>
+   *
+   * @param actions an <code>int</code> representing the supported action(s)
+   */
+
+  protected void setTargetActions(int actions) {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      synchronized (peer) {
+        peer.setTargetActions(actions);
+        getDropTarget().doSetDefaultActions(actions);
+      }
+    } else {
+      getDropTarget().doSetDefaultActions(actions);
     }
+  }
 
-    /**
-     * This method returns the <code>DropTarget</code> associated with this
-     * <code>DropTargetContext</code>.
-     * <P>
-     * @return the <code>DropTarget</code> associated with this <code>DropTargetContext</code>
-     */
+  /**
+   * This method signals that the drop is completed and
+   * if it was successful or not.
+   * <p>
+   *
+   * @param success true for success, false if not
+   *                <p>
+   * @throws InvalidDnDOperationException if a drop is not outstanding/extant
+   */
 
-    public DropTarget getDropTarget() { return dropTarget; }
-
-    /**
-     * This method returns the <code>Component</code> associated with
-     * this <code>DropTargetContext</code>.
-     * <P>
-     * @return the Component associated with this Context
-     */
-
-    public Component getComponent() { return dropTarget.getComponent(); }
-
-    /**
-     * Called when associated with the <code>DropTargetContextPeer</code>.
-     * <P>
-     * @param dtcp the <code>DropTargetContextPeer</code>
-     */
-
-    public void addNotify(DropTargetContextPeer dtcp) {
-        dropTargetContextPeer = dtcp;
+  public void dropComplete(boolean success) throws InvalidDnDOperationException {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      peer.dropComplete(success);
     }
+  }
 
-    /**
-     * Called when disassociated with the <code>DropTargetContextPeer</code>.
-     */
+  /**
+   * accept the Drag.
+   * <p>
+   *
+   * @param dragOperation the supported action(s)
+   */
 
-    public void removeNotify() {
-        dropTargetContextPeer = null;
-        transferable          = null;
+  protected void acceptDrag(int dragOperation) {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      peer.acceptDrag(dragOperation);
     }
+  }
 
-    /**
-     * This method sets the current actions acceptable to
-     * this <code>DropTarget</code>.
-     * <P>
-     * @param actions an <code>int</code> representing the supported action(s)
-     */
+  /**
+   * reject the Drag.
+   */
 
-    protected void setTargetActions(int actions) {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            synchronized (peer) {
-                peer.setTargetActions(actions);
-                getDropTarget().doSetDefaultActions(actions);
-            }
-        } else {
-            getDropTarget().doSetDefaultActions(actions);
+  protected void rejectDrag() {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      peer.rejectDrag();
+    }
+  }
+
+  /**
+   * called to signal that the drop is acceptable
+   * using the specified operation.
+   * must be called during DropTargetListener.drop method invocation.
+   * <p>
+   *
+   * @param dropOperation the supported action(s)
+   */
+
+  protected void acceptDrop(int dropOperation) {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      peer.acceptDrop(dropOperation);
+    }
+  }
+
+  /**
+   * called to signal that the drop is unacceptable.
+   * must be called during DropTargetListener.drop method invocation.
+   */
+
+  protected void rejectDrop() {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer != null) {
+      peer.rejectDrop();
+    }
+  }
+
+  /**
+   * get the available DataFlavors of the
+   * <code>Transferable</code> operand of this operation.
+   * <p>
+   *
+   * @return a <code>DataFlavor[]</code> containing the
+   * supported <code>DataFlavor</code>s of the
+   * <code>Transferable</code> operand.
+   */
+
+  protected DataFlavor[] getCurrentDataFlavors() {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    return peer != null ? peer.getTransferDataFlavors() : new DataFlavor[0];
+  }
+
+  /**
+   * This method returns a the currently available DataFlavors
+   * of the <code>Transferable</code> operand
+   * as a <code>java.util.List</code>.
+   * <p>
+   *
+   * @return the currently available
+   * DataFlavors as a <code>java.util.List</code>
+   */
+
+  protected List<DataFlavor> getCurrentDataFlavorsAsList() {
+    return Arrays.asList(getCurrentDataFlavors());
+  }
+
+  /**
+   * This method returns a <code>boolean</code>
+   * indicating if the given <code>DataFlavor</code> is
+   * supported by this <code>DropTargetContext</code>.
+   * <p>
+   *
+   * @param df the <code>DataFlavor</code>
+   *           <p>
+   * @return if the <code>DataFlavor</code> specified is supported
+   */
+
+  protected boolean isDataFlavorSupported(DataFlavor df) {
+    return getCurrentDataFlavorsAsList().contains(df);
+  }
+
+  /****************************************************************************/
+
+  /**
+   * get the Transferable (proxy) operand of this operation
+   * <p>
+   *
+   * @return the <code>Transferable</code>
+   * @throws InvalidDnDOperationException if a drag is not outstanding/extant
+   *                                      <p>
+   */
+
+  protected Transferable getTransferable() throws InvalidDnDOperationException {
+    DropTargetContextPeer peer = getDropTargetContextPeer();
+    if (peer == null) {
+      throw new InvalidDnDOperationException();
+    } else {
+      if (transferable == null) {
+        Transferable t = peer.getTransferable();
+        boolean isLocal = peer.isTransferableJVMLocal();
+        synchronized (this) {
+          if (transferable == null) {
+            transferable = createTransferableProxy(t, isLocal);
+          }
         }
+      }
+
+      return transferable;
     }
+  }
 
-    /**
-     * This method returns an <code>int</code> representing the
-     * current actions this <code>DropTarget</code> will accept.
-     * <P>
-     * @return the current actions acceptable to this <code>DropTarget</code>
-     */
-
-    protected int getTargetActions() {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        return ((peer != null)
-                        ? peer.getTargetActions()
-                        : dropTarget.getDefaultActions()
-        );
-    }
-
-    /**
-     * This method signals that the drop is completed and
-     * if it was successful or not.
-     * <P>
-     * @param success true for success, false if not
-     * <P>
-     * @throws InvalidDnDOperationException if a drop is not outstanding/extant
-     */
-
-    public void dropComplete(boolean success) throws InvalidDnDOperationException{
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            peer.dropComplete(success);
-        }
-    }
-
-    /**
-     * accept the Drag.
-     * <P>
-     * @param dragOperation the supported action(s)
-     */
-
-    protected void acceptDrag(int dragOperation) {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            peer.acceptDrag(dragOperation);
-        }
-    }
-
-    /**
-     * reject the Drag.
-     */
-
-    protected void rejectDrag() {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            peer.rejectDrag();
-        }
-    }
-
-    /**
-     * called to signal that the drop is acceptable
-     * using the specified operation.
-     * must be called during DropTargetListener.drop method invocation.
-     * <P>
-     * @param dropOperation the supported action(s)
-     */
-
-    protected void acceptDrop(int dropOperation) {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            peer.acceptDrop(dropOperation);
-        }
-    }
-
-    /**
-     * called to signal that the drop is unacceptable.
-     * must be called during DropTargetListener.drop method invocation.
-     */
-
-    protected void rejectDrop() {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer != null) {
-            peer.rejectDrop();
-        }
-    }
-
-    /**
-     * get the available DataFlavors of the
-     * <code>Transferable</code> operand of this operation.
-     * <P>
-     * @return a <code>DataFlavor[]</code> containing the
-     * supported <code>DataFlavor</code>s of the
-     * <code>Transferable</code> operand.
-     */
-
-    protected DataFlavor[] getCurrentDataFlavors() {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        return peer != null ? peer.getTransferDataFlavors() : new DataFlavor[0];
-    }
-
-    /**
-     * This method returns a the currently available DataFlavors
-     * of the <code>Transferable</code> operand
-     * as a <code>java.util.List</code>.
-     * <P>
-     * @return the currently available
-     * DataFlavors as a <code>java.util.List</code>
-     */
-
-    protected List<DataFlavor> getCurrentDataFlavorsAsList() {
-        return Arrays.asList(getCurrentDataFlavors());
-    }
-
-    /**
-     * This method returns a <code>boolean</code>
-     * indicating if the given <code>DataFlavor</code> is
-     * supported by this <code>DropTargetContext</code>.
-     * <P>
-     * @param df the <code>DataFlavor</code>
-     * <P>
-     * @return if the <code>DataFlavor</code> specified is supported
-     */
-
-    protected boolean isDataFlavorSupported(DataFlavor df) {
-        return getCurrentDataFlavorsAsList().contains(df);
-    }
-
-    /**
-     * get the Transferable (proxy) operand of this operation
-     * <P>
-     * @throws InvalidDnDOperationException if a drag is not outstanding/extant
-     * <P>
-     * @return the <code>Transferable</code>
-     */
-
-    protected Transferable getTransferable() throws InvalidDnDOperationException {
-        DropTargetContextPeer peer = getDropTargetContextPeer();
-        if (peer == null) {
-            throw new InvalidDnDOperationException();
-        } else {
-            if (transferable == null) {
-                Transferable t = peer.getTransferable();
-                boolean isLocal = peer.isTransferableJVMLocal();
-                synchronized (this) {
-                    if (transferable == null) {
-                        transferable = createTransferableProxy(t, isLocal);
-                    }
-                }
-            }
-
-            return transferable;
-        }
-    }
-
-    /**
-     * Get the <code>DropTargetContextPeer</code>
-     * <P>
-     * @return the platform peer
-     */
-
-    DropTargetContextPeer getDropTargetContextPeer() {
-        return dropTargetContextPeer;
-    }
-
-    /**
-     * Creates a TransferableProxy to proxy for the specified
-     * Transferable.
-     *
-     * @param t the <tt>Transferable</tt> to be proxied
-     * @param local <tt>true</tt> if <tt>t</tt> represents
-     *        the result of a local drag-n-drop operation.
-     * @return the new <tt>TransferableProxy</tt> instance.
-     */
-    protected Transferable createTransferableProxy(Transferable t, boolean local) {
-        return new TransferableProxy(t, local);
-    }
-
-/****************************************************************************/
-
-
-    /**
-     * <code>TransferableProxy</code> is a helper inner class that implements
-     * <code>Transferable</code> interface and serves as a proxy for another
-     * <code>Transferable</code> object which represents data transfer for
-     * a particular drag-n-drop operation.
-     * <p>
-     * The proxy forwards all requests to the encapsulated transferable
-     * and automatically performs additional conversion on the data
-     * returned by the encapsulated transferable in case of local transfer.
-     */
-
-    protected class TransferableProxy implements Transferable {
-
-        /**
-         * Constructs a <code>TransferableProxy</code> given
-         * a specified <code>Transferable</code> object representing
-         * data transfer for a particular drag-n-drop operation and
-         * a <code>boolean</code> which indicates whether the
-         * drag-n-drop operation is local (within the same JVM).
-         * <p>
-         * @param t the <code>Transferable</code> object
-         * @param local <code>true</code>, if <code>t</code> represents
-         *        the result of local drag-n-drop operation
-         */
-        TransferableProxy(Transferable t, boolean local) {
-            proxy = new sun.awt.datatransfer.TransferableProxy(t, local);
-            transferable = t;
-            isLocal      = local;
-        }
-
-        /**
-         * Returns an array of DataFlavor objects indicating the flavors
-         * the data can be provided in by the encapsulated transferable.
-         * <p>
-         * @return an array of data flavors in which the data can be
-         *         provided by the encapsulated transferable
-         */
-        public DataFlavor[] getTransferDataFlavors() {
-            return proxy.getTransferDataFlavors();
-        }
-
-        /**
-         * Returns whether or not the specified data flavor is supported by
-         * the encapsulated transferable.
-         * @param flavor the requested flavor for the data
-         * @return <code>true</code> if the data flavor is supported,
-         *         <code>false</code> otherwise
-         */
-        public boolean isDataFlavorSupported(DataFlavor flavor) {
-            return proxy.isDataFlavorSupported(flavor);
-        }
-
-        /**
-         * Returns an object which represents the data provided by
-         * the encapsulated transferable for the requested data flavor.
-         * <p>
-         * In case of local transfer a serialized copy of the object
-         * returned by the encapsulated transferable is provided when
-         * the data is requested in application/x-java-serialized-object
-         * data flavor.
-         *
-         * @param df the requested flavor for the data
-         * @throws IOException if the data is no longer available
-         *              in the requested flavor.
-         * @throws UnsupportedFlavorException if the requested data flavor is
-         *              not supported.
-         */
-        public Object getTransferData(DataFlavor df)
-            throws UnsupportedFlavorException, IOException
-        {
-            return proxy.getTransferData(df);
-        }
-
-        /*
-         * fields
-         */
-
-        // We don't need to worry about client code changing the values of
-        // these variables. Since TransferableProxy is a protected class, only
-        // subclasses of DropTargetContext can access it. And DropTargetContext
-        // cannot be subclassed by client code because it does not have a
-        // public constructor.
-
-        /**
-         * The encapsulated <code>Transferable</code> object.
-         */
-        protected Transferable  transferable;
-
-        /**
-         * A <code>boolean</code> indicating if the encapsulated
-         * <code>Transferable</code> object represents the result
-         * of local drag-n-drop operation (within the same JVM).
-         */
-        protected boolean       isLocal;
-
-        private sun.awt.datatransfer.TransferableProxy proxy;
-    }
-
-/****************************************************************************/
+  /****************************************************************************/
 
     /*
      * fields
      */
 
+  /**
+   * Get the <code>DropTargetContextPeer</code>
+   * <p>
+   *
+   * @return the platform peer
+   */
+
+  DropTargetContextPeer getDropTargetContextPeer() {
+    return dropTargetContextPeer;
+  }
+
+  /**
+   * Creates a TransferableProxy to proxy for the specified
+   * Transferable.
+   *
+   * @param t     the <tt>Transferable</tt> to be proxied
+   * @param local <tt>true</tt> if <tt>t</tt> represents
+   *              the result of a local drag-n-drop operation.
+   * @return the new <tt>TransferableProxy</tt> instance.
+   */
+  protected Transferable createTransferableProxy(Transferable t, boolean local) {
+    return new TransferableProxy(t, local);
+  }
+
+  /**
+   * <code>TransferableProxy</code> is a helper inner class that implements
+   * <code>Transferable</code> interface and serves as a proxy for another
+   * <code>Transferable</code> object which represents data transfer for
+   * a particular drag-n-drop operation.
+   * <p>
+   * The proxy forwards all requests to the encapsulated transferable
+   * and automatically performs additional conversion on the data
+   * returned by the encapsulated transferable in case of local transfer.
+   */
+
+  protected class TransferableProxy implements Transferable {
+
     /**
-     * The DropTarget associated with this DropTargetContext.
-     *
-     * @serial
+     * The encapsulated <code>Transferable</code> object.
      */
-    private DropTarget dropTarget;
+    protected Transferable transferable;
+    /**
+     * A <code>boolean</code> indicating if the encapsulated
+     * <code>Transferable</code> object represents the result
+     * of local drag-n-drop operation (within the same JVM).
+     */
+    protected boolean isLocal;
+    private sun.awt.datatransfer.TransferableProxy proxy;
 
-    private transient DropTargetContextPeer dropTargetContextPeer;
+    /**
+     * Constructs a <code>TransferableProxy</code> given
+     * a specified <code>Transferable</code> object representing
+     * data transfer for a particular drag-n-drop operation and
+     * a <code>boolean</code> which indicates whether the
+     * drag-n-drop operation is local (within the same JVM).
+     * <p>
+     *
+     * @param t     the <code>Transferable</code> object
+     * @param local <code>true</code>, if <code>t</code> represents
+     *              the result of local drag-n-drop operation
+     */
+    TransferableProxy(Transferable t, boolean local) {
+      proxy = new sun.awt.datatransfer.TransferableProxy(t, local);
+      transferable = t;
+      isLocal = local;
+    }
 
-    private transient Transferable transferable;
+        /*
+         * fields
+         */
+
+    // We don't need to worry about client code changing the values of
+    // these variables. Since TransferableProxy is a protected class, only
+    // subclasses of DropTargetContext can access it. And DropTargetContext
+    // cannot be subclassed by client code because it does not have a
+    // public constructor.
+
+    /**
+     * Returns an array of DataFlavor objects indicating the flavors
+     * the data can be provided in by the encapsulated transferable.
+     * <p>
+     *
+     * @return an array of data flavors in which the data can be
+     * provided by the encapsulated transferable
+     */
+    public DataFlavor[] getTransferDataFlavors() {
+      return proxy.getTransferDataFlavors();
+    }
+
+    /**
+     * Returns whether or not the specified data flavor is supported by
+     * the encapsulated transferable.
+     *
+     * @param flavor the requested flavor for the data
+     * @return <code>true</code> if the data flavor is supported,
+     * <code>false</code> otherwise
+     */
+    public boolean isDataFlavorSupported(DataFlavor flavor) {
+      return proxy.isDataFlavorSupported(flavor);
+    }
+
+    /**
+     * Returns an object which represents the data provided by
+     * the encapsulated transferable for the requested data flavor.
+     * <p>
+     * In case of local transfer a serialized copy of the object
+     * returned by the encapsulated transferable is provided when
+     * the data is requested in application/x-java-serialized-object
+     * data flavor.
+     *
+     * @param df the requested flavor for the data
+     * @throws IOException                if the data is no longer available
+     *                                    in the requested flavor.
+     * @throws UnsupportedFlavorException if the requested data flavor is
+     *                                    not supported.
+     */
+    public Object getTransferData(DataFlavor df) throws UnsupportedFlavorException, IOException {
+      return proxy.getTransferData(df);
+    }
+  }
 }

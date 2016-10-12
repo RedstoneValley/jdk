@@ -25,8 +25,8 @@
 
 package java.awt.event;
 
-import java.util.EventListener;
 import java.awt.AWTEvent;
+import java.util.EventListener;
 
 /**
  * The listener interface for receiving notification of events
@@ -45,18 +45,16 @@ import java.awt.AWTEvent;
  * dispatched anywhere in the AWT, that object's
  * <code>eventDispatched</code> method is invoked.
  *
+ * @author Fred Ecks
  * @see java.awt.AWTEvent
  * @see java.awt.Toolkit#addAWTEventListener
  * @see java.awt.Toolkit#removeAWTEventListener
- *
- * @author Fred Ecks
  * @since 1.2
  */
 public interface AWTEventListener extends EventListener {
 
-    /**
-     * Invoked when an event is dispatched in the AWT.
-     */
-    public void eventDispatched(AWTEvent event);
-
+  /**
+   * Invoked when an event is dispatched in the AWT.
+   */
+  public void eventDispatched(AWTEvent event);
 }

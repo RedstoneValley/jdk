@@ -37,20 +37,18 @@ import java.util.EventListener;
  * <code>itemStateChanged</code> method is invoked.
  *
  * @author Amy Fowler
- *
  * @see java.awt.ItemSelectable
  * @see ItemEvent
- * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/itemlistener.html">Tutorial: Writing an Item Listener</a>
- *
+ * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/itemlistener.html">Tutorial:
+ * Writing an Item Listener</a>
  * @since 1.1
  */
 public interface ItemListener extends EventListener {
 
-    /**
-     * Invoked when an item has been selected or deselected by the user.
-     * The code written for this method performs the operations
-     * that need to occur when an item is selected (or deselected).
-     */
-    void itemStateChanged(ItemEvent e);
-
+  /**
+   * Invoked when an item has been selected or deselected by the user.
+   * The code written for this method performs the operations
+   * that need to occur when an item is selected (or deselected).
+   */
+  void itemStateChanged(ItemEvent e);
 }

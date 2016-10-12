@@ -27,10 +27,8 @@ package sun.java2d.opengl;
 
 import java.awt.Color;
 import java.awt.Transparency;
-
 import sun.java2d.SurfaceData;
 import sun.java2d.SurfaceDataProxy;
-import sun.java2d.loops.SurfaceType;
 import sun.java2d.loops.CompositeType;
 
 /**
@@ -39,48 +37,42 @@ import sun.java2d.loops.CompositeType;
  * the accelerated surfaces.
  */
 public class OGLSurfaceDataProxy extends SurfaceDataProxy {
-    public static SurfaceDataProxy createProxy(SurfaceData srcData,
-                                               OGLGraphicsConfig dstConfig)
-    {
-        if (srcData instanceof OGLSurfaceData) {
-            // srcData must be a VolatileImage which either matches
-            // our pixel format or not - either way we do not cache it...
-            return UNCACHED;
-        }
+  OGLGraphicsConfig oglgc;
+  int transparency;
 
-        return new OGLSurfaceDataProxy(dstConfig, srcData.getTransparency());
+  public OGLSurfaceDataProxy(OGLGraphicsConfig oglgc, int transparency) {
+    this.oglgc = oglgc;
+    this.transparency = transparency;
+  }
+
+  public static SurfaceDataProxy createProxy(
+      SurfaceData srcData, OGLGraphicsConfig dstConfig) {
+    if (srcData instanceof OGLSurfaceData) {
+      // srcData must be a VolatileImage which either matches
+      // our pixel format or not - either way we do not cache it...
+      return UNCACHED;
     }
 
-    OGLGraphicsConfig oglgc;
-    int transparency;
+    return new OGLSurfaceDataProxy(dstConfig, srcData.getTransparency());
+  }
 
-    public OGLSurfaceDataProxy(OGLGraphicsConfig oglgc, int transparency) {
-        this.oglgc = oglgc;
-        this.transparency = transparency;
-    }
+  @Override
+  public boolean isSupportedOperation(
+      SurfaceData srcData, int txtype, CompositeType comp, Color bgColor) {
+    return comp.isDerivedFrom(CompositeType.AnyAlpha) && (bgColor == null || transparency
+        == Transparency.OPAQUE);
+  }
 
-    @Override
-    public SurfaceData validateSurfaceData(SurfaceData srcData,
-                                           SurfaceData cachedData,
-                                           int w, int h)
-    {
-        if (cachedData == null) {
-            try {
-                cachedData = oglgc.createManagedSurface(w, h, transparency);
-            } catch (OutOfMemoryError er) {
-                return null;
-            }
-        }
-        return cachedData;
+  @Override
+  public SurfaceData validateSurfaceData(
+      SurfaceData srcData, SurfaceData cachedData, int w, int h) {
+    if (cachedData == null) {
+      try {
+        cachedData = oglgc.createManagedSurface(w, h, transparency);
+      } catch (OutOfMemoryError er) {
+        return null;
+      }
     }
-
-    @Override
-    public boolean isSupportedOperation(SurfaceData srcData,
-                                        int txtype,
-                                        CompositeType comp,
-                                        Color bgColor)
-    {
-        return comp.isDerivedFrom(CompositeType.AnyAlpha) &&
-               (bgColor == null || transparency == Transparency.OPAQUE);
-    }
+    return cachedData;
+  }
 }

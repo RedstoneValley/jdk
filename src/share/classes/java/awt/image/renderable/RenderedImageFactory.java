@@ -34,8 +34,9 @@
  **********************************************************************/
 
 package java.awt.image.renderable;
-import java.awt.image.RenderedImage;
+
 import java.awt.RenderingHints;
+import java.awt.image.RenderedImage;
 
 /**
  * The RenderedImageFactory interface (often abbreviated RIF) is
@@ -52,7 +53,7 @@ public interface RenderedImageFactory {
    * RenderingHints.  The RIF may also query any source images
    * referenced by the ParameterBlock for their dimensions,
    * SampleModels, properties, etc., as necessary.
-   *
+   * <p>
    * <p> The create() method can return null if the
    * RenderedImageFactory is not capable of producing output for the
    * given set of source images and parameters.  For example, if a
@@ -60,7 +61,7 @@ public interface RenderedImageFactory {
    * convolution on single-banded image data, and the source image has
    * multiple bands or the convolution Kernel is 5x5, null should be
    * returned.
-   *
+   * <p>
    * <p> Hints should be taken into account, but can be ignored.
    * The created RenderedImage may have a property identified
    * by the String HINTS_OBSERVED to indicate which RenderingHints
@@ -69,10 +70,10 @@ public interface RenderedImageFactory {
    * RenderedImage may have such a property.
    *
    * @param paramBlock a ParameterBlock containing sources and parameters
-   *        for the RenderedImage to be created.
-   * @param hints a RenderingHints object containing hints.
+   *                   for the RenderedImage to be created.
+   * @param hints      a RenderingHints object containing hints.
    * @return A RenderedImage containing the desired output.
    */
-  RenderedImage create(ParameterBlock paramBlock,
-                       RenderingHints hints);
+  RenderedImage create(
+      ParameterBlock paramBlock, RenderingHints hints);
 }

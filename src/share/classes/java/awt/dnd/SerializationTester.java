@@ -25,9 +25,9 @@
 
 package java.awt.dnd;
 
-import java.io.OutputStream;
-import java.io.ObjectOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 
 /**
@@ -37,37 +37,40 @@ import java.io.Serializable;
  * @since 1.4
  */
 final class SerializationTester {
-    private static ObjectOutputStream stream;
-    static {
-        try {
-            stream = new ObjectOutputStream(new OutputStream() {
-                    public void write(int b) {}
-                });
-        } catch (IOException cannotHappen) {
+  private static ObjectOutputStream stream;
+
+  static {
+    try {
+      stream = new ObjectOutputStream(new OutputStream() {
+        public void write(int b) {
         }
+      });
+    } catch (IOException cannotHappen) {
+    }
+  }
+
+  private SerializationTester() {
+  }
+
+  static boolean test(Object obj) {
+    if (!(obj instanceof Serializable)) {
+      return false;
     }
 
-    static boolean test(Object obj) {
-        if (!(obj instanceof Serializable)) {
-            return false;
-        }
-
-        try {
-            stream.writeObject(obj);
-        } catch (IOException e) {
-            return false;
-        } finally {
-            // Fix for 4503661.
-            // Reset the stream so that it doesn't keep a reference to the
-            // written object.
-            try {
-                stream.reset();
-            } catch (IOException e) {
-                // Ignore the exception.
-            }
-        }
-        return true;
+    try {
+      stream.writeObject(obj);
+    } catch (IOException e) {
+      return false;
+    } finally {
+      // Fix for 4503661.
+      // Reset the stream so that it doesn't keep a reference to the
+      // written object.
+      try {
+        stream.reset();
+      } catch (IOException e) {
+        // Ignore the exception.
+      }
     }
-
-    private SerializationTester() {}
+    return true;
+  }
 }

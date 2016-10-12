@@ -37,56 +37,49 @@
  * this sample code.
  */
 
-
 package j2dbench.ui;
 
 import j2dbench.Group;
 import j2dbench.Node;
 import j2dbench.Option;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
 
 public class EnableButton extends JButton implements ActionListener {
-    public static final int SET = 0;
-    public static final int CLEAR = 1;
-    public static final int INVERT = 2;
-    public static final int DEFAULT = 3;
+  public static final int SET = 0;
+  public static final int CLEAR = 1;
+  public static final int INVERT = 2;
+  public static final int DEFAULT = 3;
+  public static final String icons[] = {
+      "Set", "Clear", "Invert", "Default",};
+  private Group group;
+  private int type;
 
-    private Group group;
-    private int type;
+  public EnableButton(Group group, int type) {
+    super(icons[type]);
+    this.group = group;
+    this.type = type;
+    addActionListener(this);
+    setMargin(new Insets(0, 0, 0, 0));
+    setBorderPainted(false);
+  }
 
-    public static final String icons[] = {
-        "Set",
-        "Clear",
-        "Invert",
-        "Default",
-    };
-
-    public EnableButton(Group group, int type) {
-        super(icons[type]);
-        this.group = group;
-        this.type = type;
-        addActionListener(this);
-        setMargin(new Insets(0, 0, 0, 0));
-        setBorderPainted(false);
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        Node.Iterator children = group.getRecursiveChildIterator();
-        String newval = (type == SET) ? "enabled" : "disabled";
-        while (children.hasNext()) {
-            Node child = children.next();
-            if (type == DEFAULT) {
-                child.restoreDefault();
-            } else if (child instanceof Option.Enable) {
-                Option.Enable enable = (Option.Enable) child;
-                if (type == INVERT) {
-                    newval = enable.isEnabled() ? "disabled" : "enabled";
-                }
-                enable.setValueFromString(newval);
-            }
+  public void actionPerformed(ActionEvent e) {
+    Node.Iterator children = group.getRecursiveChildIterator();
+    String newval = (type == SET) ? "enabled" : "disabled";
+    while (children.hasNext()) {
+      Node child = children.next();
+      if (type == DEFAULT) {
+        child.restoreDefault();
+      } else if (child instanceof Option.Enable) {
+        Option.Enable enable = (Option.Enable) child;
+        if (type == INVERT) {
+          newval = enable.isEnabled() ? "disabled" : "enabled";
         }
+        enable.setValueFromString(newval);
+      }
     }
+  }
 }

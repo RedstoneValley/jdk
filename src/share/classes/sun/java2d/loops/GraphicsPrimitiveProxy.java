@@ -26,8 +26,8 @@
 package sun.java2d.loops;
 
 /**
- *   GraphicsPrimitiveProxy
- *
+ * GraphicsPrimitiveProxy
+ * <p>
  * Acts as a proxy for instances of GraphicsPrimitive, enabling lazy
  * classloading of these primitives.  This leads to a substantial
  * savings in start-up time and footprint.  In the typical case,
@@ -41,74 +41,66 @@ package sun.java2d.loops;
  */
 public class GraphicsPrimitiveProxy extends GraphicsPrimitive {
 
-    private Class owner;
-    private String relativeClassName;
+  private Class owner;
+  private String relativeClassName;
 
-    /**
-     * Create a GraphicsPrimitiveProxy for a primitive with a no-argument
-     * constructor.
-     *
-     * @param owner The owner class for this primitive.  The primitive
-     *          must be in the same package as this owner.
-     * @param relativeClassName  The name of the class this is a proxy for.
-     *          This should not include the package.
-     */
-    public GraphicsPrimitiveProxy(Class owner, String relativeClassName,
-                                  String methodSignature,
-                                  int primID,
-                                  SurfaceType srctype,
-                                  CompositeType comptype,
-                                  SurfaceType dsttype)
-    {
-        super(methodSignature, primID, srctype, comptype, dsttype);
-        this.owner = owner;
-        this.relativeClassName = relativeClassName;
-    }
+  /**
+   * Create a GraphicsPrimitiveProxy for a primitive with a no-argument
+   * constructor.
+   *
+   * @param owner             The owner class for this primitive.  The primitive
+   *                          must be in the same package as this owner.
+   * @param relativeClassName The name of the class this is a proxy for.
+   *                          This should not include the package.
+   */
+  public GraphicsPrimitiveProxy(
+      Class owner, String relativeClassName, String methodSignature, int primID,
+      SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
+    super(methodSignature, primID, srctype, comptype, dsttype);
+    this.owner = owner;
+    this.relativeClassName = relativeClassName;
+  }
 
-    public GraphicsPrimitive makePrimitive(SurfaceType srctype,
-                                           CompositeType comptype,
-                                           SurfaceType dsttype) {
-        // This should never happen.
-        throw new InternalError("makePrimitive called on a Proxy!");
+  private static String getPackageName(String className) {
+    int lastDotIdx = className.lastIndexOf('.');
+    if (lastDotIdx < 0) {
+      return className;
     }
+    return className.substring(0, lastDotIdx);
+  }
 
-    //
-    // Come up with the real instance.  Called from
-    // GraphicsPrimitiveMgr.locate()
-    //
-    GraphicsPrimitive instantiate() {
-        String name = getPackageName(owner.getName()) + "."
-                        + relativeClassName;
-        try {
-            Class clazz = Class.forName(name);
-            GraphicsPrimitive p = (GraphicsPrimitive) clazz.newInstance();
-            if (!satisfiesSameAs(p)) {
-                throw new RuntimeException("Primitive " + p
-                                           + " incompatible with proxy for "
-                                           + name);
-            }
-            return p;
-        } catch (ClassNotFoundException ex) {
-            throw new RuntimeException(ex.toString());
-        } catch (InstantiationException ex) {
-            throw new RuntimeException(ex.toString());
-        } catch (IllegalAccessException ex) {
-            throw new RuntimeException(ex.toString());
-        }
-        // A RuntimeException should never happen in a deployed JDK, because
-        // the regression test GraphicsPrimitiveProxyTest will catch any
-        // of these errors.
-    }
+  public GraphicsPrimitive makePrimitive(
+      SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
+    // This should never happen.
+    throw new InternalError("makePrimitive called on a Proxy!");
+  }
 
-    private static String getPackageName(String className) {
-        int lastDotIdx = className.lastIndexOf('.');
-        if (lastDotIdx < 0) {
-            return className;
-        }
-        return className.substring(0, lastDotIdx);
-    }
+  public GraphicsPrimitive traceWrap() {
+    return instantiate().traceWrap();
+  }
 
-    public GraphicsPrimitive traceWrap() {
-        return instantiate().traceWrap();
+  //
+  // Come up with the real instance.  Called from
+  // GraphicsPrimitiveMgr.locate()
+  //
+  GraphicsPrimitive instantiate() {
+    String name = getPackageName(owner.getName()) + "." + relativeClassName;
+    try {
+      Class clazz = Class.forName(name);
+      GraphicsPrimitive p = (GraphicsPrimitive) clazz.newInstance();
+      if (!satisfiesSameAs(p)) {
+        throw new RuntimeException("Primitive " + p + " incompatible with proxy for " + name);
+      }
+      return p;
+    } catch (ClassNotFoundException ex) {
+      throw new RuntimeException(ex.toString());
+    } catch (InstantiationException ex) {
+      throw new RuntimeException(ex.toString());
+    } catch (IllegalAccessException ex) {
+      throw new RuntimeException(ex.toString());
     }
+    // A RuntimeException should never happen in a deployed JDK, because
+    // the regression test GraphicsPrimitiveProxyTest will catch any
+    // of these errors.
+  }
 }

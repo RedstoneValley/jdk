@@ -24,20 +24,20 @@
  */
 package java.awt;
 
-import java.awt.event.KeyEvent;
-import sun.awt.AppContext;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.io.Serializable;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Field;
+import sun.awt.AppContext;
 
 /**
  * An <code>AWTKeyStroke</code> represents a key action on the
@@ -58,832 +58,806 @@ import java.lang.reflect.Field;
  * methods allows the <code>AWTKeyStroke</code> implementation
  * to cache and share instances efficiently.
  *
- * @see #getAWTKeyStroke
- *
  * @author Arnaud Weber
  * @author David Mendenhall
+ * @see #getAWTKeyStroke
  * @since 1.4
  */
 public class AWTKeyStroke implements Serializable {
-    static final long serialVersionUID = -6430539691155161871L;
+  static final long serialVersionUID = -6430539691155161871L;
 
-    private static Map<String, Integer> modifierKeywords;
-    /**
-     * Associates VK_XXX (as a String) with code (as Integer). This is
-     * done to avoid the overhead of the reflective call to find the
-     * constant.
-     */
-    private static VKCollection vks;
+  private static Map<String, Integer> modifierKeywords;
+  /**
+   * Associates VK_XXX (as a String) with code (as Integer). This is
+   * done to avoid the overhead of the reflective call to find the
+   * constant.
+   */
+  private static VKCollection vks;
 
-    //A key for the collection of AWTKeyStrokes within AppContext.
-    private static Object APP_CONTEXT_CACHE_KEY = new Object();
-    //A key withing the cache
-    private static AWTKeyStroke APP_CONTEXT_KEYSTROKE_KEY = new AWTKeyStroke();
+  //A key for the collection of AWTKeyStrokes within AppContext.
+  private static Object APP_CONTEXT_CACHE_KEY = new Object();
+  //A key withing the cache
+  private static AWTKeyStroke APP_CONTEXT_KEYSTROKE_KEY = new AWTKeyStroke();
 
-    /*
-     * Reads keystroke class from AppContext and if null, puts there the
-     * AWTKeyStroke class.
-     * Must be called under locked AWTKeyStro
-     */
-    private static Class<AWTKeyStroke> getAWTKeyStrokeClass() {
-        Class<AWTKeyStroke> clazz = (Class)AppContext.getAppContext().get(AWTKeyStroke.class);
-        if (clazz == null) {
-            clazz = AWTKeyStroke.class;
-            AppContext.getAppContext().put(AWTKeyStroke.class, AWTKeyStroke.class);
-        }
-        return clazz;
-    }
-
-    private char keyChar = KeyEvent.CHAR_UNDEFINED;
-    private int keyCode = KeyEvent.VK_UNDEFINED;
-    private int modifiers;
-    private boolean onKeyRelease;
-
-    static {
+  static {
         /* ensure that the necessary native libraries are loaded */
-        Toolkit.loadLibraries();
+    Toolkit.loadLibraries();
+  }
+
+  private char keyChar = KeyEvent.CHAR_UNDEFINED;
+  private int keyCode = KeyEvent.VK_UNDEFINED;
+  private int modifiers;
+  private boolean onKeyRelease;
+
+  /**
+   * Constructs an <code>AWTKeyStroke</code> with default values.
+   * The default values used are:
+   * <table border="1" summary="AWTKeyStroke default values">
+   * <tr><th>Property</th><th>Default Value</th></tr>
+   * <tr>
+   * <td>Key Char</td>
+   * <td><code>KeyEvent.CHAR_UNDEFINED</code></td>
+   * </tr>
+   * <tr>
+   * <td>Key Code</td>
+   * <td><code>KeyEvent.VK_UNDEFINED</code></td>
+   * </tr>
+   * <tr>
+   * <td>Modifiers</td>
+   * <td>none</td>
+   * </tr>
+   * <tr>
+   * <td>On key release?</td>
+   * <td><code>false</code></td>
+   * </tr>
+   * </table>
+   * <p>
+   * <code>AWTKeyStroke</code>s should not be constructed
+   * by client code. Use a variant of <code>getAWTKeyStroke</code>
+   * instead.
+   *
+   * @see #getAWTKeyStroke
+   */
+  protected AWTKeyStroke() {
+  }
+
+  /**
+   * Constructs an <code>AWTKeyStroke</code> with the specified
+   * values. <code>AWTKeyStroke</code>s should not be constructed
+   * by client code. Use a variant of <code>getAWTKeyStroke</code>
+   * instead.
+   *
+   * @param keyChar      the character value for a keyboard key
+   * @param keyCode      the key code for this <code>AWTKeyStroke</code>
+   * @param modifiers    a bitwise-ored combination of any modifiers
+   * @param onKeyRelease <code>true</code> if this
+   *                     <code>AWTKeyStroke</code> corresponds
+   *                     to a key release; <code>false</code> otherwise
+   * @see #getAWTKeyStroke
+   */
+  protected AWTKeyStroke(char keyChar, int keyCode, int modifiers, boolean onKeyRelease) {
+    this.keyChar = keyChar;
+    this.keyCode = keyCode;
+    this.modifiers = modifiers;
+    this.onKeyRelease = onKeyRelease;
+  }
+
+  /*
+   * Reads keystroke class from AppContext and if null, puts there the
+   * AWTKeyStroke class.
+   * Must be called under locked AWTKeyStro
+   */
+  private static Class<AWTKeyStroke> getAWTKeyStrokeClass() {
+    Class<AWTKeyStroke> clazz = (Class) AppContext.getAppContext().get(AWTKeyStroke.class);
+    if (clazz == null) {
+      clazz = AWTKeyStroke.class;
+      AppContext.getAppContext().put(AWTKeyStroke.class, AWTKeyStroke.class);
+    }
+    return clazz;
+  }
+
+  /**
+   * Registers a new class which the factory methods in
+   * <code>AWTKeyStroke</code> will use when generating new
+   * instances of <code>AWTKeyStroke</code>s. After invoking this
+   * method, the factory methods will return instances of the specified
+   * Class. The specified Class must be either <code>AWTKeyStroke</code>
+   * or derived from <code>AWTKeyStroke</code>, and it must have a
+   * no-arg constructor. The constructor can be of any accessibility,
+   * including <code>private</code>. This operation
+   * flushes the current <code>AWTKeyStroke</code> cache.
+   *
+   * @param subclass the new Class of which the factory methods should create
+   *                 instances
+   * @throws IllegalArgumentException if subclass is <code>null</code>,
+   *                                  or if subclass does not have a no-arg constructor
+   * @throws ClassCastException       if subclass is not
+   *                                  <code>AWTKeyStroke</code>, or a class derived from
+   *                                  <code>AWTKeyStroke</code>
+   */
+  protected static void registerSubclass(Class<?> subclass) {
+    if (subclass == null) {
+      throw new IllegalArgumentException("subclass cannot be null");
+    }
+    synchronized (AWTKeyStroke.class) {
+      Class<AWTKeyStroke> keyStrokeClass = (Class) AppContext
+          .getAppContext()
+          .get(AWTKeyStroke.class);
+      if (keyStrokeClass != null && keyStrokeClass.equals(subclass)) {
+        // Already registered
+        return;
+      }
+    }
+    if (!AWTKeyStroke.class.isAssignableFrom(subclass)) {
+      throw new ClassCastException("subclass is not derived from AWTKeyStroke");
     }
 
-    /**
-     * Constructs an <code>AWTKeyStroke</code> with default values.
-     * The default values used are:
-     * <table border="1" summary="AWTKeyStroke default values">
-     * <tr><th>Property</th><th>Default Value</th></tr>
-     * <tr>
-     *    <td>Key Char</td>
-     *    <td><code>KeyEvent.CHAR_UNDEFINED</code></td>
-     * </tr>
-     * <tr>
-     *    <td>Key Code</td>
-     *    <td><code>KeyEvent.VK_UNDEFINED</code></td>
-     * </tr>
-     * <tr>
-     *    <td>Modifiers</td>
-     *    <td>none</td>
-     * </tr>
-     * <tr>
-     *    <td>On key release?</td>
-     *    <td><code>false</code></td>
-     * </tr>
-     * </table>
-     *
-     * <code>AWTKeyStroke</code>s should not be constructed
-     * by client code. Use a variant of <code>getAWTKeyStroke</code>
-     * instead.
-     *
-     * @see #getAWTKeyStroke
-     */
-    protected AWTKeyStroke() {
+    Constructor ctor = getCtor(subclass);
+
+    String couldNotInstantiate = "subclass could not be instantiated";
+
+    if (ctor == null) {
+      throw new IllegalArgumentException(couldNotInstantiate);
+    }
+    try {
+      AWTKeyStroke stroke = (AWTKeyStroke) ctor.newInstance((Object[]) null);
+      if (stroke == null) {
+        throw new IllegalArgumentException(couldNotInstantiate);
+      }
+    } catch (NoSuchMethodError e) {
+      throw new IllegalArgumentException(couldNotInstantiate);
+    } catch (ExceptionInInitializerError e) {
+      throw new IllegalArgumentException(couldNotInstantiate);
+    } catch (InstantiationException e) {
+      throw new IllegalArgumentException(couldNotInstantiate);
+    } catch (IllegalAccessException e) {
+      throw new IllegalArgumentException(couldNotInstantiate);
+    } catch (InvocationTargetException e) {
+      throw new IllegalArgumentException(couldNotInstantiate);
     }
 
-    /**
-     * Constructs an <code>AWTKeyStroke</code> with the specified
-     * values. <code>AWTKeyStroke</code>s should not be constructed
-     * by client code. Use a variant of <code>getAWTKeyStroke</code>
-     * instead.
-     *
-     * @param keyChar the character value for a keyboard key
-     * @param keyCode the key code for this <code>AWTKeyStroke</code>
-     * @param modifiers a bitwise-ored combination of any modifiers
-     * @param onKeyRelease <code>true</code> if this
-     *        <code>AWTKeyStroke</code> corresponds
-     *        to a key release; <code>false</code> otherwise
-     * @see #getAWTKeyStroke
-     */
-    protected AWTKeyStroke(char keyChar, int keyCode, int modifiers,
-                           boolean onKeyRelease) {
-        this.keyChar = keyChar;
-        this.keyCode = keyCode;
-        this.modifiers = modifiers;
-        this.onKeyRelease = onKeyRelease;
+    synchronized (AWTKeyStroke.class) {
+      AppContext.getAppContext().put(AWTKeyStroke.class, subclass);
+      AppContext.getAppContext().remove(APP_CONTEXT_CACHE_KEY);
+      AppContext.getAppContext().remove(APP_CONTEXT_KEYSTROKE_KEY);
     }
+  }
 
-    /**
-     * Registers a new class which the factory methods in
-     * <code>AWTKeyStroke</code> will use when generating new
-     * instances of <code>AWTKeyStroke</code>s. After invoking this
-     * method, the factory methods will return instances of the specified
-     * Class. The specified Class must be either <code>AWTKeyStroke</code>
-     * or derived from <code>AWTKeyStroke</code>, and it must have a
-     * no-arg constructor. The constructor can be of any accessibility,
-     * including <code>private</code>. This operation
-     * flushes the current <code>AWTKeyStroke</code> cache.
-     *
-     * @param subclass the new Class of which the factory methods should create
-     *        instances
-     * @throws IllegalArgumentException if subclass is <code>null</code>,
-     *         or if subclass does not have a no-arg constructor
-     * @throws ClassCastException if subclass is not
-     *         <code>AWTKeyStroke</code>, or a class derived from
-     *         <code>AWTKeyStroke</code>
-     */
-    protected static void registerSubclass(Class<?> subclass) {
-        if (subclass == null) {
-            throw new IllegalArgumentException("subclass cannot be null");
-        }
-        synchronized (AWTKeyStroke.class) {
-            Class<AWTKeyStroke> keyStrokeClass = (Class)AppContext.getAppContext().get(AWTKeyStroke.class);
-            if (keyStrokeClass != null && keyStrokeClass.equals(subclass)){
-                // Already registered
-                return;
-            }
-        }
-        if (!AWTKeyStroke.class.isAssignableFrom(subclass)) {
-            throw new ClassCastException("subclass is not derived from AWTKeyStroke");
-        }
-
-        Constructor ctor = getCtor(subclass);
-
-        String couldNotInstantiate = "subclass could not be instantiated";
-
-        if (ctor == null) {
-            throw new IllegalArgumentException(couldNotInstantiate);
-        }
+  /* returns noarg Constructor for class with accessible flag. No security
+     threat as accessible flag is set only for this Constructor object,
+     not for Class constructor.
+   */
+  private static Constructor getCtor(final Class clazz) {
+    Constructor ctor = AccessController.doPrivileged(new PrivilegedAction<Constructor>() {
+      public Constructor run() {
         try {
-            AWTKeyStroke stroke = (AWTKeyStroke)ctor.newInstance((Object[]) null);
-            if (stroke == null) {
-                throw new IllegalArgumentException(couldNotInstantiate);
-            }
-        } catch (NoSuchMethodError e) {
-            throw new IllegalArgumentException(couldNotInstantiate);
-        } catch (ExceptionInInitializerError e) {
-            throw new IllegalArgumentException(couldNotInstantiate);
-        } catch (InstantiationException e) {
-            throw new IllegalArgumentException(couldNotInstantiate);
-        } catch (IllegalAccessException e) {
-            throw new IllegalArgumentException(couldNotInstantiate);
-        } catch (InvocationTargetException e) {
-            throw new IllegalArgumentException(couldNotInstantiate);
+          Constructor ctor = clazz.getDeclaredConstructor((Class[]) null);
+          if (ctor != null) {
+            ctor.setAccessible(true);
+          }
+          return ctor;
+        } catch (SecurityException e) {
+        } catch (NoSuchMethodException e) {
         }
+        return null;
+      }
+    });
+    return (Constructor) ctor;
+  }
 
-        synchronized (AWTKeyStroke.class) {
-            AppContext.getAppContext().put(AWTKeyStroke.class, subclass);
-            AppContext.getAppContext().remove(APP_CONTEXT_CACHE_KEY);
-            AppContext.getAppContext().remove(APP_CONTEXT_KEYSTROKE_KEY);
-        }
+  private static synchronized AWTKeyStroke getCachedStroke(
+      char keyChar, int keyCode, int modifiers, boolean onKeyRelease) {
+    Map<AWTKeyStroke, AWTKeyStroke> cache = (Map) AppContext
+        .getAppContext()
+        .get(APP_CONTEXT_CACHE_KEY);
+    AWTKeyStroke cacheKey = (AWTKeyStroke) AppContext
+        .getAppContext()
+        .get(APP_CONTEXT_KEYSTROKE_KEY);
+
+    if (cache == null) {
+      cache = new HashMap<>();
+      AppContext.getAppContext().put(APP_CONTEXT_CACHE_KEY, cache);
     }
 
-    /* returns noarg Constructor for class with accessible flag. No security
-       threat as accessible flag is set only for this Constructor object,
-       not for Class constructor.
-     */
-    private static Constructor getCtor(final Class clazz)
-    {
-        Constructor ctor = AccessController.doPrivileged(new PrivilegedAction<Constructor>() {
-            public Constructor run() {
-                try {
-                    Constructor ctor = clazz.getDeclaredConstructor((Class[]) null);
-                    if (ctor != null) {
-                        ctor.setAccessible(true);
-                    }
-                    return ctor;
-                } catch (SecurityException e) {
-                } catch (NoSuchMethodException e) {
-                }
-                return null;
-            }
-        });
-        return (Constructor)ctor;
+    if (cacheKey == null) {
+      try {
+        Class<AWTKeyStroke> clazz = getAWTKeyStrokeClass();
+        cacheKey = (AWTKeyStroke) getCtor(clazz).newInstance((Object[]) null);
+        AppContext.getAppContext().put(APP_CONTEXT_KEYSTROKE_KEY, cacheKey);
+      } catch (InstantiationException e) {
+        assert (false);
+      } catch (IllegalAccessException e) {
+        assert (false);
+      } catch (InvocationTargetException e) {
+        assert (false);
+      }
+    }
+    cacheKey.keyChar = keyChar;
+    cacheKey.keyCode = keyCode;
+    cacheKey.modifiers = mapNewModifiers(mapOldModifiers(modifiers));
+    cacheKey.onKeyRelease = onKeyRelease;
+
+    AWTKeyStroke stroke = (AWTKeyStroke) cache.get(cacheKey);
+    if (stroke == null) {
+      stroke = cacheKey;
+      cache.put(stroke, stroke);
+      AppContext.getAppContext().remove(APP_CONTEXT_KEYSTROKE_KEY);
+    }
+    return stroke;
+  }
+
+  /**
+   * Returns a shared instance of an <code>AWTKeyStroke</code>
+   * that represents a <code>KEY_TYPED</code> event for the
+   * specified character.
+   *
+   * @param keyChar the character value for a keyboard key
+   * @return an <code>AWTKeyStroke</code> object for that key
+   */
+  public static AWTKeyStroke getAWTKeyStroke(char keyChar) {
+    return getCachedStroke(keyChar, KeyEvent.VK_UNDEFINED, 0, false);
+  }
+
+  /**
+   * Returns a shared instance of an {@code AWTKeyStroke}
+   * that represents a {@code KEY_TYPED} event for the
+   * specified Character object and a set of modifiers. Note
+   * that the first parameter is of type Character rather than
+   * char. This is to avoid inadvertent clashes with
+   * calls to <code>getAWTKeyStroke(int keyCode, int modifiers)</code>.
+   * <p>
+   * The modifiers consist of any combination of following:<ul>
+   * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
+   * <li>java.awt.event.InputEvent.META_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
+   * </ul>
+   * The old modifiers listed below also can be used, but they are
+   * mapped to _DOWN_ modifiers. <ul>
+   * <li>java.awt.event.InputEvent.SHIFT_MASK
+   * <li>java.awt.event.InputEvent.CTRL_MASK
+   * <li>java.awt.event.InputEvent.META_MASK
+   * <li>java.awt.event.InputEvent.ALT_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
+   * </ul>
+   * also can be used, but they are mapped to _DOWN_ modifiers.
+   * <p>
+   * Since these numbers are all different powers of two, any combination of
+   * them is an integer in which each bit represents a different modifier
+   * key. Use 0 to specify no modifiers.
+   *
+   * @param keyChar   the Character object for a keyboard character
+   * @param modifiers a bitwise-ored combination of any modifiers
+   * @return an <code>AWTKeyStroke</code> object for that key
+   * @throws IllegalArgumentException if <code>keyChar</code> is
+   *                                  <code>null</code>
+   * @see java.awt.event.InputEvent
+   */
+  public static AWTKeyStroke getAWTKeyStroke(Character keyChar, int modifiers) {
+    if (keyChar == null) {
+      throw new IllegalArgumentException("keyChar cannot be null");
+    }
+    return getCachedStroke(keyChar.charValue(), KeyEvent.VK_UNDEFINED, modifiers, false);
+  }
+
+  /**
+   * Returns a shared instance of an <code>AWTKeyStroke</code>,
+   * given a numeric key code and a set of modifiers, specifying
+   * whether the key is activated when it is pressed or released.
+   * <p>
+   * The "virtual key" constants defined in
+   * <code>java.awt.event.KeyEvent</code> can be
+   * used to specify the key code. For example:<ul>
+   * <li><code>java.awt.event.KeyEvent.VK_ENTER</code>
+   * <li><code>java.awt.event.KeyEvent.VK_TAB</code>
+   * <li><code>java.awt.event.KeyEvent.VK_SPACE</code>
+   * </ul>
+   * Alternatively, the key code may be obtained by calling
+   * <code>java.awt.event.KeyEvent.getExtendedKeyCodeForChar</code>.
+   * <p>
+   * The modifiers consist of any combination of:<ul>
+   * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
+   * <li>java.awt.event.InputEvent.META_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
+   * </ul>
+   * The old modifiers <ul>
+   * <li>java.awt.event.InputEvent.SHIFT_MASK
+   * <li>java.awt.event.InputEvent.CTRL_MASK
+   * <li>java.awt.event.InputEvent.META_MASK
+   * <li>java.awt.event.InputEvent.ALT_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
+   * </ul>
+   * also can be used, but they are mapped to _DOWN_ modifiers.
+   * <p>
+   * Since these numbers are all different powers of two, any combination of
+   * them is an integer in which each bit represents a different modifier
+   * key. Use 0 to specify no modifiers.
+   *
+   * @param keyCode      an int specifying the numeric code for a keyboard key
+   * @param modifiers    a bitwise-ored combination of any modifiers
+   * @param onKeyRelease <code>true</code> if the <code>AWTKeyStroke</code>
+   *                     should represent a key release; <code>false</code> otherwise
+   * @return an AWTKeyStroke object for that key
+   * @see java.awt.event.KeyEvent
+   * @see java.awt.event.InputEvent
+   */
+  public static AWTKeyStroke getAWTKeyStroke(int keyCode, int modifiers, boolean onKeyRelease) {
+    return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode, modifiers, onKeyRelease);
+  }
+
+  /**
+   * Returns a shared instance of an <code>AWTKeyStroke</code>,
+   * given a numeric key code and a set of modifiers. The returned
+   * <code>AWTKeyStroke</code> will correspond to a key press.
+   * <p>
+   * The "virtual key" constants defined in
+   * <code>java.awt.event.KeyEvent</code> can be
+   * used to specify the key code. For example:<ul>
+   * <li><code>java.awt.event.KeyEvent.VK_ENTER</code>
+   * <li><code>java.awt.event.KeyEvent.VK_TAB</code>
+   * <li><code>java.awt.event.KeyEvent.VK_SPACE</code>
+   * </ul>
+   * The modifiers consist of any combination of:<ul>
+   * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
+   * <li>java.awt.event.InputEvent.META_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
+   * </ul>
+   * The old modifiers <ul>
+   * <li>java.awt.event.InputEvent.SHIFT_MASK
+   * <li>java.awt.event.InputEvent.CTRL_MASK
+   * <li>java.awt.event.InputEvent.META_MASK
+   * <li>java.awt.event.InputEvent.ALT_MASK
+   * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
+   * </ul>
+   * also can be used, but they are mapped to _DOWN_ modifiers.
+   * <p>
+   * Since these numbers are all different powers of two, any combination of
+   * them is an integer in which each bit represents a different modifier
+   * key. Use 0 to specify no modifiers.
+   *
+   * @param keyCode   an int specifying the numeric code for a keyboard key
+   * @param modifiers a bitwise-ored combination of any modifiers
+   * @return an <code>AWTKeyStroke</code> object for that key
+   * @see java.awt.event.KeyEvent
+   * @see java.awt.event.InputEvent
+   */
+  public static AWTKeyStroke getAWTKeyStroke(int keyCode, int modifiers) {
+    return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode, modifiers, false);
+  }
+
+  /**
+   * Returns an <code>AWTKeyStroke</code> which represents the
+   * stroke which generated a given <code>KeyEvent</code>.
+   * <p>
+   * This method obtains the keyChar from a <code>KeyTyped</code>
+   * event, and the keyCode from a <code>KeyPressed</code> or
+   * <code>KeyReleased</code> event. The <code>KeyEvent</code> modifiers are
+   * obtained for all three types of <code>KeyEvent</code>.
+   *
+   * @param anEvent the <code>KeyEvent</code> from which to
+   *                obtain the <code>AWTKeyStroke</code>
+   * @return the <code>AWTKeyStroke</code> that precipitated the event
+   * @throws NullPointerException if <code>anEvent</code> is null
+   */
+  public static AWTKeyStroke getAWTKeyStrokeForEvent(KeyEvent anEvent) {
+    int id = anEvent.getID();
+    switch (id) {
+      case KeyEvent.KEY_PRESSED:
+      case KeyEvent.KEY_RELEASED:
+        return getCachedStroke(KeyEvent.CHAR_UNDEFINED,
+            anEvent.getKeyCode(),
+            anEvent.getModifiers(),
+            (id == KeyEvent.KEY_RELEASED));
+      case KeyEvent.KEY_TYPED:
+        return getCachedStroke(anEvent.getKeyChar(),
+            KeyEvent.VK_UNDEFINED,
+            anEvent.getModifiers(),
+            false);
+      default:
+        // Invalid ID for this KeyEvent
+        return null;
+    }
+  }
+
+  /**
+   * Parses a string and returns an <code>AWTKeyStroke</code>.
+   * The string must have the following syntax:
+   * <pre>
+   *    &lt;modifiers&gt;* (&lt;typedID&gt; | &lt;pressedReleasedID&gt;)
+   *
+   *    modifiers := shift | control | ctrl | meta | alt | altGraph
+   *    typedID := typed &lt;typedKey&gt;
+   *    typedKey := string of length 1 giving Unicode character.
+   *    pressedReleasedID := (pressed | released) key
+   *    key := KeyEvent key code name, i.e. the name following "VK_".
+   * </pre>
+   * If typed, pressed or released is not specified, pressed is assumed. Here
+   * are some examples:
+   * <pre>
+   *     "INSERT" =&gt; getAWTKeyStroke(KeyEvent.VK_INSERT, 0);
+   *     "control DELETE" =&gt; getAWTKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_MASK);
+   *     "alt shift X" =&gt; getAWTKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK | InputEvent
+   *     .SHIFT_MASK);
+   *     "alt shift released X" =&gt; getAWTKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK |
+   *     InputEvent.SHIFT_MASK, true);
+   *     "typed a" =&gt; getAWTKeyStroke('a');
+   * </pre>
+   *
+   * @param s a String formatted as described above
+   * @return an <code>AWTKeyStroke</code> object for that String
+   * @throws IllegalArgumentException if <code>s</code> is <code>null</code>,
+   *                                  or is formatted incorrectly
+   */
+  public static AWTKeyStroke getAWTKeyStroke(String s) {
+    if (s == null) {
+      throw new IllegalArgumentException("String cannot be null");
     }
 
-    private static synchronized AWTKeyStroke getCachedStroke
-        (char keyChar, int keyCode, int modifiers, boolean onKeyRelease)
-    {
-        Map<AWTKeyStroke, AWTKeyStroke> cache = (Map)AppContext.getAppContext().get(APP_CONTEXT_CACHE_KEY);
-        AWTKeyStroke cacheKey = (AWTKeyStroke)AppContext.getAppContext().get(APP_CONTEXT_KEYSTROKE_KEY);
+    final String errmsg = "String formatted incorrectly";
 
-        if (cache == null) {
-            cache = new HashMap<>();
-            AppContext.getAppContext().put(APP_CONTEXT_CACHE_KEY, cache);
-        }
+    StringTokenizer st = new StringTokenizer(s, " ");
 
-        if (cacheKey == null) {
-            try {
-                Class<AWTKeyStroke> clazz = getAWTKeyStrokeClass();
-                cacheKey = (AWTKeyStroke)getCtor(clazz).newInstance((Object[]) null);
-                AppContext.getAppContext().put(APP_CONTEXT_KEYSTROKE_KEY, cacheKey);
-            } catch (InstantiationException e) {
-                assert(false);
-            } catch (IllegalAccessException e) {
-                assert(false);
-            } catch (InvocationTargetException e) {
-                assert(false);
-            }
-        }
-        cacheKey.keyChar = keyChar;
-        cacheKey.keyCode = keyCode;
-        cacheKey.modifiers = mapNewModifiers(mapOldModifiers(modifiers));
-        cacheKey.onKeyRelease = onKeyRelease;
+    int mask = 0;
+    boolean released = false;
+    boolean typed = false;
+    boolean pressed = false;
 
-        AWTKeyStroke stroke = (AWTKeyStroke)cache.get(cacheKey);
-        if (stroke == null) {
-            stroke = cacheKey;
-            cache.put(stroke, stroke);
-            AppContext.getAppContext().remove(APP_CONTEXT_KEYSTROKE_KEY);
-        }
-        return stroke;
+    synchronized (AWTKeyStroke.class) {
+      if (modifierKeywords == null) {
+        Map<String, Integer> uninitializedMap = new HashMap<>(8, 1.0f);
+        uninitializedMap.put("shift",
+            Integer.valueOf(InputEvent.SHIFT_DOWN_MASK | InputEvent.SHIFT_MASK));
+        uninitializedMap.put("control",
+            Integer.valueOf(InputEvent.CTRL_DOWN_MASK | InputEvent.CTRL_MASK));
+        uninitializedMap.put("ctrl",
+            Integer.valueOf(InputEvent.CTRL_DOWN_MASK | InputEvent.CTRL_MASK));
+        uninitializedMap.put("meta",
+            Integer.valueOf(InputEvent.META_DOWN_MASK | InputEvent.META_MASK));
+        uninitializedMap.put("alt",
+            Integer.valueOf(InputEvent.ALT_DOWN_MASK | InputEvent.ALT_MASK));
+        uninitializedMap.put("altGraph",
+            Integer.valueOf(InputEvent.ALT_GRAPH_DOWN_MASK | InputEvent.ALT_GRAPH_MASK));
+        uninitializedMap.put("button1", Integer.valueOf(InputEvent.BUTTON1_DOWN_MASK));
+        uninitializedMap.put("button2", Integer.valueOf(InputEvent.BUTTON2_DOWN_MASK));
+        uninitializedMap.put("button3", Integer.valueOf(InputEvent.BUTTON3_DOWN_MASK));
+        modifierKeywords = Collections.synchronizedMap(uninitializedMap);
+      }
     }
 
-    /**
-     * Returns a shared instance of an <code>AWTKeyStroke</code>
-     * that represents a <code>KEY_TYPED</code> event for the
-     * specified character.
-     *
-     * @param keyChar the character value for a keyboard key
-     * @return an <code>AWTKeyStroke</code> object for that key
-     */
-    public static AWTKeyStroke getAWTKeyStroke(char keyChar) {
-        return getCachedStroke(keyChar, KeyEvent.VK_UNDEFINED, 0, false);
-    }
+    int count = st.countTokens();
 
-    /**
-     * Returns a shared instance of an {@code AWTKeyStroke}
-     * that represents a {@code KEY_TYPED} event for the
-     * specified Character object and a set of modifiers. Note
-     * that the first parameter is of type Character rather than
-     * char. This is to avoid inadvertent clashes with
-     * calls to <code>getAWTKeyStroke(int keyCode, int modifiers)</code>.
-     *
-     * The modifiers consist of any combination of following:<ul>
-     * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
-     * <li>java.awt.event.InputEvent.META_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
-     * </ul>
-     * The old modifiers listed below also can be used, but they are
-     * mapped to _DOWN_ modifiers. <ul>
-     * <li>java.awt.event.InputEvent.SHIFT_MASK
-     * <li>java.awt.event.InputEvent.CTRL_MASK
-     * <li>java.awt.event.InputEvent.META_MASK
-     * <li>java.awt.event.InputEvent.ALT_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
-     * </ul>
-     * also can be used, but they are mapped to _DOWN_ modifiers.
-     *
-     * Since these numbers are all different powers of two, any combination of
-     * them is an integer in which each bit represents a different modifier
-     * key. Use 0 to specify no modifiers.
-     *
-     * @param keyChar the Character object for a keyboard character
-     * @param modifiers a bitwise-ored combination of any modifiers
-     * @return an <code>AWTKeyStroke</code> object for that key
-     * @throws IllegalArgumentException if <code>keyChar</code> is
-     *       <code>null</code>
-     *
-     * @see java.awt.event.InputEvent
-     */
-    public static AWTKeyStroke getAWTKeyStroke(Character keyChar, int modifiers)
-    {
-        if (keyChar == null) {
-            throw new IllegalArgumentException("keyChar cannot be null");
+    for (int i = 1; i <= count; i++) {
+      String token = st.nextToken();
+
+      if (typed) {
+        if (token.length() != 1 || i != count) {
+          throw new IllegalArgumentException(errmsg);
         }
-        return getCachedStroke(keyChar.charValue(), KeyEvent.VK_UNDEFINED,
-                               modifiers, false);
-    }
+        return getCachedStroke(token.charAt(0), KeyEvent.VK_UNDEFINED, mask, false);
+      }
 
-    /**
-     * Returns a shared instance of an <code>AWTKeyStroke</code>,
-     * given a numeric key code and a set of modifiers, specifying
-     * whether the key is activated when it is pressed or released.
-     * <p>
-     * The "virtual key" constants defined in
-     * <code>java.awt.event.KeyEvent</code> can be
-     * used to specify the key code. For example:<ul>
-     * <li><code>java.awt.event.KeyEvent.VK_ENTER</code>
-     * <li><code>java.awt.event.KeyEvent.VK_TAB</code>
-     * <li><code>java.awt.event.KeyEvent.VK_SPACE</code>
-     * </ul>
-     * Alternatively, the key code may be obtained by calling
-     * <code>java.awt.event.KeyEvent.getExtendedKeyCodeForChar</code>.
-     *
-     * The modifiers consist of any combination of:<ul>
-     * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
-     * <li>java.awt.event.InputEvent.META_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
-     * </ul>
-     * The old modifiers <ul>
-     * <li>java.awt.event.InputEvent.SHIFT_MASK
-     * <li>java.awt.event.InputEvent.CTRL_MASK
-     * <li>java.awt.event.InputEvent.META_MASK
-     * <li>java.awt.event.InputEvent.ALT_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
-     * </ul>
-     * also can be used, but they are mapped to _DOWN_ modifiers.
-     *
-     * Since these numbers are all different powers of two, any combination of
-     * them is an integer in which each bit represents a different modifier
-     * key. Use 0 to specify no modifiers.
-     *
-     * @param keyCode an int specifying the numeric code for a keyboard key
-     * @param modifiers a bitwise-ored combination of any modifiers
-     * @param onKeyRelease <code>true</code> if the <code>AWTKeyStroke</code>
-     *        should represent a key release; <code>false</code> otherwise
-     * @return an AWTKeyStroke object for that key
-     *
-     * @see java.awt.event.KeyEvent
-     * @see java.awt.event.InputEvent
-     */
-    public static AWTKeyStroke getAWTKeyStroke(int keyCode, int modifiers,
-                                               boolean onKeyRelease) {
-        return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode, modifiers,
-                               onKeyRelease);
-    }
-
-    /**
-     * Returns a shared instance of an <code>AWTKeyStroke</code>,
-     * given a numeric key code and a set of modifiers. The returned
-     * <code>AWTKeyStroke</code> will correspond to a key press.
-     * <p>
-     * The "virtual key" constants defined in
-     * <code>java.awt.event.KeyEvent</code> can be
-     * used to specify the key code. For example:<ul>
-     * <li><code>java.awt.event.KeyEvent.VK_ENTER</code>
-     * <li><code>java.awt.event.KeyEvent.VK_TAB</code>
-     * <li><code>java.awt.event.KeyEvent.VK_SPACE</code>
-     * </ul>
-     * The modifiers consist of any combination of:<ul>
-     * <li>java.awt.event.InputEvent.SHIFT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.CTRL_DOWN_MASK
-     * <li>java.awt.event.InputEvent.META_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_DOWN_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_DOWN_MASK
-     * </ul>
-     * The old modifiers <ul>
-     * <li>java.awt.event.InputEvent.SHIFT_MASK
-     * <li>java.awt.event.InputEvent.CTRL_MASK
-     * <li>java.awt.event.InputEvent.META_MASK
-     * <li>java.awt.event.InputEvent.ALT_MASK
-     * <li>java.awt.event.InputEvent.ALT_GRAPH_MASK
-     * </ul>
-     * also can be used, but they are mapped to _DOWN_ modifiers.
-     *
-     * Since these numbers are all different powers of two, any combination of
-     * them is an integer in which each bit represents a different modifier
-     * key. Use 0 to specify no modifiers.
-     *
-     * @param keyCode an int specifying the numeric code for a keyboard key
-     * @param modifiers a bitwise-ored combination of any modifiers
-     * @return an <code>AWTKeyStroke</code> object for that key
-     *
-     * @see java.awt.event.KeyEvent
-     * @see java.awt.event.InputEvent
-     */
-    public static AWTKeyStroke getAWTKeyStroke(int keyCode, int modifiers) {
-        return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode, modifiers,
-                               false);
-    }
-
-    /**
-     * Returns an <code>AWTKeyStroke</code> which represents the
-     * stroke which generated a given <code>KeyEvent</code>.
-     * <p>
-     * This method obtains the keyChar from a <code>KeyTyped</code>
-     * event, and the keyCode from a <code>KeyPressed</code> or
-     * <code>KeyReleased</code> event. The <code>KeyEvent</code> modifiers are
-     * obtained for all three types of <code>KeyEvent</code>.
-     *
-     * @param anEvent the <code>KeyEvent</code> from which to
-     *      obtain the <code>AWTKeyStroke</code>
-     * @throws NullPointerException if <code>anEvent</code> is null
-     * @return the <code>AWTKeyStroke</code> that precipitated the event
-     */
-    public static AWTKeyStroke getAWTKeyStrokeForEvent(KeyEvent anEvent) {
-        int id = anEvent.getID();
-        switch(id) {
-          case KeyEvent.KEY_PRESSED:
-          case KeyEvent.KEY_RELEASED:
-            return getCachedStroke(KeyEvent.CHAR_UNDEFINED,
-                                   anEvent.getKeyCode(),
-                                   anEvent.getModifiers(),
-                                   (id == KeyEvent.KEY_RELEASED));
-          case KeyEvent.KEY_TYPED:
-            return getCachedStroke(anEvent.getKeyChar(),
-                                   KeyEvent.VK_UNDEFINED,
-                                   anEvent.getModifiers(),
-                                   false);
-          default:
-            // Invalid ID for this KeyEvent
-            return null;
-        }
-    }
-
-    /**
-     * Parses a string and returns an <code>AWTKeyStroke</code>.
-     * The string must have the following syntax:
-     * <pre>
-     *    &lt;modifiers&gt;* (&lt;typedID&gt; | &lt;pressedReleasedID&gt;)
-     *
-     *    modifiers := shift | control | ctrl | meta | alt | altGraph
-     *    typedID := typed &lt;typedKey&gt;
-     *    typedKey := string of length 1 giving Unicode character.
-     *    pressedReleasedID := (pressed | released) key
-     *    key := KeyEvent key code name, i.e. the name following "VK_".
-     * </pre>
-     * If typed, pressed or released is not specified, pressed is assumed. Here
-     * are some examples:
-     * <pre>
-     *     "INSERT" =&gt; getAWTKeyStroke(KeyEvent.VK_INSERT, 0);
-     *     "control DELETE" =&gt; getAWTKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_MASK);
-     *     "alt shift X" =&gt; getAWTKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK | InputEvent.SHIFT_MASK);
-     *     "alt shift released X" =&gt; getAWTKeyStroke(KeyEvent.VK_X, InputEvent.ALT_MASK | InputEvent.SHIFT_MASK, true);
-     *     "typed a" =&gt; getAWTKeyStroke('a');
-     * </pre>
-     *
-     * @param s a String formatted as described above
-     * @return an <code>AWTKeyStroke</code> object for that String
-     * @throws IllegalArgumentException if <code>s</code> is <code>null</code>,
-     *        or is formatted incorrectly
-     */
-    public static AWTKeyStroke getAWTKeyStroke(String s) {
-        if (s == null) {
-            throw new IllegalArgumentException("String cannot be null");
+      if (pressed || released || i == count) {
+        if (i != count) {
+          throw new IllegalArgumentException(errmsg);
         }
 
-        final String errmsg = "String formatted incorrectly";
+        String keyCodeName = "VK_" + token;
+        int keyCode = getVKValue(keyCodeName);
 
-        StringTokenizer st = new StringTokenizer(s, " ");
+        return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode, mask, released);
+      }
 
-        int mask = 0;
-        boolean released = false;
-        boolean typed = false;
-        boolean pressed = false;
+      if (token.equals("released")) {
+        released = true;
+        continue;
+      }
+      if (token.equals("pressed")) {
+        pressed = true;
+        continue;
+      }
+      if (token.equals("typed")) {
+        typed = true;
+        continue;
+      }
 
-        synchronized (AWTKeyStroke.class) {
-            if (modifierKeywords == null) {
-                Map<String, Integer> uninitializedMap = new HashMap<>(8, 1.0f);
-                uninitializedMap.put("shift",
-                                     Integer.valueOf(InputEvent.SHIFT_DOWN_MASK
-                                                     |InputEvent.SHIFT_MASK));
-                uninitializedMap.put("control",
-                                     Integer.valueOf(InputEvent.CTRL_DOWN_MASK
-                                                     |InputEvent.CTRL_MASK));
-                uninitializedMap.put("ctrl",
-                                     Integer.valueOf(InputEvent.CTRL_DOWN_MASK
-                                                     |InputEvent.CTRL_MASK));
-                uninitializedMap.put("meta",
-                                     Integer.valueOf(InputEvent.META_DOWN_MASK
-                                                     |InputEvent.META_MASK));
-                uninitializedMap.put("alt",
-                                     Integer.valueOf(InputEvent.ALT_DOWN_MASK
-                                                     |InputEvent.ALT_MASK));
-                uninitializedMap.put("altGraph",
-                                     Integer.valueOf(InputEvent.ALT_GRAPH_DOWN_MASK
-                                                     |InputEvent.ALT_GRAPH_MASK));
-                uninitializedMap.put("button1",
-                                     Integer.valueOf(InputEvent.BUTTON1_DOWN_MASK));
-                uninitializedMap.put("button2",
-                                     Integer.valueOf(InputEvent.BUTTON2_DOWN_MASK));
-                uninitializedMap.put("button3",
-                                     Integer.valueOf(InputEvent.BUTTON3_DOWN_MASK));
-                modifierKeywords =
-                    Collections.synchronizedMap(uninitializedMap);
-            }
-        }
-
-        int count = st.countTokens();
-
-        for (int i = 1; i <= count; i++) {
-            String token = st.nextToken();
-
-            if (typed) {
-                if (token.length() != 1 || i != count) {
-                    throw new IllegalArgumentException(errmsg);
-                }
-                return getCachedStroke(token.charAt(0), KeyEvent.VK_UNDEFINED,
-                                       mask, false);
-            }
-
-            if (pressed || released || i == count) {
-                if (i != count) {
-                    throw new IllegalArgumentException(errmsg);
-                }
-
-                String keyCodeName = "VK_" + token;
-                int keyCode = getVKValue(keyCodeName);
-
-                return getCachedStroke(KeyEvent.CHAR_UNDEFINED, keyCode,
-                                       mask, released);
-            }
-
-            if (token.equals("released")) {
-                released = true;
-                continue;
-            }
-            if (token.equals("pressed")) {
-                pressed = true;
-                continue;
-            }
-            if (token.equals("typed")) {
-                typed = true;
-                continue;
-            }
-
-            Integer tokenMask = (Integer)modifierKeywords.get(token);
-            if (tokenMask != null) {
-                mask |= tokenMask.intValue();
-            } else {
-                throw new IllegalArgumentException(errmsg);
-            }
-        }
-
+      Integer tokenMask = (Integer) modifierKeywords.get(token);
+      if (tokenMask != null) {
+        mask |= tokenMask.intValue();
+      } else {
         throw new IllegalArgumentException(errmsg);
+      }
     }
 
-    private static VKCollection getVKCollection() {
-        if (vks == null) {
-            vks = new VKCollection();
-        }
-        return vks;
+    throw new IllegalArgumentException(errmsg);
+  }
+
+  private static VKCollection getVKCollection() {
+    if (vks == null) {
+      vks = new VKCollection();
     }
-    /**
-     * Returns the integer constant for the KeyEvent.VK field named
-     * <code>key</code>. This will throw an
-     * <code>IllegalArgumentException</code> if <code>key</code> is
-     * not a valid constant.
-     */
-    private static int getVKValue(String key) {
-        VKCollection vkCollect = getVKCollection();
+    return vks;
+  }
 
-        Integer value = vkCollect.findCode(key);
+  /**
+   * Returns the integer constant for the KeyEvent.VK field named
+   * <code>key</code>. This will throw an
+   * <code>IllegalArgumentException</code> if <code>key</code> is
+   * not a valid constant.
+   */
+  private static int getVKValue(String key) {
+    VKCollection vkCollect = getVKCollection();
 
-        if (value == null) {
-            int keyCode = 0;
-            final String errmsg = "String formatted incorrectly";
+    Integer value = vkCollect.findCode(key);
 
-            try {
-                keyCode = KeyEvent.class.getField(key).getInt(KeyEvent.class);
-            } catch (NoSuchFieldException nsfe) {
-                throw new IllegalArgumentException(errmsg);
-            } catch (IllegalAccessException iae) {
-                throw new IllegalArgumentException(errmsg);
-            }
-            value = Integer.valueOf(keyCode);
-            vkCollect.put(key, value);
-        }
-        return value.intValue();
+    if (value == null) {
+      int keyCode = 0;
+      final String errmsg = "String formatted incorrectly";
+
+      try {
+        keyCode = KeyEvent.class.getField(key).getInt(KeyEvent.class);
+      } catch (NoSuchFieldException nsfe) {
+        throw new IllegalArgumentException(errmsg);
+      } catch (IllegalAccessException iae) {
+        throw new IllegalArgumentException(errmsg);
+      }
+      value = Integer.valueOf(keyCode);
+      vkCollect.put(key, value);
     }
+    return value.intValue();
+  }
 
-    /**
-     * Returns the character for this <code>AWTKeyStroke</code>.
-     *
-     * @return a char value
-     * @see #getAWTKeyStroke(char)
-     * @see KeyEvent#getKeyChar
-     */
-    public final char getKeyChar() {
-        return keyChar;
+  static String getModifiersText(int modifiers) {
+    StringBuilder buf = new StringBuilder();
+
+    if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
+      buf.append("shift ");
     }
-
-    /**
-     * Returns the numeric key code for this <code>AWTKeyStroke</code>.
-     *
-     * @return an int containing the key code value
-     * @see #getAWTKeyStroke(int,int)
-     * @see KeyEvent#getKeyCode
-     */
-    public final int getKeyCode() {
-        return keyCode;
+    if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
+      buf.append("ctrl ");
     }
-
-    /**
-     * Returns the modifier keys for this <code>AWTKeyStroke</code>.
-     *
-     * @return an int containing the modifiers
-     * @see #getAWTKeyStroke(int,int)
-     */
-    public final int getModifiers() {
-        return modifiers;
+    if ((modifiers & InputEvent.META_DOWN_MASK) != 0) {
+      buf.append("meta ");
     }
-
-    /**
-     * Returns whether this <code>AWTKeyStroke</code> represents a key release.
-     *
-     * @return <code>true</code> if this <code>AWTKeyStroke</code>
-     *          represents a key release; <code>false</code> otherwise
-     * @see #getAWTKeyStroke(int,int,boolean)
-     */
-    public final boolean isOnKeyRelease() {
-        return onKeyRelease;
+    if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
+      buf.append("alt ");
+    }
+    if ((modifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
+      buf.append("altGraph ");
+    }
+    if ((modifiers & InputEvent.BUTTON1_DOWN_MASK) != 0) {
+      buf.append("button1 ");
+    }
+    if ((modifiers & InputEvent.BUTTON2_DOWN_MASK) != 0) {
+      buf.append("button2 ");
+    }
+    if ((modifiers & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+      buf.append("button3 ");
     }
 
-    /**
-     * Returns the type of <code>KeyEvent</code> which corresponds to
-     * this <code>AWTKeyStroke</code>.
-     *
-     * @return <code>KeyEvent.KEY_PRESSED</code>,
-     *         <code>KeyEvent.KEY_TYPED</code>,
-     *         or <code>KeyEvent.KEY_RELEASED</code>
-     * @see java.awt.event.KeyEvent
-     */
-    public final int getKeyEventType() {
-        if (keyCode == KeyEvent.VK_UNDEFINED) {
-            return KeyEvent.KEY_TYPED;
-        } else {
-            return (onKeyRelease)
-                ? KeyEvent.KEY_RELEASED
-                : KeyEvent.KEY_PRESSED;
+    return buf.toString();
+  }
+
+  static String getVKText(int keyCode) {
+    VKCollection vkCollect = getVKCollection();
+    Integer key = Integer.valueOf(keyCode);
+    String name = vkCollect.findName(key);
+    if (name != null) {
+      return name.substring(3);
+    }
+    int expected_modifiers = (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL);
+
+    Field[] fields = KeyEvent.class.getDeclaredFields();
+    for (int i = 0; i < fields.length; i++) {
+      try {
+        if (fields[i].getModifiers() == expected_modifiers && fields[i].getType() == Integer.TYPE
+            && fields[i].getName().startsWith("VK_")
+            && fields[i].getInt(KeyEvent.class) == keyCode) {
+          name = fields[i].getName();
+          vkCollect.put(name, key);
+          return name.substring(3);
         }
+      } catch (IllegalAccessException e) {
+        assert (false);
+      }
+    }
+    return "UNKNOWN";
+  }
+
+  private static int mapOldModifiers(int modifiers) {
+    if ((modifiers & InputEvent.SHIFT_MASK) != 0) {
+      modifiers |= InputEvent.SHIFT_DOWN_MASK;
+    }
+    if ((modifiers & InputEvent.ALT_MASK) != 0) {
+      modifiers |= InputEvent.ALT_DOWN_MASK;
+    }
+    if ((modifiers & InputEvent.ALT_GRAPH_MASK) != 0) {
+      modifiers |= InputEvent.ALT_GRAPH_DOWN_MASK;
+    }
+    if ((modifiers & InputEvent.CTRL_MASK) != 0) {
+      modifiers |= InputEvent.CTRL_DOWN_MASK;
+    }
+    if ((modifiers & InputEvent.META_MASK) != 0) {
+      modifiers |= InputEvent.META_DOWN_MASK;
     }
 
-    /**
-     * Returns a numeric value for this object that is likely to be unique,
-     * making it a good choice as the index value in a hash table.
-     *
-     * @return an int that represents this object
-     */
-    public int hashCode() {
-        return (((int)keyChar) + 1) * (2 * (keyCode + 1)) * (modifiers + 1) +
-            (onKeyRelease ? 1 : 2);
+    modifiers &= InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK
+        | InputEvent.ALT_GRAPH_DOWN_MASK | InputEvent.CTRL_DOWN_MASK | InputEvent.META_DOWN_MASK
+        | InputEvent.BUTTON1_DOWN_MASK | InputEvent.BUTTON2_DOWN_MASK
+        | InputEvent.BUTTON3_DOWN_MASK;
+
+    return modifiers;
+  }
+
+  private static int mapNewModifiers(int modifiers) {
+    if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
+      modifiers |= InputEvent.SHIFT_MASK;
+    }
+    if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
+      modifiers |= InputEvent.ALT_MASK;
+    }
+    if ((modifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
+      modifiers |= InputEvent.ALT_GRAPH_MASK;
+    }
+    if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
+      modifiers |= InputEvent.CTRL_MASK;
+    }
+    if ((modifiers & InputEvent.META_DOWN_MASK) != 0) {
+      modifiers |= InputEvent.META_MASK;
     }
 
-    /**
-     * Returns true if this object is identical to the specified object.
-     *
-     * @param anObject the Object to compare this object to
-     * @return true if the objects are identical
-     */
-    public final boolean equals(Object anObject) {
-        if (anObject instanceof AWTKeyStroke) {
-            AWTKeyStroke ks = (AWTKeyStroke)anObject;
-            return (ks.keyChar == keyChar && ks.keyCode == keyCode &&
-                    ks.onKeyRelease == onKeyRelease &&
-                    ks.modifiers == modifiers);
-        }
-        return false;
+    return modifiers;
+  }
+
+  /**
+   * Returns the character for this <code>AWTKeyStroke</code>.
+   *
+   * @return a char value
+   * @see #getAWTKeyStroke(char)
+   * @see KeyEvent#getKeyChar
+   */
+  public final char getKeyChar() {
+    return keyChar;
+  }
+
+  /**
+   * Returns the numeric key code for this <code>AWTKeyStroke</code>.
+   *
+   * @return an int containing the key code value
+   * @see #getAWTKeyStroke(int, int)
+   * @see KeyEvent#getKeyCode
+   */
+  public final int getKeyCode() {
+    return keyCode;
+  }
+
+  /**
+   * Returns the modifier keys for this <code>AWTKeyStroke</code>.
+   *
+   * @return an int containing the modifiers
+   * @see #getAWTKeyStroke(int, int)
+   */
+  public final int getModifiers() {
+    return modifiers;
+  }
+
+  /**
+   * Returns whether this <code>AWTKeyStroke</code> represents a key release.
+   *
+   * @return <code>true</code> if this <code>AWTKeyStroke</code>
+   * represents a key release; <code>false</code> otherwise
+   * @see #getAWTKeyStroke(int, int, boolean)
+   */
+  public final boolean isOnKeyRelease() {
+    return onKeyRelease;
+  }
+
+  /**
+   * Returns the type of <code>KeyEvent</code> which corresponds to
+   * this <code>AWTKeyStroke</code>.
+   *
+   * @return <code>KeyEvent.KEY_PRESSED</code>,
+   * <code>KeyEvent.KEY_TYPED</code>,
+   * or <code>KeyEvent.KEY_RELEASED</code>
+   * @see java.awt.event.KeyEvent
+   */
+  public final int getKeyEventType() {
+    if (keyCode == KeyEvent.VK_UNDEFINED) {
+      return KeyEvent.KEY_TYPED;
+    } else {
+      return (onKeyRelease) ? KeyEvent.KEY_RELEASED : KeyEvent.KEY_PRESSED;
     }
+  }
 
-    /**
-     * Returns a string that displays and identifies this object's properties.
-     * The <code>String</code> returned by this method can be passed
-     * as a parameter to <code>getAWTKeyStroke(String)</code> to produce
-     * a key stroke equal to this key stroke.
-     *
-     * @return a String representation of this object
-     * @see #getAWTKeyStroke(String)
-     */
-    public String toString() {
-        if (keyCode == KeyEvent.VK_UNDEFINED) {
-            return getModifiersText(modifiers) + "typed " + keyChar;
-        } else {
-            return getModifiersText(modifiers) +
-                (onKeyRelease ? "released" : "pressed") + " " +
-                getVKText(keyCode);
-        }
+  /**
+   * Returns a numeric value for this object that is likely to be unique,
+   * making it a good choice as the index value in a hash table.
+   *
+   * @return an int that represents this object
+   */
+  public int hashCode() {
+    return (((int) keyChar) + 1) * (2 * (keyCode + 1)) * (modifiers + 1) + (onKeyRelease ? 1 : 2);
+  }
+
+  /**
+   * Returns true if this object is identical to the specified object.
+   *
+   * @param anObject the Object to compare this object to
+   * @return true if the objects are identical
+   */
+  public final boolean equals(Object anObject) {
+    if (anObject instanceof AWTKeyStroke) {
+      AWTKeyStroke ks = (AWTKeyStroke) anObject;
+      return (ks.keyChar == keyChar && ks.keyCode == keyCode &&
+                  ks.onKeyRelease == onKeyRelease &&
+                  ks.modifiers == modifiers);
     }
+    return false;
+  }
 
-    static String getModifiersText(int modifiers) {
-        StringBuilder buf = new StringBuilder();
-
-        if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0 ) {
-            buf.append("shift ");
-        }
-        if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0 ) {
-            buf.append("ctrl ");
-        }
-        if ((modifiers & InputEvent.META_DOWN_MASK) != 0 ) {
-            buf.append("meta ");
-        }
-        if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0 ) {
-            buf.append("alt ");
-        }
-        if ((modifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0 ) {
-            buf.append("altGraph ");
-        }
-        if ((modifiers & InputEvent.BUTTON1_DOWN_MASK) != 0 ) {
-            buf.append("button1 ");
-        }
-        if ((modifiers & InputEvent.BUTTON2_DOWN_MASK) != 0 ) {
-            buf.append("button2 ");
-        }
-        if ((modifiers & InputEvent.BUTTON3_DOWN_MASK) != 0 ) {
-            buf.append("button3 ");
-        }
-
-        return buf.toString();
+  /**
+   * Returns a string that displays and identifies this object's properties.
+   * The <code>String</code> returned by this method can be passed
+   * as a parameter to <code>getAWTKeyStroke(String)</code> to produce
+   * a key stroke equal to this key stroke.
+   *
+   * @return a String representation of this object
+   * @see #getAWTKeyStroke(String)
+   */
+  public String toString() {
+    if (keyCode == KeyEvent.VK_UNDEFINED) {
+      return getModifiersText(modifiers) + "typed " + keyChar;
+    } else {
+      return getModifiersText(modifiers) +
+          (onKeyRelease ? "released" : "pressed") + " " +
+          getVKText(keyCode);
     }
+  }
 
-    static String getVKText(int keyCode) {
-        VKCollection vkCollect = getVKCollection();
-        Integer key = Integer.valueOf(keyCode);
-        String name = vkCollect.findName(key);
-        if (name != null) {
-            return name.substring(3);
-        }
-        int expected_modifiers =
-            (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL);
-
-        Field[] fields = KeyEvent.class.getDeclaredFields();
-        for (int i = 0; i < fields.length; i++) {
-            try {
-                if (fields[i].getModifiers() == expected_modifiers
-                    && fields[i].getType() == Integer.TYPE
-                    && fields[i].getName().startsWith("VK_")
-                    && fields[i].getInt(KeyEvent.class) == keyCode)
-                {
-                    name = fields[i].getName();
-                    vkCollect.put(name, key);
-                    return name.substring(3);
-                }
-            } catch (IllegalAccessException e) {
-                assert(false);
-            }
-        }
-        return "UNKNOWN";
+  /**
+   * Returns a cached instance of <code>AWTKeyStroke</code> (or a subclass of
+   * <code>AWTKeyStroke</code>) which is equal to this instance.
+   *
+   * @return a cached instance which is equal to this instance
+   */
+  protected Object readResolve() throws java.io.ObjectStreamException {
+    synchronized (AWTKeyStroke.class) {
+      if (getClass().equals(getAWTKeyStrokeClass())) {
+        return getCachedStroke(keyChar, keyCode, modifiers, onKeyRelease);
+      }
     }
-
-    /**
-     * Returns a cached instance of <code>AWTKeyStroke</code> (or a subclass of
-     * <code>AWTKeyStroke</code>) which is equal to this instance.
-     *
-     * @return a cached instance which is equal to this instance
-     */
-    protected Object readResolve() throws java.io.ObjectStreamException {
-        synchronized (AWTKeyStroke.class) {
-            if (getClass().equals(getAWTKeyStrokeClass())) {
-                return  getCachedStroke(keyChar, keyCode, modifiers, onKeyRelease);
-            }
-        }
-        return this;
-    }
-
-    private static int mapOldModifiers(int modifiers) {
-        if ((modifiers & InputEvent.SHIFT_MASK) != 0) {
-            modifiers |= InputEvent.SHIFT_DOWN_MASK;
-        }
-        if ((modifiers & InputEvent.ALT_MASK) != 0) {
-            modifiers |= InputEvent.ALT_DOWN_MASK;
-        }
-        if ((modifiers & InputEvent.ALT_GRAPH_MASK) != 0) {
-            modifiers |= InputEvent.ALT_GRAPH_DOWN_MASK;
-        }
-        if ((modifiers & InputEvent.CTRL_MASK) != 0) {
-            modifiers |= InputEvent.CTRL_DOWN_MASK;
-        }
-        if ((modifiers & InputEvent.META_MASK) != 0) {
-            modifiers |= InputEvent.META_DOWN_MASK;
-        }
-
-        modifiers &= InputEvent.SHIFT_DOWN_MASK
-            | InputEvent.ALT_DOWN_MASK
-            | InputEvent.ALT_GRAPH_DOWN_MASK
-            | InputEvent.CTRL_DOWN_MASK
-            | InputEvent.META_DOWN_MASK
-            | InputEvent.BUTTON1_DOWN_MASK
-            | InputEvent.BUTTON2_DOWN_MASK
-            | InputEvent.BUTTON3_DOWN_MASK;
-
-        return modifiers;
-    }
-
-    private static int mapNewModifiers(int modifiers) {
-        if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            modifiers |= InputEvent.SHIFT_MASK;
-        }
-        if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
-            modifiers |= InputEvent.ALT_MASK;
-        }
-        if ((modifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
-            modifiers |= InputEvent.ALT_GRAPH_MASK;
-        }
-        if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
-            modifiers |= InputEvent.CTRL_MASK;
-        }
-        if ((modifiers & InputEvent.META_DOWN_MASK) != 0) {
-            modifiers |= InputEvent.META_MASK;
-        }
-
-        return modifiers;
-    }
-
+    return this;
+  }
 }
 
 class VKCollection {
-    Map<Integer, String> code2name;
-    Map<String, Integer> name2code;
+  Map<Integer, String> code2name;
+  Map<String, Integer> name2code;
 
-    public VKCollection() {
-        code2name = new HashMap<>();
-        name2code = new HashMap<>();
-    }
+  public VKCollection() {
+    code2name = new HashMap<>();
+    name2code = new HashMap<>();
+  }
 
-    public synchronized void put(String name, Integer code) {
-        assert((name != null) && (code != null));
-        assert(findName(code) == null);
-        assert(findCode(name) == null);
-        code2name.put(code, name);
-        name2code.put(name, code);
-    }
+  public synchronized void put(String name, Integer code) {
+    assert ((name != null) && (code != null));
+    assert (findName(code) == null);
+    assert (findCode(name) == null);
+    code2name.put(code, name);
+    name2code.put(name, code);
+  }
 
-    public synchronized Integer findCode(String name) {
-        assert(name != null);
-        return (Integer)name2code.get(name);
-    }
+  public synchronized Integer findCode(String name) {
+    assert (name != null);
+    return (Integer) name2code.get(name);
+  }
 
-    public synchronized String findName(Integer code) {
-        assert(code != null);
-        return (String)code2name.get(code);
-    }
+  public synchronized String findName(Integer code) {
+    assert (code != null);
+    return (String) code2name.get(code);
+  }
 }

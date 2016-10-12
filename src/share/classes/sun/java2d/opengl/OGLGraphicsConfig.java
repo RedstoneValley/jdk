@@ -25,8 +25,8 @@
 
 package sun.java2d.opengl;
 
-import sun.java2d.SurfaceData;
 import sun.awt.image.SurfaceManager;
+import sun.java2d.SurfaceData;
 import sun.java2d.pipe.hw.AccelGraphicsConfig;
 
 /**
@@ -34,11 +34,12 @@ import sun.java2d.pipe.hw.AccelGraphicsConfig;
  * GLXGraphicsConfig and WGLGraphicsConfig, making it easier to invoke these
  * methods directly from OGLSurfaceData.
  */
-interface OGLGraphicsConfig extends
-    AccelGraphicsConfig, SurfaceManager.ProxiedGraphicsConfig
-{
-    OGLContext getContext();
-    long getNativeConfigInfo();
-    boolean isCapPresent(int cap);
-    SurfaceData createManagedSurface(int w, int h, int transparency);
+interface OGLGraphicsConfig extends AccelGraphicsConfig, SurfaceManager.ProxiedGraphicsConfig {
+  OGLContext getContext();
+
+  long getNativeConfigInfo();
+
+  boolean isCapPresent(int cap);
+
+  SurfaceData createManagedSurface(int w, int h, int transparency);
 }

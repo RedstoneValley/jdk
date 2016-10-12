@@ -42,16 +42,16 @@ import java.util.EventListener;
  * that GUI layout, displayability, and visibility work properly regardless
  * of whether a program registers a <code>HierarchyListener</code> or not.
  *
- * @author      David Mendenhall
- * @see         HierarchyEvent
- * @since       1.3
+ * @author David Mendenhall
+ * @see HierarchyEvent
+ * @since 1.3
  */
 public interface HierarchyListener extends EventListener {
-    /**
-     * Called when the hierarchy has been changed. To discern the actual
-     * type of change, call <code>HierarchyEvent.getChangeFlags()</code>.
-     *
-     * @see HierarchyEvent#getChangeFlags()
-     */
-    public void hierarchyChanged(HierarchyEvent e);
+  /**
+   * Called when the hierarchy has been changed. To discern the actual
+   * type of change, call <code>HierarchyEvent.getChangeFlags()</code>.
+   *
+   * @see HierarchyEvent#getChangeFlags()
+   */
+  public void hierarchyChanged(HierarchyEvent e);
 }

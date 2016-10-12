@@ -28,7 +28,7 @@ package java.awt.peer;
  * The peer interface for {@link Panel}. This is a subinterface of
  * ContainerPeer and does not declare any additional methods because a Panel
  * is just that, a concrete Container.
- *
+ * <p>
  * The peer interfaces are intended only for use in porting
  * the AWT. They are not intended for use by application
  * developers, and developers should not implement peers

@@ -33,5 +33,5 @@ package java.awt;
  * @author David Mendenhall
  */
 interface Conditional {
-    boolean evaluate();
+  boolean evaluate();
 }

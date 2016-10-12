@@ -32,11 +32,12 @@ package java.awt.color;
 
 public class ProfileDataException extends java.lang.RuntimeException {
 
-    /**
-     *  Constructs a ProfileDataException with the specified detail message.
-     *  @param s the specified detail message
-     */
-    public ProfileDataException(String s) {
-        super (s);
-    }
+  /**
+   * Constructs a ProfileDataException with the specified detail message.
+   *
+   * @param s the specified detail message
+   */
+  public ProfileDataException(String s) {
+    super(s);
+  }
 }

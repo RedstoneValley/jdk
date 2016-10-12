@@ -25,7 +25,8 @@
 
 package sun.awt;
 
-import java.awt.*;
+import java.awt.EventQueue;
+import java.awt.SecondaryLoop;
 
 /**
  * An interface for the EventQueue delegate.
@@ -34,26 +35,25 @@ import java.awt.*;
  * If the delegate is not null, than it handles supported methods instead of the
  * event queue. If it is null than the behaviour of an event queue does not change.
  *
- * @see EventQueue
- *
  * @author Petr Pchelko
- *
+ * @see EventQueue
  * @since 1.8
  */
 public interface FwDispatcher {
-    /**
-     * Delegates the {@link EventQueue#isDispatchThread()} method
-     */
-    boolean isDispatchThread();
+  /**
+   * Delegates the {@link EventQueue#isDispatchThread()} method
+   */
+  boolean isDispatchThread();
 
-    /**
-     * Forwards a runnable to the delegate, which executes it on an appropriate thread.
-     * @param r - a runnable calling {@link EventQueue#dispatchEventImpl(java.awt.AWTEvent, Object)}
-     */
-    void scheduleDispatch(Runnable r);
+  /**
+   * Forwards a runnable to the delegate, which executes it on an appropriate thread.
+   *
+   * @param r - a runnable calling {@link EventQueue#dispatchEventImpl(java.awt.AWTEvent, Object)}
+   */
+  void scheduleDispatch(Runnable r);
 
-    /**
-     * Delegates the {@link java.awt.EventQueue#createSecondaryLoop()} method
-     */
-    SecondaryLoop createSecondaryLoop();
+  /**
+   * Delegates the {@link java.awt.EventQueue#createSecondaryLoop()} method
+   */
+  SecondaryLoop createSecondaryLoop();
 }

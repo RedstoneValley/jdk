@@ -66,263 +66,254 @@ import java.awt.event.InputEvent;
  * is <code>DnDConstants.ACTION_NONE</code>.
  *
  * @since 1.2
- *
  */
 
 public class DragSourceDragEvent extends DragSourceEvent {
 
-    private static final long serialVersionUID = 481346297933902471L;
+  private static final long serialVersionUID = 481346297933902471L;
+  private static final int JDK_1_3_MODIFIERS = InputEvent.SHIFT_DOWN_MASK - 1;
+  private static final int JDK_1_4_MODIFIERS = ((InputEvent.ALT_GRAPH_DOWN_MASK << 1) - 1)
+      & ~JDK_1_3_MODIFIERS;
+  /**
+   * The target drop action.
+   *
+   * @serial
+   */
+  private int targetActions = DnDConstants.ACTION_NONE;
+  /**
+   * The user drop action.
+   *
+   * @serial
+   */
+  private int dropAction = DnDConstants.ACTION_NONE;
+  /**
+   * The state of the input device modifiers associated with the user
+   * gesture.
+   *
+   * @serial
+   */
+  private int gestureModifiers = 0;
+  /**
+   * Indicates whether the <code>gestureModifiers</code> are invalid.
+   *
+   * @serial
+   */
+  private boolean invalidModifiers;
 
-    /**
-     * Constructs a <code>DragSourceDragEvent</code>.
-     * This class is typically
-     * instantiated by the <code>DragSourceContextPeer</code>
-     * rather than directly
-     * by client code.
-     * The coordinates for this <code>DragSourceDragEvent</code>
-     * are not specified, so <code>getLocation</code> will return
-     * <code>null</code> for this event.
-     * <p>
-     * The arguments <code>dropAction</code> and <code>action</code> should
-     * be one of <code>DnDConstants</code> that represents a single action.
-     * The argument <code>modifiers</code> should be either a bitwise mask
-     * of old <code>java.awt.event.InputEvent.*_MASK</code> constants or a
-     * bitwise mask of extended <code>java.awt.event.InputEvent.*_DOWN_MASK</code>
-     * constants.
-     * This constructor does not throw any exception for invalid <code>dropAction</code>,
-     * <code>action</code> and <code>modifiers</code>.
-     *
-     * @param dsc the <code>DragSourceContext</code> that is to manage
-     *            notifications for this event.
-     * @param dropAction the user drop action.
-     * @param action the target drop action.
-     * @param modifiers the modifier keys down during event (shift, ctrl,
-     *        alt, meta)
-     *        Either extended _DOWN_MASK or old _MASK modifiers
-     *        should be used, but both models should not be mixed
-     *        in one event. Use of the extended modifiers is
-     *        preferred.
-     *
-     * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
-     *
-     * @see java.awt.event.InputEvent
-     * @see DragSourceEvent#getLocation
-     */
+  /**
+   * Constructs a <code>DragSourceDragEvent</code>.
+   * This class is typically
+   * instantiated by the <code>DragSourceContextPeer</code>
+   * rather than directly
+   * by client code.
+   * The coordinates for this <code>DragSourceDragEvent</code>
+   * are not specified, so <code>getLocation</code> will return
+   * <code>null</code> for this event.
+   * <p>
+   * The arguments <code>dropAction</code> and <code>action</code> should
+   * be one of <code>DnDConstants</code> that represents a single action.
+   * The argument <code>modifiers</code> should be either a bitwise mask
+   * of old <code>java.awt.event.InputEvent.*_MASK</code> constants or a
+   * bitwise mask of extended <code>java.awt.event.InputEvent.*_DOWN_MASK</code>
+   * constants.
+   * This constructor does not throw any exception for invalid <code>dropAction</code>,
+   * <code>action</code> and <code>modifiers</code>.
+   *
+   * @param dsc        the <code>DragSourceContext</code> that is to manage
+   *                   notifications for this event.
+   * @param dropAction the user drop action.
+   * @param action     the target drop action.
+   * @param modifiers  the modifier keys down during event (shift, ctrl,
+   *                   alt, meta)
+   *                   Either extended _DOWN_MASK or old _MASK modifiers
+   *                   should be used, but both models should not be mixed
+   *                   in one event. Use of the extended modifiers is
+   *                   preferred.
+   * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
+   * @see java.awt.event.InputEvent
+   * @see DragSourceEvent#getLocation
+   */
 
-    public DragSourceDragEvent(DragSourceContext dsc, int dropAction,
-                               int action, int modifiers) {
-        super(dsc);
+  public DragSourceDragEvent(
+      DragSourceContext dsc, int dropAction, int action, int modifiers) {
+    super(dsc);
 
-        targetActions    = action;
-        gestureModifiers = modifiers;
-        this.dropAction  = dropAction;
-        if ((modifiers & ~(JDK_1_3_MODIFIERS | JDK_1_4_MODIFIERS)) != 0) {
-            invalidModifiers = true;
-        } else if ((getGestureModifiers() != 0) && (getGestureModifiersEx() == 0)) {
-            setNewModifiers();
-        } else if ((getGestureModifiers() == 0) && (getGestureModifiersEx() != 0)) {
-            setOldModifiers();
-        } else {
-            invalidModifiers = true;
-        }
+    targetActions = action;
+    gestureModifiers = modifiers;
+    this.dropAction = dropAction;
+    if ((modifiers & ~(JDK_1_3_MODIFIERS | JDK_1_4_MODIFIERS)) != 0) {
+      invalidModifiers = true;
+    } else if ((getGestureModifiers() != 0) && (getGestureModifiersEx() == 0)) {
+      setNewModifiers();
+    } else if ((getGestureModifiers() == 0) && (getGestureModifiersEx() != 0)) {
+      setOldModifiers();
+    } else {
+      invalidModifiers = true;
     }
+  }
 
-    /**
-     * Constructs a <code>DragSourceDragEvent</code> given the specified
-     * <code>DragSourceContext</code>, user drop action, target drop action,
-     * modifiers and coordinates.
-     * <p>
-     * The arguments <code>dropAction</code> and <code>action</code> should
-     * be one of <code>DnDConstants</code> that represents a single action.
-     * The argument <code>modifiers</code> should be either a bitwise mask
-     * of old <code>java.awt.event.InputEvent.*_MASK</code> constants or a
-     * bitwise mask of extended <code>java.awt.event.InputEvent.*_DOWN_MASK</code>
-     * constants.
-     * This constructor does not throw any exception for invalid <code>dropAction</code>,
-     * <code>action</code> and <code>modifiers</code>.
-     *
-     * @param dsc the <code>DragSourceContext</code> associated with this
-     *        event.
-     * @param dropAction the user drop action.
-     * @param action the target drop action.
-     * @param modifiers the modifier keys down during event (shift, ctrl,
-     *        alt, meta)
-     *        Either extended _DOWN_MASK or old _MASK modifiers
-     *        should be used, but both models should not be mixed
-     *        in one event. Use of the extended modifiers is
-     *        preferred.
-     * @param x   the horizontal coordinate for the cursor location
-     * @param y   the vertical coordinate for the cursor location
-     *
-     * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
-     *
-     * @see java.awt.event.InputEvent
-     * @since 1.4
-     */
-    public DragSourceDragEvent(DragSourceContext dsc, int dropAction,
-                               int action, int modifiers, int x, int y) {
-        super(dsc, x, y);
+  /**
+   * Constructs a <code>DragSourceDragEvent</code> given the specified
+   * <code>DragSourceContext</code>, user drop action, target drop action,
+   * modifiers and coordinates.
+   * <p>
+   * The arguments <code>dropAction</code> and <code>action</code> should
+   * be one of <code>DnDConstants</code> that represents a single action.
+   * The argument <code>modifiers</code> should be either a bitwise mask
+   * of old <code>java.awt.event.InputEvent.*_MASK</code> constants or a
+   * bitwise mask of extended <code>java.awt.event.InputEvent.*_DOWN_MASK</code>
+   * constants.
+   * This constructor does not throw any exception for invalid <code>dropAction</code>,
+   * <code>action</code> and <code>modifiers</code>.
+   *
+   * @param dsc        the <code>DragSourceContext</code> associated with this
+   *                   event.
+   * @param dropAction the user drop action.
+   * @param action     the target drop action.
+   * @param modifiers  the modifier keys down during event (shift, ctrl,
+   *                   alt, meta)
+   *                   Either extended _DOWN_MASK or old _MASK modifiers
+   *                   should be used, but both models should not be mixed
+   *                   in one event. Use of the extended modifiers is
+   *                   preferred.
+   * @param x          the horizontal coordinate for the cursor location
+   * @param y          the vertical coordinate for the cursor location
+   * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
+   * @see java.awt.event.InputEvent
+   * @since 1.4
+   */
+  public DragSourceDragEvent(
+      DragSourceContext dsc, int dropAction, int action, int modifiers, int x, int y) {
+    super(dsc, x, y);
 
-        targetActions    = action;
-        gestureModifiers = modifiers;
-        this.dropAction  = dropAction;
-        if ((modifiers & ~(JDK_1_3_MODIFIERS | JDK_1_4_MODIFIERS)) != 0) {
-            invalidModifiers = true;
-        } else if ((getGestureModifiers() != 0) && (getGestureModifiersEx() == 0)) {
-            setNewModifiers();
-        } else if ((getGestureModifiers() == 0) && (getGestureModifiersEx() != 0)) {
-            setOldModifiers();
-        } else {
-            invalidModifiers = true;
-        }
+    targetActions = action;
+    gestureModifiers = modifiers;
+    this.dropAction = dropAction;
+    if ((modifiers & ~(JDK_1_3_MODIFIERS | JDK_1_4_MODIFIERS)) != 0) {
+      invalidModifiers = true;
+    } else if ((getGestureModifiers() != 0) && (getGestureModifiersEx() == 0)) {
+      setNewModifiers();
+    } else if ((getGestureModifiers() == 0) && (getGestureModifiersEx() != 0)) {
+      setOldModifiers();
+    } else {
+      invalidModifiers = true;
     }
+  }
 
-    /**
-     * This method returns the target drop action.
-     *
-     * @return the target drop action.
-     */
-    public int getTargetActions() {
-        return targetActions;
-    }
-
-
-    private static final int JDK_1_3_MODIFIERS = InputEvent.SHIFT_DOWN_MASK - 1;
-    private static final int JDK_1_4_MODIFIERS =
-            ((InputEvent.ALT_GRAPH_DOWN_MASK << 1) - 1) & ~JDK_1_3_MODIFIERS;
-
-    /**
-     * This method returns an <code>int</code> representing
-     * the current state of the input device modifiers
-     * associated with the user's gesture. Typically these
-     * would be mouse buttons or keyboard modifiers.
-     * <P>
-     * If the <code>modifiers</code> passed to the constructor
-     * are invalid, this method returns them unchanged.
-     *
-     * @return the current state of the input device modifiers
-     */
-
-    public int getGestureModifiers() {
-        return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_3_MODIFIERS;
-    }
-
-    /**
-     * This method returns an <code>int</code> representing
-     * the current state of the input device extended modifiers
-     * associated with the user's gesture.
-     * See {@link InputEvent#getModifiersEx}
-     * <P>
-     * If the <code>modifiers</code> passed to the constructor
-     * are invalid, this method returns them unchanged.
-     *
-     * @return the current state of the input device extended modifiers
-     * @since 1.4
-     */
-
-    public int getGestureModifiersEx() {
-        return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_4_MODIFIERS;
-    }
-
-    /**
-     * This method returns the user drop action.
-     *
-     * @return the user drop action.
-     */
-    public int getUserAction() { return dropAction; }
-
-    /**
-     * This method returns the logical intersection of
-     * the target drop action and the set of drop actions supported by
-     * the drag source.
-     *
-     * @return the logical intersection of the target drop action and
-     *         the set of drop actions supported by the drag source.
-     */
-    public int getDropAction() {
-        return targetActions & getDragSourceContext().getSourceActions();
-    }
+  /**
+   * This method returns the target drop action.
+   *
+   * @return the target drop action.
+   */
+  public int getTargetActions() {
+    return targetActions;
+  }
 
     /*
      * fields
      */
 
-    /**
-     * The target drop action.
-     *
-     * @serial
-     */
-    private int     targetActions    = DnDConstants.ACTION_NONE;
+  /**
+   * This method returns an <code>int</code> representing
+   * the current state of the input device modifiers
+   * associated with the user's gesture. Typically these
+   * would be mouse buttons or keyboard modifiers.
+   * <p>
+   * If the <code>modifiers</code> passed to the constructor
+   * are invalid, this method returns them unchanged.
+   *
+   * @return the current state of the input device modifiers
+   */
 
-    /**
-     * The user drop action.
-     *
-     * @serial
-     */
-    private int     dropAction       = DnDConstants.ACTION_NONE;
+  public int getGestureModifiers() {
+    return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_3_MODIFIERS;
+  }
 
-    /**
-     * The state of the input device modifiers associated with the user
-     * gesture.
-     *
-     * @serial
-     */
-    private int     gestureModifiers = 0;
+  /**
+   * This method returns an <code>int</code> representing
+   * the current state of the input device extended modifiers
+   * associated with the user's gesture.
+   * See {@link InputEvent#getModifiersEx}
+   * <p>
+   * If the <code>modifiers</code> passed to the constructor
+   * are invalid, this method returns them unchanged.
+   *
+   * @return the current state of the input device extended modifiers
+   * @since 1.4
+   */
 
-    /**
-     * Indicates whether the <code>gestureModifiers</code> are invalid.
-     *
-     * @serial
-     */
-    private boolean invalidModifiers;
+  public int getGestureModifiersEx() {
+    return invalidModifiers ? gestureModifiers : gestureModifiers & JDK_1_4_MODIFIERS;
+  }
 
-    /**
-     * Sets new modifiers by the old ones.
-     * The mouse modifiers have higher priority than overlaying key
-     * modifiers.
-     */
-    private void setNewModifiers() {
-        if ((gestureModifiers & InputEvent.BUTTON1_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON1_DOWN_MASK;
-        }
-        if ((gestureModifiers & InputEvent.BUTTON2_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON2_DOWN_MASK;
-        }
-        if ((gestureModifiers & InputEvent.BUTTON3_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON3_DOWN_MASK;
-        }
-        if ((gestureModifiers & InputEvent.SHIFT_MASK) != 0) {
-            gestureModifiers |= InputEvent.SHIFT_DOWN_MASK;
-        }
-        if ((gestureModifiers & InputEvent.CTRL_MASK) != 0) {
-            gestureModifiers |= InputEvent.CTRL_DOWN_MASK;
-        }
-        if ((gestureModifiers & InputEvent.ALT_GRAPH_MASK) != 0) {
-            gestureModifiers |= InputEvent.ALT_GRAPH_DOWN_MASK;
-        }
+  /**
+   * This method returns the user drop action.
+   *
+   * @return the user drop action.
+   */
+  public int getUserAction() {
+    return dropAction;
+  }
+
+  /**
+   * This method returns the logical intersection of
+   * the target drop action and the set of drop actions supported by
+   * the drag source.
+   *
+   * @return the logical intersection of the target drop action and
+   * the set of drop actions supported by the drag source.
+   */
+  public int getDropAction() {
+    return targetActions & getDragSourceContext().getSourceActions();
+  }
+
+  /**
+   * Sets new modifiers by the old ones.
+   * The mouse modifiers have higher priority than overlaying key
+   * modifiers.
+   */
+  private void setNewModifiers() {
+    if ((gestureModifiers & InputEvent.BUTTON1_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON1_DOWN_MASK;
     }
-
-    /**
-     * Sets old modifiers by the new ones.
-     */
-    private void setOldModifiers() {
-        if ((gestureModifiers & InputEvent.BUTTON1_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON1_MASK;
-        }
-        if ((gestureModifiers & InputEvent.BUTTON2_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON2_MASK;
-        }
-        if ((gestureModifiers & InputEvent.BUTTON3_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.BUTTON3_MASK;
-        }
-        if ((gestureModifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.SHIFT_MASK;
-        }
-        if ((gestureModifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.CTRL_MASK;
-        }
-        if ((gestureModifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
-            gestureModifiers |= InputEvent.ALT_GRAPH_MASK;
-        }
+    if ((gestureModifiers & InputEvent.BUTTON2_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON2_DOWN_MASK;
     }
+    if ((gestureModifiers & InputEvent.BUTTON3_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON3_DOWN_MASK;
+    }
+    if ((gestureModifiers & InputEvent.SHIFT_MASK) != 0) {
+      gestureModifiers |= InputEvent.SHIFT_DOWN_MASK;
+    }
+    if ((gestureModifiers & InputEvent.CTRL_MASK) != 0) {
+      gestureModifiers |= InputEvent.CTRL_DOWN_MASK;
+    }
+    if ((gestureModifiers & InputEvent.ALT_GRAPH_MASK) != 0) {
+      gestureModifiers |= InputEvent.ALT_GRAPH_DOWN_MASK;
+    }
+  }
+
+  /**
+   * Sets old modifiers by the new ones.
+   */
+  private void setOldModifiers() {
+    if ((gestureModifiers & InputEvent.BUTTON1_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON1_MASK;
+    }
+    if ((gestureModifiers & InputEvent.BUTTON2_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON2_MASK;
+    }
+    if ((gestureModifiers & InputEvent.BUTTON3_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.BUTTON3_MASK;
+    }
+    if ((gestureModifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.SHIFT_MASK;
+    }
+    if ((gestureModifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.CTRL_MASK;
+    }
+    if ((gestureModifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
+      gestureModifiers |= InputEvent.ALT_GRAPH_MASK;
+    }
+  }
 }

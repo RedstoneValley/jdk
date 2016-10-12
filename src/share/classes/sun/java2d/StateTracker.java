@@ -61,44 +61,47 @@ package sun.java2d;
  * @since 1.7
  */
 public interface StateTracker {
-    /**
-     * An implementation of the StateTracker interface which
-     * always returns true.
-     * This implementation is useful for objects whose current
-     * {@link StateTrackable.State State} is
-     * {@link StateTrackable.State#IMMUTABLE IMMUTABLE}.
-     * @since 1.7
-     */
-    public StateTracker ALWAYS_CURRENT = new StateTracker() {
-        public boolean isCurrent() {
-            return true;
-        }
-    };
+  /**
+   * An implementation of the StateTracker interface which
+   * always returns true.
+   * This implementation is useful for objects whose current
+   * {@link StateTrackable.State State} is
+   * {@link StateTrackable.State#IMMUTABLE IMMUTABLE}.
+   *
+   * @since 1.7
+   */
+  public StateTracker ALWAYS_CURRENT = new StateTracker() {
+    public boolean isCurrent() {
+      return true;
+    }
+  };
 
-    /**
-     * An implementation of the StateTracker interface which
-     * always returns false.
-     * This implementation is useful for objects whose current
-     * {@link StateTrackable.State State} is
-     * {@link StateTrackable.State#UNTRACKABLE UNTRACKABLE}.
-     * This implementation may also be useful for some objects
-     * whose current {@link StateTrackable.State State} is
-     * {@link StateTrackable.State#DYNAMIC DYNAMIC}.
-     * @since 1.7
-     */
-    public StateTracker NEVER_CURRENT = new StateTracker() {
-        public boolean isCurrent() {
-            return false;
-        }
-    };
+  /**
+   * An implementation of the StateTracker interface which
+   * always returns false.
+   * This implementation is useful for objects whose current
+   * {@link StateTrackable.State State} is
+   * {@link StateTrackable.State#UNTRACKABLE UNTRACKABLE}.
+   * This implementation may also be useful for some objects
+   * whose current {@link StateTrackable.State State} is
+   * {@link StateTrackable.State#DYNAMIC DYNAMIC}.
+   *
+   * @since 1.7
+   */
+  public StateTracker NEVER_CURRENT = new StateTracker() {
+    public boolean isCurrent() {
+      return false;
+    }
+  };
 
-    /**
-     * Returns true iff the contents of the complex data of the
-     * associated StateTrackable object have not changed since
-     * the time that this StateTracker was returned from its
-     * getStateTracker() method.
-     * @see StateTrackable
-     * @since 1.7
-     */
-    public boolean isCurrent();
+  /**
+   * Returns true iff the contents of the complex data of the
+   * associated StateTrackable object have not changed since
+   * the time that this StateTracker was returned from its
+   * getStateTracker() method.
+   *
+   * @see StateTrackable
+   * @since 1.7
+   */
+  public boolean isCurrent();
 }

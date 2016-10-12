@@ -31,18 +31,24 @@ import java.awt.color.ICC_Profile;
 
 public interface PCMM {
 
-    /* methods invoked from ICC_Profile */
-    public Profile loadProfile(byte[] data);
-    public void freeProfile(Profile p);
-    public int  getProfileSize(Profile p);
-    public void getProfileData(Profile p, byte[] data);
-    public void getTagData(Profile p, int tagSignature, byte[] data);
-    public int getTagSize(Profile p, int tagSignature);
-    public void setTagData(Profile p, int tagSignature, byte[] data);
+  /* methods invoked from ICC_Profile */
+  public Profile loadProfile(byte[] data);
 
-    /* methods for creating ColorTransforms */
-    public ColorTransform createTransform(ICC_Profile profile, int renderType,
-                                          int transformType);
+  public void freeProfile(Profile p);
 
-    public ColorTransform createTransform(ColorTransform[] transforms);
+  public int getProfileSize(Profile p);
+
+  public void getProfileData(Profile p, byte[] data);
+
+  public void getTagData(Profile p, int tagSignature, byte[] data);
+
+  public int getTagSize(Profile p, int tagSignature);
+
+  public void setTagData(Profile p, int tagSignature, byte[] data);
+
+  /* methods for creating ColorTransforms */
+  public ColorTransform createTransform(
+      ICC_Profile profile, int renderType, int transformType);
+
+  public ColorTransform createTransform(ColorTransform[] transforms);
 }

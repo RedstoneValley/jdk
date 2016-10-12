@@ -98,7 +98,7 @@
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
-                            <one-file-only/>
+                            <one-file-only />
                         </arity>
                     </context>
                 </action>
@@ -111,7 +111,7 @@
                         <pattern>\.java$</pattern>
                         <format>java-name</format>
                         <arity>
-                            <one-file-only/>
+                            <one-file-only />
                         </arity>
                     </context>
                 </action>
@@ -124,7 +124,7 @@
                         <pattern>\.java$</pattern>
                         <format>relative-path-noext</format>
                         <arity>
-                            <one-file-only/>
+                            <one-file-only />
                         </arity>
                     </context>
                 </action>
@@ -146,16 +146,16 @@
                     </source-file>
                 </items>
                 <context-menu>
-                    <ide-action name="build"/>
-                    <ide-action name="rebuild"/>
-                    <ide-action name="clean"/>
-                    <ide-action name="javadoc"/>
-                    <separator/>
-                    <ide-action name="run"/>
-                    <ide-action name="debug"/>
+                    <ide-action name="build" />
+                    <ide-action name="rebuild" />
+                    <ide-action name="clean" />
+                    <ide-action name="javadoc" />
+                    <separator />
+                    <ide-action name="run" />
+                    <ide-action name="debug" />
                 </context-menu>
             </view>
-            <subprojects/>
+            <subprojects />
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>

@@ -65,47 +65,50 @@ package sun.java2d.pipe;
  * {@code RenderingEngine} via an argument to the getAATileGenerator() method.
  */
 public interface AATileGenerator {
-    /**
-     * Gets the width of the tiles that the generator batches output into.
-     * @return the width of the standard alpha tile
-     */
-    public int getTileWidth();
+  /**
+   * Gets the width of the tiles that the generator batches output into.
+   *
+   * @return the width of the standard alpha tile
+   */
+  public int getTileWidth();
 
-    /**
-     * Gets the height of the tiles that the generator batches output into.
-     * @return the height of the standard alpha tile
-     */
-    public int getTileHeight();
+  /**
+   * Gets the height of the tiles that the generator batches output into.
+   *
+   * @return the height of the standard alpha tile
+   */
+  public int getTileHeight();
 
-    /**
-     * Gets the typical alpha value that will characterize the current
-     * tile.
-     * The answer may be 0x00 to indicate that the current tile has
-     * no coverage in any of its pixels, or it may be 0xff to indicate
-     * that the current tile is completely covered by the path, or any
-     * other value to indicate non-trivial coverage cases.
-     * @return 0x00 for no coverage, 0xff for total coverage, or any other
-     *         value for partial coverage of the tile
-     */
-    public int getTypicalAlpha();
+  /**
+   * Gets the typical alpha value that will characterize the current
+   * tile.
+   * The answer may be 0x00 to indicate that the current tile has
+   * no coverage in any of its pixels, or it may be 0xff to indicate
+   * that the current tile is completely covered by the path, or any
+   * other value to indicate non-trivial coverage cases.
+   *
+   * @return 0x00 for no coverage, 0xff for total coverage, or any other
+   * value for partial coverage of the tile
+   */
+  public int getTypicalAlpha();
 
-    /**
-     * Skips the current tile and moves on to the next tile.
-     * Either this method, or the getAlpha() method should be called
-     * once per tile, but not both.
-     */
-    public void nextTile();
+  /**
+   * Skips the current tile and moves on to the next tile.
+   * Either this method, or the getAlpha() method should be called
+   * once per tile, but not both.
+   */
+  public void nextTile();
 
-    /**
-     * Gets the alpha coverage values for the current tile.
-     * Either this method, or the nextTile() method should be called
-     * once per tile, but not both.
-     */
-    public void getAlpha(byte tile[], int offset, int rowstride);
+  /**
+   * Gets the alpha coverage values for the current tile.
+   * Either this method, or the nextTile() method should be called
+   * once per tile, but not both.
+   */
+  public void getAlpha(byte tile[], int offset, int rowstride);
 
-    /**
-     * Disposes this tile generator.
-     * No further calls will be made on this instance.
-     */
-    public void dispose();
+  /**
+   * Disposes this tile generator.
+   * No further calls will be made on this instance.
+   */
+  public void dispose();
 }

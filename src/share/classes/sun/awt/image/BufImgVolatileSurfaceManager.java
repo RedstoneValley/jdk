@@ -39,30 +39,30 @@ import sun.java2d.SurfaceData;
  */
 public class BufImgVolatileSurfaceManager extends VolatileSurfaceManager {
 
-    /**
-     * This constructor simply defers to the superclass since all of the real
-     * functionality of this class is implemented in VolatileSurfaceManager.
-     */
-    public BufImgVolatileSurfaceManager(SunVolatileImage vImg, Object context) {
-        super(vImg, context);
-    }
+  /**
+   * This constructor simply defers to the superclass since all of the real
+   * functionality of this class is implemented in VolatileSurfaceManager.
+   */
+  public BufImgVolatileSurfaceManager(SunVolatileImage vImg, Object context) {
+    super(vImg, context);
+  }
 
-    /**
-     * Returns false to indicate that this surface manager cannot accelerate
-     * the image.
-     */
-    protected boolean isAccelerationEnabled() {
-        return false;
-    }
+  /**
+   * Returns false to indicate that this surface manager cannot accelerate
+   * the image.
+   */
+  protected boolean isAccelerationEnabled() {
+    return false;
+  }
 
-    /**
-     * Returns null to indicate failure in creating the accelerated surface.
-     * Note that this method should not ever be called since creation of
-     * accelerated surfaces should be preceded by calls to the above
-     * isAccelerationEnabled() method.  But we need to override this method
-     * since it is abstract in our parent class.
-     */
-    protected SurfaceData initAcceleratedSurface() {
-        return null;
-    }
+  /**
+   * Returns null to indicate failure in creating the accelerated surface.
+   * Note that this method should not ever be called since creation of
+   * accelerated surfaces should be preceded by calls to the above
+   * isAccelerationEnabled() method.  But we need to override this method
+   * since it is abstract in our parent class.
+   */
+  protected SurfaceData initAcceleratedSurface() {
+    return null;
+  }
 }

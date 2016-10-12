@@ -29,9 +29,8 @@
 
 package sun.java2d.pipe;
 
-import sun.java2d.SunGraphics2D;
 import java.awt.font.GlyphVector;
-import java.awt.font.TextLayout;
+import sun.java2d.SunGraphics2D;
 
 /**
  * This interface defines the set of calls that pipeline objects
@@ -39,11 +38,12 @@ import java.awt.font.TextLayout;
  * representations.
  */
 public interface TextPipe {
-    public void drawString(SunGraphics2D g2d, String s,
-                           double x, double y);
-    public void drawGlyphVector(SunGraphics2D g2d, GlyphVector g,
-                                float x, float y);
-    public void drawChars(SunGraphics2D g2d,
-                          char data[], int offset, int length,
-                          int x, int y);
+  public void drawString(
+      SunGraphics2D g2d, String s, double x, double y);
+
+  public void drawGlyphVector(
+      SunGraphics2D g2d, GlyphVector g, float x, float y);
+
+  public void drawChars(
+      SunGraphics2D g2d, char data[], int offset, int length, int x, int y);
 }

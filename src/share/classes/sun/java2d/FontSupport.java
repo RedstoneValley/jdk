@@ -32,8 +32,8 @@ import sun.awt.FontConfiguration;
  */
 public interface FontSupport {
 
-    /**
-     * Returns the current font configuration.
-     */
-    public FontConfiguration getFontConfiguration();
+  /**
+   * Returns the current font configuration.
+   */
+  public FontConfiguration getFontConfiguration();
 }

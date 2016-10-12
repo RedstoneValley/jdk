@@ -25,9 +25,8 @@
 
 package sun.java2d.cmm;
 
-import java.io.InputStream;
 import java.io.IOException;
-
+import java.io.InputStream;
 
 /**
  * A class to pass information about a profile to be loaded from
@@ -37,25 +36,23 @@ import java.io.IOException;
  */
 public class ProfileDeferralInfo extends InputStream {
 
-    public int colorSpaceType, numComponents, profileClass;
-    public String filename;
+  public int colorSpaceType, numComponents, profileClass;
+  public String filename;
 
-    public ProfileDeferralInfo(String fn, int type, int ncomp, int pclass) {
+  public ProfileDeferralInfo(String fn, int type, int ncomp, int pclass) {
 
-        super();
-        filename = fn;
-        colorSpaceType = type;
-        numComponents = ncomp;
-        profileClass = pclass;
-    }
+    super();
+    filename = fn;
+    colorSpaceType = type;
+    numComponents = ncomp;
+    profileClass = pclass;
+  }
 
+  /**
+   * Implements the abstract read() method of InputStream.
+   */
+  public int read() throws IOException {
 
-    /**
-     * Implements the abstract read() method of InputStream.
-     */
-    public int read() throws IOException {
-
-        return 0;
-    }
-
+    return 0;
+  }
 }

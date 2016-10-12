@@ -1,26 +1,25 @@
 package java.awt;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.support.v4.content.ContextCompat;
-
+import java.awt.peer.DesktopPeer;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.awt.peer.DesktopPeer;
-import java.io.File;
-import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URLConnection;
 
@@ -29,174 +28,171 @@ import java.net.URLConnection;
  */
 class SkinJobDesktopPeer implements DesktopPeer {
 
-    public static class PrintDialogActivity extends Activity {
-        private static final String PRINT_DIALOG_URL = "https://www.google.com/cloudprint/dialog.html";
-        private static final String JS_INTERFACE = "AndroidPrintDialog";
-        private static final String CONTENT_TRANSFER_ENCODING = "base64";
+  private final Context androidContext;
 
-        /**
-         * Post message that is sent by Print Dialog web page when the printing dialog
-         * needs to be closed.
-         */
-        private static final String CLOSE_POST_MESSAGE_NAME = "cp-dialog-on-close";
+  public SkinJobDesktopPeer(Context androidContext) {
+    this.androidContext = androidContext;
+  }
 
-        /**
-         * Web view element to show the printing dialog in.
-         */
-        private WebView dialogWebView;
+  protected void launchIntent(File file, String action) throws IOException {
+    Intent intentToOpen = new Intent(action);
+    launchIntentForFile(intentToOpen, file);
+  }
 
-        /**
-         * Intent that started the action.
-         */
-        Intent cloudPrintIntent;
+  private void launchIntentForFile(Intent intent, File file) throws IOException {
+    Uri fileUri = Uri.fromFile(file);
+    FileInputStream fileInputStream = new FileInputStream(file);
+    try {
+      String mime = URLConnection.guessContentTypeFromStream();
+      if (mime == null) {
+        mime = URLConnection.guessContentTypeFromName(file.getName());
+      }
+      intent.setDataAndType(fileUri, mime);
+      androidContext.startActivity(intent);
+    } finally {
+      fileInputStream.close();
+    }
+  }
 
-        @Override
-        public void onCreate(Bundle icicle) {
-            super.onCreate(icicle);
+  @Override
+  public boolean isSupported(Desktop.Action action) {
+    if (action == Desktop.Action.PRINT) {
+      return ContextCompat.checkSelfPermission(androidContext, Manifest.permission.INTERNET)
+          == PackageManager.PERMISSION_GRANTED
+          && ContextCompat.checkSelfPermission(androidContext, Manifest.permission.READ_CONTACTS)
+          == PackageManager.PERMISSION_GRANTED;
+    }
+    return true;
+  }
 
-            dialogWebView = new WebView(this);
-            cloudPrintIntent = this.getIntent();
+  @Override
+  public void open(File file) throws IOException {
+    launchIntent(file, Intent.ACTION_VIEW);
+  }
 
-            WebSettings settings = dialogWebView.getSettings();
-            settings.setJavaScriptEnabled(true);
+  @Override
+  public void edit(File file) throws IOException {
+    launchIntent(file, Intent.ACTION_EDIT);
+  }
 
-            dialogWebView.setWebViewClient(new PrintDialogWebClient());
-            dialogWebView.addJavascriptInterface(
-                    new PrintDialogJavaScriptInterface(), JS_INTERFACE);
+  @Override
+  public void print(File file) throws IOException {
+    if (!isSupported(Desktop.Action.PRINT)) {
+      throw new UnsupportedOperationException("Don't have permission to connect to a printer");
+    }
+    Intent printIntent = new Intent(androidContext, PrintDialogActivity.class);
+    launchIntentForFile(printIntent, file);
+  }
 
-            dialogWebView.loadUrl(PRINT_DIALOG_URL);
-        }
+  @Override
+  public void mail(URI mailtoURL) throws IOException {
+    Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
+    mailIntent.setData(Uri.parse(mailtoURL.toString()));
+    androidContext.startActivity(mailIntent);
+  }
 
-        final class PrintDialogJavaScriptInterface {
-            public String getType() {
-                return cloudPrintIntent.getType();
-            }
+  @Override
+  public void browse(URI uri) throws IOException {
+    Intent browseIntent = new Intent(Intent.ACTION_VIEW);
+    browseIntent.setData(Uri.parse(uri.toString()));
+    androidContext.startActivity(browseIntent);
+  }
 
-            public String getTitle() {
-                return cloudPrintIntent.getExtras().getString("title");
-            }
+  public static class PrintDialogActivity extends Activity {
+    private static final String PRINT_DIALOG_URL = "https://www.google.com/cloudprint/dialog.html";
+    private static final String JS_INTERFACE = "AndroidPrintDialog";
+    private static final String CONTENT_TRANSFER_ENCODING = "base64";
 
-            public String getContent() {
-                try {
-                    ContentResolver contentResolver = getContentResolver();
-                    InputStream is = contentResolver.openInputStream(cloudPrintIntent.getData());
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    /**
+     * Post message that is sent by Print Dialog web page when the printing dialog
+     * needs to be closed.
+     */
+    private static final String CLOSE_POST_MESSAGE_NAME = "cp-dialog-on-close";
+    /**
+     * Intent that started the action.
+     */
+    Intent cloudPrintIntent;
+    /**
+     * Web view element to show the printing dialog in.
+     */
+    private WebView dialogWebView;
 
-                    byte[] buffer = new byte[4096];
-                    int n = is.read(buffer);
-                    while (n >= 0) {
-                        baos.write(buffer, 0, n);
-                        n = is.read(buffer);
-                    }
-                    is.close();
-                    baos.flush();
+    @Override
+    public void onCreate(Bundle icicle) {
+      super.onCreate(icicle);
 
-                    return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return "";
-            }
+      dialogWebView = new WebView(this);
+      cloudPrintIntent = this.getIntent();
 
-            public String getEncoding() {
-                return CONTENT_TRANSFER_ENCODING;
-            }
+      WebSettings settings = dialogWebView.getSettings();
+      settings.setJavaScriptEnabled(true);
 
-            public void onPostMessage(String message) {
-                if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
-                    finish();
-                }
-            }
-        }
+      dialogWebView.setWebViewClient(new PrintDialogWebClient());
+      dialogWebView.addJavascriptInterface(new PrintDialogJavaScriptInterface(), JS_INTERFACE);
 
-        private final class PrintDialogWebClient extends WebViewClient {
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                if (PRINT_DIALOG_URL.equals(url)) {
-                    // Submit print document.
-                    view.loadUrl("javascript:printDialog.setPrintDocument(printDialog.createPrintDocument("
-                            + "window." + JS_INTERFACE + ".getType(),window." + JS_INTERFACE + ".getTitle(),"
-                            + "window." + JS_INTERFACE + ".getContent(),window." + JS_INTERFACE + ".getEncoding()))");
-
-                    // Add post messages listener.
-                    view.loadUrl("javascript:window.addEventListener('message',"
-                            + "function(evt){window." + JS_INTERFACE + ".onPostMessage(evt.data)}, false)");
-                }
-            }
-        }
+      dialogWebView.loadUrl(PRINT_DIALOG_URL);
     }
 
-    private final Context androidContext;
+    final class PrintDialogJavaScriptInterface {
+      public String getType() {
+        return cloudPrintIntent.getType();
+      }
 
-    protected void launchIntent(File file, String action) throws IOException {
-        Intent intentToOpen = new Intent(action);
-        launchIntentForFile(intentToOpen, file);
-    }
+      public String getTitle() {
+        return cloudPrintIntent.getExtras().getString("title");
+      }
 
-    private void launchIntentForFile(Intent intent, File file) throws IOException {
-        Uri fileUri = Uri.fromFile(file);
-        FileInputStream fileInputStream = new FileInputStream(file);
+      public String getContent() {
         try {
-            String mime = URLConnection.guessContentTypeFromStream();
-            if (mime == null) mime = URLConnection.guessContentTypeFromName(file.getName());
-            intent.setDataAndType(fileUri, mime);
-            androidContext.startActivity(intent);
-        } finally {
-            fileInputStream.close();
+          ContentResolver contentResolver = getContentResolver();
+          InputStream is = contentResolver.openInputStream(cloudPrintIntent.getData());
+          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+          byte[] buffer = new byte[4096];
+          int n = is.read(buffer);
+          while (n >= 0) {
+            baos.write(buffer, 0, n);
+            n = is.read(buffer);
+          }
+          is.close();
+          baos.flush();
+
+          return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        } catch (FileNotFoundException e) {
+          e.printStackTrace();
+        } catch (IOException e) {
+          e.printStackTrace();
         }
-    }
+        return "";
+      }
 
-    public SkinJobDesktopPeer(Context androidContext) {
-        this.androidContext = androidContext;
-    }
+      public String getEncoding() {
+        return CONTENT_TRANSFER_ENCODING;
+      }
 
-    @Override
-    public boolean isSupported(Desktop.Action action) {
-        if (action == Desktop.Action.PRINT) {
-            return ContextCompat.checkSelfPermission(androidContext,
-                    Manifest.permission.INTERNET)
-                    == PackageManager.PERMISSION_GRANTED
-                    && ContextCompat.checkSelfPermission(androidContext,
-                    Manifest.permission.READ_CONTACTS)
-                    == PackageManager.PERMISSION_GRANTED;
+      public void onPostMessage(String message) {
+        if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
+          finish();
         }
-        return true;
+      }
     }
 
-    @Override
-    public void open(File file) throws IOException {
-        launchIntent(file, Intent.ACTION_VIEW);
-    }
+    private final class PrintDialogWebClient extends WebViewClient {
 
-    @Override
-    public void edit(File file) throws IOException {
-        launchIntent(file, Intent.ACTION_EDIT);
-    }
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        if (PRINT_DIALOG_URL.equals(url)) {
+          // Submit print document.
+          view.loadUrl(
+              "javascript:printDialog.setPrintDocument(printDialog.createPrintDocument(" + "window."
+                  + JS_INTERFACE + ".getType(),window." + JS_INTERFACE + ".getTitle()," + "window."
+                  + JS_INTERFACE + ".getContent(),window." + JS_INTERFACE + ".getEncoding()))");
 
-    @Override
-    public void print(File file) throws IOException {
-         if (!isSupported(Desktop.Action.PRINT)) {
-             throw new UnsupportedOperationException(
-                     "Don't have permission to connect to a printer");
-         }
-         Intent printIntent = new Intent(androidContext, PrintDialogActivity.class);
-         launchIntentForFile(printIntent, file);
+          // Add post messages listener.
+          view.loadUrl("javascript:window.addEventListener('message'," + "function(evt){window."
+              + JS_INTERFACE + ".onPostMessage(evt.data)}, false)");
+        }
+      }
     }
-
-    @Override
-    public void mail(URI mailtoURL) throws IOException {
-        Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
-        mailIntent.setData(Uri.parse(mailtoURL.toString()));
-        androidContext.startActivity(mailIntent);
-    }
-
-    @Override
-    public void browse(URI uri) throws IOException {
-        Intent browseIntent = new Intent(Intent.ACTION_VIEW);
-        browseIntent.setData(Uri.parse(uri.toString()));
-        androidContext.startActivity(browseIntent);
-    }
+  }
 }

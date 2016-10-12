@@ -36,9 +36,10 @@ public interface MultipleMaster {
   /**
    * Returns the number of multiple master design controls.
    * Design axes include things like width, weight and optical scaling.
+   *
    * @return the number of multiple master design controls
    */
-  public  int getNumDesignAxes();
+  public int getNumDesignAxes();
 
   /**
    * Returns an array of design limits interleaved in the form [from&rarr;to]
@@ -46,24 +47,27 @@ public interface MultipleMaster {
    * design limits for weight could be from 0.1 to 1.0. The values are
    * returned in the same order returned by
    * <code>getDesignAxisNames</code>.
+   *
    * @return an array of design limits for each axis.
    */
-  public  float[]  getDesignAxisRanges();
+  public float[] getDesignAxisRanges();
 
   /**
    * Returns an array of default design values for each axis.  For example,
    * the default value for weight could be 1.6. The values are returned
    * in the same order returned by <code>getDesignAxisNames</code>.
+   *
    * @return an array of default design values for each axis.
    */
-  public  float[]  getDesignAxisDefaults();
+  public float[] getDesignAxisDefaults();
 
   /**
    * Returns the name for each design axis. This also determines the order in
    * which the values for each axis are returned.
+   *
    * @return an array containing the names of each design axis.
    */
-  public  String[] getDesignAxisNames();
+  public String[] getDesignAxisNames();
 
   /**
    * Creates a new instance of a multiple master font based on the design
@@ -73,6 +77,7 @@ public interface MultipleMaster {
    * must fall within limits specified by
    * <code>getDesignAxesLimits</code>. In case of an error,
    * <code>null</code> is returned.
+   *
    * @param axes an array containing axis values
    * @return a {@link Font} object that is an instance of
    * <code>MultipleMaster</code> and is based on the design axis values
@@ -83,24 +88,20 @@ public interface MultipleMaster {
   /**
    * Creates a new instance of a multiple master font based on detailed metric
    * information. In case of an error, <code>null</code> is returned.
-   * @param glyphWidths an array of floats representing the desired width
-   * of each glyph in font space
-   * @param avgStemWidth the average stem width for the overall font in
-   * font space
+   *
+   * @param glyphWidths      an array of floats representing the desired width
+   *                         of each glyph in font space
+   * @param avgStemWidth     the average stem width for the overall font in
+   *                         font space
    * @param typicalCapHeight the height of a typical upper case char
-   * @param typicalXHeight the height of a typical lower case char
-   * @param italicAngle the angle at which the italics lean, in degrees
-   * counterclockwise from vertical
+   * @param typicalXHeight   the height of a typical lower case char
+   * @param italicAngle      the angle at which the italics lean, in degrees
+   *                         counterclockwise from vertical
    * @return a <code>Font</code> object that is an instance of
    * <code>MultipleMaster</code> and is based on the specified metric
    * information.
    */
   public Font deriveMMFont(
-                                   float[] glyphWidths,
-                                   float avgStemWidth,
-                                   float typicalCapHeight,
-                                   float typicalXHeight,
-                                   float italicAngle);
-
-
+      float[] glyphWidths, float avgStemWidth, float typicalCapHeight, float typicalXHeight,
+      float italicAngle);
 }

@@ -35,9 +35,8 @@ import java.util.EventListener;
  */
 public interface AdjustmentListener extends EventListener {
 
-    /**
-     * Invoked when the value of the adjustable has changed.
-     */
-    public void adjustmentValueChanged(AdjustmentEvent e);
-
+  /**
+   * Invoked when the value of the adjustable has changed.
+   */
+  public void adjustmentValueChanged(AdjustmentEvent e);
 }

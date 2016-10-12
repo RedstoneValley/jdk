@@ -53,114 +53,117 @@ import javax.imageio.stream.ImageInputStream;
 /* This benchmark verifies how changes in cmm library affects image decoding */
 public class EmbeddedProfileTests extends ColorConversionTests {
 
-    protected static Group grpRoot;
-    protected static Group grpOptionsRoot;
+  protected static Group grpRoot;
+  protected static Group grpOptionsRoot;
 
-    protected static Option inputImages;
+  protected static Option inputImages;
 
-    public static void init() {
-        grpRoot = new Group(colorConvRoot, "embed", "Embedded Profile Tests");
+  public EmbeddedProfileTests(Group parent, String nodeName, String description) {
+    super(parent, nodeName, description);
+    addDependencies(grpOptionsRoot, true);
+  }
 
-        grpOptionsRoot = new Group(grpRoot, "embedOptions", "Options");
+  public static void init() {
+    grpRoot = new Group(colorConvRoot, "embed", "Embedded Profile Tests");
 
-        inputImages = createImageList();
+    grpOptionsRoot = new Group(grpRoot, "embedOptions", "Options");
 
-        new ReadImageTest();
+    inputImages = createImageList();
+
+    new ReadImageTest();
+  }
+
+  private static Option createImageList() {
+    IccImageResource[] images = IccImageResource.values();
+
+    int num = images.length;
+
+    String[] names = new String[num];
+    String[] abbrev = new String[num];
+    String[] descr = new String[num];
+
+    for (int i = 0; i < num; i++) {
+      names[i] = images[i].toString();
+      abbrev[i] = images[i].abbrev;
+      descr[i] = images[i].description;
     }
 
-    private static enum IccImageResource {
-        SMALL("images/img_icc_small.jpg", "512x512", "Small: 512x512"),
-        MEDIUM("images/img_icc_medium.jpg", "2048x2048", "Medium: 2048x2048"),
-        LARGE("images/img_icc_large.jpg", "4096x4096", "Large: 4096x4096");
+    Option list = new Option.ObjectList(grpOptionsRoot,
+        "Images",
+        "Input Images",
+        names,
+        images,
+        abbrev,
+        descr,
+        1);
 
-        private IccImageResource(String file, String name, String description) {
-            this.url = CMMTests.class.getResource(file);
-            this.abbrev = name;
-            this.description = description;
+    return list;
+  }
+
+  public Object initTest(TestEnvironment env, Result res) {
+    return new Context(env, res);
+  }
+
+  private static enum IccImageResource {
+    SMALL("images/img_icc_small.jpg", "512x512", "Small: 512x512"),
+    MEDIUM("images/img_icc_medium.jpg", "2048x2048", "Medium: 2048x2048"),
+    LARGE("images/img_icc_large.jpg", "4096x4096", "Large: 4096x4096");
+
+    public final URL url;
+    public final String abbrev;
+    public final String description;
+    private IccImageResource(String file, String name, String description) {
+      this.url = CMMTests.class.getResource(file);
+      this.abbrev = name;
+      this.description = description;
+    }
+  }
+
+  private static class Context {
+    URL input;
+
+    public Context(TestEnvironment env, Result res) {
+
+      IccImageResource icc_input = (IccImageResource) env.getModifier(inputImages);
+
+      input = icc_input.url;
+    }
+  }
+
+  private static class ReadImageTest extends EmbeddedProfileTests {
+    public ReadImageTest() {
+      super(grpRoot, "embd_img_read", "ImageReader.read()");
+    }
+
+    public void runTest(Object octx, int numReps) {
+      final Context ctx = (Context) octx;
+      final URL url = ctx.input;
+      ImageInputStream iis = null;
+      ImageReader reader = null;
+
+      try {
+        iis = ImageIO.createImageInputStream(url.openStream());
+        reader = ImageIO.getImageReaders(iis).next();
+      } catch (IOException e) {
+        throw new RuntimeException("Unable to run the becnhmark", e);
+      }
+
+      do {
+        try {
+          reader.setInput(iis);
+          BufferedImage img = reader.read(0);
+          reader.reset();
+
+          iis = ImageIO.createImageInputStream(url.openStream());
+        } catch (Exception e) {
+          e.printStackTrace();
         }
-
-        public final URL url;
-        public final String abbrev;
-        public final String description;
+      } while (--numReps >= 0);
     }
+  }  public void cleanupTest(TestEnvironment env, Object o) {
+    Context ctx = (Context) o;
+    ctx.input = null;
+  }
 
-    private static Option createImageList() {
-        IccImageResource[] images = IccImageResource.values();
 
-        int num = images.length;
-
-        String[] names = new String[num];
-        String[] abbrev = new String[num];
-        String[] descr = new String[num];
-
-        for (int i = 0; i < num; i++) {
-            names[i] = images[i].toString();
-            abbrev[i] = images[i].abbrev;
-            descr[i] = images[i].description;
-        }
-
-         Option list = new Option.ObjectList(grpOptionsRoot,
-                "Images", "Input Images",
-                names, images, abbrev, descr, 1);
-
-         return list;
-    }
-
-    public EmbeddedProfileTests(Group parent, String nodeName, String description) {
-        super(parent, nodeName, description);
-        addDependencies(grpOptionsRoot, true);
-    }
-
-    private static class Context {
-        URL input;
-
-        public Context(TestEnvironment env, Result res) {
-
-            IccImageResource icc_input = (IccImageResource)
-                    env.getModifier(inputImages);
-
-            input = icc_input.url;
-        }
-    }
-
-     public Object initTest(TestEnvironment env, Result res) {
-        return new Context(env, res);
-    }
-
-    public void cleanupTest(TestEnvironment env, Object o) {
-        Context ctx = (Context)o;
-        ctx.input = null;
-    }
-
-    private static class ReadImageTest extends EmbeddedProfileTests {
-        public ReadImageTest() {
-            super(grpRoot, "embd_img_read", "ImageReader.read()");
-        }
-
-        public void runTest(Object octx, int numReps) {
-            final Context ctx = (Context)octx;
-            final URL url = ctx.input;
-            ImageInputStream iis = null;
-            ImageReader reader = null;
-
-            try {
-                iis = ImageIO.createImageInputStream(url.openStream());
-                reader = ImageIO.getImageReaders(iis).next();
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to run the becnhmark", e);
-            }
-
-            do {
-                try {
-                    reader.setInput(iis);
-                    BufferedImage img = reader.read(0);
-                    reader.reset();
-
-                    iis = ImageIO.createImageInputStream(url.openStream());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } while (--numReps >= 0);
-        }
-    }
 }

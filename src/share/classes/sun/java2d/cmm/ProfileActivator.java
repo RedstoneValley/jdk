@@ -33,9 +33,8 @@ import java.awt.color.ProfileDataException;
  */
 public interface ProfileActivator {
 
-    /**
-     * Activate a previously deferred ICC_Profile object.
-     */
-    public void activate() throws ProfileDataException;
-
+  /**
+   * Activate a previously deferred ICC_Profile object.
+   */
+  public void activate() throws ProfileDataException;
 }

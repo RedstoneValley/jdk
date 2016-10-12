@@ -25,41 +25,41 @@
 
 package sun.awt.image;
 
-import java.io.InputStream;
-import java.io.FileInputStream;
 import java.io.BufferedInputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 public class FileImageSource extends InputStreamImageSource {
-    String imagefile;
+  String imagefile;
 
-    public FileImageSource(String filename) {
-        SecurityManager security = System.getSecurityManager();
-        if (security != null) {
-            security.checkRead(filename);
-        }
-        imagefile = filename;
+  public FileImageSource(String filename) {
+    SecurityManager security = System.getSecurityManager();
+    if (security != null) {
+      security.checkRead(filename);
+    }
+    imagefile = filename;
+  }
+
+  final boolean checkSecurity(Object context, boolean quiet) {
+    // File based images only ever need to be checked statically
+    // when the image is retrieved from the cache.
+    return true;
+  }
+
+  protected ImageDecoder getDecoder() {
+    if (imagefile == null) {
+      return null;
     }
 
-    final boolean checkSecurity(Object context, boolean quiet) {
-        // File based images only ever need to be checked statically
-        // when the image is retrieved from the cache.
-        return true;
+    InputStream is;
+    try {
+      is = new BufferedInputStream(new FileInputStream(imagefile));
+    } catch (FileNotFoundException e) {
+      return null;
     }
-
-    protected ImageDecoder getDecoder() {
-        if (imagefile == null) {
-            return null;
-        }
-
-        InputStream is;
-        try {
-            is = new BufferedInputStream(new FileInputStream(imagefile));
-        } catch (FileNotFoundException e) {
-            return null;
-        }
-        // Don't believe the file suffix - many users don't know what
-        // kind of image they have and guess wrong...
+    // Don't believe the file suffix - many users don't know what
+    // kind of image they have and guess wrong...
         /*
         int suffixpos = imagefile.lastIndexOf('.');
         if (suffixpos >= 0) {
@@ -74,6 +74,6 @@ public class FileImageSource extends InputStreamImageSource {
             }
         }
         */
-        return getDecoder(is);
-    }
+    return getDecoder(is);
+  }
 }

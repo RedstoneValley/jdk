@@ -36,8 +36,8 @@ import java.awt.peer.KeyboardFocusManagerPeer;
  */
 public interface KeyboardFocusManagerPeerProvider {
 
-    /**
-     * Gets a singleton KeyboardFocusManagerPeer instance.
-     */
-    KeyboardFocusManagerPeer getKeyboardFocusManagerPeer();
+  /**
+   * Gets a singleton KeyboardFocusManagerPeer instance.
+   */
+  KeyboardFocusManagerPeer getKeyboardFocusManagerPeer();
 }

@@ -37,14 +37,11 @@
  * this sample code.
  */
 
-
-
+import java.awt.Color;
+import java.awt.Font;
+import javax.swing.border.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
-import javax.swing.*;
-import javax.swing.border.*;
-import java.awt.*;
-
 
 /**
  * This class describes a theme using "green" colors.
@@ -54,84 +51,74 @@ import java.awt.*;
  */
 public class BigContrastMetalTheme extends ContrastMetalTheme {
 
-    @Override
-    public String getName() {
-        return "Low Vision";
-    }
-    private final FontUIResource controlFont = new FontUIResource("Dialog",
-            Font.BOLD, 24);
-    private final FontUIResource systemFont = new FontUIResource("Dialog",
-            Font.PLAIN, 24);
-    private final FontUIResource windowTitleFont = new FontUIResource("Dialog",
-            Font.BOLD, 24);
-    private final FontUIResource userFont = new FontUIResource("SansSerif",
-            Font.PLAIN, 24);
-    private final FontUIResource smallFont = new FontUIResource("Dialog",
-            Font.PLAIN, 20);
+  private final FontUIResource controlFont = new FontUIResource("Dialog", Font.BOLD, 24);
+  private final FontUIResource systemFont = new FontUIResource("Dialog", Font.PLAIN, 24);
+  private final FontUIResource windowTitleFont = new FontUIResource("Dialog", Font.BOLD, 24);
+  private final FontUIResource userFont = new FontUIResource("SansSerif", Font.PLAIN, 24);
+  private final FontUIResource smallFont = new FontUIResource("Dialog", Font.PLAIN, 20);
 
-    @Override
-    public FontUIResource getControlTextFont() {
-        return controlFont;
-    }
+  @Override
+  public String getName() {
+    return "Low Vision";
+  }
 
-    @Override
-    public FontUIResource getSystemTextFont() {
-        return systemFont;
-    }
+  @Override
+  public void addCustomEntriesToTable(UIDefaults table) {
+    super.addCustomEntriesToTable(table);
 
-    @Override
-    public FontUIResource getUserTextFont() {
-        return userFont;
-    }
+    final int internalFrameIconSize = 30;
+    table.put("InternalFrame.closeIcon", MetalIconFactory.
+        getInternalFrameCloseIcon(internalFrameIconSize));
+    table.put("InternalFrame.maximizeIcon", MetalIconFactory.
+        getInternalFrameMaximizeIcon(internalFrameIconSize));
+    table.put("InternalFrame.iconifyIcon", MetalIconFactory.
+        getInternalFrameMinimizeIcon(internalFrameIconSize));
+    table.put("InternalFrame.minimizeIcon", MetalIconFactory.
+        getInternalFrameAltMaximizeIcon(internalFrameIconSize));
 
-    @Override
-    public FontUIResource getMenuTextFont() {
-        return controlFont;
-    }
+    Border blackLineBorder = new BorderUIResource(new MatteBorder(2, 2, 2, 2, Color.black));
+    Border textBorder = blackLineBorder;
 
-    @Override
-    public FontUIResource getWindowTitleFont() {
-        return windowTitleFont;
-    }
+    table.put("ToolTip.border", blackLineBorder);
+    table.put("TitledBorder.border", blackLineBorder);
 
-    @Override
-    public FontUIResource getSubTextFont() {
-        return smallFont;
-    }
+    table.put("TextField.border", textBorder);
+    table.put("PasswordField.border", textBorder);
+    table.put("TextArea.border", textBorder);
+    table.put("TextPane.font", textBorder);
 
-    @Override
-    public void addCustomEntriesToTable(UIDefaults table) {
-        super.addCustomEntriesToTable(table);
+    table.put("ScrollPane.border", blackLineBorder);
 
-        final int internalFrameIconSize = 30;
-        table.put("InternalFrame.closeIcon", MetalIconFactory.
-                getInternalFrameCloseIcon(internalFrameIconSize));
-        table.put("InternalFrame.maximizeIcon", MetalIconFactory.
-                getInternalFrameMaximizeIcon(internalFrameIconSize));
-        table.put("InternalFrame.iconifyIcon", MetalIconFactory.
-                getInternalFrameMinimizeIcon(internalFrameIconSize));
-        table.put("InternalFrame.minimizeIcon", MetalIconFactory.
-                getInternalFrameAltMaximizeIcon(internalFrameIconSize));
+    table.put("ScrollBar.width", 25);
+  }
 
+  @Override
+  public FontUIResource getControlTextFont() {
+    return controlFont;
+  }
 
-        Border blackLineBorder = new BorderUIResource(new MatteBorder(2, 2, 2, 2,
-                Color.black));
-        Border textBorder = blackLineBorder;
+  @Override
+  public FontUIResource getSystemTextFont() {
+    return systemFont;
+  }
 
-        table.put("ToolTip.border", blackLineBorder);
-        table.put("TitledBorder.border", blackLineBorder);
+  @Override
+  public FontUIResource getUserTextFont() {
+    return userFont;
+  }
 
+  @Override
+  public FontUIResource getMenuTextFont() {
+    return controlFont;
+  }
 
-        table.put("TextField.border", textBorder);
-        table.put("PasswordField.border", textBorder);
-        table.put("TextArea.border", textBorder);
-        table.put("TextPane.font", textBorder);
+  @Override
+  public FontUIResource getWindowTitleFont() {
+    return windowTitleFont;
+  }
 
-        table.put("ScrollPane.border", blackLineBorder);
-
-        table.put("ScrollBar.width", 25);
-
-
-
-    }
+  @Override
+  public FontUIResource getSubTextFont() {
+    return smallFont;
+  }
 }

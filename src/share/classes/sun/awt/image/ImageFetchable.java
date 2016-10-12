@@ -32,17 +32,17 @@ package sun.awt.image;
  * asynchronous delivery of image data outside of the standard system
  * threads which manage the applications User Interface.
  *
+ * @author Jim Graham
  * @see ImageFetcher
  * @see ImageProducer
- *
- * @author      Jim Graham
  */
 public interface ImageFetchable {
-    /**
-     * This method is called by one of the ImageFetcher threads to start
-     * the flow of information from the ImageProducer to the ImageConsumer.
-     * @see ImageFetcher
-     * @see ImageProducer
-     */
-    public void doFetch();
+  /**
+   * This method is called by one of the ImageFetcher threads to start
+   * the flow of information from the ImageProducer to the ImageConsumer.
+   *
+   * @see ImageFetcher
+   * @see ImageProducer
+   */
+  public void doFetch();
 }

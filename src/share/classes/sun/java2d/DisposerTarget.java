@@ -30,9 +30,9 @@ package sun.java2d;
  * the classes which use Disposer.
  */
 public interface DisposerTarget {
-    /**
-     * Returns an object which will be
-     * used as the referent in the ReferenceQueue
-     */
-    public Object getDisposerReferent();
+  /**
+   * Returns an object which will be
+   * used as the referent in the ReferenceQueue
+   */
+  public Object getDisposerReferent();
 }

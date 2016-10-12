@@ -64,46 +64,49 @@ package java.awt.dnd;
  * respective listener's method and all the necessary data should be retrieved
  * from the returned <code>Transferable</code> before that method returns.
  *
+ * @author David Mendenhall
  * @see DropTargetEvent
  * @see DropTargetListener
- *
- * @author David Mendenhall
  * @since 1.4
  */
 public abstract class DropTargetAdapter implements DropTargetListener {
 
-    /**
-     * Called while a drag operation is ongoing, when the mouse pointer enters
-     * the operable part of the drop site for the <code>DropTarget</code>
-     * registered with this listener.
-     *
-     * @param dtde the <code>DropTargetDragEvent</code>
-     */
-    public void dragEnter(DropTargetDragEvent dtde) {}
+  /**
+   * Called while a drag operation is ongoing, when the mouse pointer enters
+   * the operable part of the drop site for the <code>DropTarget</code>
+   * registered with this listener.
+   *
+   * @param dtde the <code>DropTargetDragEvent</code>
+   */
+  public void dragEnter(DropTargetDragEvent dtde) {
+  }
 
-    /**
-     * Called when a drag operation is ongoing, while the mouse pointer is still
-     * over the operable part of the drop site for the <code>DropTarget</code>
-     * registered with this listener.
-     *
-     * @param dtde the <code>DropTargetDragEvent</code>
-     */
-    public void dragOver(DropTargetDragEvent dtde) {}
+  /**
+   * Called when a drag operation is ongoing, while the mouse pointer is still
+   * over the operable part of the drop site for the <code>DropTarget</code>
+   * registered with this listener.
+   *
+   * @param dtde the <code>DropTargetDragEvent</code>
+   */
+  public void dragOver(DropTargetDragEvent dtde) {
+  }
 
-    /**
-     * Called if the user has modified
-     * the current drop gesture.
-     *
-     * @param dtde the <code>DropTargetDragEvent</code>
-     */
-    public void dropActionChanged(DropTargetDragEvent dtde) {}
+  /**
+   * Called if the user has modified
+   * the current drop gesture.
+   *
+   * @param dtde the <code>DropTargetDragEvent</code>
+   */
+  public void dropActionChanged(DropTargetDragEvent dtde) {
+  }
 
-    /**
-     * Called while a drag operation is ongoing, when the mouse pointer has
-     * exited the operable part of the drop site for the
-     * <code>DropTarget</code> registered with this listener.
-     *
-     * @param dte the <code>DropTargetEvent</code>
-     */
-    public void dragExit(DropTargetEvent dte) {}
+  /**
+   * Called while a drag operation is ongoing, when the mouse pointer has
+   * exited the operable part of the drop site for the
+   * <code>DropTarget</code> registered with this listener.
+   *
+   * @param dte the <code>DropTargetEvent</code>
+   */
+  public void dragExit(DropTargetEvent dte) {
+  }
 }

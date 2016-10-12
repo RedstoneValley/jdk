@@ -35,20 +35,21 @@ import java.awt.Component;
  * <li> switch to another application or desktop happens
  * <li> click in the non-client area of the owning window or this window happens
  * </ul>
- *
+ * <p>
  * <p>Notice that this event is not generated on mouse click inside of the window area.
- * <p>To listen for this event, install AWTEventListener with {@value sun.awt.SunToolkit#GRAB_EVENT_MASK}
+ * <p>To listen for this event, install AWTEventListener with {@value sun.awt
+ * .SunToolkit#GRAB_EVENT_MASK}
  */
 @SuppressWarnings("serial")
 public class UngrabEvent extends AWTEvent {
 
-    private final static int UNGRAB_EVENT_ID = 1998;
+  private final static int UNGRAB_EVENT_ID = 1998;
 
-    public UngrabEvent(Component source) {
-        super(source, UNGRAB_EVENT_ID);
-    }
+  public UngrabEvent(Component source) {
+    super(source, UNGRAB_EVENT_ID);
+  }
 
-    public String toString() {
-        return "sun.awt.UngrabEvent[" + getSource() + "]";
-    }
+  public String toString() {
+    return "sun.awt.UngrabEvent[" + getSource() + "]";
+  }
 }

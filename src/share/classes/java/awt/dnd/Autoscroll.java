@@ -54,27 +54,28 @@ import java.awt.Point;
 
 public interface Autoscroll {
 
-    /**
-     * This method returns the <code>Insets</code> describing
-     * the autoscrolling region or border relative
-     * to the geometry of the implementing Component.
-     * <P>
-     * This value is read once by the <code>DropTarget</code>
-     * upon entry of the drag <code>Cursor</code>
-     * into the associated <code>Component</code>.
-     * <P>
-     * @return the Insets
-     */
+  /**
+   * This method returns the <code>Insets</code> describing
+   * the autoscrolling region or border relative
+   * to the geometry of the implementing Component.
+   * <p>
+   * This value is read once by the <code>DropTarget</code>
+   * upon entry of the drag <code>Cursor</code>
+   * into the associated <code>Component</code>.
+   * <p>
+   *
+   * @return the Insets
+   */
 
-    public Insets getAutoscrollInsets();
+  public Insets getAutoscrollInsets();
 
-    /**
-     * notify the <code>Component</code> to autoscroll
-     * <P>
-     * @param cursorLocn A <code>Point</code> indicating the
-     * location of the cursor that triggered this operation.
-     */
+  /**
+   * notify the <code>Component</code> to autoscroll
+   * <p>
+   *
+   * @param cursorLocn A <code>Point</code> indicating the
+   *                   location of the cursor that triggered this operation.
+   */
 
-    public void autoscroll(Point cursorLocn);
-
+  public void autoscroll(Point cursorLocn);
 }

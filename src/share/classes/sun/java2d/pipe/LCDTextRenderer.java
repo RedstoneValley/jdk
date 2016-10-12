@@ -25,10 +25,8 @@
 
 package sun.java2d.pipe;
 
-import java.awt.font.GlyphVector;
-import sun.java2d.SunGraphics2D;
 import sun.font.GlyphList;
-import static sun.awt.SunHints.*;
+import sun.java2d.SunGraphics2D;
 
 /**
  * A delegate pipe of SG2D for drawing LCD text with
@@ -37,8 +35,8 @@ import static sun.awt.SunHints.*;
 
 public class LCDTextRenderer extends GlyphListLoopPipe {
 
-    protected void drawGlyphList(SunGraphics2D sg2d, GlyphList gl) {
-        sg2d.loops.drawGlyphListLCDLoop.
-            DrawGlyphListLCD(sg2d, sg2d.surfaceData, gl);
-    }
+  protected void drawGlyphList(SunGraphics2D sg2d, GlyphList gl) {
+    sg2d.loops.drawGlyphListLCDLoop.
+        DrawGlyphListLCD(sg2d, sg2d.surfaceData, gl);
+  }
 }

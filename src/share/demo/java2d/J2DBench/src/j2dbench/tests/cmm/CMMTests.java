@@ -52,102 +52,98 @@ import java.io.InputStream;
 
 public class CMMTests extends Test {
 
-    protected static Group cmmRoot;
-    protected static Group cmmOptRoot;
-    protected static Option csList;
-    protected static Option usePlatfromProfiles;
+  protected static Group cmmRoot;
+  protected static Group cmmOptRoot;
+  protected static Option csList;
+  protected static Option usePlatfromProfiles;
 
-    public static void init() {
-        cmmRoot = new Group("cmm", "Color Management Benchmarks");
-        cmmRoot.setTabbed();
+  protected CMMTests(Group parent, String nodeName, String description) {
+    super(parent, nodeName, description);
+    addDependencies(cmmOptRoot, true);
+  }
 
-        cmmOptRoot = new Group(cmmRoot, "opts", "General Options");
+  public static void init() {
+    cmmRoot = new Group("cmm", "Color Management Benchmarks");
+    cmmRoot.setTabbed();
+
+    cmmOptRoot = new Group(cmmRoot, "opts", "General Options");
 
         /*
         usePlatfromProfiles =
                 new Option.Enable(cmmOptRoot, "csPlatfrom",
                         "Use Platfrom Profiles", false);
         */
-        int[] colorspaces = new int[] {
-            ColorSpace.CS_sRGB,
-            ColorSpace.CS_GRAY,
-            ColorSpace.CS_LINEAR_RGB,
-            ColorSpace.CS_CIEXYZ
-        };
+    int[] colorspaces = new int[]{
+        ColorSpace.CS_sRGB, ColorSpace.CS_GRAY, ColorSpace.CS_LINEAR_RGB, ColorSpace.CS_CIEXYZ};
 
-        String[] csNames = new String[]{
-            "CS_sRGB",
-            "CS_GRAY",
-            "CS_LINEAR_RGB",
-            "CS_CIEXYZ"
-        };
+    String[] csNames = new String[]{
+        "CS_sRGB", "CS_GRAY", "CS_LINEAR_RGB", "CS_CIEXYZ"};
 
-        csList = new Option.IntList(cmmOptRoot,
-                "profiles", "Color Profiles",
-                colorspaces, csNames, csNames, 0x8);
+    csList = new Option.IntList(cmmOptRoot,
+        "profiles",
+        "Color Profiles",
+        colorspaces,
+        csNames,
+        csNames,
+        0x8);
 
-        ColorConversionTests.init();
-        ProfileTests.init();
+    ColorConversionTests.init();
+    ProfileTests.init();
+  }
+
+  protected static ColorSpace getColorSpace(TestEnvironment env) {
+    ColorSpace cs;
+    Boolean usePlatfrom = true; //(Boolean)env.getModifier(usePlatfromProfiles);
+
+    int cs_code = env.getIntValue(csList);
+    if (usePlatfrom) {
+      cs = ColorSpace.getInstance(cs_code);
+    } else {
+      String resource = "profiles/";
+      switch (cs_code) {
+        case ColorSpace.CS_CIEXYZ:
+          resource += "CIEXYZ.pf";
+          break;
+        case ColorSpace.CS_GRAY:
+          resource += "GRAY.pf";
+          break;
+        case ColorSpace.CS_LINEAR_RGB:
+          resource += "LINEAR_RGB.pf";
+          break;
+        case ColorSpace.CS_PYCC:
+          resource += "PYCC.pf";
+          break;
+        case ColorSpace.CS_sRGB:
+          resource += "sRGB.pf";
+          break;
+        default:
+          throw new RuntimeException("Unknown color space: " + cs_code);
+      }
+
+      try {
+        InputStream is = CMMTests.class.getResourceAsStream(resource);
+        ICC_Profile p = ICC_Profile.getInstance(is);
+
+        cs = new ICC_ColorSpace(p);
+      } catch (IOException e) {
+        throw new RuntimeException("Unable load profile from resource " + resource, e);
+      }
     }
+    return cs;
+  }
 
-    protected static ColorSpace getColorSpace(TestEnvironment env) {
-        ColorSpace cs;
-        Boolean usePlatfrom = true; //(Boolean)env.getModifier(usePlatfromProfiles);
+  @Override
+  public Object initTest(TestEnvironment te, Result result) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 
-        int cs_code = env.getIntValue(csList);
-        if (usePlatfrom) {
-            cs = ColorSpace.getInstance(cs_code);
-        } else {
-            String resource = "profiles/";
-            switch (cs_code) {
-                case ColorSpace.CS_CIEXYZ:
-                    resource += "CIEXYZ.pf";
-                    break;
-                case ColorSpace.CS_GRAY:
-                    resource += "GRAY.pf";
-                    break;
-                case ColorSpace.CS_LINEAR_RGB:
-                    resource += "LINEAR_RGB.pf";
-                    break;
-                case ColorSpace.CS_PYCC:
-                    resource += "PYCC.pf";
-                    break;
-                case ColorSpace.CS_sRGB:
-                    resource += "sRGB.pf";
-                    break;
-                default:
-                    throw new RuntimeException("Unknown color space: " + cs_code);
-            }
+  @Override
+  public void runTest(Object o, int i) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 
-            try {
-                InputStream is = CMMTests.class.getResourceAsStream(resource);
-                ICC_Profile p = ICC_Profile.getInstance(is);
-
-                cs = new ICC_ColorSpace(p);
-            } catch (IOException e) {
-                throw new RuntimeException("Unable load profile from resource " + resource, e);
-            }
-        }
-        return cs;
-    }
-
-    protected CMMTests(Group parent, String nodeName, String description) {
-        super(parent, nodeName, description);
-        addDependencies(cmmOptRoot, true);
-    }
-
-    @Override
-    public Object initTest(TestEnvironment te, Result result) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void runTest(Object o, int i) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void cleanupTest(TestEnvironment te, Object o) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+  @Override
+  public void cleanupTest(TestEnvironment te, Object o) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 }

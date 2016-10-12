@@ -31,7 +31,6 @@ import java.awt.Point;
 import java.awt.dnd.DragSourceContext;
 import java.awt.dnd.InvalidDnDOperationException;
 
-
 /**
  * <p>
  * This interface is supplied by the underlying window system platform to
@@ -40,32 +39,32 @@ import java.awt.dnd.InvalidDnDOperationException;
  * </p>
  *
  * @since 1.2
- *
  */
 
 public interface DragSourceContextPeer {
 
-    /**
-     * start a drag
-     */
+  /**
+   * start a drag
+   */
 
-    void startDrag(DragSourceContext dsc, Cursor c, Image dragImage, Point imageOffset) throws InvalidDnDOperationException;
+  void startDrag(DragSourceContext dsc, Cursor c, Image dragImage, Point imageOffset)
+      throws InvalidDnDOperationException;
 
-    /**
-     * return the current drag cursor
-     */
+  /**
+   * return the current drag cursor
+   */
 
-    Cursor getCursor();
+  Cursor getCursor();
 
-    /**
-     * set the current drag cursor
-     */
+  /**
+   * set the current drag cursor
+   */
 
-    void setCursor(Cursor c) throws InvalidDnDOperationException;
+  void setCursor(Cursor c) throws InvalidDnDOperationException;
 
-    /**
-     * notify the peer that the Transferables DataFlavors have changed
-     */
+  /**
+   * notify the peer that the Transferables DataFlavors have changed
+   */
 
-    void transferablesFlavorsChanged();
+  void transferablesFlavorsChanged();
 }

@@ -25,13 +25,12 @@
 
 package sun.java2d.pipe.hw;
 
+import java.lang.annotation.Native;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.lang.annotation.Native;
-
 
 /**
  * This class is used to notify listeners about accelerated device's
@@ -39,131 +38,125 @@ import java.lang.annotation.Native;
  */
 public class AccelDeviceEventNotifier {
 
-    private static AccelDeviceEventNotifier theInstance;
+  /**
+   * A device is about to be reset. The listeners have to release all
+   * resources associated with the device which are required for the device
+   * to be reset.
+   */
+  @Native public static final int DEVICE_RESET = 0;
+  /**
+   * A device is about to be disposed. The listeners have to release all
+   * resources associated with the device.
+   */
+  @Native public static final int DEVICE_DISPOSED = 1;
+  private static AccelDeviceEventNotifier theInstance;
+  private final Map<AccelDeviceEventListener, Integer> listeners;
 
-    /**
-     * A device is about to be reset. The listeners have to release all
-     * resources associated with the device which are required for the device
-     * to be reset.
-     */
-    @Native public static final int DEVICE_RESET = 0;
+  private AccelDeviceEventNotifier() {
+    listeners = Collections.synchronizedMap(new HashMap<AccelDeviceEventListener, Integer>(1));
+  }
 
-    /**
-     * A device is about to be disposed. The listeners have to release all
-     * resources associated with the device.
-     */
-    @Native public static final int DEVICE_DISPOSED = 1;
+  /**
+   * Returns a singleton of AccelDeviceEventNotifier if it exists. If the
+   * passed boolean is false and singleton doesn't exist yet, null is
+   * returned. If the passed boolean is {@code true} and singleton doesn't
+   * exist it will be created and returned.
+   *
+   * @param create whether to create a singleton instance if doesn't yet
+   *               exist
+   * @return a singleton instance or null
+   */
+  private static synchronized AccelDeviceEventNotifier getInstance(boolean create) {
+    if (theInstance == null && create) {
+      theInstance = new AccelDeviceEventNotifier();
+    }
+    return theInstance;
+  }
 
-    private final Map<AccelDeviceEventListener, Integer> listeners;
+  /**
+   * Called to indicate that a device event had occurred.
+   * If a singleton exists, the listeners (those associated with
+   * the device) will be notified.
+   *
+   * @param screen    a screen number of the device which is a source of
+   *                  the event
+   * @param eventType a type of the event
+   * @see #DEVICE_DISPOSED
+   * @see #DEVICE_RESET
+   */
+  public static final void eventOccured(int screen, int eventType) {
+    AccelDeviceEventNotifier notifier = getInstance(false);
+    if (notifier != null) {
+      notifier.notifyListeners(eventType, screen);
+    }
+  }
 
-    private AccelDeviceEventNotifier() {
-        listeners = Collections.synchronizedMap(
-            new HashMap<AccelDeviceEventListener, Integer>(1));
+  /**
+   * Adds the listener associated with a device on particular screen.
+   * <p>
+   * Note: the listener must be removed as otherwise it will forever
+   * be referenced by the notifier.
+   *
+   * @param l      the listener
+   * @param screen the screen number indicating which device the listener is
+   *               interested in.
+   */
+  public static final void addListener(AccelDeviceEventListener l, int screen) {
+    getInstance(true).add(l, screen);
+  }
+
+  /**
+   * Removes the listener.
+   *
+   * @param l the listener
+   */
+  public static final void removeListener(AccelDeviceEventListener l) {
+    getInstance(true).remove(l);
+  }
+
+  private final void add(AccelDeviceEventListener theListener, int screen) {
+    listeners.put(theListener, screen);
+  }
+
+  private final void remove(AccelDeviceEventListener theListener) {
+    listeners.remove(theListener);
+  }
+
+  /**
+   * Notifies the listeners associated with the screen's device about the
+   * event.
+   * <p>
+   * Implementation note: the current list of listeners is first duplicated
+   * which allows the listeners to remove themselves during the iteration.
+   *
+   * @param screen    a screen number with which the device which is a source of
+   *                  the event is associated with
+   * @param eventType a type of the event
+   * @see #DEVICE_DISPOSED
+   * @see #DEVICE_RESET
+   */
+  private final void notifyListeners(int deviceEventType, int screen) {
+    HashMap<AccelDeviceEventListener, Integer> listClone;
+    Set<AccelDeviceEventListener> cloneSet;
+
+    synchronized (listeners) {
+      listClone = new HashMap<AccelDeviceEventListener, Integer>(listeners);
     }
 
-    /**
-     * Returns a singleton of AccelDeviceEventNotifier if it exists. If the
-     * passed boolean is false and singleton doesn't exist yet, null is
-     * returned. If the passed boolean is {@code true} and singleton doesn't
-     * exist it will be created and returned.
-     *
-     * @param create whether to create a singleton instance if doesn't yet
-     * exist
-     * @return a singleton instance or null
-     */
-    private static synchronized
-        AccelDeviceEventNotifier getInstance(boolean create)
-    {
-        if (theInstance == null && create) {
-            theInstance = new AccelDeviceEventNotifier();
-        }
-        return theInstance;
+    cloneSet = listClone.keySet();
+    Iterator<AccelDeviceEventListener> itr = cloneSet.iterator();
+    while (itr.hasNext()) {
+      AccelDeviceEventListener current = itr.next();
+      Integer i = listClone.get(current);
+      // only notify listeners which are interested in this device
+      if (i != null && i.intValue() != screen) {
+        continue;
+      }
+      if (deviceEventType == DEVICE_RESET) {
+        current.onDeviceReset();
+      } else if (deviceEventType == DEVICE_DISPOSED) {
+        current.onDeviceDispose();
+      }
     }
-
-    /**
-     * Called to indicate that a device event had occurred.
-     * If a singleton exists, the listeners (those associated with
-     * the device) will be notified.
-     *
-     * @param screen a screen number of the device which is a source of
-     * the event
-     * @param eventType a type of the event
-     * @see #DEVICE_DISPOSED
-     * @see #DEVICE_RESET
-     */
-    public static final void eventOccured(int screen, int eventType) {
-        AccelDeviceEventNotifier notifier = getInstance(false);
-        if (notifier != null) {
-            notifier.notifyListeners(eventType, screen);
-        }
-    }
-
-    /**
-     * Adds the listener associated with a device on particular screen.
-     *
-     * Note: the listener must be removed as otherwise it will forever
-     * be referenced by the notifier.
-     *
-     * @param l the listener
-     * @param screen the screen number indicating which device the listener is
-     * interested in.
-     */
-    public static final void addListener(AccelDeviceEventListener l,int screen){
-        getInstance(true).add(l, screen);
-    }
-
-    /**
-     * Removes the listener.
-     *
-     * @param l the listener
-     */
-    public static final void removeListener(AccelDeviceEventListener l) {
-        getInstance(true).remove(l);
-    }
-
-    private final void add(AccelDeviceEventListener theListener, int screen) {
-        listeners.put(theListener, screen);
-    }
-    private final void remove(AccelDeviceEventListener theListener) {
-        listeners.remove(theListener);
-    }
-
-    /**
-     * Notifies the listeners associated with the screen's device about the
-     * event.
-     *
-     * Implementation note: the current list of listeners is first duplicated
-     * which allows the listeners to remove themselves during the iteration.
-     *
-     * @param screen a screen number with which the device which is a source of
-     * the event is associated with
-     * @param eventType a type of the event
-     * @see #DEVICE_DISPOSED
-     * @see #DEVICE_RESET
-     */
-    private final void notifyListeners(int deviceEventType, int screen) {
-        HashMap<AccelDeviceEventListener, Integer> listClone;
-        Set<AccelDeviceEventListener> cloneSet;
-
-        synchronized(listeners) {
-            listClone =
-                new HashMap<AccelDeviceEventListener, Integer>(listeners);
-        }
-
-        cloneSet = listClone.keySet();
-        Iterator<AccelDeviceEventListener> itr = cloneSet.iterator();
-        while (itr.hasNext()) {
-            AccelDeviceEventListener current = itr.next();
-            Integer i = listClone.get(current);
-            // only notify listeners which are interested in this device
-            if (i != null && i.intValue() != screen) {
-                continue;
-            }
-            if (deviceEventType == DEVICE_RESET) {
-                current.onDeviceReset();
-            } else if (deviceEventType == DEVICE_DISPOSED) {
-                current.onDeviceDispose();
-            }
-        }
-    }
+  }
 }

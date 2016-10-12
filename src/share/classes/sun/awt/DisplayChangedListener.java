@@ -32,10 +32,10 @@ import java.util.EventListener;
  * The class that is interested in processing a display change event
  * implements this interface (and all the methods it
  * contains).
- *
+ * <p>
  * For Motif, this interface is only used for dragging windows between Xinerama
  * screens.
- *
+ * <p>
  * For win32, the listener object created from that class is then registered
  * with the WToolkit object using its <code>addDisplayChangeListener</code>
  * method. When the display resolution is changed (which occurs,
@@ -50,14 +50,13 @@ import java.util.EventListener;
  * @since 1.4
  */
 public interface DisplayChangedListener extends EventListener {
-    /**
-     * Invoked when the display mode has changed.
-     */
-    public void displayChanged();
+  /**
+   * Invoked when the display mode has changed.
+   */
+  public void displayChanged();
 
-    /**
-     * Invoked when the palette has changed.
-     */
-    public void paletteChanged();
-
+  /**
+   * Invoked when the palette has changed.
+   */
+  public void paletteChanged();
 }

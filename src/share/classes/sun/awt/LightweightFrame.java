@@ -55,149 +55,182 @@ import java.awt.peer.FramePeer;
 @SuppressWarnings("serial")
 public abstract class LightweightFrame extends Frame {
 
-    /**
-     * Constructs a new, initially invisible {@code LightweightFrame}
-     * instance.
-     */
-    public LightweightFrame() {
-        setUndecorated(true);
-        setResizable(true);
-        setEnabled(true);
-    }
+  /**
+   * Host window absolute bounds.
+   */
+  private int hostX, hostY, hostW, hostH;
 
-    /**
-     * Blocks introspection of a parent window by this child.
-     *
-     * @return null
-     */
-    @Override public final Container getParent() { return null; }
+  /**
+   * Constructs a new, initially invisible {@code LightweightFrame}
+   * instance.
+   */
+  public LightweightFrame() {
+    setUndecorated(true);
+    setResizable(true);
+    setEnabled(true);
+  }
 
-    @Override public Graphics getGraphics() { return null; }
+  /**
+   * Blocks introspection of a parent window by this child.
+   *
+   * @return null
+   */
+  @Override
+  public final Container getParent() {
+    return null;
+  }
 
-    @Override public final boolean isResizable() { return true; }
+  @Override
+  public Graphics getGraphics() {
+    return null;
+  }
 
-    // Block modification of any frame attributes, since they aren't
-    // applicable for a lightweight frame.
+  // Block modification of any frame attributes, since they aren't
+  // applicable for a lightweight frame.
 
-    @Override public final void setTitle(String title) {}
-    @Override public final void setIconImage(Image image) {}
-    @Override public final void setIconImages(java.util.List<? extends Image> icons) {}
-    @Override public final void setMenuBar(MenuBar mb) {}
-    @Override public final void setResizable(boolean resizable) {}
-    @Override public final void remove(MenuComponent m) {}
-    @Override public final void toFront() {}
-    @Override public final void toBack() {}
+  @Override
+  public final void setIconImages(java.util.List<? extends Image> icons) {
+  }
 
-    @Override public void addNotify() {
-        synchronized (getTreeLock()) {
-            if (getPeer() == null) {
-                SunToolkit stk = (SunToolkit)Toolkit.getDefaultToolkit();
-                try {
-                    setPeer(stk.createLightweightFrame(this));
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            super.addNotify();
+  @Override
+  public final void toFront() {
+  }
+
+  @Override
+  public final void toBack() {
+  }
+
+  @Override
+  public final void setTitle(String title) {
+  }
+
+  @Override
+  public final void setIconImage(Image image) {
+  }
+
+  @Override
+  public void addNotify() {
+    synchronized (getTreeLock()) {
+      if (getPeer() == null) {
+        SunToolkit stk = (SunToolkit) Toolkit.getDefaultToolkit();
+        try {
+          setPeer(stk.createLightweightFrame(this));
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
+      }
+      super.addNotify();
     }
+  }
 
-    private void setPeer(final FramePeer p) {
-        AWTAccessor.getComponentAccessor().setPeer(this, p);
+  @Override
+  public final void setMenuBar(MenuBar mb) {
+  }
+
+  @Override
+  public final boolean isResizable() {
+    return true;
+  }
+
+  @Override
+  public final void setResizable(boolean resizable) {
+  }
+
+  @Override
+  public final void remove(MenuComponent m) {
+  }
+
+  private void setPeer(final FramePeer p) {
+    AWTAccessor.getComponentAccessor().setPeer(this, p);
+  }
+
+  /**
+   * Requests the peer to emulate activation or deactivation of the
+   * frame. Peers should override this method if they are to implement
+   * this functionality.
+   *
+   * @param activate if <code>true</code>, activates the frame;
+   *                 otherwise, deactivates the frame
+   */
+  public void emulateActivation(boolean activate) {
+    ((FramePeer) getPeer()).emulateActivation(activate);
+  }
+
+  /**
+   * Delegates the focus grab action to the client (embedding) application.
+   * The method is called by the AWT grab machinery.
+   *
+   * @see SunToolkit#grab(java.awt.Window)
+   */
+  public abstract void grabFocus();
+
+  /**
+   * Delegates the focus ungrab action to the client (embedding) application.
+   * The method is called by the AWT grab machinery.
+   *
+   * @see SunToolkit#ungrab(java.awt.Window)
+   */
+  public abstract void ungrabFocus();
+
+  /**
+   * Returns the scale factor of this frame. The default value is 1.
+   *
+   * @return the scale factor
+   * @see #notifyDisplayChanged(int)
+   */
+  public abstract int getScaleFactor();
+
+  /**
+   * Called when display of the hosted frame is changed.
+   *
+   * @param scaleFactor the scale factor
+   */
+  public abstract void notifyDisplayChanged(int scaleFactor);
+
+  /**
+   * Returns the absolute bounds of the host (embedding) window.
+   *
+   * @return the host window bounds
+   */
+  public Rectangle getHostBounds() {
+    if (hostX == 0 && hostY == 0 && hostW == 0 && hostH == 0) {
+      // The client app is probably unaware of the setHostBounds.
+      // A safe fall-back:
+      return getBounds();
     }
+    return new Rectangle(hostX, hostY, hostW, hostH);
+  }
 
-    /**
-     * Requests the peer to emulate activation or deactivation of the
-     * frame. Peers should override this method if they are to implement
-     * this functionality.
-     *
-     * @param activate if <code>true</code>, activates the frame;
-     *                 otherwise, deactivates the frame
-     */
-    public void emulateActivation(boolean activate) {
-        ((FramePeer)getPeer()).emulateActivation(activate);
-    }
+  /**
+   * Sets the absolute bounds of the host (embedding) window.
+   */
+  public void setHostBounds(int x, int y, int w, int h) {
+    hostX = x;
+    hostY = y;
+    hostW = w;
+    hostH = h;
+  }
 
-    /**
-     * Delegates the focus grab action to the client (embedding) application.
-     * The method is called by the AWT grab machinery.
-     *
-     * @see SunToolkit#grab(java.awt.Window)
-     */
-    public abstract void grabFocus();
+  /**
+   * Create a drag gesture recognizer for the lightweight frame.
+   */
+  public abstract <T extends DragGestureRecognizer> T createDragGestureRecognizer(
+      Class<T> abstractRecognizerClass, DragSource ds, Component c, int srcActions,
+      DragGestureListener dgl);
 
-    /**
-     * Delegates the focus ungrab action to the client (embedding) application.
-     * The method is called by the AWT grab machinery.
-     *
-     * @see SunToolkit#ungrab(java.awt.Window)
-     */
-    public abstract void ungrabFocus();
+  /**
+   * Create a drag source context peer for the lightweight frame.
+   */
+  public abstract DragSourceContextPeer createDragSourceContextPeer(DragGestureEvent dge)
+      throws InvalidDnDOperationException;
 
-    /**
-     * Returns the scale factor of this frame. The default value is 1.
-     *
-     * @return the scale factor
-     * @see #notifyDisplayChanged(int)
-     */
-    public abstract int getScaleFactor();
+  /**
+   * Adds a drop target to the lightweight frame.
+   */
+  public abstract void addDropTarget(DropTarget dt);
 
-    /**
-     * Called when display of the hosted frame is changed.
-     *
-     * @param scaleFactor the scale factor
-     */
-    public abstract void notifyDisplayChanged(int scaleFactor);
-
-    /**
-     * Host window absolute bounds.
-     */
-    private int hostX, hostY, hostW, hostH;
-
-    /**
-     * Returns the absolute bounds of the host (embedding) window.
-     *
-     * @return the host window bounds
-     */
-    public Rectangle getHostBounds() {
-        if (hostX == 0 && hostY == 0 && hostW == 0 && hostH == 0) {
-            // The client app is probably unaware of the setHostBounds.
-            // A safe fall-back:
-            return getBounds();
-        }
-        return new Rectangle(hostX, hostY, hostW, hostH);
-    }
-
-    /**
-     * Sets the absolute bounds of the host (embedding) window.
-     */
-    public void setHostBounds(int x, int y, int w, int h) {
-        hostX = x;
-        hostY = y;
-        hostW = w;
-        hostH = h;
-    }
-
-    /**
-     * Create a drag gesture recognizer for the lightweight frame.
-     */
-    public abstract <T extends DragGestureRecognizer> T createDragGestureRecognizer(
-            Class<T> abstractRecognizerClass,
-            DragSource ds, Component c, int srcActions,
-            DragGestureListener dgl);
-
-    /**
-     * Create a drag source context peer for the lightweight frame.
-     */
-    public abstract DragSourceContextPeer createDragSourceContextPeer(DragGestureEvent dge) throws InvalidDnDOperationException;
-
-    /**
-     * Adds a drop target to the lightweight frame.
-     */
-    public abstract void addDropTarget(DropTarget dt);
-
-    /**
-     * Removes a drop target from the lightweight frame.
-     */
-    public abstract void removeDropTarget(DropTarget dt);
+  /**
+   * Removes a drop target from the lightweight frame.
+   */
+  public abstract void removeDropTarget(DropTarget dt);
 }

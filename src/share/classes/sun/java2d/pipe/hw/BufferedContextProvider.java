@@ -34,12 +34,12 @@ import sun.java2d.pipe.BufferedContext;
  * @see sun.java2d.pipe.BufferedContext
  */
 public interface BufferedContextProvider {
-    /**
-     * Retrieves a context associated with object implementing this
-     * interface.
-     *
-     * @return associated context
-     * @see sun.java2d.pipe.BufferedContext
-     */
-    public BufferedContext getContext();
+  /**
+   * Retrieves a context associated with object implementing this
+   * interface.
+   *
+   * @return associated context
+   * @see sun.java2d.pipe.BufferedContext
+   */
+  public BufferedContext getContext();
 }

@@ -92,7 +92,7 @@
                         <pattern>\.java$</pattern>
                         <format>relative-path-noext</format>
                         <arity>
-                            <one-file-only/>
+                            <one-file-only />
                         </arity>
                     </context>
                 </action>
@@ -114,18 +114,18 @@
                     </source-file>
                 </items>
                 <context-menu>
-                    <ide-action name="build"/>
-                    <ide-action name="rebuild"/>
-                    <ide-action name="clean"/>
-                    <ide-action name="javadoc"/>
-                    <separator/>
+                    <ide-action name="build" />
+                    <ide-action name="rebuild" />
+                    <ide-action name="clean" />
+                    <ide-action name="javadoc" />
+                    <separator />
                     <action>
                         <label>Run JConsole</label>
                         <target>run-jconsole</target>
                     </action>
                 </context-menu>
             </view>
-            <subprojects/>
+            <subprojects />
         </general-data>
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
             <compilation-unit>

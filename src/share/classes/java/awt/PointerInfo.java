@@ -23,7 +23,6 @@
  * questions.
  */
 
-
 package java.awt;
 
 /**
@@ -37,45 +36,45 @@ package java.awt;
  * moves. To get the updated location, you must call
  * {@link MouseInfo#getPointerInfo} again.
  *
- * @see MouseInfo#getPointerInfo
  * @author Roman Poborchiy
+ * @see MouseInfo#getPointerInfo
  * @since 1.5
  */
 public class PointerInfo {
 
-    private final GraphicsDevice device;
-    private final Point location;
+  private final GraphicsDevice device;
+  private final Point location;
 
-    /**
-     * Package-private constructor to prevent instantiation.
-     */
-    PointerInfo(final GraphicsDevice device, final Point location) {
-        this.device = device;
-        this.location = location;
-    }
+  /**
+   * Package-private constructor to prevent instantiation.
+   */
+  PointerInfo(final GraphicsDevice device, final Point location) {
+    this.device = device;
+    this.location = location;
+  }
 
-    /**
-     * Returns the {@code GraphicsDevice} where the mouse pointer was at the
-     * moment this {@code PointerInfo} was created.
-     *
-     * @return {@code GraphicsDevice} corresponding to the pointer
-     * @since 1.5
-     */
-    public GraphicsDevice getDevice() {
-        return device;
-    }
+  /**
+   * Returns the {@code GraphicsDevice} where the mouse pointer was at the
+   * moment this {@code PointerInfo} was created.
+   *
+   * @return {@code GraphicsDevice} corresponding to the pointer
+   * @since 1.5
+   */
+  public GraphicsDevice getDevice() {
+    return device;
+  }
 
-    /**
-     * Returns the {@code Point} that represents the coordinates of the pointer
-     * on the screen. See {@link MouseInfo#getPointerInfo} for more information
-     * about coordinate calculation for multiscreen systems.
-     *
-     * @return coordinates of mouse pointer
-     * @see MouseInfo
-     * @see MouseInfo#getPointerInfo
-     * @since 1.5
-     */
-    public Point getLocation() {
-        return location;
-    }
+  /**
+   * Returns the {@code Point} that represents the coordinates of the pointer
+   * on the screen. See {@link MouseInfo#getPointerInfo} for more information
+   * about coordinate calculation for multiscreen systems.
+   *
+   * @return coordinates of mouse pointer
+   * @see MouseInfo
+   * @see MouseInfo#getPointerInfo
+   * @since 1.5
+   */
+  public Point getLocation() {
+    return location;
+  }
 }

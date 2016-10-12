@@ -34,19 +34,19 @@ package sun.awt;
  * dimensions.
  */
 public interface ConstrainableGraphics {
-    /**
-     * Constrain this graphics object to have a permanent device space
-     * origin of (x, y) and a permanent maximum clip of (x,y,w,h).
-     * Calling this method is roughly equivalent to:
-     *    g.translate(x, y);
-     *    g.clipRect(0, 0, w, h);
-     * except that the clip can never be extended outside of these
-     * bounds, even with setClip() and for the fact that the (x,y)
-     * become a new device space coordinate origin.
-     *
-     * These methods are recursive so that you can further restrict
-     * the object by calling the constrain() method more times, but
-     * you can never enlarge its restricted maximum clip.
-     */
-    public void constrain(int x, int y, int w, int h);
+  /**
+   * Constrain this graphics object to have a permanent device space
+   * origin of (x, y) and a permanent maximum clip of (x,y,w,h).
+   * Calling this method is roughly equivalent to:
+   * g.translate(x, y);
+   * g.clipRect(0, 0, w, h);
+   * except that the clip can never be extended outside of these
+   * bounds, even with setClip() and for the fact that the (x,y)
+   * become a new device space coordinate origin.
+   * <p>
+   * These methods are recursive so that you can further restrict
+   * the object by calling the constrain() method more times, but
+   * you can never enlarge its restricted maximum clip.
+   */
+  public void constrain(int x, int y, int w, int h);
 }

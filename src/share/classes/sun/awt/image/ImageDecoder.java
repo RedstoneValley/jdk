@@ -25,159 +25,157 @@
 
 package sun.awt.image;
 
-import java.util.Hashtable;
-import java.io.InputStream;
+import java.awt.image.ColorModel;
+import java.awt.image.ImageConsumer;
 import java.io.IOException;
-import java.awt.image.*;
+import java.io.InputStream;
+import java.util.Hashtable;
 
 public abstract class ImageDecoder {
-    InputStreamImageSource source;
-    InputStream input;
-    Thread feeder;
+  protected boolean aborted;
+  protected boolean finished;
+  InputStreamImageSource source;
+  InputStream input;
+  Thread feeder;
+  ImageConsumerQueue queue;
+  ImageDecoder next;
 
-    protected boolean aborted;
-    protected boolean finished;
-    ImageConsumerQueue queue;
-    ImageDecoder next;
+  public ImageDecoder(InputStreamImageSource src, InputStream is) {
+    source = src;
+    input = is;
+    feeder = Thread.currentThread();
+  }
 
-    public ImageDecoder(InputStreamImageSource src, InputStream is) {
-        source = src;
-        input = is;
-        feeder = Thread.currentThread();
+  public boolean isConsumer(ImageConsumer ic) {
+    return ImageConsumerQueue.isConsumer(queue, ic);
+  }
+
+  public void removeConsumer(ImageConsumer ic) {
+    queue = ImageConsumerQueue.removeConsumer(queue, ic, false);
+    if (!finished && queue == null) {
+      abort();
     }
+  }
 
-    public boolean isConsumer(ImageConsumer ic) {
-        return ImageConsumerQueue.isConsumer(queue, ic);
-    }
-
-    public void removeConsumer(ImageConsumer ic) {
-        queue = ImageConsumerQueue.removeConsumer(queue, ic, false);
-        if (!finished && queue == null) {
-            abort();
-        }
-    }
-
-    protected ImageConsumerQueue nextConsumer(ImageConsumerQueue cq) {
-        synchronized (source) {
-            if (aborted) {
-                return null;
-            }
-            cq = ((cq == null) ? queue : cq.next);
-            while (cq != null) {
-                if (cq.interested) {
-                    return cq;
-                }
-                cq = cq.next;
-            }
-        }
+  protected ImageConsumerQueue nextConsumer(ImageConsumerQueue cq) {
+    synchronized (source) {
+      if (aborted) {
         return null;
-    }
-
-    protected int setDimensions(int w, int h) {
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setDimensions(w, h);
-            count++;
+      }
+      cq = ((cq == null) ? queue : cq.next);
+      while (cq != null) {
+        if (cq.interested) {
+          return cq;
         }
-        return count;
+        cq = cq.next;
+      }
     }
+    return null;
+  }
 
-    protected int setProperties(Hashtable props) {
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setProperties(props);
-            count++;
-        }
-        return count;
+  protected int setDimensions(int w, int h) {
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setDimensions(w, h);
+      count++;
     }
+    return count;
+  }
 
-    protected int setColorModel(ColorModel model) {
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setColorModel(model);
-            count++;
-        }
-        return count;
+  protected int setProperties(Hashtable props) {
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setProperties(props);
+      count++;
     }
+    return count;
+  }
 
-    protected int setHints(int hints) {
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setHints(hints);
-            count++;
-        }
-        return count;
+  protected int setColorModel(ColorModel model) {
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setColorModel(model);
+      count++;
     }
+    return count;
+  }
 
-    protected void headerComplete() {
-        feeder.setPriority(ImageFetcher.LOW_PRIORITY);
+  protected int setHints(int hints) {
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setHints(hints);
+      count++;
     }
+    return count;
+  }
 
-    protected int setPixels(int x, int y, int w, int h, ColorModel model,
-                            byte pix[], int off, int scansize) {
-        source.latchConsumers(this);
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setPixels(x, y, w, h, model, pix, off, scansize);
-            count++;
-        }
-        return count;
+  protected void headerComplete() {
+    feeder.setPriority(ImageFetcher.LOW_PRIORITY);
+  }
+
+  protected int setPixels(
+      int x, int y, int w, int h, ColorModel model, byte pix[], int off, int scansize) {
+    source.latchConsumers(this);
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setPixels(x, y, w, h, model, pix, off, scansize);
+      count++;
     }
+    return count;
+  }
 
-    protected int setPixels(int x, int y, int w, int h, ColorModel model,
-                            int pix[], int off, int scansize) {
-        source.latchConsumers(this);
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.setPixels(x, y, w, h, model, pix, off, scansize);
-            count++;
-        }
-        return count;
+  protected int setPixels(
+      int x, int y, int w, int h, ColorModel model, int pix[], int off, int scansize) {
+    source.latchConsumers(this);
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.setPixels(x, y, w, h, model, pix, off, scansize);
+      count++;
     }
+    return count;
+  }
 
-    protected int imageComplete(int status, boolean done) {
-        source.latchConsumers(this);
-        if (done) {
-            finished = true;
-            source.doneDecoding(this);
-        }
-        ImageConsumerQueue cq = null;
-        int count = 0;
-        while ((cq = nextConsumer(cq)) != null) {
-            cq.consumer.imageComplete(status);
-            count++;
-        }
-        return count;
+  protected int imageComplete(int status, boolean done) {
+    source.latchConsumers(this);
+    if (done) {
+      finished = true;
+      source.doneDecoding(this);
     }
-
-    public abstract void produceImage() throws IOException,
-                                               ImageFormatException;
-
-    public void abort() {
-        aborted = true;
-        source.doneDecoding(this);
-        close();
-        java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction() {
-            public Object run() {
-                feeder.interrupt();
-                return null;
-            }
-        });
+    ImageConsumerQueue cq = null;
+    int count = 0;
+    while ((cq = nextConsumer(cq)) != null) {
+      cq.consumer.imageComplete(status);
+      count++;
     }
+    return count;
+  }
 
-    public synchronized void close() {
-        if (input != null) {
-            try {
-                input.close();
-            } catch (IOException e) {
-            }
-        }
+  public abstract void produceImage() throws IOException, ImageFormatException;
+
+  public void abort() {
+    aborted = true;
+    source.doneDecoding(this);
+    close();
+    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+      public Object run() {
+        feeder.interrupt();
+        return null;
+      }
+    });
+  }
+
+  public synchronized void close() {
+    if (input != null) {
+      try {
+        input.close();
+      } catch (IOException e) {
+      }
     }
+  }
 }

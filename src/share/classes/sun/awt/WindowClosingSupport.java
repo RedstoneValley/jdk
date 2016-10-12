@@ -30,6 +30,7 @@ package sun.awt;
  * WindowClosingListeners.
  */
 public interface WindowClosingSupport {
-    WindowClosingListener getWindowClosingListener();
-    void setWindowClosingListener(WindowClosingListener wcl);
+  WindowClosingListener getWindowClosingListener();
+
+  void setWindowClosingListener(WindowClosingListener wcl);
 }

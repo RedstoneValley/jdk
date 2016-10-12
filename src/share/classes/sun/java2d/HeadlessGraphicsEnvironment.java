@@ -25,35 +25,15 @@
 
 package sun.java2d;
 
-import java.awt.GraphicsEnvironment;
-import java.awt.GraphicsDevice;
-import java.awt.Graphics2D;
-import java.awt.HeadlessException;
-import java.awt.image.BufferedImage;
 import java.awt.Font;
-import java.text.AttributedCharacterIterator;
-import java.awt.print.PrinterJob;
-import java.util.Map;
-import java.util.Hashtable;
-import java.util.Locale;
-import java.util.Vector;
-import java.util.StringTokenizer;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
-import java.io.IOException;
-import java.io.FilenameFilter;
-import java.io.File;
-import java.util.NoSuchElementException;
-import sun.awt.FontConfiguration;
-import java.util.TreeMap;
-import java.util.Set;
-import java.awt.font.TextAttribute;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.BufferedInputStream;
-import java.util.Properties;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.util.Locale;
 
 /**
  * Headless decorator implementation of a SunGraphicsEnvironment
@@ -61,43 +41,46 @@ import java.awt.Rectangle;
 
 public class HeadlessGraphicsEnvironment extends GraphicsEnvironment {
 
-    private GraphicsEnvironment ge;
+  private GraphicsEnvironment ge;
 
-    public HeadlessGraphicsEnvironment(GraphicsEnvironment ge) {
-        this.ge = ge;
-    }
+  public HeadlessGraphicsEnvironment(GraphicsEnvironment ge) {
+    this.ge = ge;
+  }
 
-    public GraphicsDevice[] getScreenDevices()
-        throws HeadlessException {
-        throw new HeadlessException();
-    }
+  public GraphicsDevice[] getScreenDevices() throws HeadlessException {
+    throw new HeadlessException();
+  }
 
-    public GraphicsDevice getDefaultScreenDevice()
-        throws HeadlessException {
-        throw new HeadlessException();
-    }
+  public GraphicsDevice getDefaultScreenDevice() throws HeadlessException {
+    throw new HeadlessException();
+  }
 
-    public Point getCenterPoint() throws HeadlessException {
-        throw new HeadlessException();
-    }
+  public Graphics2D createGraphics(BufferedImage img) {
+    return ge.createGraphics(img);
+  }
 
-    public Rectangle getMaximumWindowBounds() throws HeadlessException {
-        throw new HeadlessException();
-    }
+  public Font[] getAllFonts() {
+    return ge.getAllFonts();
+  }
 
-    public Graphics2D createGraphics(BufferedImage img) {
-        return ge.createGraphics(img); }
+  public String[] getAvailableFontFamilyNames() {
+    return ge.getAvailableFontFamilyNames();
+  }
 
-    public Font[] getAllFonts() { return ge.getAllFonts(); }
+  public String[] getAvailableFontFamilyNames(Locale l) {
+    return ge.getAvailableFontFamilyNames(l);
+  }
 
-    public String[] getAvailableFontFamilyNames() {
-        return ge.getAvailableFontFamilyNames(); }
+  public Point getCenterPoint() throws HeadlessException {
+    throw new HeadlessException();
+  }
 
-    public String[] getAvailableFontFamilyNames(Locale l) {
-        return ge.getAvailableFontFamilyNames(l); }
+  public Rectangle getMaximumWindowBounds() throws HeadlessException {
+    throw new HeadlessException();
+  }
 
-    /* Used by FontManager : internal API */
-    public GraphicsEnvironment getSunGraphicsEnvironment() {
-        return ge;
-    }
+  /* Used by FontManager : internal API */
+  public GraphicsEnvironment getSunGraphicsEnvironment() {
+    return ge;
+  }
 }

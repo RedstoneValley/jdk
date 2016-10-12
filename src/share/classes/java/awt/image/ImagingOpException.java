@@ -25,7 +25,6 @@
 
 package java.awt.image;
 
-
 /**
  * The <code>ImagingOpException</code> is thrown if one of the
  * {@link BufferedImageOp} or {@link RasterOp} filter methods cannot
@@ -33,13 +32,14 @@ package java.awt.image;
  */
 public class ImagingOpException extends java.lang.RuntimeException {
 
-    /**
-     * Constructs an <code>ImagingOpException</code> object with the
-     * specified message.
-     * @param s the message to generate when a
-     * <code>ImagingOpException</code> is thrown
-     */
-    public ImagingOpException(String s) {
-        super (s);
-    }
+  /**
+   * Constructs an <code>ImagingOpException</code> object with the
+   * specified message.
+   *
+   * @param s the message to generate when a
+   *          <code>ImagingOpException</code> is thrown
+   */
+  public ImagingOpException(String s) {
+    super(s);
+  }
 }

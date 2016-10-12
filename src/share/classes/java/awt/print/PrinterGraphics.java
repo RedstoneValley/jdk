@@ -35,13 +35,13 @@ package java.awt.print;
 
 public interface PrinterGraphics {
 
-    /**
-     * Returns the <code>PrinterJob</code> that is controlling the
-     * current rendering request.
-     * @return the <code>PrinterJob</code> controlling the current
-     * rendering request.
-     * @see java.awt.print.Printable
-     */
-    PrinterJob getPrinterJob();
-
+  /**
+   * Returns the <code>PrinterJob</code> that is controlling the
+   * current rendering request.
+   *
+   * @return the <code>PrinterJob</code> controlling the current
+   * rendering request.
+   * @see java.awt.print.Printable
+   */
+  PrinterJob getPrinterJob();
 }

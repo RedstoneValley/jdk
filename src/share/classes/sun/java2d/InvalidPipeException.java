@@ -35,21 +35,22 @@ package sun.java2d;
  * graphics access.
  */
 public class InvalidPipeException extends IllegalStateException {
-    /**
-     * Constructs an InvalidPipeException with no detail message.
-     * A detail message is a String that describes this particular exception.
-     */
-    public InvalidPipeException() {
-        super();
-    }
+  /**
+   * Constructs an InvalidPipeException with no detail message.
+   * A detail message is a String that describes this particular exception.
+   */
+  public InvalidPipeException() {
+    super();
+  }
 
-    /**
-     * Constructs an InvalidPipeException with the specified detail
-     * message.  A detail message is a String that describes this particular
-     * exception.
-     * @param s the String that contains a detailed message
-     */
-    public InvalidPipeException(String s) {
-        super(s);
-    }
+  /**
+   * Constructs an InvalidPipeException with the specified detail
+   * message.  A detail message is a String that describes this particular
+   * exception.
+   *
+   * @param s the String that contains a detailed message
+   */
+  public InvalidPipeException(String s) {
+    super(s);
+  }
 }

@@ -25,45 +25,46 @@
 
 package sun.java2d.opengl;
 
+import static sun.java2d.loops.CompositeType.SrcNoEa;
+import static sun.java2d.loops.CompositeType.SrcOver;
+import static sun.java2d.loops.SurfaceType.IntArgb;
+import static sun.java2d.loops.SurfaceType.IntArgbPre;
+import static sun.java2d.loops.SurfaceType.IntBgr;
+import static sun.java2d.loops.SurfaceType.IntRgb;
+
 import java.awt.Composite;
 import sun.java2d.SurfaceData;
 import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.GraphicsPrimitive;
 import sun.java2d.loops.GraphicsPrimitiveMgr;
 import sun.java2d.loops.SurfaceType;
-import sun.java2d.pipe.Region;
 import sun.java2d.pipe.BufferedMaskBlit;
-import static sun.java2d.loops.CompositeType.*;
-import static sun.java2d.loops.SurfaceType.*;
+import sun.java2d.pipe.Region;
 
 class OGLMaskBlit extends BufferedMaskBlit {
 
-    static void register() {
-        GraphicsPrimitive[] primitives = {
-            new OGLMaskBlit(IntArgb,    SrcOver),
-            new OGLMaskBlit(IntArgbPre, SrcOver),
-            new OGLMaskBlit(IntRgb,     SrcOver),
-            new OGLMaskBlit(IntRgb,     SrcNoEa),
-            new OGLMaskBlit(IntBgr,     SrcOver),
-            new OGLMaskBlit(IntBgr,     SrcNoEa),
-        };
-        GraphicsPrimitiveMgr.register(primitives);
-    }
+  private OGLMaskBlit(SurfaceType srcType, CompositeType compType) {
+    super(OGLRenderQueue.getInstance(), srcType, compType, OGLSurfaceData.OpenGLSurface);
+  }
 
-    private OGLMaskBlit(SurfaceType srcType,
-                        CompositeType compType)
-    {
-        super(OGLRenderQueue.getInstance(),
-              srcType, compType, OGLSurfaceData.OpenGLSurface);
-    }
+  static void register() {
+    GraphicsPrimitive[] primitives = {
+        new OGLMaskBlit(IntArgb, SrcOver), new OGLMaskBlit(IntArgbPre, SrcOver),
+        new OGLMaskBlit(IntRgb, SrcOver), new OGLMaskBlit(IntRgb, SrcNoEa),
+        new OGLMaskBlit(IntBgr, SrcOver), new OGLMaskBlit(IntBgr, SrcNoEa),};
+    GraphicsPrimitiveMgr.register(primitives);
+  }
 
-    @Override
-    protected void validateContext(SurfaceData dstData,
-                                   Composite comp, Region clip)
-    {
-        OGLSurfaceData oglDst = (OGLSurfaceData)dstData;
-        OGLContext.validateContext(oglDst, oglDst,
-                                   clip, comp, null, null, null,
-                                   OGLContext.NO_CONTEXT_FLAGS);
-    }
+  @Override
+  protected void validateContext(SurfaceData dstData, Composite comp, Region clip) {
+    OGLSurfaceData oglDst = (OGLSurfaceData) dstData;
+    OGLContext.validateContext(oglDst,
+        oglDst,
+        clip,
+        comp,
+        null,
+        null,
+        null,
+        OGLContext.NO_CONTEXT_FLAGS);
+  }
 }

@@ -37,7 +37,7 @@
         <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
             <name>JDK Demos</name>
             <view>
-                <items/>
+                <items />
             </view>
             <subprojects>
                 <project>nbproject/jfc/SwingSet2</project>

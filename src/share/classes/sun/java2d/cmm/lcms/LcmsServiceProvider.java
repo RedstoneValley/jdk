@@ -29,8 +29,8 @@ import sun.java2d.cmm.CMMServiceProvider;
 import sun.java2d.cmm.PCMM;
 
 public final class LcmsServiceProvider extends CMMServiceProvider {
-    @Override
-    protected PCMM getModule() {
-        return LCMS.getModule();
-    }
+  @Override
+  protected PCMM getModule() {
+    return LCMS.getModule();
+  }
 }

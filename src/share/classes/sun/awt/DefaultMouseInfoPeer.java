@@ -31,14 +31,13 @@ import java.awt.peer.MouseInfoPeer;
 
 public class DefaultMouseInfoPeer implements MouseInfoPeer {
 
-    /**
-     * Package-private constructor to prevent instantiation.
-     */
-    DefaultMouseInfoPeer() {
-    }
+  /**
+   * Package-private constructor to prevent instantiation.
+   */
+  DefaultMouseInfoPeer() {
+  }
 
-    public native int fillPointWithCoords(Point point);
+  public native int fillPointWithCoords(Point point);
 
-    public native boolean isWindowUnderMouse(Window w);
-
+  public native boolean isWindowUnderMouse(Window w);
 }

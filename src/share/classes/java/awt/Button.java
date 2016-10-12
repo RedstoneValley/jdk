@@ -25,12 +25,13 @@
 
 package java.awt;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.peer.ButtonPeer;
-import java.util.EventListener;
-import java.awt.event.*;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.EventListener;
 
 /**
  * This class creates a labeled button. The application can cause
@@ -76,415 +77,408 @@ import java.io.IOException;
  * <code>addActionListener</code> method. The application can
  * make use of the button's action command as a messaging protocol.
  *
- * @author      Sami Shaio
- * @see         java.awt.event.ActionEvent
- * @see         java.awt.event.ActionListener
- * @see         java.awt.Component#processMouseEvent
- * @see         java.awt.Component#addMouseListener
- * @since       JDK1.0
+ * @author Sami Shaio
+ * @see java.awt.event.ActionEvent
+ * @see java.awt.event.ActionListener
+ * @see java.awt.Component#processMouseEvent
+ * @see java.awt.Component#addMouseListener
+ * @since JDK1.0
  */
 public class Button extends Component {
 
-    /**
-     * The button's label.  This value may be null.
-     * @serial
-     * @see #getLabel()
-     * @see #setLabel(String)
-     */
-    String label;
+  private static final String base = "button";
+  /*
+   * JDK 1.1 serialVersionUID
+   */
+  private static final long serialVersionUID = -8774683716313001058L;
+  private static int nameCounter = 0;
+  /**
+   * The button's label.  This value may be null.
+   *
+   * @serial
+   * @see #getLabel()
+   * @see #setLabel(String)
+   */
+  String label;
+  /**
+   * The action to be performed once a button has been
+   * pressed.  This value may be null.
+   *
+   * @serial
+   * @see #getActionCommand()
+   * @see #setActionCommand(String)
+   */
+  String actionCommand;
+  transient ActionListener actionListener;
+  /*
+   * Button Serial Data Version.
+   * @serial
+   */
+  private int buttonSerializedDataVersion = 1;
 
-    /**
-     * The action to be performed once a button has been
-     * pressed.  This value may be null.
-     * @serial
-     * @see #getActionCommand()
-     * @see #setActionCommand(String)
-     */
-    String actionCommand;
+  /**
+   * Constructs a button with an empty string for its label.
+   *
+   * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+   *                           returns true
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   */
+  public Button() throws HeadlessException {
+    this("");
+  }
 
-    transient ActionListener actionListener;
+  /**
+   * Constructs a button with the specified label.
+   *
+   * @param label a string label for the button, or
+   *              <code>null</code> for no label
+   * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+   *                           returns true
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   */
+  public Button(String label) throws HeadlessException {
+    super(android.widget.Button.class);
+    this.label = label;
+    SkinJobButtonPeer peer = new SkinJobButtonPeer(this);
+    this.peer = peer;
+    peer.setLabel(label);
+  }
 
-    private static final String base = "button";
-    private static int nameCounter = 0;
-
-    /*
-     * JDK 1.1 serialVersionUID
-     */
-    private static final long serialVersionUID = -8774683716313001058L;
-
-    /**
-     * Constructs a button with an empty string for its label.
-     *
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    public Button() throws HeadlessException {
-        this("");
+  /**
+   * Construct a name for this component.  Called by getName() when the
+   * name is null.
+   */
+  String constructComponentName() {
+    synchronized (Button.class) {
+      return base + nameCounter++;
     }
+  }
 
-    /**
-     * Constructs a button with the specified label.
-     *
-     * @param label  a string label for the button, or
-     *               <code>null</code> for no label
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    public Button(String label) throws HeadlessException {
-        super(android.widget.Button.class);
+  // REMIND: remove when filtering is done at lower level
+  boolean eventEnabled(AWTEvent e) {
+    if (e.id == ActionEvent.ACTION_PERFORMED) {
+      if ((eventMask & AWTEvent.ACTION_EVENT_MASK) != 0 || actionListener != null) {
+        return true;
+      }
+      return false;
+    }
+    return super.eventEnabled(e);
+  }
+
+  /**
+   * Returns an array of all the objects currently registered
+   * as <code><em>Foo</em>Listener</code>s
+   * upon this <code>Button</code>.
+   * <code><em>Foo</em>Listener</code>s are registered using the
+   * <code>add<em>Foo</em>Listener</code> method.
+   * <p>
+   * <p>
+   * You can specify the <code>listenerType</code> argument
+   * with a class literal, such as
+   * <code><em>Foo</em>Listener.class</code>.
+   * For example, you can query a
+   * <code>Button</code> <code>b</code>
+   * for its action listeners with the following code:
+   * <p>
+   * <pre>ActionListener[] als = (ActionListener[])(b.getListeners(ActionListener.class));</pre>
+   *
+   * If no such listeners exist, this method returns an empty array.
+   *
+   * @param listenerType the type of listeners requested; this parameter
+   *                     should specify an interface that descends from
+   *                     <code>java.util.EventListener</code>
+   * @return an array of all objects registered as
+   * <code><em>Foo</em>Listener</code>s on this button,
+   * or an empty array if no such
+   * listeners have been added
+   * @throws ClassCastException if <code>listenerType</code>
+   *                            doesn't specify a class or interface that implements
+   *                            <code>java.util.EventListener</code>
+   * @see #getActionListeners
+   * @since 1.3
+   */
+  public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
+    EventListener l = null;
+    if (listenerType == ActionListener.class) {
+      l = actionListener;
+    } else {
+      return super.getListeners(listenerType);
+    }
+    return AWTEventMulticaster.getListeners(l, listenerType);
+  }
+
+  /**
+   * Processes events on this button. If an event is
+   * an instance of <code>ActionEvent</code>, this method invokes
+   * the <code>processActionEvent</code> method. Otherwise,
+   * it invokes <code>processEvent</code> on the superclass.
+   * <p>Note that if the event parameter is <code>null</code>
+   * the behavior is unspecified and may result in an
+   * exception.
+   *
+   * @param e the event
+   * @see java.awt.event.ActionEvent
+   * @see java.awt.Button#processActionEvent
+   * @since JDK1.1
+   */
+  protected void processEvent(AWTEvent e) {
+    if (e instanceof ActionEvent) {
+      processActionEvent((ActionEvent) e);
+      return;
+    }
+    super.processEvent(e);
+  }
+
+  /**
+   * Creates the peer of the button.  The button's peer allows the
+   * application to change the look of the button without changing
+   * its functionality.
+   *
+   * @see java.awt.Toolkit#createButton(java.awt.Button)
+   * @see java.awt.Component#getToolkit()
+   */
+  public void addNotify() {
+    synchronized (getTreeLock()) {
+      if (peer == null) {
+        peer = getToolkit().createButton(this);
+      }
+      super.addNotify();
+    }
+  }
+
+  /**
+   * Returns a string representing the state of this <code>Button</code>.
+   * This method is intended to be used only for debugging purposes, and the
+   * content and format of the returned string may vary between
+   * implementations. The returned string may be empty but may not be
+   * <code>null</code>.
+   *
+   * @return the parameter string of this button
+   */
+  protected String paramString() {
+    return super.paramString() + ",label=" + label;
+  }
+
+  /**
+   * Gets the label of this button.
+   *
+   * @return the button's label, or <code>null</code>
+   * if the button has no label.
+   * @see java.awt.Button#setLabel
+   */
+  public String getLabel() {
+    return label;
+  }
+
+  /**
+   * Sets the button's label to be the specified string.
+   *
+   * @param label the new label, or <code>null</code>
+   *              if the button has no label.
+   * @see java.awt.Button#getLabel
+   */
+  public void setLabel(String label) {
+    boolean testvalid = false;
+
+    synchronized (this) {
+      if (label != this.label && (this.label == null || !this.label.equals(label))) {
         this.label = label;
-        SkinJobButtonPeer peer = new SkinJobButtonPeer(this);
-        this.peer = peer;
-        peer.setLabel(label);
+        updateLabel();
+        testvalid = true;
+      }
     }
 
-    /**
-     * Construct a name for this component.  Called by getName() when the
-     * name is null.
-     */
-    String constructComponentName() {
-        synchronized (Button.class) {
-            return base + nameCounter++;
-        }
+    // This could change the preferred size of the Component.
+    if (testvalid) {
+      invalidateIfValid();
     }
+  }
 
-    /**
-     * Creates the peer of the button.  The button's peer allows the
-     * application to change the look of the button without changing
-     * its functionality.
-     *
-     * @see     java.awt.Toolkit#createButton(java.awt.Button)
-     * @see     java.awt.Component#getToolkit()
-     */
-    public void addNotify() {
-        synchronized(getTreeLock()) {
-            if (peer == null)
-                peer = getToolkit().createButton(this);
-            super.addNotify();
-        }
+  /**
+   * Update the {@link ButtonPeer}'s label with the current {@link #label}.
+   */
+  protected void updateLabel() {
+    ButtonPeer peer = (ButtonPeer) this.peer;
+    if (peer != null) {
+      peer.setLabel(this.label);
     }
+  }
 
-    /**
-     * Gets the label of this button.
-     *
-     * @return    the button's label, or <code>null</code>
-     *                if the button has no label.
-     * @see       java.awt.Button#setLabel
-     */
-    public String getLabel() {
-        return label;
+  /**
+   * Returns the command name of the action event fired by this button.
+   * If the command name is <code>null</code> (default) then this method
+   * returns the label of the button.
+   */
+  public String getActionCommand() {
+    return (actionCommand == null ? label : actionCommand);
+  }
+
+  /**
+   * Sets the command name for the action event fired
+   * by this button. By default this action command is
+   * set to match the label of the button.
+   *
+   * @param command a string used to set the button's
+   *                action command.
+   *                If the string is <code>null</code> then the action command
+   *                is set to match the label of the button.
+   * @see java.awt.event.ActionEvent
+   * @since JDK1.1
+   */
+  public void setActionCommand(String command) {
+    actionCommand = command;
+  }
+
+  /**
+   * Adds the specified action listener to receive action events from
+   * this button. Action events occur when a user presses or releases
+   * the mouse over this button.
+   * If l is null, no exception is thrown and no action is performed.
+   * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
+   * >AWT Threading Issues</a> for details on AWT's threading model.
+   *
+   * @param l the action listener
+   * @see #removeActionListener
+   * @see #getActionListeners
+   * @see java.awt.event.ActionListener
+   * @since JDK1.1
+   */
+  public synchronized void addActionListener(ActionListener l) {
+    if (l == null) {
+      return;
     }
+    actionListener = AWTEventMulticaster.add(actionListener, l);
+    newEventsOnly = true;
+  }
 
-    /**
-     * Sets the button's label to be the specified string.
-     *
-     * @param     label   the new label, or <code>null</code>
-     *                if the button has no label.
-     * @see       java.awt.Button#getLabel
-     */
-    public void setLabel(String label) {
-        boolean testvalid = false;
-
-        synchronized (this) {
-            if (label != this.label && (this.label == null ||
-                                        !this.label.equals(label))) {
-                this.label = label;
-                updateLabel();
-                testvalid = true;
-            }
-        }
-
-        // This could change the preferred size of the Component.
-        if (testvalid) {
-            invalidateIfValid();
-        }
+  /**
+   * Removes the specified action listener so that it no longer
+   * receives action events from this button. Action events occur
+   * when a user presses or releases the mouse over this button.
+   * If l is null, no exception is thrown and no action is performed.
+   * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
+   * >AWT Threading Issues</a> for details on AWT's threading model.
+   *
+   * @param l the action listener
+   * @see #addActionListener
+   * @see #getActionListeners
+   * @see java.awt.event.ActionListener
+   * @since JDK1.1
+   */
+  public synchronized void removeActionListener(ActionListener l) {
+    if (l == null) {
+      return;
     }
+    actionListener = AWTEventMulticaster.remove(actionListener, l);
+  }
 
-    /** Update the {@link ButtonPeer}'s label with the current {@link #label}. */
-    protected void updateLabel() {
-        ButtonPeer peer = (ButtonPeer)this.peer;
-        if (peer != null) {
-            peer.setLabel(this.label);
-        }
-    }
-
-    /**
-     * Sets the command name for the action event fired
-     * by this button. By default this action command is
-     * set to match the label of the button.
-     *
-     * @param     command  a string used to set the button's
-     *                  action command.
-     *            If the string is <code>null</code> then the action command
-     *            is set to match the label of the button.
-     * @see       java.awt.event.ActionEvent
-     * @since     JDK1.1
-     */
-    public void setActionCommand(String command) {
-        actionCommand = command;
-    }
-
-    /**
-     * Returns the command name of the action event fired by this button.
-     * If the command name is <code>null</code> (default) then this method
-     * returns the label of the button.
-     */
-    public String getActionCommand() {
-        return (actionCommand == null? label : actionCommand);
-    }
-
-    /**
-     * Adds the specified action listener to receive action events from
-     * this button. Action events occur when a user presses or releases
-     * the mouse over this button.
-     * If l is null, no exception is thrown and no action is performed.
-     * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
-     * >AWT Threading Issues</a> for details on AWT's threading model.
-     *
-     * @param         l the action listener
-     * @see           #removeActionListener
-     * @see           #getActionListeners
-     * @see           java.awt.event.ActionListener
-     * @since         JDK1.1
-     */
-    public synchronized void addActionListener(ActionListener l) {
-        if (l == null) {
-            return;
-        }
-        actionListener = AWTEventMulticaster.add(actionListener, l);
-        newEventsOnly = true;
-    }
-
-    /**
-     * Removes the specified action listener so that it no longer
-     * receives action events from this button. Action events occur
-     * when a user presses or releases the mouse over this button.
-     * If l is null, no exception is thrown and no action is performed.
-     * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
-     * >AWT Threading Issues</a> for details on AWT's threading model.
-     *
-     * @param           l     the action listener
-     * @see             #addActionListener
-     * @see             #getActionListeners
-     * @see             java.awt.event.ActionListener
-     * @since           JDK1.1
-     */
-    public synchronized void removeActionListener(ActionListener l) {
-        if (l == null) {
-            return;
-        }
-        actionListener = AWTEventMulticaster.remove(actionListener, l);
-    }
-
-    /**
-     * Returns an array of all the action listeners
-     * registered on this button.
-     *
-     * @return all of this button's <code>ActionListener</code>s
-     *         or an empty array if no action
-     *         listeners are currently registered
-     *
-     * @see             #addActionListener
-     * @see             #removeActionListener
-     * @see             java.awt.event.ActionListener
-     * @since 1.4
-     */
-    public synchronized ActionListener[] getActionListeners() {
-        return getListeners(ActionListener.class);
-    }
-
-    /**
-     * Returns an array of all the objects currently registered
-     * as <code><em>Foo</em>Listener</code>s
-     * upon this <code>Button</code>.
-     * <code><em>Foo</em>Listener</code>s are registered using the
-     * <code>add<em>Foo</em>Listener</code> method.
-     *
-     * <p>
-     * You can specify the <code>listenerType</code> argument
-     * with a class literal, such as
-     * <code><em>Foo</em>Listener.class</code>.
-     * For example, you can query a
-     * <code>Button</code> <code>b</code>
-     * for its action listeners with the following code:
-     *
-     * <pre>ActionListener[] als = (ActionListener[])(b.getListeners(ActionListener.class));</pre>
-     *
-     * If no such listeners exist, this method returns an empty array.
-     *
-     * @param listenerType the type of listeners requested; this parameter
-     *          should specify an interface that descends from
-     *          <code>java.util.EventListener</code>
-     * @return an array of all objects registered as
-     *          <code><em>Foo</em>Listener</code>s on this button,
-     *          or an empty array if no such
-     *          listeners have been added
-     * @exception ClassCastException if <code>listenerType</code>
-     *          doesn't specify a class or interface that implements
-     *          <code>java.util.EventListener</code>
-     *
-     * @see #getActionListeners
-     * @since 1.3
-     */
-    public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
-        EventListener l = null;
-        if  (listenerType == ActionListener.class) {
-            l = actionListener;
-        } else {
-            return super.getListeners(listenerType);
-        }
-        return AWTEventMulticaster.getListeners(l, listenerType);
-    }
-
-    // REMIND: remove when filtering is done at lower level
-    boolean eventEnabled(AWTEvent e) {
-        if (e.id == ActionEvent.ACTION_PERFORMED) {
-            if ((eventMask & AWTEvent.ACTION_EVENT_MASK) != 0 ||
-                actionListener != null) {
-                return true;
-            }
-            return false;
-        }
-        return super.eventEnabled(e);
-    }
-
-    /**
-     * Processes events on this button. If an event is
-     * an instance of <code>ActionEvent</code>, this method invokes
-     * the <code>processActionEvent</code> method. Otherwise,
-     * it invokes <code>processEvent</code> on the superclass.
-     * <p>Note that if the event parameter is <code>null</code>
-     * the behavior is unspecified and may result in an
-     * exception.
-     *
-     * @param        e the event
-     * @see          java.awt.event.ActionEvent
-     * @see          java.awt.Button#processActionEvent
-     * @since        JDK1.1
-     */
-    protected void processEvent(AWTEvent e) {
-        if (e instanceof ActionEvent) {
-            processActionEvent((ActionEvent)e);
-            return;
-        }
-        super.processEvent(e);
-    }
-
-    /**
-     * Processes action events occurring on this button
-     * by dispatching them to any registered
-     * <code>ActionListener</code> objects.
-     * <p>
-     * This method is not called unless action events are
-     * enabled for this button. Action events are enabled
-     * when one of the following occurs:
-     * <ul>
-     * <li>An <code>ActionListener</code> object is registered
-     * via <code>addActionListener</code>.
-     * <li>Action events are enabled via <code>enableEvents</code>.
-     * </ul>
-     * <p>Note that if the event parameter is <code>null</code>
-     * the behavior is unspecified and may result in an
-     * exception.
-     *
-     * @param       e the action event
-     * @see         java.awt.event.ActionListener
-     * @see         java.awt.Button#addActionListener
-     * @see         java.awt.Component#enableEvents
-     * @since       JDK1.1
-     */
-    protected void processActionEvent(ActionEvent e) {
-        ActionListener listener = actionListener;
-        if (listener != null) {
-            listener.actionPerformed(e);
-        }
-    }
-
-    /**
-     * Returns a string representing the state of this <code>Button</code>.
-     * This method is intended to be used only for debugging purposes, and the
-     * content and format of the returned string may vary between
-     * implementations. The returned string may be empty but may not be
-     * <code>null</code>.
-     *
-     * @return     the parameter string of this button
-     */
-    protected String paramString() {
-        return super.paramString() + ",label=" + label;
-    }
+  /**
+   * Returns an array of all the action listeners
+   * registered on this button.
+   *
+   * @return all of this button's <code>ActionListener</code>s
+   * or an empty array if no action
+   * listeners are currently registered
+   * @see #addActionListener
+   * @see #removeActionListener
+   * @see java.awt.event.ActionListener
+   * @since 1.4
+   */
+  public synchronized ActionListener[] getActionListeners() {
+    return getListeners(ActionListener.class);
+  }
 
 
     /* Serialization support.
      */
 
-    /*
-     * Button Serial Data Version.
-     * @serial
-     */
-    private int buttonSerializedDataVersion = 1;
-
-    /**
-     * Writes default serializable fields to stream.  Writes
-     * a list of serializable <code>ActionListeners</code>
-     * as optional data.  The non-serializable
-     * <code>ActionListeners</code> are detected and
-     * no attempt is made to serialize them.
-     *
-     * @serialData <code>null</code> terminated sequence of 0 or
-     *   more pairs: the pair consists of a <code>String</code>
-     *   and an <code>Object</code>; the <code>String</code>
-     *   indicates the type of object and is one of the following:
-     *   <code>actionListenerK</code> indicating an
-     *     <code>ActionListener</code> object
-     *
-     * @param s the <code>ObjectOutputStream</code> to write
-     * @see AWTEventMulticaster#save(ObjectOutputStream, String, EventListener)
-     * @see java.awt.Component#actionListenerK
-     * @see #readObject(ObjectInputStream)
-     */
-    private void writeObject(ObjectOutputStream s)
-      throws IOException
-    {
-      s.defaultWriteObject();
-
-      AWTEventMulticaster.save(s, actionListenerK, actionListener);
-      s.writeObject(null);
+  /**
+   * Processes action events occurring on this button
+   * by dispatching them to any registered
+   * <code>ActionListener</code> objects.
+   * <p>
+   * This method is not called unless action events are
+   * enabled for this button. Action events are enabled
+   * when one of the following occurs:
+   * <ul>
+   * <li>An <code>ActionListener</code> object is registered
+   * via <code>addActionListener</code>.
+   * <li>Action events are enabled via <code>enableEvents</code>.
+   * </ul>
+   * <p>Note that if the event parameter is <code>null</code>
+   * the behavior is unspecified and may result in an
+   * exception.
+   *
+   * @param e the action event
+   * @see java.awt.event.ActionListener
+   * @see java.awt.Button#addActionListener
+   * @see java.awt.Component#enableEvents
+   * @since JDK1.1
+   */
+  protected void processActionEvent(ActionEvent e) {
+    ActionListener listener = actionListener;
+    if (listener != null) {
+      listener.actionPerformed(e);
     }
+  }
 
-    /**
-     * Reads the <code>ObjectInputStream</code> and if
-     * it isn't <code>null</code> adds a listener to
-     * receive action events fired by the button.
-     * Unrecognized keys or values will be ignored.
-     *
-     * @param s the <code>ObjectInputStream</code> to read
-     * @exception HeadlessException if
-     *   <code>GraphicsEnvironment.isHeadless</code> returns
-     *   <code>true</code>
-     * @serial
-     * @see #removeActionListener(ActionListener)
-     * @see #addActionListener(ActionListener)
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     * @see #writeObject(ObjectOutputStream)
-     */
-    private void readObject(ObjectInputStream s)
-      throws ClassNotFoundException, IOException, HeadlessException
-    {
-      GraphicsEnvironment.checkHeadless();
-      s.defaultReadObject();
+  /**
+   * Writes default serializable fields to stream.  Writes
+   * a list of serializable <code>ActionListeners</code>
+   * as optional data.  The non-serializable
+   * <code>ActionListeners</code> are detected and
+   * no attempt is made to serialize them.
+   *
+   * @param s the <code>ObjectOutputStream</code> to write
+   * @serialData <code>null</code> terminated sequence of 0 or
+   * more pairs: the pair consists of a <code>String</code>
+   * and an <code>Object</code>; the <code>String</code>
+   * indicates the type of object and is one of the following:
+   * <code>actionListenerK</code> indicating an
+   * <code>ActionListener</code> object
+   * @see AWTEventMulticaster#save(ObjectOutputStream, String, EventListener)
+   * @see java.awt.Component#actionListenerK
+   * @see #readObject(ObjectInputStream)
+   */
+  private void writeObject(ObjectOutputStream s) throws IOException {
+    s.defaultWriteObject();
 
-      Object keyOrNull;
-      while(null != (keyOrNull = s.readObject())) {
-        String key = ((String)keyOrNull).intern();
+    AWTEventMulticaster.save(s, actionListenerK, actionListener);
+    s.writeObject(null);
+  }
 
-        if (actionListenerK == key)
-          addActionListener((ActionListener)(s.readObject()));
+  /**
+   * Reads the <code>ObjectInputStream</code> and if
+   * it isn't <code>null</code> adds a listener to
+   * receive action events fired by the button.
+   * Unrecognized keys or values will be ignored.
+   *
+   * @param s the <code>ObjectInputStream</code> to read
+   * @throws HeadlessException if
+   *                           <code>GraphicsEnvironment.isHeadless</code> returns
+   *                           <code>true</code>
+   * @serial
+   * @see #removeActionListener(ActionListener)
+   * @see #addActionListener(ActionListener)
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see #writeObject(ObjectOutputStream)
+   */
+  private void readObject(ObjectInputStream s)
+      throws ClassNotFoundException, IOException, HeadlessException {
+    GraphicsEnvironment.checkHeadless();
+    s.defaultReadObject();
 
-        else // skip value for unrecognized key
-          s.readObject();
+    Object keyOrNull;
+    while (null != (keyOrNull = s.readObject())) {
+      String key = ((String) keyOrNull).intern();
+
+      if (actionListenerK == key) {
+        addActionListener((ActionListener) (s.readObject()));
+      } else // skip value for unrecognized key
+      {
+        s.readObject();
       }
-        updateLabel();
     }
+    updateLabel();
+  }
 }

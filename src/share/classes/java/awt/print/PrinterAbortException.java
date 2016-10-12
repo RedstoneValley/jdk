@@ -34,22 +34,22 @@ package java.awt.print;
 
 public class PrinterAbortException extends PrinterException {
 
-    /**
-     * Constructs a new <code>PrinterAbortException</code> with no
-     * detail message.
-     */
-    public PrinterAbortException() {
-        super();
-    }
+  /**
+   * Constructs a new <code>PrinterAbortException</code> with no
+   * detail message.
+   */
+  public PrinterAbortException() {
+    super();
+  }
 
-    /**
-     * Constructs a new <code>PrinterAbortException</code> with
-     * the specified detail message.
-     * @param msg the message to be generated when a
-     * <code>PrinterAbortException</code> is thrown
-     */
-    public PrinterAbortException(String msg) {
-        super(msg);
-    }
-
+  /**
+   * Constructs a new <code>PrinterAbortException</code> with
+   * the specified detail message.
+   *
+   * @param msg the message to be generated when a
+   *            <code>PrinterAbortException</code> is thrown
+   */
+  public PrinterAbortException(String msg) {
+    super(msg);
+  }
 }

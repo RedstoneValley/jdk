@@ -29,11 +29,11 @@ package java.awt.event;
  * An abstract adapter class for receiving mouse events.
  * The methods in this class are empty. This class exists as
  * convenience for creating listener objects.
- * <P>
+ * <p>
  * Mouse events let you track when a mouse is pressed, released, clicked,
  * moved, dragged, when it enters a component, when it exits and
  * when a mouse wheel is moved.
- * <P>
+ * <p>
  * Extend this class to create a {@code MouseEvent}
  * (including drag and motion events) or/and {@code MouseWheelEvent}
  * listener and override the methods for the events of interest. (If you implement the
@@ -42,7 +42,7 @@ package java.awt.event;
  * interface, you have to define all of
  * the methods in it. This abstract class defines null methods for them
  * all, so you can only have to define methods for events you care about.)
- * <P>
+ * <p>
  * Create a listener object using the extended class and then register it with
  * a component using the component's {@code addMouseListener}
  * {@code addMouseMotionListener}, {@code addMouseWheelListener}
@@ -57,57 +57,68 @@ package java.awt.event;
  *
  * @author Carl Quinn
  * @author Andrei Dmitriev
- *
  * @see MouseEvent
  * @see MouseWheelEvent
  * @see MouseListener
  * @see MouseMotionListener
  * @see MouseWheelListener
- * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/mouselistener.html">Tutorial: Writing a Mouse Listener</a>
- *
+ * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/mouselistener.html">Tutorial:
+ * Writing a Mouse Listener</a>
  * @since 1.1
  */
-public abstract class MouseAdapter implements MouseListener, MouseWheelListener, MouseMotionListener {
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseClicked(MouseEvent e) {}
+public abstract class MouseAdapter
+    implements MouseListener, MouseWheelListener, MouseMotionListener {
+  /**
+   * {@inheritDoc}
+   */
+  public void mouseClicked(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void mousePressed(MouseEvent e) {}
+  /**
+   * {@inheritDoc}
+   */
+  public void mousePressed(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseReleased(MouseEvent e) {}
+  /**
+   * {@inheritDoc}
+   */
+  public void mouseReleased(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseEntered(MouseEvent e) {}
+  /**
+   * {@inheritDoc}
+   */
+  public void mouseEntered(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     */
-    public void mouseExited(MouseEvent e) {}
+  /**
+   * {@inheritDoc}
+   */
+  public void mouseExited(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     * @since 1.6
-     */
-    public void mouseWheelMoved(MouseWheelEvent e){}
+  /**
+   * {@inheritDoc}
+   *
+   * @since 1.6
+   */
+  public void mouseWheelMoved(MouseWheelEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     * @since 1.6
-     */
-    public void mouseDragged(MouseEvent e){}
+  /**
+   * {@inheritDoc}
+   *
+   * @since 1.6
+   */
+  public void mouseDragged(MouseEvent e) {
+  }
 
-    /**
-     * {@inheritDoc}
-     * @since 1.6
-     */
-    public void mouseMoved(MouseEvent e){}
+  /**
+   * {@inheritDoc}
+   *
+   * @since 1.6
+   */
+  public void mouseMoved(MouseEvent e) {
+  }
 }

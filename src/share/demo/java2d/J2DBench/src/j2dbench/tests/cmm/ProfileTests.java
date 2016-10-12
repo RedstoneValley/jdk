@@ -41,92 +41,87 @@ package j2dbench.tests.cmm;
 import j2dbench.Group;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
-import java.awt.color.ColorSpace;
 import java.awt.color.ICC_ColorSpace;
 import java.awt.color.ICC_Profile;
 
 public class ProfileTests extends CMMTests {
 
-    protected static Group profileRoot;
+  protected static Group profileRoot;
 
-    public static void init() {
-        profileRoot = new Group(cmmRoot, "profiles", "Profile Handling Benchmarks");
+  protected ProfileTests(Group parent, String nodeName, String description) {
+    super(parent, nodeName, description);
+  }
 
-        new ReadHeaderTest();
-        new GetNumComponentsTest();
+  public static void init() {
+    profileRoot = new Group(cmmRoot, "profiles", "Profile Handling Benchmarks");
+
+    new ReadHeaderTest();
+    new GetNumComponentsTest();
+  }
+
+  @Override
+  public Object initTest(TestEnvironment env, Result res) {
+    ICC_ColorSpace cs = (ICC_ColorSpace) getColorSpace(env);
+    return new Context(cs.getProfile(), env, res);
+  }
+
+  protected static class Context {
+
+    ICC_Profile profile;
+    TestEnvironment env;
+    Result res;
+
+    public Context(ICC_Profile profile, TestEnvironment env, Result res) {
+      this.profile = profile;
+      this.env = env;
+      this.res = res;
     }
+  }
 
-    protected ProfileTests(Group parent, String nodeName, String description) {
-        super(parent, nodeName, description);
-    }
+  private static class ReadHeaderTest extends ProfileTests {
 
-    protected static class Context {
-
-        ICC_Profile profile;
-        TestEnvironment env;
-        Result res;
-
-        public Context(ICC_Profile profile, TestEnvironment env, Result res) {
-            this.profile = profile;
-            this.env = env;
-            this.res = res;
-        }
+    public ReadHeaderTest() {
+      super(profileRoot, "getHeader", "getData(icSigHead)");
     }
 
     @Override
-    public Object initTest(TestEnvironment env, Result res) {
-        ICC_ColorSpace cs = (ICC_ColorSpace) getColorSpace(env);
-        return new Context(cs.getProfile(), env, res);
+    public void runTest(Object ctx, int numReps) {
+      final Context ictx = (Context) ctx;
+      final ICC_Profile profile = ictx.profile;
+
+      byte[] data = null;
+      do {
+        try {
+          data = profile.getData(ICC_Profile.icSigHead);
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      } while (--numReps >= 0);
+    }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object o) {
+  }
+
+  private static class GetNumComponentsTest extends ProfileTests {
+
+    public GetNumComponentsTest() {
+      super(profileRoot, "getNumComponents", "getNumComponents");
     }
 
     @Override
-    public void cleanupTest(TestEnvironment env, Object o) {
+    public void runTest(Object ctx, int numReps) {
+      final Context ictx = (Context) ctx;
+      final ICC_Profile profile = ictx.profile;
+
+      do {
+        try {
+          int num = profile.getNumComponents();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      } while (--numReps >= 0);
     }
+  }
 
-    private static class ReadHeaderTest extends ProfileTests {
 
-        public ReadHeaderTest() {
-            super(profileRoot,
-                    "getHeader",
-                    "getData(icSigHead)");
-        }
-
-        @Override
-        public void runTest(Object ctx, int numReps) {
-            final Context ictx = (Context) ctx;
-            final ICC_Profile profile = ictx.profile;
-
-            byte[] data = null;
-            do {
-                try {
-                    data = profile.getData(ICC_Profile.icSigHead);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } while (--numReps >= 0);
-        }
-    }
-
-    private static class GetNumComponentsTest extends ProfileTests {
-
-        public GetNumComponentsTest() {
-            super(profileRoot,
-                    "getNumComponents",
-                    "getNumComponents");
-        }
-
-        @Override
-        public void runTest(Object ctx, int numReps) {
-            final Context ictx = (Context) ctx;
-            final ICC_Profile profile = ictx.profile;
-
-            do {
-                try {
-                    int num = profile.getNumComponents();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } while (--numReps >= 0);
-        }
-    }
 }

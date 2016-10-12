@@ -30,5 +30,5 @@ package sun.awt;
  * returning handle to the native window.
  */
 public interface WindowIDProvider {
-    public long getWindow();
+  public long getWindow();
 }

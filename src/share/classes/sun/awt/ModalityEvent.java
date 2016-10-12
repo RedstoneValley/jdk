@@ -25,7 +25,8 @@
 
 package sun.awt;
 
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.ActiveEvent;
 
 /**
  * Event object describing changes in AWT modality
@@ -33,29 +34,28 @@ import java.awt.*;
 @SuppressWarnings("serial")
 public class ModalityEvent extends AWTEvent implements ActiveEvent {
 
-    public static final int MODALITY_PUSHED = 1300;
-    public static final int MODALITY_POPPED = 1301;
+  public static final int MODALITY_PUSHED = 1300;
+  public static final int MODALITY_POPPED = 1301;
 
-    private ModalityListener listener;
+  private ModalityListener listener;
 
-    public ModalityEvent(Object source, ModalityListener listener, int id) {
-        super(source, id);
-        this.listener = listener;
+  public ModalityEvent(Object source, ModalityListener listener, int id) {
+    super(source, id);
+    this.listener = listener;
+  }
+
+  public void dispatch() {
+    switch (getID()) {
+      case MODALITY_PUSHED:
+        listener.modalityPushed(this);
+        break;
+
+      case MODALITY_POPPED:
+        listener.modalityPopped(this);
+        break;
+
+      default:
+        throw new Error("Invalid event id.");
     }
-
-    public void dispatch() {
-        switch(getID()) {
-            case MODALITY_PUSHED:
-                listener.modalityPushed(this);
-                break;
-
-            case MODALITY_POPPED:
-                listener.modalityPopped(this);
-                break;
-
-            default:
-                throw new Error("Invalid event id.");
-        }
-    }
-
+  }
 }

@@ -26,7 +26,6 @@
 package java.awt.dnd;
 
 import java.awt.Point;
-
 import java.util.EventObject;
 
 /**
@@ -59,127 +58,124 @@ import java.util.EventObject;
 
 public class DragSourceEvent extends EventObject {
 
-    private static final long serialVersionUID = -763287114604032641L;
+  private static final long serialVersionUID = -763287114604032641L;
 
-    /**
-     * The <code>boolean</code> indicating whether the cursor location
-     * is specified for this event.
-     *
-     * @serial
-     */
-    private final boolean locationSpecified;
+  /**
+   * The <code>boolean</code> indicating whether the cursor location
+   * is specified for this event.
+   *
+   * @serial
+   */
+  private final boolean locationSpecified;
 
-    /**
-     * The horizontal coordinate for the cursor location at the moment this
-     * event occurred if the cursor location is specified for this event;
-     * otherwise zero.
-     *
-     * @serial
-     */
-    private final int x;
+  /**
+   * The horizontal coordinate for the cursor location at the moment this
+   * event occurred if the cursor location is specified for this event;
+   * otherwise zero.
+   *
+   * @serial
+   */
+  private final int x;
 
-    /**
-     * The vertical coordinate for the cursor location at the moment this event
-     * occurred if the cursor location is specified for this event;
-     * otherwise zero.
-     *
-     * @serial
-     */
-    private final int y;
+  /**
+   * The vertical coordinate for the cursor location at the moment this event
+   * occurred if the cursor location is specified for this event;
+   * otherwise zero.
+   *
+   * @serial
+   */
+  private final int y;
 
-    /**
-     * Construct a <code>DragSourceEvent</code>
-     * given a specified <code>DragSourceContext</code>.
-     * The coordinates for this <code>DragSourceEvent</code>
-     * are not specified, so <code>getLocation</code> will return
-     * <code>null</code> for this event.
-     *
-     * @param dsc the <code>DragSourceContext</code>
-     *
-     * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
-     *
-     * @see #getLocation
-     */
+  /**
+   * Construct a <code>DragSourceEvent</code>
+   * given a specified <code>DragSourceContext</code>.
+   * The coordinates for this <code>DragSourceEvent</code>
+   * are not specified, so <code>getLocation</code> will return
+   * <code>null</code> for this event.
+   *
+   * @param dsc the <code>DragSourceContext</code>
+   * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
+   * @see #getLocation
+   */
 
-    public DragSourceEvent(DragSourceContext dsc) {
-        super(dsc);
-        locationSpecified = false;
-        this.x = 0;
-        this.y = 0;
+  public DragSourceEvent(DragSourceContext dsc) {
+    super(dsc);
+    locationSpecified = false;
+    this.x = 0;
+    this.y = 0;
+  }
+
+  /**
+   * Construct a <code>DragSourceEvent</code> given a specified
+   * <code>DragSourceContext</code>, and coordinates of the cursor
+   * location.
+   *
+   * @param dsc the <code>DragSourceContext</code>
+   * @param x   the horizontal coordinate for the cursor location
+   * @param y   the vertical coordinate for the cursor location
+   * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
+   * @since 1.4
+   */
+  public DragSourceEvent(DragSourceContext dsc, int x, int y) {
+    super(dsc);
+    locationSpecified = true;
+    this.x = x;
+    this.y = y;
+  }
+
+  /**
+   * This method returns the <code>DragSourceContext</code> that
+   * originated the event.
+   * <p>
+   *
+   * @return the <code>DragSourceContext</code> that originated the event
+   */
+
+  public DragSourceContext getDragSourceContext() {
+    return (DragSourceContext) getSource();
+  }
+
+  /**
+   * This method returns a <code>Point</code> indicating the cursor
+   * location in screen coordinates at the moment this event occurred, or
+   * <code>null</code> if the cursor location is not specified for this
+   * event.
+   *
+   * @return the <code>Point</code> indicating the cursor location
+   * or <code>null</code> if the cursor location is not specified
+   * @since 1.4
+   */
+  public Point getLocation() {
+    if (locationSpecified) {
+      return new Point(x, y);
+    } else {
+      return null;
     }
+  }
 
-    /**
-     * Construct a <code>DragSourceEvent</code> given a specified
-     * <code>DragSourceContext</code>, and coordinates of the cursor
-     * location.
-     *
-     * @param dsc the <code>DragSourceContext</code>
-     * @param x   the horizontal coordinate for the cursor location
-     * @param y   the vertical coordinate for the cursor location
-     *
-     * @throws IllegalArgumentException if <code>dsc</code> is <code>null</code>.
-     *
-     * @since 1.4
-     */
-    public DragSourceEvent(DragSourceContext dsc, int x, int y) {
-        super(dsc);
-        locationSpecified = true;
-        this.x = x;
-        this.y = y;
-    }
+  /**
+   * This method returns the horizontal coordinate of the cursor location in
+   * screen coordinates at the moment this event occurred, or zero if the
+   * cursor location is not specified for this event.
+   *
+   * @return an integer indicating the horizontal coordinate of the cursor
+   * location or zero if the cursor location is not specified
+   * @since 1.4
+   */
+  public int getX() {
+    return x;
+  }
 
-    /**
-     * This method returns the <code>DragSourceContext</code> that
-     * originated the event.
-     * <P>
-     * @return the <code>DragSourceContext</code> that originated the event
-     */
-
-    public DragSourceContext getDragSourceContext() {
-        return (DragSourceContext)getSource();
-    }
-
-    /**
-     * This method returns a <code>Point</code> indicating the cursor
-     * location in screen coordinates at the moment this event occurred, or
-     * <code>null</code> if the cursor location is not specified for this
-     * event.
-     *
-     * @return the <code>Point</code> indicating the cursor location
-     *         or <code>null</code> if the cursor location is not specified
-     * @since 1.4
-     */
-    public Point getLocation() {
-        if (locationSpecified) {
-            return new Point(x, y);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * This method returns the horizontal coordinate of the cursor location in
-     * screen coordinates at the moment this event occurred, or zero if the
-     * cursor location is not specified for this event.
-     *
-     * @return an integer indicating the horizontal coordinate of the cursor
-     *         location or zero if the cursor location is not specified
-     * @since 1.4
-     */
-    public int getX() {
-        return x;
-    }
-
-    /**
-     * This method returns the vertical coordinate of the cursor location in
-     * screen coordinates at the moment this event occurred, or zero if the
-     * cursor location is not specified for this event.
-     *
-     * @return an integer indicating the vertical coordinate of the cursor
-     *         location or zero if the cursor location is not specified
-     * @since 1.4
-     */
-    public int getY() {
-        return y;
-    }
+  /**
+   * This method returns the vertical coordinate of the cursor location in
+   * screen coordinates at the moment this event occurred, or zero if the
+   * cursor location is not specified for this event.
+   *
+   * @return an integer indicating the vertical coordinate of the cursor
+   * location or zero if the cursor location is not specified
+   * @since 1.4
+   */
+  public int getY() {
+    return y;
+  }
 }

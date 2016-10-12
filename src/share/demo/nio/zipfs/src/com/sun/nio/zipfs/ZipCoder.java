@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-
 package com.sun.nio.zipfs;
 
 import java.nio.ByteBuffer;
@@ -52,118 +51,131 @@ import java.util.Arrays;
 /**
  * Utility class for zipfile name and comment decoding and encoding
  *
- * @author  Xueming Shen
+ * @author Xueming Shen
  */
 
 final class ZipCoder {
 
-    String toString(byte[] ba, int length) {
-        CharsetDecoder cd = decoder().reset();
-        int len = (int)(length * cd.maxCharsPerByte());
-        char[] ca = new char[len];
-        if (len == 0)
-            return new String(ca);
-        ByteBuffer bb = ByteBuffer.wrap(ba, 0, length);
-        CharBuffer cb = CharBuffer.wrap(ca);
-        CoderResult cr = cd.decode(bb, cb, true);
-        if (!cr.isUnderflow())
-            throw new IllegalArgumentException(cr.toString());
-        cr = cd.flush(cb);
-        if (!cr.isUnderflow())
-            throw new IllegalArgumentException(cr.toString());
-        return new String(ca, 0, cb.position());
+  private final ThreadLocal<CharsetDecoder> decTL = new ThreadLocal<>();
+  private final ThreadLocal<CharsetEncoder> encTL = new ThreadLocal<>();
+  private Charset cs;
+  private boolean isutf8;
+  private ZipCoder utf8;
+
+  private ZipCoder(Charset cs) {
+    this.cs = cs;
+    this.isutf8 = cs.name().equals("UTF-8");
+  }
+
+  static ZipCoder get(Charset charset) {
+    return new ZipCoder(charset);
+  }
+
+  static ZipCoder get(String csn) {
+    try {
+      return new ZipCoder(Charset.forName(csn));
+    } catch (Throwable t) {
+      t.printStackTrace();
     }
+    return new ZipCoder(Charset.defaultCharset());
+  }
 
-    String toString(byte[] ba) {
-        return toString(ba, ba.length);
+  String toString(byte[] ba, int length) {
+    CharsetDecoder cd = decoder().reset();
+    int len = (int) (length * cd.maxCharsPerByte());
+    char[] ca = new char[len];
+    if (len == 0) {
+      return new String(ca);
     }
-
-    byte[] getBytes(String s) {
-        CharsetEncoder ce = encoder().reset();
-        char[] ca = s.toCharArray();
-        int len = (int)(ca.length * ce.maxBytesPerChar());
-        byte[] ba = new byte[len];
-        if (len == 0)
-            return ba;
-        ByteBuffer bb = ByteBuffer.wrap(ba);
-        CharBuffer cb = CharBuffer.wrap(ca);
-        CoderResult cr = ce.encode(cb, bb, true);
-        if (!cr.isUnderflow())
-            throw new IllegalArgumentException(cr.toString());
-        cr = ce.flush(bb);
-        if (!cr.isUnderflow())
-            throw new IllegalArgumentException(cr.toString());
-        if (bb.position() == ba.length)  // defensive copy?
-            return ba;
-        else
-            return Arrays.copyOf(ba, bb.position());
+    ByteBuffer bb = ByteBuffer.wrap(ba, 0, length);
+    CharBuffer cb = CharBuffer.wrap(ca);
+    CoderResult cr = cd.decode(bb, cb, true);
+    if (!cr.isUnderflow()) {
+      throw new IllegalArgumentException(cr.toString());
     }
-
-    // assume invoked only if "this" is not utf8
-    byte[] getBytesUTF8(String s) {
-        if (isutf8)
-            return getBytes(s);
-        if (utf8 == null)
-            utf8 = new ZipCoder(Charset.forName("UTF-8"));
-        return utf8.getBytes(s);
+    cr = cd.flush(cb);
+    if (!cr.isUnderflow()) {
+      throw new IllegalArgumentException(cr.toString());
     }
+    return new String(ca, 0, cb.position());
+  }
 
-    String toStringUTF8(byte[] ba, int len) {
-        if (isutf8)
-            return toString(ba, len);
-        if (utf8 == null)
-            utf8 = new ZipCoder(Charset.forName("UTF-8"));
-        return utf8.toString(ba, len);
+  String toString(byte[] ba) {
+    return toString(ba, ba.length);
+  }
+
+  byte[] getBytes(String s) {
+    CharsetEncoder ce = encoder().reset();
+    char[] ca = s.toCharArray();
+    int len = (int) (ca.length * ce.maxBytesPerChar());
+    byte[] ba = new byte[len];
+    if (len == 0) {
+      return ba;
     }
-
-    boolean isUTF8() {
-        return isutf8;
+    ByteBuffer bb = ByteBuffer.wrap(ba);
+    CharBuffer cb = CharBuffer.wrap(ca);
+    CoderResult cr = ce.encode(cb, bb, true);
+    if (!cr.isUnderflow()) {
+      throw new IllegalArgumentException(cr.toString());
     }
-
-    private Charset cs;
-    private boolean isutf8;
-    private ZipCoder utf8;
-
-    private ZipCoder(Charset cs) {
-        this.cs = cs;
-        this.isutf8 = cs.name().equals("UTF-8");
+    cr = ce.flush(bb);
+    if (!cr.isUnderflow()) {
+      throw new IllegalArgumentException(cr.toString());
     }
-
-    static ZipCoder get(Charset charset) {
-        return new ZipCoder(charset);
+    if (bb.position() == ba.length)  // defensive copy?
+    {
+      return ba;
+    } else {
+      return Arrays.copyOf(ba, bb.position());
     }
+  }
 
-    static ZipCoder get(String csn) {
-        try {
-            return new ZipCoder(Charset.forName(csn));
-        } catch (Throwable t) {
-            t.printStackTrace();
-        }
-        return new ZipCoder(Charset.defaultCharset());
+  // assume invoked only if "this" is not utf8
+  byte[] getBytesUTF8(String s) {
+    if (isutf8) {
+      return getBytes(s);
     }
-
-    private final ThreadLocal<CharsetDecoder> decTL = new ThreadLocal<>();
-    private final ThreadLocal<CharsetEncoder> encTL = new ThreadLocal<>();
-
-    private CharsetDecoder decoder() {
-        CharsetDecoder dec = decTL.get();
-        if (dec == null) {
-            dec = cs.newDecoder()
-              .onMalformedInput(CodingErrorAction.REPORT)
-              .onUnmappableCharacter(CodingErrorAction.REPORT);
-            decTL.set(dec);
-        }
-        return dec;
+    if (utf8 == null) {
+      utf8 = new ZipCoder(Charset.forName("UTF-8"));
     }
+    return utf8.getBytes(s);
+  }
 
-    private CharsetEncoder encoder() {
-        CharsetEncoder enc = encTL.get();
-        if (enc == null) {
-            enc = cs.newEncoder()
-              .onMalformedInput(CodingErrorAction.REPORT)
-              .onUnmappableCharacter(CodingErrorAction.REPORT);
-            encTL.set(enc);
-        }
-        return enc;
+  String toStringUTF8(byte[] ba, int len) {
+    if (isutf8) {
+      return toString(ba, len);
     }
+    if (utf8 == null) {
+      utf8 = new ZipCoder(Charset.forName("UTF-8"));
+    }
+    return utf8.toString(ba, len);
+  }
+
+  boolean isUTF8() {
+    return isutf8;
+  }
+
+  private CharsetDecoder decoder() {
+    CharsetDecoder dec = decTL.get();
+    if (dec == null) {
+      dec = cs
+          .newDecoder()
+          .onMalformedInput(CodingErrorAction.REPORT)
+          .onUnmappableCharacter(CodingErrorAction.REPORT);
+      decTL.set(dec);
+    }
+    return dec;
+  }
+
+  private CharsetEncoder encoder() {
+    CharsetEncoder enc = encTL.get();
+    if (enc == null) {
+      enc = cs
+          .newEncoder()
+          .onMalformedInput(CodingErrorAction.REPORT)
+          .onUnmappableCharacter(CodingErrorAction.REPORT);
+      encTL.set(enc);
+    }
+    return enc;
+  }
 }

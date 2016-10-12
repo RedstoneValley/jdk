@@ -28,7 +28,6 @@ package sun.java2d.cmm;
 import java.awt.color.ProfileDataException;
 import java.util.Vector;
 
-
 /**
  * A class to manage the deferral of CMM initialization of profile
  * data for internal ICC_Profile objects - i.e. when we "trust" that
@@ -39,61 +38,60 @@ import java.util.Vector;
  */
 public class ProfileDeferralMgr {
 
-    public static boolean deferring = true;
-    private static Vector<ProfileActivator> aVector;
+  public static boolean deferring = true;
+  private static Vector<ProfileActivator> aVector;
 
-    /**
-     * Records a ProfileActivator object whose activate method will
-     * be called if the CMM needs to be activated.
-     */
-    public static void registerDeferral(ProfileActivator pa) {
+  /**
+   * Records a ProfileActivator object whose activate method will
+   * be called if the CMM needs to be activated.
+   */
+  public static void registerDeferral(ProfileActivator pa) {
 
-        if (!deferring) {
-            return;
-        }
-        if (aVector == null) {
-            aVector = new Vector<ProfileActivator>(3, 3);
-        }
-        aVector.addElement(pa);
-        return;
+    if (!deferring) {
+      return;
     }
-
-
-    /**
-     * Removes a ProfileActivator object from the vector of ProfileActivator
-     * objects whose activate method will be called if the CMM needs to be
-     * activated.
-     */
-    public static void unregisterDeferral(ProfileActivator pa) {
-
-        if (!deferring) {
-            return;
-        }
-        if (aVector == null) {
-            return;
-        }
-        aVector.removeElement(pa);
-        return;
+    if (aVector == null) {
+      aVector = new Vector<ProfileActivator>(3, 3);
     }
+    aVector.addElement(pa);
+    return;
+  }
 
-    /**
-     * Removes a ProfileActivator object from the vector of ProfileActivator
-     * objects whose activate method will be called if the CMM needs to be
-     * activated.
-     */
-    public static void activateProfiles() {
+  /**
+   * Removes a ProfileActivator object from the vector of ProfileActivator
+   * objects whose activate method will be called if the CMM needs to be
+   * activated.
+   */
+  public static void unregisterDeferral(ProfileActivator pa) {
 
-        int i, n;
+    if (!deferring) {
+      return;
+    }
+    if (aVector == null) {
+      return;
+    }
+    aVector.removeElement(pa);
+    return;
+  }
 
-        deferring = false;
-        if (aVector == null) {
-            return;
-        }
-        n = aVector.size();
-        for (ProfileActivator pa : aVector) {
-            try {
-                pa.activate();
-            } catch (ProfileDataException e) {
+  /**
+   * Removes a ProfileActivator object from the vector of ProfileActivator
+   * objects whose activate method will be called if the CMM needs to be
+   * activated.
+   */
+  public static void activateProfiles() {
+
+    int i, n;
+
+    deferring = false;
+    if (aVector == null) {
+      return;
+    }
+    n = aVector.size();
+    for (ProfileActivator pa : aVector) {
+      try {
+        pa.activate();
+      } catch (ProfileDataException e) {
                 /*
                  * Ignore profile activation error for now:
                  * such exception is pssible due to absence
@@ -109,11 +107,10 @@ public class ProfileDeferralMgr {
                  * If there will be attempt to use broken profile then
                  * it will result in CMMException.
                  */
-            }
-        }
-        aVector.removeAllElements();
-        aVector = null;
-        return;
+      }
     }
-
+    aVector.removeAllElements();
+    aVector = null;
+    return;
+  }
 }

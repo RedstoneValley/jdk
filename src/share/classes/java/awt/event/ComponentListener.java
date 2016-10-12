@@ -38,37 +38,37 @@ import java.util.EventListener;
  * method. When the component's size, location, or visibility
  * changes, the relevant method in the listener object is invoked,
  * and the <code>ComponentEvent</code> is passed to it.
- * <P>
+ * <p>
  * Component events are provided for notification purposes ONLY;
  * The AWT will automatically handle component moves and resizes
  * internally so that GUI layout works properly regardless of
  * whether a program registers a <code>ComponentListener</code> or not.
  *
+ * @author Carl Quinn
  * @see ComponentAdapter
  * @see ComponentEvent
- * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/componentlistener.html">Tutorial: Writing a Component Listener</a>
- *
- * @author Carl Quinn
+ * @see
+ * <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/componentlistener.html">Tutorial: Writing a Component Listener</a>
  * @since 1.1
  */
 public interface ComponentListener extends EventListener {
-    /**
-     * Invoked when the component's size changes.
-     */
-    public void componentResized(ComponentEvent e);
+  /**
+   * Invoked when the component's size changes.
+   */
+  public void componentResized(ComponentEvent e);
 
-    /**
-     * Invoked when the component's position changes.
-     */
-    public void componentMoved(ComponentEvent e);
+  /**
+   * Invoked when the component's position changes.
+   */
+  public void componentMoved(ComponentEvent e);
 
-    /**
-     * Invoked when the component has been made visible.
-     */
-    public void componentShown(ComponentEvent e);
+  /**
+   * Invoked when the component has been made visible.
+   */
+  public void componentShown(ComponentEvent e);
 
-    /**
-     * Invoked when the component has been made invisible.
-     */
-    public void componentHidden(ComponentEvent e);
+  /**
+   * Invoked when the component has been made invisible.
+   */
+  public void componentHidden(ComponentEvent e);
 }

@@ -36,22 +36,28 @@ package java.awt.dnd;
 
 public class InvalidDnDOperationException extends IllegalStateException {
 
-    private static final long serialVersionUID = -6062568741193956678L;
+  private static final long serialVersionUID = -6062568741193956678L;
 
-    static private String dft_msg = "The operation requested cannot be performed by the DnD system since it is not in the appropriate state";
+  static private String dft_msg =
+      "The operation requested cannot be performed by the DnD system since it is not in the "
+          + "appropriate state";
 
-    /**
-     * Create a default Exception
-     */
+  /**
+   * Create a default Exception
+   */
 
-    public InvalidDnDOperationException() { super(dft_msg); }
+  public InvalidDnDOperationException() {
+    super(dft_msg);
+  }
 
-    /**
-     * Create an Exception with its own descriptive message
-     * <P>
-     * @param msg the detail message
-     */
+  /**
+   * Create an Exception with its own descriptive message
+   * <p>
+   *
+   * @param msg the detail message
+   */
 
-    public InvalidDnDOperationException(String msg) { super(msg); }
-
+  public InvalidDnDOperationException(String msg) {
+    super(msg);
+  }
 }

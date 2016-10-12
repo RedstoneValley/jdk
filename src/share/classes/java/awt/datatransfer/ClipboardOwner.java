@@ -36,21 +36,19 @@ package java.awt.datatransfer;
  * or another object within this application asserts ownership
  * of this clipboard.
  *
+ * @author Amy Fowler
  * @see java.awt.datatransfer.Clipboard
- *
- * @author      Amy Fowler
  */
 
 public interface ClipboardOwner {
 
-    /**
-     * Notifies this object that it is no longer the clipboard owner.
-     * This method will be called when another application or another
-     * object within this application asserts ownership of the clipboard.
-     *
-     * @param clipboard the clipboard that is no longer owned
-     * @param contents the contents which this owner had placed on the clipboard
-     */
-    public void lostOwnership(Clipboard clipboard, Transferable contents);
-
+  /**
+   * Notifies this object that it is no longer the clipboard owner.
+   * This method will be called when another application or another
+   * object within this application asserts ownership of the clipboard.
+   *
+   * @param clipboard the clipboard that is no longer owned
+   * @param contents  the contents which this owner had placed on the clipboard
+   */
+  public void lostOwnership(Clipboard clipboard, Transferable contents);
 }

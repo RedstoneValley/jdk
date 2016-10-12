@@ -42,20 +42,21 @@ package java.awt.event;
  * resize or movement of an ancestor, the relevant method in the listener
  * object is invoked, and the <code>HierarchyEvent</code> is passed to it.
  *
- * @author      David Mendenhall
- * @see         HierarchyBoundsListener
- * @see         HierarchyEvent
- * @since       1.3
+ * @author David Mendenhall
+ * @see HierarchyBoundsListener
+ * @see HierarchyEvent
+ * @since 1.3
  */
-public abstract class HierarchyBoundsAdapter implements HierarchyBoundsListener
-{
-    /**
-     * Called when an ancestor of the source is moved.
-     */
-    public void ancestorMoved(HierarchyEvent e) {}
+public abstract class HierarchyBoundsAdapter implements HierarchyBoundsListener {
+  /**
+   * Called when an ancestor of the source is moved.
+   */
+  public void ancestorMoved(HierarchyEvent e) {
+  }
 
-    /**
-     * Called when an ancestor of the source is resized.
-     */
-    public void ancestorResized(HierarchyEvent e) {}
+  /**
+   * Called when an ancestor of the source is resized.
+   */
+  public void ancestorResized(HierarchyEvent e) {
+  }
 }

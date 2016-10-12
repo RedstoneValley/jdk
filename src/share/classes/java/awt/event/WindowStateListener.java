@@ -44,12 +44,11 @@ import java.util.EventListener;
  *
  * @see java.awt.event.WindowAdapter
  * @see java.awt.event.WindowEvent
- *
  * @since 1.4
  */
 public interface WindowStateListener extends EventListener {
-    /**
-     * Invoked when window state is changed.
-     */
-    public void windowStateChanged(WindowEvent e);
+  /**
+   * Invoked when window state is changed.
+   */
+  public void windowStateChanged(WindowEvent e);
 }

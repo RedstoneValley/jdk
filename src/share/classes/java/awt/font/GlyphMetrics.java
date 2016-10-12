@@ -102,223 +102,227 @@ import java.awt.geom.Rectangle2D;
  * int isStandard = metrics.isStandard();
  * float glyphAdvance = metrics.getAdvance();
  * </pre></blockquote>
+ *
  * @see java.awt.Font
  * @see GlyphVector
  */
 
 public final class GlyphMetrics {
-    /**
-     * Indicates whether the metrics are for a horizontal or vertical baseline.
-     */
-    private boolean horizontal;
+  /**
+   * Indicates a glyph that represents a single standard
+   * character.
+   */
+  public static final byte STANDARD = 0;
+  /**
+   * Indicates a glyph that represents multiple characters
+   * as a ligature, for example 'fi' or 'ffi'.  It is followed by
+   * filler glyphs for the remaining characters. Filler and combining
+   * glyphs can be intermixed to control positioning of accent marks
+   * on the logically preceding ligature.
+   */
+  public static final byte LIGATURE = 1;
+  /**
+   * Indicates a glyph that represents a combining character,
+   * such as an umlaut.  There is no caret position between this glyph
+   * and the preceding glyph.
+   */
+  public static final byte COMBINING = 2;
+  /**
+   * Indicates a glyph with no corresponding character in the
+   * backing store.  The glyph is associated with the character
+   * represented by the logically preceding non-component glyph.  This
+   * is used for kashida justification or other visual modifications to
+   * existing glyphs.  There is no caret position between this glyph
+   * and the preceding glyph.
+   */
+  public static final byte COMPONENT = 3;
+  /**
+   * Indicates a glyph with no visual representation. It can
+   * be added to the other code values to indicate an invisible glyph.
+   */
+  public static final byte WHITESPACE = 4;
+  /**
+   * Indicates whether the metrics are for a horizontal or vertical baseline.
+   */
+  private boolean horizontal;
+  /**
+   * The x-component of the advance.
+   */
+  private float advanceX;
+  /**
+   * The y-component of the advance.
+   */
+  private float advanceY;
+  /**
+   * The bounds of the associated glyph.
+   */
+  private Rectangle2D.Float bounds;
+  /**
+   * Additional information about the glyph encoded as a byte.
+   */
+  private byte glyphType;
 
-    /**
-     * The x-component of the advance.
-     */
-    private float advanceX;
+  /**
+   * Constructs a <code>GlyphMetrics</code> object.
+   *
+   * @param advance   the advance width of the glyph
+   * @param bounds    the black box bounds of the glyph
+   * @param glyphType the type of the glyph
+   */
+  public GlyphMetrics(float advance, Rectangle2D bounds, byte glyphType) {
+    this.horizontal = true;
+    this.advanceX = advance;
+    this.advanceY = 0;
+    this.bounds = new Rectangle2D.Float();
+    this.bounds.setRect(bounds);
+    this.glyphType = glyphType;
+  }
 
-    /**
-     * The y-component of the advance.
-     */
-    private float advanceY;
+  /**
+   * Constructs a <code>GlyphMetrics</code> object.
+   *
+   * @param horizontal if true, metrics are for a horizontal baseline,
+   *                   otherwise they are for a vertical baseline
+   * @param advanceX   the X-component of the glyph's advance
+   * @param advanceY   the Y-component of the glyph's advance
+   * @param bounds     the visual bounds of the glyph
+   * @param glyphType  the type of the glyph
+   * @since 1.4
+   */
+  public GlyphMetrics(
+      boolean horizontal, float advanceX, float advanceY, Rectangle2D bounds, byte glyphType) {
 
-    /**
-     * The bounds of the associated glyph.
-     */
-    private Rectangle2D.Float bounds;
+    this.horizontal = horizontal;
+    this.advanceX = advanceX;
+    this.advanceY = advanceY;
+    this.bounds = new Rectangle2D.Float();
+    this.bounds.setRect(bounds);
+    this.glyphType = glyphType;
+  }
 
-    /**
-     * Additional information about the glyph encoded as a byte.
-     */
-    private byte glyphType;
+  /**
+   * Returns the advance of the glyph along the baseline (either
+   * horizontal or vertical).
+   *
+   * @return the advance of the glyph
+   */
+  public float getAdvance() {
+    return horizontal ? advanceX : advanceY;
+  }
 
-    /**
-     * Indicates a glyph that represents a single standard
-     * character.
-     */
-    public static final byte STANDARD = 0;
+  /**
+   * Returns the x-component of the advance of the glyph.
+   *
+   * @return the x-component of the advance of the glyph
+   * @since 1.4
+   */
+  public float getAdvanceX() {
+    return advanceX;
+  }
 
-    /**
-     * Indicates a glyph that represents multiple characters
-     * as a ligature, for example 'fi' or 'ffi'.  It is followed by
-     * filler glyphs for the remaining characters. Filler and combining
-     * glyphs can be intermixed to control positioning of accent marks
-     * on the logically preceding ligature.
-     */
-    public static final byte LIGATURE = 1;
+  /**
+   * Returns the y-component of the advance of the glyph.
+   *
+   * @return the y-component of the advance of the glyph
+   * @since 1.4
+   */
+  public float getAdvanceY() {
+    return advanceY;
+  }
 
-    /**
-     * Indicates a glyph that represents a combining character,
-     * such as an umlaut.  There is no caret position between this glyph
-     * and the preceding glyph.
-     */
-    public static final byte COMBINING = 2;
+  /**
+   * Returns the bounds of the glyph. This is the bounding box of the glyph outline.
+   * Because of rasterization and pixel alignment effects, it does not necessarily
+   * enclose the pixels that are affected when rendering the glyph.
+   *
+   * @return a {@link Rectangle2D} that is the bounds of the glyph.
+   */
+  public Rectangle2D getBounds2D() {
+    return new Rectangle2D.Float(bounds.x, bounds.y, bounds.width, bounds.height);
+  }
 
-    /**
-     * Indicates a glyph with no corresponding character in the
-     * backing store.  The glyph is associated with the character
-     * represented by the logically preceding non-component glyph.  This
-     * is used for kashida justification or other visual modifications to
-     * existing glyphs.  There is no caret position between this glyph
-     * and the preceding glyph.
-     */
-    public static final byte COMPONENT = 3;
+  /**
+   * Returns the left (top) side bearing of the glyph.
+   * <p>
+   * This is the distance from 0,&nbsp;0 to the left (top) of the glyph
+   * bounds.  If the bounds of the glyph is to the left of (above) the
+   * origin, the LSB is negative.
+   *
+   * @return the left side bearing of the glyph.
+   */
+  public float getLSB() {
+    return horizontal ? bounds.x : bounds.y;
+  }
 
-    /**
-     * Indicates a glyph with no visual representation. It can
-     * be added to the other code values to indicate an invisible glyph.
-     */
-    public static final byte WHITESPACE = 4;
+  /**
+   * Returns the right (bottom) side bearing of the glyph.
+   * <p>
+   * This is the distance from the right (bottom) of the glyph bounds to
+   * the advance. If the bounds of the glyph is to the right of (below)
+   * the advance, the RSB is negative.
+   *
+   * @return the right side bearing of the glyph.
+   */
+  public float getRSB() {
+    return horizontal ? advanceX - bounds.x - bounds.width : advanceY - bounds.y - bounds.height;
+  }
 
-    /**
-     * Constructs a <code>GlyphMetrics</code> object.
-     * @param advance the advance width of the glyph
-     * @param bounds the black box bounds of the glyph
-     * @param glyphType the type of the glyph
-     */
-    public GlyphMetrics(float advance, Rectangle2D bounds, byte glyphType) {
-        this.horizontal = true;
-        this.advanceX = advance;
-        this.advanceY = 0;
-        this.bounds = new Rectangle2D.Float();
-        this.bounds.setRect(bounds);
-        this.glyphType = glyphType;
-    }
+  /**
+   * Returns the raw glyph type code.
+   *
+   * @return the raw glyph type code.
+   */
+  public int getType() {
+    return glyphType;
+  }
 
-    /**
-     * Constructs a <code>GlyphMetrics</code> object.
-     * @param horizontal if true, metrics are for a horizontal baseline,
-     *   otherwise they are for a vertical baseline
-     * @param advanceX the X-component of the glyph's advance
-     * @param advanceY the Y-component of the glyph's advance
-     * @param bounds the visual bounds of the glyph
-     * @param glyphType the type of the glyph
-     * @since 1.4
-     */
-    public GlyphMetrics(boolean horizontal, float advanceX, float advanceY,
-                        Rectangle2D bounds, byte glyphType) {
+  /**
+   * Returns <code>true</code> if this is a standard glyph.
+   *
+   * @return <code>true</code> if this is a standard glyph;
+   * <code>false</code> otherwise.
+   */
+  public boolean isStandard() {
+    return (glyphType & 0x3) == STANDARD;
+  }
 
-        this.horizontal = horizontal;
-        this.advanceX = advanceX;
-        this.advanceY = advanceY;
-        this.bounds = new Rectangle2D.Float();
-        this.bounds.setRect(bounds);
-        this.glyphType = glyphType;
-    }
+  /**
+   * Returns <code>true</code> if this is a ligature glyph.
+   *
+   * @return <code>true</code> if this is a ligature glyph;
+   * <code>false</code> otherwise.
+   */
+  public boolean isLigature() {
+    return (glyphType & 0x3) == LIGATURE;
+  }
 
-    /**
-     * Returns the advance of the glyph along the baseline (either
-     * horizontal or vertical).
-     * @return the advance of the glyph
-     */
-    public float getAdvance() {
-        return horizontal ? advanceX : advanceY;
-    }
+  /**
+   * Returns <code>true</code> if this is a combining glyph.
+   *
+   * @return <code>true</code> if this is a combining glyph;
+   * <code>false</code> otherwise.
+   */
+  public boolean isCombining() {
+    return (glyphType & 0x3) == COMBINING;
+  }
 
-    /**
-     * Returns the x-component of the advance of the glyph.
-     * @return the x-component of the advance of the glyph
-     * @since 1.4
-     */
-    public float getAdvanceX() {
-        return advanceX;
-    }
+  /**
+   * Returns <code>true</code> if this is a component glyph.
+   *
+   * @return <code>true</code> if this is a component glyph;
+   * <code>false</code> otherwise.
+   */
+  public boolean isComponent() {
+    return (glyphType & 0x3) == COMPONENT;
+  }
 
-    /**
-     * Returns the y-component of the advance of the glyph.
-     * @return the y-component of the advance of the glyph
-     * @since 1.4
-     */
-    public float getAdvanceY() {
-        return advanceY;
-    }
-
-    /**
-     * Returns the bounds of the glyph. This is the bounding box of the glyph outline.
-     * Because of rasterization and pixel alignment effects, it does not necessarily
-     * enclose the pixels that are affected when rendering the glyph.
-     * @return a {@link Rectangle2D} that is the bounds of the glyph.
-     */
-    public Rectangle2D getBounds2D() {
-        return new Rectangle2D.Float(bounds.x, bounds.y, bounds.width, bounds.height);
-    }
-
-    /**
-     * Returns the left (top) side bearing of the glyph.
-     * <p>
-     * This is the distance from 0,&nbsp;0 to the left (top) of the glyph
-     * bounds.  If the bounds of the glyph is to the left of (above) the
-     * origin, the LSB is negative.
-     * @return the left side bearing of the glyph.
-     */
-    public float getLSB() {
-        return horizontal ? bounds.x : bounds.y;
-    }
-
-    /**
-     * Returns the right (bottom) side bearing of the glyph.
-     * <p>
-     * This is the distance from the right (bottom) of the glyph bounds to
-     * the advance. If the bounds of the glyph is to the right of (below)
-     * the advance, the RSB is negative.
-     * @return the right side bearing of the glyph.
-     */
-    public float getRSB() {
-        return horizontal ?
-            advanceX - bounds.x - bounds.width :
-            advanceY - bounds.y - bounds.height;
-    }
-
-    /**
-     * Returns the raw glyph type code.
-     * @return the raw glyph type code.
-     */
-    public int getType() {
-        return glyphType;
-    }
-
-    /**
-     * Returns <code>true</code> if this is a standard glyph.
-     * @return <code>true</code> if this is a standard glyph;
-     *          <code>false</code> otherwise.
-     */
-    public boolean isStandard() {
-        return (glyphType & 0x3) == STANDARD;
-    }
-
-    /**
-     * Returns <code>true</code> if this is a ligature glyph.
-     * @return <code>true</code> if this is a ligature glyph;
-     *          <code>false</code> otherwise.
-     */
-    public boolean isLigature() {
-        return (glyphType & 0x3) == LIGATURE;
-    }
-
-    /**
-     * Returns <code>true</code> if this is a combining glyph.
-     * @return <code>true</code> if this is a combining glyph;
-     *          <code>false</code> otherwise.
-     */
-    public boolean isCombining() {
-        return (glyphType & 0x3) == COMBINING;
-    }
-
-    /**
-     * Returns <code>true</code> if this is a component glyph.
-     * @return <code>true</code> if this is a component glyph;
-     *          <code>false</code> otherwise.
-     */
-    public boolean isComponent() {
-        return (glyphType & 0x3) == COMPONENT;
-    }
-
-    /**
-     * Returns <code>true</code> if this is a whitespace glyph.
-     * @return <code>true</code> if this is a whitespace glyph;
-     *          <code>false</code> otherwise.
-     */
-    public boolean isWhitespace() {
-        return (glyphType & 0x4) == WHITESPACE;
-    }
+  /**
+   * Returns <code>true</code> if this is a whitespace glyph.
+   *
+   * @return <code>true</code> if this is a whitespace glyph;
+   * <code>false</code> otherwise.
+   */
+  public boolean isWhitespace() {
+    return (glyphType & 0x4) == WHITESPACE;
+  }
 }

@@ -35,23 +35,23 @@ import sun.awt.im.InputContext;
  * Input method support for toolkits
  */
 public interface InputMethodSupport {
-    /**
-     * Returns a new input method adapter descriptor for native input methods.
-     */
-    InputMethodDescriptor getInputMethodAdapterDescriptor()
-        throws AWTException;
-    /**
-     * Returns a new input method window for the platform
-     */
-    Window createInputMethodWindow(String title, InputContext context);
+  /**
+   * Returns a new input method adapter descriptor for native input methods.
+   */
+  InputMethodDescriptor getInputMethodAdapterDescriptor() throws AWTException;
 
-    /**
-     * Returns whether input methods are enabled on the platform
-     */
-    boolean enableInputMethodsForTextComponent();
+  /**
+   * Returns a new input method window for the platform
+   */
+  Window createInputMethodWindow(String title, InputContext context);
 
-    /**
-     * Returns the default keyboard locale of the underlying operating system.
-     */
-    Locale getDefaultKeyboardLocale();
+  /**
+   * Returns whether input methods are enabled on the platform
+   */
+  boolean enableInputMethodsForTextComponent();
+
+  /**
+   * Returns the default keyboard locale of the underlying operating system.
+   */
+  Locale getDefaultKeyboardLocale();
 }

@@ -25,19 +25,18 @@
 
 package sun.awt.image;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Image;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferUShort;
 import java.awt.image.DataBufferInt;
+import java.awt.image.DataBufferUShort;
 import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
-
 import sun.java2d.StateTrackable.State;
-import sun.java2d.SurfaceData;
 import sun.java2d.StateTrackableDelegate;
+import sun.java2d.SurfaceData;
 
 /**
  * This class exists as a middle layer between WritableRaster and its
@@ -48,92 +47,90 @@ import sun.java2d.StateTrackableDelegate;
  * DataBuffer so that it can be updated when the data is changed.
  */
 public class SunWritableRaster extends WritableRaster {
-    private static DataStealer stealer;
+  private static DataStealer stealer;
+  private StateTrackableDelegate theTrackable;
 
-    public static interface DataStealer {
-        public byte[] getData(DataBufferByte dbb, int bank);
-        public short[] getData(DataBufferUShort dbus, int bank);
-        public int[] getData(DataBufferInt dbi, int bank);
-        public StateTrackableDelegate getTrackable(DataBuffer db);
-        public void setTrackable(DataBuffer db, StateTrackableDelegate trackable);
+  public SunWritableRaster(SampleModel sampleModel, Point origin) {
+    super(sampleModel, origin);
+    theTrackable = stealTrackable(dataBuffer);
+  }
+
+  public SunWritableRaster(
+      SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
+    super(sampleModel, dataBuffer, origin);
+    theTrackable = stealTrackable(dataBuffer);
+  }
+
+  public SunWritableRaster(
+      SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point sampleModelTranslate,
+      WritableRaster parent) {
+    super(sampleModel, dataBuffer, aRegion, sampleModelTranslate, parent);
+    theTrackable = stealTrackable(dataBuffer);
+  }
+
+  public static void setDataStealer(DataStealer ds) {
+    if (stealer != null) {
+      throw new InternalError("Attempt to set DataStealer twice");
     }
+    stealer = ds;
+  }
 
-    public static void setDataStealer(DataStealer ds) {
-        if (stealer != null) {
-            throw new InternalError("Attempt to set DataStealer twice");
-        }
-        stealer = ds;
+  public static byte[] stealData(DataBufferByte dbb, int bank) {
+    return stealer.getData(dbb, bank);
+  }
+
+  public static short[] stealData(DataBufferUShort dbus, int bank) {
+    return stealer.getData(dbus, bank);
+  }
+
+  public static int[] stealData(DataBufferInt dbi, int bank) {
+    return stealer.getData(dbi, bank);
+  }
+
+  public static StateTrackableDelegate stealTrackable(DataBuffer db) {
+    return stealer.getTrackable(db);
+  }
+
+  public static void setTrackable(DataBuffer db, StateTrackableDelegate trackable) {
+    stealer.setTrackable(db, trackable);
+  }
+
+  public static void makeTrackable(DataBuffer db) {
+    stealer.setTrackable(db, StateTrackableDelegate.createInstance(State.STABLE));
+  }
+
+  public static void markDirty(DataBuffer db) {
+    stealer.getTrackable(db).markDirty();
+  }
+
+  public static void markDirty(WritableRaster wr) {
+    if (wr instanceof SunWritableRaster) {
+      ((SunWritableRaster) wr).markDirty();
+    } else {
+      markDirty(wr.getDataBuffer());
     }
+  }
 
-    public static byte[] stealData(DataBufferByte dbb, int bank) {
-        return stealer.getData(dbb, bank);
-    }
+  public static void markDirty(Image img) {
+    SurfaceData.getPrimarySurfaceData(img).markDirty();
+  }
 
-    public static short[] stealData(DataBufferUShort dbus, int bank) {
-        return stealer.getData(dbus, bank);
-    }
+  /**
+   * Mark the TrackableDelegate of the associated DataBuffer dirty.
+   */
+  public final void markDirty() {
+    theTrackable.markDirty();
+  }
 
-    public static int[] stealData(DataBufferInt dbi, int bank) {
-        return stealer.getData(dbi, bank);
-    }
+  public static interface DataStealer {
+    public byte[] getData(DataBufferByte dbb, int bank);
 
-    public static StateTrackableDelegate stealTrackable(DataBuffer db) {
-        return stealer.getTrackable(db);
-    }
+    public short[] getData(DataBufferUShort dbus, int bank);
 
-    public static void setTrackable(DataBuffer db, StateTrackableDelegate trackable) {
-        stealer.setTrackable(db, trackable);
-    }
+    public int[] getData(DataBufferInt dbi, int bank);
 
-    public static void makeTrackable(DataBuffer db) {
-        stealer.setTrackable(db, StateTrackableDelegate.createInstance(State.STABLE));
-    }
+    public StateTrackableDelegate getTrackable(DataBuffer db);
 
-    public static void markDirty(DataBuffer db) {
-        stealer.getTrackable(db).markDirty();
-    }
-
-    public static void markDirty(WritableRaster wr) {
-        if (wr instanceof SunWritableRaster) {
-            ((SunWritableRaster) wr).markDirty();
-        } else {
-            markDirty(wr.getDataBuffer());
-        }
-    }
-
-    public static void markDirty(Image img) {
-        SurfaceData.getPrimarySurfaceData(img).markDirty();
-    }
-
-    private StateTrackableDelegate theTrackable;
-
-    public SunWritableRaster(SampleModel sampleModel, Point origin) {
-        super(sampleModel, origin);
-        theTrackable = stealTrackable(dataBuffer);
-    }
-
-    public SunWritableRaster(SampleModel sampleModel,
-                             DataBuffer dataBuffer,
-                             Point origin)
-    {
-        super(sampleModel, dataBuffer, origin);
-        theTrackable = stealTrackable(dataBuffer);
-    }
-
-    public SunWritableRaster(SampleModel sampleModel,
-                             DataBuffer dataBuffer,
-                             Rectangle aRegion,
-                             Point sampleModelTranslate,
-                             WritableRaster parent)
-    {
-        super(sampleModel, dataBuffer, aRegion, sampleModelTranslate, parent);
-        theTrackable = stealTrackable(dataBuffer);
-    }
-
-    /**
-     * Mark the TrackableDelegate of the associated DataBuffer dirty.
-     */
-    public final void markDirty() {
-        theTrackable.markDirty();
-    }
+    public void setTrackable(DataBuffer db, StateTrackableDelegate trackable);
+  }
 }

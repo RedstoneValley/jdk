@@ -43,18 +43,18 @@ import j2dbench.Group;
 
 public class ColorConversionTests extends CMMTests {
 
-    protected static Group colorConvRoot;
+  protected static Group colorConvRoot;
 
-    public static void init() {
-        colorConvRoot = new Group(cmmRoot, "colorconv", "Color Conversion Benchmarks");
-        colorConvRoot.setTabbed();
+  protected ColorConversionTests(Group parent, String nodeName, String description) {
+    super(parent, nodeName, description);
+  }
 
-        DataConversionTests.init();
-        ColorConvertOpTests.init();
-        EmbeddedProfileTests.init();
-    }
+  public static void init() {
+    colorConvRoot = new Group(cmmRoot, "colorconv", "Color Conversion Benchmarks");
+    colorConvRoot.setTabbed();
 
-    protected ColorConversionTests(Group parent, String nodeName, String description) {
-        super(parent, nodeName, description);
-    }
+    DataConversionTests.init();
+    ColorConvertOpTests.init();
+    EmbeddedProfileTests.init();
+  }
 }

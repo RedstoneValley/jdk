@@ -26,6 +26,6 @@
 package sun.awt.image;
 
 public class BadDepthException extends Exception {
-    public BadDepthException() {
-    }
+  public BadDepthException() {
+  }
 }

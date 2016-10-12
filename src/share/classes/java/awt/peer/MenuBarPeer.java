@@ -29,7 +29,7 @@ import java.awt.MenuBar;
 
 /**
  * The peer interface for {@link MenuBar}.
- *
+ * <p>
  * The peer interfaces are intended only for use in porting
  * the AWT. They are not intended for use by application
  * developers, and developers should not implement peers
@@ -38,30 +38,27 @@ import java.awt.MenuBar;
  */
 public interface MenuBarPeer extends MenuComponentPeer {
 
-    /**
-     * Adds a menu to the menu bar.
-     *
-     * @param m the menu to add
-     *
-     * @see MenuBar#add(Menu)
-     */
-    void addMenu(Menu m);
+  /**
+   * Adds a menu to the menu bar.
+   *
+   * @param m the menu to add
+   * @see MenuBar#add(Menu)
+   */
+  void addMenu(Menu m);
 
-    /**
-     * Deletes a menu from the menu bar.
-     *
-     * @param index the index of the menu to remove
-     *
-     * @see MenuBar#remove(int)
-     */
-    void delMenu(int index);
+  /**
+   * Deletes a menu from the menu bar.
+   *
+   * @param index the index of the menu to remove
+   * @see MenuBar#remove(int)
+   */
+  void delMenu(int index);
 
-    /**
-     * Adds a help menu to the menu bar.
-     *
-     * @param m the help menu to add
-     *
-     * @see MenuBar#setHelpMenu(Menu)
-     */
-    void addHelpMenu(Menu m);
+  /**
+   * Adds a help menu to the menu bar.
+   *
+   * @param m the help menu to add
+   * @see MenuBar#setHelpMenu(Menu)
+   */
+  void addHelpMenu(Menu m);
 }

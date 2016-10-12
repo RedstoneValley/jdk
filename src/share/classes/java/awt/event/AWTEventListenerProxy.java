@@ -25,8 +25,8 @@
 
 package java.awt.event;
 
-import java.util.EventListenerProxy;
 import java.awt.AWTEvent;
+import java.util.EventListenerProxy;
 
 /**
  * A class which extends the {@code EventListenerProxy}
@@ -43,39 +43,38 @@ import java.awt.AWTEvent;
  * @see java.util.EventListenerProxy
  * @since 1.4
  */
-public class AWTEventListenerProxy
-        extends EventListenerProxy<AWTEventListener>
-        implements AWTEventListener {
+public class AWTEventListenerProxy extends EventListenerProxy<AWTEventListener>
+    implements AWTEventListener {
 
-    private final long eventMask;
+  private final long eventMask;
 
-    /**
-     * Constructor which binds the {@code AWTEventListener}
-     * to a specific event mask.
-     *
-     * @param eventMask  the bitmap of event types to receive
-     * @param listener   the listener object
-     */
-    public AWTEventListenerProxy (long eventMask, AWTEventListener listener) {
-        super(listener);
-        this.eventMask = eventMask;
-    }
+  /**
+   * Constructor which binds the {@code AWTEventListener}
+   * to a specific event mask.
+   *
+   * @param eventMask the bitmap of event types to receive
+   * @param listener  the listener object
+   */
+  public AWTEventListenerProxy(long eventMask, AWTEventListener listener) {
+    super(listener);
+    this.eventMask = eventMask;
+  }
 
-    /**
-     * Forwards the AWT event to the listener delegate.
-     *
-     * @param event  the AWT event
-     */
-    public void eventDispatched(AWTEvent event) {
-        getListener().eventDispatched(event);
-    }
+  /**
+   * Forwards the AWT event to the listener delegate.
+   *
+   * @param event the AWT event
+   */
+  public void eventDispatched(AWTEvent event) {
+    getListener().eventDispatched(event);
+  }
 
-    /**
-     * Returns the event mask associated with the listener.
-     *
-     * @return the event mask associated with the listener
-     */
-    public long getEventMask() {
-        return this.eventMask;
-    }
+  /**
+   * Returns the event mask associated with the listener.
+   *
+   * @return the event mask associated with the listener
+   */
+  public long getEventMask() {
+    return this.eventMask;
+  }
 }

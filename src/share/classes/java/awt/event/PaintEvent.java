@@ -46,94 +46,93 @@ import java.awt.Rectangle;
  */
 public class PaintEvent extends ComponentEvent {
 
-    /**
-     * Marks the first integer id for the range of paint event ids.
-     */
-    public static final int PAINT_FIRST         = 800;
+  /**
+   * Marks the first integer id for the range of paint event ids.
+   */
+  public static final int PAINT_FIRST = 800;
 
-    /**
-     * Marks the last integer id for the range of paint event ids.
-     */
-    public static final int PAINT_LAST          = 801;
+  /**
+   * Marks the last integer id for the range of paint event ids.
+   */
+  public static final int PAINT_LAST = 801;
 
-    /**
-     * The paint event type.
-     */
-    public static final int PAINT = PAINT_FIRST;
+  /**
+   * The paint event type.
+   */
+  public static final int PAINT = PAINT_FIRST;
 
-    /**
-     * The update event type.
-     */
-    public static final int UPDATE = PAINT_FIRST + 1; //801
+  /**
+   * The update event type.
+   */
+  public static final int UPDATE = PAINT_FIRST + 1; //801
+  /*
+   * JDK 1.1 serialVersionUID
+   */
+  private static final long serialVersionUID = 1267492026433337593L;
+  /**
+   * This is the rectangle that represents the area on the source
+   * component that requires a repaint.
+   * This rectangle should be non null.
+   *
+   * @serial
+   * @see java.awt.Rectangle
+   * @see #setUpdateRect(Rectangle)
+   * @see #getUpdateRect()
+   */
+  Rectangle updateRect;
 
-    /**
-     * This is the rectangle that represents the area on the source
-     * component that requires a repaint.
-     * This rectangle should be non null.
-     *
-     * @serial
-     * @see java.awt.Rectangle
-     * @see #setUpdateRect(Rectangle)
-     * @see #getUpdateRect()
-     */
-    Rectangle updateRect;
+  /**
+   * Constructs a <code>PaintEvent</code> object with the specified
+   * source component and type.
+   * <p> This method throws an
+   * <code>IllegalArgumentException</code> if <code>source</code>
+   * is <code>null</code>.
+   *
+   * @param source     The object where the event originated
+   * @param id         The integer that identifies the event type.
+   *                   For information on allowable values, see
+   *                   the class description for {@link PaintEvent}
+   * @param updateRect The rectangle area which needs to be repainted
+   * @throws IllegalArgumentException if <code>source</code> is null
+   * @see #getSource()
+   * @see #getID()
+   * @see #getUpdateRect()
+   */
+  public PaintEvent(Component source, int id, Rectangle updateRect) {
+    super(source, id);
+    this.updateRect = updateRect;
+  }
 
-    /*
-     * JDK 1.1 serialVersionUID
-     */
-    private static final long serialVersionUID = 1267492026433337593L;
+  /**
+   * Returns the rectangle representing the area which needs to be
+   * repainted in response to this event.
+   */
+  public Rectangle getUpdateRect() {
+    return updateRect;
+  }
 
-    /**
-     * Constructs a <code>PaintEvent</code> object with the specified
-     * source component and type.
-     * <p> This method throws an
-     * <code>IllegalArgumentException</code> if <code>source</code>
-     * is <code>null</code>.
-     *
-     * @param source     The object where the event originated
-     * @param id           The integer that identifies the event type.
-     *                     For information on allowable values, see
-     *                     the class description for {@link PaintEvent}
-     * @param updateRect The rectangle area which needs to be repainted
-     * @throws IllegalArgumentException if <code>source</code> is null
-     * @see #getSource()
-     * @see #getID()
-     * @see #getUpdateRect()
-     */
-    public PaintEvent(Component source, int id, Rectangle updateRect) {
-        super(source, id);
-        this.updateRect = updateRect;
+  /**
+   * Sets the rectangle representing the area which needs to be
+   * repainted in response to this event.
+   *
+   * @param updateRect the rectangle area which needs to be repainted
+   */
+  public void setUpdateRect(Rectangle updateRect) {
+    this.updateRect = updateRect;
+  }
+
+  public String paramString() {
+    String typeStr;
+    switch (id) {
+      case PAINT:
+        typeStr = "PAINT";
+        break;
+      case UPDATE:
+        typeStr = "UPDATE";
+        break;
+      default:
+        typeStr = "unknown type";
     }
-
-    /**
-     * Returns the rectangle representing the area which needs to be
-     * repainted in response to this event.
-     */
-    public Rectangle getUpdateRect() {
-        return updateRect;
-    }
-
-    /**
-     * Sets the rectangle representing the area which needs to be
-     * repainted in response to this event.
-     * @param updateRect the rectangle area which needs to be repainted
-     */
-    public void setUpdateRect(Rectangle updateRect) {
-        this.updateRect = updateRect;
-    }
-
-    public String paramString() {
-        String typeStr;
-        switch(id) {
-          case PAINT:
-              typeStr = "PAINT";
-              break;
-          case UPDATE:
-              typeStr = "UPDATE";
-              break;
-          default:
-              typeStr = "unknown type";
-        }
-        return typeStr + ",updateRect="+(updateRect != null ? updateRect.toString() : "null");
-    }
+    return typeStr + ",updateRect=" + (updateRect != null ? updateRect.toString() : "null");
+  }
 }

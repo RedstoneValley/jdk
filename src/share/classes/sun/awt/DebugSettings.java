@@ -25,9 +25,17 @@
 
 package sun.awt;
 
-import java.io.*;
-
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.StringBufferInputStream;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 import sun.util.logging.PlatformLogger;
 
 /*
@@ -72,240 +80,234 @@ import sun.util.logging.PlatformLogger;
  * the fix for 4638447).
  */
 final class DebugSettings {
-    private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.debug.DebugSettings");
+  /* standard debug property key names */
+  static final String PREFIX = "awtdebug";
+  static final String PROP_FILE = "properties";
+  private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.debug.DebugSettings");
+  /* default property settings */
+  private static final String DEFAULT_PROPS[] = {
+      "awtdebug.assert=true", "awtdebug.trace=false", "awtdebug.on=true", "awtdebug.ctrace=false"};
+  private static final String PROP_CTRACE = "ctrace";
+  private static final int PROP_CTRACE_LEN = PROP_CTRACE.length();
+  /* global instance of the settings object */
+  private static DebugSettings instance = null;
+  private Properties props = new Properties();
 
-    /* standard debug property key names */
-    static final String PREFIX = "awtdebug";
-    static final String PROP_FILE = "properties";
+  private DebugSettings() {
+    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
+      public Void run() {
+        loadProperties();
+        return null;
+      }
+    });
+  }
 
-    /* default property settings */
-    private static final String DEFAULT_PROPS[] = {
-        "awtdebug.assert=true",
-        "awtdebug.trace=false",
-        "awtdebug.on=true",
-        "awtdebug.ctrace=false"
-    };
-
-    /* global instance of the settings object */
-    private static DebugSettings instance = null;
-
-    private Properties props = new Properties();
-
-    static void init() {
-        if (instance != null) {
-            return;
-        }
-
-        NativeLibLoader.loadLibraries();
-        instance = new DebugSettings();
-        instance.loadNativeSettings();
+  static void init() {
+    if (instance != null) {
+      return;
     }
 
-    private DebugSettings() {
-        java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction<Void>() {
-                public Void run() {
-                    loadProperties();
-                    return null;
-                }
-            });
+    NativeLibLoader.loadLibraries();
+    instance = new DebugSettings();
+    instance.loadNativeSettings();
+  }
+
+  /*
+   * Load debug properties from file, then override
+   * with any command line specified properties
+   */
+  private synchronized void loadProperties() {
+    // setup initial properties
+    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
+      public Void run() {
+        loadDefaultProperties();
+        loadFileProperties();
+        loadSystemProperties();
+        return null;
+      }
+    });
+
+    // echo the initial property settings to stdout
+    if (true) {
+      log.fine("DebugSettings:\n{0}", this);
+    }
+  }
+
+  public String toString() {
+    ByteArrayOutputStream bout = new ByteArrayOutputStream();
+    PrintStream pout = new PrintStream(bout);
+    for (String key : props.stringPropertyNames()) {
+      String value = props.getProperty(key, "");
+      pout.println(key + " = " + value);
+    }
+    return new String(bout.toByteArray());
+  }
+
+  /*
+   * Sets up default property values
+   */
+  private void loadDefaultProperties() {
+    // is there a more inefficient way to setup default properties?
+    // maybe, but this has got to be close to 100% non-optimal
+    try {
+      for (int nprop = 0; nprop < DEFAULT_PROPS.length; nprop++) {
+        StringBufferInputStream in = new StringBufferInputStream(DEFAULT_PROPS[nprop]);
+        props.load(in);
+        in.close();
+      }
+    } catch (IOException ioe) {
+    }
+  }
+
+  /*
+   * load properties from file, overriding defaults
+   */
+  private void loadFileProperties() {
+    String propPath;
+    Properties fileProps;
+
+    // check if the user specified a particular settings file
+    propPath = System.getProperty(PREFIX + "." + PROP_FILE, "");
+    if (propPath.equals("")) {
+      // otherwise get it from the user's home directory
+      propPath = System.getProperty("user.home", "") +
+          File.separator +
+          PREFIX + "." + PROP_FILE;
     }
 
-    /*
-     * Load debug properties from file, then override
-     * with any command line specified properties
-     */
-    private synchronized void loadProperties() {
-        // setup initial properties
-        java.security.AccessController.doPrivileged(
-            new java.security.PrivilegedAction<Void>() {
-                public Void run() {
-                    loadDefaultProperties();
-                    loadFileProperties();
-                    loadSystemProperties();
-                    return null;
-                }
-            });
+    File propFile = new File(propPath);
+    try {
+      println("Reading debug settings from '" + propFile.getCanonicalPath() + "'...");
+      FileInputStream fin = new FileInputStream(propFile);
+      props.load(fin);
+      fin.close();
+    } catch (FileNotFoundException fne) {
+      println("Did not find settings file.");
+    } catch (IOException ioe) {
+      println("Problem reading settings, IOException: " + ioe.getMessage());
+    }
+  }
 
-        // echo the initial property settings to stdout
-        if (log.isLoggable(PlatformLogger.Level.FINE)) {
-            log.fine("DebugSettings:\n{0}", this);
-        }
+  /*
+   * load properties from system props (command line spec'd usually),
+   * overriding default or file properties
+   */
+  private void loadSystemProperties() {
+    // override file properties with system properties
+    Properties sysProps = System.getProperties();
+    for (String key : sysProps.stringPropertyNames()) {
+      String value = sysProps.getProperty(key, "");
+      // copy any "awtdebug" properties over
+      if (key.startsWith(PREFIX)) {
+        props.setProperty(key, value);
+      }
+    }
+  }
+
+  /**
+   * Gets named boolean property
+   *
+   * @param key    Name of property
+   * @param defval Default value if property does not exist
+   * @return boolean value of the named property
+   */
+  public synchronized boolean getBoolean(String key, boolean defval) {
+    String value = getString(key, String.valueOf(defval));
+    return value.equalsIgnoreCase("true");
+  }
+
+  /**
+   * Gets named integer property
+   *
+   * @param key    Name of property
+   * @param defval Default value if property does not exist
+   * @return integer value of the named property
+   */
+  public synchronized int getInt(String key, int defval) {
+    String value = getString(key, String.valueOf(defval));
+    return Integer.parseInt(value);
+  }
+
+  /**
+   * Gets named String property
+   *
+   * @param key    Name of property
+   * @param defval Default value if property does not exist
+   * @return string value of the named property
+   */
+  public synchronized String getString(String key, String defval) {
+    String actualKeyName = PREFIX + "." + key;
+    String value = props.getProperty(actualKeyName, defval);
+    //println(actualKeyName+"="+value);
+    return value;
+  }
+
+  private synchronized List<String> getPropertyNames() {
+    List<String> propNames = new LinkedList<>();
+    // remove global prefix from property names
+    for (String propName : props.stringPropertyNames()) {
+      propName = propName.substring(PREFIX.length() + 1);
+      propNames.add(propName);
+    }
+    return propNames;
+  }
+
+  private void println(Object object) {
+    if (true) {
+      log.finer(object.toString());
+    }
+  }
+
+  private native synchronized void setCTracingOn(boolean enabled);
+
+  private native synchronized void setCTracingOn(boolean enabled, String file);
+
+  private native synchronized void setCTracingOn(boolean enabled, String file, int line);
+
+  private void loadNativeSettings() {
+    boolean ctracingOn;
+
+    ctracingOn = getBoolean(PROP_CTRACE, false);
+    setCTracingOn(ctracingOn);
+
+    //
+    // Filter out file/line ctrace properties from debug settings
+    //
+    List<String> traces = new LinkedList<>();
+
+    for (String key : getPropertyNames()) {
+      if (key.startsWith(PROP_CTRACE) && key.length() > PROP_CTRACE_LEN) {
+        traces.add(key);
+      }
     }
 
-    public String toString() {
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        PrintStream pout = new PrintStream(bout);
-        for (String key : props.stringPropertyNames()) {
-            String value = props.getProperty(key, "");
-            pout.println(key + " = " + value);
-        }
-        return new String(bout.toByteArray());
+    // sort traces list so file-level traces will be before line-level ones
+    Collections.sort(traces);
+
+    //
+    // Setup the trace points
+    //
+    for (String key : traces) {
+      String trace = key.substring(PROP_CTRACE_LEN + 1);
+      String filespec;
+      String linespec;
+      int delim = trace.indexOf('@');
+      boolean enabled;
+
+      // parse out the filename and linenumber from the property name
+      filespec = delim != -1 ? trace.substring(0, delim) : trace;
+      linespec = delim != -1 ? trace.substring(delim + 1) : "";
+      enabled = getBoolean(key, false);
+      //System.out.println("Key="+key+", File="+filespec+", Line="+linespec+", Enabled="+enabled);
+
+      if (linespec.length() == 0) {
+        // set file specific trace setting
+        setCTracingOn(enabled, filespec);
+      } else {
+        // set line specific trace setting
+        int linenum = Integer.parseInt(linespec, 10);
+        setCTracingOn(enabled, filespec, linenum);
+      }
     }
-
-    /*
-     * Sets up default property values
-     */
-    private void loadDefaultProperties() {
-        // is there a more inefficient way to setup default properties?
-        // maybe, but this has got to be close to 100% non-optimal
-        try {
-            for ( int nprop = 0; nprop < DEFAULT_PROPS.length; nprop++ ) {
-                StringBufferInputStream in = new StringBufferInputStream(DEFAULT_PROPS[nprop]);
-                props.load(in);
-                in.close();
-            }
-        } catch(IOException ioe) {
-        }
-    }
-
-    /*
-     * load properties from file, overriding defaults
-     */
-    private void loadFileProperties() {
-        String          propPath;
-        Properties      fileProps;
-
-        // check if the user specified a particular settings file
-        propPath = System.getProperty(PREFIX + "." + PROP_FILE, "");
-        if (propPath.equals("")) {
-        // otherwise get it from the user's home directory
-            propPath = System.getProperty("user.home", "") +
-                        File.separator +
-                        PREFIX + "." + PROP_FILE;
-        }
-
-        File    propFile = new File(propPath);
-        try {
-            println("Reading debug settings from '" + propFile.getCanonicalPath() + "'...");
-            FileInputStream     fin = new FileInputStream(propFile);
-            props.load(fin);
-            fin.close();
-        } catch ( FileNotFoundException fne ) {
-            println("Did not find settings file.");
-        } catch ( IOException ioe ) {
-            println("Problem reading settings, IOException: " + ioe.getMessage());
-        }
-    }
-
-    /*
-     * load properties from system props (command line spec'd usually),
-     * overriding default or file properties
-     */
-    private void loadSystemProperties() {
-        // override file properties with system properties
-        Properties sysProps = System.getProperties();
-        for (String key : sysProps.stringPropertyNames()) {
-            String value = sysProps.getProperty(key,"");
-            // copy any "awtdebug" properties over
-            if ( key.startsWith(PREFIX) ) {
-                props.setProperty(key, value);
-            }
-        }
-    }
-
-    /**
-     * Gets named boolean property
-     * @param key       Name of property
-     * @param defval    Default value if property does not exist
-     * @return boolean value of the named property
-     */
-    public synchronized boolean getBoolean(String key, boolean defval) {
-        String  value = getString(key, String.valueOf(defval));
-        return value.equalsIgnoreCase("true");
-    }
-
-    /**
-     * Gets named integer property
-     * @param key       Name of property
-     * @param defval    Default value if property does not exist
-     * @return integer value of the named property
-     */
-    public synchronized int getInt(String key, int defval) {
-        String  value = getString(key, String.valueOf(defval));
-        return Integer.parseInt(value);
-    }
-
-    /**
-     * Gets named String property
-     * @param key       Name of property
-     * @param defval    Default value if property does not exist
-     * @return string value of the named property
-     */
-    public synchronized String getString(String key, String defval) {
-        String  actualKeyName = PREFIX + "." + key;
-        String  value = props.getProperty(actualKeyName, defval);
-        //println(actualKeyName+"="+value);
-        return value;
-    }
-
-    private synchronized List<String> getPropertyNames() {
-        List<String> propNames = new LinkedList<>();
-        // remove global prefix from property names
-        for (String propName : props.stringPropertyNames()) {
-            propName = propName.substring(PREFIX.length()+1);
-            propNames.add(propName);
-        }
-        return propNames;
-    }
-
-    private void println(Object object) {
-        if (log.isLoggable(PlatformLogger.Level.FINER)) {
-            log.finer(object.toString());
-        }
-    }
-
-    private static final String PROP_CTRACE = "ctrace";
-    private static final int PROP_CTRACE_LEN = PROP_CTRACE.length();
-
-    private native synchronized void setCTracingOn(boolean enabled);
-    private native synchronized void setCTracingOn(boolean enabled, String file);
-    private native synchronized void setCTracingOn(boolean enabled, String file, int line);
-
-    private void loadNativeSettings() {
-        boolean        ctracingOn;
-
-        ctracingOn = getBoolean(PROP_CTRACE, false);
-        setCTracingOn(ctracingOn);
-
-        //
-        // Filter out file/line ctrace properties from debug settings
-        //
-        List<String> traces = new LinkedList<>();
-
-        for (String key : getPropertyNames()) {
-            if (key.startsWith(PROP_CTRACE) && key.length() > PROP_CTRACE_LEN) {
-                traces.add(key);
-            }
-        }
-
-        // sort traces list so file-level traces will be before line-level ones
-        Collections.sort(traces);
-
-        //
-        // Setup the trace points
-        //
-        for (String key : traces) {
-            String        trace = key.substring(PROP_CTRACE_LEN+1);
-            String        filespec;
-            String        linespec;
-            int           delim= trace.indexOf('@');
-            boolean       enabled;
-
-            // parse out the filename and linenumber from the property name
-            filespec = delim != -1 ? trace.substring(0, delim) : trace;
-            linespec = delim != -1 ? trace.substring(delim+1) : "";
-            enabled = getBoolean(key, false);
-            //System.out.println("Key="+key+", File="+filespec+", Line="+linespec+", Enabled="+enabled);
-
-            if ( linespec.length() == 0 ) {
-            // set file specific trace setting
-                    setCTracingOn(enabled, filespec);
-            } else {
-            // set line specific trace setting
-                int        linenum = Integer.parseInt(linespec, 10);
-                setCTracingOn(enabled, filespec, linenum);
-            }
-        }
-    }
+  }
 }

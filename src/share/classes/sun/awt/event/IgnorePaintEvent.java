@@ -33,10 +33,9 @@ import java.awt.event.PaintEvent;
  * tagging.  If a heavy weight peer is asked to handle an event of this
  * class it'll ignore it.  This class is used by Swing.
  * Look at <code>javax.swing.SwingPaintEventDispatcher</code> for more.
- *
  */
 public class IgnorePaintEvent extends PaintEvent {
-    public IgnorePaintEvent(Component source, int id, Rectangle updateRect) {
-        super(source, id, updateRect);
-    }
+  public IgnorePaintEvent(Component source, int id, Rectangle updateRect) {
+    super(source, id, updateRect);
+  }
 }

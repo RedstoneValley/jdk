@@ -34,50 +34,52 @@ package java.awt;
  * children to overlap, the <code>JComponent</code> must override
  * <code>isOptimizedDrawingEnabled</code> to return false.
  *
+ * @author Sami Shaio
+ * @author Arthur van Hoff
  * @see Container
  * @see javax.swing.JComponent#isOptimizedDrawingEnabled
- *
- * @author      Sami Shaio
- * @author      Arthur van Hoff
  */
 public interface LayoutManager {
-    /**
-     * If the layout manager uses a per-component string,
-     * adds the component <code>comp</code> to the layout,
-     * associating it
-     * with the string specified by <code>name</code>.
-     *
-     * @param name the string to be associated with the component
-     * @param comp the component to be added
-     */
-    void addLayoutComponent(String name, Component comp);
+  /**
+   * If the layout manager uses a per-component string,
+   * adds the component <code>comp</code> to the layout,
+   * associating it
+   * with the string specified by <code>name</code>.
+   *
+   * @param name the string to be associated with the component
+   * @param comp the component to be added
+   */
+  void addLayoutComponent(String name, Component comp);
 
-    /**
-     * Removes the specified component from the layout.
-     * @param comp the component to be removed
-     */
-    void removeLayoutComponent(Component comp);
+  /**
+   * Removes the specified component from the layout.
+   *
+   * @param comp the component to be removed
+   */
+  void removeLayoutComponent(Component comp);
 
-    /**
-     * Calculates the preferred size dimensions for the specified
-     * container, given the components it contains.
-     * @param parent the container to be laid out
-     *
-     * @see #minimumLayoutSize
-     */
-    Dimension preferredLayoutSize(Container parent);
+  /**
+   * Calculates the preferred size dimensions for the specified
+   * container, given the components it contains.
+   *
+   * @param parent the container to be laid out
+   * @see #minimumLayoutSize
+   */
+  Dimension preferredLayoutSize(Container parent);
 
-    /**
-     * Calculates the minimum size dimensions for the specified
-     * container, given the components it contains.
-     * @param parent the component to be laid out
-     * @see #preferredLayoutSize
-     */
-    Dimension minimumLayoutSize(Container parent);
+  /**
+   * Calculates the minimum size dimensions for the specified
+   * container, given the components it contains.
+   *
+   * @param parent the component to be laid out
+   * @see #preferredLayoutSize
+   */
+  Dimension minimumLayoutSize(Container parent);
 
-    /**
-     * Lays out the specified container.
-     * @param parent the container to be laid out
-     */
-    void layoutContainer(Container parent);
+  /**
+   * Lays out the specified container.
+   *
+   * @param parent the container to be laid out
+   */
+  void layoutContainer(Container parent);
 }

@@ -40,22 +40,22 @@ import java.util.EventListener;
  * the relevant method in the listener object
  * is invoked, and the <code>FocusEvent</code> is passed to it.
  *
+ * @author Carl Quinn
  * @see FocusAdapter
  * @see FocusEvent
- * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/focuslistener.html">Tutorial: Writing a Focus Listener</a>
- *
- * @author Carl Quinn
+ * @see <a href="http://docs.oracle.com/javase/tutorial/uiswing/events/focuslistener.html">Tutorial:
+ * Writing a Focus Listener</a>
  * @since 1.1
  */
 public interface FocusListener extends EventListener {
 
-    /**
-     * Invoked when a component gains the keyboard focus.
-     */
-    public void focusGained(FocusEvent e);
+  /**
+   * Invoked when a component gains the keyboard focus.
+   */
+  public void focusGained(FocusEvent e);
 
-    /**
-     * Invoked when a component loses the keyboard focus.
-     */
-    public void focusLost(FocusEvent e);
+  /**
+   * Invoked when a component loses the keyboard focus.
+   */
+  public void focusLost(FocusEvent e);
 }

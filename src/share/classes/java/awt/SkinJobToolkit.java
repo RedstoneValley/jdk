@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-
 import java.awt.datatransfer.Clipboard;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.InvalidDnDOperationException;
@@ -47,257 +46,254 @@ import java.util.Properties;
  */
 public class SkinJobToolkit extends Toolkit {
 
-    /** Singleton unless subclassed. */
-    protected SkinJobToolkit() {
-        androidContext = getAndroidContext();
+  protected final Context androidContext;
+  protected final EventQueue eventQueue = new EventQueue();
+  protected Clipboard clipboard;
+
+  /**
+   * Singleton unless subclassed.
+   */
+  protected SkinJobToolkit() {
+    androidContext = getAndroidContext();
+  }
+
+  protected Context getAndroidContext() {
+    return SkinJob.getAndroidApplicationContext();
+  }
+
+  @Override
+  protected DesktopPeer createDesktopPeer(Desktop target) throws HeadlessException {
+    return new SkinJobDesktopPeer(androidContext);
+  }
+
+  @Override
+  protected ButtonPeer createButton(Button target) throws HeadlessException {
+    return new SkinJobButtonPeer(target);
+  }
+
+  @Override
+  protected TextFieldPeer createTextField(TextField target) throws HeadlessException {
+    return new SkinJobTextFieldPeer(target);
+  }
+
+  @Override
+  protected LabelPeer createLabel(Label target) throws HeadlessException {
+    return new SkinJobLabelPeer(target);
+  }
+
+  @Override
+  protected ListPeer createList(List target) throws HeadlessException {
+    return new SkinJobListPeer(target);
+  }
+
+  @Override
+  protected CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException {
+    return new SkinJobCheckboxPeer(target);
+  }
+
+  @Override
+  protected ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException {
+    return new SkinJobScrollbarPeer(target);
+  }
+
+  @Override
+  protected ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException {
+    return new SkinJobScrollPanePeer(target);
+  }
+
+  @Override
+  protected TextAreaPeer createTextArea(TextArea target) throws HeadlessException {
+    return new SkinJobTextFieldPeer(target);
+  }
+
+  @Override
+  protected ChoicePeer createChoice(Choice target) throws HeadlessException {
+    return new SkinJobChoicePeer(target);
+  }
+
+  @Override
+  protected FramePeer createFrame(Frame target) throws HeadlessException {
+    return new SkinJobWindowPeer(target);
+  }
+
+  @Override
+  protected CanvasPeer createCanvas(Canvas target) {
+    return new SkinJobCanvasPeer(target);
+  }
+
+  @Override
+  protected PanelPeer createPanel(Panel target) {
+    return new SkinJobPanelPeer(target);
+  }
+
+  @Override
+  protected WindowPeer createWindow(Window target) throws HeadlessException {
+    return new SkinJobWindowPeer(target);
+  }
+
+  @Override
+  protected DialogPeer createDialog(Dialog target) throws HeadlessException {
+    return new SkinJobWindowPeer(target);
+  }
+
+  @Override
+  protected MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException {
+    return new SkinJobMenuBarPeer(target);
+  }
+
+  @Override
+  protected MenuPeer createMenu(Menu target) throws HeadlessException {
+    return new SkinJobMenuPeer(target);
+  }
+
+  @Override
+  protected PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException {
+    return new SkinJobPopupMenuPeer(target);
+  }
+
+  @Override
+  protected MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException {
+    return new SkinJobMenuItemPeer(target);
+  }
+
+  @Override
+  protected FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException {
+    return new SkinJobFileDialogPeer(target);
+  }
+
+  @Override
+  protected CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target)
+      throws HeadlessException {
+    return new SkinJobMenuItemPeer(target);
+  }
+
+  @Override
+  protected FontPeer getFontPeer(String name, int style) {
+    return new SkinJobFontPeer();
+  }
+
+  @Override
+  public Dimension getScreenSize() throws HeadlessException {
+    return SkinJobGraphicsConfiguration.getDefault().getBounds().getSize();
+  }
+
+  @Override
+  public int getScreenResolution() throws HeadlessException {
+    return (int) (SkinJobGraphicsConfiguration.getDefault().dpi);
+  }
+
+  @Override
+  public ColorModel getColorModel() throws HeadlessException {
+    return ColorModel.getRGBdefault();
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public String[] getFontList() {
+    Class<Typeface> typefaceClass = Typeface.class;
+    try {
+      Field systemFontMapField = typefaceClass.getField("sSystemFontMap");
+      systemFontMapField.setAccessible(true);
+      return ((Map<String, ?>) (systemFontMapField.get(null))).keySet().toArray(new String[0]);
+    } catch (NoSuchFieldException | IllegalAccessException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    protected final Context androidContext;
-    protected final EventQueue eventQueue = new EventQueue();
-    protected Clipboard clipboard;
+  @Override
+  public FontMetrics getFontMetrics(Font font) {
+    return new SkinJobFontMetrics(font);
+  }
 
-    @Override
-    protected CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException {
-        return new SkinJobCheckboxPeer(target);
+  @Override
+  public void sync() {
+    // No-op
+  }
+
+  @Override
+  public Image getImage(String filename) {
+    return new SkinJobImage(filename);
+  }
+
+  @Override
+  public Image getImage(URL url) {
+    return null;
+  }
+
+  @Override
+  public Image createImage(String filename) {
+    return null;
+  }
+
+  @Override
+  public Image createImage(URL url) {
+    return null;
+  }
+
+  @Override
+  public boolean prepareImage(Image image, int width, int height, ImageObserver observer) {
+    return false;
+  }
+
+  @Override
+  public int checkImage(Image image, int width, int height, ImageObserver observer) {
+    return 0;
+  }
+
+  @Override
+  public Image createImage(ImageProducer producer) {
+    return null;
+  }
+
+  @Override
+  public Image createImage(byte[] imagedata, int imageoffset, int imagelength) {
+    return null;
+  }
+
+  @Override
+  public PrintJob getPrintJob(Frame frame, String jobtitle, Properties props) {
+    return null;
+  }
+
+  @Override
+  public void beep() {
+    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+    Ringtone r = RingtoneManager.getRingtone(androidContext, notification);
+    r.play();
+  }
+
+  @Override
+  public Clipboard getSystemClipboard() throws HeadlessException {
+    if (clipboard == null) {
+      clipboard = new SkinJobClipboard(androidContext);
     }
+    return clipboard;
+  }
 
-    @Override
-    protected ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException {
-        return new SkinJobScrollbarPeer(target);
-    }
+  @Override
+  protected EventQueue getSystemEventQueueImpl() {
+    return eventQueue;
+  }
 
-    @Override
-    protected ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException {
-        return new SkinJobScrollPanePeer(target);
-    }
+  @Override
+  public DragSourceContextPeer createDragSourceContextPeer(DragGestureEvent dge)
+      throws InvalidDnDOperationException {
+    return new SkinJobDragSourceContextPeer(dge);
+  }
 
-    @Override
-    protected TextAreaPeer createTextArea(TextArea target) throws HeadlessException {
-        return new SkinJobTextFieldPeer(target);
-    }
+  @Override
+  public boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
+    return false;
+  }
 
-    @Override
-    protected ChoicePeer createChoice(Choice target) throws HeadlessException {
-        return new SkinJobChoicePeer(target);
-    }
+  @Override
+  public boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType modalExclusionType) {
+    return false;
+  }
 
-    @Override
-    protected FramePeer createFrame(Frame target) throws HeadlessException {
-        return new SkinJobWindowPeer(target);
-    }
-
-    @Override
-    protected CanvasPeer createCanvas(Canvas target) {
-        return new SkinJobCanvasPeer(target);
-    }
-
-    @Override
-    protected PanelPeer createPanel(Panel target) {
-        return new SkinJobPanelPeer(target);
-    }
-
-    @Override
-    protected WindowPeer createWindow(Window target) throws HeadlessException {
-        return new SkinJobWindowPeer(target);
-    }
-
-    @Override
-    protected DialogPeer createDialog(Dialog target) throws HeadlessException {
-        return new SkinJobWindowPeer(target);
-    }
-
-    @Override
-    protected MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException {
-        return new SkinJobMenuBarPeer(target);
-    }
-
-    @Override
-    protected MenuPeer createMenu(Menu target) throws HeadlessException {
-        return new SkinJobMenuPeer(target);
-    }
-
-    @Override
-    protected PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException {
-        return new SkinJobPopupMenuPeer(target);
-    }
-
-    @Override
-    protected MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException {
-        return new SkinJobMenuItemPeer(target);
-    }
-
-    @Override
-    protected FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException {
-        return new SkinJobFileDialogPeer(target);
-    }
-
-    @Override
-    protected CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target) throws HeadlessException {
-        return new SkinJobMenuItemPeer(target);
-    }
-
-    @Override
-    protected FontPeer getFontPeer(String name, int style) {
-        return new SkinJobFontPeer();
-    }
-
-    @Override
-    public Dimension getScreenSize() throws HeadlessException {
-        return SkinJobGraphicsConfiguration.getDefault().getBounds().getSize();
-    }
-
-    @Override
-    public int getScreenResolution() throws HeadlessException {
-        return (int) (SkinJobGraphicsConfiguration.getDefault().dpi);
-    }
-
-    @Override
-    public ColorModel getColorModel() throws HeadlessException {
-        return ColorModel.getRGBdefault();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public String[] getFontList() {
-        Class<Typeface> typefaceClass = Typeface.class;
-        try {
-            Field systemFontMapField = typefaceClass.getField("sSystemFontMap");
-            systemFontMapField.setAccessible(true);
-            return ((Map<String, ?>) (systemFontMapField.get(null)))
-                    .keySet()
-                    .toArray(new String[0]);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public FontMetrics getFontMetrics(Font font) {
-        return new SkinJobFontMetrics(font);
-    }
-
-    @Override
-    public void sync() {
-        // No-op
-    }
-
-    @Override
-    public Image getImage(String filename) {
-        return new SkinJobImage(filename);
-    }
-
-    @Override
-    public Image getImage(URL url) {
-        return null;
-    }
-
-    @Override
-    public Image createImage(String filename) {
-        return null;
-    }
-
-    @Override
-    public Image createImage(URL url) {
-        return null;
-    }
-
-    @Override
-    public boolean prepareImage(Image image, int width, int height, ImageObserver observer) {
-        return false;
-    }
-
-    @Override
-    public int checkImage(Image image, int width, int height, ImageObserver observer) {
-        return 0;
-    }
-
-    @Override
-    public Image createImage(ImageProducer producer) {
-        return null;
-    }
-
-    @Override
-    public Image createImage(byte[] imagedata, int imageoffset, int imagelength) {
-        return null;
-    }
-
-    @Override
-    public PrintJob getPrintJob(Frame frame, String jobtitle, Properties props) {
-        return null;
-    }
-
-    @Override
-    public void beep() {
-        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone r = RingtoneManager.getRingtone(androidContext, notification);
-        r.play();
-    }
-
-    @Override
-    public Clipboard getSystemClipboard() throws HeadlessException {
-        if (clipboard == null) {
-            clipboard = new SkinJobClipboard(androidContext);
-        }
-        return clipboard;
-    }
-
-    @Override
-    protected EventQueue getSystemEventQueueImpl() {
-        return eventQueue;
-    }
-
-    @Override
-    public DragSourceContextPeer createDragSourceContextPeer(DragGestureEvent dge) throws InvalidDnDOperationException {
-        return new SkinJobDragSourceContextPeer(dge);
-    }
-
-    @Override
-    public boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
-        return false;
-    }
-
-    @Override
-    public boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType modalExclusionType) {
-        return false;
-    }
-
-    @Override
-    public Map<TextAttribute, ?> mapInputMethodHighlight(InputMethodHighlight highlight) throws HeadlessException {
-        return null;
-    }
-
-    protected Context getAndroidContext() {
-        return SkinJob.getAndroidApplicationContext();
-    }
-
-    @Override
-    protected DesktopPeer createDesktopPeer(Desktop target)
-            throws HeadlessException {
-        return new SkinJobDesktopPeer(androidContext);
-    }
-
-    @Override
-    protected ButtonPeer createButton(Button target)
-            throws HeadlessException {
-        return new SkinJobButtonPeer(target);
-    }
-
-    @Override
-    protected TextFieldPeer createTextField(TextField target)
-            throws HeadlessException {
-        return new SkinJobTextFieldPeer(target);
-    }
-
-    @Override
-    protected LabelPeer createLabel(Label target)
-            throws HeadlessException {
-        return new SkinJobLabelPeer(target);
-    }
-
-    @Override
-    protected ListPeer createList(List target)
-            throws HeadlessException {
-        return new SkinJobListPeer(target);
-    }
-
+  @Override
+  public Map<TextAttribute, ?> mapInputMethodHighlight(InputMethodHighlight highlight)
+      throws HeadlessException {
+    return null;
+  }
 }

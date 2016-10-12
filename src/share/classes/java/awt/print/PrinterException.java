@@ -33,21 +33,22 @@ package java.awt.print;
 
 public class PrinterException extends Exception {
 
-    /**
-     * Constructs a new <code>PrinterException</code> object
-     * without a detail message.
-     */
-    public PrinterException() {
+  /**
+   * Constructs a new <code>PrinterException</code> object
+   * without a detail message.
+   */
+  public PrinterException() {
 
-    }
+  }
 
-    /**
-     * Constructs a new <code>PrinterException</code> object
-     * with the specified detail message.
-     * @param msg the message to generate when a
-     * <code>PrinterException</code> is thrown
-     */
-    public PrinterException(String msg) {
-        super(msg);
-    }
+  /**
+   * Constructs a new <code>PrinterException</code> object
+   * with the specified detail message.
+   *
+   * @param msg the message to generate when a
+   *            <code>PrinterException</code> is thrown
+   */
+  public PrinterException(String msg) {
+    super(msg);
+  }
 }

@@ -31,10 +31,10 @@ import java.util.EventListener;
  * The listener interface for receiving mouse wheel events on a component.
  * (For clicks and other mouse events, use the <code>MouseListener</code>.
  * For mouse movement and drags, use the <code>MouseMotionListener</code>.)
- * <P>
+ * <p>
  * The class that is interested in processing a mouse wheel event
  * implements this interface (and all the methods it contains).
- * <P>
+ * <p>
  * The listener object created from that class is then registered with a
  * component using the component's <code>addMouseWheelListener</code>
  * method. A mouse wheel event is generated when the mouse wheel is rotated.
@@ -50,9 +50,10 @@ import java.util.EventListener;
  */
 public interface MouseWheelListener extends EventListener {
 
-    /**
-     * Invoked when the mouse wheel is rotated.
-     * @see MouseWheelEvent
-     */
-    public void mouseWheelMoved(MouseWheelEvent e);
+  /**
+   * Invoked when the mouse wheel is rotated.
+   *
+   * @see MouseWheelEvent
+   */
+  public void mouseWheelMoved(MouseWheelEvent e);
 }

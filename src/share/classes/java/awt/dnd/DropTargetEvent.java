@@ -25,9 +25,6 @@
 
 package java.awt.dnd;
 
-import java.util.EventObject;
-import java.awt.dnd.DropTargetContext;
-
 /**
  * The <code>DropTargetEvent</code> is the base
  * class for both the <code>DropTargetDragEvent</code>
@@ -37,45 +34,45 @@ import java.awt.dnd.DropTargetContext;
  * <code>DropTargetContext</code>.
  *
  * @since 1.2
- *
  */
 
 public class DropTargetEvent extends java.util.EventObject {
 
-    private static final long serialVersionUID = 2821229066521922993L;
+  private static final long serialVersionUID = 2821229066521922993L;
+  /**
+   * The <code>DropTargetContext</code> associated with this
+   * <code>DropTargetEvent</code>.
+   *
+   * @serial
+   */
+  protected DropTargetContext context;
 
-    /**
-     * Construct a <code>DropTargetEvent</code> object with
-     * the specified <code>DropTargetContext</code>.
-     * <P>
-     * @param dtc The <code>DropTargetContext</code>
-     * @throws NullPointerException if {@code dtc} equals {@code null}.
-     * @see #getSource()
-     * @see #getDropTargetContext()
-     */
+  /**
+   * Construct a <code>DropTargetEvent</code> object with
+   * the specified <code>DropTargetContext</code>.
+   * <p>
+   *
+   * @param dtc The <code>DropTargetContext</code>
+   * @throws NullPointerException if {@code dtc} equals {@code null}.
+   * @see #getSource()
+   * @see #getDropTargetContext()
+   */
 
-    public DropTargetEvent(DropTargetContext dtc) {
-        super(dtc.getDropTarget());
+  public DropTargetEvent(DropTargetContext dtc) {
+    super(dtc.getDropTarget());
 
-        context  = dtc;
-    }
+    context = dtc;
+  }
 
-    /**
-     * This method returns the <code>DropTargetContext</code>
-     * associated with this <code>DropTargetEvent</code>.
-     * <P>
-     * @return the <code>DropTargetContext</code>
-     */
+  /**
+   * This method returns the <code>DropTargetContext</code>
+   * associated with this <code>DropTargetEvent</code>.
+   * <p>
+   *
+   * @return the <code>DropTargetContext</code>
+   */
 
-    public DropTargetContext getDropTargetContext() {
-        return context;
-    }
-
-    /**
-     * The <code>DropTargetContext</code> associated with this
-     * <code>DropTargetEvent</code>.
-     *
-     * @serial
-     */
-    protected DropTargetContext   context;
+  public DropTargetContext getDropTargetContext() {
+    return context;
+  }
 }

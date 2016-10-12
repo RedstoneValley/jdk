@@ -31,91 +31,91 @@ import sun.nio.cs.HistoricallyNamedCharset;
 
 public class FontDescriptor implements Cloneable {
 
-    static {
-        NativeLibLoader.loadLibraries();
-        initIDs();
+  static boolean isLE;
+
+  static {
+    NativeLibLoader.loadLibraries();
+    initIDs();
+  }
+
+  static {
+    String enc
+        = (String) java.security.AccessController.doPrivileged(new sun.security.action
+        .GetPropertyAction("sun.io.unicode.encoding",
+        "UnicodeBig"));
+    isLE = !"UnicodeBig".equals(enc);
+  }
+
+  public CharsetEncoder encoder;
+  public CharsetEncoder unicodeEncoder;
+  String nativeName;
+  String charsetName;
+  boolean useUnicode; // set to true from native code on Unicode-based systems
+  private int[] exclusionRanges;
+
+  public FontDescriptor(String nativeName, CharsetEncoder encoder, int[] exclusionRanges) {
+
+    this.nativeName = nativeName;
+    this.encoder = encoder;
+    this.exclusionRanges = exclusionRanges;
+    this.useUnicode = false;
+    Charset cs = encoder.charset();
+    if (cs instanceof HistoricallyNamedCharset) {
+      this.charsetName = ((HistoricallyNamedCharset) cs).historicalName();
+    } else {
+      this.charsetName = cs.name();
     }
+  }
 
-    String nativeName;
-    public CharsetEncoder encoder;
-    String charsetName;
-    private int[] exclusionRanges;
+  /**
+   * Initialize JNI field and method IDs
+   */
+  private static native void initIDs();
 
-    public FontDescriptor(String nativeName, CharsetEncoder encoder,
-                          int[] exclusionRanges){
+  public String getNativeName() {
+    return nativeName;
+  }
 
-        this.nativeName = nativeName;
-        this.encoder = encoder;
-        this.exclusionRanges = exclusionRanges;
-        this.useUnicode = false;
-        Charset cs = encoder.charset();
-        if (cs instanceof HistoricallyNamedCharset)
-            this.charsetName = ((HistoricallyNamedCharset)cs).historicalName();
-        else
-            this.charsetName = cs.name();
+  public CharsetEncoder getFontCharsetEncoder() {
+    return encoder;
+  }
 
+  public String getFontCharsetName() {
+    return charsetName;
+  }
+
+  public int[] getExclusionRanges() {
+    return exclusionRanges;
+  }
+
+  /**
+   * Return true if the character is exclusion character.
+   */
+  public boolean isExcluded(char ch) {
+    for (int i = 0; i < exclusionRanges.length; ) {
+
+      int lo = (exclusionRanges[i++]);
+      int up = (exclusionRanges[i++]);
+
+      if (ch >= lo && ch <= up) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    public String getNativeName() {
-        return nativeName;
+  public String toString() {
+    return super.toString() + " [" + nativeName + "|" + encoder + "]";
+  }
+
+  public boolean useUnicode() {
+    if (useUnicode && unicodeEncoder == null) {
+      try {
+        this.unicodeEncoder = isLE ? StandardCharsets.UTF_16LE.newEncoder()
+            : StandardCharsets.UTF_16BE.newEncoder();
+      } catch (IllegalArgumentException x) {
+      }
     }
-
-    public CharsetEncoder getFontCharsetEncoder() {
-        return encoder;
-    }
-
-    public String getFontCharsetName() {
-        return charsetName;
-    }
-
-    public int[] getExclusionRanges() {
-        return exclusionRanges;
-    }
-
-    /**
-     * Return true if the character is exclusion character.
-     */
-    public boolean isExcluded(char ch){
-        for (int i = 0; i < exclusionRanges.length; ){
-
-            int lo = (exclusionRanges[i++]);
-            int up = (exclusionRanges[i++]);
-
-            if (ch >= lo && ch <= up){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public String toString() {
-        return super.toString() + " [" + nativeName + "|" + encoder + "]";
-    }
-
-    /**
-     * Initialize JNI field and method IDs
-     */
-    private static native void initIDs();
-
-
-    public CharsetEncoder unicodeEncoder;
-    boolean useUnicode; // set to true from native code on Unicode-based systems
-
-    public boolean useUnicode() {
-        if (useUnicode && unicodeEncoder == null) {
-            try {
-                this.unicodeEncoder = isLE?
-                    StandardCharsets.UTF_16LE.newEncoder():
-                    StandardCharsets.UTF_16BE.newEncoder();
-            } catch (IllegalArgumentException x) {}
-        }
-        return useUnicode;
-    }
-    static boolean isLE;
-    static {
-        String enc = (String) java.security.AccessController.doPrivileged(
-           new sun.security.action.GetPropertyAction("sun.io.unicode.encoding",
-                                                          "UnicodeBig"));
-        isLE = !"UnicodeBig".equals(enc);
-    }
+    return useUnicode;
+  }
 }

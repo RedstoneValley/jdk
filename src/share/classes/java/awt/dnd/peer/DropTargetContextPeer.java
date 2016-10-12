@@ -37,75 +37,73 @@ import java.awt.dnd.InvalidDnDOperationException;
  * </p>
  *
  * @since 1.2
- *
  */
 
 public interface DropTargetContextPeer {
 
-    /**
-     * update the peer's notion of the Target's actions
-     */
+  /**
+   * get the current Target actions
+   */
 
-    void setTargetActions(int actions);
+  int getTargetActions();
 
-    /**
-     * get the current Target actions
-     */
+  /**
+   * update the peer's notion of the Target's actions
+   */
 
-    int getTargetActions();
+  void setTargetActions(int actions);
 
-    /**
-     * get the DropTarget associated with this peer
-     */
+  /**
+   * get the DropTarget associated with this peer
+   */
 
-    DropTarget getDropTarget();
+  DropTarget getDropTarget();
 
-    /**
-     * get the (remote) DataFlavors from the peer
-     */
+  /**
+   * get the (remote) DataFlavors from the peer
+   */
 
-    DataFlavor[] getTransferDataFlavors();
+  DataFlavor[] getTransferDataFlavors();
 
-    /**
-     * get an input stream to the remote data
-     */
+  /**
+   * get an input stream to the remote data
+   */
 
-    Transferable getTransferable() throws InvalidDnDOperationException;
+  Transferable getTransferable() throws InvalidDnDOperationException;
 
-    /**
-     * @return if the DragSource Transferable is in the same JVM as the Target
-     */
+  /**
+   * @return if the DragSource Transferable is in the same JVM as the Target
+   */
 
-    boolean isTransferableJVMLocal();
+  boolean isTransferableJVMLocal();
 
-    /**
-     * accept the Drag
-     */
+  /**
+   * accept the Drag
+   */
 
-    void acceptDrag(int dragAction);
+  void acceptDrag(int dragAction);
 
-    /**
-     * reject the Drag
-     */
+  /**
+   * reject the Drag
+   */
 
-    void rejectDrag();
+  void rejectDrag();
 
-    /**
-     * accept the Drop
-     */
+  /**
+   * accept the Drop
+   */
 
-    void acceptDrop(int dropAction);
+  void acceptDrop(int dropAction);
 
-    /**
-     * reject the Drop
-     */
+  /**
+   * reject the Drop
+   */
 
-    void rejectDrop();
+  void rejectDrop();
 
-    /**
-     * signal complete
-     */
+  /**
+   * signal complete
+   */
 
-    void dropComplete(boolean success);
-
+  void dropComplete(boolean success);
 }

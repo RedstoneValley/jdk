@@ -25,7 +25,6 @@
 package java.awt;
 
 import android.widget.TextView;
-
 import java.awt.peer.LabelPeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -37,7 +36,7 @@ import java.io.ObjectInputStream;
  * directly.
  * <p>
  * For example, the code&nbsp;.&nbsp;.&nbsp;.
- *
+ * <p>
  * <hr><blockquote><pre>
  * setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
  * add(new Label("Hi There!"));
@@ -49,230 +48,240 @@ import java.io.ObjectInputStream;
  * <img src="doc-files/Label-1.gif" alt="Two labels: 'Hi There!' and 'Another label'"
  * style="float:center; margin: 7px 10px;">
  *
- * @author      Sami Shaio
- * @since       JDK1.0
+ * @author Sami Shaio
+ * @since JDK1.0
  */
 public class Label extends Component {
 
-    /**
-     * Indicates that the label should be left justified.
-     */
-    public static final int LEFT        = 0;
+  /**
+   * Indicates that the label should be left justified.
+   */
+  public static final int LEFT = 0;
 
-    /**
-     * Indicates that the label should be centered.
-     */
-    public static final int CENTER      = 1;
+  /**
+   * Indicates that the label should be centered.
+   */
+  public static final int CENTER = 1;
 
-    /**
-     * Indicates that the label should be right justified.
-     * @since   JDK1.0t.
-     */
-    public static final int RIGHT       = 2;
+  /**
+   * Indicates that the label should be right justified.
+   *
+   * @since JDK1.0t.
+   */
+  public static final int RIGHT = 2;
+  private static final String base = "label";
+  /*
+   * JDK 1.1 serialVersionUID
+   */
+  private static final long serialVersionUID = 3094126758329070636L;
+  private static int nameCounter = 0;
+  /**
+   * The text of this label.
+   * This text can be modified by the program
+   * but never by the user.
+   *
+   * @serial
+   * @see #getText()
+   * @see #setText(String)
+   */
+  String text;
+  /**
+   * The label's alignment.  The default alignment is set
+   * to be left justified.
+   *
+   * @serial
+   * @see #getAlignment()
+   * @see #setAlignment(int)
+   */
+  int alignment = LEFT;
 
-    /**
-     * The text of this label.
-     * This text can be modified by the program
-     * but never by the user.
-     *
-     * @serial
-     * @see #getText()
-     * @see #setText(String)
-     */
-    String text;
+  /**
+   * Constructs an empty label.
+   * The text of the label is the empty string <code>""</code>.
+   *
+   * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+   *                           returns true.
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   */
+  public Label() throws HeadlessException {
+    this("", LEFT);
+  }
 
-    /**
-     * The label's alignment.  The default alignment is set
-     * to be left justified.
-     *
-     * @serial
-     * @see #getAlignment()
-     * @see #setAlignment(int)
-     */
-    int    alignment = LEFT;
+  /**
+   * Constructs a new label with the specified string of text,
+   * left justified.
+   *
+   * @param text the string that the label presents.
+   *             A <code>null</code> value
+   *             will be accepted without causing a NullPointerException
+   *             to be thrown.
+   * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+   *                           returns true.
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   */
+  public Label(String text) throws HeadlessException {
+    this(text, LEFT);
+  }
 
-    private static final String base = "label";
-    private static int nameCounter = 0;
+  /**
+   * Constructs a new label that presents the specified string of
+   * text with the specified alignment.
+   * Possible values for <code>alignment</code> are <code>Label.LEFT</code>,
+   * <code>Label.RIGHT</code>, and <code>Label.CENTER</code>.
+   *
+   * @param text      the string that the label presents.
+   *                  A <code>null</code> value
+   *                  will be accepted without causing a NullPointerException
+   *                  to be thrown.
+   * @param alignment the alignment value.
+   * @throws HeadlessException if GraphicsEnvironment.isHeadless()
+   *                           returns true.
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   */
+  public Label(String text, int alignment) throws HeadlessException {
+    super(TextView.class);
+    peer = new SkinJobLabelPeer(this);
+    setText(text);
+    setAlignment(alignment);
+  }
 
-    /*
-     * JDK 1.1 serialVersionUID
-     */
-     private static final long serialVersionUID = 3094126758329070636L;
+  /**
+   * Read a label from an object input stream.
+   *
+   * @throws HeadlessException if
+   *                           <code>GraphicsEnvironment.isHeadless()</code> returns
+   *                           <code>true</code>
+   * @serial
+   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @since 1.4
+   */
+  private void readObject(ObjectInputStream s)
+      throws ClassNotFoundException, IOException, HeadlessException {
+    GraphicsEnvironment.checkHeadless();
+    s.defaultReadObject();
+  }
 
-    /**
-     * Constructs an empty label.
-     * The text of the label is the empty string <code>""</code>.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true.
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    public Label() throws HeadlessException {
-        this("", LEFT);
+  /**
+   * Construct a name for this component.  Called by getName() when the
+   * name is <code>null</code>.
+   */
+  String constructComponentName() {
+    synchronized (Label.class) {
+      return base + nameCounter++;
     }
+  }
 
-    /**
-     * Constructs a new label with the specified string of text,
-     * left justified.
-     * @param text the string that the label presents.
-     *        A <code>null</code> value
-     *        will be accepted without causing a NullPointerException
-     *        to be thrown.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true.
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    public Label(String text) throws HeadlessException {
-        this(text, LEFT);
+  /**
+   * Creates the peer for this label.  The peer allows us to
+   * modify the appearance of the label without changing its
+   * functionality.
+   */
+  public void addNotify() {
+    synchronized (getTreeLock()) {
+      if (peer == null) {
+        peer = getToolkit().createLabel(this);
+      }
+      super.addNotify();
     }
+  }
 
-    /**
-     * Constructs a new label that presents the specified string of
-     * text with the specified alignment.
-     * Possible values for <code>alignment</code> are <code>Label.LEFT</code>,
-     * <code>Label.RIGHT</code>, and <code>Label.CENTER</code>.
-     * @param text the string that the label presents.
-     *        A <code>null</code> value
-     *        will be accepted without causing a NullPointerException
-     *        to be thrown.
-     * @param     alignment   the alignment value.
-     * @exception HeadlessException if GraphicsEnvironment.isHeadless()
-     * returns true.
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    public Label(String text, int alignment) throws HeadlessException {
-        super(TextView.class);
-        peer = new SkinJobLabelPeer(this);
-        setText(text);
-        setAlignment(alignment);
+  /**
+   * Returns a string representing the state of this <code>Label</code>.
+   * This method is intended to be used only for debugging purposes, and the
+   * content and format of the returned string may vary between
+   * implementations. The returned string may be empty but may not be
+   * <code>null</code>.
+   *
+   * @return the parameter string of this label
+   */
+  protected String paramString() {
+    String align = "";
+    switch (alignment) {
+      case LEFT:
+        align = "left";
+        break;
+      case CENTER:
+        align = "center";
+        break;
+      case RIGHT:
+        align = "right";
+        break;
     }
+    return super.paramString() + ",align=" + align + ",text=" + text;
+  }
 
-    /**
-     * Read a label from an object input stream.
-     * @exception HeadlessException if
-     * <code>GraphicsEnvironment.isHeadless()</code> returns
-     * <code>true</code>
-     * @serial
-     * @since 1.4
-     * @see java.awt.GraphicsEnvironment#isHeadless
-     */
-    private void readObject(ObjectInputStream s)
-        throws ClassNotFoundException, IOException, HeadlessException {
-        GraphicsEnvironment.checkHeadless();
-        s.defaultReadObject();
-    }
+  /**
+   * Gets the current alignment of this label. Possible values are
+   * <code>Label.LEFT</code>, <code>Label.RIGHT</code>, and
+   * <code>Label.CENTER</code>.
+   *
+   * @see java.awt.Label#setAlignment
+   */
+  public int getAlignment() {
+    return alignment;
+  }
 
-    /**
-     * Construct a name for this component.  Called by getName() when the
-     * name is <code>null</code>.
-     */
-    String constructComponentName() {
-        synchronized (Label.class) {
-            return base + nameCounter++;
+  /**
+   * Sets the alignment for this label to the specified alignment.
+   * Possible values are <code>Label.LEFT</code>,
+   * <code>Label.RIGHT</code>, and <code>Label.CENTER</code>.
+   *
+   * @param alignment the alignment to be set.
+   * @throws IllegalArgumentException if an improper value for
+   *                                  <code>alignment</code> is given.
+   * @see java.awt.Label#getAlignment
+   */
+  public synchronized void setAlignment(int alignment) {
+    switch (alignment) {
+      case LEFT:
+      case CENTER:
+      case RIGHT:
+        this.alignment = alignment;
+        LabelPeer peer = (LabelPeer) this.peer;
+        if (peer != null) {
+          peer.setAlignment(alignment);
         }
+        return;
     }
+    throw new IllegalArgumentException("improper alignment: " + alignment);
+  }
 
-    /**
-     * Creates the peer for this label.  The peer allows us to
-     * modify the appearance of the label without changing its
-     * functionality.
-     */
-    public void addNotify() {
-        synchronized (getTreeLock()) {
-            if (peer == null)
-                peer = getToolkit().createLabel(this);
-            super.addNotify();
+  /**
+   * Gets the text of this label.
+   *
+   * @return the text of this label, or <code>null</code> if
+   * the text has been set to <code>null</code>.
+   * @see java.awt.Label#setText
+   */
+  public String getText() {
+    return text;
+  }
+
+  /**
+   * Sets the text for this label to the specified text.
+   *
+   * @param text the text that this label displays. If
+   *             <code>text</code> is <code>null</code>, it is
+   *             treated for display purposes like an empty
+   *             string <code>""</code>.
+   * @see java.awt.Label#getText
+   */
+  public void setText(String text) {
+    boolean testvalid = false;
+    synchronized (this) {
+      if (text != this.text && (this.text == null || !this.text.equals(text))) {
+        this.text = text;
+        LabelPeer peer = (LabelPeer) this.peer;
+        if (peer != null) {
+          peer.setText(text);
         }
+        testvalid = true;
+      }
     }
 
-    /**
-     * Gets the current alignment of this label. Possible values are
-     * <code>Label.LEFT</code>, <code>Label.RIGHT</code>, and
-     * <code>Label.CENTER</code>.
-     * @see        java.awt.Label#setAlignment
-     */
-    public int getAlignment() {
-        return alignment;
+    // This could change the preferred size of the Component.
+    if (testvalid) {
+      invalidateIfValid();
     }
-
-    /**
-     * Sets the alignment for this label to the specified alignment.
-     * Possible values are <code>Label.LEFT</code>,
-     * <code>Label.RIGHT</code>, and <code>Label.CENTER</code>.
-     * @param      alignment    the alignment to be set.
-     * @exception  IllegalArgumentException if an improper value for
-     *                          <code>alignment</code> is given.
-     * @see        java.awt.Label#getAlignment
-     */
-    public synchronized void setAlignment(int alignment) {
-        switch (alignment) {
-          case LEFT:
-          case CENTER:
-          case RIGHT:
-            this.alignment = alignment;
-            LabelPeer peer = (LabelPeer)this.peer;
-            if (peer != null) {
-                peer.setAlignment(alignment);
-            }
-            return;
-        }
-        throw new IllegalArgumentException("improper alignment: " + alignment);
-    }
-
-    /**
-     * Gets the text of this label.
-     * @return     the text of this label, or <code>null</code> if
-     *             the text has been set to <code>null</code>.
-     * @see        java.awt.Label#setText
-     */
-    public String getText() {
-        return text;
-    }
-
-    /**
-     * Sets the text for this label to the specified text.
-     * @param      text the text that this label displays. If
-     *             <code>text</code> is <code>null</code>, it is
-     *             treated for display purposes like an empty
-     *             string <code>""</code>.
-     * @see        java.awt.Label#getText
-     */
-    public void setText(String text) {
-        boolean testvalid = false;
-        synchronized (this) {
-            if (text != this.text && (this.text == null ||
-                                      !this.text.equals(text))) {
-                this.text = text;
-                LabelPeer peer = (LabelPeer)this.peer;
-                if (peer != null) {
-                    peer.setText(text);
-                }
-                testvalid = true;
-            }
-        }
-
-        // This could change the preferred size of the Component.
-        if (testvalid) {
-            invalidateIfValid();
-        }
-    }
-
-    /**
-     * Returns a string representing the state of this <code>Label</code>.
-     * This method is intended to be used only for debugging purposes, and the
-     * content and format of the returned string may vary between
-     * implementations. The returned string may be empty but may not be
-     * <code>null</code>.
-     *
-     * @return     the parameter string of this label
-     */
-    protected String paramString() {
-        String align = "";
-        switch (alignment) {
-            case LEFT:   align = "left"; break;
-            case CENTER: align = "center"; break;
-            case RIGHT:  align = "right"; break;
-        }
-        return super.paramString() + ",align=" + align + ",text=" + text;
-    }
-
+  }
 }

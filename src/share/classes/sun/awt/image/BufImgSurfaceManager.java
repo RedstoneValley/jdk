@@ -25,12 +25,8 @@
 
 package sun.awt.image;
 
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.ImageCapabilities;
 import java.awt.image.BufferedImage;
 import sun.java2d.SurfaceData;
-import sun.java2d.loops.CompositeType;
 
 /**
  * This SurfaceManager variant manages the default (software) surface of a
@@ -39,31 +35,31 @@ import sun.java2d.loops.CompositeType;
  * This is one of the more minimalist implementations of SurfaceManager.
  */
 public class BufImgSurfaceManager extends SurfaceManager {
-    /**
-     * A reference to the BufferedImage whose contents are being managed.
-     */
-    protected BufferedImage bImg;
+  /**
+   * A reference to the BufferedImage whose contents are being managed.
+   */
+  protected BufferedImage bImg;
 
-    /**
-     * The default (software) surface containing the contents of the
-     * BufferedImage.
-     */
-    protected SurfaceData sdDefault;
+  /**
+   * The default (software) surface containing the contents of the
+   * BufferedImage.
+   */
+  protected SurfaceData sdDefault;
 
-    public BufImgSurfaceManager(BufferedImage bImg) {
-        this.bImg = bImg;
-        this.sdDefault = BufImgSurfaceData.createData(bImg);
-    }
+  public BufImgSurfaceManager(BufferedImage bImg) {
+    this.bImg = bImg;
+    this.sdDefault = BufImgSurfaceData.createData(bImg);
+  }
 
-    public SurfaceData getPrimarySurfaceData() {
-        return sdDefault;
-    }
+  public SurfaceData getPrimarySurfaceData() {
+    return sdDefault;
+  }
 
-    /**
-     * Called from platform-specific SurfaceData objects to attempt to
-     * auto-restore the contents of an accelerated surface that has been lost.
-     */
-    public SurfaceData restoreContents() {
-        return sdDefault;
-    }
+  /**
+   * Called from platform-specific SurfaceData objects to attempt to
+   * auto-restore the contents of an accelerated surface that has been lost.
+   */
+  public SurfaceData restoreContents() {
+    return sdDefault;
+  }
 }
