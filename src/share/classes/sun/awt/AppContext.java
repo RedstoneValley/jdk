@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
 import java.awt.SystemTray;
@@ -48,7 +49,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
-import sun.util.logging.PlatformLogger;
 
 /**
  * The AppContext is a table referenced by ThreadGroup which stores
@@ -147,7 +147,7 @@ public final class AppContext {
   public final static Object EVENT_QUEUE_COND_KEY = new StringBuilder("EventQueue.Condition");
   public static final String DISPOSED_PROPERTY_NAME = "disposed";
   public static final String GUI_DISPOSED = "guidisposed";
-  private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.AppContext");
+  private static final String TAG = "sun.awt.AppContext";
   /* A map of AppContexts, referenced by ThreadGroup.
    */
   private static final Map<ThreadGroup, AppContext> threadGroup2appContext
@@ -527,7 +527,7 @@ public final class AppContext {
           try {
             w.dispose();
           } catch (Throwable t) {
-            log.finer("exception occurred while disposing app context", t);
+            Log.v(TAG, "exception occurred while disposing app context", t);
           }
         }
         AccessController.doPrivileged(new PrivilegedAction<Void>() {

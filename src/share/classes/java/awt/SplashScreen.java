@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.util.Log;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import sun.awt.image.SunWritableRaster;
-import sun.util.logging.PlatformLogger;
 
 /**
  * The splash screen can be displayed at application startup, before the
@@ -99,7 +99,7 @@ import sun.util.logging.PlatformLogger;
  */
 public final class SplashScreen {
 
-  private static final PlatformLogger log = PlatformLogger.getLogger("java.awt.SplashScreen");
+  private static final String TAG = "java.awt.SplashScreen";
   private static boolean wasClosed = false;
   /**
    * The instance reference for the singleton.
@@ -203,9 +203,7 @@ public final class SplashScreen {
             }
           }
         } catch (java.net.MalformedURLException e) {
-          if (true) {
-            log.fine("MalformedURLException caught in the getImageURL() method", e);
-          }
+          Log.d(TAG, "MalformedURLException caught in the getImageURL() method", e);
         }
       }
       return imageURL;

@@ -31,14 +31,13 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import sun.util.logging.PlatformLogger;
 
 public abstract class SunGraphicsCallback {
   public static final int HEAVYWEIGHTS = 0x1;
   public static final int LIGHTWEIGHTS = 0x2;
   public static final int TWO_PASSES = 0x4;
 
-  private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.SunGraphicsCallback");
+  private static final String TAG = "SunGraphicsCallback";
 
   public abstract void run(Component comp, Graphics cg);
 
@@ -92,7 +91,7 @@ public abstract class SunGraphicsCallback {
 
     if (true && (clip != null)) {
       Rectangle newrect = clip.getBounds();
-      log.finer("x = " + newrect.x + ", y = " + newrect.y +
+      Log.v(TAG, "x = " + newrect.x + ", y = " + newrect.y +
           ", width = " + newrect.width +
           ", height = " + newrect.height);
     }

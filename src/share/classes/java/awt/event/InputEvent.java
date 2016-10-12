@@ -25,6 +25,7 @@
 
 package java.awt.event;
 
+import android.util.Log;
 import java.awt.Component;
 import java.awt.Event;
 import java.awt.GraphicsEnvironment;
@@ -32,7 +33,6 @@ import java.awt.Toolkit;
 import java.util.Arrays;
 import sun.awt.AWTAccessor;
 import sun.security.util.SecurityConstants;
-import sun.util.logging.PlatformLogger;
 
 /**
  * The root event class for all component-level input events.
@@ -154,8 +154,8 @@ public abstract class InputEvent extends ComponentEvent {
   static final int HIGH_MODIFIERS = ~(FIRST_HIGH_BIT - 1);
   // state serialization compatibility with JDK 1.1
   static final long serialVersionUID = -2482525981698309786L;
-  private static final PlatformLogger logger
-      = PlatformLogger.getLogger("java.awt.event.InputEvent");
+  private static final String TAG = "AWT InputEvent";
+
   /**
    * An array of extended modifiers for additional buttons.
    *
@@ -393,9 +393,7 @@ public abstract class InputEvent extends ComponentEvent {
           sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
           b = true;
         } catch (SecurityException se) {
-          if (true) {
-            logger.fine("InputEvent.canAccessSystemClipboard() got SecurityException ", se);
-          }
+          Log.d(TAG, "InputEvent.canAccessSystemClipboard() got SecurityException ", se);
         }
       } else {
         b = true;

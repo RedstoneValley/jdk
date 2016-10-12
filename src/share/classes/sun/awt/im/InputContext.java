@@ -25,6 +25,7 @@
 
 package sun.awt.im;
 
+import android.util.Log;
 import java.awt.AWTEvent;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
@@ -53,7 +54,6 @@ import java.util.Locale;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import sun.awt.SunToolkit;
-import sun.util.logging.PlatformLogger;
 
 /**
  * This InputContext class contains parts of the implementation of
@@ -67,10 +67,10 @@ import sun.util.logging.PlatformLogger;
 
 public class InputContext extends java.awt.im.InputContext
     implements ComponentListener, WindowListener {
-  private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.im.InputContext");
   private static final String inputMethodSelectionKeyPath = "/java/awt/im/selectionKey";
   private static final String inputMethodSelectionKeyCodeName = "keyCode";
   private static final String inputMethodSelectionKeyModifiersName = "modifiers";
+  private static final String TAG = "sun.awt.im.InputContext";
   // The input context for whose input method we may have to call hideWindows
   private static InputContext inputMethodWindowContext;
   // Previously active input method to decide whether we need to call
@@ -539,9 +539,7 @@ public class InputContext extends java.awt.im.InputContext
       }
       previousInputMethod = null;
 
-      if (true) {
-        log.fine("Current client component " + currentClientComponent);
-      }
+      Log.d(TAG, "Current client component " + currentClientComponent);
       if (inputMethod instanceof InputMethodAdapter) {
         ((InputMethodAdapter) inputMethod).setClientComponent(currentClientComponent);
       }
@@ -886,7 +884,6 @@ public class InputContext extends java.awt.im.InputContext
   }
 
   private void logCreationFailed(Throwable throwable) {
-    PlatformLogger logger = PlatformLogger.getLogger("sun.awt.im");
     if (true) {
       String errorTextFormat = Toolkit.getProperty("AWT.InputMethodCreationFailed",
           "Could not create {0}. Reason: {1}");
@@ -894,7 +891,7 @@ public class InputContext extends java.awt.im.InputContext
           inputMethodLocator.getDescriptor().getInputMethodDisplayName(null, Locale.getDefault()),
           throwable.getLocalizedMessage()};
       MessageFormat mf = new MessageFormat(errorTextFormat);
-      logger.config(mf.format(args));
+      Log.d(TAG, mf.format(args));
     }
   }
 

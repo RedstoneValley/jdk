@@ -25,11 +25,11 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.awt.Adjustable;
 import java.awt.Insets;
 import java.awt.ScrollPane;
 import java.awt.event.MouseWheelEvent;
-import sun.util.logging.PlatformLogger;
 
 /*
  * ScrollPaneWheelScroller is a helper class for implmenenting mouse wheel
@@ -37,9 +37,7 @@ import sun.util.logging.PlatformLogger;
  * No objects of this class may be instantiated, thus it is declared abstract.
  */
 public abstract class ScrollPaneWheelScroller {
-
-  private static final PlatformLogger log = PlatformLogger.getLogger(
-      "sun.awt.ScrollPaneWheelScroller");
+  private static final String TAG = "ScrollPaneWheelScroller";
 
   private ScrollPaneWheelScroller() {
   }
@@ -49,7 +47,7 @@ public abstract class ScrollPaneWheelScroller {
    */
   public static void handleWheelScrolling(ScrollPane sp, MouseWheelEvent e) {
     if (true) {
-      log.finer("x = " + e.getX() + ", y = " + e.getY() + ", src is " + e.getSource());
+      Log.v(TAG, "x = " + e.getX() + ", y = " + e.getY() + ", src is " + e.getSource());
     }
     int increment = 0;
 
@@ -58,7 +56,7 @@ public abstract class ScrollPaneWheelScroller {
       if (adj != null) {
         increment = getIncrementFromAdjustable(adj, e);
         if (true) {
-          log.finer("increment from adjustable(" + adj.getClass() + ") : " + increment);
+          Log.v(TAG, "increment from adjustable(" + adj.getClass() + ") : " + increment);
         }
         scrollAdjustable(adj, increment);
       }
@@ -75,7 +73,7 @@ public abstract class ScrollPaneWheelScroller {
     // if policy is display always or never, use vert
     if (policy == ScrollPane.SCROLLBARS_ALWAYS || policy == ScrollPane.SCROLLBARS_NEVER) {
       if (true) {
-        log.finer("using vertical scrolling due to scrollbar policy");
+        Log.v(TAG, "using vertical scrolling due to scrollbar policy");
       }
       return sp.getVAdjustable();
     } else {
@@ -84,28 +82,28 @@ public abstract class ScrollPaneWheelScroller {
       int vertScrollWidth = sp.getVScrollbarWidth();
 
       if (true) {
-        log.finer("insets: l = " + ins.left + ", r = " + ins.right +
+        Log.v(TAG, "insets: l = " + ins.left + ", r = " + ins.right +
             ", t = " + ins.top + ", b = " + ins.bottom);
-        log.finer("vertScrollWidth = " + vertScrollWidth);
+        Log.v(TAG, "vertScrollWidth = " + vertScrollWidth);
       }
 
       // Check if scrollbar is showing by examining insets of the
       // ScrollPane
       if (ins.right >= vertScrollWidth) {
         if (true) {
-          log.finer("using vertical scrolling because scrollbar is present");
+          Log.v(TAG, "using vertical scrolling because scrollbar is present");
         }
         return sp.getVAdjustable();
       } else {
         int horizScrollHeight = sp.getHScrollbarHeight();
         if (ins.bottom >= horizScrollHeight) {
           if (true) {
-            log.finer("using horiz scrolling because scrollbar is present");
+            Log.v(TAG, "using horiz scrolling because scrollbar is present");
           }
           return sp.getHAdjustable();
         } else {
           if (true) {
-            log.finer("using NO scrollbar becsause neither is present");
+            Log.v(TAG, "using NO scrollbar becsause neither is present");
           }
           return null;
         }
@@ -120,10 +118,8 @@ public abstract class ScrollPaneWheelScroller {
    */
   public static int getIncrementFromAdjustable(
       Adjustable adj, MouseWheelEvent e) {
-    if (true) {
-      if (adj == null) {
-        log.fine("Assertion (adj != null) failed");
-      }
+    if (adj == null) {
+      Log.d(TAG, "Assertion (adj != null) failed");
     }
 
     int increment = 0;
@@ -141,20 +137,16 @@ public abstract class ScrollPaneWheelScroller {
    * bounds and sets the new value to the Adjustable.
    */
   public static void scrollAdjustable(Adjustable adj, int amount) {
-    if (true) {
-      if (adj == null) {
-        log.fine("Assertion (adj != null) failed");
-      }
-      if (amount == 0) {
-        log.fine("Assertion (amount != 0) failed");
-      }
+    if (adj == null) {
+      Log.d(TAG, "Assertion (adj != null) failed");
+    }
+    if (amount == 0) {
+      Log.d(TAG, "Assertion (amount != 0) failed");
     }
 
     int current = adj.getValue();
     int upperLimit = adj.getMaximum() - adj.getVisibleAmount();
-    if (true) {
-      log.finer("doScrolling by " + amount);
-    }
+    Log.v(TAG, "doScrolling by " + amount);
 
     if (amount > 0 && current < upperLimit) { // still some room to scroll
       // down

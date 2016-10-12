@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +37,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import sun.util.logging.PlatformLogger;
 
 /*
  * Internal class that manages sun.awt.Debug settings.
@@ -83,7 +83,7 @@ final class DebugSettings {
   /* standard debug property key names */
   static final String PREFIX = "awtdebug";
   static final String PROP_FILE = "properties";
-  private static final PlatformLogger log = PlatformLogger.getLogger("sun.awt.debug.DebugSettings");
+  private static final String TAG = "AWT DebugSettings";
   /* default property settings */
   private static final String DEFAULT_PROPS[] = {
       "awtdebug.assert=true", "awtdebug.trace=false", "awtdebug.on=true", "awtdebug.ctrace=false"};
@@ -128,9 +128,7 @@ final class DebugSettings {
     });
 
     // echo the initial property settings to stdout
-    if (true) {
-      log.fine("DebugSettings:\n{0}", this);
-    }
+    Log.v(TAG, "DebugSettings:\n" + this);
   }
 
   public String toString() {
@@ -177,14 +175,15 @@ final class DebugSettings {
 
     File propFile = new File(propPath);
     try {
-      println("Reading debug settings from '" + propFile.getCanonicalPath() + "'...");
+      Log.v(TAG, "Reading debug settings from '" + propFile.getCanonicalPath() + "'...");
+
       FileInputStream fin = new FileInputStream(propFile);
       props.load(fin);
       fin.close();
     } catch (FileNotFoundException fne) {
-      println("Did not find settings file.");
+      Log.v(TAG, "Did not find settings file.");
     } catch (IOException ioe) {
-      println("Problem reading settings, IOException: " + ioe.getMessage());
+      Log.v(TAG, "Problem reading settings", ioe);
     }
   }
 
@@ -250,12 +249,6 @@ final class DebugSettings {
       propNames.add(propName);
     }
     return propNames;
-  }
-
-  private void println(Object object) {
-    if (true) {
-      log.finer(object.toString());
-    }
   }
 
   private native synchronized void setCTracingOn(boolean enabled);

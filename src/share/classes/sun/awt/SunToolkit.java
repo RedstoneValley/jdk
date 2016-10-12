@@ -162,7 +162,6 @@ import sun.net.util.URLUtil;
 import sun.security.action.GetBooleanAction;
 import sun.security.action.GetPropertyAction;
 import sun.security.util.SecurityConstants;
-import sun.util.logging.PlatformLogger;
 
 public abstract class SunToolkit extends Toolkit
     implements WindowClosingSupport, WindowClosingListener, ComponentFactory, InputMethodSupport,
@@ -1214,10 +1213,6 @@ public abstract class SunToolkit extends Toolkit
     } catch (ClassCastException cce) {
       cce.printStackTrace();
     }
-  }
-
-  protected static void dumpPeers(final PlatformLogger aLog) {
-    AWTAutoShutdown.getInstance().dumpPeers(aLog);
   }
 
   /**

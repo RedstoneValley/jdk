@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.awt.IllegalComponentStateException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,7 +33,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import sun.util.logging.PlatformLogger;
 
 /**
  * This class is used to aid in keeping track of DisplayChangedListeners and
@@ -54,8 +54,7 @@ import sun.util.logging.PlatformLogger;
  */
 public class SunDisplayChanger {
 
-  private static final PlatformLogger log = PlatformLogger.getLogger(
-      "sun.awt.multiscreen.SunDisplayChanger");
+  private static final String TAG = "SunDisplayChanger";
 
   // Create a new synchronized map with initial capacity of one listener.
   // It is asserted that the most common case is to have one GraphicsDevice
@@ -73,11 +72,11 @@ public class SunDisplayChanger {
   public void add(DisplayChangedListener theListener) {
     if (true) {
       if (theListener == null) {
-        log.fine("Assertion (theListener != null) failed");
+        Log.d(TAG, "Assertion (theListener != null) failed");
       }
     }
     if (true) {
-      log.finer("Adding listener: " + theListener);
+      Log.v(TAG, "Adding listener: " + theListener);
     }
     listeners.put(theListener, null);
   }
@@ -88,11 +87,11 @@ public class SunDisplayChanger {
   public void remove(DisplayChangedListener theListener) {
     if (true) {
       if (theListener == null) {
-        log.fine("Assertion (theListener != null) failed");
+        Log.d(TAG, "Assertion (theListener != null) failed");
       }
     }
     if (true) {
-      log.finer("Removing listener: " + theListener);
+      Log.v(TAG, "Removing listener: " + theListener);
     }
     listeners.remove(theListener);
   }
@@ -102,9 +101,7 @@ public class SunDisplayChanger {
    * taken place by calling their displayChanged() methods.
    */
   public void notifyListeners() {
-    if (true) {
-      log.finest("notifyListeners");
-    }
+    Log.v(TAG, "notifyListeners");
     // This method is implemented by making a clone of the set of listeners,
     // and then iterating over the clone.  This is because during the course
     // of responding to a display change, it may be appropriate for a
@@ -127,7 +124,7 @@ public class SunDisplayChanger {
       DisplayChangedListener current = itr.next();
       try {
         if (true) {
-          log.finest("displayChanged for listener: " + current);
+          Log.v(TAG, "displayChanged for listener: " + current);
         }
         current.displayChanged();
       } catch (IllegalComponentStateException e) {
@@ -147,7 +144,7 @@ public class SunDisplayChanger {
    */
   public void notifyPaletteChanged() {
     if (true) {
-      log.finest("notifyPaletteChanged");
+      Log.v(TAG, "notifyPaletteChanged");
     }
     // This method is implemented by making a clone of the set of listeners,
     // and then iterating over the clone.  This is because during the course
@@ -170,7 +167,7 @@ public class SunDisplayChanger {
       DisplayChangedListener current = itr.next();
       try {
         if (true) {
-          log.finest("paletteChanged for listener: " + current);
+          Log.v(TAG, "paletteChanged for listener: " + current);
         }
         current.paletteChanged();
       } catch (IllegalComponentStateException e) {

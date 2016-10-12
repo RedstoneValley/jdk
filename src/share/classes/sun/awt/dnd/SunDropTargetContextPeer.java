@@ -25,6 +25,7 @@
 
 package sun.awt.dnd;
 
+import android.util.Log;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -49,7 +50,6 @@ import sun.awt.SunToolkit;
 import sun.awt.datatransfer.DataTransferer;
 import sun.awt.datatransfer.ToolkitThreadBlockedHandler;
 import sun.security.util.SecurityConstants;
-import sun.util.logging.PlatformLogger;
 
 /**
  * <p>
@@ -73,8 +73,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   protected final static int STATUS_WAIT = 1; // drop pending
   protected final static int STATUS_ACCEPT = 2;
   protected final static int STATUS_REJECT = -1;
-  private static final PlatformLogger dndLog = PlatformLogger.getLogger(
-      "sun.awt.dnd.SunDropTargetContextPeer");
+  private static final String TAG = "SunDropTargetContextPeer";
   protected static Transferable currentJVMLocalSourceTransferable = null;
   protected int dropStatus = STATUS_NONE;
   protected boolean dropComplete = false;
@@ -853,7 +852,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
     void registerEvent(SunDropTargetEvent e) {
       handler.lock();
       if (!eventSet.add(e) && true) {
-        dndLog.fine("Event is already registered: " + e);
+        Log.d(TAG, "Event is already registered: " + e);
       }
       handler.unlock();
     }

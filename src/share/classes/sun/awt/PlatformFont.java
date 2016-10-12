@@ -54,10 +54,6 @@ public abstract class PlatformFont implements FontPeer {
   private Object[] fontCache;
 
   public PlatformFont(String name, int style) {
-    SunFontManager sfm = SunFontManager.getInstance();
-    if (sfm instanceof FontSupport) {
-      fontConfig = ((FontSupport) sfm).getFontConfiguration();
-    }
     if (fontConfig == null) {
       return;
     }

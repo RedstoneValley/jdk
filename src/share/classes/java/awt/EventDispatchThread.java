@@ -25,13 +25,13 @@
 
 package java.awt;
 
+import android.util.Log;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import sun.awt.EventQueueDelegate;
 import sun.awt.dnd.SunDragSourceContextPeer;
-import sun.util.logging.PlatformLogger;
 
 /**
  * EventDispatchThread is a package-private AWT class which takes
@@ -52,9 +52,8 @@ import sun.util.logging.PlatformLogger;
  * @since 1.1
  */
 class EventDispatchThread extends Thread {
+  private static final String TAG = "EventDispatchThread";
 
-  private static final PlatformLogger eventLog = PlatformLogger.getLogger(
-      "java.awt.event.EventDispatchThread");
   private static final int ANY_EVENT = -1;
   private EventQueue theQueue;
   private volatile boolean doDispatch = true;
@@ -114,9 +113,7 @@ class EventDispatchThread extends Thread {
   }
 
   void addEventFilter(EventFilter filter) {
-    if (true) {
-      eventLog.finest("adding the event filter: " + filter);
-    }
+    Log.v(TAG, "adding the event filter: " + filter);
     synchronized (eventFilters) {
       if (!eventFilters.contains(filter)) {
         if (filter instanceof ModalEventFilter) {
@@ -140,9 +137,7 @@ class EventDispatchThread extends Thread {
   }
 
   void removeEventFilter(EventFilter filter) {
-    if (true) {
-      eventLog.finest("removing the event filter: " + filter);
-    }
+    Log.v(TAG, "removing the event filter: " + filter);
     synchronized (eventFilters) {
       eventFilters.remove(filter);
     }
@@ -184,9 +179,7 @@ class EventDispatchThread extends Thread {
         }
       } while (eventOK == false);
 
-      if (true) {
-        eventLog.finest("Dispatching: " + event);
-      }
+      Log.v(TAG, "Dispatching: " + event);
 
       Object handle = null;
       if (delegate != null) {
@@ -208,9 +201,7 @@ class EventDispatchThread extends Thread {
   }
 
   private void processException(Throwable e) {
-    if (true) {
-      eventLog.fine("Processing exception: " + e);
-    }
+    Log.d(TAG, "Processing exception: ", e);
     getUncaughtExceptionHandler().uncaughtException(this, e);
   }
 

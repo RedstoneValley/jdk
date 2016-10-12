@@ -24,6 +24,7 @@
  */
 package sun.awt;
 
+import android.util.Log;
 import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.Panel;
@@ -32,7 +33,6 @@ import java.awt.Window;
 import java.awt.event.FocusEvent;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.KeyboardFocusManagerPeer;
-import sun.util.logging.PlatformLogger;
 
 public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManagerPeer {
 
@@ -40,8 +40,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
   public static final int SNFH_FAILURE = 0;
   public static final int SNFH_SUCCESS_HANDLED = 1;
   public static final int SNFH_SUCCESS_PROCEED = 2;
-  private static final PlatformLogger focusLog = PlatformLogger.getLogger(
-      "sun.awt.focus.KeyboardFocusManagerPeerImpl");
+  private static final String TAG = "KeyboardFocusMgrPeerImpl";
   private static AWTAccessor.KeyboardFocusManagerAccessor kfmAccessor
       = AWTAccessor.getKeyboardFocusManagerAccessor();
 
@@ -99,9 +98,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
           lightweightChild,
           cause);
 
-      if (true) {
-        focusLog.finer("Posting focus event: " + fl);
-      }
+      Log.v(TAG, "Posting focus event: " + fl);
       SunToolkit.postEvent(SunToolkit.targetToAppContext(currentOwner), fl);
     }
 
@@ -111,9 +108,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
         currentOwner,
         cause);
 
-    if (true) {
-      focusLog.finer("Posting focus event: " + fg);
-    }
+    Log.v(TAG, "Posting focus event: " + fg);
     SunToolkit.postEvent(SunToolkit.targetToAppContext(lightweightChild), fg);
     return true;
   }
@@ -154,9 +149,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
   public void clearGlobalFocusOwner(Window activeWindow) {
     if (activeWindow != null) {
       Component focusOwner = activeWindow.getFocusOwner();
-      if (true) {
-        focusLog.fine("Clearing global focus owner " + focusOwner);
-      }
+      Log.d(TAG, "Clearing global focus owner " + focusOwner);
       if (focusOwner != null) {
         FocusEvent fl = new CausedFocusEvent(focusOwner,
             FocusEvent.FOCUS_LOST,

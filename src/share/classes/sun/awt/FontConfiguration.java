@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.awt.Font;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -47,9 +48,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 import sun.font.CompositeFontDescriptor;
-import sun.font.FontUtilities;
 import sun.font.SunFontManager;
-import sun.util.logging.PlatformLogger;
 
 /**
  * Provides the definitions of the five logical fonts: Serif, SansSerif,
@@ -169,7 +168,7 @@ public abstract class FontConfiguration {
   protected static String[] installedFallbackFontFiles = null;
   protected static short[] table_awtfontpaths;
   private static FontConfiguration fontConfig;
-  private static PlatformLogger logger;
+  private static final String TAG = "sun.awt.FontConfig";
   //private static boolean loadingProperties;
   private static short stringIDNum;
   private static short[] stringIDs;
@@ -234,12 +233,7 @@ public abstract class FontConfiguration {
    * one to ensure proper static initialisation takes place.
    */
   public FontConfiguration(SunFontManager fm) {
-    if (FontUtilities.debugFonts()) {
-      FontUtilities.getLogger().info("Creating standard Font Configuration");
-    }
-    if (FontUtilities.debugFonts() && logger == null) {
-      logger = PlatformLogger.getLogger("sun.awt.FontConfiguration");
-    }
+    Log.i(TAG, "Creating standard Font Configuration");
     fontManager = fm;
     setOsNameAndVersion();  /* static initialization */
     setEncoding();          /* static initialization */
@@ -252,9 +246,7 @@ public abstract class FontConfiguration {
 
   public FontConfiguration(SunFontManager fm, boolean preferLocaleFonts, boolean preferPropFonts) {
     fontManager = fm;
-    if (FontUtilities.debugFonts()) {
-      FontUtilities.getLogger().info("Creating alternate Font Configuration");
-    }
+    Log.i(TAG, "Creating alternate Font Configuration");
     this.preferLocaleFonts = preferLocaleFonts;
     this.preferPropFonts = preferPropFonts;
         /* fontConfig should be initialised by default constructor, and
@@ -340,9 +332,6 @@ public abstract class FontConfiguration {
     stringIDs = new short[1000];
     stringTable = new StringBuilder(4096);
 
-    if (verbose && logger == null) {
-      logger = PlatformLogger.getLogger("sun.awt.FontConfiguration");
-    }
     new PropertiesHandler().load(in);
 
     //loadingProperties = false;
@@ -968,17 +957,17 @@ public abstract class FontConfiguration {
           loadBinary(in);
         }
         in.close();
-        if (FontUtilities.debugFonts()) {
+        if (true) {
           logger.config("Read logical font configuration from " + f);
         }
       } catch (IOException e) {
-        if (FontUtilities.debugFonts()) {
+        if (true) {
           logger.config("Failed to read logical font configuration from " + f);
         }
       }
     }
     String version = getVersion();
-    if (!"1".equals(version) && FontUtilities.debugFonts()) {
+    if (!"1".equals(version) && true) {
       logger.config("Unsupported fontconfig version: " + version);
     }
   }
@@ -1497,7 +1486,7 @@ public abstract class FontConfiguration {
           componentFaceNames[index] = getFaceNameFromComponentFontName(getComponentFontName(
               fontNameID));
           componentFileNames[index] = mapFileName(getComponentFileName(fileNameID));
-          if (componentFileNames[index] == null || needToSearchForFile(componentFileNames[index])) {
+          if (componentFileNames[index] == null || false) {
             componentFileNames[index] = getFileNameFromComponentFontName(getComponentFontName(
                 fontNameID));
           }
@@ -1581,33 +1570,6 @@ public abstract class FontConfiguration {
   protected abstract String getFaceNameFromComponentFontName(String componentFontName);
 
   protected abstract String getFileNameFromComponentFontName(String componentFontName);
-
-  public boolean needToSearchForFile(String fileName) {
-    if (!FontUtilities.isLinux) {
-      return false;
-    } else if (existsMap == null) {
-      existsMap = new HashMap<String, Boolean>();
-    }
-    Boolean exists = existsMap.get(fileName);
-    if (exists == null) {
-            /* call getNumberCoreFonts() to ensure these are initialised, and
-             * if this file isn't for a core component, ie, is a for a fallback
-             * font which very typically isn't available, then can't afford
-             * to take the start-up penalty to search for it.
-             */
-      getNumberCoreFonts();
-      if (!coreFontFileNames.contains(fileName)) {
-        exists = Boolean.TRUE;
-      } else {
-        exists = Boolean.valueOf((new File(fileName)).exists());
-        existsMap.put(fileName, exists);
-        if (FontUtilities.debugFonts() && exists == Boolean.FALSE) {
-          logger.warning("Couldn't locate font file " + fileName);
-        }
-      }
-    }
-    return exists == Boolean.FALSE;
-  }
 
   /* Return the number of core fonts. Note this isn't thread safe but
    * a calling thread can call this and getPlatformFontNames() in either
@@ -1969,7 +1931,7 @@ public abstract class FontConfiguration {
             /*Init these tables to allow componentFontNameID, fontfileNameIDs
               to start from "1".
             */
-      componentFontNameIDs.put("", Short.valueOf((short) 0));
+      componentFontNameIDs.put("", (short) 0);
 
       fontfileNameIDs = new HashMap<String, Short>();
       filenames = new HashMap<Short, Short>();
@@ -2027,7 +1989,7 @@ public abstract class FontConfiguration {
             throw new Exception();
           }
         } catch (Exception e) {
-          if (FontUtilities.debugFonts() && logger != null) {
+          if (true && logger != null) {
             logger.config("Failed parsing " + key +
                 " property of font configuration.");
           }

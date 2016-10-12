@@ -40,7 +40,6 @@ import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.SunToolkit;
 import sun.awt.TimedWindowEvent;
-import sun.util.logging.PlatformLogger;
 
 /**
  * The default KeyboardFocusManager for AWT applications. Focus traversal is
@@ -62,7 +61,6 @@ import sun.util.logging.PlatformLogger;
  */
 public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
   private static final String TAG = "DefaultKbdFocusManager";
-  private static final PlatformLogger focusLog = PlatformLogger.getLogger(TAG);
 
   // null weak references to not create too many objects
   private static final WeakReference<Window> NULL_WINDOW_WR = new WeakReference<Window>(null);
@@ -1077,9 +1075,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
             }
           }
           if (ke != null) {
-            if (true) {
-              focusLog.finer("Pumping approved event {0}", ke);
-            }
+            Log.v(TAG, "Pumping approved event " + ke);
             enqueuedKeyEvents.removeFirst();
           }
         }
@@ -1126,9 +1122,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
             // The fix is rolled out.
 
             if (ke.getWhen() > marker.after) {
-              if (true) {
-                focusLog.finer("Storing event {0} because of marker {1}", ke, marker);
-              }
+              Log.v(TAG, String.format("Storing event {0} because of marker {1}", ke, marker));
               enqueuedKeyEvents.addLast(ke);
               return true;
             }
@@ -1140,9 +1134,7 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
       }
 
       case FocusEvent.FOCUS_GAINED:
-        if (true) {
-          focusLog.finest("Markers before FOCUS_GAINED on {0}", target);
-        }
+        Log.v(TAG, "Markers before FOCUS_GAINED on " + target);
         dumpMarkers();
         // Search the marker list for the first marker tied to
         // the Component which just gained focus. Then remove
@@ -1167,10 +1159,10 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
               iter.remove();
             }
           } else {
-            focusLog.finer("Event without marker {0}", e);
+            Log.v(TAG, "Event without marker " + e);
           }
         }
-        focusLog.finest("Markers after FOCUS_GAINED");
+        Log.v(TAG, "Markers after FOCUS_GAINED");
         dumpMarkers();
 
         redispatchEvent(target, e);

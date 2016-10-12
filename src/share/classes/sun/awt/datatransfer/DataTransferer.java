@@ -25,6 +25,7 @@
 
 package sun.awt.datatransfer;
 
+import android.util.Log;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -98,7 +99,6 @@ import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
 import sun.awt.image.ImageRepresentation;
 import sun.awt.image.ToolkitImage;
-import sun.util.logging.PlatformLogger;
 
 /**
  * Provides a set of functions to be shared among the DataFlavor class and
@@ -169,8 +169,7 @@ public abstract class DataTransferer {
    * The key used to store pending data conversion requests for an AppContext.
    */
   private static final String DATA_CONVERTER_KEY = "DATA_CONVERTER_KEY";
-  private static final PlatformLogger dtLog = PlatformLogger.getLogger(
-      "sun.awt.datatransfer.DataTransfer");
+  private static final String TAG = "AWT DataTransfer";
   private final static String[] DEPLOYMENT_CACHE_PROPERTIES = {
       "deployment.system.cachedir", "deployment.user.cachedir", "deployment.javaws.cachedir",
       "deployment.javapi.cachedir"};
@@ -280,7 +279,7 @@ public abstract class DataTransferer {
   public static boolean doesSubtypeSupportCharset(DataFlavor flavor) {
     if (true) {
       if (!"text".equals(flavor.getPrimaryType())) {
-        dtLog.fine("Assertion (\"text\".equals(flavor.getPrimaryType())) failed");
+        Log.d(TAG, "Assertion (\"text\".equals(flavor.getPrimaryType())) failed");
       }
     }
 
