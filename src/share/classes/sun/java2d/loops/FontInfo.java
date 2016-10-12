@@ -42,7 +42,6 @@ import sun.font.FontStrike;
  */
 public class FontInfo implements Cloneable {
   public Font font;
-  public Font2D font2D;
   public FontStrike fontStrike;
   public double[] devTx;
   public double[] glyphTx;

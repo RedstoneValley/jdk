@@ -46,7 +46,6 @@ import java.util.TreeMap;
 import sun.awt.DisplayChangedListener;
 import sun.awt.SunDisplayChanger;
 import sun.font.FontManager;
-import sun.font.FontManagerFactory;
 import sun.font.FontManagerForSGE;
 
 /**
@@ -108,7 +107,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
   }
 
   public static FontManagerForSGE getFontManagerForSGE() {
-    FontManager fm = FontManagerFactory.getInstance();
+    FontManager fm = FontManager.getInstance();
     return (FontManagerForSGE) fm;
   }
 
