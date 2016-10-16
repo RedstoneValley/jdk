@@ -80,7 +80,6 @@ public class MenuBar extends MenuComponent implements MenuContainer {
         /* ensure that the necessary native libraries are loaded */
     Toolkit.loadLibraries();
     if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
     }
     AWTAccessor.setMenuBarAccessor(new AWTAccessor.MenuBarAccessor() {
       public Menu getHelpMenu(MenuBar menuBar) {
@@ -129,11 +128,6 @@ public class MenuBar extends MenuComponent implements MenuContainer {
    */
   public MenuBar() throws HeadlessException {
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   /**
    * Construct a name for this MenuComponent.  Called by getName() when
@@ -452,7 +446,7 @@ public class MenuBar extends MenuComponent implements MenuContainer {
    * Writes default serializable fields to stream.
    *
    * @param s the <code>ObjectOutputStream</code> to write
-   * @see AWTEventMulticaster#save(ObjectOutputStream, String, EventListener)
+   * @see AWTEventMulticaster#save(java.io.ObjectOutputStream, String, EventListener)
    * @see #readObject(java.io.ObjectInputStream)
    */
   private void writeObject(java.io.ObjectOutputStream s)

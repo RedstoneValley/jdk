@@ -69,7 +69,7 @@ public class Canvas extends Component {
       }
     });
     androidCanvas = new android.graphics.Canvas();
-    peer = new SkinJobCanvasPeer(androidCanvas);
+    peer = new SkinJobCanvasPeer(this);
   }
 
   /**

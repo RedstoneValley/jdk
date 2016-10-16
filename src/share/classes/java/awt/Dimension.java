@@ -58,14 +58,6 @@ public class Dimension extends Dimension2D implements java.io.Serializable {
    */
   private static final long serialVersionUID = 4723952579491349524L;
 
-  static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-  }
-
   /**
    * The width dimension; negative values can be used.
    *
@@ -116,11 +108,6 @@ public class Dimension extends Dimension2D implements java.io.Serializable {
     this.width = width;
     this.height = height;
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   /**
    * {@inheritDoc}

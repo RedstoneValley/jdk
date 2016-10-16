@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.content.Context;
+import android.view.View;
 import java.awt.event.ActionEvent;
 import java.awt.peer.MenuComponentPeer;
 import java.io.IOException;
@@ -46,8 +48,8 @@ import sun.awt.AppContext;
  * @author Arthur van Hoff
  * @since JDK1.0
  */
-public abstract class MenuComponent extends Component implements java.io.Serializable {
-
+public abstract class MenuComponent extends ComponentOrMenuComponent {
+  protected transient View androidWidget;
   /*
    * Internal constants for serialization.
    */
@@ -61,9 +63,6 @@ public abstract class MenuComponent extends Component implements java.io.Seriali
   static {
         /* ensure that the necessary native libraries are loaded */
     Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
   }
 
   static {
@@ -143,14 +142,9 @@ public abstract class MenuComponent extends Component implements java.io.Seriali
    * @see java.awt.GraphicsEnvironment#isHeadless
    */
   public MenuComponent() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
+    super(View.class);
     appContext = AppContext.getAppContext();
   }
-
-  /**
-   * Initialize JNI field and method IDs.
-   */
-  private static native void initIDs();
 
   /*
    * Returns the acc this menu component was constructed with.
@@ -232,7 +226,7 @@ public abstract class MenuComponent extends Component implements java.io.Seriali
    *
    * @return this component's locking object
    */
-  protected final Object getTreeLock() {
+  public final Object getTreeLock() {
     return Component.LOCK;
   }
 
@@ -514,6 +508,9 @@ public abstract class MenuComponent extends Component implements java.io.Seriali
      * JDK 1.3 serialVersionUID
      */
     private static final long serialVersionUID = -4269533416223798698L;
+    protected String accessibleName;
+    private String accessibleDescription;
+    private Accessible accessibleParent;
 
     /**
      * Although the class is abstract, this should be called by

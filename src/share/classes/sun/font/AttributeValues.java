@@ -1,48 +1,147 @@
 package sun.font;
 
 import java.awt.Font;
+import java.awt.font.TextAttribute;
+import java.awt.geom.AffineTransform;
 import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
+import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 /**
  * Created by cryoc on 2016-10-11.
  */
-@Deprecated
-public class AttributeValues {
-  private final float weight;
-  private final float posture;
-  private final Font font;
-
-  public AttributeValues(float weight, float posture, Font font) {
-    this.weight = weight;
-    this.posture = posture;
-    this.font = font;
+public class AttributeValues extends HashMap<TextAttribute, Object>
+    implements Cloneable {
+  public AttributeValues() {
+    put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
+    put(TextAttribute.POSTURE, TextAttribute.POSTURE_REGULAR);
+    put(TextAttribute.TRANSFORM, new AffineTransform());
+    put(TextAttribute.FAMILY, "Default");
+    put(TextAttribute.SIZE, 1.0f);
   }
 
   public float getWeight() {
+    Float weight = (Float) get(TextAttribute.WEIGHT);
+    if (weight == null) {
+      return TextAttribute.WEIGHT_REGULAR;
+    }
     return weight;
   }
 
   public float getPosture() {
+    Float posture = (Float) get(TextAttribute.POSTURE);
+    if (posture == null) {
+      return TextAttribute.POSTURE_REGULAR;
+    }
     return posture;
   }
 
-  public static AttributeValues fromMap(
-      Map<? extends AttributedCharacterIterator.Attribute, ?> attributes, int recognizedMask) {
-    return null;
-  }
-
-  public boolean anyDefined(int secondaryMask) {
-    // TODO
-    return false;
-  }
-
   public Font getFont() {
-    return font;
+    return (Font) get(TextAttribute.FONT);
   }
 
-  public void merge(
-      Map<? extends AttributedCharacterIterator.Attribute, ?> attributes, int secondaryMask) {
+  public void setTransform(AffineTransform transform) {
+    put(TextAttribute.TRANSFORM, transform);
+  }
+
+  public void setWeight(float weight) {
+    put(TextAttribute.WEIGHT, weight);
+  }
+
+  public void setPosture(float posture) {
+    put(TextAttribute.POSTURE, posture);
+  }
+
+  public void setFamily(String family) {
+    put(TextAttribute.FAMILY, family);
+  }
+
+  public void setSize(float size) {
+    put(TextAttribute.SIZE, size);
+  }
+
+  public AffineTransform getTransform() {
+    return (AffineTransform) get(TextAttribute.TRANSFORM);
+  }
+
+  public String getFamily() {
+    return (String) get(TextAttribute.FAMILY);
+  }
+
+  public float getSize() {
+    return (float) get(TextAttribute.SIZE);
+  }
+
+  public static AttributeValues fromMapExcludingFont(
+      Map<? extends Attribute, ?> attributes) {
+    AttributeValues newValues = new AttributeValues();
+    for (Attribute attribute : attributes.keySet()) {
+      if (attribute instanceof TextAttribute && !(attribute.equals(TextAttribute.FONT))) {
+        newValues.put((TextAttribute) attribute, attributes.get(attribute));
+      }
+    }
+    return newValues;
+  }
+
+  public boolean hasLayoutAttributes() {
+    return containsKey(TextAttribute.CHAR_REPLACEMENT)
+        || containsKey(TextAttribute.FOREGROUND)
+        || containsKey(TextAttribute.BACKGROUND)
+        || containsKey(TextAttribute.UNDERLINE)
+        || containsKey(TextAttribute.STRIKETHROUGH)
+        || containsKey(TextAttribute.RUN_DIRECTION)
+        || containsKey(TextAttribute.BIDI_EMBEDDING)
+        || containsKey(TextAttribute.JUSTIFICATION)
+        || containsKey(TextAttribute.INPUT_METHOD_HIGHLIGHT)
+        || containsKey(TextAttribute.INPUT_METHOD_UNDERLINE)
+        || containsKey(TextAttribute.SWAP_COLORS)
+        || containsKey(TextAttribute.NUMERIC_SHAPING)
+        || containsKey(TextAttribute.KERNING)
+        || containsKey(TextAttribute.LIGATURES)
+        || containsKey(TextAttribute.TRACKING)
+        || containsKey(TextAttribute.SUPERSCRIPT);
+  }
+
+  public boolean hasNonIdentityTx() {
+    return !(getTransform().isIdentity())
+        || containsKey(TextAttribute.SUPERSCRIPT)
+        || containsKey(TextAttribute.WIDTH);
+  }
+
+  public AffineTransform getCharTransform() {
+    // TODO: Is there supposed to be a difference here?
+    return getTransform();
+  }
+
+  public int getSuperscript() {
+    Integer sup = (Integer) get(TextAttribute.SUPERSCRIPT);
+    if (sup == null) {
+      return 0;
+    }
+    return sup;
+  }
+
+  public boolean hasNonDefaultWidth() {
+    return getWidth() != 1.0f;
+  }
+
+  public float getWidth() {
+    Float width = (Float) get(TextAttribute.WIDTH);
+    if (width == null) {
+      return 1.0f;
+    }
+    return width;
+  }
+
+  public int getRunDirection() {
     // TODO
+    return 0;
+  }
+
+  public int getBidiEmbedding() {
+    // TODO
+    return 0;
   }
 }

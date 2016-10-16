@@ -72,12 +72,6 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable, Access
   private static int nameCounter = 0;
 
   static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-
     AWTAccessor.setCheckboxMenuItemAccessor(new AWTAccessor.CheckboxMenuItemAccessor() {
       public boolean getState(CheckboxMenuItem cmi) {
         return cmi.state;
@@ -144,11 +138,6 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable, Access
     super(label);
     this.state = state;
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   /**
    * Construct a name for this MenuComponent.  Called by getName() when

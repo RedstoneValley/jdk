@@ -30,8 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.util.Locale;
 import java.util.Vector;
-import sun.font.SunFontManager;
-import sun.java2d.FontSupport;
 
 public abstract class PlatformFont implements FontPeer {
 
@@ -39,7 +37,6 @@ public abstract class PlatformFont implements FontPeer {
   // on the locale?
   protected static int FONTCACHESIZE = 256;
   protected static int FONTCACHEMASK = PlatformFont.FONTCACHESIZE - 1;
-  protected static String osVersion;
 
   static {
     NativeLibLoader.loadLibraries();
@@ -91,7 +88,7 @@ public abstract class PlatformFont implements FontPeer {
   /**
    * Initialize JNI field and method IDs
    */
-  private static native void initIDs();
+  private static void initIDs() {}
 
   /**
    * Returns the character that should be rendered when a glyph

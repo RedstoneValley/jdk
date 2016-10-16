@@ -81,12 +81,6 @@ public class MenuItem extends MenuComponent implements Accessible {
   private static int nameCounter = 0;
 
   static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-
     AWTAccessor.setMenuItemAccessor(new AWTAccessor.MenuItemAccessor() {
       public boolean isEnabled(MenuItem item) {
         return item.enabled;
@@ -221,11 +215,6 @@ public class MenuItem extends MenuComponent implements Accessible {
     this.label = label;
     this.shortcut = s;
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   /**
    * Construct a name for this MenuComponent.  Called by getName() when

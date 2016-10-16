@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.widget.ScrollView;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.peer.ScrollbarPeer;
@@ -393,6 +394,7 @@ public class Scrollbar extends Component implements Adjustable {
    */
   public Scrollbar(
       int orientation, int value, int visible, int minimum, int maximum) throws HeadlessException {
+    super(ScrollView.class);
     GraphicsEnvironment.checkHeadless();
     switch (orientation) {
       case HORIZONTAL:

@@ -164,7 +164,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
           retComp = cont.getFocusTraversalPolicy().getDefaultComponent(cont);
 
           if (retComp != null && true) {
-            log.fine("### Transfered focus down-cycle to " + retComp +
+            Log.d(TAG, "### Transfered focus down-cycle to " + retComp +
                 " in the focus cycle root " + cont);
           }
         } else {
@@ -176,7 +176,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
             .getDefaultComponent(cont) : cont.getFocusTraversalPolicy().getLastComponent(cont));
 
         if (retComp != null && true) {
-          log.fine("### Transfered focus to " + retComp + " in the FTP provider " + cont);
+          Log.d(TAG, "### Transfered focus to " + retComp + " in the FTP provider " + cont);
         }
       }
     }
@@ -322,7 +322,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
       Container provider = getTopmostProvider(aContainer, aComponent);
       if (provider != null) {
         if (true) {
-          log.fine("### Asking FTP " + provider + " for component after " + aComponent);
+          Log.d(TAG, "### Asking FTP " + provider + " for component after " + aComponent);
         }
 
         // FTP knows how to find component after the given. We don't.
@@ -333,7 +333,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
         // In that case we must quit the cycle, otherwise return the component found.
         if (beforeComp != null) {
           if (true) {
-            log.fine("### FTP returned " + beforeComp);
+            Log.d(TAG, "### FTP returned " + beforeComp);
           }
           return beforeComp;
         }
@@ -348,14 +348,14 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
       List<Component> cycle = getFocusTraversalCycle(aContainer);
 
       if (true) {
-        log.fine("### Cycle is " + cycle + ", component is " + aComponent);
+        Log.d(TAG, "### Cycle is " + cycle + ", component is " + aComponent);
       }
 
       int index = getComponentIndex(cycle, aComponent);
 
       if (index < 0) {
         if (true) {
-          log.fine("### Didn't find component " + aComponent + " in a cycle " + aContainer);
+          Log.d(TAG, "### Didn't find component " + aComponent + " in a cycle " + aContainer);
         }
         return getLastComponent(aContainer);
       }
@@ -403,7 +403,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
     List<Component> cycle;
 
     if (true) {
-      log.fine("### Getting first component in " + aContainer);
+      Log.d(TAG, "### Getting first component in " + aContainer);
     }
     if (aContainer == null) {
       throw new IllegalArgumentException("aContainer cannot be null");
@@ -423,12 +423,12 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
 
       if (cycle.size() == 0) {
         if (true) {
-          log.fine("### Cycle is empty");
+          Log.d(TAG, "### Cycle is empty");
         }
         return null;
       }
       if (true) {
-        log.fine("### Cycle is " + cycle);
+        Log.d(TAG, "### Cycle is " + cycle);
       }
 
       for (Component comp : cycle) {
@@ -457,7 +457,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
   public Component getLastComponent(Container aContainer) {
     List<Component> cycle;
     if (true) {
-      log.fine("### Getting last component in " + aContainer);
+      Log.d(TAG, "### Getting last component in " + aContainer);
     }
 
     if (aContainer == null) {
@@ -478,12 +478,12 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
 
       if (cycle.size() == 0) {
         if (true) {
-          log.fine("### Cycle is empty");
+          Log.d(TAG, "### Cycle is empty");
         }
         return null;
       }
       if (true) {
-        log.fine("### Cycle is " + cycle);
+        Log.d(TAG, "### Cycle is " + cycle);
       }
 
       for (int i = cycle.size() - 1; i >= 0; i--) {

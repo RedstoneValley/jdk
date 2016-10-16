@@ -220,18 +220,6 @@ public class Color implements Paint, java.io.Serializable {
   private static final long serialVersionUID = 118526816881161077L;
   private static final double FACTOR = 0.7;
 
-  static {
-    /** 4112352 - Calling getDefaultToolkit()
-     ** here can cause this class to be accessed before it is fully
-     ** initialized. DON'T DO IT!!!
-     **
-     ** Toolkit.getDefaultToolkit();
-     **/
-
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-  }
-
   /**
    * The color value.
    *

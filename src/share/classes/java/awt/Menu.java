@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Enumeration;
 import java.util.Vector;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import sun.awt.AWTAccessor;
 
 /**
@@ -64,12 +66,6 @@ public class Menu extends MenuItem implements MenuContainer {
   private static int nameCounter = 0;
 
   static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-
     AWTAccessor.setMenuAccessor(new AWTAccessor.MenuAccessor() {
       public Vector<MenuComponent> getItems(Menu menu) {
         return menu.items;

@@ -26,6 +26,8 @@
 package java.awt;
 
 import java.awt.peer.PopupMenuPeer;
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import sun.awt.AWTAccessor;
 
 /**

@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringBufferInputStream;
 import java.util.Collections;
@@ -149,7 +150,7 @@ final class DebugSettings {
     // maybe, but this has got to be close to 100% non-optimal
     try {
       for (int nprop = 0; nprop < DEFAULT_PROPS.length; nprop++) {
-        StringBufferInputStream in = new StringBufferInputStream(DEFAULT_PROPS[nprop]);
+        InputStream in = new StringBufferInputStream(DEFAULT_PROPS[nprop]);
         props.load(in);
         in.close();
       }

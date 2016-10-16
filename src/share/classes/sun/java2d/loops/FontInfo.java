@@ -27,7 +27,6 @@ package sun.java2d.loops;
 
 import java.awt.Font;
 import sun.font.Font2D;
-import sun.font.FontStrike;
 
 /*
  * A FontInfo object holds all calculated or derived data needed
@@ -42,7 +41,6 @@ import sun.font.FontStrike;
  */
 public class FontInfo implements Cloneable {
   public Font font;
-  public FontStrike fontStrike;
   public double[] devTx;
   public double[] glyphTx;
   public int pixelHeight;
@@ -52,6 +50,7 @@ public class FontInfo implements Cloneable {
   public boolean lcdRGBOrder;
   /* lcdSubPixPos is used if FM is ON for HRGB/HBGR LCD text mode */
   public boolean lcdSubPixPos;
+  public Font2D font2D;
 
   public String mtx(double[] matrix) {
     return ("[" +

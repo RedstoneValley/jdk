@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Decodes the attribute map from a {@link Font} or {@link AttributedCharacterIterator}.
  */
-class SkinJobTextAttributesDecoder {
+public class SkinJobTextAttributesDecoder {
   private static final String TAG = "TextAttributesDecoder";
   private static double DIP_PER_POINT = 160.0 / 72.0; // for converting font sizes
 
@@ -33,7 +33,7 @@ class SkinJobTextAttributesDecoder {
   private int fontStyle = 0;
   private ArrayList<Object> attributeSpans = new ArrayList<>();
 
-  SkinJobTextAttributesDecoder(int defaultColor) {
+  public SkinJobTextAttributesDecoder(int defaultColor) {
     fgColor = defaultColor;
   }
 

@@ -37,7 +37,6 @@ public class ShellFolderColumnInfo {
    * {@link SwingConstants#TRAILING}, {@link SwingConstants#CENTER}
    */
   private Integer alignment;
-  private SortOrder sortOrder;
   private Comparator comparator;
   /**
    * <code>false</code> (default) if the {@link comparator} expects folders as arguments,
@@ -49,21 +48,19 @@ public class ShellFolderColumnInfo {
   private boolean compareByColumn;
 
   public ShellFolderColumnInfo(
-      String title, Integer width, Integer alignment, boolean visible, SortOrder sortOrder,
-      Comparator comparator, boolean compareByColumn) {
+      String title, Integer width, Integer alignment, boolean visible, Comparator comparator,
+      boolean compareByColumn) {
     this.title = title;
     this.width = width;
     this.alignment = alignment;
     this.visible = visible;
-    this.sortOrder = sortOrder;
     this.comparator = comparator;
     this.compareByColumn = compareByColumn;
   }
 
   public ShellFolderColumnInfo(
-      String title, Integer width, Integer alignment, boolean visible, SortOrder sortOrder,
-      Comparator comparator) {
-    this(title, width, alignment, visible, sortOrder, comparator, false);
+      String title, Integer width, Integer alignment, boolean visible, Comparator comparator) {
+    this(title, width, alignment, visible, comparator, false);
   }
 
   /**
@@ -72,7 +69,7 @@ public class ShellFolderColumnInfo {
    */
   public ShellFolderColumnInfo(
       String title, int width, int alignment, boolean visible) {
-    this(title, width, alignment, visible, null, null);
+    this(title, width, alignment, visible, null);
   }
 
   public String getTitle() {
@@ -105,14 +102,6 @@ public class ShellFolderColumnInfo {
 
   public void setVisible(boolean visible) {
     this.visible = visible;
-  }
-
-  public SortOrder getSortOrder() {
-    return sortOrder;
-  }
-
-  public void setSortOrder(SortOrder sortOrder) {
-    this.sortOrder = sortOrder;
   }
 
   public Comparator getComparator() {

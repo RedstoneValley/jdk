@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+import android.view.View;
 import java.awt.dnd.DropTarget;
 import java.awt.event.AWTEventListener;
 import java.awt.event.ComponentEvent;
@@ -158,9 +159,6 @@ public class Container extends Component {
   private static boolean descendUnconditionallyWhenValidating = false;
 
   static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-
     AWTAccessor.setContainerAccessor(new AWTAccessor.ContainerAccessor() {
       @Override
       public void validateUnconditionally(Container cont) {
@@ -271,6 +269,7 @@ public class Container extends Component {
    * (such as Frame for example).
    */
   public Container() {
+    super(View.class);
   }
 
   /**

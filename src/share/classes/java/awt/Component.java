@@ -200,7 +200,8 @@ import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
  * @author Arthur van Hoff
  * @author Sami Shaio
  */
-public abstract class Component implements ImageObserver, MenuContainer, Serializable {
+public abstract class Component extends ComponentOrMenuComponent
+    implements ImageObserver, MenuContainer {
 
   /**
    * Ease-of-use constant for <code>getAlignmentY()</code>.
@@ -475,9 +476,6 @@ public abstract class Component implements ImageObserver, MenuContainer, Seriali
     });
   }
 
-  protected final Context androidContext;
-  protected transient View androidWidget;
-  protected WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
   /**
    * The peer of the component. The peer implements the component's
    * behavior. The peer is set when the <code>Component</code> is
@@ -878,21 +876,12 @@ public abstract class Component implements ImageObserver, MenuContainer, Seriali
    * tree (for example, by a <code>Frame</code> object).
    */
   protected Component(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
+    super(wrappedObjectsSupplier);
     appContext = AppContext.getAppContext();
-    this.wrappedObjectsSupplier = wrappedObjectsSupplier;
-    androidContext = wrappedObjectsSupplier.getAppContext();
-    androidWidget = wrappedObjectsSupplier.createWidget();
   }
 
-  /**
-   * Constructs a new component. Class <code>Component</code> can be
-   * extended directly to create a lightweight component that does not
-   * utilize an opaque native window. A lightweight component must be
-   * hosted by a native container somewhere higher up in the component
-   * tree (for example, by a <code>Frame</code> object).
-   */
-  protected Component(Class<? extends View> androidWidgetClass) {
-    this(SkinJobWrappedAndroidObjectsSupplier.forClass(androidWidgetClass));
+  public Component(Class<? extends View> viewClass) {
+    super(viewClass);
   }
 
   /**
@@ -1049,12 +1038,7 @@ public abstract class Component implements ImageObserver, MenuContainer, Seriali
     firePropertyChange("name", oldName, name);
   }
 
-  /**
-   * Gets the parent of this component.
-   *
-   * @return the parent container of this component
-   * @since JDK1.0
-   */
+  @Override
   public Container getParent() {
     return getParent_NoClientCode();
   }
@@ -1211,13 +1195,7 @@ public abstract class Component implements ImageObserver, MenuContainer, Seriali
     }
   }
 
-  /**
-   * Gets this component's locking object (the object that owns the thread
-   * synchronization monitor) for AWT component-tree and layout
-   * operations.
-   *
-   * @return this component's locking object
-   */
+  @Override
   public final Object getTreeLock() {
     return LOCK;
   }

@@ -28,7 +28,7 @@ import java.net.URLConnection;
  */
 class SkinJobDesktopPeer implements DesktopPeer {
 
-  private final Context androidContext;
+  protected final Context androidContext;
 
   public SkinJobDesktopPeer(Context androidContext) {
     this.androidContext = androidContext;

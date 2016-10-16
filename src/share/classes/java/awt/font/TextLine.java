@@ -47,16 +47,14 @@ import java.text.CharacterIterator;
 import java.util.Map;
 import sun.font.AttributeValues;
 import sun.font.BidiUtils;
+import sun.text.CodePointIterator;
 import sun.font.CoreMetrics;
 import sun.font.Decoration;
 import sun.font.FontResolver;
 import sun.font.GraphicComponent;
 import sun.font.LayoutPathImpl;
-import sun.font.LayoutPathImpl.EmptyPath;
-import sun.font.LayoutPathImpl.SegmentPathBuilder;
 import sun.font.TextLabelFactory;
 import sun.font.TextLineComponent;
-import sun.text.CodePointIterator;
 
 final class TextLine {
 
@@ -223,7 +221,13 @@ final class TextLine {
 
     AttributeValues values = null;
     if (attributes != null) {
-      values = AttributeValues.fromMap(attributes);
+      AttributeValues newValues = new AttributeValues();
+      for (Attribute attribute : attributes.keySet()) {
+        if (attribute instanceof TextAttribute) {
+          newValues.put((TextAttribute) attribute, attributes.get(attribute));
+        }
+      }
+      values = newValues;
       if (values.getRunDirection() >= 0) {
         isDirectionLTR = values.getRunDirection() == 0;
         requiresBidi = !isDirectionLTR;
@@ -791,7 +795,7 @@ final class TextLine {
 
       Point2D.Double pt = new Point2D.Double();
       double tx = 0, ty = 0;
-      SegmentPathBuilder builder = new SegmentPathBuilder();
+      LayoutPathImpl.SegmentPathBuilder builder = new LayoutPathImpl.SegmentPathBuilder();
       builder.moveTo(locs[0], 0);
       for (int i = 0, n = 0; i < fComponents.length; ++i, n += 2) {
         tlc = fComponents[getComponentLogicalIndex(i)];
@@ -814,7 +818,7 @@ final class TextLine {
         tlc = fComponents[getComponentLogicalIndex(0)];
         AffineTransform at = tlc.getBaselineTransform();
         if (at != null) {
-          lp = new EmptyPath(at);
+          lp = new LayoutPathImpl.EmptyPath(at);
         }
       }
     }

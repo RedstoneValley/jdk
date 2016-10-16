@@ -28,6 +28,7 @@ package sun.java2d.pipe;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.awt.geom.RectangularShape;
 import sun.java2d.loops.TransformHelper;
 
@@ -1397,6 +1398,10 @@ public class Region {
     }
     sb.append("]");
     return sb.toString();
+  }
+
+  public Rectangle2D getBounds() {
+    return new Rectangle2D.Double(getLoX(), getLoY(), getWidth(), getHeight());
   }
 
   /**

@@ -25,10 +25,8 @@
 
 package java.awt;
 
-import static sun.font.EAttribute.*;
-
-import android.graphics.*;
 import android.graphics.Paint;
+import android.graphics.Typeface;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.font.LineMetrics;
@@ -45,21 +43,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.security.AccessController;
-import java.security.PrivilegedExceptionAction;
+import java.lang.ref.SoftReference;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-import sun.font.AttributeMap;
 import sun.font.AttributeValues;
-import sun.font.CompositeFont;
 import sun.font.CoreMetrics;
-import sun.font.CreatedFontTracker;
 import sun.font.Font2D;
-import sun.font.Font2DHandle;
-import sun.font.FontAccess;
 import sun.font.FontLineMetrics;
 import sun.font.FontManager;
 import sun.font.GlyphLayout;
@@ -352,55 +345,8 @@ public class Font implements java.io.Serializable {
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = -4206021311591459213L;
-  /**
-   * Font recognizes all attributes except FONT.
-   */
-  private static final int RECOGNIZED_MASK = AttributeValues.MASK_ALL & ~AttributeValues.getMask(
-      EFONT);
-  /**
-   * These attributes are considered primary by the FONT attribute.
-   */
-  private static final int PRIMARY_MASK = AttributeValues.getMask(EFAMILY,
-      EWEIGHT,
-      EWIDTH,
-      EPOSTURE,
-      ESIZE,
-      ETRANSFORM,
-      ESUPERSCRIPT,
-      ETRACKING);
-  /**
-   * These attributes are considered secondary by the FONT attribute.
-   */
-  private static final int SECONDARY_MASK = RECOGNIZED_MASK & ~PRIMARY_MASK;
-  /**
-   * These attributes are handled by layout.
-   */
-  private static final int LAYOUT_MASK = AttributeValues.getMask(ECHAR_REPLACEMENT,
-      EFOREGROUND,
-      EBACKGROUND,
-      EUNDERLINE,
-      ESTRIKETHROUGH,
-      ERUN_DIRECTION,
-      EBIDI_EMBEDDING,
-      EJUSTIFICATION,
-      EINPUT_METHOD_HIGHLIGHT,
-      EINPUT_METHOD_UNDERLINE,
-      ESWAP_COLORS,
-      ENUMERIC_SHAPING,
-      EKERNING,
-      ELIGATURES,
-      ETRACKING,
-      ESUPERSCRIPT);
-  private static final int EXTRA_MASK = AttributeValues.getMask(ETRANSFORM, ESUPERSCRIPT, EWIDTH);
   private static final float[] ssinfo = {
       0.0f, 0.375f, 0.625f, 0.7916667f, 0.9027778f, 0.9768519f, 1.0262346f, 1.0591564f,};
-
-  static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-    initIDs();
-    FontAccess.setFontAccess(new FontAccessImpl());
-  }
 
   /**
    * The logical name of this <code>Font</code>, as passed to the
@@ -450,7 +396,7 @@ public class Font implements java.io.Serializable {
    */
   private transient FontPeer peer;
   private transient long pData;       // native JDK1.1 font pointer
-  private transient Font2DHandle font2DHandle;
+  private transient Font2D font2DHandle;
   private transient AttributeValues values;
   private transient boolean hasLayoutAttributes;
   /*
@@ -473,6 +419,7 @@ public class Font implements java.io.Serializable {
 
   protected Typeface androidTypeface;
   protected Paint androidPaint;
+
   /**
    * Creates a new <code>Font</code> from the specified name, style and
    * point size.
@@ -530,7 +477,7 @@ public class Font implements java.io.Serializable {
    * @see GraphicsEnvironment#getAvailableFontFamilyNames
    * @since JDK1.0
    */
-  public Font(String name, int style, int size) {
+  public Font(String name, int style, float size) {
     this(name, style, size, Typeface.create(name, style));
   }
 
@@ -539,25 +486,15 @@ public class Font implements java.io.Serializable {
     this.style = (style & ~0x03) == 0 ? style : 0;
     this.size = (int) (sizePts + 0.5);
     this.pointSize = sizePts;
-    androidTypeface = typeface;
+    androidTypeface = Typeface.create(typeface, style);
     androidPaint = new Paint();
+    androidPaint.setTypeface(typeface);
     androidPaint.setTextSize(size);
   }
 
   /* used to implement Font.createFont */
-  private Font(File fontFile)
-      throws FontFormatException {
-    this.createdFont = true;
-        /* Font2D instances created by this method track their font file
-         * so that when the Font2D is GC'd it can also remove the file.
-         */
-    this.style = Font.PLAIN;
-    this.size = 1;
-    this.pointSize = 1f;
-    androidTypeface = Typeface.createFromFile(fontFile);
-    androidPaint = new Paint();
-    androidPaint.setTextSize(size);
-    this.name = androidTypeface.toString();
+  private Font(File fontFile) throws FontFormatException {
+    this(fontFile.getName(), Font.PLAIN, 1f, Typeface.createFromFile(fontFile));
   }
 
   /* This constructor is used when one font is derived from another.
@@ -584,7 +521,7 @@ public class Font implements java.io.Serializable {
    * In these cases there is no need to interrogate "values".
    */
   private Font(
-      AttributeValues values, String oldName, int oldStyle, boolean created, Font2DHandle handle) {
+      AttributeValues values, String oldName, int oldStyle, boolean created, Font2D handle) {
 
     this.createdFont = created;
     if (created) {
@@ -635,28 +572,7 @@ public class Font implements java.io.Serializable {
    * @see java.awt.font.TextAttribute
    */
   public Font(Map<? extends Attribute, ?> attributes) {
-    initFromValues(AttributeValues.fromMap(attributes, RECOGNIZED_MASK));
-  }
-
-  /**
-   * Creates a new <code>Font</code> from the specified <code>font</code>.
-   * This constructor is intended for use by subclasses.
-   *
-   * @param font from which to create this <code>Font</code>.
-   * @throws NullPointerException if <code>font</code> is null
-   * @since 1.6
-   */
-  protected Font(Font font) {
-    if (font.values != null) {
-      initFromValues(font.getAttributeValues().clone());
-    } else {
-      this.name = font.name;
-      this.style = font.style;
-      this.size = font.size;
-      this.pointSize = font.pointSize;
-    }
-    this.font2DHandle = font.font2DHandle;
-    this.createdFont = font.createdFont;
+    initFromValues(AttributeValues.fromMapExcludingFont(attributes));
   }
 
   /**
@@ -676,37 +592,12 @@ public class Font implements java.io.Serializable {
    * @since 1.2
    */
   public static Font getFont(Map<? extends Attribute, ?> attributes) {
-    // optimize for two cases:
-    // 1) FONT attribute, and nothing else
-    // 2) attributes, but no FONT
-
-    // avoid turning the attributemap into a regular map for no reason
-    if (attributes instanceof AttributeMap && ((AttributeMap) attributes).getValues() != null) {
-      AttributeValues values = ((AttributeMap) attributes).getValues();
-      if (values.isNonDefault(EFONT)) {
-        Font font = values.getFont();
-        if (!values.anyDefined(SECONDARY_MASK)) {
-          return font;
-        }
-        // merge
-        values = font.getAttributeValues().clone();
-        values.merge(attributes, SECONDARY_MASK);
-        return new Font(values, font.name, font.style, font.createdFont, font.font2DHandle);
-      }
-      return new Font(attributes);
+    HashMap<Attribute, Object> copiedAttrs = new HashMap<>();
+    Font existingFont = (Font) attributes.get(TextAttribute.FONT);
+    if (existingFont != null) {
+      copiedAttrs.putAll(existingFont.values);
     }
-
-    Font font = (Font) attributes.get(TextAttribute.FONT);
-    if (font != null) {
-      if (attributes.size() > 1) { // oh well, check for anything else
-        AttributeValues values = font.getAttributeValues().clone();
-        values.merge(attributes, SECONDARY_MASK);
-        return new Font(values, font.name, font.style, font.createdFont, font.font2DHandle);
-      }
-
-      return font;
-    }
-
+    copiedAttrs.putAll(attributes);
     return new Font(attributes);
   }
 
@@ -762,113 +653,25 @@ public class Font implements java.io.Serializable {
    * @see GraphicsEnvironment#registerFont(Font)
    * @since 1.3
    */
-  public static Font createFont(int fontFormat, InputStream fontStream)
+  public static synchronized Font createFont(int fontFormat, InputStream fontStream)
       throws java.awt.FontFormatException, java.io.IOException {
-
-    if (hasTempPermission()) {
-      return createFont0(fontFormat, fontStream, null);
-    }
-
-    // Otherwise, be extra conscious of pending temp file creation and
-    // resourcefully handle the temp file resources, among other things.
-    CreatedFontTracker tracker = CreatedFontTracker.getTracker();
-    boolean acquired = false;
-    try {
-      acquired = tracker.acquirePermit();
-      if (!acquired) {
-        throw new IOException("Timed out waiting for resources.");
-      }
-      return createFont0(fontFormat, fontStream, tracker);
-    } catch (InterruptedException e) {
-      throw new IOException("Problem reading font data.");
-    } finally {
-      if (acquired) {
-        tracker.releasePermit();
-      }
-    }
-  }
-
-  private static Font createFont0(
-      int fontFormat, InputStream fontStream, CreatedFontTracker tracker)
-      throws java.awt.FontFormatException, java.io.IOException {
-
     if (fontFormat != Font.TRUETYPE_FONT && fontFormat != Font.TYPE1_FONT) {
       throw new IllegalArgumentException("font format not recognized");
     }
-    boolean copiedFontData = false;
     try {
-      final File tFile = AccessController.doPrivileged(new PrivilegedExceptionAction<File>() {
-        public File run() throws IOException {
-          return createTempFile("+~JF", ".tmp");
-        }
-      });
-      if (tracker != null) {
-        tracker.add(tFile);
-      }
-
-      int totalSize = 0;
+      final File tFile = File.createTempFile("+~JF", ".tmp");
+      final OutputStream outStream = new FileOutputStream(tFile);
       try {
-        final OutputStream outStream
-            = AccessController.doPrivileged(new PrivilegedExceptionAction<OutputStream>() {
-          public OutputStream run() throws IOException {
-            return new FileOutputStream(tFile);
-          }
-        });
-        if (tracker != null) {
-          tracker.set(tFile, outStream);
-        }
-        try {
-          byte[] buf = new byte[8192];
-          for (; ; ) {
-            int bytesRead = fontStream.read(buf);
-            if (bytesRead < 0) {
-              break;
-            }
-            if (tracker != null) {
-              if (totalSize + bytesRead > CreatedFontTracker.MAX_FILE_SIZE) {
-                throw new IOException("File too big.");
-              }
-              if (totalSize + tracker.getNumBytes() > CreatedFontTracker.MAX_TOTAL_BYTES) {
-                throw new IOException("Total files too big.");
-              }
-              totalSize += bytesRead;
-              tracker.addBytes(bytesRead);
-            }
-            outStream.write(buf, 0, bytesRead);
-          }
-                    /* don't close the input stream */
-        } finally {
-          outStream.close();
-        }
-                /* After all references to a Font2D are dropped, the file
-                 * will be removed. To support long-lived AppContexts,
-                 * we need to then decrement the byte count by the size
-                 * of the file.
-                 * If the data isn't a valid font, the implementation will
-                 * delete the tmp file and decrement the byte count
-                 * in the tracker object before returning from the
-                 * constructor, so we can set 'copiedFontData' to true here
-                 * without waiting for the results of that constructor.
-                 */
-        copiedFontData = true;
-        Font font = new Font(tFile);
-        return font;
+        byte[] buffer = new byte[8192];
+        int read;
+        do {
+          read = fontStream.read(buffer);
+          outStream.write(buffer, 0, read);
+        } while (read > 0);
       } finally {
-        if (tracker != null) {
-          tracker.remove(tFile);
-        }
-        if (!copiedFontData) {
-          if (tracker != null) {
-            tracker.subBytes(totalSize);
-          }
-          AccessController.doPrivileged(new PrivilegedExceptionAction<Void>() {
-            public Void run() {
-              tFile.delete();
-              return null;
-            }
-          });
-        }
+        outStream.close();
       }
+      return new Font(tFile);
     } catch (Throwable t) {
       if (t instanceof FontFormatException) {
         throw (FontFormatException) t;
@@ -881,6 +684,8 @@ public class Font implements java.io.Serializable {
         throw (FontFormatException) cause;
       }
       throw new IOException("Problem reading font data.");
+    } finally {
+      fontStream.close();
     }
   }
 
@@ -1161,11 +966,6 @@ public class Font implements java.io.Serializable {
     values.setPosture((style & ITALIC) != 0 ? .2f : 0f);
   }
 
-  /*
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
-
   public static File createTempFile(String s, String s1) throws IOException {
     return File.createTempFile(s, s1);
   }
@@ -1208,7 +1008,7 @@ public class Font implements java.io.Serializable {
    */
   private AttributeValues getAttributeValues() {
     if (values == null) {
-      AttributeValues valuesTmp = new AttributeValues(weight, posture, this);
+      AttributeValues valuesTmp = new AttributeValues();
       valuesTmp.setFamily(name);
       valuesTmp.setSize(pointSize); // expects the float value.
 
@@ -1219,7 +1019,7 @@ public class Font implements java.io.Serializable {
       if ((style & ITALIC) != 0) {
         valuesTmp.setPosture(.2f); // POSTURE_OBLIQUE
       }
-      valuesTmp.defineAll(PRIMARY_MASK); // for streaming compatibility
+      // TODO
       values = valuesTmp;
     }
 
@@ -1228,19 +1028,14 @@ public class Font implements java.io.Serializable {
 
   private Font2D getFont2D() {
     FontManager fm = FontManager.getInstance();
-    if (fm.usingPerAppContextComposites() &&
-        font2DHandle != null &&
-        font2DHandle.font2D instanceof CompositeFont &&
-        ((CompositeFont) (font2DHandle.font2D)).isStdComposite()) {
-      return fm.findFont2D(name, style, FontManager.LOGICAL_FALLBACK);
-    } else if (font2DHandle == null) {
-      font2DHandle = fm.findFont2D(name, style, FontManager.LOGICAL_FALLBACK).handle;
+    if (font2DHandle == null) {
+      font2DHandle = fm.findFont2D(name, style, FontManager.LOGICAL_FALLBACK);
     }
         /* Do not cache the de-referenced font2D. It must be explicitly
          * de-referenced to pick up a valid font in the event that the
          * original one is marked invalid
          */
-    return font2DHandle.font2D;
+    return font2DHandle;
   }
 
   /**
@@ -1248,8 +1043,6 @@ public class Font implements java.io.Serializable {
    */
   private void initFromValues(AttributeValues values) {
     this.values = values;
-    values.defineAll(PRIMARY_MASK); // for 1.5 streaming compatibility
-
     this.name = values.getFamily();
     this.pointSize = values.getSize();
     this.size = (int) (values.getSize() + 0.5);
@@ -1259,9 +1052,16 @@ public class Font implements java.io.Serializable {
     if (values.getPosture() >= .2f) {
       this.style |= ITALIC; // not  == .2f
     }
-
-    this.nonIdentityTx = values.anyNonDefault(EXTRA_MASK);
-    this.hasLayoutAttributes = values.anyNonDefault(LAYOUT_MASK);
+    if (androidTypeface == null) {
+      androidTypeface = Typeface.create(name, style);
+    }
+    if (androidPaint == null) {
+      androidPaint = new Paint();
+    }
+    androidPaint.setTypeface(androidTypeface);
+    androidPaint.setTextSize(pointSize);
+    this.nonIdentityTx = !(values.getTransform().isIdentity());
+    this.hasLayoutAttributes = true;
   }
 
   /**
@@ -1295,8 +1095,8 @@ public class Font implements java.io.Serializable {
     if (nonIdentityTx) {
       AttributeValues values = getAttributeValues();
 
-      AffineTransform at = values.isNonDefault(ETRANSFORM)
-          ? new AffineTransform(values.getTransform()) : new AffineTransform();
+      AffineTransform at = values.getTransform();;
+      at = at.isIdentity() ? new AffineTransform(at) : new AffineTransform();
 
       if (values.getSuperscript() != 0) {
         // can't get ascent and descent here, recursive call to this fn,
@@ -1338,7 +1138,7 @@ public class Font implements java.io.Serializable {
         // position of the right gv.
       }
 
-      if (values.isNonDefault(EWIDTH)) {
+      if (values.hasNonDefaultWidth()) {
         at.scale(values.getWidth(), 1f);
       }
 
@@ -1708,7 +1508,9 @@ public class Font implements java.io.Serializable {
     if (values != null) {
       synchronized (values) {
         // transient
-        fRequestedAttributes = values.toSerializableHashtable();
+        Hashtable<Object, Object> hashTable = new Hashtable<>();
+        hashTable.putAll(values);
+        fRequestedAttributes = hashTable;
         s.defaultWriteObject();
         fRequestedAttributes = null;
       }
@@ -1742,13 +1544,16 @@ public class Font implements java.io.Serializable {
 
     if (fRequestedAttributes != null) {
       values = getAttributeValues(); // init
-      AttributeValues extras = AttributeValues.fromSerializableHashtable(fRequestedAttributes);
-      if (!AttributeValues.is16Hashtable(fRequestedAttributes)) {
-        extras.unsetDefault(); // if legacy stream, undefine these
+      AttributeValues extras = new AttributeValues();
+      for (Object extra : fRequestedAttributes.keySet()) {
+        if (extra instanceof TextAttribute) {
+          extras.put((TextAttribute) extra, fRequestedAttributes.get(extra));
+        }
       }
-      values = getAttributeValues().merge(extras);
-      this.nonIdentityTx = values.anyNonDefault(EXTRA_MASK);
-      this.hasLayoutAttributes = values.anyNonDefault(LAYOUT_MASK);
+      getAttributeValues().putAll(extras);
+      values = getAttributeValues();
+      this.nonIdentityTx = values.hasNonIdentityTx();
+      this.hasLayoutAttributes = values.hasLayoutAttributes();
 
       fRequestedAttributes = null; // don't need it any more
     }
@@ -1794,7 +1599,16 @@ public class Font implements java.io.Serializable {
    * @since 1.2
    */
   public byte getBaselineFor(char c) {
-    return getFont2D().getBaselineFor(c);
+    // TODO i18n: Check whether this covers all scripts.
+    if (Character.isIdeographic(c)) {
+      return CENTER_BASELINE;
+    } else {
+      Character.UnicodeScript script = Character.UnicodeScript.of(c);
+      if (script == Character.UnicodeScript.DEVANAGARI) {
+        return HANGING_BASELINE;
+      }
+      return ROMAN_BASELINE;
+    }
   }
 
   /**
@@ -1805,7 +1619,7 @@ public class Font implements java.io.Serializable {
    * @return the attributes map of this <code>Font</code>.
    */
   public Map<TextAttribute, ?> getAttributes() {
-    return new AttributeMap(getAttributeValues());
+    return getAttributeValues();
   }
 
   /**
@@ -1846,7 +1660,7 @@ public class Font implements java.io.Serializable {
     if (values == null) {
       return new Font(name, style, size);
     }
-    AttributeValues newValues = getAttributeValues().clone();
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
     int oldStyle = (this.style != style) ? this.style : -1;
     applyStyle(style, newValues);
     newValues.setSize(size);
@@ -1866,7 +1680,7 @@ public class Font implements java.io.Serializable {
    * @since 1.2
    */
   public Font deriveFont(int style, AffineTransform trans) {
-    AttributeValues newValues = getAttributeValues().clone();
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
     int oldStyle = (this.style != style) ? this.style : -1;
     applyStyle(style, newValues);
     applyTransform(trans, newValues);
@@ -1885,7 +1699,7 @@ public class Font implements java.io.Serializable {
     if (values == null) {
       return new Font(name, style, size);
     }
-    AttributeValues newValues = getAttributeValues().clone();
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
     newValues.setSize(size);
     return new Font(newValues, null, -1, createdFont, font2DHandle);
   }
@@ -1902,7 +1716,7 @@ public class Font implements java.io.Serializable {
    * @since 1.2
    */
   public Font deriveFont(AffineTransform trans) {
-    AttributeValues newValues = getAttributeValues().clone();
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
     applyTransform(trans, newValues);
     return new Font(newValues, null, -1, createdFont, font2DHandle);
   }
@@ -1919,7 +1733,7 @@ public class Font implements java.io.Serializable {
     if (values == null) {
       return new Font(name, style, size);
     }
-    AttributeValues newValues = getAttributeValues().clone();
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
     int oldStyle = (this.style != style) ? this.style : -1;
     applyStyle(style, newValues);
     return new Font(newValues, null, oldStyle, createdFont, font2DHandle);
@@ -1939,9 +1753,8 @@ public class Font implements java.io.Serializable {
     if (attributes == null) {
       return this;
     }
-    AttributeValues newValues = getAttributeValues().clone();
-    newValues.merge(attributes, RECOGNIZED_MASK);
-
+    AttributeValues newValues = (AttributeValues) (getAttributeValues().clone());
+    newValues.putAll(AttributeValues.fromMapExcludingFont(attributes));
     return new Font(newValues, name, style, createdFont, font2DHandle);
   }
 
@@ -2109,15 +1922,10 @@ public class Font implements java.io.Serializable {
              * just pass identity here
              */
       float[] metrics = new float[8];
-      Paint.FontMetrics androidMetrics = new Paint.FontMetrics();
-      .getFontMetrics(this,
-          identityTx,
-          frc.getAntiAliasingHint(),
-          frc.getFractionalMetricsHint(),
-          metrics);
-      float ascent = metrics[0];
-      float descent = metrics[1];
-      float leading = metrics[2];
+      Paint.FontMetrics androidMetrics = new Paint().getFontMetrics();
+      float ascent = androidMetrics.ascent;
+      float descent = androidMetrics.descent;
+      float leading = androidMetrics.leading;
       float ssOffset = 0;
       if (values != null && values.getSuperscript() != 0) {
         ssOffset = (float) getTransform().getTranslateY();
@@ -2130,8 +1938,8 @@ public class Font implements java.io.Serializable {
       // need real baselines eventually
       float[] baselineOffsets = {0, (descent / 2f - ascent) / 2f, -ascent};
 
-      float strikethroughOffset = metrics[4];
-      float strikethroughThickness = metrics[5];
+      float strikethroughOffset = androidMetrics.ascent * SkinJob.strikeThroughOffset;
+      float strikethroughThickness = 1.0f;
 
       float underlineOffset = metrics[6];
       float underlineThickness = metrics[7];
@@ -2176,7 +1984,7 @@ public class Font implements java.io.Serializable {
       flmref = new SoftReference<FontLineMetrics>(flm);
     }
 
-    return (FontLineMetrics) flm.clone();
+    return flm.clone();
   }
 
   /**
@@ -2428,11 +2236,13 @@ public class Font implements java.io.Serializable {
    * for the character with the maximum bounds.
    */
   public Rectangle2D getMaxCharBounds(FontRenderContext frc) {
-    float[] metrics = new float[4];
+    Paint.FontMetrics metrics = androidPaint.getFontMetrics();
 
-    getFont2D().getFontMetrics(this, frc, metrics);
-
-    return new Rectangle2D.Float(0, -metrics[0], metrics[3], metrics[0] + metrics[1] + metrics[2]);
+    return new Rectangle2D.Float(
+        0,
+        -metrics.top,
+        /* TODO: Maximum glyph width */ 0,
+        metrics.bottom + metrics.leading);
   }
 
   /**
@@ -2560,23 +2370,5 @@ public class Font implements java.io.Serializable {
     StandardGlyphVector gv = gl.layout(this, frc, text, start, limit - start, flags, null);
     GlyphLayout.done(gl);
     return gv;
-  }
-
-  private static class FontAccessImpl extends FontAccess {
-    public Font2D getFont2D(Font font) {
-      return font.getFont2D();
-    }
-
-    public void setFont2D(Font font, Font2DHandle handle) {
-      font.font2DHandle = handle;
-    }
-
-    public void setCreatedFont(Font font) {
-      font.createdFont = true;
-    }
-
-    public boolean isCreatedFont(Font font) {
-      return font.createdFont;
-    }
   }
 }

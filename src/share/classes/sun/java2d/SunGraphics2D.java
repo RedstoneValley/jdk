@@ -557,31 +557,6 @@ public final class SunGraphics2D extends Graphics2D
          * is beneficial.
          */
     if (font != null && font != this.font/*!font.equals(this.font)*/) {
-            /* In the GASP AA case the textpipe depends on the glyph size
-             * as determined by graphics and font transforms as well as the
-             * font size, and information in the font. But we may invalidate
-             * the pipe only to find that it made no difference.
-             * Deferring pipe invalidation to checkFontInfo won't work because
-             * when called we may already be rendering to the wrong pipe.
-             * So, if the font is transformed, or the graphics has more than
-             * a simple scale, we'll take that as enough of a hint to
-             * revalidate everything. But if they aren't we will
-             * use the font's point size to query the gasp table and see if
-             * what it says matches what's currently being used, in which
-             * case there's no need to invalidate the textpipe.
-             * This should be sufficient for all typical uses cases.
-             */
-      if (textAntialiasHint == SunHints.INTVAL_TEXT_ANTIALIAS_GASP &&
-          textpipe != invalidpipe &&
-          (transformState > TRANSFORM_ANY_TRANSLATE ||
-               font.isTransformed() ||
-               fontInfo == null || // Precaution, if true shouldn't get here
-               (fontInfo.aaHint == SunHints.INTVAL_TEXT_ANTIALIAS_ON) != FontUtilities
-                   .getFont2D(font)
-                   .
-                       useAAForPtSize(font.getSize()))) {
-        textpipe = invalidpipe;
-      }
       this.font = font;
       this.fontMetrics = null;
       this.validFontInfo = false;
@@ -1513,8 +1488,6 @@ public final class SunGraphics2D extends Graphics2D
       }
     }
 
-    info.font2D = FontUtilities.getFont2D(font);
-
     int fmhint = fractionalMetricsHint;
     if (fmhint == SunHints.INTVAL_FRACTIONALMETRICS_DEFAULT) {
       fmhint = SunHints.INTVAL_FRACTIONALMETRICS_OFF;
@@ -1615,7 +1588,6 @@ public final class SunGraphics2D extends Graphics2D
       }
     }
     info.aaHint = aahint;
-    info.fontStrike = info.font2D.getStrike(font, devAt, textAt, aahint, fmhint);
     return info;
   }
 

@@ -37,6 +37,10 @@ public class LCDTextSrcEa extends Component {
     BufferedImage target =
         new BufferedImage(SZ, SZ, BufferedImage.TYPE_INT_RGB);
 
+    protected LCDTextSrcEa(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
+        super(wrappedObjectsSupplier);
+    }
+
     public static void main(String args[]) {
         Frame f = new Frame("LCD Text SrcEa Test");
         f.addWindowListener(new WindowAdapter() {

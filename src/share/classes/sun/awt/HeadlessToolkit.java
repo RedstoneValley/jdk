@@ -127,6 +127,7 @@ import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
 import sun.awt.datatransfer.DataTransferer;
+import sun.java2d.pipe.Region;
 
 public class HeadlessToolkit extends Toolkit
     implements ComponentFactory, KeyboardFocusManagerPeerProvider {

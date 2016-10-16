@@ -34,8 +34,15 @@ public class SkinJob {
   public static volatile float layerZSpacing = 100.0f;
   public static volatile View menuDivider;
   private static Resources systemResources = Resources.getSystem();
-  public static int menuTextColor = systemResources.getColor(android.R.color.primary_text_dark,
-      systemResources.newTheme());
+  public static volatile int menuTextColor = systemResources.getColor(
+      android.R.color.primary_text_dark, systemResources.newTheme());
+
+  /**
+   * Height at which {@link FontMetrics} should report text is struck through, as a multiple of
+   * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
+   * strikethrough, but must exist for backward-compatibility.
+   */
+  public static volatile float strikeThroughOffset = 0.5f;
 
   static {
     Context context = getAndroidApplicationContext();

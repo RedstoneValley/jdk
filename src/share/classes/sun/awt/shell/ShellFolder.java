@@ -267,15 +267,11 @@ public abstract class ShellFolder extends File {
               FILE_COMPARATOR), new ShellFolderColumnInfo(COLUMN_SIZE,
           75,
           SwingConstants.RIGHT,
-          true,
-          null,
-          DEFAULT_COMPARATOR,
+          true, DEFAULT_COMPARATOR,
           true), new ShellFolderColumnInfo(COLUMN_DATE,
           130,
           SwingConstants.LEADING,
-          true,
-          null,
-          DEFAULT_COMPARATOR,
+          true, DEFAULT_COMPARATOR,
           true)};
     }
 

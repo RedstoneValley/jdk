@@ -1,0 +1,51 @@
+package java.awt;
+
+import android.content.Context;
+import android.view.View;
+import java.io.Serializable;
+
+/**
+ * Common elements of {@link Component} and {@link MenuComponent}.
+ */
+public abstract class ComponentOrMenuComponent implements Serializable {
+  protected final transient Context androidContext;
+  protected transient View androidWidget;
+
+  // TODO: Does this need to be non-transient?
+  protected transient WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
+
+  public ComponentOrMenuComponent(
+      WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
+    androidWidget = wrappedObjectsSupplier.createWidget();
+    androidContext = wrappedObjectsSupplier.getAppContext();
+    this.wrappedObjectsSupplier = wrappedObjectsSupplier;
+  }
+
+  /**
+   * Constructs a new component. Class <code>Component</code> can be
+   * extended directly to create a lightweight component that does not
+   * utilize an opaque native window. A lightweight component must be
+   * hosted by a native container somewhere higher up in the component
+   * tree (for example, by a <code>Frame</code> object).
+   */
+  protected ComponentOrMenuComponent(Class<? extends View> androidWidgetClass) {
+    this(SkinJobWrappedAndroidObjectsSupplier.forClass(androidWidgetClass));
+  }
+
+  /**
+   * Gets the parent of this component.
+   *
+   * @return the parent of this component
+   * @since JDK1.0
+   */
+  public abstract Object getParent();
+
+  /**
+   * Gets this component's locking object (the object that owns the thread
+   * synchronization monitor) for AWT component-tree and layout
+   * operations.
+   *
+   * @return this component's locking object
+   */
+  public abstract Object getTreeLock();
+}

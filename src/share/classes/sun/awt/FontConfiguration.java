@@ -57,6 +57,8 @@ import sun.font.SunFontManager;
  */
 public abstract class FontConfiguration {
 
+  private static final String TAG = "sun.awt.FontConfig";
+
   /////////////////////////////////////////////////////////////////////
   // Methods for handling font and style names                       //
   /////////////////////////////////////////////////////////////////////
@@ -168,7 +170,6 @@ public abstract class FontConfiguration {
   protected static String[] installedFallbackFontFiles = null;
   protected static short[] table_awtfontpaths;
   private static FontConfiguration fontConfig;
-  private static final String TAG = "sun.awt.FontConfig";
   //private static boolean loadingProperties;
   private static short stringIDNum;
   private static short[] stringIDs;
@@ -958,17 +959,17 @@ public abstract class FontConfiguration {
         }
         in.close();
         if (true) {
-          logger.config("Read logical font configuration from " + f);
+          Log.d(TAG, "Read logical font configuration from " + f);
         }
       } catch (IOException e) {
         if (true) {
-          logger.config("Failed to read logical font configuration from " + f);
+          Log.d(TAG, "Failed to read logical font configuration from " + f);
         }
       }
     }
     String version = getVersion();
-    if (!"1".equals(version) && true) {
-      logger.config("Unsupported fontconfig version: " + version);
+    if (!"1".equals(version)) {
+      Log.d(TAG, "Unsupported fontconfig version: " + version);
     }
   }
 
@@ -1429,148 +1430,6 @@ public abstract class FontConfiguration {
     return null;
   }
 
-  /**
-   * Returns an array of composite font descriptors for all logical font
-   * faces.
-   * If the font configuration file doesn't specify Lucida Sans Regular
-   * or the given fallback font as component fonts, they are added here.
-   */
-  public CompositeFontDescriptor[] get2DCompositeFontInfo() {
-    CompositeFontDescriptor[] result = new CompositeFontDescriptor[NUM_FONTS * NUM_STYLES];
-    String defaultFontFile = fontManager.getDefaultFontFile();
-    String defaultFontFaceName = fontManager.getDefaultFontFaceName();
-
-    for (int fontIndex = 0; fontIndex < NUM_FONTS; fontIndex++) {
-      String fontName = publicFontNames[fontIndex];
-
-      // determine exclusion ranges for font
-      // AWT uses separate exclusion range array per component font.
-      // 2D packs all range boundaries into one array.
-      // Both use separate entries for lower and upper boundary.
-      int[][] exclusions = compExclusions[fontIndex];
-      int numExclusionRanges = 0;
-      for (int i = 0; i < exclusions.length; i++) {
-        numExclusionRanges += exclusions[i].length;
-      }
-      int[] exclusionRanges = new int[numExclusionRanges];
-      int[] exclusionRangeLimits = new int[exclusions.length];
-      int exclusionRangeIndex = 0;
-      int exclusionRangeLimitIndex = 0;
-      for (int i = 0; i < exclusions.length; i++) {
-        int[] componentRanges = exclusions[i];
-        for (int j = 0; j < componentRanges.length; ) {
-          int value = componentRanges[j];
-          exclusionRanges[exclusionRangeIndex++] = componentRanges[j++];
-          exclusionRanges[exclusionRangeIndex++] = componentRanges[j++];
-        }
-        exclusionRangeLimits[i] = exclusionRangeIndex;
-      }
-      // other info is per style
-      for (int styleIndex = 0; styleIndex < NUM_STYLES; styleIndex++) {
-        int maxComponentFontCount = compFontNameIDs[fontIndex][styleIndex].length;
-        boolean sawDefaultFontFile = false;
-        // fall back fonts listed in the lib/fonts/fallback directory
-        if (installedFallbackFontFiles != null) {
-          maxComponentFontCount += installedFallbackFontFiles.length;
-        }
-        String faceName = fontName + "." + styleNames[styleIndex];
-
-        // determine face names and file names of component fonts
-        String[] componentFaceNames = new String[maxComponentFontCount];
-        String[] componentFileNames = new String[maxComponentFontCount];
-
-        int index;
-        for (index = 0; index < compFontNameIDs[fontIndex][styleIndex].length; index++) {
-          short fontNameID = compFontNameIDs[fontIndex][styleIndex][index];
-          short fileNameID = getComponentFileID(fontNameID);
-          componentFaceNames[index] = getFaceNameFromComponentFontName(getComponentFontName(
-              fontNameID));
-          componentFileNames[index] = mapFileName(getComponentFileName(fileNameID));
-          if (componentFileNames[index] == null || false) {
-            componentFileNames[index] = getFileNameFromComponentFontName(getComponentFontName(
-                fontNameID));
-          }
-          if (!sawDefaultFontFile && defaultFontFile.equals(componentFileNames[index])) {
-            sawDefaultFontFile = true;
-          }
-                    /*
-                    System.out.println(publicFontNames[fontIndex] + "." + styleNames[styleIndex]
-                    + "."
-                        + getString(table_scriptIDs[coreScripts[index]]) + "=" +
-                        componentFileNames[index]);
-                    */
-        }
-
-        //"Lucida Sans Regular" is not in the list, we add it here
-        if (!sawDefaultFontFile) {
-          int len = 0;
-          if (installedFallbackFontFiles != null) {
-            len = installedFallbackFontFiles.length;
-          }
-          if (index + len == maxComponentFontCount) {
-            String[] newComponentFaceNames = new String[maxComponentFontCount + 1];
-            System.arraycopy(componentFaceNames, 0, newComponentFaceNames, 0, index);
-            componentFaceNames = newComponentFaceNames;
-            String[] newComponentFileNames = new String[maxComponentFontCount + 1];
-            System.arraycopy(componentFileNames, 0, newComponentFileNames, 0, index);
-            componentFileNames = newComponentFileNames;
-          }
-          componentFaceNames[index] = defaultFontFaceName;
-          componentFileNames[index] = defaultFontFile;
-          index++;
-        }
-
-        if (installedFallbackFontFiles != null) {
-          for (int ifb = 0; ifb < installedFallbackFontFiles.length; ifb++) {
-            componentFaceNames[index] = null;
-            componentFileNames[index] = installedFallbackFontFiles[ifb];
-            index++;
-          }
-        }
-
-        if (index < maxComponentFontCount) {
-          String[] newComponentFaceNames = new String[index];
-          System.arraycopy(componentFaceNames, 0, newComponentFaceNames, 0, index);
-          componentFaceNames = newComponentFaceNames;
-          String[] newComponentFileNames = new String[index];
-          System.arraycopy(componentFileNames, 0, newComponentFileNames, 0, index);
-          componentFileNames = newComponentFileNames;
-        }
-        // exclusion range limit array length must match component face name
-        // array length - native code relies on this
-
-        int[] clippedExclusionRangeLimits = exclusionRangeLimits;
-        if (index != clippedExclusionRangeLimits.length) {
-          int len = exclusionRangeLimits.length;
-          clippedExclusionRangeLimits = new int[index];
-          System.arraycopy(exclusionRangeLimits, 0, clippedExclusionRangeLimits, 0, len);
-          //padding for various fallback fonts
-          for (int i = len; i < index; i++) {
-            clippedExclusionRangeLimits[i] = exclusionRanges.length;
-          }
-        }
-                /*
-                System.out.println(faceName + ":");
-                for (int i = 0; i < componentFileNames.length; i++) {
-                    System.out.println("    " + componentFaceNames[i]
-                         + "  -> " + componentFileNames[i]);
-                }
-                */
-        result[fontIndex * NUM_STYLES + styleIndex] = new CompositeFontDescriptor(faceName,
-            compCoreNum[fontIndex],
-            componentFaceNames,
-            componentFileNames,
-            exclusionRanges,
-            clippedExclusionRangeLimits);
-      }
-    }
-    return result;
-  }
-
-  protected abstract String getFaceNameFromComponentFontName(String componentFontName);
-
-  protected abstract String getFileNameFromComponentFontName(String componentFontName);
-
   /* Return the number of core fonts. Note this isn't thread safe but
    * a calling thread can call this and getPlatformFontNames() in either
    * order.
@@ -1989,10 +1848,8 @@ public abstract class FontConfiguration {
             throw new Exception();
           }
         } catch (Exception e) {
-          if (true && logger != null) {
-            logger.config("Failed parsing " + key +
+          Log.d(TAG, "Failed parsing " + key +
                 " property of font configuration.");
-          }
           return EMPTY_INT_ARRAY;
         }
         exclusionRanges[j++] = lo;
@@ -2059,9 +1916,7 @@ public abstract class FontConfiguration {
           if ("allfonts".equals(key)) {
             elcID = getID(elcIDs, "NULL.NULL.NULL");
           } else {
-            if (logger != null) {
-              logger.config("Error sequence def: <sequence." + key + ">");
-            }
+            Log.d(TAG, "Error sequence def: <sequence." + key + ">");
             return;
           }
         } else {
@@ -2080,9 +1935,7 @@ public abstract class FontConfiguration {
           }
           Integer fid = logicalFontIDs.get(key);
           if (fid == null) {
-            if (logger != null) {
-              logger.config("Unrecognizable logicfont name " + key);
-            }
+            Log.d(TAG, "Unrecognizable logicfont name " + key);
             return;
           }
           //System.out.println("sequence." + key + "/" + id);
@@ -2122,18 +1975,14 @@ public abstract class FontConfiguration {
 
         dot1 = key.indexOf('.');
         if (dot1 == -1) {
-          if (logger != null) {
-            logger.config("Failed parsing " + key +
+          Log.d(TAG, "Failed parsing " + key +
                 " property of font configuration.");
-          }
           return;
         }
         dot2 = key.indexOf('.', dot1 + 1);
         if (dot2 == -1) {
-          if (logger != null) {
-            logger.config("Failed parsing " + key +
+          Log.d(TAG, "Failed parsing " + key +
                 " property of font configuration.");
-          }
           return;
         }
         if (key.endsWith(".motif")) {
@@ -2145,9 +1994,7 @@ public abstract class FontConfiguration {
         Integer styleID = fontStyleIDs.get(key.substring(dot1 + 1, dot2));
         Short scriptID = getID(scriptIDs, key.substring(dot2 + 1));
         if (nameID == null || styleID == null) {
-          if (logger != null) {
-            logger.config("unrecognizable logicfont name/style at " + key);
-          }
+          Log.d(TAG, "unrecognizable logicfont name/style at " + key);
           return;
         }
         Short[] pnids;

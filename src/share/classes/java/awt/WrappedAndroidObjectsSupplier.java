@@ -6,6 +6,7 @@ import android.view.View;
 /**
  * Provides the Android API objects that an AWT object is to wrap.
  */
+// TODO: Does this need to extend Serializable?
 public interface WrappedAndroidObjectsSupplier<TWidget extends View> {
   Context getAppContext();
 

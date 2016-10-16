@@ -25,6 +25,7 @@
 
 package java.awt;
 
+import android.content.Context;
 import java.awt.peer.DesktopPeer;
 import java.io.File;
 import java.io.FilePermission;
@@ -84,7 +85,6 @@ public class Desktop {
    */
   private Desktop() {
     peer = Toolkit.getDefaultToolkit().createDesktopPeer(this);
-    androidContext = SkinJob.getAndroidApplicationContext();
   }
 
   /**
