@@ -36,11 +36,14 @@ import sun.awt.SunToolkit;
  * @bug 8019587
  * @author Sergey Bylokhov
  */
-public class IncorrectDisplayModeExitFullscreen {
+public final class IncorrectDisplayModeExitFullscreen {
 
-    public static void main(final String[] args) {
+  private IncorrectDisplayModeExitFullscreen() {
+  }
 
-        final GraphicsDevice[] devices =
+  public static void main(String[] args) {
+
+        GraphicsDevice[] devices =
                 GraphicsEnvironment.getLocalGraphicsEnvironment()
                                    .getScreenDevices();
         if (devices.length < 2 || devices[0].getDisplayModes().length < 2
@@ -49,11 +52,11 @@ public class IncorrectDisplayModeExitFullscreen {
             System.err.println("Testcase is not applicable");
             return;
         }
-        final DisplayMode defaultDM = devices[0].getDisplayMode();
-        final DisplayMode[] dms = devices[0].getDisplayModes();
+        DisplayMode defaultDM = devices[0].getDisplayMode();
+        DisplayMode[] dms = devices[0].getDisplayModes();
         DisplayMode nonDefaultDM = null;
 
-        for (final DisplayMode dm : dms) {
+        for (DisplayMode dm : dms) {
             if (!dm.equals(defaultDM)) {
                 nonDefaultDM = dm;
                 break;
@@ -64,7 +67,7 @@ public class IncorrectDisplayModeExitFullscreen {
             return;
         }
 
-        final Frame frame = new Frame();
+        Frame frame = new Frame();
         frame.setBackground(Color.GREEN);
         frame.setUndecorated(true);
         try {

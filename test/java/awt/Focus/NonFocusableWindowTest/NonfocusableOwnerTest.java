@@ -33,18 +33,14 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import java.lang.reflect.*;
-import java.io.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class NonfocusableOwnerTest extends Applet {
-    Robot robot = Util.createRobot();
+    final Robot robot = Util.createRobot();
     Frame frame;
     Dialog dialog;
     Window window1;
     Window window2;
-    Button button = new Button("button");
+    final Button button = new Button(Button.base);
 
     public static void main(String[] args) {
         NonfocusableOwnerTest test = new NonfocusableOwnerTest();
@@ -53,15 +49,16 @@ public class NonfocusableOwnerTest extends Applet {
 
     public void start() {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
-                    System.out.println(e.toString());
+                    System.out.println(e);
                 }
             }, FocusEvent.FOCUS_EVENT_MASK | WindowEvent.WINDOW_FOCUS_EVENT_MASK | WindowEvent.WINDOW_EVENT_MASK);
 
         frame = new Frame("Frame");
         frame.setName("Frame-owner");
         frame.setBounds(100, 0, 100, 100);
-        dialog = new Dialog(frame, "Dialog");
+        dialog = new Dialog(frame, Font.DIALOG);
         dialog.setName("Dialog-owner");
         dialog.setBounds(100, 0, 100, 100);
 

@@ -26,7 +26,7 @@ import java.awt.datatransfer.SystemFlavorMap;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 /* @test
  * @bug 8028230
@@ -34,13 +34,16 @@ import java.util.Map;
  * @author Petr Pchelko
  * @run main DuplicatedNativesTest
  */
-public class DuplicatedNativesTest {
+public final class DuplicatedNativesTest {
 
-    public static void main(String[] args) throws Exception {
+  private DuplicatedNativesTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         // 1. Check that returned natives do not contain duplicates.
         SystemFlavorMap flavorMap = (SystemFlavorMap)SystemFlavorMap.getDefaultFlavorMap();
-        for (Map.Entry<DataFlavor, String> entry : flavorMap.getNativesForFlavors(null).entrySet()) {
+        for (Entry<DataFlavor, String> entry : flavorMap.getNativesForFlavors(null).entrySet()) {
             List<String> natives = flavorMap.getNativesForFlavor(entry.getKey());
             if (new HashSet<>(natives).size() != natives.size()) {
                 throw new RuntimeException("FAILED: returned natives contain duplicates: " + Arrays.toString(natives.toArray()));

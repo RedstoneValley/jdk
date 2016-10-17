@@ -39,25 +39,29 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
+  protected static final int SINGLE_BIT_ALPHA_MASK = 0x1000000;
+  protected static final int OPAQUE_RGB_BITS = 24;
+  protected static final int BITMASK_RGB_BITS = 25;
   private static final int numconfigs = BufferedImage.TYPE_BYTE_BINARY;
-  private static BufferedImageGraphicsConfig configs[]
+  private static final BufferedImageGraphicsConfig[] configs
       = new BufferedImageGraphicsConfig[numconfigs];
-  GraphicsDevice gd;
-  ColorModel model;
-  Raster raster;
-  int width, height;
+  final GraphicsDevice gd;
+  final ColorModel model;
+  final Raster raster;
+  final int width;
+  final int height;
 
   public BufferedImageGraphicsConfig(BufferedImage bufImg, Component comp) {
     if (comp == null) {
-      this.gd = new BufferedImageDevice(this);
+      gd = new BufferedImageDevice(this);
     } else {
       Graphics2D g2d = (Graphics2D) comp.getGraphics();
-      this.gd = g2d.getDeviceConfiguration().getDevice();
+      gd = g2d.getDeviceConfiguration().getDevice();
     }
-    this.model = bufImg.getColorModel();
-    this.raster = bufImg.getRaster().createCompatibleWritableRaster(1, 1);
-    this.width = bufImg.getWidth();
-    this.height = bufImg.getHeight();
+    model = bufImg.getColorModel();
+    raster = bufImg.getRaster().createCompatibleWritableRaster(1, 1);
+    width = bufImg.getWidth();
+    height = bufImg.getHeight();
   }
 
   public static BufferedImageGraphicsConfig getConfig(BufferedImage bImg) {
@@ -79,6 +83,7 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
   /**
    * Return the graphics device associated with this configuration.
    */
+  @Override
   public GraphicsDevice getDevice() {
     return gd;
   }
@@ -92,6 +97,7 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
    * that is closest to this native device configuration and thus
    * can be optimally blitted to this device.
    */
+  @Override
   public BufferedImage createCompatibleImage(int width, int height) {
     WritableRaster wr = raster.createCompatibleWritableRaster(width, height);
     return new BufferedImage(model, wr, model.isAlphaPremultiplied(), null);
@@ -100,6 +106,7 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
   /**
    * Returns the color model associated with this configuration.
    */
+  @Override
   public ColorModel getColorModel() {
     return model;
   }
@@ -108,6 +115,7 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
    * Returns the color model associated with this configuration that
    * supports the specified transparency.
    */
+  @Override
   public ColorModel getColorModel(int transparency) {
 
     if (model.getTransparency() == transparency) {
@@ -115,9 +123,18 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
     }
     switch (transparency) {
       case Transparency.OPAQUE:
-        return new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
+        return new DirectColorModel(
+            OPAQUE_RGB_BITS,
+            BufferedImage.DCM_RED_MASK,
+            BufferedImage.DCM_GREEN_MASK,
+            BufferedImage.DCM_BLUE_MASK);
       case Transparency.BITMASK:
-        return new DirectColorModel(25, 0xff0000, 0xff00, 0xff, 0x1000000);
+        return new DirectColorModel(
+            BITMASK_RGB_BITS,
+            BufferedImage.DCM_RED_MASK,
+            BufferedImage.DCM_GREEN_MASK,
+            BufferedImage.DCM_BLUE_MASK,
+            SINGLE_BIT_ALPHA_MASK);
       case Transparency.TRANSLUCENT:
         return ColorModel.getRGBdefault();
       default:
@@ -134,6 +151,7 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
    * increasing to the right and Y coordinates increasing downwards.
    * For image buffers, this Transform will be the Identity transform.
    */
+  @Override
   public AffineTransform getDefaultTransform() {
     return new AffineTransform();
   }
@@ -156,10 +174,12 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
    * For image buffers, this Transform will be the Identity transform,
    * since there is no valid distance measurement.
    */
+  @Override
   public AffineTransform getNormalizingTransform() {
     return new AffineTransform();
   }
 
+  @Override
   public Rectangle getBounds() {
     return new Rectangle(0, 0, width, height);
   }

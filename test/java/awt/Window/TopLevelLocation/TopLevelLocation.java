@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8027628
  * @author Oleg Pekhovskiy
  * @summary JWindow jumps to (0, 0) after mouse clicked
@@ -36,14 +36,15 @@ import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JFrame;
-import javax.swing.JWindow;
 
-public class TopLevelLocation {
+public final class TopLevelLocation {
 
     private static JFrame frame;
-    private static JWindow window;
-    private static boolean passed = true;
+    static JWindow window;
+    static boolean passed = true;
+
+    private TopLevelLocation() {
+    }
 
     public static void main(String[] args) throws Exception {
         EventQueue.invokeAndWait(() -> {
@@ -57,14 +58,14 @@ public class TopLevelLocation {
             window.setAlwaysOnTop(true);
             window.setBounds(200, 200, 200, 200);
             window.addMouseListener(new MouseAdapter() {
-                private Point dragOrigin = null;
-                private Dimension origSize = null;
-                private Point origLoc = null;
-                private Point lastLoc = null;
-                private boolean left = false;
-                private boolean top = false;
-                private boolean bottom = false;
-                private boolean right = false;
+                private Point dragOrigin;
+                private Dimension origSize;
+                private Point origLoc;
+                private Point lastLoc;
+                private boolean left;
+                private boolean top;
+                private boolean bottom;
+                private boolean right;
 
                 @Override
                 public void mousePressed(MouseEvent e) {
@@ -79,9 +80,9 @@ public class TopLevelLocation {
                             passed = false;
                         }
                     }
-                    right = (origLoc.x + window.getWidth() - dragOrigin.x) < 5;
+                    right = origLoc.x + window.getWidth() - dragOrigin.x < 5;
                     left = !right && dragOrigin.x - origLoc.x < 5;
-                    bottom = (origLoc.y + window.getHeight() - dragOrigin.y) < 5;
+                    bottom = origLoc.y + window.getHeight() - dragOrigin.y < 5;
                     top = !bottom && dragOrigin.y - origLoc.y < 5;
                 }
 

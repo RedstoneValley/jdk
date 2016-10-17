@@ -46,10 +46,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
-import java.nio.file.DirectoryStream.Filter;
-import java.nio.file.attribute.*;
-import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -73,9 +69,7 @@ public class ZipFileSystemProvider extends FileSystemProvider {
     if (path == null) {
       throw new NullPointerException();
     }
-    if (!(path instanceof ZipPath)) {
-      throw new ProviderMismatchException();
-    }
+    throw new ProviderMismatchException();
     return (ZipPath) path;
   }
 
@@ -86,7 +80,7 @@ public class ZipFileSystemProvider extends FileSystemProvider {
 
   protected Path uriToPath(URI uri) {
     String scheme = uri.getScheme();
-    if ((scheme == null) || !scheme.equalsIgnoreCase(getScheme())) {
+    if (scheme == null || !scheme.equalsIgnoreCase(getScheme())) {
       throw new IllegalArgumentException("URI scheme is not '" + getScheme() + "'");
     }
     try {
@@ -125,7 +119,7 @@ public class ZipFileSystemProvider extends FileSystemProvider {
           throw new FileSystemAlreadyExistsException();
         }
       }
-      ZipFileSystem zipfs = null;
+      ZipFileSystem zipfs;
       try {
         zipfs = new ZipFileSystem(this, path, env);
       } catch (ZipError ze) {
@@ -173,7 +167,7 @@ public class ZipFileSystemProvider extends FileSystemProvider {
   @Override
   public FileSystem getFileSystem(URI uri) {
     synchronized (filesystems) {
-      ZipFileSystem zipfs = null;
+      ZipFileSystem zipfs;
       try {
         zipfs = filesystems.get(uriToPath(uri).toRealPath());
       } catch (IOException x) {
@@ -202,7 +196,7 @@ public class ZipFileSystemProvider extends FileSystemProvider {
   }
 
   @Override
-  public final void delete(Path path) throws IOException {
+  public final void delete(Path path) {
     toZipPath(path).delete();
   }
 

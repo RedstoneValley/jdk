@@ -29,10 +29,8 @@
   @run applet MouseWheelEventAbsoluteCoordsTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 // The test consits of several parts:
 // 1. create MouseWheelEvent with new Ctor and checking get(X|Y)OnScreen(),
@@ -43,14 +41,14 @@ import test.java.awt.regtesthelpers.Util;
 
 public class MouseWheelEventAbsoluteCoordsTest extends Applet implements MouseWheelListener
 {
-    Frame frame = new Frame("MouseWheelEvent Test Frame");
+    final Frame frame = new Frame("MouseWheelEvent Test Frame");
 
     Point mousePositionOnScreen = new Point(200, 200);
-    Point mousePosition = new Point(100, 100);
+    final Point mousePosition = new Point(100, 100);
     public void init()
     {
 
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
 
         frame.addMouseWheelListener(this);
     }//End  init()
@@ -77,59 +75,62 @@ public class MouseWheelEventAbsoluteCoordsTest extends Applet implements MouseWh
         // now we gonna use old MouseEvent's Ctor thus absolute
         // position calculates as frame's location + relative coords
         // of the event.
-        mousePositionOnScreen = new Point(frame.getLocationOnScreen().x + mousePosition.x,
-                                          frame.getLocationOnScreen().y + mousePosition.y);
+        mousePositionOnScreen = new Point(
+            frame.getLocationOnScreen().x + mousePosition.x,
+            frame.getLocationOnScreen().y + mousePosition.y);
         System.out.println("Old Ctor Stage");
         postMouseWheelEventOldCtor(MouseEvent.MOUSE_CLICKED);
 
     }// start()
+    @Override
     public void mouseWheelMoved(MouseWheelEvent e){
         checkEventAbsolutePosition(e, "MouseWheelMoved OK");
-    };
+    }
 
     public void postMouseWheelEventNewCtor(int MouseEventType)    {
-        MouseWheelEvent me = new MouseWheelEvent(frame,
+        MouseWheelEvent me = new MouseWheelEvent(
+            frame,
                                                  MouseEventType,
                                                  System.currentTimeMillis(),
                                                  MouseEvent.BUTTON1_DOWN_MASK,
-                                                 mousePosition.x, mousePosition.y,
-                                                 mousePositionOnScreen.x,
-                                                 mousePositionOnScreen.y,
+            mousePosition.x, mousePosition.y,
+            mousePositionOnScreen.x, mousePositionOnScreen.y,
                                                  1,
                                                  false,  //popupTrigger
                                                  MouseWheelEvent.WHEEL_UNIT_SCROLL,
                                                  1,  //scrollAmount
                                                  1  //wheelRotation
                                                  );
-        frame.dispatchEvent( ( AWTEvent )me );
+        frame.dispatchEvent(me);
     }
 
     public void postMouseWheelEventOldCtor(int MouseEventType)    {
-        MouseWheelEvent meOld = new MouseWheelEvent(frame,
+        MouseWheelEvent meOld = new MouseWheelEvent(
+            frame,
                                                  MouseEventType,
                                                  System.currentTimeMillis(),
                                                  MouseEvent.BUTTON1_DOWN_MASK,
-                                                 mousePosition.x, mousePosition.y,
+            mousePosition.x, mousePosition.y,
                                                  1,
                                                  false,  //popupTrigger
                                                  MouseWheelEvent.WHEEL_UNIT_SCROLL,
                                                  1,  //scrollAmount
                                                  1  //wheelRotation
                                                  );
-        frame.dispatchEvent( ( AWTEvent )meOld );
+        frame.dispatchEvent(meOld);
     }
 
     public void checkEventAbsolutePosition(MouseEvent evt, String message){
         //        if (newCtorUsed){
             if (evt.getXOnScreen() != mousePositionOnScreen.x ||
                 evt.getYOnScreen() != mousePositionOnScreen.y ||
-                !evt.getLocationOnScreen().equals( mousePositionOnScreen )  ){
+                !evt.getLocationOnScreen().equals(mousePositionOnScreen)  ){
                 throw new RuntimeException("get(X|Y)OnScreen() or getPointOnScreen() work incorrectly");
             }
 
             if (evt.getX() != mousePosition.x ||
                 evt.getY() != mousePosition.y ||
-                !evt.getPoint().equals( mousePosition )  ){
+                !evt.getPoint().equals(mousePosition)  ){
                 throw new RuntimeException("get(X|Y)() or getPoint() work incorrectly");
             }
         System.out.println(message);

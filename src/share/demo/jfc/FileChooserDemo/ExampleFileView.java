@@ -40,7 +40,6 @@
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.filechooser.*;
 
 /**
  * A convenience implementation of the FileView interface that
@@ -67,14 +66,13 @@ import javax.swing.filechooser.*;
 public class ExampleFileView extends FileView {
 
   private final Map<String, Icon> icons = new HashMap<String, Icon>();
-  private final Map<File, String> fileDescriptions = new HashMap<File, String>();
-  private final Map<String, String> typeDescriptions = new HashMap<String, String>();
+  private final Map<File, String> fileDescriptions = new HashMap<>();
+  private final Map<String, String> typeDescriptions = new HashMap<>();
 
   /**
    * The name of the file.  Do nothing special here. Let
    * the system file view handle this.
    *
-   * @see FileView#getName
    */
   @Override
   public String getName(File f) {
@@ -91,7 +89,6 @@ public class ExampleFileView extends FileView {
   /**
    * A human readable description of the file.
    *
-   * @see FileView#getDescription
    */
   @Override
   public String getDescription(File f) {
@@ -118,7 +115,6 @@ public class ExampleFileView extends FileView {
   /**
    * A human readable description of the type of the file.
    *
-   * @see FileView#getTypeDescription
    */
   @Override
   public String getTypeDescription(File f) {
@@ -131,13 +127,11 @@ public class ExampleFileView extends FileView {
    */
   private String getExtension(File f) {
     String name = f.getName();
-    if (name != null) {
-      int extensionIndex = name.lastIndexOf('.');
-      if (extensionIndex < 0) {
-        return null;
-      }
-      return name.substring(extensionIndex + 1).toLowerCase();
+    int extensionIndex = name.lastIndexOf('.');
+    if (extensionIndex < 0) {
+      return null;
     }
+    return name.substring(extensionIndex + 1).toLowerCase();
     return null;
   }
 
@@ -154,7 +148,6 @@ public class ExampleFileView extends FileView {
    * null. You might want to override this to return something more
    * interesting.
    *
-   * @see FileView#getIcon
    */
   @Override
   public Icon getIcon(File f) {
@@ -176,7 +169,6 @@ public class ExampleFileView extends FileView {
    * document, and return false for isTraversable to not allow users to
    * descend into the directory.
    *
-   * @see FileView#isTraversable
    */
   @Override
   public Boolean isTraversable(File f) {

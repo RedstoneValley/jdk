@@ -34,8 +34,9 @@ import java.awt.image.*;
  * @author ceisserer
  */
 public class GradientTransformTest extends Frame {
-    BufferedImage srcImg;
-    Image dstImg;
+    private static final long serialVersionUID = 4802639878774186137L;
+    final BufferedImage srcImg;
+    final Image dstImg;
 
     public GradientTransformTest() {
         srcImg = createSrcImage();
@@ -60,6 +61,7 @@ public class GradientTransformTest extends Frame {
         g.fillRect(-10, -10, 30, 30);
     }
 
+    @Override
     public void paint(Graphics g1) {
         Graphics2D g = (Graphics2D) g1;
         renderToVI(createSrcImage(), dstImg);
@@ -110,11 +112,12 @@ public class GradientTransformTest extends Frame {
     }
 
     public static void main(String[] args) throws Exception {
-        boolean show = (args.length > 0 && "-show".equals(args[0]));
-        final GradientTransformTest t = new GradientTransformTest();
+        boolean show = args.length > 0 && "-show".equals(args[0]);
+        GradientTransformTest t = new GradientTransformTest();
 
         if (show) {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     t.showFrame();
                 }

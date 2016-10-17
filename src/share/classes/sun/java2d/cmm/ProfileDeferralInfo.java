@@ -36,12 +36,13 @@ import java.io.InputStream;
  */
 public class ProfileDeferralInfo extends InputStream {
 
-  public int colorSpaceType, numComponents, profileClass;
-  public String filename;
+  public final int colorSpaceType;
+  public final int numComponents;
+  public final int profileClass;
+  public final String filename;
 
   public ProfileDeferralInfo(String fn, int type, int ncomp, int pclass) {
 
-    super();
     filename = fn;
     colorSpaceType = type;
     numComponents = ncomp;
@@ -51,6 +52,7 @@ public class ProfileDeferralInfo extends InputStream {
   /**
    * Implements the abstract read() method of InputStream.
    */
+  @Override
   public int read() throws IOException {
 
     return 0;

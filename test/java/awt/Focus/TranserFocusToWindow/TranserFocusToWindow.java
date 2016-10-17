@@ -40,11 +40,12 @@ import java.awt.Window;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class TranserFocusToWindow
+public final class TranserFocusToWindow
 {
-    public static void main(String[] args) {
+  private TranserFocusToWindow() {
+  }
+
+  public static void main(String[] args) {
         Robot robot = Util.createRobot();
         Frame owner_frame = new Frame("Owner frame");
         owner_frame.setBounds(0, 0, 200, 200);
@@ -75,26 +76,32 @@ public class TranserFocusToWindow
         setFocus(btn2, robot);
 
         owner_frame.addWindowFocusListener(new WindowFocusListener() {
+                @Override
                 public void windowLostFocus(WindowEvent we) {
                     System.out.println(we);
                 }
+                @Override
                 public void windowGainedFocus(WindowEvent we) {
                     System.out.println(we);
                     throw new RuntimeException("owner frame must not receive WINDWO_GAINED_FOCUS");
                 }
             });
         window.addWindowFocusListener(new WindowFocusListener() {
+                @Override
                 public void windowLostFocus(WindowEvent we) {
                     System.out.println(we);
                 }
+                @Override
                 public void windowGainedFocus(WindowEvent we) {
                     System.out.println(we);
                 }
             });
         another_frame.addWindowFocusListener(new WindowFocusListener() {
+                @Override
                 public void windowLostFocus(WindowEvent we) {
                     System.out.println(we);
                 }
+                @Override
                 public void windowGainedFocus(WindowEvent we) {
                     System.out.println(we);
                 }
@@ -108,7 +115,7 @@ public class TranserFocusToWindow
         System.out.println("test passed");
     }
 
-    private static void setFocus(final Component comp, final Robot r) {
+    private static void setFocus(Component comp, Robot r) {
         if (comp.hasFocus()) {
             return;
         }

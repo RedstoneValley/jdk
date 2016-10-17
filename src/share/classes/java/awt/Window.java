@@ -25,6 +25,8 @@
 package java.awt;
 
 import android.util.Log;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
@@ -41,14 +43,17 @@ import java.awt.peer.WindowPeer;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.io.Serializable;
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -56,10 +61,13 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.WindowAccessor;
 import sun.awt.AppContext;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.SunToolkit;
 import sun.awt.util.IdentityArrayList;
+import sun.java2d.Disposer;
+import sun.java2d.DisposerRecord;
 import sun.java2d.pipe.Region;
 
 /**
@@ -144,7 +152,7 @@ import sun.java2d.pipe.Region;
  * @author Arthur van Hoff
  * @see WindowEvent
  * @see #addWindowListener
- * @see java.awt.BorderLayout
+ * @see BorderLayout
  * @since JDK1.0
  */
 public class Window extends Container {
@@ -158,42 +166,47 @@ public class Window extends Container {
    *
    * @since 1.6
    */
-  private static final IdentityArrayList<Window> allWindows = new IdentityArrayList<Window>();
+  private static final IdentityArrayList<Window> allWindows = new IdentityArrayList<>();
   private static final String base = "win";
   /*
      * JDK 1.1 serialVersionUID
      */
   private static final long serialVersionUID = 4497834738069338734L;
   private static final boolean locationByPlatformProp;
-  static private final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
-  static boolean systemSyncLWRequests = false;
-  private static int nameCounter = 0;
+  private static final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
+  static final boolean systemSyncLWRequests;
+  private static int nameCounter;
 
   static {
     String s = System.getProperty("java.awt.syncLWRequests");
-    systemSyncLWRequests = (s != null && s.equals("true"));
+    systemSyncLWRequests = "true".equals(s);
     s = System.getProperty("java.awt.Window.locationByPlatform");
-    locationByPlatformProp = (s != null && s.equals("true"));
+    locationByPlatformProp = "true".equals(s);
   }
 
   static {
-    AWTAccessor.setWindowAccessor(new AWTAccessor.WindowAccessor() {
+    AWTAccessor.setWindowAccessor(new WindowAccessor() {
+      @Override
       public float getOpacity(Window window) {
         return window.opacity;
       }
 
+      @Override
       public void setOpacity(Window window, float opacity) {
         window.setOpacity(opacity);
       }
 
+      @Override
       public Shape getShape(Window window) {
         return window.getShape();
       }
 
+      @Override
       public void setShape(Window window, Shape shape) {
         window.setShape(shape);
       }
 
+      @Override
       public void setOpaque(Window window, boolean opaque) {
         Color bg = window.getBackground();
         if (bg == null) {
@@ -202,19 +215,23 @@ public class Window extends Container {
         window.setBackground(new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), opaque ? 255 : 0));
       }
 
+      @Override
       public void updateWindow(Window window) {
         window.updateWindow();
       }
 
+      @Override
       public Dimension getSecurityWarningSize(Window window) {
         return new Dimension(window.securityWarningWidth, window.securityWarningHeight);
       }
 
+      @Override
       public void setSecurityWarningSize(Window window, int width, int height) {
         window.securityWarningWidth = width;
         window.securityWarningHeight = height;
       }
 
+      @Override
       public void setSecurityWarningPosition(
           Window window, Point2D point, float alignmentX, float alignmentY) {
         window.securityWarningPointX = point.getX();
@@ -230,29 +247,44 @@ public class Window extends Container {
         }
       }
 
+      @Override
       public Point2D calculateSecurityWarningPosition(
           Window window, double x, double y, double w, double h) {
         return window.calculateSecurityWarningPosition(x, y, w, h);
       }
 
+      @Override
       public void setLWRequestStatus(Window changed, boolean status) {
         changed.syncLWRequests = status;
       }
 
+      @Override
       public boolean isAutoRequestFocus(Window w) {
         return w.autoRequestFocus;
       }
 
+      @Override
       public boolean isTrayIconWindow(Window w) {
         return w.isTrayIconWindow;
       }
 
+      @Override
       public void setTrayIconWindow(Window w, boolean isTrayIconWindow) {
         w.isTrayIconWindow = isTrayIconWindow;
       }
     }); // WindowAccessor
   } // static
 
+  /**
+   * A vector containing all the windows this
+   * window currently owns.
+   *
+   * @see #getOwnedWindows
+   * @since 1.2
+   */
+  final transient Vector<WeakReference<Window>> ownedWindowList
+      = new Vector<>();
+  final transient Object inputContextLock = new Object();
   protected android.view.Window androidWindow;
   /**
    * This represents the warning message that is
@@ -276,9 +308,9 @@ public class Window extends Container {
    * @see #setIconImages
    */
   transient java.util.List<Image> icons;
-  boolean syncLWRequests = false;
+  boolean syncLWRequests;
   transient boolean beforeFirstShow = true;
-  transient WindowDisposerRecord disposerRecord = null;
+  transient WindowDisposerRecord disposerRecord;
   /**
    * An Integer value representing the Window State.
    *
@@ -287,14 +319,6 @@ public class Window extends Container {
    * @since 1.2
    */
   int state;
-  /**
-   * A vector containing all the windows this
-   * window currently owns.
-   *
-   * @see #getOwnedWindows
-   * @since 1.2
-   */
-  transient Vector<WeakReference<Window>> ownedWindowList = new Vector<WeakReference<Window>>();
   transient boolean showWithParent;
   /**
    * Contains the modal dialog that blocks this window, or null
@@ -305,12 +329,12 @@ public class Window extends Container {
   transient Dialog modalBlocker;
   /**
    * @serial
-   * @see java.awt.Dialog.ModalExclusionType
+   * @see ModalExclusionType
    * @see #getModalExclusionType
    * @see #setModalExclusionType
    * @since 1.6
    */
-  Dialog.ModalExclusionType modalExclusionType;
+  ModalExclusionType modalExclusionType;
   transient WindowListener windowListener;
   transient WindowStateListener windowStateListener;
   transient WindowFocusListener windowFocusListener;
@@ -322,15 +346,15 @@ public class Window extends Container {
      * @see #show()
      * @see Dialog#shouldBlock
      */
-  transient boolean isInShow = false;
-  transient boolean isTrayIconWindow = false;
+  transient boolean isInShow;
+  transient boolean isTrayIconWindow;
   transient Object anchor = new Object();
   /**
    * Holds the reference to the component which last had focus in this window
    * before it lost focus.
    */
   private transient Component temporaryLostComponent;
-  private transient boolean disposing = false;
+  transient boolean disposing;
   /**
    * A boolean value representing Window always-on-top state
    *
@@ -345,8 +369,7 @@ public class Window extends Container {
      * instead of 'this' so that garbage collection can still take place
      * correctly.
      */
-  private transient WeakReference<Window> weakThis;
-  private transient Object inputContextLock = new Object();
+  transient WeakReference<Window> weakThis;
   /**
    * Unused. Maintained for serialization backward-compatibility.
    *
@@ -373,7 +396,7 @@ public class Window extends Container {
    * @see #isAutoRequestFocus
    * @since 1.7
    */
-  private volatile boolean autoRequestFocus = true;
+  volatile boolean autoRequestFocus = true;
   /**
    * The opacity level of the window
    *
@@ -382,7 +405,7 @@ public class Window extends Container {
    * @see #getOpacity()
    * @since 1.7
    */
-  private float opacity = 1.0f;
+  float opacity = 1.0f;
   /**
    * The shape assigned to this window. This field is set to {@code null} if
    * no shape is set (rectangular window).
@@ -392,22 +415,22 @@ public class Window extends Container {
    * @see #setShape(Shape)
    * @since 1.7
    */
-  private Shape shape = null;
+  private Shape shape;
   /**
    * These fields are initialized in the native peer code
    * or via AWTAccessor's WindowAccessor.
    */
-  private transient volatile int securityWarningWidth = 0;
-  private transient volatile int securityWarningHeight = 0;
+  transient volatile int securityWarningWidth;
+  transient volatile int securityWarningHeight;
   /**
    * These fields represent the desired location for the security
    * warning if this window is untrusted.
    * See com.sun.awt.SecurityWarning for more details.
    */
-  private transient double securityWarningPointX = 2.0;
-  private transient double securityWarningPointY = 0.0;
-  private transient float securityWarningAlignmentX = RIGHT_ALIGNMENT;
-  private transient float securityWarningAlignmentY = TOP_ALIGNMENT;
+  transient double securityWarningPointX = 2.0;
+  transient double securityWarningPointY;
+  transient float securityWarningAlignmentX = RIGHT_ALIGNMENT;
+  transient float securityWarningAlignmentY = TOP_ALIGNMENT;
   /**
    * Window type.
    * <p>
@@ -438,7 +461,7 @@ public class Window extends Container {
    *                                  is not from a screen device
    * @throws HeadlessException        when
    *                                  {@code GraphicsEnvironment.isHeadless()} returns {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   Window(GraphicsConfiguration gc) {
     init(gc);
@@ -454,7 +477,7 @@ public class Window extends Container {
    *
    * @throws HeadlessException when
    *                           {@code GraphicsEnvironment.isHeadless()} returns {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   Window() throws HeadlessException {
     this((GraphicsConfiguration) null);
@@ -476,11 +499,11 @@ public class Window extends Container {
    *                                  {@code GraphicsConfiguration} is not from a screen device
    * @throws HeadlessException        when
    *                                  {@code GraphicsEnvironment.isHeadless} returns {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @see #isShowing
    */
   public Window(Frame owner) {
-    this(owner == null ? (GraphicsConfiguration) null : owner.getGraphicsConfiguration());
+    this(owner == null ? null : owner.getGraphicsConfiguration());
     ownedInit(owner);
   }
 
@@ -502,12 +525,12 @@ public class Window extends Container {
    * @throws HeadlessException        when
    *                                  {@code GraphicsEnvironment.isHeadless()} returns
    *                                  {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @see #isShowing
    * @since 1.2
    */
   public Window(Window owner) {
-    this(owner == null ? (GraphicsConfiguration) null : owner.getGraphicsConfiguration());
+    this(owner == null ? null : owner.getGraphicsConfiguration());
     ownedInit(owner);
   }
 
@@ -533,7 +556,7 @@ public class Window extends Container {
    * @throws HeadlessException        when
    *                                  {@code GraphicsEnvironment.isHeadless()} returns
    *                                  {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @see GraphicsConfiguration#getBounds
    * @see #isShowing
    * @since 1.3
@@ -564,7 +587,7 @@ public class Window extends Container {
      */
   static IdentityArrayList<Window> getAllWindows() {
     synchronized (allWindows) {
-      IdentityArrayList<Window> v = new IdentityArrayList<Window>();
+      IdentityArrayList<Window> v = new IdentityArrayList<>();
       v.addAll(allWindows);
       return v;
     }
@@ -572,7 +595,7 @@ public class Window extends Container {
 
   static IdentityArrayList<Window> getAllUnblockedWindows() {
     synchronized (allWindows) {
-      IdentityArrayList<Window> unblocked = new IdentityArrayList<Window>();
+      IdentityArrayList<Window> unblocked = new IdentityArrayList<>();
       for (int i = 0; i < allWindows.size(); i++) {
         Window w = allWindows.get(i);
         if (!w.isModalBlocked()) {
@@ -583,31 +606,26 @@ public class Window extends Container {
     }
   }
 
-  private static Window[] getWindows(AppContext appContext) {
-    synchronized (Window.class) {
-      Window realCopy[];
-      @SuppressWarnings("unchecked") Vector<WeakReference<Window>> windowList
-          = (Vector<WeakReference<Window>>) appContext.get(Window.class);
-      if (windowList != null) {
-        int fullSize = windowList.size();
-        int realSize = 0;
-        Window fullCopy[] = new Window[fullSize];
-        for (int i = 0; i < fullSize; i++) {
-          Window w = windowList.get(i).get();
-          if (w != null) {
-            fullCopy[realSize++] = w;
-          }
+  private static synchronized Window[] getWindows(AppContext appContext) {
+    Window[] realCopy;
+    @SuppressWarnings("unchecked") Vector<WeakReference<Window>> windowList
+        = (Vector<WeakReference<Window>>) appContext.get(Window.class);
+    if (windowList != null) {
+      int fullSize = windowList.size();
+      int realSize = 0;
+      Window[] fullCopy = new Window[fullSize];
+      for (int i = 0; i < fullSize; i++) {
+        Window w = windowList.get(i).get();
+        if (w != null) {
+          fullCopy[realSize] = w;
+          realSize++;
         }
-        if (fullSize != realSize) {
-          realCopy = Arrays.copyOf(fullCopy, realSize);
-        } else {
-          realCopy = fullCopy;
-        }
-      } else {
-        realCopy = new Window[0];
       }
-      return realCopy;
+      realCopy = fullSize != realSize ? Arrays.copyOf(fullCopy, realSize) : fullCopy;
+    } else {
+      realCopy = new Window[0];
     }
+    return realCopy;
   }
 
   /**
@@ -648,7 +666,7 @@ public class Window extends Container {
    * @since 1.6
    */
   public static Window[] getOwnerlessWindows() {
-    Window[] allWindows = Window.getWindows();
+    Window[] allWindows = getWindows();
 
     int ownerlessCount = 0;
     for (Window w : allWindows) {
@@ -661,20 +679,20 @@ public class Window extends Container {
     int c = 0;
     for (Window w : allWindows) {
       if (w.getOwner() == null) {
-        ownerless[c++] = w;
+        ownerless[c] = w;
+        c++;
       }
     }
 
     return ownerless;
   }
 
-  private static void removeFromWindowList(AppContext context, WeakReference<Window> weakThis) {
-    synchronized (Window.class) {
-      @SuppressWarnings("unchecked") Vector<WeakReference<Window>> windowList
-          = (Vector<WeakReference<Window>>) context.get(Window.class);
-      if (windowList != null) {
-        windowList.remove(weakThis);
-      }
+  static synchronized void removeFromWindowList(
+      AppContext context, WeakReference<Window> weakThis) {
+    @SuppressWarnings("unchecked") Vector<WeakReference<Window>> windowList
+        = (Vector<WeakReference<Window>>) context.get(Window.class);
+    if (windowList != null) {
+      windowList.remove(weakThis);
     }
   }
 
@@ -745,12 +763,12 @@ public class Window extends Container {
 
     syncLWRequests = systemSyncLWRequests;
 
-    weakThis = new WeakReference<Window>(this);
+    weakThis = new WeakReference<>(this);
     addToWindowList();
 
     setWarningString();
-    this.cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-    this.visible = false;
+    cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+    visible = false;
 
     gc = initGC(gc);
 
@@ -771,15 +789,15 @@ public class Window extends Container {
       setLocationByPlatform(locationByPlatformProp);
     }
 
-    modalExclusionType = Dialog.ModalExclusionType.NO_EXCLUDE;
+    modalExclusionType = ModalExclusionType.NO_EXCLUDE;
     disposerRecord = new WindowDisposerRecord(appContext, this);
-    sun.java2d.Disposer.addRecord(anchor, disposerRecord);
+    Disposer.addRecord(anchor, disposerRecord);
 
     SunToolkit.checkAndSetPolicy(this);
   }
 
   private void ownedInit(Window owner) {
-    this.parent = owner;
+    parent = owner;
     if (owner != null) {
       owner.addOwnedWindow(weakThis);
       if (owner.isAlwaysOnTop()) {
@@ -798,9 +816,12 @@ public class Window extends Container {
    * Construct a name for this component.  Called by getName() when the
    * name is null.
    */
+  @Override
   String constructComponentName() {
     synchronized (Window.class) {
-      return base + nameCounter++;
+      String result = base + nameCounter;
+      nameCounter++;
+      return result;
     }
   }
 
@@ -820,10 +841,8 @@ public class Window extends Container {
     }
     synchronized (getTreeLock()) {
       super.setGraphicsConfiguration(gc);
-      if (true) {
-        Log.v(TAG, "+ Window.setGraphicsConfiguration(): new GC is \n+ " +
-            getGraphicsConfiguration_NoClientCode() + "\n+ this is " + this);
-      }
+      Log.v(TAG, "+ Window.setGraphicsConfiguration(): new GC is \n+ " +
+          getGraphicsConfiguration_NoClientCode() + "\n+ this is " + this);
     }
   }
 
@@ -835,6 +854,7 @@ public class Window extends Container {
    * @see Toolkit#getDefaultToolkit
    * @see Component#getToolkit
    */
+  @Override
   public Toolkit getToolkit() {
     return Toolkit.getDefaultToolkit();
   }
@@ -869,13 +889,14 @@ public class Window extends Container {
    *          of its owned children.
    *          The {@code Window} and its subcomponents can be made visible again
    *          with a call to {@code #setVisible(true)}.
-   * @see java.awt.Component#isDisplayable
-   * @see java.awt.Component#setVisible
-   * @see java.awt.Window#toFront
-   * @see java.awt.Window#dispose
-   * @see java.awt.Window#setAutoRequestFocus
-   * @see java.awt.Window#isFocusableWindow
+   * @see Component#isDisplayable
+   * @see Component#setVisible
+   * @see Window#toFront
+   * @see Window#dispose
+   * @see Window#setAutoRequestFocus
+   * @see Window#isFocusableWindow
    */
+  @Override
   public void setVisible(boolean b) {
     super.setVisible(b);
   }
@@ -886,6 +907,7 @@ public class Window extends Container {
    * @return {@code true} if the component and all of its ancestors
    * until a toplevel window are visible, {@code false} otherwise
    */
+  @Override
   boolean isRecursivelyVisible() {
     // 5079694 fix: for a toplevel to be displayed, its parent doesn't have to be visible.
     // We're overriding isRecursivelyVisible to implement this policy.
@@ -897,6 +919,7 @@ public class Window extends Container {
    *
    * @see Component#setVisible
    */
+  @Override
   public boolean isShowing() {
     return visible;
   }
@@ -913,6 +936,7 @@ public class Window extends Container {
    * @deprecated As of JDK version 1.5, replaced by
    * {@link #setVisible(boolean)}.
    */
+  @Override
   @Deprecated
   public void show() {
     if (peer == null) {
@@ -929,11 +953,11 @@ public class Window extends Container {
       Dialog.checkShouldBeBlocked(this);
       super.show();
       synchronized (getTreeLock()) {
-        this.locationByPlatform = false;
+        locationByPlatform = false;
       }
       for (int i = 0; i < ownedWindowList.size(); i++) {
         Window child = ownedWindowList.elementAt(i).get();
-        if ((child != null) && child.showWithParent) {
+        if (child != null && child.showWithParent) {
           child.show();
           child.showWithParent = false;
         }       // endif
@@ -968,12 +992,13 @@ public class Window extends Container {
    * @deprecated As of JDK version 1.5, replaced by
    * {@link #setVisible(boolean)}.
    */
+  @Override
   @Deprecated
   public void hide() {
     synchronized (ownedWindowList) {
       for (int i = 0; i < ownedWindowList.size(); i++) {
         Window child = ownedWindowList.elementAt(i).get();
-        if ((child != null) && child.visible) {
+        if (child != null && child.visible) {
           child.hide();
           child.showWithParent = true;
         }
@@ -984,7 +1009,7 @@ public class Window extends Container {
     }
     super.hide();
     synchronized (getTreeLock()) {
-      this.locationByPlatform = false;
+      locationByPlatform = false;
     }
   }
 
@@ -997,7 +1022,7 @@ public class Window extends Container {
    * @return this component's background color
    * @see Window#setBackground(Color)
    * @see Window#isOpaque
-   * @see GraphicsDevice.WindowTranslucency
+   * @see WindowTranslucency
    */
   @Override
   public Color getBackground() {
@@ -1008,7 +1033,7 @@ public class Window extends Container {
    * Sets the background color of this window.
    * <p>
    * If the windowing system supports the {@link
-   * GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSLUCENT PERPIXEL_TRANSLUCENT}
+   * WindowTranslucency#PERPIXEL_TRANSLUCENT PERPIXEL_TRANSLUCENT}
    * translucency, the alpha component of the given background color
    * may effect the mode of operation for this window: it indicates whether
    * this window must be opaque (alpha equals {@code 1.0f}) or per-pixel translucent
@@ -1018,7 +1043,7 @@ public class Window extends Container {
    * All the following conditions must be met to enable the per-pixel
    * transparency mode for this window:
    * <ul>
-   * <li>The {@link GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSLUCENT
+   * <li>The {@link WindowTranslucency#PERPIXEL_TRANSLUCENT
    * PERPIXEL_TRANSLUCENT} translucency must be supported by the graphics
    * device where this window is located
    * <li>The window must be undecorated (see {@link Frame#setUndecorated}
@@ -1067,7 +1092,7 @@ public class Window extends Container {
    *                                        full-screen mode
    * @throws UnsupportedOperationException  if the alpha value of the given
    *                                        background color is less than {@code 1.0f} and {@link
-   *                                        GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSLUCENT
+   *                                        WindowTranslucency#PERPIXEL_TRANSLUCENT
    *                                        PERPIXEL_TRANSLUCENT} translucency is not supported
    * @see Window#getBackground
    * @see Window#isOpaque
@@ -1075,8 +1100,8 @@ public class Window extends Container {
    * @see Window#setShape(Shape)
    * @see Frame#isUndecorated
    * @see Dialog#isUndecorated
-   * @see GraphicsDevice.WindowTranslucency
-   * @see GraphicsDevice#isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency)
+   * @see WindowTranslucency
+   * @see GraphicsDevice#isWindowTranslucencySupported(WindowTranslucency)
    * @see GraphicsConfiguration#isTranslucencyCapable()
    */
   @Override
@@ -1088,7 +1113,7 @@ public class Window extends Container {
     }
     int oldAlpha = oldBg != null ? oldBg.getAlpha() : 255;
     int alpha = bgColor != null ? bgColor.getAlpha() : 255;
-    if ((oldAlpha == 255) && (alpha < 255)) { // non-opaque window
+    if (oldAlpha == 255 && alpha < 255) { // non-opaque window
       GraphicsConfiguration gc = getGraphicsConfiguration();
       GraphicsDevice gd = gc.getDevice();
       if (gc.getDevice().getFullScreenWindow() == this) {
@@ -1104,7 +1129,7 @@ public class Window extends Container {
         setGraphicsConfiguration(capableGC);
       }
       setLayersOpaque(this, false);
-    } else if ((oldAlpha < 255) && (alpha == 255)) {
+    } else if (oldAlpha < 255 && alpha == 255) {
       setLayersOpaque(this, true);
     }
     WindowPeer peer = (WindowPeer) getPeer();
@@ -1117,6 +1142,7 @@ public class Window extends Container {
    * @deprecated As of JDK version 1.1
    * replaced by {@code dispatchEvent(AWTEvent)}.
    */
+  @Override
   @Deprecated
   public boolean postEvent(Event e) {
     if (handleEvent(e)) {
@@ -1133,14 +1159,15 @@ public class Window extends Container {
    * is returned.
    *
    * @return the locale that is set for this window.
-   * @see java.util.Locale
+   * @see Locale
    * @since JDK1.1
    */
+  @Override
   public Locale getLocale() {
-    if (this.locale == null) {
+    if (locale == null) {
       return Locale.getDefault();
     }
-    return this.locale;
+    return locale;
   }
 
   /**
@@ -1187,6 +1214,7 @@ public class Window extends Container {
    * @see #setMinimumSize
    * @since 1.6
    */
+  @Override
   public void setSize(Dimension d) {
     super.setSize(d);
   }
@@ -1209,6 +1237,7 @@ public class Window extends Container {
    * @see #setMinimumSize
    * @since 1.6
    */
+  @Override
   public void setSize(int width, int height) {
     super.setSize(width, height);
   }
@@ -1236,6 +1265,7 @@ public class Window extends Container {
    * @see #isLocationByPlatform
    * @since 1.6
    */
+  @Override
   public void setBounds(Rectangle r) {
     setBounds(r.x, r.y, r.width, r.height);
   }
@@ -1263,6 +1293,7 @@ public class Window extends Container {
    * @see #isLocationByPlatform
    * @since 1.6
    */
+  @Override
   public void setBounds(int x, int y, int width, int height) {
     synchronized (getTreeLock()) {
       if (getBoundsOp() == ComponentPeer.SET_LOCATION
@@ -1277,6 +1308,7 @@ public class Window extends Container {
    * @deprecated As of JDK version 1.1,
    * replaced by {@code setBounds(int, int, int, int)}.
    */
+  @Override
   @Deprecated
   public void reshape(int x, int y, int width, int height) {
     if (isMinimumSizeSet()) {
@@ -1306,7 +1338,7 @@ public class Window extends Container {
   @Override
   public boolean isOpaque() {
     Color bg = getBackground();
-    return bg != null ? bg.getAlpha() == 255 : true;
+    return bg == null || bg.getAlpha() == 255;
   }
 
   /**
@@ -1338,6 +1370,7 @@ public class Window extends Container {
    * @see #pack
    * @since 1.6
    */
+  @Override
   public void setMinimumSize(Dimension minimumSize) {
     synchronized (getTreeLock()) {
       super.setMinimumSize(minimumSize);
@@ -1370,6 +1403,7 @@ public class Window extends Container {
    * @see Cursor
    * @since JDK1.1
    */
+  @Override
   public void setCursor(Cursor cursor) {
     if (cursor == null) {
       cursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
@@ -1397,6 +1431,7 @@ public class Window extends Container {
    * @see #getBufferStrategy
    * @since 1.4
    */
+  @Override
   public void createBufferStrategy(int numBuffers) {
     super.createBufferStrategy(numBuffers);
   }
@@ -1424,6 +1459,7 @@ public class Window extends Container {
    * @see #getBufferStrategy
    * @since 1.4
    */
+  @Override
   public void createBufferStrategy(int numBuffers, BufferCapabilities caps) throws AWTException {
     super.createBufferStrategy(numBuffers, caps);
   }
@@ -1437,6 +1473,7 @@ public class Window extends Container {
    * @see #createBufferStrategy
    * @since 1.4
    */
+  @Override
   public BufferStrategy getBufferStrategy() {
     return super.getBufferStrategy();
   }
@@ -1444,6 +1481,7 @@ public class Window extends Container {
   /**
    * Overridden from Component.  Top-level Windows don't dispatch to ancestors
    */
+  @Override
   boolean dispatchMouseWheelToAncestor(MouseWheelEvent e) {
     return false;
   }
@@ -1453,6 +1491,7 @@ public class Window extends Container {
      * It's overridden here because parent == owner in Window,
      * and we shouldn't adjust counter on owner
      */
+  @Override
   void adjustListeningChildrenOnParent(long mask, int num) {
   }
 
@@ -1463,6 +1502,7 @@ public class Window extends Container {
    * @see Component#getInputContext
    * @since 1.2
    */
+  @Override
   public InputContext getInputContext() {
     synchronized (inputContextLock) {
       if (inputContext == null) {
@@ -1480,6 +1520,7 @@ public class Window extends Container {
    * @see Container#isFocusCycleRoot()
    * @since 1.4
    */
+  @Override
   public final Container getFocusCycleRootAncestor() {
     return null;
   }
@@ -1525,10 +1566,10 @@ public class Window extends Container {
    */
   public java.util.List<Image> getIconImages() {
     java.util.List<Image> icons = this.icons;
-    if (icons == null || icons.size() == 0) {
-      return new ArrayList<Image>();
+    if (icons == null || icons.isEmpty()) {
+      return new ArrayList<>();
     }
-    return new ArrayList<Image>(icons);
+    return new ArrayList<>(icons);
   }
 
   /**
@@ -1560,7 +1601,7 @@ public class Window extends Container {
    * @since 1.6
    */
   public synchronized void setIconImages(java.util.List<? extends Image> icons) {
-    this.icons = (icons == null) ? new ArrayList<Image>() : new ArrayList<Image>(icons);
+    this.icons = icons == null ? new ArrayList<>() : new ArrayList<>(icons);
     WindowPeer peer = (WindowPeer) this.peer;
     if (peer != null) {
       peer.updateIconImages();
@@ -1597,7 +1638,7 @@ public class Window extends Container {
    * @since 1.6
    */
   public void setIconImage(Image image) {
-    ArrayList<Image> imageList = new ArrayList<Image>();
+    ArrayList<Image> imageList = new ArrayList<>();
     if (image != null) {
       imageList.add(image);
     }
@@ -1709,6 +1750,7 @@ public class Window extends Container {
 
   void doDispose() {
     class DisposeAction implements Runnable {
+      @Override
       public void run() {
         disposing = true;
         try {
@@ -1725,8 +1767,8 @@ public class Window extends Container {
             ownedWindowArray = new Object[ownedWindowList.size()];
             ownedWindowList.copyInto(ownedWindowArray);
           }
-          for (int i = 0; i < ownedWindowArray.length; i++) {
-            Window child = (Window) (((WeakReference) (ownedWindowArray[i])).get());
+          for (Object anOwnedWindowArray : ownedWindowArray) {
+            Window child = (Window) ((Reference) anOwnedWindowArray).get();
             if (child != null) {
               child.disposeImpl();
             }
@@ -1924,7 +1966,7 @@ public class Window extends Container {
   }
 
   final Window[] getOwnedWindows_NoClientCode() {
-    Window realCopy[];
+    Window[] realCopy;
 
     synchronized (ownedWindowList) {
       // Recall that ownedWindowList is actually a Vector of
@@ -1934,7 +1976,7 @@ public class Window extends Container {
       // all non-null get()s (realCopy with size realSize).
       int fullSize = ownedWindowList.size();
       int realSize = 0;
-      Window fullCopy[] = new Window[fullSize];
+      Window[] fullCopy = new Window[fullSize];
 
       for (int i = 0; i < fullSize; i++) {
         fullCopy[realSize] = ownedWindowList.elementAt(i).get();
@@ -1944,11 +1986,7 @@ public class Window extends Container {
         }
       }
 
-      if (fullSize != realSize) {
-        realCopy = Arrays.copyOf(fullCopy, realSize);
-      } else {
-        realCopy = fullCopy;
-      }
+      realCopy = fullSize != realSize ? Arrays.copyOf(fullCopy, realSize) : fullCopy;
     }
 
     return realCopy;
@@ -1959,7 +1997,7 @@ public class Window extends Container {
   }
 
   void setModalBlocked(Dialog blocker, boolean blocked, boolean peerCall) {
-    this.modalBlocker = blocked ? blocker : null;
+    modalBlocker = blocked ? blocker : null;
     if (peerCall) {
       WindowPeer peer = (WindowPeer) this.peer;
       if (peer != null) {
@@ -1986,18 +2024,18 @@ public class Window extends Container {
    * Returns the modal exclusion type of this window.
    *
    * @return the modal exclusion type of this window
-   * @see java.awt.Dialog.ModalExclusionType
-   * @see java.awt.Window#setModalExclusionType
+   * @see ModalExclusionType
+   * @see Window#setModalExclusionType
    * @since 1.6
    */
-  public Dialog.ModalExclusionType getModalExclusionType() {
+  public ModalExclusionType getModalExclusionType() {
     return modalExclusionType;
   }
 
   /**
    * Specifies the modal exclusion type for this window. If a window is modal
    * excluded, it is not blocked by some modal dialogs. See {@link
-   * java.awt.Dialog.ModalExclusionType Dialog.ModalExclusionType} for
+   * ModalExclusionType Dialog.ModalExclusionType} for
    * possible modal exclusion types.
    * <p>
    * If the given type is not supported, {@code NO_EXCLUDE} is used.
@@ -2006,22 +2044,22 @@ public class Window extends Container {
    * effect until it is hidden and then shown again.
    *
    * @param exclusionType the modal exclusion type for this window; a {@code null}
-   *                      value is equivalent to {@link Dialog.ModalExclusionType#NO_EXCLUDE
+   *                      value is equivalent to {@link ModalExclusionType#NO_EXCLUDE
    *                      NO_EXCLUDE}
    * @throws SecurityException if the calling thread does not have permission
    *                           to set the modal exclusion property to the window with the given
    *                           {@code exclusionType}
-   * @see java.awt.Dialog.ModalExclusionType
-   * @see java.awt.Window#getModalExclusionType
-   * @see java.awt.Toolkit#isModalExclusionTypeSupported
+   * @see ModalExclusionType
+   * @see Window#getModalExclusionType
+   * @see Toolkit#isModalExclusionTypeSupported
    * @since 1.6
    */
-  public void setModalExclusionType(Dialog.ModalExclusionType exclusionType) {
+  public void setModalExclusionType(ModalExclusionType exclusionType) {
     if (exclusionType == null) {
-      exclusionType = Dialog.ModalExclusionType.NO_EXCLUDE;
+      exclusionType = ModalExclusionType.NO_EXCLUDE;
     }
     if (!Toolkit.getDefaultToolkit().isModalExclusionTypeSupported(exclusionType)) {
-      exclusionType = Dialog.ModalExclusionType.NO_EXCLUDE;
+      exclusionType = ModalExclusionType.NO_EXCLUDE;
     }
     if (modalExclusionType == exclusionType) {
       return;
@@ -2040,20 +2078,18 @@ public class Window extends Container {
  */
   }
 
-  boolean isModalExcluded(Dialog.ModalExclusionType exclusionType) {
-    if ((modalExclusionType != null) && modalExclusionType.compareTo(exclusionType) >= 0) {
+  boolean isModalExcluded(ModalExclusionType exclusionType) {
+    if (modalExclusionType != null && modalExclusionType.compareTo(exclusionType) >= 0) {
       return true;
     }
     Window owner = getOwner_NoClientCode();
-    return (owner != null) && owner.isModalExcluded(exclusionType);
+    return owner != null && owner.isModalExcluded(exclusionType);
   }
 
   void updateChildrenBlocking() {
-    Vector<Window> childHierarchy = new Vector<Window>();
+    Vector<Window> childHierarchy = new Vector<>();
     Window[] ownedWindows = getOwnedWindows();
-    for (int i = 0; i < ownedWindows.length; i++) {
-      childHierarchy.add(ownedWindows[i]);
-    }
+    Collections.addAll(childHierarchy, ownedWindows);
     int k = 0;
     while (k < childHierarchy.size()) {
       Window w = childHierarchy.get(k);
@@ -2064,9 +2100,7 @@ public class Window extends Container {
         }
         Dialog.checkShouldBeBlocked(w);
         Window[] wOwned = w.getOwnedWindows();
-        for (int j = 0; j < wOwned.length; j++) {
-          childHierarchy.add(wOwned[j]);
-        }
+        Collections.addAll(childHierarchy, wOwned);
       }
       k++;
     }
@@ -2334,7 +2368,7 @@ public class Window extends Container {
    * exception.
    *
    * @param e the window state event
-   * @see java.awt.Component#enableEvents
+   * @see Component#enableEvents
    * @since 1.4
    */
   protected void processWindowStateEvent(WindowEvent e) {
@@ -2487,7 +2521,7 @@ public class Window extends Container {
    * @see #isFocused
    */
   public Component getFocusOwner() {
-    return (isFocused()) ? KeyboardFocusManager.getCurrentKeyboardFocusManager().
+    return isFocused() ? KeyboardFocusManager.getCurrentKeyboardFocusManager().
         getFocusOwner() : null;
   }
 
@@ -2516,7 +2550,7 @@ public class Window extends Container {
       if (mostRecent != null) {
         return mostRecent;
       } else {
-        return (isFocusableWindow()) ? getFocusTraversalPolicy().getInitialComponent(this) : null;
+        return isFocusableWindow() ? getFocusTraversalPolicy().getInitialComponent(this) : null;
       }
     }
   }
@@ -2533,8 +2567,8 @@ public class Window extends Container {
    * @since 1.4
    */
   public boolean isActive() {
-    return (KeyboardFocusManager.getCurrentKeyboardFocusManager().
-        getActiveWindow() == this);
+    return KeyboardFocusManager.getCurrentKeyboardFocusManager().
+        getActiveWindow() == this;
   }
 
   /**
@@ -2551,8 +2585,8 @@ public class Window extends Container {
    * @since 1.4
    */
   public boolean isFocused() {
-    return (KeyboardFocusManager.getCurrentKeyboardFocusManager().
-        getGlobalFocusedWindow() == this);
+    return KeyboardFocusManager.getCurrentKeyboardFocusManager().
+        getGlobalFocusedWindow() == this;
   }
 
   /**
@@ -2672,7 +2706,7 @@ public class Window extends Container {
     if (oldFocusableWindowState && !focusableWindowState && isFocused()) {
       for (Window owner = getOwner(); owner != null; owner = owner.getOwner()) {
         Component toFocus = KeyboardFocusManager.getMostRecentFocusOwner(owner);
-        if (toFocus != null && toFocus.requestFocus(false, CausedFocusEvent.Cause.ACTIVATION)) {
+        if (toFocus != null && toFocus.requestFocus(false, Cause.ACTIVATION)) {
           return;
         }
       }
@@ -2777,7 +2811,7 @@ public class Window extends Container {
       @SuppressWarnings("unchecked") Vector<WeakReference<Window>> windowList
           = (Vector<WeakReference<Window>>) appContext.get(Window.class);
       if (windowList == null) {
-        windowList = new Vector<WeakReference<Window>>();
+        windowList = new Vector<>();
         appContext.put(Window.class, windowList);
       }
       windowList.add(weakThis);
@@ -2812,6 +2846,7 @@ public class Window extends Container {
    * @see #getType
    * @since 1.7
    */
+  @SuppressWarnings("NestedSynchronizedStatement")
   public void setType(Type type) {
     if (type == null) {
       throw new IllegalArgumentException("type should not be null.");
@@ -2844,8 +2879,6 @@ public class Window extends Container {
    * {@code WindowFocusListener} object;
    * {@code ownedWindowK} indicating a child
    * {@code Window} object
-   * @see AWTEventMulticaster#save(java.io.ObjectOutputStream, java.lang.String, java.util
-   * .EventListener)
    * @see Component#windowListenerK
    * @see Component#windowFocusListenerK
    * @see Component#ownedWindowK
@@ -2886,6 +2919,7 @@ public class Window extends Container {
     if (icons != null) {
       for (Image i : icons) {
         if (i instanceof Serializable) {
+          //noinspection NonSerializableObjectPassedToObjectStream
           s.writeObject(i);
         }
       }
@@ -2908,11 +2942,11 @@ public class Window extends Container {
 
     anchor = new Object();
     disposerRecord = new WindowDisposerRecord(appContext, this);
-    sun.java2d.Disposer.addRecord(anchor, disposerRecord);
+    Disposer.addRecord(anchor, disposerRecord);
 
     addToWindowList();
     initGC(null);
-    ownedWindowList = new Vector<>();
+    ownedWindowList.clear();
   }
 
   private void deserializeResources(ObjectInputStream s)
@@ -2940,11 +2974,11 @@ public class Window extends Container {
       String key = ((String) keyOrNull).intern();
 
       if (windowListenerK == key) {
-        addWindowListener((WindowListener) (s.readObject()));
+        addWindowListener((WindowListener) s.readObject());
       } else if (windowFocusListenerK == key) {
-        addWindowFocusListener((WindowFocusListener) (s.readObject()));
+        addWindowFocusListener((WindowFocusListener) s.readObject());
       } else if (windowStateListenerK == key) {
-        addWindowStateListener((WindowStateListener) (s.readObject()));
+        addWindowStateListener((WindowStateListener) s.readObject());
       } else // skip value for unrecognized key
       {
         s.readObject();
@@ -2966,7 +3000,7 @@ public class Window extends Container {
       //read icons
       Object obj = s.readObject(); //Throws OptionalDataException
       //for pre1.6 objects.
-      icons = new ArrayList<Image>(); //Frame.readObject() assumes
+      icons = new ArrayList<>(); //Frame.readObject() assumes
       //pre1.6 version if icons is null.
       while (obj != null) {
         if (obj instanceof Image) {
@@ -2991,14 +3025,14 @@ public class Window extends Container {
    * @throws HeadlessException if
    *                           {@code GraphicsEnvironment.isHeadless} returns
    *                           {@code true}
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @see #writeObject
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
     GraphicsEnvironment.checkHeadless();
     initDeserializedWindow();
-    ObjectInputStream.GetField f = s.readFields();
+    GetField f = s.readFields();
 
     syncLWRequests = f.get("syncLWRequests", systemSyncLWRequests);
     state = f.get("state", 0);
@@ -3007,22 +3041,22 @@ public class Window extends Container {
     locationByPlatform = f.get("locationByPlatform", locationByPlatformProp);
     // Note: 1.4 (or later) doesn't use focusMgr
     focusMgr = (FocusManager) f.get("focusMgr", null);
-    Dialog.ModalExclusionType et = (Dialog.ModalExclusionType) f.get("modalExclusionType",
-        Dialog.ModalExclusionType.NO_EXCLUDE);
+    ModalExclusionType et = (ModalExclusionType) f.get("modalExclusionType",
+        ModalExclusionType.NO_EXCLUDE);
     setModalExclusionType(et); // since 6.0
     boolean aot = f.get("alwaysOnTop", false);
     if (aot) {
-      setAlwaysOnTop(aot); // since 1.5; subject to permission check
+      setAlwaysOnTop(true); // since 1.5; subject to permission check
     }
     shape = (Shape) f.get("shape", null);
-    opacity = (Float) f.get("opacity", 1.0f);
+    opacity = f.get("opacity", 1.0f);
 
-    this.securityWarningWidth = 0;
-    this.securityWarningHeight = 0;
-    this.securityWarningPointX = 2.0;
-    this.securityWarningPointY = 0.0;
-    this.securityWarningAlignmentX = RIGHT_ALIGNMENT;
-    this.securityWarningAlignmentY = TOP_ALIGNMENT;
+    securityWarningWidth = 0;
+    securityWarningHeight = 0;
+    securityWarningPointX = 2.0;
+    securityWarningPointY = 0.0;
+    securityWarningAlignmentX = RIGHT_ALIGNMENT;
+    securityWarningAlignmentY = TOP_ALIGNMENT;
 
     deserializeResources(s);
   }
@@ -3080,12 +3114,12 @@ public class Window extends Container {
    *
    * @param c the component in relation to which the window's location
    *          is determined
-   * @see java.awt.GraphicsEnvironment#getCenterPoint
+   * @see GraphicsEnvironment#getCenterPoint
    * @since 1.4
    */
   public void setLocationRelativeTo(Component c) {
     // target location
-    int dx = 0, dy = 0;
+    int dx, dy;
     // target GC
     GraphicsConfiguration gc = getGraphicsConfiguration_NoClientCode();
     Rectangle gcBounds = gc.getBounds();
@@ -3094,7 +3128,7 @@ public class Window extends Container {
 
     // search a top-level of c
     Window componentWindow = SunToolkit.getContainingWindow(c);
-    if ((c == null) || (componentWindow == null)) {
+    if (c == null || componentWindow == null) {
       GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
       gc = ge.getDefaultScreenDevice().getDefaultConfiguration();
       gcBounds = gc.getBounds();
@@ -3111,17 +3145,14 @@ public class Window extends Container {
       gcBounds = gc.getBounds();
       Dimension compSize = c.getSize();
       Point compLocation = c.getLocationOnScreen();
-      dx = compLocation.x + ((compSize.width - windowSize.width) / 2);
-      dy = compLocation.y + ((compSize.height - windowSize.height) / 2);
+      dx = compLocation.x + (compSize.width - windowSize.width) / 2;
+      dy = compLocation.y + (compSize.height - windowSize.height) / 2;
 
       // Adjust for bottom edge being offscreen
       if (dy + windowSize.height > gcBounds.y + gcBounds.height) {
         dy = gcBounds.y + gcBounds.height - windowSize.height;
-        if (compLocation.x - gcBounds.x + compSize.width / 2 < gcBounds.width / 2) {
-          dx = compLocation.x + compSize.width;
-        } else {
-          dx = compLocation.x - windowSize.width;
-        }
+        dx = compLocation.x - gcBounds.x + compSize.width / 2 < gcBounds.width / 2 ? compLocation.x
+            + compSize.width : compLocation.x - windowSize.width;
       }
     }
 
@@ -3166,21 +3197,16 @@ public class Window extends Container {
     Component previousComp = temporaryLostComponent;
     // Check that "component" is an acceptable focus owner and don't store it otherwise
     // - or later we will have problems with opposite while handling  WINDOW_GAINED_FOCUS
-    if (component == null || component.canBeFocusOwner()) {
-      temporaryLostComponent = component;
-    } else {
-      temporaryLostComponent = null;
-    }
+    temporaryLostComponent = component == null || component.canBeFocusOwner() ? component : null;
     return previousComp;
   }
 
+  @Override
   final void clearMostRecentFocusOwnerOnHide() {
         /* do nothing */
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.7
    */
   @Override
@@ -3205,6 +3231,7 @@ public class Window extends Container {
    *
    * @param e the event
    */
+  @Override
   void dispatchEventImpl(AWTEvent e) {
     if (e.getID() == ComponentEvent.COMPONENT_RESIZED) {
       invalidate();
@@ -3214,6 +3241,7 @@ public class Window extends Container {
   }
 
   // REMIND: remove when filtering is handled at lower level
+  @Override
   boolean eventEnabled(AWTEvent e) {
     switch (e.id) {
       case WindowEvent.WINDOW_OPENED:
@@ -3223,21 +3251,12 @@ public class Window extends Container {
       case WindowEvent.WINDOW_DEICONIFIED:
       case WindowEvent.WINDOW_ACTIVATED:
       case WindowEvent.WINDOW_DEACTIVATED:
-        if ((eventMask & AWTEvent.WINDOW_EVENT_MASK) != 0 || windowListener != null) {
-          return true;
-        }
-        return false;
+        return (eventMask & AWTEvent.WINDOW_EVENT_MASK) != 0 || windowListener != null;
       case WindowEvent.WINDOW_GAINED_FOCUS:
       case WindowEvent.WINDOW_LOST_FOCUS:
-        if ((eventMask & AWTEvent.WINDOW_FOCUS_EVENT_MASK) != 0 || windowFocusListener != null) {
-          return true;
-        }
-        return false;
+        return (eventMask & AWTEvent.WINDOW_FOCUS_EVENT_MASK) != 0 || windowFocusListener != null;
       case WindowEvent.WINDOW_STATE_CHANGED:
-        if ((eventMask & AWTEvent.WINDOW_STATE_EVENT_MASK) != 0 || windowStateListener != null) {
-          return true;
-        }
-        return false;
+        return (eventMask & AWTEvent.WINDOW_STATE_EVENT_MASK) != 0 || windowStateListener != null;
       default:
         break;
     }
@@ -3278,8 +3297,9 @@ public class Window extends Container {
    * @see #getWindowListeners
    * @since 1.3
    */
+  @Override
   public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
-    EventListener l = null;
+    EventListener l;
     if (listenerType == WindowFocusListener.class) {
       l = windowFocusListener;
     } else if (listenerType == WindowStateListener.class) {
@@ -3303,6 +3323,7 @@ public class Window extends Container {
    *
    * @param e the event
    */
+  @Override
   protected void processEvent(AWTEvent e) {
     if (e instanceof WindowEvent) {
       switch (e.getID()) {
@@ -3338,6 +3359,8 @@ public class Window extends Container {
    * @see Container#removeNotify
    * @since JDK1.0
    */
+  @SuppressWarnings("NestedSynchronizedStatement")
+  @Override
   public void addNotify() {
     synchronized (getTreeLock()) {
       Container parent = this.parent;
@@ -3354,9 +3377,8 @@ public class Window extends Container {
     }
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @SuppressWarnings("NestedSynchronizedStatement")
+  @Override
   public void removeNotify() {
     synchronized (getTreeLock()) {
       synchronized (allWindows) {
@@ -3393,6 +3415,7 @@ public class Window extends Container {
    * @see KeyboardFocusManager#DOWN_CYCLE_TRAVERSAL_KEYS
    * @since 1.4
    */
+  @Override
   @SuppressWarnings("unchecked")
   public Set<AWTKeyStroke> getFocusTraversalKeys(int id) {
     if (id < 0 || id >= KeyboardFocusManager.TRAVERSAL_KEY_LENGTH) {
@@ -3400,15 +3423,11 @@ public class Window extends Container {
     }
 
     // Okay to return Set directly because it is an unmodifiable view
-    @SuppressWarnings("rawtypes") Set keystrokes = (focusTraversalKeys != null)
+    @SuppressWarnings("rawtypes") Set keystrokes = focusTraversalKeys != null
         ? focusTraversalKeys[id] : null;
 
-    if (keystrokes != null) {
-      return keystrokes;
-    } else {
-      return KeyboardFocusManager.getCurrentKeyboardFocusManager().
-          getDefaultFocusTraversalKeys(id);
-    }
+    return keystrokes != null ? keystrokes : KeyboardFocusManager.getCurrentKeyboardFocusManager().
+        getDefaultFocusTraversalKeys(id);
   }
 
   /**
@@ -3443,8 +3462,9 @@ public class Window extends Container {
    *
    * @param listener the PropertyChangeListener to be added
    * @see Component#removePropertyChangeListener
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
    */
+  @Override
   public void addPropertyChangeListener(PropertyChangeListener listener) {
     super.addPropertyChangeListener(listener);
   }
@@ -3481,9 +3501,10 @@ public class Window extends Container {
    *
    * @param propertyName one of the property names listed above
    * @param listener     the PropertyChangeListener to be added
-   * @see #addPropertyChangeListener(java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(PropertyChangeListener)
    * @see Component#removePropertyChangeListener
    */
+  @Override
   public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
     super.addPropertyChangeListener(propertyName, listener);
   }
@@ -3500,11 +3521,13 @@ public class Window extends Container {
    *
    * @since 1.5
    */
+  @Override
   boolean canContainFocusOwner(Component focusOwnerCandidate) {
     return super.canContainFocusOwner(focusOwnerCandidate) && isFocusableWindow();
   }
 
   // Should only be called while holding tree lock
+  @Override
   void adjustDecendantsOnParent(int num) {
     // do nothing since parent == owner and we shouldn't
     // ajust counter on owner
@@ -3517,7 +3540,6 @@ public class Window extends Container {
    * override this method to return {@code true}.
    *
    * @return {@code true}
-   * @see java.awt.Container#isValidateRoot
    * @since 1.7
    */
   @Override
@@ -3537,6 +3559,7 @@ public class Window extends Container {
    * @see Container#getFocusTraversalPolicy
    * @since 1.4
    */
+  @Override
   public final boolean isFocusCycleRoot() {
     return true;
   }
@@ -3551,6 +3574,7 @@ public class Window extends Container {
    * @see Container#getFocusTraversalPolicy
    * @since 1.4
    */
+  @Override
   public final void setFocusCycleRoot(boolean focusCycleRoot) {
   }
 
@@ -3561,6 +3585,7 @@ public class Window extends Container {
    *
    * @param e the keyboard event
    */
+  @Override
   void preProcessKeyEvent(KeyEvent e) {
     // Dump the list of child windows to System.out.
     if (e.isActionKey() && e.getKeyCode() == KeyEvent.VK_F1 &&
@@ -3570,6 +3595,7 @@ public class Window extends Container {
     }
   }
 
+  @Override
   void postProcessKeyEvent(KeyEvent e) {
     // Do nothing
   }
@@ -3636,7 +3662,7 @@ public class Window extends Container {
    * @see #isShowing
    * @see #setVisible
    * @see #isLocationByPlatform
-   * @see java.lang.System#getProperty(String)
+   * @see System#getProperty(String)
    * @since 1.5
    */
   public void setLocationByPlatform(boolean locationByPlatform) {
@@ -3653,7 +3679,7 @@ public class Window extends Container {
    *
    * @return the opacity of the window
    * @see Window#setOpacity(float)
-   * @see GraphicsDevice.WindowTranslucency
+   * @see WindowTranslucency
    * @since 1.7
    */
   public float getOpacity() {
@@ -3672,7 +3698,7 @@ public class Window extends Container {
    * The following conditions must be met in order to set the opacity value
    * less than {@code 1.0f}:
    * <ul>
-   * <li>The {@link GraphicsDevice.WindowTranslucency#TRANSLUCENT TRANSLUCENT}
+   * <li>The {@link WindowTranslucency#TRANSLUCENT TRANSLUCENT}
    * translucency must be supported by the underlying system
    * <li>The window must be undecorated (see {@link Frame#setUndecorated}
    * and {@link Dialog#setUndecorated})
@@ -3706,8 +3732,8 @@ public class Window extends Container {
    * @see Window#setShape(Shape)
    * @see Frame#isUndecorated
    * @see Dialog#isUndecorated
-   * @see GraphicsDevice.WindowTranslucency
-   * @see GraphicsDevice#isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency)
+   * @see WindowTranslucency
+   * @see GraphicsDevice#isWindowTranslucencySupported(WindowTranslucency)
    * @since 1.7
    */
   public void setOpacity(float opacity) {
@@ -3723,7 +3749,7 @@ public class Window extends Container {
           throw new IllegalComponentStateException(
               "Setting opacity for full-screen window is not supported.");
         }
-        if (!gd.isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency.TRANSLUCENT)) {
+        if (!gd.isWindowTranslucencySupported(WindowTranslucency.TRANSLUCENT)) {
           throw new UnsupportedOperationException("TRANSLUCENT translucency is not supported.");
         }
       }
@@ -3745,7 +3771,7 @@ public class Window extends Container {
    * @return the shape of the window or {@code null} if no
    * shape is specified for the window
    * @see Window#setShape(Shape)
-   * @see GraphicsDevice.WindowTranslucency
+   * @see WindowTranslucency
    * @since 1.7
    */
   public Shape getShape() {
@@ -3764,7 +3790,7 @@ public class Window extends Container {
    * <p>
    * The following conditions must be met to set a non-null shape:
    * <ul>
-   * <li>The {@link GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSPARENT
+   * <li>The {@link WindowTranslucency#PERPIXEL_TRANSPARENT
    * PERPIXEL_TRANSPARENT} translucency must be supported by the
    * underlying system
    * <li>The window must be undecorated (see {@link Frame#setUndecorated}
@@ -3781,7 +3807,7 @@ public class Window extends Container {
    * The translucency levels of individual pixels may also be effected by the
    * alpha component of their color (see {@link Window#setBackground(Color)}) and the
    * opacity value (see {@link #setOpacity(float)}). See {@link
-   * GraphicsDevice.WindowTranslucency} for more details.
+   * WindowTranslucency} for more details.
    *
    * @param shape the shape to set to the window
    * @throws IllegalComponentStateException if the shape is not {@code
@@ -3797,8 +3823,8 @@ public class Window extends Container {
    * @see Window#setOpacity(float)
    * @see Frame#isUndecorated
    * @see Dialog#isUndecorated
-   * @see GraphicsDevice.WindowTranslucency
-   * @see GraphicsDevice#isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency)
+   * @see WindowTranslucency
+   * @see GraphicsDevice#isWindowTranslucencySupported(WindowTranslucency)
    * @since 1.7
    */
   public void setShape(Shape shape) {
@@ -3810,13 +3836,12 @@ public class Window extends Container {
           throw new IllegalComponentStateException(
               "Setting shape for full-screen window is not supported.");
         }
-        if (!gd.isWindowTranslucencySupported(GraphicsDevice.WindowTranslucency
-            .PERPIXEL_TRANSPARENT)) {
+        if (!gd.isWindowTranslucencySupported(WindowTranslucency.PERPIXEL_TRANSPARENT)) {
           throw new UnsupportedOperationException(
               "PERPIXEL_TRANSPARENT translucency is not supported.");
         }
       }
-      this.shape = (shape == null) ? null : new Path2D.Float(shape);
+      this.shape = shape == null ? null : new Path2D.Float(shape);
       WindowPeer peer = (WindowPeer) getPeer();
       if (peer != null) {
         peer.applyShape(shape == null ? null : Region.getInstance(shape, null));
@@ -3824,7 +3849,7 @@ public class Window extends Container {
     }
   }
 
-  private void updateWindow() {
+  void updateWindow() {
     synchronized (getTreeLock()) {
       WindowPeer peer = (WindowPeer) getPeer();
       if (peer != null) {
@@ -3846,24 +3871,24 @@ public class Window extends Container {
    * NOTE: this method is invoked on the toolkit thread, and therefore is not
    * supposed to become public/user-overridable.
    */
-  private Point2D calculateSecurityWarningPosition(double x, double y, double w, double h) {
+  Point2D calculateSecurityWarningPosition(double x, double y, double w, double h) {
     // The position according to the spec of SecurityWarning.setPosition()
     double wx = x + w * securityWarningAlignmentX + securityWarningPointX;
     double wy = y + h * securityWarningAlignmentY + securityWarningPointY;
 
     // First, make sure the warning is not too far from the window bounds
-    wx = Window.limit(wx, x - securityWarningWidth - 2, x + w + 2);
-    wy = Window.limit(wy, y - securityWarningHeight - 2, y + h + 2);
+    wx = limit(wx, x - securityWarningWidth - 2, x + w + 2);
+    wy = limit(wy, y - securityWarningHeight - 2, y + h + 2);
 
     // Now make sure the warning window is visible on the screen
     GraphicsConfiguration graphicsConfig = getGraphicsConfiguration_NoClientCode();
     Rectangle screenBounds = graphicsConfig.getBounds();
     Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(graphicsConfig);
 
-    wx = Window.limit(wx,
+    wx = limit(wx,
         screenBounds.x + screenInsets.left,
         screenBounds.x + screenBounds.width - screenInsets.right - securityWarningWidth);
-    wy = Window.limit(wy,
+    wy = limit(wy,
         screenBounds.y + screenInsets.top,
         screenBounds.y + screenBounds.height - screenInsets.bottom - securityWarningHeight);
 
@@ -3885,7 +3910,7 @@ public class Window extends Container {
    * @see #setType
    * @since 1.7
    */
-  public static enum Type {
+  public enum Type {
     /**
      * Represents a <i>normal</i> window.
      * <p>
@@ -3915,21 +3940,22 @@ public class Window extends Container {
     POPUP
   }
 
-  static class WindowDisposerRecord implements sun.java2d.DisposerRecord {
+  static class WindowDisposerRecord implements DisposerRecord {
     final WeakReference<Window> weakThis;
     final WeakReference<AppContext> context;
     WeakReference<Window> owner;
 
     WindowDisposerRecord(AppContext context, Window victim) {
       weakThis = victim.weakThis;
-      this.context = new WeakReference<AppContext>(context);
+      this.context = new WeakReference<>(context);
     }
 
     public void updateOwner() {
       Window victim = weakThis.get();
-      owner = (victim == null) ? null : new WeakReference<Window>(victim.getOwner());
+      owner = victim == null ? null : new WeakReference<>(victim.getOwner());
     }
 
+    @Override
     public void dispose() {
       if (owner != null) {
         Window parent = owner.get();
@@ -3939,7 +3965,7 @@ public class Window extends Container {
       }
       AppContext ac = context.get();
       if (null != ac) {
-        Window.removeFromWindowList(ac, weakThis);
+        removeFromWindowList(ac, weakThis);
       }
     }
   }
@@ -3951,7 +3977,7 @@ public class Window extends Container {
  * This class is no longer used, but is maintained for Serialization
  * backward-compatibility.
  */
-class FocusManager implements java.io.Serializable {
+class FocusManager implements Serializable {
   /*
      * JDK 1.1 serialVersionUID
      */

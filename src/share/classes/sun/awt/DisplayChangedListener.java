@@ -37,7 +37,7 @@ import java.util.EventListener;
  * screens.
  * <p>
  * For win32, the listener object created from that class is then registered
- * with the WToolkit object using its <code>addDisplayChangeListener</code>
+ * with the WToolkit object using its {@code addDisplayChangeListener}
  * method. When the display resolution is changed (which occurs,
  * in Windows, either by the user changing the properties of the
  * display through the control panel or other utility or by
@@ -53,10 +53,10 @@ public interface DisplayChangedListener extends EventListener {
   /**
    * Invoked when the display mode has changed.
    */
-  public void displayChanged();
+  void displayChanged();
 
   /**
    * Invoked when the palette has changed.
    */
-  public void paletteChanged();
+  void paletteChanged();
 }

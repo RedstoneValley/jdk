@@ -41,14 +41,9 @@
 /*
  */
 
-import static java.lang.management.ManagementFactory.*;
-
-import java.io.IOException;
-import java.lang.management.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javax.management.*;
 
 /**
  * Example of using the java.lang.management API to monitor
@@ -57,26 +52,26 @@ import javax.management.*;
  * @author Mandy Chung
  */
 public class PrintGCStat {
-  private RuntimeMXBean rmbean;
-  private MemoryMXBean mmbean;
+  private final RuntimeMXBean rmbean;
+  private final MemoryMXBean mmbean;
   private List<MemoryPoolMXBean> pools;
   private List<GarbageCollectorMXBean> gcmbeans;
 
   /**
    * Constructs a PrintGCStat object to monitor a remote JVM.
    */
-  public PrintGCStat(MBeanServerConnection server) throws IOException {
+  public PrintGCStat(MBeanServerConnection server) {
     // Create the platform mxbean proxies
-    this.rmbean = newPlatformMXBeanProxy(server, RUNTIME_MXBEAN_NAME, RuntimeMXBean.class);
-    this.mmbean = newPlatformMXBeanProxy(server, MEMORY_MXBEAN_NAME, MemoryMXBean.class);
-    ObjectName poolName = null;
+    rmbean = newPlatformMXBeanProxy(server, RUNTIME_MXBEAN_NAME, RuntimeMXBean.class);
+    mmbean = newPlatformMXBeanProxy(server, MEMORY_MXBEAN_NAME, MemoryMXBean.class);
+    ObjectName poolName;
     ObjectName gcName = null;
     try {
       poolName = new ObjectName(MEMORY_POOL_MXBEAN_DOMAIN_TYPE + ",*");
       gcName = new ObjectName(GARBAGE_COLLECTOR_MXBEAN_DOMAIN_TYPE + ",*");
     } catch (MalformedObjectNameException e) {
       // should not reach here
-      assert (false);
+      assert false;
     }
 
     Set<ObjectName> mbeans = server.queryNames(poolName, null);
@@ -107,10 +102,10 @@ public class PrintGCStat {
    */
   public PrintGCStat() {
     // Obtain the platform mxbean instances for the running JVM.
-    this.rmbean = getRuntimeMXBean();
-    this.mmbean = getMemoryMXBean();
-    this.pools = getMemoryPoolMXBeans();
-    this.gcmbeans = getGarbageCollectorMXBeans();
+    rmbean = getRuntimeMXBean();
+    mmbean = getMemoryMXBean();
+    pools = getMemoryPoolMXBeans();
+    gcmbeans = getGarbageCollectorMXBeans();
   }
 
   /**

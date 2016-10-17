@@ -33,14 +33,10 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
 
 public class FocusEmbeddedFrameTest extends Applet {
-    static Frame embedder = new Frame("Embedder");
-    static Frame ef = null;
+    static final Frame embedder = new Frame("Embedder");
+    static Frame ef;
     static volatile boolean passed;
 
     Robot robot;
@@ -63,6 +59,7 @@ public class FocusEmbeddedFrameTest extends Applet {
         }
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
                    System.err.println("--> " + e);
                 }
@@ -81,12 +78,14 @@ public class FocusEmbeddedFrameTest extends Applet {
         ef.setBackground(Color.blue);
 
         embedder.addFocusListener(new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
-                    FocusEmbeddedFrameTest.ef.requestFocus();
+                    ef.requestFocus();
                 }
             });
 
         ef.addFocusListener(new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
                     passed = true;
                 }
@@ -106,6 +105,8 @@ public class FocusEmbeddedFrameTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }

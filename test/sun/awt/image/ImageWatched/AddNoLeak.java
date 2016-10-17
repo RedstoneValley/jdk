@@ -34,13 +34,15 @@ import java.awt.Container;
    @author David Buck
 */
 
-public class AddNoLeak {
+@SuppressWarnings("MagicNumber")
+public final class AddNoLeak {
     public static void main(String[] args) {
         System.setProperty("java.awt.headless", "true");
         Container cont = new Container();
         Image img = cont.createImage(new DummyImageSource());
         for(int i=0;i < 15000;i++) {
             img.getWidth(new ImageObserver() {
+                @Override
                 public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {return false;}
             });
             if (i % 100 == 0) {
@@ -50,10 +52,18 @@ public class AddNoLeak {
     }
 
     private static class DummyImageSource implements ImageProducer {
+      DummyImageSource() {
+      }
+
+      @Override
         public void addConsumer(ImageConsumer ic){}
+        @Override
         public boolean isConsumer(ImageConsumer ic){return false;}
+        @Override
         public void removeConsumer(ImageConsumer ic){}
+        @Override
         public void startProduction(ImageConsumer ic){}
+        @Override
         public void requestTopDownLeftRightResend(ImageConsumer ic){}
     }
 }

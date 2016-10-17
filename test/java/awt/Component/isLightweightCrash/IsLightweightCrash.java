@@ -35,10 +35,13 @@
 
 import java.awt.*;
 
-public class IsLightweightCrash {
-    public static int ITERATIONS = 20;
+public final class IsLightweightCrash {
+    public static final int ITERATIONS = 20;
 
-    public static void main(String []s)
+  private IsLightweightCrash() {
+  }
+
+  public static void main(String []s)
     {
         for (int i = 0; i < ITERATIONS; i++){
             showFrame(i);
@@ -55,5 +58,8 @@ public class IsLightweightCrash {
 }
 
 class AHeavyweightComponent extends Component {
+  private static final long serialVersionUID = 8112529137336468830L;
+
+  @Override
     public boolean isLightweight() { return false; }
 }

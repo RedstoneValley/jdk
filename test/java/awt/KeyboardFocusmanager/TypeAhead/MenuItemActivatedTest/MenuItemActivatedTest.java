@@ -30,22 +30,19 @@
 */
 
 import java.awt.*;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
-import javax.swing.*;
-import java.applet.Applet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
 
 public class MenuItemActivatedTest extends Applet {
     Robot robot;
-    JFrame frame = new JFrame("Test Frame");
-    JDialog dialog = new JDialog((Window)null, "Test Dialog", Dialog.ModalityType.DOCUMENT_MODAL);
-    JTextField text = new JTextField();
-    JMenuBar bar = new JMenuBar();
-    JMenu menu = new JMenu("Menu");
-    JMenuItem item = new JMenuItem("item");
-    AtomicBoolean gotEvent = new AtomicBoolean(false);
+    final JFrame frame = new JFrame("Test Frame");
+    final JDialog dialog = new JDialog((Window)null, "Test Dialog", ModalityType.DOCUMENT_MODAL);
+    final JTextField text = new JTextField();
+    final JMenuBar bar = new JMenuBar();
+    final JMenu menu = new JMenu("Menu");
+    final JMenuItem item = new JMenuItem("item");
+    final AtomicBoolean gotEvent = new AtomicBoolean(false);
 
     public static void main(String[] args) {
         MenuItemActivatedTest app = new MenuItemActivatedTest();
@@ -59,7 +56,7 @@ public class MenuItemActivatedTest extends Applet {
         // Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
         Sysout.createDialogWithInstructions(new String[]
             {"This is an automatic test. Simply wait until it is done."
             });
@@ -73,14 +70,16 @@ public class MenuItemActivatedTest extends Applet {
         frame.pack();
 
         item.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent ae) {
                     dialog.add(text);
                     dialog.pack();
-                dialog.setVisible(true);
+                    dialog.setVisible(true);
                 }
             });
 
         text.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyTyped(KeyEvent e) {
                     if (e.getKeyChar() == ' ') {
                         Sysout.println(e.toString());
@@ -120,18 +119,20 @@ public class MenuItemActivatedTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
 }
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -145,9 +146,12 @@ class TestFailedException extends RuntimeException {
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -191,9 +195,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -201,10 +206,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -220,35 +225,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

@@ -36,8 +36,11 @@ import static java.awt.GraphicsDevice.WindowTranslucency.*;
 
 import sun.awt.SunToolkit;
 
-public class TranslucentWindow {
-    public static void main(String args[]) {
+public final class TranslucentWindow {
+  private TranslucentWindow() {
+  }
+
+  public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
 
@@ -74,7 +77,7 @@ public class TranslucentWindow {
             throw new RuntimeException("Test FAILED: fullscreen window opacity is not 1.0f");
         }
         Color bgColor = f.getBackground();
-        if ((bgColor != null) && (bgColor.getAlpha() != 255)) {
+        if (bgColor != null && bgColor.getAlpha() != 255) {
             throw new RuntimeException("Test FAILED: fullscreen window background color is not opaque");
         }
 

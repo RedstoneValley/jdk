@@ -43,16 +43,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
 
 /**
  * A demo for illustrating how to do different things with JTree.
@@ -78,15 +75,15 @@ public final class SampleTree {
   /**
    * Window for showing Tree.
    */
-  protected JFrame frame;
+  protected final JFrame frame;
   /**
    * Tree used for the example.
    */
-  protected JTree tree;
+  protected final JTree tree;
   /**
    * Tree model.
    */
-  protected DefaultTreeModel treeModel;
+  protected final DefaultTreeModel treeModel;
 
   /**
    * Constructs a new instance of SampleTree.
@@ -95,7 +92,7 @@ public final class SampleTree {
     // Trying to set Nimbus look and feel
     try {
       for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
+        if (FileChooserDemo.NIMBUS_LAF_NAME.equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
           break;
         }
@@ -107,7 +104,7 @@ public final class SampleTree {
     JPanel panel = new JPanel(true);
 
     frame = new JFrame("SampleTree");
-    frame.getContentPane().add("Center", panel);
+    frame.getContentPane().add(BorderLayout.CENTER, panel);
     frame.setJMenuBar(menuBar);
     frame.setBackground(Color.lightGray);
 
@@ -136,26 +133,25 @@ public final class SampleTree {
 
         /* And show it. */
     panel.setLayout(new BorderLayout());
-    panel.add("Center", sp);
-    panel.add("South", constructOptionsPanel());
+    panel.add(BorderLayout.CENTER, sp);
+    panel.add(BorderLayout.SOUTH, constructOptionsPanel());
 
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.pack();
     frame.setVisible(true);
   }
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     try {
       SwingUtilities.invokeAndWait(new Runnable() {
 
-        @SuppressWarnings(value = "ResultOfObjectAllocationIgnored")
+        @Override
+        @SuppressWarnings("ResultOfObjectAllocationIgnored")
         public void run() {
           new SampleTree();
         }
       });
-    } catch (InterruptedException ex) {
-      Logger.getLogger(SampleTree.class.getName()).log(Level.SEVERE, null, ex);
-    } catch (InvocationTargetException ex) {
+    } catch (InterruptedException | InvocationTargetException ex) {
       Logger.getLogger(SampleTree.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
@@ -288,6 +284,7 @@ public final class SampleTree {
     menuItem = menu.add(new JMenuItem("Exit"));
     menuItem.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         System.exit(0);
       }
@@ -340,7 +337,7 @@ public final class SampleTree {
   /**
    * AddAction is used to add a new item after the selected item.
    */
-  class AddAction extends Object implements ActionListener {
+  class AddAction implements ActionListener {
 
     /**
      * Number of nodes that have been added.
@@ -353,6 +350,7 @@ public final class SampleTree {
      * after that.  If nothing is selected, an item is added to
      * the root.
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
       DefaultMutableTreeNode lastItem = getSelectedNode();
       DefaultMutableTreeNode parent;
@@ -369,18 +367,17 @@ public final class SampleTree {
       }
       if (parent == null) {
         // new root
-        treeModel.setRoot(createNewNode("Added " + Integer.toString(addCount++)));
+        treeModel.setRoot(createNewNode("Added " + Integer.toString(addCount)));
+        addCount++;
       } else {
         int newIndex;
-        if (lastItem == null) {
-          newIndex = treeModel.getChildCount(parent);
-        } else {
-          newIndex = parent.getIndex(lastItem) + 1;
-        }
+        newIndex = lastItem == null ? treeModel.getChildCount(parent)
+            : parent.getIndex(lastItem) + 1;
 
                 /* Let the treemodel know. */
         treeModel.insertNodeInto(createNewNode("Added " + Integer.
-            toString(addCount++)), parent, newIndex);
+            toString(addCount)), parent, newIndex);
+        addCount++;
       }
     }
   } // End of SampleTree.AddAction
@@ -388,7 +385,7 @@ public final class SampleTree {
   /**
    * InsertAction is used to insert a new item before the selected item.
    */
-  class InsertAction extends Object implements ActionListener {
+  class InsertAction implements ActionListener {
 
     /**
      * Number of nodes that have been added.
@@ -401,6 +398,7 @@ public final class SampleTree {
      * after that.  If nothing is selected, an item is added to
      * the root.
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
       DefaultMutableTreeNode lastItem = getSelectedNode();
       DefaultMutableTreeNode parent;
@@ -417,19 +415,19 @@ public final class SampleTree {
       }
       if (parent == null) {
         // new root
-        treeModel.setRoot(createNewNode("Inserted " + Integer.toString(insertCount++)));
+        treeModel.setRoot(createNewNode("Inserted " + Integer.toString(
+
+            insertCount)));
+        insertCount++;
       } else {
         int newIndex;
 
-        if (lastItem == null) {
-          newIndex = treeModel.getChildCount(parent);
-        } else {
-          newIndex = parent.getIndex(lastItem);
-        }
+        newIndex = lastItem == null ? treeModel.getChildCount(parent) : parent.getIndex(lastItem);
 
                 /* Let the treemodel know. */
         treeModel.insertNodeInto(createNewNode("Inserted " + Integer.
-            toString(insertCount++)), parent, newIndex);
+            toString(insertCount)), parent, newIndex);
+        insertCount++;
       }
     }
   } // End of SampleTree.InsertAction
@@ -438,13 +436,14 @@ public final class SampleTree {
    * ReloadAction is used to reload from the selected node.  If nothing
    * is selected, reload is not issued.
    */
-  class ReloadAction extends Object implements ActionListener {
+  class ReloadAction implements ActionListener {
 
     /**
      * Messaged when the user clicks on the Reload menu item.
      * Determines the selection from the Tree and asks the treemodel
      * to reload from that node.
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
       DefaultMutableTreeNode lastItem = getSelectedNode();
 
@@ -458,11 +457,11 @@ public final class SampleTree {
    * RemoveAction removes the selected node from the tree.  If
    * The root or nothing is selected nothing is removed.
    */
-  class RemoveAction extends Object implements ActionListener {
+  class RemoveAction implements ActionListener {
 
     /**
-     * Removes the sibling TreePaths of <code>path</code>, that are
-     * located in <code>paths</code>.
+     * Removes the sibling TreePaths of {@code path}, that are
+     * located in {@code paths}.
      */
     private void removeSiblings(TreePath path, TreePath[] paths) {
       // Find the siblings
@@ -496,7 +495,7 @@ public final class SampleTree {
         for (int counter = paths.length - 1; counter >= 0; counter--) {
           if (paths[counter] != null) {
             for (int rCounter = rCount - 1; rCounter >= 0; rCounter--) {
-              if ((toRemove.get(rCounter)).isDescendant(paths[counter])) {
+              if (toRemove.get(rCounter).isDescendant(paths[counter])) {
                 paths[counter] = null;
               }
             }
@@ -510,16 +509,45 @@ public final class SampleTree {
         int[] indices = new int[rCount];
         Object[] removedNodes = new Object[rCount];
         for (int counter = rCount - 1; counter >= 0; counter--) {
-          removedNodes[counter] = (toRemove.get(counter)).
+          removedNodes[counter] = toRemove.get(counter).
               getLastPathComponent();
           indices[counter] = treeModel.getIndexOfChild(parentNode, removedNodes[counter]);
           parentNode.remove(indices[counter]);
         }
         treeModel.nodesWereRemoved(parentNode, indices, removedNodes);
       }
+    }
+
+    /**
+     * Returns the TreePath with the smallest path count in
+     * {@code paths}. Will return null if there is no non-null
+     * TreePath is {@code paths}.
+     */
+    private TreePath findShallowestPath(TreePath[] paths) {
+      int shallowest = -1;
+      TreePath shallowestPath = null;
+
+      for (int counter = paths.length - 1; counter >= 0; counter--) {
+        if (paths[counter] != null) {
+          if (shallowest != -1) {
+            if (paths[counter].getPathCount() < shallowest) {
+              shallowest = paths[counter].getPathCount();
+              shallowestPath = paths[counter];
+              if (shallowest == 1) {
+                return shallowestPath;
+              }
+            }
+          } else {
+            shallowestPath = paths[counter];
+            shallowest = paths[counter].getPathCount();
+          }
+        }
+      }
+      return shallowestPath;
     }    /**
      * Removes the selected item as long as it isn't root.
      */
+    @Override
     public void actionPerformed(ActionEvent e) {
       TreePath[] selected = getSelectedPaths();
 
@@ -543,42 +571,20 @@ public final class SampleTree {
     }
 
     /**
-     * Returns the TreePath with the smallest path count in
-     * <code>paths</code>. Will return null if there is no non-null
-     * TreePath is <code>paths</code>.
-     */
-    private TreePath findShallowestPath(TreePath[] paths) {
-      int shallowest = -1;
-      TreePath shallowestPath = null;
-
-      for (int counter = paths.length - 1; counter >= 0; counter--) {
-        if (paths[counter] != null) {
-          if (shallowest != -1) {
-            if (paths[counter].getPathCount() < shallowest) {
-              shallowest = paths[counter].getPathCount();
-              shallowestPath = paths[counter];
-              if (shallowest == 1) {
-                return shallowestPath;
-              }
-            }
-          } else {
-            shallowestPath = paths[counter];
-            shallowest = paths[counter].getPathCount();
-          }
-        }
-      }
-      return shallowestPath;
-    }
-
-    /**
      * An Comparator that bases the return value on the index of the
      * passed in objects in the TreeModel.
      * <p>
      * This is actually rather expensive, it would be more efficient
      * to extract the indices and then do the comparision.
      */
-    private class PositionComparator implements Comparator<TreePath> {
+    private class PositionComparator implements Comparator<TreePath>, Serializable {
 
+      private static final long serialVersionUID = -6354014390359236775L;
+
+      PositionComparator() {
+      }
+
+      @Override
       public int compare(TreePath p1, TreePath p2) {
         int p1Index = treeModel.getIndexOfChild(p1.getParentPath().
             getLastPathComponent(), p1.getLastPathComponent());
@@ -595,7 +601,7 @@ public final class SampleTree {
    * ShowHandlesChangeListener implements the ChangeListener interface
    * to toggle the state of showing the handles in the tree.
    */
-  class ShowHandlesChangeListener extends Object implements ChangeListener {
+  class ShowHandlesChangeListener implements ChangeListener {
 
     public void stateChanged(ChangeEvent e) {
       tree.setShowsRootHandles(((JCheckBox) e.getSource()).isSelected());
@@ -606,7 +612,7 @@ public final class SampleTree {
    * ShowRootChangeListener implements the ChangeListener interface
    * to toggle the state of showing the root node in the tree.
    */
-  class ShowRootChangeListener extends Object implements ChangeListener {
+  class ShowRootChangeListener implements ChangeListener {
 
     public void stateChanged(ChangeEvent e) {
       tree.setRootVisible(((JCheckBox) e.getSource()).isSelected());
@@ -618,7 +624,7 @@ public final class SampleTree {
    * to toggle between allowing editing and now allowing editing in
    * the tree.
    */
-  class TreeEditableChangeListener extends Object implements ChangeListener {
+  class TreeEditableChangeListener implements ChangeListener {
 
     public void stateChanged(ChangeEvent e) {
       tree.setEditable(((JCheckBox) e.getSource()).isSelected());

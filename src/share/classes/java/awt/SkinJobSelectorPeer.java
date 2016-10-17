@@ -2,7 +2,7 @@ package java.awt;
 
 import android.widget.AdapterView;
 import android.widget.TextView;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Created by cryoc on 2016-10-11.
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public abstract class SkinJobSelectorPeer<T extends AdapterView<?>>
     extends SkinJobComponentPeerForView<T> {
-  protected ArrayList<String> entries = new ArrayList<>();
+  protected final java.util.List<String> entries = new ArrayList<>();
 
   public SkinJobSelectorPeer(T androidComponent) {
     super(androidComponent);
@@ -53,7 +53,8 @@ public abstract class SkinJobSelectorPeer<T extends AdapterView<?>>
   }
 
   public synchronized void makeVisible(int index) {
-    androidWidget.scrollTo((int) androidWidget.getChildAt(index).getX(),
+    androidWidget.scrollTo(
+        (int) androidWidget.getChildAt(index).getX(),
         androidWidget.getScrollY());
   }
 }

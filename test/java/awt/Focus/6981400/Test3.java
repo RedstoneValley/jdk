@@ -34,23 +34,25 @@
 // A menu item in a frame should not be auto-selected when switching by Alt+TAB back and forth.
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class Test3 {
-    static JFrame f = new JFrame("Frame");
-    static JMenuBar bar = new JMenuBar();
-    static JMenu menu = new JMenu("File");
-    static JMenuItem item = new JMenuItem("Save");
+public final class Test3 {
+    static final JFrame f = new JFrame("Frame");
+    static final JMenuBar bar = new JMenuBar();
+    static final JMenu menu = new JMenu("File");
+    static final JMenuItem item = new JMenuItem("Save");
 
-    static JButton b0 = new JButton("b0");
-    static JButton b1 = new JButton("b1");
+    static final JButton b0 = new JButton("b0");
+    static final JButton b1 = new JButton("b1");
 
     static Robot robot;
 
+    private Test3() {
+    }
+
     public static void main(String[] args) {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.err.println(e);
             }
@@ -67,6 +69,7 @@ public class Test3 {
         } catch (Exception e) {}
 
         b0.addFocusListener(new FocusAdapter() {
+            @Override
             public void focusLost(FocusEvent f) {
                 try {
                     Thread.sleep(2000);

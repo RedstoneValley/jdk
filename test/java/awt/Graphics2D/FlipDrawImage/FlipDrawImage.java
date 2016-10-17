@@ -40,13 +40,16 @@ public final class FlipDrawImage {
     private static final int width = 400;
     private static final int height = 400;
 
-    public static void main(final String[] args) {
+    private FlipDrawImage() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsConfiguration gc =
                 ge.getDefaultScreenDevice().getDefaultConfiguration();
         VolatileImage vi = gc.createCompatibleVolatileImage(width, height);
-        final BufferedImage bi = new BufferedImage(width, height,
+        BufferedImage bi = new BufferedImage(width, height,
                                                    BufferedImage.TYPE_INT_ARGB);
         while (true) {
             vi.validate(gc);

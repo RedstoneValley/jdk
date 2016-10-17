@@ -91,6 +91,7 @@ public abstract class InputMethodAdapter implements InputMethod {
    * @throws UnsupportedOperationException when the adapter does not override
    *                                       the method.
    */
+  @Override
   public void reconvert() {
     throw new UnsupportedOperationException();
   }
@@ -98,6 +99,7 @@ public abstract class InputMethodAdapter implements InputMethod {
   /**
    * Notifies client Window location or status changes
    */
+  @Override
   public void notifyClientWindowChange(Rectangle location) {
   }
 

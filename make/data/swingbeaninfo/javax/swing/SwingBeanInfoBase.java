@@ -25,17 +25,15 @@
 
 package javax.swing;
 
-import java.beans.*;
-import java.lang.reflect.*;
 import java.awt.Image;
 
 /**
  * The superclass for all Swing BeanInfo classes.  It provides
- * default implementations of <code>getIcon</code> and
- * <code>getDefaultPropertyIndex</code> as well as utility
+ * default implementations of {@code getIcon} and
+ * {@code getDefaultPropertyIndex} as well as utility
  * methods, like createPropertyDescriptor, for writing BeanInfo
  * implementations.  This classes is intended to be used along
- * with <code>GenSwingBeanInfo</code> a BeanInfo class code generator.
+ * with {@code GenSwingBeanInfo} a BeanInfo class code generator.
  *
  * @see GenSwingBeanInfo
  * @author Hans Muller
@@ -68,7 +66,7 @@ public class SwingBeanInfoBase extends SimpleBeanInfo
      */
     public BeanInfo[] getAdditionalBeanInfo() {
         Class superClass = getBeanDescriptor().getBeanClass().getSuperclass();
-        BeanInfo superBeanInfo = null;
+        BeanInfo superBeanInfo;
         try {
             superBeanInfo = Introspector.getBeanInfo(superClass);
         } catch (IntrospectionException ie) {}

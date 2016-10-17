@@ -31,9 +31,6 @@
   @run applet/manual=yesno FileNameOverrideTest.html
 */
 
-import test.java.awt.regtesthelpers.Sysout;
-
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,14 +38,14 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileNameOverrideTest extends Applet implements ActionListener {
-    private final static String fileName = "input";
-    private final static String clickDirName = "Directory for double click";
-    private final static String dirPath = ".";
+    private static final String fileName = "input";
+    private static final String clickDirName = SaveFileNameOverrideTest.clickDirName;
+    private static final String dirPath = ".";
     private Button showBtn;
     private FileDialog fd;
 
     public void init() {
-        this.setLayout(new GridLayout(1, 1));
+        setLayout(new GridLayout(1, 1));
 
         fd = new FileDialog(new Frame(), "Open");
 
@@ -80,6 +77,7 @@ public class FileNameOverrideTest extends Applet implements ActionListener {
         show();
     }// start()
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == showBtn) {
             fd.setFile(fileName);

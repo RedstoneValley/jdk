@@ -31,16 +31,15 @@
   @run main ChoiceMouseWheelTest
 */
 
-import test.java.awt.regtesthelpers.Util;
-
 import java.awt.*;
 import java.awt.event.*;
 
 public class ChoiceMouseWheelTest extends Frame {
 
-    private volatile boolean itemChanged = false;
-    private volatile boolean wheelMoved = false;
-    private volatile boolean frameExited = false;
+    private static final long serialVersionUID = 4339206109481142221L;
+    volatile boolean itemChanged;
+    volatile boolean wheelMoved;
+    volatile boolean frameExited;
 
     public static void main(String[] args) {
         new ChoiceMouseWheelTest();
@@ -64,11 +63,13 @@ public class ChoiceMouseWheelTest extends Frame {
         }
 
         choice.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 itemChanged = true;
             }
         });
         choice.addMouseWheelListener(new MouseWheelListener() {
+            @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 wheelMoved = true;
             }
@@ -100,8 +101,8 @@ public class ChoiceMouseWheelTest extends Frame {
             String name = Toolkit.getDefaultToolkit().getClass().getName();
 
             // mouse wheel doesn't work for the choice on X11 and Mac, so skip it
-            if(!name.equals("sun.awt.X11.XToolkit")
-               && !name.equals("sun.lwawt.macosx.LWCToolkit")) {
+            if(!"sun.awt.X11.XToolkit".equals(name)
+               && !"sun.lwawt.macosx.LWCToolkit".equals(name)) {
                 robot.mouseWheel(1);
                 Util.waitForIdle(robot);
 
@@ -118,7 +119,8 @@ public class ChoiceMouseWheelTest extends Frame {
 
             int y = getLocationOnScreen().y + getSize().height;
             while(!frameExited && y >= 0) { // move to the bottom of drop-down list
-                robot.mouseMove(x, --y);
+                --y;
+                robot.mouseMove(x, y);
                 Util.waitForIdle(robot);
             }
 

@@ -29,7 +29,6 @@
   @run main JContainerMousePositionTest
 */
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,14 +38,17 @@ import java.util.concurrent.atomic.AtomicReference;
 // out of bounds of Container
 // two values of paramater allowChildren are considered.
 
-public class JContainerMousePositionTest {
+public final class JContainerMousePositionTest {
     //Declare things used in the test, like buttons and labels here
     private static JButton jButton1;
     private static JButton jButton4;
     private static JFrame frame1;
     private static Container contentPane;
 
-    public static void main(final String[] args) throws Exception {
+    private JContainerMousePositionTest() {
+    }
+
+    public static void main(String[] args) throws Exception {
         Robot robot = new Robot();
         robot.setAutoDelay(200);
         robot.setAutoWaitForIdle(true);

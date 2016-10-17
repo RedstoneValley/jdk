@@ -56,15 +56,15 @@ import java.util.Arrays;
 
 final class ZipCoder {
 
-  private final ThreadLocal<CharsetDecoder> decTL = new ThreadLocal<>();
-  private final ThreadLocal<CharsetEncoder> encTL = new ThreadLocal<>();
-  private Charset cs;
-  private boolean isutf8;
+  private static final ThreadLocal<CharsetDecoder> decTL = new ThreadLocal<>();
+  private static final ThreadLocal<CharsetEncoder> encTL = new ThreadLocal<>();
+  private final Charset cs;
+  private final boolean isutf8;
   private ZipCoder utf8;
 
   private ZipCoder(Charset cs) {
     this.cs = cs;
-    this.isutf8 = cs.name().equals("UTF-8");
+    isutf8 = "UTF-8".equals(cs.name());
   }
 
   static ZipCoder get(Charset charset) {
@@ -122,12 +122,7 @@ final class ZipCoder {
     if (!cr.isUnderflow()) {
       throw new IllegalArgumentException(cr.toString());
     }
-    if (bb.position() == ba.length)  // defensive copy?
-    {
-      return ba;
-    } else {
-      return Arrays.copyOf(ba, bb.position());
-    }
+    return bb.position() == ba.length ? ba : Arrays.copyOf(ba, bb.position());
   }
 
   // assume invoked only if "this" is not utf8

@@ -24,7 +24,6 @@
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.BufferedImage;
 
 import sun.java2d.SunGraphics2D;
@@ -37,16 +36,18 @@ import sun.java2d.SunGraphics2D;
  */
 public final class Test8004859 {
 
-    private static Shape[] clips = {new Rectangle(0, 0, -1, -1), new Rectangle(
+    private static final Shape[] clips = {new Rectangle(0, 0, -1, -1), new Rectangle(
             100, 100, -100, -100)};
 
     private static boolean status = true;
 
-    public static void main(final String[] args)
-            throws NoninvertibleTransformException {
-        final BufferedImage bi = new BufferedImage(300, 300,
+    private Test8004859() {
+    }
+
+    public static void main(String[] args) {
+        BufferedImage bi = new BufferedImage(300, 300,
                                                    BufferedImage.TYPE_INT_RGB);
-        final Graphics2D g = (Graphics2D) bi.getGraphics();
+        Graphics2D g = (Graphics2D) bi.getGraphics();
         test(g);
         g.translate(2.0, 2.0);
         test(g);
@@ -70,8 +71,8 @@ public final class Test8004859 {
         }
     }
 
-    private static void test(final Graphics2D g) {
-        for (final Shape clip : clips) {
+    private static void test(Graphics2D g) {
+        for (Shape clip : clips) {
             g.setClip(clip);
             if (!g.getClip().equals(clip)) {
                 System.err.println("Expected clip: " + clip);
@@ -80,7 +81,7 @@ public final class Test8004859 {
                 System.err.println("bounds="+g.getClip().getBounds());
                 status = false;
             }
-            final Rectangle bounds = g.getClipBounds();
+            Rectangle bounds = g.getClipBounds();
             if (!clip.equals(bounds)) {
                 System.err.println("Expected getClipBounds(): " + clip);
                 System.err.println("Actual getClipBounds(): " + bounds);

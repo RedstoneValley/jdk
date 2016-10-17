@@ -35,13 +35,12 @@ import static sun.java2d.pipe.BufferedOpCodes.FLUSH_SURFACE;
 import static sun.java2d.pipe.BufferedOpCodes.SWAP_BUFFERS;
 
 import java.awt.AlphaComposite;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.image.ColorModel;
 import java.awt.image.Raster;
+import java.security.AccessController;
 import sun.awt.SunHints;
-import sun.awt.image.PixelConverter;
+import sun.awt.image.PixelConverter.ArgbPre;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
 import sun.java2d.SurfaceDataProxy;
@@ -107,7 +106,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
   /**
    * OGL-specific surface types
    *
-   * @see sun.java2d.pipe.hw.AccelSurface
+   * @see AccelSurface
    */
   public static final int PBUFFER = RT_PLAIN;
   public static final int FBOBJECT = RT_TEXTURE;
@@ -133,94 +132,84 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    */
   private static final String DESC_OPENGL_SURFACE = "OpenGL Surface";
   static final SurfaceType OpenGLSurface = SurfaceType.Any.deriveSubType(DESC_OPENGL_SURFACE,
-      PixelConverter.ArgbPre.instance);
+      ArgbPre.instance);
   private static final String DESC_OPENGL_SURFACE_RTT = "OpenGL Surface (render-to-texture)";
   static final SurfaceType OpenGLSurfaceRTT = OpenGLSurface.deriveSubType(DESC_OPENGL_SURFACE_RTT);
   private static final String DESC_OPENGL_TEXTURE = "OpenGL Texture";
   static final SurfaceType OpenGLTexture = SurfaceType.Any.deriveSubType(DESC_OPENGL_TEXTURE);
-  protected static OGLRenderer oglRenderPipe;
-  protected static PixelToParallelogramConverter oglTxRenderPipe;
-  protected static ParallelogramPipe oglAAPgramPipe;
-  protected static OGLTextRenderer oglTextPipe;
-  protected static OGLDrawImage oglImagePipe;
   /**
    * This will be true if the fbobject system property has been enabled.
    */
-  private static boolean isFBObjectEnabled;
+  private static final boolean isFBObjectEnabled;
   /**
    * This will be true if the lcdshader system property has been enabled.
    */
-  private static boolean isLCDShaderEnabled;
+  private static final boolean isLCDShaderEnabled;
   /**
    * This will be true if the biopshader system property has been enabled.
    */
-  private static boolean isBIOpShaderEnabled;
+  private static final boolean isBIOpShaderEnabled;
   /**
    * This will be true if the gradshader system property has been enabled.
    */
-  private static boolean isGradShaderEnabled;
+  private static final boolean isGradShaderEnabled;
+  protected static final OGLRenderer oglRenderPipe;
+  protected static final PixelToParallelogramConverter oglTxRenderPipe;
+  protected static final ParallelogramPipe oglAAPgramPipe;
+  protected static OGLTextRenderer oglTextPipe;
+  protected static final OGLDrawImage oglImagePipe;
 
   static {
-    if (!GraphicsEnvironment.isHeadless()) {
-      // fbobject currently enabled by default; use "false" to disable
-      String fbo
-          = (String) java.security.AccessController.doPrivileged(new sun.security.action
-          .GetPropertyAction(
-          "sun.java2d.opengl.fbobject"));
-      isFBObjectEnabled = !"false".equals(fbo);
+    // fbobject currently enabled by default; use "false" to disable
+    String fbo = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
+        "sun.java2d.opengl.fbobject"));
+    isFBObjectEnabled = !"false".equals(fbo);
 
-      // lcdshader currently enabled by default; use "false" to disable
-      String lcd
-          = (String) java.security.AccessController.doPrivileged(new sun.security.action
-          .GetPropertyAction(
-          "sun.java2d.opengl.lcdshader"));
-      isLCDShaderEnabled = !"false".equals(lcd);
+    // lcdshader currently enabled by default; use "false" to disable
+    String lcd = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
+        "sun.java2d.opengl.lcdshader"));
+    isLCDShaderEnabled = !"false".equals(lcd);
 
-      // biopshader currently enabled by default; use "false" to disable
-      String biop
-          = (String) java.security.AccessController.doPrivileged(new sun.security.action
-          .GetPropertyAction(
-          "sun.java2d.opengl.biopshader"));
-      isBIOpShaderEnabled = !"false".equals(biop);
+    // biopshader currently enabled by default; use "false" to disable
+    String biop = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
+        "sun.java2d.opengl.biopshader"));
+    isBIOpShaderEnabled = !"false".equals(biop);
 
-      // gradshader currently enabled by default; use "false" to disable
-      String grad
-          = (String) java.security.AccessController.doPrivileged(new sun.security.action
-          .GetPropertyAction(
-          "sun.java2d.opengl.gradshader"));
-      isGradShaderEnabled = !"false".equals(grad);
+    // gradshader currently enabled by default; use "false" to disable
+    String grad = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
+        "sun.java2d.opengl.gradshader"));
+    isGradShaderEnabled = !"false".equals(grad);
 
-      OGLRenderQueue rq = OGLRenderQueue.getInstance();
-      oglImagePipe = new OGLDrawImage();
-      oglTextPipe = new OGLTextRenderer(rq);
-      oglRenderPipe = new OGLRenderer(rq);
-      if (GraphicsPrimitive.tracingEnabled()) {
-        oglTextPipe = oglTextPipe.traceWrap();
-        //The wrapped oglRenderPipe will wrap the AA pipe as well...
-        //oglAAPgramPipe = oglRenderPipe.traceWrap();
-      }
-      oglAAPgramPipe = oglRenderPipe.getAAParallelogramPipe();
-      oglTxRenderPipe = new PixelToParallelogramConverter(oglRenderPipe,
-          oglRenderPipe,
-          1.0,
-          0.25,
-          true);
-
-      OGLBlitLoops.register();
-      OGLMaskFill.register();
-      OGLMaskBlit.register();
+    OGLRenderQueue rq = OGLRenderQueue.getInstance();
+    oglImagePipe = new OGLDrawImage();
+    oglTextPipe = new OGLTextRenderer(rq);
+    oglRenderPipe = new OGLRenderer(rq);
+    if (tracingEnabled()) {
+      oglTextPipe = oglTextPipe.traceWrap();
+      //The wrapped oglRenderPipe will wrap the AA pipe as well...
+      //oglAAPgramPipe = oglRenderPipe.traceWrap();
     }
+    oglAAPgramPipe = oglRenderPipe.getAAParallelogramPipe();
+    oglTxRenderPipe = new PixelToParallelogramConverter(oglRenderPipe,
+        oglRenderPipe,
+        1.0,
+        0.25,
+        true);
+
+    OGLBlitLoops.register();
+    OGLMaskFill.register();
+    OGLMaskBlit.register();
   }
 
-  protected int type;
-  private OGLGraphicsConfig graphicsConfig;
+  private final OGLGraphicsConfig graphicsConfig;
+  protected final int type;
   // these fields are set from the native code when the surface is
   // initialized
   private int nativeWidth, nativeHeight;
 
   protected OGLSurfaceData(OGLGraphicsConfig gc, ColorModel cm, int type) {
     super(getCustomSurfaceType(type), cm);
-    this.graphicsConfig = gc;
+    graphicsConfig = gc;
     this.type = type;
     setBlitProxyKey(gc.getProxyKey());
   }
@@ -283,24 +272,54 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
     }
   }
 
-  protected native boolean initTexture(
-      long pData, boolean isOpaque, boolean texNonPow2, boolean texRect, int width, int height);
+  public static SurfaceDataProxy createProxy(
+      SurfaceData srcData, OGLGraphicsConfig dstConfig) {
+    if (srcData instanceof OGLSurfaceData) {
+      // srcData must be a VolatileImage which either matches
+      // our pixel format or not - either way we do not cache it...
+      return SurfaceDataProxy.UNCACHED;
+    }
 
-  protected native boolean initFBObject(
-      long pData, boolean isOpaque, boolean texNonPow2, boolean texRect, int width, int height);
+    return new OGLSurfaceDataProxy(dstConfig, srcData.getTransparency());
+  }
 
-  protected native boolean initFlipBackbuffer(long pData);
+  public static boolean tracingEnabled() {
+    return GraphicsPrimitive.traceflags != 0;
+  }
+
+  protected boolean initTexture(
+      long pData, boolean isOpaque, boolean texNonPow2, boolean texRect, int width, int height) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
+
+  protected boolean initFBObject(
+      long pData, boolean isOpaque, boolean texNonPow2, boolean texRect, int width, int height) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
+
+  protected boolean initFlipBackbuffer(long pData) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
 
   protected abstract boolean initPbuffer(
       long pData, long pConfigInfo, boolean isOpaque, int width, int height);
 
-  private native int getTextureTarget(long pData);
+  private int getTextureTarget(long pData) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  private native int getTextureID(long pData);
+  private int getTextureID(long pData) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
   @Override
   public SurfaceDataProxy makeProxyFor(SurfaceData srcData) {
-    return OGLSurfaceDataProxy.createProxy(srcData, graphicsConfig);
+    return createProxy(srcData, graphicsConfig);
   }
 
   /**
@@ -314,6 +333,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    * and remove the above restrictions, but that would require significantly
    * more code just to support a few uncommon cases.
    */
+  @Override
   public boolean canRenderLCDText(SunGraphics2D sg2d) {
     return graphicsConfig.isCapPresent(CAPS_EXT_LCD_SHADER) &&
         sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY &&
@@ -321,6 +341,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
         sg2d.surfaceData.getTransparency() == Transparency.OPAQUE;
   }
 
+  @Override
   public void validatePipe(SunGraphics2D sg2d) {
     TextPipe textpipe;
     boolean validated = false;
@@ -333,17 +354,17 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
     // by the CompositeType.SrcNoEa (any color) test below.)
 
     if (/* CompositeType.SrcNoEa (any color) */
-        (sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY
-             && sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR) ||
+        sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY
+            && sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR ||
 
             /* CompositeType.SrcOver (any color) */
-            (sg2d.compositeState == SunGraphics2D.COMP_ALPHA &&
-                 sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR &&
-                 (((AlphaComposite) sg2d.composite).getRule() == AlphaComposite.SRC_OVER)) ||
+            sg2d.compositeState == SunGraphics2D.COMP_ALPHA &&
+                sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR &&
+                ((AlphaComposite) sg2d.composite).getRule() == AlphaComposite.SRC_OVER ||
 
             /* CompositeType.Xor (any color) */
-            (sg2d.compositeState == SunGraphics2D.COMP_XOR
-                 && sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR)) {
+            sg2d.compositeState == SunGraphics2D.COMP_XOR
+                && sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR) {
       textpipe = oglTextPipe;
     } else {
       // do this to initialize textpipe correctly; we will attempt
@@ -446,10 +467,12 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
     return super.getMaskFill(sg2d);
   }
 
+  @Override
   public Raster getRaster(int x, int y, int w, int h) {
     throw new InternalError("not implemented yet");
   }
 
+  @Override
   public boolean copyArea(SunGraphics2D sg2d, int x, int y, int w, int h, int dx, int dy) {
     if (sg2d.transformState < SunGraphics2D.TRANSFORM_TRANSLATESCALE
         && sg2d.compositeState < SunGraphics2D.COMP_XOR) {
@@ -463,6 +486,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
     return false;
   }
 
+  @Override
   public void flush() {
     invalidate();
     OGLRenderQueue rq = OGLRenderQueue.getInstance();
@@ -489,8 +513,8 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    * This method is kept separate from the initSurface() method below just
    * to keep the code a bit cleaner.
    */
-  private void initSurfaceNow(int width, int height) {
-    boolean isOpaque = (getTransparency() == Transparency.OPAQUE);
+  void initSurfaceNow(int width, int height) {
+    boolean isOpaque = getTransparency() == Transparency.OPAQUE;
     boolean success = false;
 
     switch (type) {
@@ -538,7 +562,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    * of the type parameter.  If the surface creation fails for any reason,
    * an OutOfMemoryError will be thrown.
    */
-  protected void initSurface(final int width, final int height) {
+  protected void initSurface(int width, int height) {
     OGLRenderQueue rq = OGLRenderQueue.getInstance();
     rq.lock();
     try {
@@ -554,6 +578,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
           break;
       }
       rq.flushAndInvokeNow(new Runnable() {
+        @Override
         public void run() {
           initSurfaceNow(width, height);
         }
@@ -567,6 +592,7 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    * Returns the OGLContext for the GraphicsConfig associated with this
    * surface.
    */
+  @Override
   public final OGLContext getContext() {
     return graphicsConfig.getContext();
   }
@@ -583,40 +609,6 @@ public abstract class OGLSurfaceData extends SurfaceData implements AccelSurface
    */
   public final int getType() {
     return type;
-  }
-
-  /**
-   * Returns native resource of specified {@code resType} associated with
-   * this surface.
-   * <p>
-   * Specifically, for {@code OGLSurfaceData} this method returns the
-   * the following:
-   * <pre>
-   * TEXTURE              - texture id
-   * </pre>
-   * <p>
-   * Note: the resource returned by this method is only valid on the rendering
-   * thread.
-   *
-   * @return native resource of specified type or 0L if
-   * such resource doesn't exist or can not be retrieved.
-   * @see sun.java2d.pipe.hw.AccelSurface#getNativeResource
-   */
-  public long getNativeResource(int resType) {
-    if (resType == TEXTURE) {
-      return getTextureID();
-    }
-    return 0L;
-  }
-
-  public Rectangle getNativeBounds() {
-    OGLRenderQueue rq = OGLRenderQueue.getInstance();
-    rq.lock();
-    try {
-      return new Rectangle(nativeWidth, nativeHeight);
-    } finally {
-      rq.unlock();
-    }
   }
 
   /**

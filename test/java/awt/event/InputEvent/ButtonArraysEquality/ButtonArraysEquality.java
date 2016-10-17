@@ -39,8 +39,8 @@ import java.security.PrivilegedAction;
 // get array InputEvent.BUTTON_DOWN_MASK via reflection
 // compare their lengths and values
 
-public class ButtonArraysEquality {
-    static int [] eventDownMask = new int []{InputEvent.BUTTON1_DOWN_MASK, InputEvent.BUTTON2_DOWN_MASK, InputEvent.BUTTON3_DOWN_MASK};
+public final class ButtonArraysEquality {
+    static final int [] eventDownMask = {InputEvent.BUTTON1_DOWN_MASK, InputEvent.BUTTON2_DOWN_MASK, InputEvent.BUTTON3_DOWN_MASK};
 
     public static void main(String []s){
         int [] buttonDownMasksAPI = new int [MouseInfo.getNumberOfButtons()];
@@ -52,10 +52,11 @@ public class ButtonArraysEquality {
         // getButtonDownMasks()
         Object obj = AccessController.doPrivileged(
                                             new PrivilegedAction() {
+                                                @Override
                                                 public Object run() {
                                                     try {
                                                         Class clazz = Class.forName("java.awt.event.InputEvent");
-                                                        Method method  = clazz.getDeclaredMethod("getButtonDownMasks",new Class [] {});
+                                                        Method method  = clazz.getDeclaredMethod("getButtonDownMasks");
                                                         if (method != null) {
                                                             method.setAccessible(true);
                                                             return method.invoke(null, (Object[])null);
@@ -95,7 +96,7 @@ public class ButtonArraysEquality {
 
     public static void checkNullAndPutValuesToArray(int [] array, Object obj){
         if (obj == null){
-            throw new RuntimeException("Test failed. The array obtained via reflection is "+obj);
+            throw new RuntimeException("Test failed. The array obtained via reflection is "+ null);
         }
 
         for (int i = 0; i < Array.getLength(obj); i++){

@@ -35,8 +35,8 @@ public abstract class PlatformFont implements FontPeer {
 
   // Maybe this should be a property that is set based
   // on the locale?
-  protected static int FONTCACHESIZE = 256;
-  protected static int FONTCACHEMASK = PlatformFont.FONTCACHESIZE - 1;
+  protected static final int FONTCACHESIZE = 256;
+  protected static final int FONTCACHEMASK = FONTCACHESIZE - 1;
 
   static {
     NativeLibLoader.loadLibraries();
@@ -72,13 +72,13 @@ public abstract class PlatformFont implements FontPeer {
       defaultFont = componentFonts[0];
     }
 
-    for (int i = 0; i < componentFonts.length; i++) {
-      if (componentFonts[i].isExcluded(missingGlyphCharacter)) {
+    for (FontDescriptor componentFont : componentFonts) {
+      if (componentFont.isExcluded(missingGlyphCharacter)) {
         continue;
       }
 
-      if (componentFonts[i].encoder.canEncode(missingGlyphCharacter)) {
-        defaultFont = componentFonts[i];
+      if (componentFont.encoder.canEncode(missingGlyphCharacter)) {
+        defaultFont = componentFont;
         defaultChar = missingGlyphCharacter;
         break;
       }
@@ -88,7 +88,8 @@ public abstract class PlatformFont implements FontPeer {
   /**
    * Initialize JNI field and method IDs
    */
-  private static void initIDs() {}
+  private static void initIDs() {
+  }
 
   /**
    * Returns the character that should be rendered when a glyph
@@ -117,7 +118,7 @@ public abstract class PlatformFont implements FontPeer {
    * @param offset offset of first character of interest
    * @param len    number of characters to convert
    */
-  public CharsetString[] makeMultiCharsetString(char str[], int offset, int len) {
+  public CharsetString[] makeMultiCharsetString(char[] str, int offset, int len) {
     return makeMultiCharsetString(str, offset, len, true);
   }
 
@@ -136,7 +137,7 @@ public abstract class PlatformFont implements FontPeer {
    * This is used to choose alternative means of displaying the text.
    */
   public CharsetString[] makeMultiCharsetString(
-      char str[], int offset, int len, boolean allowDefault) {
+      char[] str, int offset, int len, boolean allowDefault) {
 
     if (len < 1) {
       return new CharsetString[0];
@@ -148,8 +149,8 @@ public abstract class PlatformFont implements FontPeer {
 
     FontDescriptor currentFont = defaultFont;
 
-    for (int i = 0; i < componentFonts.length; i++) {
-      if (componentFonts[i].isExcluded(str[offset])) {
+    for (FontDescriptor componentFont1 : componentFonts) {
+      if (componentFont1.isExcluded(str[offset])) {
         continue;
       }
 
@@ -157,8 +158,8 @@ public abstract class PlatformFont implements FontPeer {
              * the default char is the same as the encoded char.
              * The defaultChar on Linux is '?' so it is needed there.
              */
-      if (componentFonts[i].encoder.canEncode(str[offset])) {
-        currentFont = componentFonts[i];
+      if (componentFont1.encoder.canEncode(str[offset])) {
+        currentFont = componentFont1;
         tmpChar = str[offset];
         encoded = true;
         break;
@@ -166,9 +167,8 @@ public abstract class PlatformFont implements FontPeer {
     }
     if (!allowDefault && !encoded) {
       return null;
-    } else {
-      tmpStr[0] = tmpChar;
     }
+    tmpStr[0] = tmpChar;
 
     int lastIndex = 0;
     for (int i = 1; i < len; i++) {
@@ -176,13 +176,13 @@ public abstract class PlatformFont implements FontPeer {
       FontDescriptor fd = defaultFont;
       tmpChar = defaultChar;
       encoded = false;
-      for (int j = 0; j < componentFonts.length; j++) {
-        if (componentFonts[j].isExcluded(ch)) {
+      for (FontDescriptor componentFont : componentFonts) {
+        if (componentFont.isExcluded(ch)) {
           continue;
         }
 
-        if (componentFonts[j].encoder.canEncode(ch)) {
-          fd = componentFonts[j];
+        if (componentFont.encoder.canEncode(ch)) {
+          fd = componentFont;
           tmpChar = ch;
           encoded = true;
           break;
@@ -190,16 +190,14 @@ public abstract class PlatformFont implements FontPeer {
       }
       if (!allowDefault && !encoded) {
         return null;
-      } else {
-        tmpStr[i] = tmpChar;
       }
+      tmpStr[i] = tmpChar;
       if (currentFont != fd) {
         if (mcs == null) {
           mcs = new Vector(3);
         }
         mcs.addElement(new CharsetString(tmpStr, lastIndex, i - lastIndex, currentFont));
         currentFont = fd;
-        fd = defaultFont;
         lastIndex = i;
       }
     }
@@ -241,7 +239,7 @@ public abstract class PlatformFont implements FontPeer {
     int convertedDataIndex = 0;
     int resultIndex = 0;
     int cacheIndex;
-    FontDescriptor currentFontDescriptor = null;
+    FontDescriptor currentFontDescriptor;
     FontDescriptor lastFontDescriptor = null;
     char currentDefaultChar;
     PlatformFontCache theChar;
@@ -261,7 +259,7 @@ public abstract class PlatformFont implements FontPeer {
       currentDefaultChar = data[stringIndex];
 
       // Note that cache sizes must be a power of two!
-      cacheIndex = (int) (currentDefaultChar & this.FONTCACHEMASK);
+      cacheIndex = currentDefaultChar & FONTCACHEMASK;
 
       theChar = (PlatformFontCache) getFontCache()[cacheIndex];
 
@@ -270,12 +268,10 @@ public abstract class PlatformFont implements FontPeer {
                 /* find a converter that can convert the current character */
         currentFontDescriptor = defaultFont;
         currentDefaultChar = defaultChar;
-        char ch = (char) data[stringIndex];
+        char ch = data[stringIndex];
         int componentCount = componentFonts.length;
 
-        for (int j = 0; j < componentCount; j++) {
-          FontDescriptor fontDescriptor = componentFonts[j];
-
+        for (FontDescriptor fontDescriptor : componentFonts) {
           fontDescriptor.encoder.reset();
           //fontDescriptor.encoder.onUnmappleCharacterAction(...);
 
@@ -299,7 +295,7 @@ public abstract class PlatformFont implements FontPeer {
                                                                     theChar.bb,
                                                                     true);
                         */
-            if (currentFontDescriptor.isLE) {
+            if (FontDescriptor.isLE) {
               theChar.bb.put((byte) (input[0] & 0xff));
               theChar.bb.put((byte) (input[0] >> 8));
             } else {
@@ -323,32 +319,29 @@ public abstract class PlatformFont implements FontPeer {
       // Check to see if we've changed fonts.
       if (lastFontDescriptor != theChar.fontDescriptor) {
         if (lastFontDescriptor != null) {
-          result[resultIndex++] = lastFontDescriptor;
-          result[resultIndex++] = convertedData;
+          result[resultIndex] = lastFontDescriptor;
+          resultIndex++;
+          result[resultIndex] = convertedData;
+          resultIndex++;
           //  Add the size to the converted data field.
-          if (convertedData != null) {
-            convertedDataIndex -= 4;
-            convertedData[0] = (byte) (convertedDataIndex >> 24);
-            convertedData[1] = (byte) (convertedDataIndex >> 16);
-            convertedData[2] = (byte) (convertedDataIndex >> 8);
-            convertedData[3] = (byte) convertedDataIndex;
-          }
+          convertedDataIndex -= 4;
+          convertedData[0] = (byte) (convertedDataIndex >> 24);
+          convertedData[1] = (byte) (convertedDataIndex >> 16);
+          convertedData[2] = (byte) (convertedDataIndex >> 8);
+          convertedData[3] = (byte) convertedDataIndex;
 
           if (resultIndex >= result.length) {
-            Object[] newResult = new Object[result.length * 2];
+            Object[] newResult = new Object[(result.length << 1)];
 
             System.arraycopy(result, 0, newResult, 0, result.length);
             result = newResult;
           }
         }
 
-        if (theChar.fontDescriptor.useUnicode()) {
-          convertedData = new byte[(end - stringIndex + 1)
-              * (int) theChar.fontDescriptor.unicodeEncoder.maxBytesPerChar() + 4];
-        } else {
-          convertedData = new byte[
-              (end - stringIndex + 1) * (int) theChar.fontDescriptor.encoder.maxBytesPerChar() + 4];
-        }
+        convertedData = theChar.fontDescriptor.useUnicode() ? new byte[
+            (end - stringIndex + 1) * (int) theChar.fontDescriptor.unicodeEncoder.maxBytesPerChar()
+                + 4] : new byte[
+            (end - stringIndex + 1) * (int) theChar.fontDescriptor.encoder.maxBytesPerChar() + 4];
 
         convertedDataIndex = 4;
 
@@ -358,24 +351,35 @@ public abstract class PlatformFont implements FontPeer {
       byte[] ba = theChar.bb.array();
       int size = theChar.bb.position();
       if (size == 1) {
-        convertedData[convertedDataIndex++] = ba[0];
+        convertedData[convertedDataIndex] = ba[0];
+        convertedDataIndex++;
       } else if (size == 2) {
-        convertedData[convertedDataIndex++] = ba[0];
-        convertedData[convertedDataIndex++] = ba[1];
+        convertedData[convertedDataIndex] = ba[0];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[1];
+        convertedDataIndex++;
       } else if (size == 3) {
-        convertedData[convertedDataIndex++] = ba[0];
-        convertedData[convertedDataIndex++] = ba[1];
-        convertedData[convertedDataIndex++] = ba[2];
+        convertedData[convertedDataIndex] = ba[0];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[1];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[2];
+        convertedDataIndex++;
       } else if (size == 4) {
-        convertedData[convertedDataIndex++] = ba[0];
-        convertedData[convertedDataIndex++] = ba[1];
-        convertedData[convertedDataIndex++] = ba[2];
-        convertedData[convertedDataIndex++] = ba[3];
+        convertedData[convertedDataIndex] = ba[0];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[1];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[2];
+        convertedDataIndex++;
+        convertedData[convertedDataIndex] = ba[3];
+        convertedDataIndex++;
       }
       stringIndex++;
     }
 
-    result[resultIndex++] = lastFontDescriptor;
+    result[resultIndex] = lastFontDescriptor;
+    resultIndex++;
     result[resultIndex] = convertedData;
 
     //  Add the size to the converted data field.
@@ -402,7 +406,7 @@ public abstract class PlatformFont implements FontPeer {
     // twice or return an array which will be dereferenced and gced
     // right away.
     if (fontCache == null) {
-      fontCache = new Object[this.FONTCACHESIZE];
+      fontCache = new Object[FONTCACHESIZE];
     }
 
     return fontCache;
@@ -411,6 +415,6 @@ public abstract class PlatformFont implements FontPeer {
   class PlatformFontCache {
     char uniChar;
     FontDescriptor fontDescriptor;
-    ByteBuffer bb = ByteBuffer.allocate(4);
+    final ByteBuffer bb = ByteBuffer.allocate(4);
   }
 }

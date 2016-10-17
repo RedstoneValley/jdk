@@ -28,16 +28,16 @@ package java.awt.font;
 import sun.font.CoreMetrics;
 
 /**
- * The <code>LineMetrics</code> class allows access to the
+ * The {@code LineMetrics} class allows access to the
  * metrics needed to layout characters along a line
- * and to layout of a set of lines.  A <code>LineMetrics</code>
+ * and to layout of a set of lines.  A {@code LineMetrics}
  * object encapsulates the measurement information associated
  * with a run of text.
  * <p>
  * Fonts can have different metrics for different ranges of
- * characters.  The <code>getLineMetrics</code> methods of
+ * characters.  The {@code getLineMetrics} methods of
  * {@link java.awt.Font Font} take some text as an argument
- * and return a <code>LineMetrics</code> object describing the
+ * and return a {@code LineMetrics} object describing the
  * metrics of the initial number of characters in that text, as
  * returned by {@link #getNumChars}.
  */
@@ -48,7 +48,8 @@ public abstract class LineMetrics extends CoreMetrics {
       float ascent, float descent, float leading, float height, int baselineIndex,
       float[] baselineOffsets, float strikethroughOffset, float strikethroughThickness,
       float underlineOffset, float underlineThickness, float ssOffset, float italicAngle) {
-    super(ascent,
+    super(
+        ascent,
         descent,
         leading,
         height,
@@ -67,12 +68,12 @@ public abstract class LineMetrics extends CoreMetrics {
   }
 
   /**
-   * Returns the number of characters (<code>char</code> values) in the text whose
-   * metrics are encapsulated by this <code>LineMetrics</code>
+   * Returns the number of characters ({@code char} values) in the text whose
+   * metrics are encapsulated by this {@code LineMetrics}
    * object.
    *
-   * @return the number of characters (<code>char</code> values) in the text with which
-   * this <code>LineMetrics</code> was created.
+   * @return the number of characters ({@code char} values) in the text with which
+   * this {@code LineMetrics} was created.
    */
   public abstract int getNumChars();
 }

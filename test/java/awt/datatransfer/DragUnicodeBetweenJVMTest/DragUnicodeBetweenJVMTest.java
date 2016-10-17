@@ -35,26 +35,30 @@
   @run applet/othervm DragUnicodeBetweenJVMTest.html
 */
 
-/**
- * DragUnicodeBetweenJVMTest.java
- *
- * summary: The test drags a list of files (DataFlavor.javaFileListFlavor) from one jvm to another.
- *          The files have Unicode names. The list on target side must be equal to
- *          the list on the source side.
+/*
+  DragUnicodeBetweenJVMTest.java
+
+  summary: The test drags a list of files (DataFlavor.javaFileListFlavor) from one jvm to another.
+           The files have Unicode names. The list on target side must be equal to
+           the list on the source side.
  */
 
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
 
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-import test.java.awt.regtesthelpers.Util;
 import static java.lang.Thread.sleep;
 
 public class DragUnicodeBetweenJVMTest extends Applet
 {
+
+    public static int calculateXCenterCoordinate(Component component) {
+        return (int)component.getLocationOnScreen().getX()+ component.getWidth()/2;
+    }
+
+    public static int calculateYCenterCoordinate(Component component) {
+        return (int)component.getLocationOnScreen().getY()+ component.getHeight()/2;
+    }
 
     public void init() {
         setLayout(new BorderLayout());
@@ -63,16 +67,14 @@ public class DragUnicodeBetweenJVMTest extends Applet
     public void start() {
 
         String toolkit = Toolkit.getDefaultToolkit().getClass().getName();
-        if (!toolkit.equals("sun.awt.windows.WToolkit")){
+        if (!"sun.awt.windows.WToolkit".equals(toolkit)){
             System.out.println("This test is for Windows only. Passed.");
             return;
         }
-        else{
-            System.out.println("Toolkit = " + toolkit);
-        }
+        System.out.println("Toolkit = " + toolkit);
 
-        final Frame sourceFrame = new Frame("Source frame");
-        final SourcePanel sourcePanel = new SourcePanel();
+        Frame sourceFrame = new Frame("Source frame");
+        SourcePanel sourcePanel = new SourcePanel();
         sourceFrame.add(sourcePanel);
         sourceFrame.pack();
         sourceFrame.addWindowListener( new WindowAdapter() {
@@ -87,17 +89,17 @@ public class DragUnicodeBetweenJVMTest extends Applet
 
         NextFramePositionCalculator positionCalculator = new NextFramePositionCalculator(sourceFrame);
 
-        String [] args = new String [] {
+        String [] args = {
                 String.valueOf(positionCalculator.getNextLocationX()),
                 String.valueOf(positionCalculator.getNextLocationY()),
-                String.valueOf(AbsoluteComponentCenterCalculator.calculateXCenterCoordinate(sourcePanel)),
-                String.valueOf(AbsoluteComponentCenterCalculator.calculateYCenterCoordinate(sourcePanel)),
+                String.valueOf(calculateXCenterCoordinate(sourcePanel)),
+                String.valueOf(calculateYCenterCoordinate(sourcePanel)),
         };
 
 
        ProcessResults processResults =
                 // ProcessCommunicator.executeChildProcess(this.getClass()," -cp \"C:\\Documents and Settings\\df153228\\IdeaProjects\\UnicodeTestDebug\\out\\production\\UnicodeTestDebug\" -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 ", args);
-                ProcessCommunicator.executeChildProcess(this.getClass(), args);
+                ProcessCommunicator.executeChildProcess(getClass(), args);
 
         verifyTestResults(processResults);
 
@@ -120,15 +122,12 @@ public class DragUnicodeBetweenJVMTest extends Applet
 
     //We cannot make an instance of the applet without the default constructor
     public DragUnicodeBetweenJVMTest () {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
-    public DragUnicodeBetweenJVMTest (Point targetFrameLocation, Point dragSourcePoint)
-            throws InterruptedException
-    {
-        final Frame targetFrame = new Frame("Target frame");
-        final TargetPanel targetPanel = new TargetPanel(targetFrame);
+    public DragUnicodeBetweenJVMTest (Point targetFrameLocation, Point dragSourcePoint) {
+        Frame targetFrame = new Frame("Target frame");
+        TargetPanel targetPanel = new TargetPanel(targetFrame);
         targetFrame.add(targetPanel);
         targetFrame.addWindowListener( new WindowAdapter() {
             @Override
@@ -146,7 +145,7 @@ public class DragUnicodeBetweenJVMTest extends Applet
     private void doTest(Point dragSourcePoint, TargetPanel targetPanel) {
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int)dragSourcePoint.getX(),(int)dragSourcePoint.getY());
         try {
@@ -159,8 +158,9 @@ public class DragUnicodeBetweenJVMTest extends Applet
             e.printStackTrace();
         }
 
-        Util.drag(robot, dragSourcePoint, new Point (AbsoluteComponentCenterCalculator.calculateXCenterCoordinate(targetPanel),
-                AbsoluteComponentCenterCalculator.calculateYCenterCoordinate(targetPanel)),
+        Util.drag(robot, dragSourcePoint, new Point (
+                calculateXCenterCoordinate(targetPanel),
+                calculateYCenterCoordinate(targetPanel)),
                 InputEvent.BUTTON1_MASK);
     }
 
@@ -172,7 +172,7 @@ public class DragUnicodeBetweenJVMTest extends Applet
         DRAG_SOURCE_POINT_Y_ARGUMENT;
 
         int extract (String [] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
     }
 

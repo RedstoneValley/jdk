@@ -29,7 +29,6 @@
   @run applet/manual=yesno ManualInstructions.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Timer;
@@ -37,9 +36,9 @@ import java.util.TimerTask;
 
 public class ManualInstructions extends Applet
 {
-    final static long SEND_DELAY = 1000;
+    static final long SEND_DELAY = 1000;
 
-    public static void main(String s[]){
+    public static void main(String[] s){
         ManualInstructions mi = new ManualInstructions();
         mi.init();
         mi.start();
@@ -47,11 +46,11 @@ public class ManualInstructions extends Applet
 
     static Robot robot;
     Point mouseLocation; //where mouse should be pressed each time
-    Panel target = new Panel();
-    Button pressOn = new Button("press on ...");
-    Button releaseOn = new Button("release on ...");
-    Button clickOn = new Button("click on ...");
-    Choice buttonNumber = new Choice();
+    final Panel target = new Panel();
+    final Button pressOn = new Button("press on ...");
+    final Button releaseOn = new Button("release on ...");
+    final Button clickOn = new Button("click on ...");
+    final Choice buttonNumber = new Choice();
 
     public void init()
     {
@@ -61,7 +60,7 @@ public class ManualInstructions extends Applet
             ex.printStackTrace();
             throw new RuntimeException(ex);
         }
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
 
         target.setBackground(Color.green);
         target.setName("GreenBox");//for the ease of debug
@@ -69,21 +68,26 @@ public class ManualInstructions extends Applet
         String toolkit = Toolkit.getDefaultToolkit().getClass().getName();
 
         // on X systems two buttons are reserved for wheel though they are countable by MouseInfo.
-        int buttonsNumber = toolkit.equals("sun.awt.windows.WToolkit")?MouseInfo.getNumberOfButtons():MouseInfo.getNumberOfButtons()-2;
+        int buttonsNumber = "sun.awt.windows.WToolkit".equals(toolkit) ?MouseInfo.getNumberOfButtons():MouseInfo.getNumberOfButtons()-2;
 
         for (int i = 0; i < 8; i++){
             buttonNumber.add("BUTTON"+(i+1)+"_MASK");
         }
 
         pressOn.addActionListener(new ActionListener(){
+                @Override
                 public void actionPerformed(ActionEvent e){
                     System.out.println("Now pressing : " + (buttonNumber.getSelectedIndex()+1));
 
                     Timer timer = new Timer();
                     TimerTask robotInteraction = new TimerTask(){
+                            @Override
                             public void run(){
-                                robot.mouseMove(updateTargetLocation().x, updateTargetLocation().y);
-                                robot.mousePress(getMask(buttonNumber.getSelectedIndex()+1));
+                                robot.mouseMove(
+                                    updateTargetLocation().x,
+                                    updateTargetLocation().y);
+                                robot.mousePress(getMask(
+                                    buttonNumber.getSelectedIndex()+1));
                             }
                         };
                     timer.schedule(robotInteraction, SEND_DELAY);
@@ -91,13 +95,18 @@ public class ManualInstructions extends Applet
             });
 
         releaseOn.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e){
                 System.out.println("Now releasing : " + (buttonNumber.getSelectedIndex()+1));
                 Timer timer = new Timer();
                 TimerTask robotInteraction = new TimerTask(){
+                        @Override
                         public void run(){
-                            robot.mouseMove(updateTargetLocation().x, updateTargetLocation().y);
-                            robot.mouseRelease(getMask(buttonNumber.getSelectedIndex()+1));
+                            robot.mouseMove(
+                                updateTargetLocation().x,
+                                updateTargetLocation().y);
+                            robot.mouseRelease(getMask(
+                                buttonNumber.getSelectedIndex()+1));
                         }
                     };
                 timer.schedule(robotInteraction, SEND_DELAY);
@@ -105,14 +114,20 @@ public class ManualInstructions extends Applet
         });
 
         clickOn.addActionListener(new ActionListener(){
+            @Override
             public void actionPerformed(ActionEvent e){
                 System.out.println("Now clicking : " + (buttonNumber.getSelectedIndex()+1));
                 Timer timer = new Timer();
                 TimerTask robotInteraction = new TimerTask(){
+                        @Override
                         public void run(){
-                            robot.mouseMove(updateTargetLocation().x, updateTargetLocation().y);
-                            robot.mousePress(getMask(buttonNumber.getSelectedIndex()+1));
-                            robot.mouseRelease(getMask(buttonNumber.getSelectedIndex()+1));
+                            robot.mouseMove(
+                                updateTargetLocation().x,
+                                updateTargetLocation().y);
+                            robot.mousePress(getMask(
+                                buttonNumber.getSelectedIndex()+1));
+                            robot.mouseRelease(getMask(
+                                buttonNumber.getSelectedIndex()+1));
                         }
                     };
                 timer.schedule(robotInteraction, SEND_DELAY);
@@ -120,12 +135,15 @@ public class ManualInstructions extends Applet
 
         });
         target.addMouseListener(new MouseAdapter(){
+           @Override
            public void mousePressed(MouseEvent e){
                 Sysout.println(""+e);
            }
+           @Override
            public void mouseReleased(MouseEvent e){
                 Sysout.println(""+e);
            }
+           @Override
            public void mouseClicked(MouseEvent e){
                 Sysout.println(""+e);
            }
@@ -145,7 +163,7 @@ public class ManualInstructions extends Applet
 
     }//End  init()
 
-    private int getMask(int button){
+    int getMask(int button){
         return InputEvent.getMaskForButton(button);
 
         /*
@@ -169,8 +187,12 @@ public class ManualInstructions extends Applet
         */
     }
 
-    private Point updateTargetLocation() {
-        return new Point(target.getLocationOnScreen().x + target.getWidth()/2, target.getLocationOnScreen().y + target.getHeight()/2);
+    Point updateTargetLocation() {
+        return new Point(
+            target.getLocationOnScreen().x + target.getWidth()/2,
+            target.getLocationOnScreen().y +
+
+                target.getHeight()/2);
     }
 
     public void start ()
@@ -193,14 +215,13 @@ public class ManualInstructions extends Applet
 
 /* Place other classes related to the test after this line */
 
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -214,11 +235,14 @@ public class ManualInstructions extends Applet
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
 
-    public static void createDialogWithInstructions( String[] instructions )
+  private Sysout() {
+  }
+
+  public static void createDialogWithInstructions( String[] instructions )
     {
         dialog = new TestDialog( new Frame(), "Instructions" );
         dialog.printInstructions( instructions );
@@ -259,9 +283,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 120;
+  private static final long serialVersionUID = 4421905612345965770L;
+  final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 120;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -269,10 +294,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -288,34 +313,32 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
-            //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
-                //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
-                    //Try to chop on a word boundary
-                    int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
-                }
-                //else just print
-                else
-                {
-                    printStr = remainingStr;
-                    remainingStr = "";
-                }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-                instructionsText.append( printStr + "\n" );
-            }// while
-        }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
     }//printInstructions()
 
     //DO NOT call this directly, go through Sysout

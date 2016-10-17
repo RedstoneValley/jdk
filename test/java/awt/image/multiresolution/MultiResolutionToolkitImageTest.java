@@ -29,8 +29,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import static java.awt.image.ImageObserver.ALLBITS;
 import java.io.File;
-import javax.imageio.ImageIO;
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunToolkit;
 import sun.awt.image.MultiResolutionToolkitImage;
 
@@ -41,19 +41,22 @@ import sun.awt.image.MultiResolutionToolkitImage;
  * @summary [macosx] Http-Images are not fully loaded when using ImageIcon
  * @run main MultiResolutionToolkitImageTest
  */
-public class MultiResolutionToolkitImageTest {
+public final class MultiResolutionToolkitImageTest {
 
     private static final int IMAGE_WIDTH = 300;
     private static final int IMAGE_HEIGHT = 200;
     private static final Color COLOR_1X = Color.GREEN;
     private static final Color COLOR_2X = Color.BLUE;
-    private static final String IMAGE_NAME_1X = "image.png";
-    private static final String IMAGE_NAME_2X = "image@2x.png";
+    private static final String IMAGE_NAME_1X = MultiResolutionImageTest.IMAGE_NAME_1X;
+    private static final String IMAGE_NAME_2X = MultiResolutionImageTest.IMAGE_NAME_2X;
     private static final int WAIT_TIME = 400;
-    private static volatile boolean isImageLoaded = false;
-    private static volatile boolean isRVObserverCalled = false;
+    static volatile boolean isImageLoaded;
+    static volatile boolean isRVObserverCalled;
 
-    public static void main(String[] args) throws Exception {
+  private MultiResolutionToolkitImageTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         if (!checkOS()) {
             return;
@@ -69,7 +72,7 @@ public class MultiResolutionToolkitImageTest {
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
         toolkit.prepareImage(image, -1, -1, new LoadImageObserver());
 
-        final long time = WAIT_TIME + System.currentTimeMillis();
+        long time = WAIT_TIME + System.currentTimeMillis();
         while ((!isImageLoaded || !isRVObserverCalled)
                 && System.currentTimeMillis() < time) {
             Thread.sleep(50);
@@ -105,7 +108,7 @@ public class MultiResolutionToolkitImageTest {
     }
 
     static boolean checkOS() {
-        return OSInfo.getOSType() == OSInfo.OSType.MACOSX;
+        return OSInfo.getOSType() == OSType.MACOSX;
     }
 
     static class LoadImageObserver implements ImageObserver {

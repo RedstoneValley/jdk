@@ -27,15 +27,17 @@ package sun.awt.dnd;
 
 import java.awt.Component;
 import java.awt.event.MouseEvent;
+import sun.awt.dnd.SunDropTargetContextPeer.EventDispatcher;
 
 public class SunDropTargetEvent extends MouseEvent {
 
   public static final int MOUSE_DROPPED = MouseEvent.MOUSE_RELEASED;
+  private static final long serialVersionUID = 9153342702131751558L;
 
-  private final SunDropTargetContextPeer.EventDispatcher dispatcher;
+  private final EventDispatcher dispatcher;
 
   public SunDropTargetEvent(
-      Component source, int id, int x, int y, SunDropTargetContextPeer.EventDispatcher d) {
+      Component source, int id, int x, int y, EventDispatcher d) {
     super(source, id, System.currentTimeMillis(), 0, x, y, 0, 0, 0, false, MouseEvent.NOBUTTON);
     dispatcher = d;
     dispatcher.registerEvent(this);
@@ -49,6 +51,7 @@ public class SunDropTargetEvent extends MouseEvent {
     }
   }
 
+  @Override
   public void consume() {
     boolean was_consumed = isConsumed();
     super.consume();
@@ -57,12 +60,13 @@ public class SunDropTargetEvent extends MouseEvent {
     }
   }
 
-  public SunDropTargetContextPeer.EventDispatcher getDispatcher() {
+  public EventDispatcher getDispatcher() {
     return dispatcher;
   }
 
+  @Override
   public String paramString() {
-    String typeStr = null;
+    String typeStr;
 
     switch (id) {
       case MOUSE_DROPPED:

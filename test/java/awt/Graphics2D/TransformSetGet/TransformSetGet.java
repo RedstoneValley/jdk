@@ -34,20 +34,23 @@ import sun.java2d.SunGraphics2D;
  * @summary Set/get transform should work on constrained graphics.
  * @author Sergey Bylokhov
  */
-public class TransformSetGet {
+public final class TransformSetGet {
 
-    public static void main(final String[] args) {
-        final GraphicsEnvironment ge =
+  private TransformSetGet() {
+  }
+
+  public static void main(String[] args) {
+        GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsConfiguration gc =
+        GraphicsConfiguration gc =
                 ge.getDefaultScreenDevice().getDefaultConfiguration();
-        final VolatileImage vi = gc.createCompatibleVolatileImage(200, 200);
-        final SunGraphics2D sg2d = (SunGraphics2D) vi.createGraphics();
+        VolatileImage vi = gc.createCompatibleVolatileImage(200, 200);
+        SunGraphics2D sg2d = (SunGraphics2D) vi.createGraphics();
 
         sg2d.constrain(0, 61, 100, 100);
-        final AffineTransform expected = sg2d.cloneTransform();
+        AffineTransform expected = sg2d.cloneTransform();
         sg2d.setTransform(sg2d.getTransform());
-        final AffineTransform actual = sg2d.cloneTransform();
+        AffineTransform actual = sg2d.cloneTransform();
         sg2d.dispose();
         vi.flush();
         if (!expected.equals(actual)) {

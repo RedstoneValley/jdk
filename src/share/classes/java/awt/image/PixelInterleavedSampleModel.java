@@ -67,20 +67,20 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel {
    * @param pixelStride    The pixel stride of the image data.
    * @param scanlineStride The line stride of the image data.
    * @param bandOffsets    The offsets of all bands.
-   * @throws IllegalArgumentException if <code>w</code> or
-   *                                  <code>h</code> is not greater than 0
+   * @throws IllegalArgumentException if {@code w} or
+   *                                  {@code h} is not greater than 0
    * @throws IllegalArgumentException if any offset between bands is
    *                                  greater than the scanline stride
    * @throws IllegalArgumentException if the product of
-   *                                  <code>pixelStride</code> and <code>w</code> is greater
-   *                                  than <code>scanlineStride</code>
-   * @throws IllegalArgumentException if <code>pixelStride</code> is
+   *                                  {@code pixelStride} and {@code w} is greater
+   *                                  than {@code scanlineStride}
+   * @throws IllegalArgumentException if {@code pixelStride} is
    *                                  less than any offset between bands
-   * @throws IllegalArgumentException if <code>dataType</code> is not
+   * @throws IllegalArgumentException if {@code dataType} is not
    *                                  one of the supported data types
    */
   public PixelInterleavedSampleModel(
-      int dataType, int w, int h, int pixelStride, int scanlineStride, int bandOffsets[]) {
+      int dataType, int w, int h, int pixelStride, int scanlineStride, int[] bandOffsets) {
     super(dataType, w, h, pixelStride, scanlineStride, bandOffsets);
     int minBandOff = this.bandOffsets[0];
     int maxBandOff = this.bandOffsets[0];
@@ -114,13 +114,14 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel {
    * as this PixelInterleavedSampleModel.  The band offsets may be
    * compressed such that the minimum of all of the band offsets is zero.
    *
-   * @param w the width of the resulting <code>SampleModel</code>
-   * @param h the height of the resulting <code>SampleModel</code>
-   * @return a new <code>SampleModel</code> with the specified width
+   * @param w the width of the resulting {@code SampleModel}
+   * @param h the height of the resulting {@code SampleModel}
+   * @return a new {@code SampleModel} with the specified width
    * and height.
-   * @throws IllegalArgumentException if <code>w</code> or
-   *                                  <code>h</code> is not greater than 0
+   * @throws IllegalArgumentException if {@code w} or
+   *                                  {@code h} is not greater than 0
    */
+  @Override
   public SampleModel createCompatibleSampleModel(int w, int h) {
     int minBandoff = bandOffsets[0];
     int numBands = bandOffsets.length;
@@ -150,15 +151,16 @@ public class PixelInterleavedSampleModel extends ComponentSampleModel {
    * an image with a subset of the bands of the original
    * PixelInterleavedSampleModel/DataBuffer combination.
    */
-  public SampleModel createSubsetSampleModel(int bands[]) {
-    int newBandOffsets[] = new int[bands.length];
+  @Override
+  public SampleModel createSubsetSampleModel(int[] bands) {
+    int[] newBandOffsets = new int[bands.length];
     for (int i = 0; i < bands.length; i++) {
       newBandOffsets[i] = bandOffsets[bands[i]];
     }
-    return new PixelInterleavedSampleModel(this.dataType,
+    return new PixelInterleavedSampleModel(dataType,
         width,
         height,
-        this.pixelStride,
+        pixelStride,
         scanlineStride,
         newBandOffsets);
   }

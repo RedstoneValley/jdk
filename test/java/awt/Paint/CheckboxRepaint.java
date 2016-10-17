@@ -31,9 +31,11 @@ import java.awt.peer.CheckboxPeer;
  */
 public final class CheckboxRepaint extends Checkbox {
 
-    public static void main(final String[] args) {
+    private static final long serialVersionUID = -1477131506496487340L;
+
+    public static void main(String[] args) {
         for (int i = 0; i < 10; ++i) {
-            final Frame frame = new Frame();
+            Frame frame = new Frame();
             frame.setSize(300, 300);
             frame.setLocationRelativeTo(null);
             CheckboxRepaint checkbox = new CheckboxRepaint();
@@ -53,7 +55,7 @@ public final class CheckboxRepaint extends Checkbox {
     }
 
     @Override
-    public void paint(final Graphics g) {
+    public void paint(Graphics g) {
         super.paint(g);
         if (!EventQueue.isDispatchThread()) {
             throw new RuntimeException("Wrong thread");

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6599363
  * @summary Verifies correct handling of unclosed segments
  * @run main FillPPathTest
@@ -34,9 +34,12 @@ import java.awt.image.*;
 import java.awt.geom.*;
 import java.awt.color.*;
 
-public class FillPPathTest {
+public final class FillPPathTest {
     static final int IMG_WIDTH = 100;
     static final int IMG_HEIGHT = 100;
+
+    private FillPPathTest() {
+    }
 
     private static BufferedImage createCustomImage() {
         ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);

@@ -41,7 +41,7 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-public class CodePointIM {
+public final class CodePointIM {
 
   // Actually, the main method is not required for InputMethod.
   // The following method is added just to tell users that their use is
@@ -52,7 +52,7 @@ public class CodePointIM {
           Locale.getDefault());
       System.err.println(resource.getString("warning"));
     } catch (MissingResourceException e) {
-      System.err.println(e.toString());
+      System.err.println(e);
     }
 
     System.exit(1);

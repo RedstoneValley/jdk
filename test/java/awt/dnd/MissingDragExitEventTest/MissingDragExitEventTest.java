@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8027913
  * @library ../../regtesthelpers
  * @build Util
@@ -45,29 +45,27 @@ import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
-public class MissingDragExitEventTest {
+public final class MissingDragExitEventTest {
 
     private static volatile JFrame frame;
-    private static boolean FAILED;
-    private static boolean MOUSE_ENTERED_DT;
-    private static boolean MOUSE_ENTERED;
-    private static boolean MOUSE_EXIT_TD;
-    private static boolean MOUSE_EXIT;
-    private static int SIZE = 300;
+    static boolean FAILED;
+    static boolean MOUSE_ENTERED_DT;
+    static boolean MOUSE_ENTERED;
+    static boolean MOUSE_EXIT_TD;
+    static boolean MOUSE_EXIT;
+    private static final int SIZE = 300;
 
-    private static void initAndShowUI() {
+    private MissingDragExitEventTest() {
+    }
+
+    static void initAndShowUI() {
         frame = new JFrame("Test frame");
 
         frame.setSize(SIZE, SIZE);
         frame.setLocationRelativeTo(null);
-        final JTextArea jta = new JTextArea();
+        JTextArea jta = new JTextArea();
         jta.setBackground(Color.RED);
         frame.add(jta);
         jta.setText("1234567890");
@@ -80,9 +78,9 @@ public class MissingDragExitEventTest {
         frame.setVisible(true);
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         try {
-            final Robot r = new Robot();
+            Robot r = new Robot();
             r.setAutoDelay(50);
             r.mouseMove(100, 100);
             Util.waitForIdle(r);
@@ -94,9 +92,9 @@ public class MissingDragExitEventTest {
                 }
             });
 
-            final Point inside = new Point(frame.getLocationOnScreen());
+            Point inside = new Point(frame.getLocationOnScreen());
             inside.translate(20, SIZE / 2);
-            final Point outer = new Point(inside);
+            Point outer = new Point(inside);
             outer.translate(-40, 0);
             r.mouseMove(inside.x, inside.y);
             r.mousePress(InputEvent.BUTTON1_MASK);
@@ -134,7 +132,7 @@ public class MissingDragExitEventTest {
         private volatile boolean inside;
 
         @Override
-        public void dragEnter(final DropTargetDragEvent dtde) {
+        public void dragEnter(DropTargetDragEvent dtde) {
             if (inside) {
                 FAILED = true;
                 Thread.dumpStack();
@@ -148,7 +146,7 @@ public class MissingDragExitEventTest {
         }
 
         @Override
-        public void dragOver(final DropTargetDragEvent dtde) {
+        public void dragOver(DropTargetDragEvent dtde) {
             if (!inside) {
                 FAILED = true;
                 Thread.dumpStack();
@@ -156,7 +154,7 @@ public class MissingDragExitEventTest {
         }
 
         @Override
-        public void dragExit(final DropTargetEvent dte) {
+        public void dragExit(DropTargetEvent dte) {
             if (!inside) {
                 FAILED = true;
                 Thread.dumpStack();
@@ -166,7 +164,7 @@ public class MissingDragExitEventTest {
         }
 
         @Override
-        public void drop(final DropTargetDropEvent dtde) {
+        public void drop(DropTargetDropEvent dtde) {
             if (!inside) {
                 FAILED = true;
                 Thread.dumpStack();
@@ -180,7 +178,7 @@ public class MissingDragExitEventTest {
         private volatile boolean inside;
 
         @Override
-        public void mouseEntered(final MouseEvent e) {
+        public void mouseEntered(MouseEvent e) {
             if (inside) {
                 FAILED = true;
                 Thread.dumpStack();
@@ -190,7 +188,7 @@ public class MissingDragExitEventTest {
         }
 
         @Override
-        public void mouseExited(final MouseEvent e) {
+        public void mouseExited(MouseEvent e) {
             if (!inside) {
                 FAILED = true;
                 Thread.dumpStack();

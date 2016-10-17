@@ -43,7 +43,7 @@ public interface AccelDeviceEventListener {
    * Note: this method is called on the rendering thread,
    * do not call into user code, do not take RQ lock!
    */
-  public void onDeviceReset();
+  void onDeviceReset();
 
   /**
    * Called when the device is about to be disposed of.
@@ -55,5 +55,5 @@ public interface AccelDeviceEventListener {
    * Note: this method is called on the rendering thread,
    * do not call into user code, do not take RQ lock!
    */
-  public void onDeviceDispose();
+  void onDeviceDispose();
 }

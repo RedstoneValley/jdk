@@ -30,7 +30,8 @@
 import java.awt.*;
 import java.awt.image.*;
 
-public class BoldSpace {
+@SuppressWarnings("MagicNumber")
+public final class BoldSpace {
     public static void main(String[] s) {
         BufferedImage bi = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
 

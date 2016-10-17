@@ -90,6 +90,7 @@ public class ICC_ProfileGray extends ICC_Profile {
    * @return an array containing the components of the
    * mediaWhitePointTag in the ICC profile.
    */
+  @Override
   public float[] getMediaWhitePoint() {
     return super.getMediaWhitePoint();
   }
@@ -114,7 +115,7 @@ public class ICC_ProfileGray extends ICC_Profile {
   public float getGamma() {
     float theGamma;
 
-    theGamma = super.getGamma(ICC_Profile.icSigGrayTRCTag);
+    theGamma = getGamma(ICC_Profile.icSigGrayTRCTag);
     return theGamma;
   }
 
@@ -140,7 +141,7 @@ public class ICC_ProfileGray extends ICC_Profile {
   public short[] getTRC() {
     short[] theTRC;
 
-    theTRC = super.getTRC(ICC_Profile.icSigGrayTRCTag);
+    theTRC = getTRC(ICC_Profile.icSigGrayTRCTag);
     return theTRC;
   }
 }

@@ -25,9 +25,6 @@
 
 package sun.awt.im;
 
-import javax.swing.JFrame;
-import javax.swing.JRootPane;
-
 /**
  * Implements a Swing based input method window that provides the minimal
  * functionality as specified in
@@ -35,9 +32,7 @@ import javax.swing.JRootPane;
  */
 public class InputMethodJFrame extends JFrame implements InputMethodWindow {
 
-  // Proclaim serial compatibility with 1.7.0
-  private static final long serialVersionUID = -4705856747771842549L;
-  InputContext inputContext = null;
+  InputContext inputContext;
 
   /**
    * Constructs a Swing based input method window.
@@ -46,23 +41,20 @@ public class InputMethodJFrame extends JFrame implements InputMethodWindow {
     super(title);
     //InputMethodJFrame never has LookAndFeel decoration
     if (JFrame.isDefaultLookAndFeelDecorated()) {
-      this.setUndecorated(true);
-      this.getRootPane().setWindowDecorationStyle(JRootPane.NONE);
+      setUndecorated(true);
+      getRootPane().setWindowDecorationStyle(JRootPane.NONE);
     }
     if (context != null) {
-      this.inputContext = context;
+      inputContext = context;
     }
     setFocusableWindowState(false);
   }
 
   public java.awt.im.InputContext getInputContext() {
-    if (inputContext != null) {
-      return inputContext;
-    } else {
-      return super.getInputContext();
-    }
+    return inputContext != null ? inputContext : super.getInputContext();
   }
 
+  @Override
   public void setInputContext(InputContext inputContext) {
     this.inputContext = inputContext;
   }

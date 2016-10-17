@@ -31,10 +31,13 @@
 
 import java.awt.*;
 
-public class OpacityChange {
-    private final static int INITIAL_ALPHA = 125;
+public final class OpacityChange {
+    private static final int INITIAL_ALPHA = 125;
 
-    public static void main(String argv[]) {
+    private OpacityChange() {
+    }
+
+    public static void main(String[] argv) {
         Color color = new Color(20, 20, 20, INITIAL_ALPHA);
         System.out.println("Initial alpha: " + color.getAlpha());
         Color colorBrighter = color.brighter();

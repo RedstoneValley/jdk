@@ -47,6 +47,6 @@ public interface TileObserver {
    * @param willBeWritable If true, the tile will be grabbed for writing;
    *                       otherwise it is being released.
    */
-  public void tileUpdate(
+  void tileUpdate(
       WritableRenderedImage source, int tileX, int tileY, boolean willBeWritable);
 }

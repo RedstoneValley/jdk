@@ -68,9 +68,16 @@ public class IntegerComponentRaster extends SunWritableRaster {
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    initIDs();
   }
 
+  /**
+   * A cached copy of minX + width for use in bounds checks.
+   */
+  private final int maxX;
+  /**
+   * A cached copy of minY + height for use in bounds checks.
+   */
+  private final int maxY;
   /**
    * private band offset for use by native code
    */
@@ -96,14 +103,6 @@ public class IntegerComponentRaster extends SunWritableRaster {
    */
   protected int numDataElems;
   int type;
-  /**
-   * A cached copy of minX + width for use in bounds checks.
-   */
-  private int maxX;
-  /**
-   * A cached copy of minY + height for use in bounds checks.
-   */
-  private int maxY;
 
   /**
    * Constructs a IntegerComponentRaster with the given SampleModel.
@@ -116,8 +115,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param origin      The Point that specified the origin.
    */
   public IntegerComponentRaster(SampleModel sampleModel, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         sampleModel.createDataBuffer(),
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -136,8 +134,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param origin      The Point that specifies the origin.
    */
   public IntegerComponentRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -167,8 +164,8 @@ public class IntegerComponentRaster extends SunWritableRaster {
       SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point origin,
       IntegerComponentRaster parent) {
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
     if (!(dataBuffer instanceof DataBufferInt)) {
       throw new RasterFormatException("IntegerComponentRasters must have" + "integer DataBuffers");
     }
@@ -177,46 +174,34 @@ public class IntegerComponentRaster extends SunWritableRaster {
       throw new RasterFormatException(
           "DataBuffer for IntegerComponentRasters" + " must only have 1 bank.");
     }
-    this.data = stealData(dbi, 0);
+    data = stealData(dbi, 0);
 
     if (sampleModel instanceof SinglePixelPackedSampleModel) {
       SinglePixelPackedSampleModel sppsm = (SinglePixelPackedSampleModel) sampleModel;
       int[] boffsets = sppsm.getBitOffsets();
       boolean notByteBoundary = false;
       for (int i = 1; i < boffsets.length; i++) {
-        if ((boffsets[i] % 8) != 0) {
+        if (boffsets[i] % 8 != 0) {
           notByteBoundary = true;
         }
       }
-      this.type = (notByteBoundary ? IntegerComponentRaster.TYPE_INT_PACKED_SAMPLES
-                       : IntegerComponentRaster.TYPE_INT_8BIT_SAMPLES);
+      type = notByteBoundary ? TYPE_INT_PACKED_SAMPLES : TYPE_INT_8BIT_SAMPLES;
 
-      this.scanlineStride = sppsm.getScanlineStride();
-      this.pixelStride = 1;
-      this.dataOffsets = new int[1];
-      this.dataOffsets[0] = dbi.getOffset();
-      this.bandOffset = this.dataOffsets[0];
+      scanlineStride = sppsm.getScanlineStride();
+      pixelStride = 1;
+      dataOffsets = new int[1];
+      dataOffsets[0] = dbi.getOffset();
+      bandOffset = dataOffsets[0];
       int xOffset = aRegion.x - origin.x;
       int yOffset = aRegion.y - origin.y;
       dataOffsets[0] += xOffset + yOffset * scanlineStride;
-      this.numDataElems = sppsm.getNumDataElements();
+      numDataElems = sppsm.getNumDataElements();
     } else {
       throw new RasterFormatException(
           "IntegerComponentRasters must have" + " SinglePixelPackedSampleModel");
     }
 
     verify();
-  }
-
-  static private native void initIDs();
-
-  /**
-   * Returns a copy of the data offsets array. For each band the data offset
-   * is the index into the band's data array, of the first sample of the
-   * band.
-   */
-  public int[] getDataOffsets() {
-    return (int[]) dataOffsets.clone();
   }
 
   /**
@@ -274,10 +259,10 @@ public class IntegerComponentRaster extends SunWritableRaster {
 
     int srcOffX = inRaster.getMinX();
     int srcOffY = inRaster.getMinY();
-    int tdata[] = null;
+    int[] tdata;
 
     if (inRaster instanceof IntegerComponentRaster &&
-        (pixelStride == 1) && (numDataElements == 1)) {
+        pixelStride == 1 && numDataElements == 1) {
       IntegerComponentRaster ict = (IntegerComponentRaster) inRaster;
       if (ict.getNumDataElements() != 1) {
         throw new ArrayIndexOutOfBoundsException("Number of bands" + " does not match");
@@ -286,12 +271,11 @@ public class IntegerComponentRaster extends SunWritableRaster {
       // Extract the raster parameters
       tdata = ict.getDataStorage();
       int tss = ict.getScanlineStride();
-      int toff = ict.getDataOffset(0);
 
-      int srcOffset = toff;
+      int srcOffset = ict.getDataOffset(0);
 
       int dstOffset = dataOffsets[0] + (dstY - minY) * scanlineStride +
-          (dstX - minX);
+          dstX - minX;
 
       // Fastest case.  We can copy scanlines
       if (ict.getPixelStride() == pixelStride) {
@@ -334,34 +318,30 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public WritableRaster createWritableChild(
-      int x, int y, int width, int height, int x0, int y0, int bandList[]) {
-    if (x < this.minX) {
+      int x, int y, int width, int height, int x0, int y0, int[] bandList) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside raster");
     }
-    if ((x + width < x) || (x + width > this.minX + this.width)) {
+    if (x + width < x || x + width > minX + this.width) {
       throw new RasterFormatException("(x + width) is outside raster");
     }
-    if ((y + height < y) || (y + height > this.minY + this.height)) {
+    if (y + height < y || y + height > minY + this.height) {
       throw new RasterFormatException("(y + height) is outside raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
 
-    return new IntegerComponentRaster(
-        sm,
+    return new IntegerComponentRaster(sm,
         dataBuffer,
         new Rectangle(x0, y0, width, height),
         new Point(sampleModelTranslateX + deltaX, sampleModelTranslateY + deltaY),
@@ -377,16 +357,14 @@ public class IntegerComponentRaster extends SunWritableRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int inData[] = (int[]) obj;
+    int[] inData = (int[]) obj;
 
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
 
@@ -407,13 +385,14 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     int dstOffX = x + inRaster.getMinX();
     int dstOffY = y + inRaster.getMinY();
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     setDataElements(dstOffX, dstOffY, width, height, inRaster);
@@ -437,17 +416,14 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int inData[] = (int[]) obj;
+    int[] inData = (int[]) obj;
 
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
     int xoff;
@@ -459,7 +435,8 @@ public class IntegerComponentRaster extends SunWritableRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          data[dataOffsets[c] + xoff] = inData[off++];
+          data[dataOffsets[c] + xoff] = inData[off];
+          off++;
         }
       }
     }
@@ -473,6 +450,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * the raster is a subraster, this will call
    * createCompatibleRaster(width, height).
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -481,9 +459,10 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * Creates a raster with the same band layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -509,7 +488,8 @@ public class IntegerComponentRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
-  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int bandList[]) {
+  @Override
+  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
     return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
@@ -523,24 +503,17 @@ public class IntegerComponentRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int outData[];
-    if (obj == null) {
-      outData = new int[numDataElements];
-    } else {
-      outData = (int[]) obj;
-    }
+    int[] outData;
+    outData = obj == null ? new int[numDataElements] : (int[]) obj;
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
     for (int band = 0; band < numDataElements; band++) {
       outData[band] = data[dataOffsets[band] + off];
@@ -567,26 +540,17 @@ public class IntegerComponentRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int outData[];
-    if (obj instanceof int[]) {
-      outData = (int[]) obj;
-    } else {
-      outData = new int[numDataElements * w * h];
-    }
+    int[] outData;
+    outData = obj instanceof int[] ? (int[]) obj : new int[numDataElements * w * h];
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
     int xoff;
     int off = 0;
@@ -597,7 +561,8 @@ public class IntegerComponentRaster extends SunWritableRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          outData[off++] = data[dataOffsets[c] + xoff];
+          outData[off] = data[dataOffsets[c] + xoff];
+          off++;
         }
       }
     }
@@ -621,7 +586,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
          * specified to the constructor
          */
     if (width <= 0 || height <= 0 ||
-        height > (Integer.MAX_VALUE / width)) {
+        height > Integer.MAX_VALUE / width) {
       throw new RasterFormatException("Invalid raster dimension");
     }
 
@@ -638,7 +603,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
     }
 
     // we can be sure that width and height are greater than 0
-    if (scanlineStride < 0 || scanlineStride > (Integer.MAX_VALUE / height)) {
+    if (scanlineStride < 0 || scanlineStride > Integer.MAX_VALUE / height) {
       // integer overflow
       throw new RasterFormatException("Incorrect scanline stride: " + scanlineStride);
     }
@@ -653,14 +618,14 @@ public class IntegerComponentRaster extends SunWritableRaster {
     int lastScanOffset = (height - 1) * scanlineStride;
 
     if (pixelStride < 0 ||
-        pixelStride > (Integer.MAX_VALUE / width) ||
+        pixelStride > Integer.MAX_VALUE / width ||
         pixelStride > data.length) {
       // integer overflow
       throw new RasterFormatException("Incorrect pixel stride: " + pixelStride);
     }
     int lastPixelOffset = (width - 1) * pixelStride;
 
-    if (lastPixelOffset > (Integer.MAX_VALUE - lastScanOffset)) {
+    if (lastPixelOffset > Integer.MAX_VALUE - lastScanOffset) {
       // integer overflow
       throw new RasterFormatException("Incorrect raster attributes");
     }
@@ -669,7 +634,7 @@ public class IntegerComponentRaster extends SunWritableRaster {
     int index;
     int maxIndex = 0;
     for (int i = 0; i < numDataElements; i++) {
-      if (dataOffsets[i] > (Integer.MAX_VALUE - lastPixelOffset)) {
+      if (dataOffsets[i] > Integer.MAX_VALUE - lastPixelOffset) {
         throw new RasterFormatException("Incorrect band offset: " + dataOffsets[i]);
       }
 
@@ -685,10 +650,9 @@ public class IntegerComponentRaster extends SunWritableRaster {
   }
 
   public String toString() {
-    return new String(
-        "IntegerComponentRaster: width = " + width + " height = " + height + " #Bands = " + numBands
-            + " #DataElements " + numDataElements + " xOff = " + sampleModelTranslateX + " yOff = "
-            + sampleModelTranslateY + " dataOffset[0] " + dataOffsets[0]);
+    return "IntegerComponentRaster: width = " + width + " height = " + height + " #Bands = "
+        + numBands + " #DataElements " + numDataElements + " xOff = " + sampleModelTranslateX
+        + " yOff = " + sampleModelTranslateY + " dataOffset[0] " + dataOffsets[0];
   }
 
   //    /**

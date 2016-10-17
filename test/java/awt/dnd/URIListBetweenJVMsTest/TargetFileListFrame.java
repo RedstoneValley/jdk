@@ -21,8 +21,6 @@
  * questions.
  */
 
-import test.java.awt.regtesthelpers.Util;
-
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -39,8 +37,9 @@ import java.util.ArrayList;
 
 class TargetFileListFrame extends Frame implements DropTargetListener {
 
-    private List list = new List(URIListBetweenJVMsTest.VISIBLE_RAWS_IN_LIST);
-    private int expectationTransferredFilesNumber;
+    private static final long serialVersionUID = 2834114904320906232L;
+    private final List list = new List(URIListBetweenJVMsTest.VISIBLE_RAWS_IN_LIST);
+    private final int expectationTransferredFilesNumber;
     private DataFlavor dropFlavor;
 
     TargetFileListFrame(Point location, int expectationTransferredFilesNumber) {
@@ -55,37 +54,43 @@ class TargetFileListFrame extends Frame implements DropTargetListener {
     }
 
     private void initGUI(Point location) {
-        this.setLocation(location);
-        this.addWindowListener(new WindowAdapter() {
+        setLocation(location);
+        addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
-                TargetFileListFrame.this.dispose();
+                dispose();
             }
         });
-        this.add(new Panel().add(list));
-        this.pack();
-        this.setVisible(true);
+        add(new Panel().add(list));
+        pack();
+        setVisible(true);
     }
 
+    @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         if (dtde.getCurrentDataFlavorsAsList().contains(dropFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY);
         }
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent dtde) {
         if (dtde.getCurrentDataFlavorsAsList().contains(dropFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY);
         }
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         if (dtde.getCurrentDataFlavorsAsList().contains(dropFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY);
         }
     }
 
+    @Override
     public void dragExit(DropTargetEvent dte) {}
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
         list.removeAll();
         dtde.acceptDrop(DnDConstants.ACTION_COPY);
@@ -100,17 +105,17 @@ class TargetFileListFrame extends Frame implements DropTargetListener {
                     + expectationTransferredFilesNumber
                     + "; Received file number: "
                     + fileList.size());
-            TargetFileListFrame.this.dispose();
+            dispose();
             System.exit(InterprocessMessages.WRONG_FILES_NUMBER_ON_TARGET);
         }
 
-        TargetFileListFrame.this.dispose();
+        dispose();
 
     }
 
     private java.util.List<File> extractListOfFiles(DropTargetDropEvent dtde) {
         BufferedReader reader = null;
-        ArrayList<File> files = new ArrayList<File>();
+        ArrayList<File> files = new ArrayList<>();
         try {
             reader = new BufferedReader((Reader)dtde.getTransferable().
                     getTransferData(dropFlavor));
@@ -118,13 +123,7 @@ class TargetFileListFrame extends Frame implements DropTargetListener {
             while ((line = reader.readLine()) != null) {
                 files.add(new File(new URI(line)));
             }
-        } catch (UnsupportedFlavorException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
+        } catch (UnsupportedFlavorException | URISyntaxException | IllegalArgumentException | IOException e) {
             e.printStackTrace();
         } finally {
             if (reader != null) {
@@ -138,7 +137,7 @@ class TargetFileListFrame extends Frame implements DropTargetListener {
     }
 
     Point getDropTargetPoint() {
-       return new Point((int)list.getLocationOnScreen().getX()+(list.getWidth()/2),
-                (int)list.getLocationOnScreen().getY()+(list.getHeight()/2));
+       return new Point((int) list.getLocationOnScreen().getX()+ list.getWidth()/2,
+                (int) list.getLocationOnScreen().getY()+ list.getHeight()/2);
     }
 }

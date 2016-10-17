@@ -37,9 +37,9 @@ import java.awt.geom.*;
 
 public class ShapeNotSetSometimes {
 
-    private Frame backgroundFrame;
-    private Frame window;
-    private static final Color BACKGROUND_COLOR = Color.BLUE;
+    Frame backgroundFrame;
+    Frame window;
+    static final Color BACKGROUND_COLOR = Color.BLUE;
     private Shape shape;
     private int[][] pointsToCheck;
 
@@ -47,13 +47,14 @@ public class ShapeNotSetSometimes {
 
     public ShapeNotSetSometimes() throws Exception {
         EventQueue.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 initializeGUI();
             }
         });
     }
 
-    private void initializeGUI() {
+    void initializeGUI() {
         backgroundFrame = new BackgroundFrame();
         backgroundFrame.setUndecorated(true);
         backgroundFrame.setSize(300, 300);
@@ -61,7 +62,7 @@ public class ShapeNotSetSometimes {
         backgroundFrame.setVisible(true);
 
         shape = null;
-        String shape_name = null;
+        String shape_name;
         Area a;
         GeneralPath gp;
         shape_name = "Rounded-corners";
@@ -89,10 +90,14 @@ public class ShapeNotSetSometimes {
         window.setShape(shape);
         window.setVisible(true);
 
-        System.out.println("Checking " + window.getClass().getSuperclass().getName() + " with " + shape_name + " shape (" + window.getShape() + ")...");
+        System.out.println("Checking " + window.getClass().getSuperclass().getName() + " with " + shape_name + " shape (" + window
+
+            .getShape() + ")...");
     }
 
     class BackgroundFrame extends Frame {
+
+        private static final long serialVersionUID = -4640219403754830706L;
 
         @Override
         public void paint(Graphics g) {
@@ -105,6 +110,8 @@ public class ShapeNotSetSometimes {
     }
 
     class TestFrame extends Frame {
+
+        private static final long serialVersionUID = -3387667521126339470L;
 
         @Override
         public void paint(Graphics g) {
@@ -135,6 +142,7 @@ public class ShapeNotSetSometimes {
         robot.delay(500);
 
         EventQueue.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 window.requestFocus();
             }
@@ -148,17 +156,19 @@ public class ShapeNotSetSometimes {
         }
 
         // check transparency
-        final int COUNT_TARGET = 10;
+        int COUNT_TARGET = 10;
 
         // checking outside points only
-        for(int i = COUNT_TARGET; i < COUNT_TARGET * 2; i++) {
+        for(int i = COUNT_TARGET; i < COUNT_TARGET << 1; i++) {
             int x = pointsToCheck[i][0];
             int y = pointsToCheck[i][1];
             boolean inside = i < COUNT_TARGET;
             Color c = robot.getPixelColor(window.getX() + x, window.getY() + y);
             System.out.println("checking " + x + ", " + y + ", color = " + c);
-            if (inside && BACKGROUND_COLOR.equals(c) || !inside && !BACKGROUND_COLOR.equals(c)) {
-                System.out.println("window.getX() = " + window.getX() + ", window.getY() = " + window.getY());
+            if (inside == BACKGROUND_COLOR.equals(c)) {
+                System.out.println("window.getX() = " + window.getX() + ", window.getY() = " + window
+
+                    .getY());
                 System.err.println("Checking for transparency failed: point: " +
                         (window.getX() + x) + ", " + (window.getY() + y) +
                         ", color = " + c + (inside ? " is of un" : " is not of ") +
@@ -168,6 +178,7 @@ public class ShapeNotSetSometimes {
         }
 
         EventQueue.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 backgroundFrame.dispose();
                 window.dispose();

@@ -16,6 +16,7 @@ import android.util.Log;
 import java.awt.font.NumericShaper;
 import java.awt.font.TextAttribute;
 import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -24,22 +25,21 @@ import java.util.Map;
  */
 public class SkinJobTextAttributesDecoder {
   private static final String TAG = "TextAttributesDecoder";
-  private static double DIP_PER_POINT = 160.0 / 72.0; // for converting font sizes
-
+  private static final double DIP_PER_POINT = 160.0 / 72.0; // for converting font sizes
+  private final ArrayList<Object> attributeSpans = new ArrayList<>();
   private int fgColor;
-  private int bgColor = 0;
-  private boolean swapColors = false;
+  private int bgColor;
+  private boolean swapColors;
   private String fontFamily = "Default";
-  private int fontStyle = 0;
-  private ArrayList<Object> attributeSpans = new ArrayList<>();
+  private int fontStyle;
 
   public SkinJobTextAttributesDecoder(int defaultColor) {
     fgColor = defaultColor;
   }
 
   public SkinJobTextAttributesDecoder addAttributes(
-      Map<? extends AttributedCharacterIterator.Attribute, ?> attributes) {
-    for (AttributedCharacterIterator.Attribute attribute : attributes.keySet()) {
+      Map<? extends Attribute, ?> attributes) {
+    for (Attribute attribute : attributes.keySet()) {
       if (attribute.equals(TextAttribute.BACKGROUND)) {
         bgColor = ((android.graphics.Paint) attributes.get(attribute)).getColor();
       } else if (attribute.equals(TextAttribute.BIDI_EMBEDDING)) {
@@ -76,7 +76,7 @@ public class SkinJobTextAttributesDecoder {
         if (attributes.get(attribute).equals(TextAttribute.POSTURE_OBLIQUE)) {
           fontStyle |= Typeface.ITALIC;
         } else {
-          fontStyle &= ~(Typeface.ITALIC);
+          fontStyle &= ~Typeface.ITALIC;
         }
       } else if (attribute.equals(TextAttribute.RUN_DIRECTION)) {
         // TODO
@@ -87,7 +87,7 @@ public class SkinJobTextAttributesDecoder {
         // Android doesn't support dotted, double or thick strokes through.
         attributeSpans.add(new StrikethroughSpan());
       } else if (attribute.equals(TextAttribute.SUPERSCRIPT)) {
-        int value = (Integer) (attributes.get(attribute));
+        int value = (Integer) attributes.get(attribute);
         if (value == TextAttribute.SUPERSCRIPT_SUB) {
           attributeSpans.add(new SubscriptSpan());
           break;
@@ -107,10 +107,10 @@ public class SkinJobTextAttributesDecoder {
         // Android doesn't support dotted, double or thick underlines.
         attributeSpans.add(new UnderlineSpan());
       } else if (attribute.equals(TextAttribute.WEIGHT)) {
-        if (((Number) (attributes.get(attribute))).floatValue() >= SkinJob.boldThreshold) {
+        if (((Number) attributes.get(attribute)).floatValue() >= SkinJob.boldThreshold) {
           fontStyle |= Typeface.BOLD;
         } else {
-          fontStyle &= ~(Typeface.BOLD);
+          fontStyle &= ~Typeface.BOLD;
         }
       } else if (attribute.equals(TextAttribute.WIDTH)) {
         // TODO

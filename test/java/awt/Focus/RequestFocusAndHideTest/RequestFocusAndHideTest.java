@@ -39,14 +39,17 @@ import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
 import java.awt.Robot;
 
-import test.java.awt.regtesthelpers.Util;
+import java.lang.reflect.InvocationTargetException;
 
-public class RequestFocusAndHideTest {
-    public static void main(String[] args) throws InterruptedException, java.lang.reflect.InvocationTargetException
+public final class RequestFocusAndHideTest {
+    private RequestFocusAndHideTest() {
+    }
+
+    public static void main(String[] args) throws InterruptedException, InvocationTargetException
     {
-        final Frame frame = new Frame("the test");
+        Frame frame = new Frame("the test");
         frame.setLayout(new FlowLayout());
-        final Button btn1 = new Button("button 1");
+        Button btn1 = new Button("button 1");
         frame.add(btn1);
         frame.add(new Button("button 2"));
         frame.add(new Button("button 3"));
@@ -63,15 +66,16 @@ public class RequestFocusAndHideTest {
         }
 
         EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
-                    final int n_comps = frame.getComponentCount();
+                    int n_comps = frame.getComponentCount();
                     for (int i = 0; i < n_comps; ++i) {
                         frame.getComponent(i).setVisible(false);
                     }
                 }
             });
         Util.waitForIdle(r);
-        final Component focus_owner = kfm.getFocusOwner();
+        Component focus_owner = kfm.getFocusOwner();
 
         if (focus_owner != null && !focus_owner.isVisible()) {
             throw new RuntimeException("we have invisible focus owner");

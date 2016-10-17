@@ -33,15 +33,19 @@ import java.awt.image.*;
 import java.awt.color.*;
 import java.awt.geom.AffineTransform;
 
-public class ImagingOpsNoExceptionsTest {
-    private static final String opsName[] = {
-        "Threshold", "RescaleOp" ,"Invert", "Yellow Invert", "3x3 Blur",
-        "3x3 Sharpen", "3x3 Edge", "5x5 Edge", "Color Convert", "Rotate"};
-    private static BufferedImageOp biop[] = new BufferedImageOp[opsName.length];
-    private static RasterOp rop[] = new RasterOp[opsName.length];
-    private static int low = 100, high = 200;
+public final class ImagingOpsNoExceptionsTest {
+    private static final String[] opsName = {
+        "Threshold", "RescaleOp", "Invert", "Yellow Invert", "3x3 Blur", "3x3 Sharpen", "3x3 Edge",
+        "5x5 Edge", "Color Convert", "Rotate"};
+    private static final BufferedImageOp[] biop = new BufferedImageOp[opsName.length];
+    private static final RasterOp[] rop = new RasterOp[opsName.length];
+    private static final int low = 100;
+    private static final int high = 200;
 
     private static final int SIZE = 100;
+
+    private ImagingOpsNoExceptionsTest() {
+    }
 
     public static void runTest() {
         int exceptions = 0;
@@ -75,8 +79,7 @@ public class ImagingOpsNoExceptionsTest {
                 if (! (rop[i] instanceof LookupOp)) {
                     System.err.println("  rop  ="+opsName[i]);
                     try {
-                        rop[i].filter(srcImage.getRaster(),
-                                      (WritableRaster)dstImage.getRaster());
+                        rop[i].filter(srcImage.getRaster(), dstImage.getRaster());
                     } catch (Exception e) {
                         e.printStackTrace();
                         exceptions++;
@@ -93,7 +96,7 @@ public class ImagingOpsNoExceptionsTest {
     }
 
     public static void thresholdOp(int low, int high) {
-        byte threshold[] = new byte[256];
+        byte[] threshold = new byte[256];
         for (int j = 0; j < 256 ; j++) {
             if (j > high) {
                 threshold[j] = (byte) 255;
@@ -116,8 +119,8 @@ public class ImagingOpsNoExceptionsTest {
         rop[i] = resop;
         i++;
 
-        byte invert[] = new byte[256];
-        byte ordered[] = new byte[256];
+        byte[] invert = new byte[256];
+        byte[] ordered = new byte[256];
         for (int j = 0; j < 256 ; j++) {
             invert[j] = (byte) (256-j);
             ordered[j] = (byte) j;
@@ -127,26 +130,23 @@ public class ImagingOpsNoExceptionsTest {
         rop[i] = lop;
         i++;
 
-        byte[][] yellowInvert = new byte[][] { invert, invert, ordered };
+        byte[][] yellowInvert = { invert, invert, ordered };
         lop = new LookupOp(new ByteLookupTable(0,yellowInvert), null);
         biop[i] = lop;
         rop[i] = lop;
         i++;
-        int dim[][] = {{3,3}, {3,3}, {3,3}, {5,5}};
-        float data[][] = { {0.1f, 0.1f, 0.1f,              // 3x3 blur
-                            0.1f, 0.2f, 0.1f,
-                            0.1f, 0.1f, 0.1f},
-                           {-1.0f, -1.0f, -1.0f,           // 3x3 sharpen
-                            -1.0f, 9.0f, -1.0f,
-                            -1.0f, -1.0f, -1.0f},
-                           { 0.f, -1.f,  0.f,                  // 3x3 edge
-                             -1.f,  5.f, -1.f,
-                             0.f, -1.f,  0.f},
-                           {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  // 5x5 edge
-                            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
-                            -1.0f, -1.0f, 24.0f, -1.0f, -1.0f,
-                            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
-                            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f}};
+        int[][] dim = {{3, 3}, {3, 3}, {3, 3}, {5, 5}};
+        float[][] data = {
+            {
+                0.1f, 0.1f, 0.1f,              // 3x3 blur
+                0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.1f}, {
+            -1.0f, -1.0f, -1.0f,           // 3x3 sharpen
+            -1.0f, 9.0f, -1.0f, -1.0f, -1.0f, -1.0f}, {
+            0.f, -1.f, 0.f,                  // 3x3 edge
+            -1.f, 5.f, -1.f, 0.f, -1.f, 0.f}, {
+            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,  // 5x5 edge
+            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 24.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f, -1.0f, -1.0f}};
         for (int j = 0; j < data.length; j++, i++) {
             ConvolveOp cop = new ConvolveOp(new Kernel(dim[j][0],dim[j][1],data[j]));
             biop[i] = cop;

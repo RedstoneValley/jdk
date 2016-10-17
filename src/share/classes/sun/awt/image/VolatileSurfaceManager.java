@@ -34,6 +34,7 @@ import java.awt.ImageCapabilities;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import sun.awt.DisplayChangedListener;
+import sun.java2d.InvalidPipeException;
 import sun.java2d.SunGraphicsEnvironment;
 import sun.java2d.SurfaceData;
 
@@ -50,7 +51,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
   /**
    * A reference to the VolatileImage whose contents are being managed.
    */
-  protected SunVolatileImage vImg;
+  protected final SunVolatileImage vImg;
 
   /**
    * The accelerated SurfaceData object.
@@ -86,7 +87,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
   /**
    * Context for extra initialization parameters.
    */
-  protected Object context;
+  protected final Object context;
 
   protected VolatileSurfaceManager(SunVolatileImage vImg, Object context) {
     this.vImg = vImg;
@@ -120,6 +121,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
     }
   }
 
+  @Override
   public SurfaceData getPrimarySurfaceData() {
     return sdCurrent;
   }
@@ -130,6 +132,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * using a backup system memory surface).  Returns the newly restored
    * primary SurfaceData object.
    */
+  @Override
   public SurfaceData restoreContents() {
     return getBackupSurface();
   }
@@ -141,8 +144,9 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * validate method to tell the caller that the surface contents need to
    * be restored.
    */
+  @Override
   public void acceleratedSurfaceLost() {
-    if (isAccelerationEnabled() && (sdCurrent == sdAccel)) {
+    if (isAccelerationEnabled() && sdCurrent == sdAccel) {
       lostSurface = true;
     }
   }
@@ -162,7 +166,8 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * situation so any future operations on the image will need to
    * revalidate the image first.
    */
-  public void flush() {
+  @Override
+  public synchronized void flush() {
     lostSurface = true;
     SurfaceData oldSD = sdAccel;
     sdAccel = null;
@@ -233,7 +238,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
           // let's release it now (it can always be restored later)
           sdBackup = null;
           returnCode = VolatileImage.IMAGE_RESTORED;
-        } catch (sun.java2d.InvalidPipeException e) {
+        } catch (InvalidPipeException e) {
           // Set the current SurfaceData to software version so that
           // drawing can continue.  Note that we still have
           // the lostAccelSurface flag set so that we will continue
@@ -254,7 +259,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
       returnCode = VolatileImage.IMAGE_RESTORED;
     }
 
-    if ((returnCode != VolatileImage.IMAGE_INCOMPATIBLE) && (sdCurrent != sdPrevious)) {
+    if (returnCode != VolatileImage.IMAGE_INCOMPATIBLE && sdCurrent != sdPrevious) {
       // contents have changed - return RESTORED to user
       sdPrevious = sdCurrent;
       returnCode = VolatileImage.IMAGE_RESTORED;
@@ -272,7 +277,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
   /**
    * Returns true if rendering data was lost since the last validate call.
    *
-   * @see java.awt.image.VolatileImage#contentsLost
+   * @see VolatileImage#contentsLost
    */
   public boolean contentsLost() {
     return lostSurface;
@@ -336,6 +341,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * we just nullify the old surface data object and wait for a future
    * method in the rendering process to recreate the surface.
    */
+  @Override
   public void displayChanged() {
     if (!isAccelerationEnabled()) {
       return;
@@ -363,6 +369,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * of the image into our hardware cache to update the
    * color indices of the pixels (indexed mode only).
    */
+  @Override
   public void paletteChanged() {
     lostSurface = true;
   }
@@ -376,7 +383,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
    * appropriate.
    */
   protected boolean isConfigValid(GraphicsConfiguration gc) {
-    return ((gc == null) || (gc.getDevice() == vImg.getGraphicsConfig().getDevice()));
+    return gc == null || gc.getDevice() == vImg.getGraphicsConfig().getDevice();
   }
 
   private class AcceleratedImageCapabilities extends ImageCapabilities {
@@ -386,7 +393,7 @@ public abstract class VolatileSurfaceManager extends SurfaceManager
 
     @Override
     public boolean isAccelerated() {
-      return (sdCurrent == sdAccel);
+      return sdCurrent == sdAccel;
     }
 
     @Override

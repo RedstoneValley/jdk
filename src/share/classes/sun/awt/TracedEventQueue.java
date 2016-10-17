@@ -23,17 +23,17 @@
  * questions.
  */
 
-/**
- * An EventQueue subclass which adds selective tracing of events as they
- * are posted to an EventQueue.  Tracing is globally enabled and disabled
- * by the AWT.TraceEventPosting property in awt.properties.  <P>
- * <p>
- * The optional AWT.NoTraceIDs property defines a list of AWTEvent IDs
- * which should not be traced, such as MouseEvent.MOUSE_MOVED or PaintEvents.
- * This list is declared by specifying the decimal value of each event's ID,
- * separated by commas.
- *
- * @author Thomas Ball
+/*
+  An EventQueue subclass which adds selective tracing of events as they
+  are posted to an EventQueue.  Tracing is globally enabled and disabled
+  by the AWT.TraceEventPosting property in awt.properties.  <P>
+  <p>
+  The optional AWT.NoTraceIDs property defines a list of AWTEvent IDs
+  which should not be traced, such as MouseEvent.MOUSE_MOVED or PaintEvents.
+  This list is declared by specifying the decimal value of each event's ID,
+  separated by commas.
+
+  @author Thomas Ball
  */
 
 package sun.awt;
@@ -46,14 +46,14 @@ import java.util.StringTokenizer;
 public class TracedEventQueue extends EventQueue {
 
   // Determines whether any event tracing is enabled.
-  static boolean trace = false;
+  static boolean trace;
 
   // The list of event IDs to ignore when tracing.
-  static int suppressedIDs[] = null;
+  static int[] suppressedIDs;
 
   static {
     String s = Toolkit.getProperty("AWT.IgnoreEventIDs", "");
-    if (s.length() > 0) {
+    if (!s.isEmpty()) {
       StringTokenizer st = new StringTokenizer(s, ",");
       int nIDs = st.countTokens();
       suppressedIDs = new int[nIDs];
@@ -73,11 +73,12 @@ public class TracedEventQueue extends EventQueue {
     }
   }
 
+  @Override
   public void postEvent(AWTEvent theEvent) {
     boolean printEvent = true;
     int id = theEvent.getID();
-    for (int i = 0; i < suppressedIDs.length; i++) {
-      if (id == suppressedIDs[i]) {
+    for (int suppressedID : suppressedIDs) {
+      if (id == suppressedID) {
         printEvent = false;
         break;
       }

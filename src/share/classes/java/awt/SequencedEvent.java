@@ -25,8 +25,10 @@
 
 package java.awt;
 
+import java.awt.event.FocusEvent;
 import java.util.LinkedList;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.SequencedEventAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
@@ -47,22 +49,24 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
    */
   private static final long serialVersionUID = 547742659238625067L;
 
-  private static final int ID = java.awt.event.FocusEvent.FOCUS_LAST + 1;
+  private static final int ID = FocusEvent.FOCUS_LAST + 1;
   private static final LinkedList<SequencedEvent> list = new LinkedList<>();
 
   static {
-    AWTAccessor.setSequencedEventAccessor(new AWTAccessor.SequencedEventAccessor() {
+    AWTAccessor.setSequencedEventAccessor(new SequencedEventAccessor() {
+      @Override
       public AWTEvent getNested(AWTEvent sequencedEvent) {
         return ((SequencedEvent) sequencedEvent).nested;
       }
 
+      @Override
       public boolean isSequencedEvent(AWTEvent event) {
         return event instanceof SequencedEvent;
       }
     });
   }
 
-  private final AWTEvent nested;
+  final AWTEvent nested;
   private AppContext appContext;
   private boolean disposed;
 
@@ -87,7 +91,7 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
   /**
    * true only if event exists and nested source appContext is disposed.
    */
-  private final static boolean isOwnerAppContextDisposed(SequencedEvent se) {
+  private static final boolean isOwnerAppContextDisposed(SequencedEvent se) {
     if (se != null) {
       Object target = se.nested.getSource();
       if (target instanceof Component) {
@@ -97,14 +101,14 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
     return false;
   }
 
-  private final synchronized static SequencedEvent getFirst() {
-    return (SequencedEvent) list.getFirst();
+  private static final synchronized SequencedEvent getFirst() {
+    return list.getFirst();
   }
 
   /* Disposes all events from disposed AppContext
    * return first valid event
    */
-  private final static SequencedEvent getFirstWithContext() {
+  private static final SequencedEvent getFirstWithContext() {
     SequencedEvent first = getFirst();
     while (isOwnerAppContextDisposed(first)) {
       first.dispose();
@@ -125,6 +129,7 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
    * as EventQueue lock is held during dispatching.  The locks should be acquired
    * in the same order.
    */
+  @Override
   public final void dispatch() {
     try {
       appContext = AppContext.getAppContext();
@@ -133,8 +138,9 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         if (EventQueue.isDispatchThread()) {
           EventDispatchThread edt = (EventDispatchThread) Thread.currentThread();
           edt.pumpEvents(SentEvent.ID, new Conditional() {
+            @Override
             public boolean evaluate() {
-              return !SequencedEvent.this.isFirstOrDisposed();
+              return !isFirstOrDisposed();
             }
           });
         } else {
@@ -210,7 +216,7 @@ class SequencedEvent extends AWTEvent implements ActiveEvent {
         list.removeFirst();
 
         if (!list.isEmpty()) {
-          next = (SequencedEvent) list.getFirst();
+          next = list.getFirst();
         }
       } else {
         list.remove(this);

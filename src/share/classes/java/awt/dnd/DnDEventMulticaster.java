@@ -30,7 +30,7 @@ import java.io.ObjectOutputStream;
 import java.util.EventListener;
 
 /**
- * A class extends <code>AWTEventMulticaster</code> to implement efficient and
+ * A class extends {@code AWTEventMulticaster} to implement efficient and
  * thread-safe multi-cast event dispatching for the drag-and-drop events defined
  * in the java.awt.dnd package.
  *
@@ -43,9 +43,9 @@ class DnDEventMulticaster extends AWTEventMulticaster
 
   /**
    * Creates an event multicaster instance which chains listener-a
-   * with listener-b. Input parameters <code>a</code> and <code>b</code>
-   * should not be <code>null</code>, though implementations may vary in
-   * choosing whether or not to throw <code>NullPointerException</code>
+   * with listener-b. Input parameters {@code a} and {@code b}
+   * should not be {@code null}, though implementations may vary in
+   * choosing whether or not to throw {@code NullPointerException}
    * in that case.
    *
    * @param a listener-a
@@ -152,66 +152,72 @@ class DnDEventMulticaster extends AWTEventMulticaster
   }
 
   /**
-   * Handles the <code>DragSourceDragEvent</code> by invoking
-   * <code>dragEnter</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceDragEvent} by invoking
+   * {@code dragEnter} on listener-a and listener-b.
    *
-   * @param dsde the <code>DragSourceDragEvent</code>
+   * @param dsde the {@code DragSourceDragEvent}
    */
+  @Override
   public void dragEnter(DragSourceDragEvent dsde) {
     ((DragSourceListener) a).dragEnter(dsde);
     ((DragSourceListener) b).dragEnter(dsde);
   }
 
   /**
-   * Handles the <code>DragSourceDragEvent</code> by invoking
-   * <code>dragOver</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceDragEvent} by invoking
+   * {@code dragOver} on listener-a and listener-b.
    *
-   * @param dsde the <code>DragSourceDragEvent</code>
+   * @param dsde the {@code DragSourceDragEvent}
    */
+  @Override
   public void dragOver(DragSourceDragEvent dsde) {
     ((DragSourceListener) a).dragOver(dsde);
     ((DragSourceListener) b).dragOver(dsde);
   }
 
   /**
-   * Handles the <code>DragSourceDragEvent</code> by invoking
-   * <code>dropActionChanged</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceDragEvent} by invoking
+   * {@code dropActionChanged} on listener-a and listener-b.
    *
-   * @param dsde the <code>DragSourceDragEvent</code>
+   * @param dsde the {@code DragSourceDragEvent}
    */
+  @Override
   public void dropActionChanged(DragSourceDragEvent dsde) {
     ((DragSourceListener) a).dropActionChanged(dsde);
     ((DragSourceListener) b).dropActionChanged(dsde);
   }
 
   /**
-   * Handles the <code>DragSourceEvent</code> by invoking
-   * <code>dragExit</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceEvent} by invoking
+   * {@code dragExit} on listener-a and listener-b.
    *
-   * @param dse the <code>DragSourceEvent</code>
+   * @param dse the {@code DragSourceEvent}
    */
+  @Override
   public void dragExit(DragSourceEvent dse) {
     ((DragSourceListener) a).dragExit(dse);
     ((DragSourceListener) b).dragExit(dse);
   }
 
   /**
-   * Handles the <code>DragSourceDropEvent</code> by invoking
-   * <code>dragDropEnd</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceDropEvent} by invoking
+   * {@code dragDropEnd} on listener-a and listener-b.
    *
-   * @param dsde the <code>DragSourceDropEvent</code>
+   * @param dsde the {@code DragSourceDropEvent}
    */
+  @Override
   public void dragDropEnd(DragSourceDropEvent dsde) {
     ((DragSourceListener) a).dragDropEnd(dsde);
     ((DragSourceListener) b).dragDropEnd(dsde);
   }
 
   /**
-   * Handles the <code>DragSourceDragEvent</code> by invoking
-   * <code>dragMouseMoved</code> on listener-a and listener-b.
+   * Handles the {@code DragSourceDragEvent} by invoking
+   * {@code dragMouseMoved} on listener-a and listener-b.
    *
-   * @param dsde the <code>DragSourceDragEvent</code>
+   * @param dsde the {@code DragSourceDragEvent}
    */
+  @Override
   public void dragMouseMoved(DragSourceDragEvent dsde) {
     ((DragSourceMotionListener) a).dragMouseMoved(dsde);
     ((DragSourceMotionListener) b).dragMouseMoved(dsde);
@@ -223,6 +229,7 @@ class DnDEventMulticaster extends AWTEventMulticaster
    *
    * @param oldl the listener to be removed
    */
+  @Override
   protected EventListener remove(EventListener oldl) {
     if (oldl == a) {
       return b;

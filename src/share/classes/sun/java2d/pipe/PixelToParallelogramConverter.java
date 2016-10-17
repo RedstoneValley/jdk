@@ -41,11 +41,11 @@ import sun.java2d.SunGraphics2D;
  * transformed into calls to fill/drawParallelogram().
  */
 public class PixelToParallelogramConverter extends PixelToShapeConverter implements ShapeDrawPipe {
-  ParallelogramPipe outrenderer;
-  double minPenSize;
-  double normPosition;
-  double normRoundingBias;
-  boolean adjustfill;
+  final ParallelogramPipe outrenderer;
+  final double minPenSize;
+  final double normPosition;
+  final double normRoundingBias;
+  final boolean adjustfill;
 
   /**
    * @param shapepipe    pipeline to forward shape calls to
@@ -54,9 +54,6 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
    * @param minPenSize   minimum pen size for dropout control
    * @param normPosition sub-pixel location to normalize endpoints
    *                     for STROKE_NORMALIZE cases
-   * @param adjustFill   boolean to control whethere normalization
-   *                     constants are also applied to fill operations
-   *                     (normally true for non-AA, false for AA)
    */
   public PixelToParallelogramConverter(
       ShapeDrawPipe shapepipe, ParallelogramPipe pgrampipe, double minPenSize, double normPosition,
@@ -65,24 +62,26 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
     outrenderer = pgrampipe;
     this.minPenSize = minPenSize;
     this.normPosition = normPosition;
-    this.normRoundingBias = 0.5 - normPosition;
+    normRoundingBias = 0.5 - normPosition;
     this.adjustfill = adjustfill;
   }
 
   static double len(double x, double y) {
-    return ((x == 0) ? Math.abs(y) : ((y == 0) ? Math.abs(x) : Math.sqrt(x * x + y * y)));
+    return x == 0 ? Math.abs(y) : y == 0 ? Math.abs(x) : Math.sqrt(x * x + y * y);
   }
 
+  @Override
   public void drawLine(SunGraphics2D sg2d, int x1, int y1, int x2, int y2) {
     if (!drawGeneralLine(sg2d, x1, y1, x2, y2)) {
       super.drawLine(sg2d, x1, y1, x2, y2);
     }
   }
 
+  @Override
   public void drawRect(SunGraphics2D sg2d, int x, int y, int w, int h) {
     if (w >= 0 && h >= 0) {
       if (sg2d.strokeState < SunGraphics2D.STROKE_CUSTOM) {
-        BasicStroke bs = ((BasicStroke) sg2d.stroke);
+        BasicStroke bs = (BasicStroke) sg2d.stroke;
         if (w > 0 && h > 0) {
           if (bs.getLineJoin() == BasicStroke.JOIN_MITER && bs.getDashArray() == null) {
             double lw = bs.getLineWidth();
@@ -101,15 +100,17 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
     }
   }
 
+  @Override
   public void fillRect(SunGraphics2D sg2d, int x, int y, int w, int h) {
     if (w > 0 && h > 0) {
       fillRectangle(sg2d, x, y, w, h);
     }
   }
 
+  @Override
   public void draw(SunGraphics2D sg2d, Shape s) {
     if (sg2d.strokeState < SunGraphics2D.STROKE_CUSTOM) {
-      BasicStroke bs = ((BasicStroke) sg2d.stroke);
+      BasicStroke bs = (BasicStroke) sg2d.stroke;
       if (s instanceof Rectangle2D) {
         if (bs.getLineJoin() == BasicStroke.JOIN_MITER && bs.getDashArray() == null) {
           Rectangle2D r2d = (Rectangle2D) s;
@@ -134,6 +135,7 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
     outpipe.draw(sg2d, s);
   }
 
+  @Override
   public void fill(SunGraphics2D sg2d, Shape s) {
     if (s instanceof Rectangle2D) {
       Rectangle2D r2d = (Rectangle2D) s;
@@ -176,25 +178,23 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
     double x1, y1, x2, y2;
     switch (sg2d.transformState) {
       case SunGraphics2D.TRANSFORM_GENERIC:
-      case SunGraphics2D.TRANSFORM_TRANSLATESCALE: {
-        double coords[] = {ux1, uy1, ux2, uy2};
+      case SunGraphics2D.TRANSFORM_TRANSLATESCALE:
+        double[] coords = {ux1, uy1, ux2, uy2};
         sg2d.transform.transform(coords, 0, coords, 0, 2);
         x1 = coords[0];
         y1 = coords[1];
         x2 = coords[2];
         y2 = coords[3];
-      }
-      break;
+        break;
       case SunGraphics2D.TRANSFORM_ANY_TRANSLATE:
-      case SunGraphics2D.TRANSFORM_INT_TRANSLATE: {
+      case SunGraphics2D.TRANSFORM_INT_TRANSLATE:
         double tx = sg2d.transform.getTranslateX();
         double ty = sg2d.transform.getTranslateY();
         x1 = ux1 + tx;
         y1 = uy1 + ty;
         x2 = ux2 + tx;
         y2 = uy2 + ty;
-      }
-      break;
+        break;
       case SunGraphics2D.TRANSFORM_ISIDENT:
         x1 = ux1;
         y1 = uy1;
@@ -230,7 +230,7 @@ public class PixelToParallelogramConverter extends PixelToShapeConverter impleme
         // dy = 0; already
       }
       // delta transform the transposed (90 degree rotated) unit vector
-      double unitvector[] = {dy / len, -dx / len};
+      double[] unitvector = {dy / len, -dx / len};
       sg2d.transform.deltaTransform(unitvector, 0, unitvector, 0, 1);
       lw *= len(unitvector[0], unitvector[1]);
     }

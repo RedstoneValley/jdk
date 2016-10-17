@@ -3,17 +3,14 @@ package sun.font;
 import java.awt.Font;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedCharacterIterator.Attribute;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
 
 /**
  * Created by cryoc on 2016-10-11.
  */
-public class AttributeValues extends HashMap<TextAttribute, Object>
-    implements Cloneable {
+public class AttributeValues extends HashMap<TextAttribute, Object> {
+  private static final long serialVersionUID = 8820590967652117455L;
+
   public AttributeValues() {
     put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
     put(TextAttribute.POSTURE, TextAttribute.POSTURE_REGULAR);
@@ -30,6 +27,10 @@ public class AttributeValues extends HashMap<TextAttribute, Object>
     return weight;
   }
 
+  public void setWeight(float weight) {
+    put(TextAttribute.WEIGHT, weight);
+  }
+
   public float getPosture() {
     Float posture = (Float) get(TextAttribute.POSTURE);
     if (posture == null) {
@@ -38,76 +39,53 @@ public class AttributeValues extends HashMap<TextAttribute, Object>
     return posture;
   }
 
-  public Font getFont() {
-    return (Font) get(TextAttribute.FONT);
-  }
-
-  public void setTransform(AffineTransform transform) {
-    put(TextAttribute.TRANSFORM, transform);
-  }
-
-  public void setWeight(float weight) {
-    put(TextAttribute.WEIGHT, weight);
-  }
-
   public void setPosture(float posture) {
     put(TextAttribute.POSTURE, posture);
   }
 
-  public void setFamily(String family) {
-    put(TextAttribute.FAMILY, family);
-  }
-
-  public void setSize(float size) {
-    put(TextAttribute.SIZE, size);
+  public Font getFont() {
+    return (Font) get(TextAttribute.FONT);
   }
 
   public AffineTransform getTransform() {
     return (AffineTransform) get(TextAttribute.TRANSFORM);
   }
 
+  public void setTransform(AffineTransform transform) {
+    put(TextAttribute.TRANSFORM, transform);
+  }
+
   public String getFamily() {
     return (String) get(TextAttribute.FAMILY);
+  }
+
+  public void setFamily(String family) {
+    put(TextAttribute.FAMILY, family);
   }
 
   public float getSize() {
     return (float) get(TextAttribute.SIZE);
   }
 
-  public static AttributeValues fromMapExcludingFont(
-      Map<? extends Attribute, ?> attributes) {
-    AttributeValues newValues = new AttributeValues();
-    for (Attribute attribute : attributes.keySet()) {
-      if (attribute instanceof TextAttribute && !(attribute.equals(TextAttribute.FONT))) {
-        newValues.put((TextAttribute) attribute, attributes.get(attribute));
-      }
-    }
-    return newValues;
+  public void setSize(float size) {
+    put(TextAttribute.SIZE, size);
   }
 
   public boolean hasLayoutAttributes() {
-    return containsKey(TextAttribute.CHAR_REPLACEMENT)
-        || containsKey(TextAttribute.FOREGROUND)
-        || containsKey(TextAttribute.BACKGROUND)
-        || containsKey(TextAttribute.UNDERLINE)
-        || containsKey(TextAttribute.STRIKETHROUGH)
-        || containsKey(TextAttribute.RUN_DIRECTION)
-        || containsKey(TextAttribute.BIDI_EMBEDDING)
-        || containsKey(TextAttribute.JUSTIFICATION)
+    return containsKey(TextAttribute.CHAR_REPLACEMENT) || containsKey(TextAttribute.FOREGROUND)
+        || containsKey(TextAttribute.BACKGROUND) || containsKey(TextAttribute.UNDERLINE)
+        || containsKey(TextAttribute.STRIKETHROUGH) || containsKey(TextAttribute.RUN_DIRECTION)
+        || containsKey(TextAttribute.BIDI_EMBEDDING) || containsKey(TextAttribute.JUSTIFICATION)
         || containsKey(TextAttribute.INPUT_METHOD_HIGHLIGHT)
         || containsKey(TextAttribute.INPUT_METHOD_UNDERLINE)
-        || containsKey(TextAttribute.SWAP_COLORS)
-        || containsKey(TextAttribute.NUMERIC_SHAPING)
-        || containsKey(TextAttribute.KERNING)
-        || containsKey(TextAttribute.LIGATURES)
-        || containsKey(TextAttribute.TRACKING)
-        || containsKey(TextAttribute.SUPERSCRIPT);
+        || containsKey(TextAttribute.SWAP_COLORS) || containsKey(TextAttribute.NUMERIC_SHAPING)
+        || containsKey(TextAttribute.KERNING) || containsKey(TextAttribute.LIGATURES)
+        || containsKey(TextAttribute.TRACKING) || containsKey(TextAttribute.SUPERSCRIPT);
   }
 
   public boolean hasNonIdentityTx() {
-    return !(getTransform().isIdentity())
-        || containsKey(TextAttribute.SUPERSCRIPT)
-        || containsKey(TextAttribute.WIDTH);
+    return !getTransform().isIdentity() || containsKey(TextAttribute.SUPERSCRIPT) || containsKey(
+        TextAttribute.WIDTH);
   }
 
   public AffineTransform getCharTransform() {

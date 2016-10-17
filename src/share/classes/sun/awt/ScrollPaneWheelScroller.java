@@ -46,18 +46,14 @@ public abstract class ScrollPaneWheelScroller {
    * Called from ScrollPane.processMouseWheelEvent()
    */
   public static void handleWheelScrolling(ScrollPane sp, MouseWheelEvent e) {
-    if (true) {
-      Log.v(TAG, "x = " + e.getX() + ", y = " + e.getY() + ", src is " + e.getSource());
-    }
-    int increment = 0;
+    Log.v(TAG, "x = " + e.getX() + ", y = " + e.getY() + ", src is " + e.getSource());
+    int increment;
 
     if (sp != null && e.getScrollAmount() != 0) {
       Adjustable adj = getAdjustableToScroll(sp);
       if (adj != null) {
         increment = getIncrementFromAdjustable(adj, e);
-        if (true) {
-          Log.v(TAG, "increment from adjustable(" + adj.getClass() + ") : " + increment);
-        }
+        Log.v(TAG, "increment from adjustable(" + adj.getClass() + ") : " + increment);
         scrollAdjustable(adj, increment);
       }
     }
@@ -72,39 +68,29 @@ public abstract class ScrollPaneWheelScroller {
 
     // if policy is display always or never, use vert
     if (policy == ScrollPane.SCROLLBARS_ALWAYS || policy == ScrollPane.SCROLLBARS_NEVER) {
-      if (true) {
-        Log.v(TAG, "using vertical scrolling due to scrollbar policy");
-      }
+      Log.v(TAG, "using vertical scrolling due to scrollbar policy");
       return sp.getVAdjustable();
     } else {
 
       Insets ins = sp.getInsets();
       int vertScrollWidth = sp.getVScrollbarWidth();
 
-      if (true) {
-        Log.v(TAG, "insets: l = " + ins.left + ", r = " + ins.right +
-            ", t = " + ins.top + ", b = " + ins.bottom);
-        Log.v(TAG, "vertScrollWidth = " + vertScrollWidth);
-      }
+      Log.v(TAG, "insets: l = " + ins.left + ", r = " + ins.right +
+          ", t = " + ins.top + ", b = " + ins.bottom);
+      Log.v(TAG, "vertScrollWidth = " + vertScrollWidth);
 
       // Check if scrollbar is showing by examining insets of the
       // ScrollPane
       if (ins.right >= vertScrollWidth) {
-        if (true) {
-          Log.v(TAG, "using vertical scrolling because scrollbar is present");
-        }
+        Log.v(TAG, "using vertical scrolling because scrollbar is present");
         return sp.getVAdjustable();
       } else {
         int horizScrollHeight = sp.getHScrollbarHeight();
         if (ins.bottom >= horizScrollHeight) {
-          if (true) {
-            Log.v(TAG, "using horiz scrolling because scrollbar is present");
-          }
+          Log.v(TAG, "using horiz scrolling because scrollbar is present");
           return sp.getHAdjustable();
         } else {
-          if (true) {
-            Log.v(TAG, "using NO scrollbar becsause neither is present");
-          }
+          Log.v(TAG, "using NO scrollbar becsause neither is present");
           return null;
         }
       }

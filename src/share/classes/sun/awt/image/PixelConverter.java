@@ -49,7 +49,7 @@ public class PixelConverter {
    */
   public static final PixelConverter instance = new PixelConverter();
 
-  protected int alphaMask = 0;
+  protected int alphaMask;
 
   protected PixelConverter() {
   }
@@ -72,7 +72,7 @@ public class PixelConverter {
             pix |= (bytearr[1] & 0xff) << 8;
             // FALLSTHROUGH
           case 1:
-            pix |= (bytearr[0] & 0xff);
+            pix |= bytearr[0] & 0xff;
         }
 
         return pix;
@@ -80,7 +80,7 @@ public class PixelConverter {
       case DataBuffer.TYPE_USHORT:
         short[] shortarr = (short[]) obj;
 
-        return (((shortarr.length > 1) ? shortarr[1] << 16 : 0) | shortarr[0] & 0xffff);
+        return (shortarr.length > 1 ? shortarr[1] << 16 : 0) | shortarr[0] & 0xffff;
       case DataBuffer.TYPE_INT:
         return ((int[]) obj)[0];
       default:
@@ -126,12 +126,14 @@ public class PixelConverter {
     private Rgbx() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (rgb << 8);
+      return rgb << 8;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return (0xff000000 | (pixel >> 8));
+      return 0xff000000 | pixel >> 8;
     }
   }
 
@@ -141,12 +143,14 @@ public class PixelConverter {
     private Xrgb() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
       return rgb;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return (0xff000000 | pixel);
+      return 0xff000000 | pixel;
     }
   }
 
@@ -157,10 +161,12 @@ public class PixelConverter {
       alphaMask = 0xff000000;
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
       return rgb;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       return pixel;
     }
@@ -172,21 +178,23 @@ public class PixelConverter {
     private Ushort565Rgb() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (((rgb >> (16 + 3 - 11)) & 0xf800) |
-                  ((rgb >> (8 + 2 - 5)) & 0x07e0) |
-                  ((rgb >> (0 + 3 - 0)) & 0x001f));
+      return rgb >> 16 + 3 - 11 & 0xf800 |
+          rgb >> 8 + 2 - 5 & 0x07e0 |
+          rgb >> 3 & 0x001f;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int r, g, b;
-      r = (pixel >> 11) & 0x1f;
-      r = (r << 3) | (r >> 2);
-      g = (pixel >> 5) & 0x3f;
-      g = (g << 2) | (g >> 4);
-      b = (pixel) & 0x1f;
-      b = (b << 3) | (b >> 2);
-      return (0xff000000 | (r << 16) | (g << 8) | (b));
+      r = pixel >> 11 & 0x1f;
+      r = r << 3 | r >> 2;
+      g = pixel >> 5 & 0x3f;
+      g = g << 2 | g >> 4;
+      b = pixel & 0x1f;
+      b = b << 3 | b >> 2;
+      return 0xff000000 | r << 16 | g << 8 | b;
     }
   }
 
@@ -196,21 +204,23 @@ public class PixelConverter {
     private Ushort555Rgbx() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (((rgb >> (16 + 3 - 11)) & 0xf800) |
-                  ((rgb >> (8 + 3 - 6)) & 0x07c0) |
-                  ((rgb >> (0 + 3 - 1)) & 0x003e));
+      return rgb >> 16 + 3 - 11 & 0xf800 |
+          rgb >> 8 + 3 - 6 & 0x07c0 |
+          rgb >> 3 - 1 & 0x003e;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int r, g, b;
-      r = (pixel >> 11) & 0x1f;
-      r = (r << 3) | (r >> 2);
-      g = (pixel >> 6) & 0x1f;
-      g = (g << 3) | (g >> 2);
-      b = (pixel >> 1) & 0x1f;
-      b = (b << 3) | (b >> 2);
-      return (0xff000000 | (r << 16) | (g << 8) | (b));
+      r = pixel >> 11 & 0x1f;
+      r = r << 3 | r >> 2;
+      g = pixel >> 6 & 0x1f;
+      g = g << 3 | g >> 2;
+      b = pixel >> 1 & 0x1f;
+      b = b << 3 | b >> 2;
+      return 0xff000000 | r << 16 | g << 8 | b;
     }
   }
 
@@ -220,21 +230,23 @@ public class PixelConverter {
     private Ushort555Rgb() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (((rgb >> (16 + 3 - 10)) & 0x7c00) |
-                  ((rgb >> (8 + 3 - 5)) & 0x03e0) |
-                  ((rgb >> (0 + 3 - 0)) & 0x001f));
+      return rgb >> 16 + 3 - 10 & 0x7c00 |
+          rgb >> 8 + 3 - 5 & 0x03e0 |
+          rgb >> 3 & 0x001f;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int r, g, b;
-      r = (pixel >> 10) & 0x1f;
-      r = (r << 3) | (r >> 2);
-      g = (pixel >> 5) & 0x1f;
-      g = (g << 3) | (g >> 2);
-      b = (pixel) & 0x1f;
-      b = (b << 3) | (b >> 2);
-      return (0xff000000 | (r << 16) | (g << 8) | (b));
+      r = pixel >> 10 & 0x1f;
+      r = r << 3 | r >> 2;
+      g = pixel >> 5 & 0x1f;
+      g = g << 3 | g >> 2;
+      b = pixel & 0x1f;
+      b = b << 3 | b >> 2;
+      return 0xff000000 | r << 16 | g << 8 | b;
     }
   }
 
@@ -245,31 +257,29 @@ public class PixelConverter {
       alphaMask = 0xf000;
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
       // use upper 4 bits for each color
       // 0xAaRrGgBb -> 0x0000ARGB
-      int a = (rgb >> 16) & 0xf000;
-      int r = (rgb >> 12) & 0x0f00;
-      int g = (rgb >> 8) & 0x00f0;
-      int b = (rgb >> 4) & 0x000f;
+      int a = rgb >> 16 & 0xf000;
+      int r = rgb >> 12 & 0x0f00;
+      int g = rgb >> 8 & 0x00f0;
+      int b = rgb >> 4 & 0x000f;
 
-      return (a | r | g | b);
+      return a | r | g | b;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int a, r, g, b;
       // replicate 4 bits for each color
       // 0xARGB -> 0xAARRGGBB
-      a = pixel & 0xf000;
-      a = ((pixel << 16) | (pixel << 12)) & 0xff000000;
-      r = pixel & 0x0f00;
-      r = ((pixel << 12) | (pixel << 8)) & 0x00ff0000;
-      g = pixel & 0x00f0;
-      g = ((pixel << 8) | (pixel << 4)) & 0x0000ff00;
-      b = pixel & 0x000f;
-      b = ((pixel << 4) | (pixel << 0)) & 0x000000ff;
+      a = (pixel << 16 | pixel << 12) & 0xff000000;
+      r = (pixel << 12 | pixel << 8) & 0x00ff0000;
+      g = (pixel << 8 | pixel << 4) & 0x0000ff00;
+      b = (pixel << 4 | pixel) & 0x000000ff;
 
-      return (a | r | g | b);
+      return a | r | g | b;
     }
   }
 
@@ -279,17 +289,19 @@ public class PixelConverter {
     private Xbgr() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (((rgb & 0xff) << 16) |
-                  (rgb & 0xff00) |
-                  ((rgb >> 16) & 0xff));
+      return (rgb & 0xff) << 16 |
+          rgb & 0xff00 |
+          rgb >> 16 & 0xff;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return (0xff000000 |
-                  ((pixel & 0xff) << 16) |
-                  (pixel & 0xff00) |
-                  ((pixel >> 16) & 0xff));
+      return 0xff000000 |
+          (pixel & 0xff) << 16 |
+          pixel & 0xff00 |
+          pixel >> 16 & 0xff;
     }
   }
 
@@ -299,17 +311,19 @@ public class PixelConverter {
     private Bgrx() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return ((rgb << 24) |
-                  ((rgb & 0xff00) << 8) |
-                  ((rgb >> 8) & 0xff00));
+      return rgb << 24 |
+          (rgb & 0xff00) << 8 |
+          rgb >> 8 & 0xff00;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return (0xff000000 |
-                  ((pixel & 0xff00) << 8) |
-                  ((pixel >> 8) & 0xff00) |
-                  (pixel >>> 24));
+      return 0xff000000 |
+          (pixel & 0xff00) << 8 |
+          pixel >> 8 & 0xff00 |
+          pixel >>> 24;
     }
   }
 
@@ -320,12 +334,14 @@ public class PixelConverter {
       alphaMask = 0x000000ff;
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return ((rgb << 8) | (rgb >>> 24));
+      return rgb << 8 | rgb >>> 24;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return ((pixel << 24) | (pixel >>> 8));
+      return pixel << 24 | pixel >>> 8;
     }
   }
 
@@ -336,33 +352,35 @@ public class PixelConverter {
       alphaMask = 0x000000ff;
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      if ((rgb >> 24) == -1) {
-        return ((rgb << 8) | (rgb >>> 24));
+      if (rgb >> 24 == -1) {
+        return rgb << 8 | rgb >>> 24;
       }
       int a = rgb >>> 24;
-      int r = (rgb >> 16) & 0xff;
-      int g = (rgb >> 8) & 0xff;
-      int b = (rgb) & 0xff;
+      int r = rgb >> 16 & 0xff;
+      int g = rgb >> 8 & 0xff;
+      int b = rgb & 0xff;
       int a2 = a + (a >> 7);
-      r = (r * a2) >> 8;
-      g = (g * a2) >> 8;
-      b = (b * a2) >> 8;
-      return ((r << 24) | (g << 16) | (b << 8) | (a));
+      r = r * a2 >> 8;
+      g = g * a2 >> 8;
+      b = b * a2 >> 8;
+      return r << 24 | g << 16 | b << 8 | a;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int a = pixel & 0xff;
-      if ((a == 0xff) || (a == 0)) {
-        return ((pixel >>> 8) | (pixel << 24));
+      if (a == 0xff || a == 0) {
+        return pixel >>> 8 | pixel << 24;
       }
       int r = pixel >>> 24;
-      int g = (pixel >> 16) & 0xff;
-      int b = (pixel >> 8) & 0xff;
+      int g = pixel >> 16 & 0xff;
+      int b = pixel >> 8 & 0xff;
       r = ((r << 8) - r) / a;
       g = ((g << 8) - g) / a;
       b = ((b << 8) - b) / a;
-      return ((r << 24) | (g << 16) | (b << 8) | (a));
+      return r << 24 | g << 16 | b << 8 | a;
     }
   }
 
@@ -373,33 +391,35 @@ public class PixelConverter {
       alphaMask = 0xff000000;
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      if ((rgb >> 24) == -1) {
+      if (rgb >> 24 == -1) {
         return rgb;
       }
       int a = rgb >>> 24;
-      int r = (rgb >> 16) & 0xff;
-      int g = (rgb >> 8) & 0xff;
-      int b = (rgb) & 0xff;
+      int r = rgb >> 16 & 0xff;
+      int g = rgb >> 8 & 0xff;
+      int b = rgb & 0xff;
       int a2 = a + (a >> 7);
-      r = (r * a2) >> 8;
-      g = (g * a2) >> 8;
-      b = (b * a2) >> 8;
-      return ((a << 24) | (r << 16) | (g << 8) | (b));
+      r = r * a2 >> 8;
+      g = g * a2 >> 8;
+      b = b * a2 >> 8;
+      return a << 24 | r << 16 | g << 8 | b;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
       int a = pixel >>> 24;
-      if ((a == 0xff) || (a == 0)) {
+      if (a == 0xff || a == 0) {
         return pixel;
       }
-      int r = (pixel >> 16) & 0xff;
-      int g = (pixel >> 8) & 0xff;
-      int b = (pixel) & 0xff;
+      int r = pixel >> 16 & 0xff;
+      int g = pixel >> 8 & 0xff;
+      int b = pixel & 0xff;
       r = ((r << 8) - r) / a;
       g = ((g << 8) - g) / a;
       b = ((b << 8) - b) / a;
-      return ((a << 24) | (r << 16) | (g << 8) | (b));
+      return a << 24 | r << 16 | g << 8 | b;
     }
   }
 
@@ -409,12 +429,14 @@ public class PixelConverter {
     private ArgbBm() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      return (rgb | ((rgb >> 31) << 24));
+      return rgb | rgb >> 31 << 24;
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return ((pixel << 7) >> 7);
+      return pixel << 7 >> 7;
     }
   }
 
@@ -427,18 +449,20 @@ public class PixelConverter {
     private ByteGray() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      int red = (rgb >> 16) & 0xff;
-      int grn = (rgb >> 8) & 0xff;
-      int blu = (rgb) & 0xff;
+      int red = rgb >> 16 & 0xff;
+      int grn = rgb >> 8 & 0xff;
+      int blu = rgb & 0xff;
       return (int) (red * RED_MULT +
                         grn * GRN_MULT +
                         blu * BLU_MULT +
                         0.5);
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      return ((((((0xff << 8) | pixel) << 8) | pixel) << 8) | pixel);
+      return ((0xff << 8 | pixel) << 8 | pixel) << 8 | pixel;
     }
   }
 
@@ -452,19 +476,21 @@ public class PixelConverter {
     private UshortGray() {
     }
 
+    @Override
     public int rgbToPixel(int rgb, ColorModel cm) {
-      int red = (rgb >> 16) & 0xff;
-      int grn = (rgb >> 8) & 0xff;
-      int blu = (rgb) & 0xff;
+      int red = rgb >> 16 & 0xff;
+      int grn = rgb >> 8 & 0xff;
+      int blu = rgb & 0xff;
       return (int) (red * USHORT_RED_MULT +
                         grn * USHORT_GRN_MULT +
                         blu * USHORT_BLU_MULT +
                         0.5);
     }
 
+    @Override
     public int pixelToRgb(int pixel, ColorModel cm) {
-      pixel = pixel >> 8;
-      return ((((((0xff << 8) | pixel) << 8) | pixel) << 8) | pixel);
+      pixel >>= 8;
+      return ((0xff << 8 | pixel) << 8 | pixel) << 8 | pixel;
     }
   }
 }

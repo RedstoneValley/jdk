@@ -27,6 +27,7 @@ package java.awt.peer;
 
 import java.awt.Dialog;
 import java.awt.Window;
+import java.util.List;
 
 /**
  * The peer interface for {@link Dialog}. This adds a couple of dialog specific
@@ -62,7 +63,6 @@ public interface DialogPeer extends WindowPeer {
    *
    * @param windows the windows to block
    * @see Dialog#modalShow()
-   * @see Dialog#blockWindows()
    */
-  void blockWindows(java.util.List<Window> windows);
+  void blockWindows(List<Window> windows);
 }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6366359
  * @summary Test that we don't crash when changing from 8 to 16/32 bit modes
  * @author Dmitri.Trembovetski@Sun.COM area=FullScreen
@@ -40,11 +40,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
-import java.lang.Exception;
-import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.Random;
-import javax.swing.JFrame;
 
 /**
  * The test enters fullscreen mode (if it's supported) and then tries
@@ -62,11 +59,11 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
 
     private final Random rnd = new Random();
     private VolatileImage bb;
-    private BufferedImage sprite;
+    private final BufferedImage sprite;
     private VolatileImage volSprite;
 
-    private static boolean done = false;
-    private static final Object lock = new Object();
+    static boolean done;
+    static final Object lock = new Object();
     private static final int TEST_REPS = 3;
 
     private ArrayList<DisplayMode> dms;
@@ -74,6 +71,7 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
     DisplayChangeVITest() {
         selectDisplayModes();
         addKeyListener(new KeyAdapter() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     synchronized (lock) {
@@ -113,11 +111,13 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
         try { Thread.sleep(msec); } catch (InterruptedException e) {}
     }
 
-    private int reps = 0;
+    private int reps;
+    @Override
     public void run() {
         GraphicsDevice gd = getGraphicsConfiguration().getDevice();
-        if (gd.isDisplayChangeSupported() && dms.size() > 0) {
-            while (!done && reps++ < TEST_REPS) {
+        if (gd.isDisplayChangeSupported() && !dms.isEmpty()) {
+            while (!done && reps < TEST_REPS) {
+                reps++;
                 for (DisplayMode dm : dms) {
                     System.err.printf("Entering DisplayMode[%dx%dx%d]\n",
                         dm.getWidth(), dm.getHeight(), dm.getBitDepth());
@@ -134,6 +134,7 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
                     sleep(1500);
                 }
             }
+            reps++;
         } else {
             System.err.println("Display mode change " +
                                "not supported. Test passed.");
@@ -177,15 +178,15 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
         GraphicsDevice gd =
             GraphicsEnvironment.getLocalGraphicsEnvironment().
                 getDefaultScreenDevice();
-        dms = new ArrayList<DisplayMode>();
-        DisplayMode dmArray[] = gd.getDisplayModes();
+        dms = new ArrayList<>();
+        DisplayMode[] dmArray = gd.getDisplayModes();
         boolean found8 = false, found16 = false,
                 found24 = false, found32 = false;
         for (DisplayMode dm : dmArray) {
             if (!found8 &&
                 (dm.getBitDepth() == 8 ||
                  dm.getBitDepth() == DisplayMode.BIT_DEPTH_MULTI)  &&
-                (dm.getWidth() >= 800 && dm.getWidth() < 1024))
+                dm.getWidth() >= 800 && dm.getWidth() < 1024)
             {
                 dms.add(dm);
                 found8 = true;
@@ -202,7 +203,7 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
             }
             if (!found16 &&
                dm.getBitDepth() == 16 &&
-                (dm.getWidth() >= 1024 && dm.getWidth() < 1280))
+                dm.getWidth() >= 1024 && dm.getWidth() < 1280)
             {
                 dms.add(dm);
                 found16 = true;
@@ -227,7 +228,7 @@ public class DisplayChangeVITest extends JFrame implements Runnable {
         if (gd.isFullScreenSupported()) {
             gd.setFullScreenWindow(test);
             Thread t = new Thread(test);
-            t.run();
+            t.start();
             synchronized (lock) {
                 while (!done) {
                     try {

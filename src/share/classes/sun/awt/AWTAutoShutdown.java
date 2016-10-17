@@ -25,33 +25,31 @@
 
 package sun.awt;
 
-import java.awt.AWTEvent;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
-import sun.misc.ThreadGroupUtils;
 
 /**
  * This class is to let AWT shutdown automatically when a user is done
  * with AWT. It tracks AWT state using the following parameters:
  * <ul>
- * <li><code>peerMap</code> - the map between the existing peer objects
+ * <li>{@code peerMap} - the map between the existing peer objects
  * and their associated targets
- * <li><code>toolkitThreadBusy</code> - whether the toolkit thread
+ * <li>{@code toolkitThreadBusy} - whether the toolkit thread
  * is waiting for a new native event to appear in its queue
  * or is dispatching an event
- * <li><code>busyThreadSet</code> - a set of all the event dispatch
+ * <li>{@code busyThreadSet} - a set of all the event dispatch
  * threads that are busy at this moment, i.e. those that are not
  * waiting for a new event to appear in their event queue.
  * </ul><p>
  * AWT is considered to be in ready-to-shutdown state when
- * <code>peerMap</code> is empty and <code>toolkitThreadBusy</code>
- * is false and <code>busyThreadSet</code> is empty.
+ * {@code peerMap} is empty and {@code toolkitThreadBusy}
+ * is false and {@code busyThreadSet} is empty.
  * The internal AWTAutoShutdown logic secures that the single non-daemon
- * thread (<code>blockerThread</code>) is running when AWT is not in
+ * thread ({@code blockerThread}) is running when AWT is not in
  * ready-to-shutdown state. This blocker thread is to prevent AWT from
  * exiting since the toolkit thread is now daemon and all the event
  * dispatch threads are started only when needed. Once it is detected
@@ -95,17 +93,17 @@ public final class AWTAutoShutdown implements Runnable {
    * Indicates whether the toolkit thread is waiting for a new native
    * event to appear or is dispatching an event.
    */
-  private boolean toolkitThreadBusy = false;
+  private boolean toolkitThreadBusy;
   /**
    * References the alive non-daemon thread that is currently used
    * for keeping AWT from exiting.
    */
-  private Thread blockerThread = null;
+  private Thread blockerThread;
   /**
    * We need this flag to secure that AWT state hasn't changed while
    * we were waiting for the safety timeout to pass.
    */
-  private boolean timeoutPassed = false;
+  private boolean timeoutPassed;
 
   /**
    * Constructor method is intentionally made private to secure
@@ -139,7 +137,6 @@ public final class AWTAutoShutdown implements Runnable {
    * Notify that the toolkit thread is waiting for a native event
    * to appear in its queue.
    *
-   * @see AWTAutoShutdown#notifyToolkitThreadFree
    * @see AWTAutoShutdown#setToolkitBusy
    * @see AWTAutoShutdown#isReadyToShutdown
    */
@@ -147,10 +144,24 @@ public final class AWTAutoShutdown implements Runnable {
     getInstance().setToolkitBusy(false);
   }
 
-  @SuppressWarnings("serial")
-  static AWTEvent getShutdownEvent() {
-    return new AWTEvent(getInstance(), 0) {
-    };
+  static void stopEventDispatchThreads() {
+    for (AppContext appContext : AppContext.getAppContexts()) {
+      if (appContext.isDisposed()) {
+        continue;
+      }
+      Runnable r = new AppContext.PostShutdownEventRunnable(appContext);
+      // For security reasons EventQueue.postEvent should only be called
+      // on a thread that belongs to the corresponding thread group.
+      if (appContext != AppContext.getAppContext()) {
+        // Create a thread that belongs to the thread group associated
+        // with the AppContext and invokes EventQueue.postEvent.
+        PrivilegedAction<Thread> action = new AppContext.CreateThreadAction(appContext, r);
+        Thread thread = AccessController.doPrivileged(action);
+        thread.start();
+      } else {
+        r.run();
+      }
+    }
   }
 
   /**
@@ -162,7 +173,8 @@ public final class AWTAutoShutdown implements Runnable {
    * @see AWTAutoShutdown#notifyThreadFree
    * @see AWTAutoShutdown#isReadyToShutdown
    */
-  public void notifyThreadBusy(final Thread thread) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  public void notifyThreadBusy(Thread thread) {
     if (thread == null) {
       return;
     }
@@ -188,7 +200,8 @@ public final class AWTAutoShutdown implements Runnable {
    * @see AWTAutoShutdown#notifyThreadBusy
    * @see AWTAutoShutdown#isReadyToShutdown
    */
-  public void notifyThreadFree(final Thread thread) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  public void notifyThreadFree(Thread thread) {
     if (thread == null) {
       return;
     }
@@ -209,6 +222,7 @@ public final class AWTAutoShutdown implements Runnable {
    *
    * @see AWTAutoShutdown#isReadyToShutdown
    */
+  @SuppressWarnings("NestedSynchronizedStatement")
   void notifyPeerMapUpdated() {
     synchronized (activationLock) {
       synchronized (mainLock) {
@@ -228,15 +242,15 @@ public final class AWTAutoShutdown implements Runnable {
   /**
    * Determine whether AWT is currently in ready-to-shutdown state.
    * AWT is considered to be in ready-to-shutdown state if
-   * <code>peerMap</code> is empty and <code>toolkitThreadBusy</code>
-   * is false and <code>busyThreadSet</code> is empty.
+   * {@code peerMap} is empty and {@code toolkitThreadBusy}
+   * is false and {@code busyThreadSet} is empty.
    *
    * @return true if AWT is in ready-to-shutdown state.
    */
   private boolean isReadyToShutdown() {
-    return (!toolkitThreadBusy &&
-                peerMap.isEmpty() &&
-                busyThreadSet.isEmpty());
+    return !toolkitThreadBusy &&
+        peerMap.isEmpty() &&
+        busyThreadSet.isEmpty();
   }
 
   /**
@@ -248,7 +262,8 @@ public final class AWTAutoShutdown implements Runnable {
    * @see AWTAutoShutdown#notifyToolkitThreadFree
    * @see AWTAutoShutdown#isReadyToShutdown
    */
-  private void setToolkitBusy(final boolean busy) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  private void setToolkitBusy(boolean busy) {
     if (busy != toolkitThreadBusy) {
       synchronized (activationLock) {
         synchronized (mainLock) {
@@ -260,9 +275,9 @@ public final class AWTAutoShutdown implements Runnable {
                 mainLock.notifyAll();
                 timeoutPassed = false;
               }
-              toolkitThreadBusy = busy;
+              toolkitThreadBusy = true;
             } else {
-              toolkitThreadBusy = busy;
+              toolkitThreadBusy = false;
               if (isReadyToShutdown()) {
                 mainLock.notifyAll();
                 timeoutPassed = false;
@@ -280,6 +295,7 @@ public final class AWTAutoShutdown implements Runnable {
    *
    * @see AWTAutoShutdown#isReadyToShutdown
    */
+  @Override
   public void run() {
     Thread currentThread = Thread.currentThread();
     boolean interrupted = false;
@@ -319,7 +335,7 @@ public final class AWTAutoShutdown implements Runnable {
       }
     }
     if (!interrupted) {
-      AppContext.stopEventDispatchThreads();
+      stopEventDispatchThreads();
     }
   }
 
@@ -327,7 +343,7 @@ public final class AWTAutoShutdown implements Runnable {
    * Creates and starts a new blocker thread. Doesn't return until
    * the new blocker thread starts.
    * <p>
-   * Must be called with {@link sun.security.util.SecurityConstants#MODIFY_THREADGROUP_PERMISSION}
+   * Must be called with
    */
   private void activateBlockerThread() {
     Thread thread = new Thread(ThreadGroupUtils.getRootThreadGroup(), this, "AWT-Shutdown");
@@ -344,7 +360,8 @@ public final class AWTAutoShutdown implements Runnable {
     }
   }
 
-  final void registerPeer(final Object target, final Object peer) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  void registerPeer(Object target, Object peer) {
     synchronized (activationLock) {
       synchronized (mainLock) {
         peerMap.put(target, peer);
@@ -353,7 +370,8 @@ public final class AWTAutoShutdown implements Runnable {
     }
   }
 
-  final void unregisterPeer(final Object target, final Object peer) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  void unregisterPeer(Object target, Object peer) {
     synchronized (activationLock) {
       synchronized (mainLock) {
         if (peerMap.get(target) == peer) {
@@ -364,7 +382,8 @@ public final class AWTAutoShutdown implements Runnable {
     }
   }
 
-  final Object getPeer(final Object target) {
+  @SuppressWarnings("NestedSynchronizedStatement")
+  Object getPeer(Object target) {
     synchronized (activationLock) {
       synchronized (mainLock) {
         return peerMap.get(target);

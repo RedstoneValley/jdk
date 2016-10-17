@@ -40,6 +40,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -63,14 +64,18 @@ public class TransferableProxy implements Transferable {
     isLocal = local;
   }
 
+  @Override
   public DataFlavor[] getTransferDataFlavors() {
     return transferable.getTransferDataFlavors();
   }
 
+  @Override
   public boolean isDataFlavorSupported(DataFlavor flavor) {
     return transferable.isDataFlavorSupported(flavor);
   }
 
+  @SuppressWarnings("NonSerializableObjectPassedToObjectStream")
+  @Override
   public Object getTransferData(DataFlavor df) throws UnsupportedFlavorException, IOException {
     Object data = transferable.getTransferData(df);
 
@@ -90,7 +95,7 @@ public class TransferableProxy implements Transferable {
             oos.getClassLoaderMap());
         data = ois.readObject();
       } catch (ClassNotFoundException cnfe) {
-        throw (IOException) new IOException().initCause(cnfe);
+        throw new IOException(cnfe);
       }
     }
 
@@ -99,36 +104,40 @@ public class TransferableProxy implements Transferable {
 }
 
 final class ClassLoaderObjectOutputStream extends ObjectOutputStream {
-  private final Map<Set<String>, ClassLoader> map = new HashMap<Set<String>, ClassLoader>();
+  private final Map<Set<String>, ClassLoader> map = new HashMap<>();
 
   ClassLoaderObjectOutputStream(OutputStream os) throws IOException {
     super(os);
   }
 
-  protected void annotateClass(final Class<?> cl) throws IOException {
+  @Override
+  protected void annotateClass(Class<?> cl) {
     ClassLoader classLoader = (ClassLoader) AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         return cl.getClassLoader();
       }
     });
 
-    Set<String> s = new HashSet<String>(1);
+    Set<String> s = new HashSet<>(1);
     s.add(cl.getName());
 
     map.put(s, classLoader);
   }
 
-  protected void annotateProxyClass(final Class<?> cl) throws IOException {
+  @Override
+  protected void annotateProxyClass(Class<?> cl) {
     ClassLoader classLoader = (ClassLoader) AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         return cl.getClassLoader();
       }
     });
 
     Class[] interfaces = cl.getInterfaces();
-    Set<String> s = new HashSet<String>(interfaces.length);
-    for (int i = 0; i < interfaces.length; i++) {
-      s.add(interfaces[i].getName());
+    Set<String> s = new HashSet<>(interfaces.length);
+    for (Class anInterface : interfaces) {
+      s.add(anInterface.getName());
     }
 
     map.put(s, classLoader);
@@ -151,28 +160,25 @@ final class ClassLoaderObjectInputStream extends ObjectInputStream {
     this.map = map;
   }
 
+  @Override
   protected Class<?> resolveClass(ObjectStreamClass classDesc)
       throws IOException, ClassNotFoundException {
     String className = classDesc.getName();
 
-    Set<String> s = new HashSet<String>(1);
+    Set<String> s = new HashSet<>(1);
     s.add(className);
 
     ClassLoader classLoader = map.get(s);
-    if (classLoader != null) {
-      return Class.forName(className, false, classLoader);
-    } else {
-      return super.resolveClass(classDesc);
-    }
+    return classLoader != null ? Class.forName(className, false, classLoader)
+        : super.resolveClass(classDesc);
   }
 
+  @Override
   protected Class<?> resolveProxyClass(String[] interfaces)
       throws IOException, ClassNotFoundException {
 
-    Set<String> s = new HashSet<String>(interfaces.length);
-    for (int i = 0; i < interfaces.length; i++) {
-      s.add(interfaces[i]);
-    }
+    Set<String> s = new HashSet<>(interfaces.length);
+    Collections.addAll(s, interfaces);
 
     ClassLoader classLoader = map.get(s);
     if (classLoader == null) {

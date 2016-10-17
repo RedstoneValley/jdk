@@ -59,6 +59,7 @@ import sun.java2d.loops.SurfaceType;
  */
 public abstract class BufferedMaskFill extends MaskFill {
 
+  protected static final int SIZEOF_MASK_HEADER = 32;
   protected final RenderQueue rq;
 
   protected BufferedMaskFill(
@@ -69,8 +70,8 @@ public abstract class BufferedMaskFill extends MaskFill {
 
   @Override
   public void MaskFill(
-      SunGraphics2D sg2d, SurfaceData sData, Composite comp, final int x, final int y, final int w,
-      final int h, final byte[] mask, final int maskoff, final int maskscan) {
+      SunGraphics2D sg2d, SurfaceData sData, Composite comp, int x, int y, int w, int h,
+      byte[] mask, int maskoff, int maskscan) {
     AlphaComposite acomp = (AlphaComposite) comp;
     if (acomp.getRule() != AlphaComposite.SRC_OVER) {
       comp = AlphaComposite.SrcOver;
@@ -83,15 +84,8 @@ public abstract class BufferedMaskFill extends MaskFill {
       // we adjust the mask length so that the mask ends on a
       // 4-byte boundary
       int maskBytesRequired;
-      if (mask != null) {
-        // we adjust the mask length so that the mask ends on a
-        // 4-byte boundary
-        maskBytesRequired = (mask.length + 3) & (~3);
-      } else {
-        // mask not needed
-        maskBytesRequired = 0;
-      }
-      int totalBytesRequired = 32 + maskBytesRequired;
+      maskBytesRequired = mask != null ? mask.length + 3 & ~3 : 0;
+      int totalBytesRequired = SIZEOF_MASK_HEADER + maskBytesRequired;
 
       RenderBuffer buf = rq.getBuffer();
       if (totalBytesRequired <= buf.capacity()) {
@@ -118,6 +112,7 @@ public abstract class BufferedMaskFill extends MaskFill {
         // queue is too small to accommodate entire mask; perform
         // the operation directly on the queue flushing thread
         rq.flushAndInvokeNow(new Runnable() {
+          @Override
           public void run() {
             maskFill(x, y, w, h, maskoff, maskscan, mask.length, mask);
           }

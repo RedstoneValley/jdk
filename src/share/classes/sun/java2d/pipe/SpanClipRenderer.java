@@ -39,17 +39,15 @@ public class SpanClipRenderer implements CompositePipe {
   static Class RegionIteratorClass = RegionIterator.class;
 
   static {
-    initIDs(RegionClass, RegionIteratorClass);
   }
 
-  CompositePipe outpipe;
+  final CompositePipe outpipe;
 
   public SpanClipRenderer(CompositePipe pipe) {
     outpipe = pipe;
   }
 
-  static native void initIDs(Class rc, Class ric);
-
+  @Override
   public Object startSequence(
       SunGraphics2D sg, Shape s, Rectangle devR, int[] abox) {
     RegionIterator ri = sg.clipRegion.getIterator();
@@ -57,11 +55,13 @@ public class SpanClipRenderer implements CompositePipe {
     return new SCRcontext(ri, outpipe.startSequence(sg, s, devR, abox));
   }
 
+  @Override
   public boolean needTile(Object ctx, int x, int y, int w, int h) {
     SCRcontext context = (SCRcontext) ctx;
-    return (outpipe.needTile(context.outcontext, x, y, w, h));
+    return outpipe.needTile(context.outcontext, x, y, w, h);
   }
 
+  @Override
   public void renderPathTile(
       Object ctx, byte[] atile, int offset, int tsize, int x, int y, int w, int h) {
     SCRcontext context = (SCRcontext) ctx;
@@ -89,7 +89,7 @@ public class SpanClipRenderer implements CompositePipe {
     }
 
     if (band[2] > band[0] && band[3] > band[1]) {
-      offset += (band[1] - y) * tsize + (band[0] - x);
+      offset += (band[1] - y) * tsize + band[0] - x;
       outpipe.renderPathTile(
           context.outcontext,
           atile,
@@ -102,11 +102,13 @@ public class SpanClipRenderer implements CompositePipe {
     }
   }
 
+  @Override
   public void skipTile(Object ctx, int x, int y) {
     SCRcontext context = (SCRcontext) ctx;
     outpipe.skipTile(context.outcontext, x, y);
   }
 
+  @Override
   public void endSequence(Object ctx) {
     SCRcontext context = (SCRcontext) ctx;
     outpipe.endSequence(context.outcontext);
@@ -118,17 +120,21 @@ public class SpanClipRenderer implements CompositePipe {
     renderPathTile(ctx, atile, offset, tsize, x, y, w, h);
   }
 
-  public native void fillTile(
-      RegionIterator ri, byte[] alpha, int offset, int tsize, int[] band);
+  public void fillTile(
+      RegionIterator ri, byte[] alpha, int offset, int tsize, int[] band) {
+    // TODO: Native in OpenJDK AWT
+  }
 
-  public native void eraseTile(
-      RegionIterator ri, byte[] alpha, int offset, int tsize, int[] band);
+  public void eraseTile(
+      RegionIterator ri, byte[] alpha, int offset, int tsize, int[] band) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   class SCRcontext {
-    RegionIterator iterator;
-    Object outcontext;
-    int band[];
-    byte tile[];
+    final RegionIterator iterator;
+    final Object outcontext;
+    final int[] band;
+    byte[] tile;
 
     public SCRcontext(RegionIterator ri, Object outctx) {
       iterator = ri;

@@ -39,9 +39,9 @@ import sun.java2d.SurfaceData;
  * from within the surface description data for clip rect
  */
 public class DrawPolygons extends GraphicsPrimitive {
-  public final static String methodSignature = "DrawPolygons(...)".toString();
+  public static final String methodSignature = "DrawPolygons(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected DrawPolygons(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -60,10 +60,13 @@ public class DrawPolygons extends GraphicsPrimitive {
   /**
    * All DrawPolygon implementors must have this invoker method
    */
-  public native void DrawPolygons(
-      SunGraphics2D sg2d, SurfaceData sData, int xPoints[], int yPoints[], int nPoints[],
-      int numPolys, int transX, int transY, boolean close);
+  public void DrawPolygons(
+      SunGraphics2D sg2d, SurfaceData sData, int[] xPoints, int[] yPoints, int[] nPoints,
+      int numPolys, int transX, int transY, boolean close) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: use FillSpans or converter object?
@@ -71,25 +74,28 @@ public class DrawPolygons extends GraphicsPrimitive {
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawPolygons(this);
   }
 
   private static class TraceDrawPolygons extends DrawPolygons {
-    DrawPolygons target;
+    final DrawPolygons target;
 
     public TraceDrawPolygons(DrawPolygons target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawPolygons(
-        SunGraphics2D sg2d, SurfaceData sData, int xPoints[], int yPoints[], int nPoints[],
+        SunGraphics2D sg2d, SurfaceData sData, int[] xPoints, int[] yPoints, int[] nPoints,
         int numPolys, int transX, int transY, boolean close) {
       tracePrimitive(target);
       target.DrawPolygons(sg2d, sData, xPoints, yPoints, nPoints, numPolys, transX, transY, close);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

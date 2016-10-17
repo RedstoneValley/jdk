@@ -39,9 +39,9 @@ import sun.java2d.SurfaceData;
  * from within the surface description data for clip rect
  */
 public class FillRect extends GraphicsPrimitive {
-  public final static String methodSignature = "FillRect(...)".toString();
+  public static final String methodSignature = "FillRect(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new FillRect(null, null, null));
@@ -63,42 +63,49 @@ public class FillRect extends GraphicsPrimitive {
   /**
    * All FillRect implementors must have this invoker method
    */
-  public native void FillRect(SunGraphics2D sg2d, SurfaceData dest, int x, int y, int w, int h);
+  public void FillRect(SunGraphics2D sg2d, SurfaceData dest, int x, int y, int w, int h) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     return new General(srctype, comptype, dsttype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceFillRect(this);
   }
 
   public static class General extends FillRect {
-    public MaskFill fillop;
+    public final MaskFill fillop;
 
     public General(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
       super(srctype, comptype, dsttype);
       fillop = MaskFill.locate(srctype, comptype, dsttype);
     }
 
+    @Override
     public void FillRect(SunGraphics2D sg2d, SurfaceData dest, int x, int y, int w, int h) {
       fillop.MaskFill(sg2d, dest, sg2d.composite, x, y, w, h, null, 0, 0);
     }
   }
 
   private static class TraceFillRect extends FillRect {
-    FillRect target;
+    final FillRect target;
 
     public TraceFillRect(FillRect target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }
 
+    @Override
     public void FillRect(SunGraphics2D sg2d, SurfaceData dest, int x, int y, int w, int h) {
       tracePrimitive(target);
       target.FillRect(sg2d, dest, x, y, w, h);

@@ -50,20 +50,24 @@ import java.util.regex.PatternSyntaxException;
  * @author Xueming Shen
  */
 
-class ZipUtils {
+@SuppressWarnings("CharacterComparison")
+final class ZipUtils {
 
   // used to adjust values between Windows and java epoch
   private static final long WINDOWS_EPOCH_IN_MICROSECONDS = -11644473600000000L;
   private static final String regexMetaChars = ".^$+{[]|()";
   private static final String globMetaChars = "\\*?[{";
-  private static char EOL = 0;  //TBD
+  private static final char EOL;  //TBD
+
+  private ZipUtils() {
+  }
 
   /*
    * Writes a 16-bit short to the output stream in little-endian byte order.
    */
   public static void writeShort(OutputStream os, int v) throws IOException {
     os.write(v & 0xff);
-    os.write((v >>> 8) & 0xff);
+    os.write(v >>> 8 & 0xff);
   }
 
   /*
@@ -71,9 +75,9 @@ class ZipUtils {
    */
   public static void writeInt(OutputStream os, long v) throws IOException {
     os.write((int) (v & 0xff));
-    os.write((int) ((v >>> 8) & 0xff));
-    os.write((int) ((v >>> 16) & 0xff));
-    os.write((int) ((v >>> 24) & 0xff));
+    os.write((int) (v >>> 8 & 0xff));
+    os.write((int) (v >>> 16 & 0xff));
+    os.write((int) (v >>> 24 & 0xff));
   }
 
   /*
@@ -81,13 +85,13 @@ class ZipUtils {
    */
   public static void writeLong(OutputStream os, long v) throws IOException {
     os.write((int) (v & 0xff));
-    os.write((int) ((v >>> 8) & 0xff));
-    os.write((int) ((v >>> 16) & 0xff));
-    os.write((int) ((v >>> 24) & 0xff));
-    os.write((int) ((v >>> 32) & 0xff));
-    os.write((int) ((v >>> 40) & 0xff));
-    os.write((int) ((v >>> 48) & 0xff));
-    os.write((int) ((v >>> 56) & 0xff));
+    os.write((int) (v >>> 8 & 0xff));
+    os.write((int) (v >>> 16 & 0xff));
+    os.write((int) (v >>> 24 & 0xff));
+    os.write((int) (v >>> 32 & 0xff));
+    os.write((int) (v >>> 40 & 0xff));
+    os.write((int) (v >>> 48 & 0xff));
+    os.write((int) (v >>> 56 & 0xff));
   }
 
   /*
@@ -105,61 +109,31 @@ class ZipUtils {
   }
 
   /*
-   * Append a slash at the end, if it does not have one yet
-   */
-  public static byte[] toDirectoryPath(byte[] dir) {
-    if (dir.length != 0 && dir[dir.length - 1] != '/') {
-      dir = Arrays.copyOf(dir, dir.length + 1);
-      dir[dir.length - 1] = '/';
-    }
-    return dir;
-  }
-
-  /*
    * Converts DOS time to Java time (number of milliseconds since epoch).
    */
   public static long dosToJavaTime(long dtime) {
-    Date d = new Date((int) (((dtime >> 25) & 0x7f) + 80),
-        (int) (((dtime >> 21) & 0x0f) - 1),
-        (int) ((dtime >> 16) & 0x1f),
-        (int) ((dtime >> 11) & 0x1f),
-        (int) ((dtime >> 5) & 0x3f),
-        (int) ((dtime << 1) & 0x3e));
+    Date d = new Date((int) ((dtime >> 25 & 0x7f) + 80),
+        (int) ((dtime >> 21 & 0x0f) - 1),
+        (int) (dtime >> 16 & 0x1f),
+        (int) (dtime >> 11 & 0x1f),
+        (int) (dtime >> 5 & 0x3f),
+        (int) (dtime << 1 & 0x3e));
     return d.getTime();
   }
 
-  /*
-   * Converts Java time to DOS time.
-   */
-  public static long javaToDosTime(long time) {
-    Date d = new Date(time);
-    int year = d.getYear() + 1900;
-    if (year < 1980) {
-      return (1 << 21) | (1 << 16);
-    }
-    return (year - 1980) << 25 | (d.getMonth() + 1) << 21 |
-        d.getDate() << 16 | d.getHours() << 11 | d.getMinutes() << 5 |
-        d.getSeconds() >> 1;
-  }
-
-  public static final long winToJavaTime(long wtime) {
-    return TimeUnit.MILLISECONDS.convert(
-        wtime / 10 + WINDOWS_EPOCH_IN_MICROSECONDS,
+  public static long winToJavaTime(long wtime) {
+    return TimeUnit.MILLISECONDS.convert(wtime / 10 + WINDOWS_EPOCH_IN_MICROSECONDS,
         TimeUnit.MICROSECONDS);
   }
 
-  public static final long javaToWinTime(long time) {
+  public static long javaToWinTime(long time) {
     return
         (TimeUnit.MICROSECONDS.convert(time, TimeUnit.MILLISECONDS) - WINDOWS_EPOCH_IN_MICROSECONDS)
             * 10;
   }
 
-  public static final long unixToJavaTime(long utime) {
+  public static long unixToJavaTime(long utime) {
     return TimeUnit.MILLISECONDS.convert(utime, TimeUnit.SECONDS);
-  }
-
-  public static final long javaToUnixTime(long time) {
-    return TimeUnit.SECONDS.convert(time, TimeUnit.MILLISECONDS);
   }
 
   private static boolean isRegexMeta(char c) {
@@ -188,14 +162,16 @@ class ZipUtils {
 
     int i = 0;
     while (i < globPattern.length()) {
-      char c = globPattern.charAt(i++);
+      char c = globPattern.charAt(i);
+      i++;
       switch (c) {
         case '\\':
           // escape special characters
           if (i == globPattern.length()) {
             throw new PatternSyntaxException("No character to escape", globPattern, i - 1);
           }
-          char next = globPattern.charAt(i++);
+          char next = globPattern.charAt(i);
+          i++;
           if (isGlobMeta(next) || isRegexMeta(next)) {
             regex.append('\\');
           }
@@ -226,7 +202,8 @@ class ZipUtils {
           boolean hasRangeStart = false;
           char last = 0;
           while (i < globPattern.length()) {
-            c = globPattern.charAt(i++);
+            c = globPattern.charAt(i);
+            i++;
             if (c == ']') {
               break;
             }
@@ -247,9 +224,10 @@ class ZipUtils {
               if (!hasRangeStart) {
                 throw new PatternSyntaxException("Invalid range", globPattern, i - 1);
               }
-              if ((c = next(globPattern, i++)) == EOL || c == ']') {
+              if ((c = next(globPattern, i)) == EOL || c == ']') {
                 break;
               }
+              i++;
               if (c < last) {
                 throw new PatternSyntaxException("Invalid range", globPattern, i - 3);
               }

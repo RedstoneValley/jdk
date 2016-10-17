@@ -45,34 +45,40 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class Test1 {
-    static JFrame f0 = new JFrame("base_frame") { public String getName() {return "base_frame";} };
-    static JButton f0b0 = new JB("b0");
-    static JButton f0b1 = new JB("b1");
-    static JButton f0b2 = new JB("b2");
-    static JButton f0b3 = new JB("b3");
+public final class Test1 {
+    static final JFrame f0 = new JFrame("base_frame") { public String getName() {return "base_frame";} };
+    static final JButton f0b0 = new JB("b0");
+    static final JButton f0b1 = new JB("b1");
+    static final JButton f0b2 = new JB("b2");
+    static final JButton f0b3 = new JB("b3");
 
-    static JFrame f1 = new JFrame("swing_frame") { public String getName() {return "swing_frame";} };
-    static JButton f1b0 = new JButton("button");
+    static final JFrame f1 = new JFrame("swing_frame") { public String getName() {return "swing_frame";} };
+    static final JButton f1b0 = new JButton(Button.base);
 
-    static Frame f2 = new Frame("awt_frame") { public String getName() {return "awt_frame";} };
-    static Button f2b0 = new Button("button");
+    static final Frame f2 = new Frame("awt_frame") {
+        private static final long serialVersionUID = 851689437604230045L;
+
+        @Override
+    public String getName() {return "awt_frame";} };
+    static final Button f2b0 = new Button(Button.base);
 
     static Robot robot;
 
-    static List<Component> gainedList = new ArrayList<Component>();
-    static List<Component> lostList = new ArrayList<Component>();
+    static final List<Component> gainedList = new ArrayList<>();
+    static final List<Component> lostList = new ArrayList<>();
 
-    static Component[] refGainedList = new Component[] {f0b1, f0b2, f0b3, f0b3};
-    static Component[] refLostList = new Component[] {f0b0, f0b1, f0b2, f0b3};
+    static final Component[] refGainedList = {f0b1, f0b2, f0b3, f0b3};
+    static final Component[] refLostList = {f0b0, f0b1, f0b2, f0b3};
 
     static boolean tracking;
 
+    private Test1() {
+    }
+
     public static void main(String[] args) {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.out.println(e);
             }
@@ -195,21 +201,25 @@ public class Test1 {
 }
 
 class JB extends JButton {
-    String name;
+    final String name;
 
     public JB(String name) {
         super(name);
         this.name = name;
 
         addFocusListener(new FocusListener() {
+            @Override
             public void focusGained(FocusEvent e) {
-                if (Test1.tracking)
+                if (Test1.tracking) {
                     Test1.gainedList.add(e.getComponent());
+                }
             }
 
+            @Override
             public void focusLost(FocusEvent e) {
-                if (Test1.tracking)
+                if (Test1.tracking) {
                     Test1.lostList.add(e.getComponent());
+                }
             }
         });
     }

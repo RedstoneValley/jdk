@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import java.awt.peer.CanvasPeer;
 import java.awt.peer.ComponentPeer;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * Created by cryoc on 2016-10-11.
@@ -60,7 +60,7 @@ public class SkinJobCanvasPeer extends SkinJobComponentPeer<Canvas> implements C
   @Override
   public boolean requestFocus(
       Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time,
-      CausedFocusEvent.Cause cause) {
+      Cause cause) {
     return false;
   }
 

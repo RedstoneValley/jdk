@@ -25,9 +25,10 @@
 package sun.awt;
 
 import java.awt.Component;
+import sun.awt.CausedFocusEvent.Cause;
 
 public interface RequestFocusController {
-  public boolean acceptRequestFocus(
+  boolean acceptRequestFocus(
       Component from, Component to, boolean temporary, boolean focusedWindowChangeAllowed,
-      CausedFocusEvent.Cause cause);
+      Cause cause);
 }

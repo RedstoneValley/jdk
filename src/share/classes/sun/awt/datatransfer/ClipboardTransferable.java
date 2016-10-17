@@ -30,7 +30,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -69,15 +68,14 @@ public class ClipboardTransferable implements Transferable {
 
         Map flavorsForFormats = DataTransferer.getInstance().
             getFlavorsForFormats(formats, SunClipboard.getDefaultFlavorTable());
-        for (Iterator iter = flavorsForFormats.keySet().iterator(); iter.hasNext(); ) {
-          DataFlavor flavor = (DataFlavor) iter.next();
+        for (Object o : flavorsForFormats.keySet()) {
+          DataFlavor flavor = (DataFlavor) o;
           Long lFormat = (Long) flavorsForFormats.get(flavor);
 
           fetchOneFlavor(clipboard, flavor, lFormat, cached_data);
         }
 
-        flavors = DataTransferer.getInstance().
-            setToSortedDataFlavorArray(flavorsToData.keySet());
+        flavors = DataTransferer.setToSortedDataFlavorArray(flavorsToData.keySet());
       }
     } finally {
       clipboard.closeClipboard();
@@ -87,7 +85,7 @@ public class ClipboardTransferable implements Transferable {
   private boolean fetchOneFlavor(
       SunClipboard clipboard, DataFlavor flavor, Long lFormat, HashMap cached_data) {
     if (!flavorsToData.containsKey(flavor)) {
-      long format = lFormat.longValue();
+      long format = lFormat;
       Object data = null;
 
       if (!cached_data.containsKey(lFormat)) {
@@ -121,14 +119,17 @@ public class ClipboardTransferable implements Transferable {
     return false;
   }
 
+  @Override
   public DataFlavor[] getTransferDataFlavors() {
-    return (DataFlavor[]) flavors.clone();
+    return flavors.clone();
   }
 
+  @Override
   public boolean isDataFlavorSupported(DataFlavor flavor) {
     return flavorsToData.containsKey(flavor);
   }
 
+  @Override
   public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
     if (!isDataFlavorSupported(flavor)) {
       throw new UnsupportedFlavorException(flavor);
@@ -137,7 +138,8 @@ public class ClipboardTransferable implements Transferable {
     if (ret instanceof IOException) {
       // rethrow IOExceptions generated while fetching data
       throw (IOException) ret;
-    } else if (ret instanceof DataFactory) {
+    }
+    if (ret instanceof DataFactory) {
       // Now we can render the data
       DataFactory factory = (DataFactory) ret;
       ret = factory.getTransferData(flavor);

@@ -32,13 +32,17 @@
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 
-public class TranslucencyThrowsExceptionWhenFullScreen
+public final class TranslucencyThrowsExceptionWhenFullScreen
 {
-    public static void main(String[] args)
+  private TranslucencyThrowsExceptionWhenFullScreen() {
+  }
+
+  public static void main(String[] args)
         throws InvocationTargetException, InterruptedException
     {
         EventQueue.invokeAndWait(
             new Runnable(){
+                @Override
                 public void run() {
                     Frame frame = new Frame();
                     frame.setBounds(100,100,100,100);
@@ -56,7 +60,7 @@ public class TranslucencyThrowsExceptionWhenFullScreen
         );
     }
 
-    private static void testGraphicsDevice(GraphicsDevice device, Frame frame) {
+    static void testGraphicsDevice(GraphicsDevice device, Frame frame) {
         device.setFullScreenWindow(frame);
         try {
             frame.setOpacity(0.5f);

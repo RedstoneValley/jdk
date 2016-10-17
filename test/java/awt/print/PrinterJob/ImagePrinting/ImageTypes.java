@@ -21,32 +21,28 @@
  * questions.
  */
 
-/**
- *
- * @test
+/*
+
+  @test
  * @bug 4521945 7006865
  * @summary Test printing images of different types.
  * @author prr
  * @run main/manual=yesno/timeout=900 ImageTypes
  */
 
-import java.io.*;
 import static java.awt.Color.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.awt.image.*;
 import static java.awt.image.BufferedImage.*;
-import javax.print.*;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.*;
 
 public class ImageTypes extends Frame implements ActionListener {
 
-    private ImageCanvas c;
+    private static final long serialVersionUID = 6654849787979101664L;
+    private final ImageCanvas c;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         ImageTypes f = new ImageTypes();
         f.show();
@@ -55,15 +51,16 @@ public class ImageTypes extends Frame implements ActionListener {
     public ImageTypes () {
         super("Image Types Printing Test");
         c = new ImageCanvas();
-        add("Center", c);
+        add(BorderLayout.CENTER, c);
 
         Button printThisButton = new Button("Print");
         printThisButton.addActionListener(this);
         Panel p = new Panel();
         p.add(printThisButton);
-        add("South", p);
-        add("North", getInstructions());
+        add(BorderLayout.SOUTH, p);
+        add(BorderLayout.NORTH, getInstructions());
         addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     System.exit(0);
                 }
@@ -74,7 +71,7 @@ public class ImageTypes extends Frame implements ActionListener {
 
     private TextArea getInstructions() {
         TextArea ta = new TextArea(10, 60);
-        ta.setFont(new Font("Dialog", Font.PLAIN, 11));
+        ta.setFont(new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 11));
         ta.setText
             ("This is a manual test as it requires that you compare "+
              "the on-screen rendering with the printed output.\n"+
@@ -84,6 +81,7 @@ public class ImageTypes extends Frame implements ActionListener {
         return ta;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         PrinterJob pj = PrinterJob.getPrinterJob();
 
@@ -104,11 +102,13 @@ public class ImageTypes extends Frame implements ActionListener {
 
 class ImageCanvas extends Component implements Printable {
 
-    IndexColorModel icm2 = null;
-    IndexColorModel icm4 = null;
-    BufferedImage opaqueImg = null;
-    BufferedImage transImg = null;
-    int sw=99, sh=99;
+    private static final long serialVersionUID = 1433809472629282435L;
+    final IndexColorModel icm2;
+    final IndexColorModel icm4;
+    final BufferedImage opaqueImg;
+    final BufferedImage transImg;
+    final int sw=99;
+    final int sh=99;
 
     void paintImage(BufferedImage bi, Color c1, Color c2) {
 
@@ -118,13 +118,14 @@ class ImageCanvas extends Component implements Printable {
         g2d.fillRect(0, 0, sw, sh);
         g2d.setColor(gray);
         int cnt=0;
-        Font font = new Font("Serif", Font.PLAIN, 11);
+        Font font = new Font(Font.SERIF, Font.PLAIN, 11);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
-        for (int y=12;y<sh;y+=12) {
+        for (int y=12;y< sh;y+=12) {
             int x = 0;
             while (x < sw) {
-                String s = (new Integer(++cnt)).toString();
+                ++cnt;
+                String s = Integer.toString(cnt);
                 g2d.drawString(s, x, y);
                 x+= fm.stringWidth(s);
             }
@@ -172,6 +173,7 @@ class ImageCanvas extends Component implements Printable {
     }
 
 
+    @Override
     public int print(Graphics g, PageFormat pgFmt, int pgIndex) {
 
         if (pgIndex > 0) {
@@ -186,11 +188,8 @@ class ImageCanvas extends Component implements Printable {
     private void drawImage(Graphics g, int biType, IndexColorModel icm) {
 
         BufferedImage bi;
-        if (icm != null) {
-            bi = new BufferedImage(sw, sh, biType, icm);
-        } else {
-            bi = new BufferedImage(sw, sh, biType);
-        }
+        bi = icm != null ? new BufferedImage(sw, sh, biType, icm)
+            : new BufferedImage(sw, sh, biType);
 
         Graphics big = bi.getGraphics();
         if (bi.getColorModel().getPixelSize() <=2) {
@@ -201,9 +200,10 @@ class ImageCanvas extends Component implements Printable {
         g.drawImage(bi, 0, 0, null);
     }
 
+    @Override
     public void paint(Graphics g) {
 
-        int incX = sw+10, incY = sh+10;
+        int incX = sw +10, incY = sh +10;
 
         g.translate(10, 10);
 
@@ -265,6 +265,7 @@ class ImageCanvas extends Component implements Printable {
       * page. This means there will be clipping, what is clipped will
       * depend on PageFormat orientation.
       */
+     @Override
      public Dimension getPreferredSize() {
         return new Dimension(468, 600);
     }

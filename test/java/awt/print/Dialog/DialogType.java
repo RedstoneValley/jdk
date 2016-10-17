@@ -21,20 +21,18 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6568874
  * @summary Verify the native dialog works with attribute sets.
  * @run main/manual=yesno DialogType
  */
 
 import java.awt.print.*;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.*;
 
-public class DialogType {
+public final class DialogType {
 
-  static String[] instructions = {
+  static final String[] instructions = {
      "This test assumes and requires that you have a printer installed",
      "It verifies that the dialogs behave properly when using new API",
      "to optionally select a native dialog where one is present.",
@@ -45,11 +43,14 @@ public class DialogType {
      ""
   };
 
+  private DialogType() {
+  }
+
   public static void main(String[] args) {
 
-      for (int i=0;i<instructions.length;i++) {
-         System.out.println(instructions[i]);
-      }
+    for (String instruction : instructions) {
+      System.out.println(instruction);
+    }
 
       PrinterJob job = PrinterJob.getPrinterJob();
       if (job.getPrintService() == null) {
@@ -60,14 +61,14 @@ public class DialogType {
       aset.add(DialogTypeSelection.NATIVE);
       job.printDialog(aset);
       Attribute[] attrs = aset.toArray();
-      for (int i=0;i<attrs.length;i++) {
-          System.out.println(attrs[i]);
-      }
+    for (Attribute attr1 : attrs) {
+      System.out.println(attr1);
+    }
       aset.add(DialogTypeSelection.COMMON);
       job.printDialog(aset);
       attrs = aset.toArray();
-      for (int i=0;i<attrs.length;i++) {
-          System.out.println(attrs[i]);
-      }
+    for (Attribute attr : attrs) {
+      System.out.println(attr);
+    }
    }
 }

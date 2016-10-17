@@ -1,6 +1,7 @@
 package java.awt;
 
 import android.widget.CheckBox;
+import android.widget.Checkable;
 import android.widget.Spinner;
 import android.widget.TextView;
 import java.awt.peer.ListPeer;
@@ -10,7 +11,7 @@ import java.util.Arrays;
  * Created by cryoc on 2016-10-09.
  */
 class SkinJobListPeer extends SkinJobSelectorPeer<Spinner> implements ListPeer {
-  protected boolean multipleMode = false;
+  protected boolean multipleMode;
 
   public SkinJobListPeer(List target) {
     super((Spinner) target.androidWidget);
@@ -30,16 +31,16 @@ class SkinJobListPeer extends SkinJobSelectorPeer<Spinner> implements ListPeer {
   @Override
   public synchronized void select(int index) {
     if (multipleMode) {
-      ((CheckBox) (androidWidget.getItemAtPosition(index))).setChecked(true);
+      ((Checkable) androidWidget.getItemAtPosition(index)).setChecked(true);
     } else {
       androidWidget.setSelection(index, SkinJob.animateListAutoSelection);
     }
   }
 
   @Override
-  public void deselect(int index) {
+  public synchronized void deselect(int index) {
     if (multipleMode) {
-      ((CheckBox) (androidWidget.getItemAtPosition(index))).setChecked(false);
+      ((Checkable) androidWidget.getItemAtPosition(index)).setChecked(false);
     } else {
       androidWidget.setSelection(-1);
     }
@@ -60,8 +61,9 @@ class SkinJobListPeer extends SkinJobSelectorPeer<Spinner> implements ListPeer {
       int[] selected = new int[entries.size()];
       int nSelected = 0;
       for (int i = 0; i < androidWidget.getChildCount(); i++) {
-        if (((CheckBox) androidWidget.getChildAt(i)).isChecked()) {
-          selected[nSelected++] = i;
+        if (((Checkable) androidWidget.getChildAt(i)).isChecked()) {
+          selected[nSelected] = i;
+          nSelected++;
         }
       }
       if (nSelected == selected.length) {

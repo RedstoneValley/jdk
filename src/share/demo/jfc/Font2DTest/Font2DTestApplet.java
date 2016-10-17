@@ -73,9 +73,10 @@ public final class Font2DTestApplet extends JApplet {
       }
     }
 
-    final JFrame f = new JFrame("Font2DTest");
-    final Font2DTest f2dt = new Font2DTest(f, true);
+    JFrame f = new JFrame("Font2DTest");
+    Font2DTest f2dt = new Font2DTest(f, true);
     f.addWindowListener(new WindowAdapter() {
+      @Override
       public void windowClosing(WindowEvent e) {
         f.dispose();
       }

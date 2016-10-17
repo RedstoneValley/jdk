@@ -34,15 +34,18 @@ import java.awt.geom.*;
 import java.text.*;
 import java.util.Hashtable;
 
-public class FRCTest {
+public final class FRCTest {
 
-    static AttributedString vanGogh = new AttributedString(
+    static final AttributedString vanGogh = new AttributedString(
         "Many people believe that Vincent van Gogh painted his best works " +
         "during the two-year period he spent in Provence. Here is where he " +
         "painted The Starry Night--which some consider to be his greatest " +
         "work of all. However, as his artistic brilliance reached new " +
         "heights in Provence, his physical and mental health plummeted. ",
         new Hashtable());
+
+    private FRCTest() {
+    }
 
     public static void main(String[] args) {
 

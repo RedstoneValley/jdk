@@ -32,21 +32,18 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.Timer;
 import java.util.TimerTask;
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class CrashXCheckJni {
+public final class CrashXCheckJni {
 
     public static void main(String []s)
     {
-        final Dialog fd = new Dialog(new Frame(), true);
+        Dialog fd = new Dialog(new Frame(), true);
         Timer t = new Timer();
         t.schedule(new TimerTask() {
 
+            @Override
             public void run() {
                 System.out.println("RUNNING TASK");
                 fd.setVisible(false);

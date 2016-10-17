@@ -36,10 +36,11 @@ import java.awt.Frame;
 
 import java.lang.reflect.InvocationTargetException;
 
-import test.java.awt.regtesthelpers.Util;
+public final class NpeOnCloseTest {
+  private NpeOnCloseTest() {
+  }
 
-public class NpeOnCloseTest {
-    public static void main(String[] args)
+  public static void main(String[] args)
     {
         Frame frame1 = new Frame("frame 1");
         frame1.setBounds(0, 0, 100, 100);
@@ -52,30 +53,30 @@ public class NpeOnCloseTest {
         Util.waitForIdle(null);
 
         Frame frame3 = new Frame("frame 3");
-        final Dialog dialog = new Dialog(frame3, "dialog", true);
+        Dialog dialog = new Dialog(frame3, Dialog.base, true);
         dialog.setBounds(300, 0, 100, 100);
         EventQueue.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     dialog.setVisible(true);
                 }
             });
         try {
-            EventQueue.invokeAndWait(new Runnable() { public void run() {} });
+            EventQueue.invokeAndWait(new Runnable() { @Override
+            public void run() {} });
             Util.waitForIdle(null);
             EventQueue.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.dispose();
                     }
                 });
         }
-        catch (InterruptedException ie) {
+        catch (InterruptedException | InvocationTargetException ie) {
             throw new RuntimeException(ie);
         }
-        catch (InvocationTargetException ite) {
-            throw new RuntimeException(ite);
-        }
 
-        frame1.dispose();
+      frame1.dispose();
         frame2.dispose();
         frame3.dispose();
     }

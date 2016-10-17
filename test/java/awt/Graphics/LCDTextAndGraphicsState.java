@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6576507
  * @summary Both lines of text should be readable
  * @run main/manual=yesno LCDTextAndGraphicsState
@@ -32,13 +32,15 @@ import java.awt.geom.*;
 
 public class LCDTextAndGraphicsState extends Component {
 
-    String text = "This test passes only if this text appears SIX TIMES";
+    private static final long serialVersionUID = 8574591250418555702L;
+    final String text = "This test passes only if this text appears SIX TIMES";
 
+    @Override
     public void paint(Graphics g) {
 
         Graphics2D g2d = (Graphics2D)g.create();
         g2d.setColor(Color.white);
-        g2d.fillRect(0,0,getSize().width, getSize().height);
+        g2d.fillRect(0,0, getSize().width, getSize().height);
 
         test1(g.create(0,   0, 500, 200));
         test2(g.create(0, 200, 500, 200));
@@ -78,6 +80,7 @@ public class LCDTextAndGraphicsState extends Component {
         g2d.drawString(text, 10, 80);
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(500,600);
     }

@@ -48,7 +48,7 @@ import sun.java2d.SunGraphics2D;
  * Paint.createContext() method).
  */
 public interface ParallelogramPipe {
-  public void fillParallelogram(
+  void fillParallelogram(
       SunGraphics2D sg, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2);
 
@@ -63,7 +63,7 @@ public interface ParallelogramPipe {
    * same parallelogram by lw/2 pixels and filling the
    * difference between the outer and inner parallelograms.
    */
-  public void drawParallelogram(
+  void drawParallelogram(
       SunGraphics2D sg, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2, double lw1, double lw2);
 }

@@ -25,10 +25,9 @@
 
 package sun.swing;
 
-import java.beans.*;
 import java.lang.reflect.Method;
 
-public class BeanInfoUtils
+public final class BeanInfoUtils
 {
     /* The values of these createPropertyDescriptor() and
      * createBeanDescriptor() keywords are the names of the
@@ -46,7 +45,7 @@ public class BeanInfoUtils
     public static final String SHORTDESCRIPTION = "shortDescription";
     public static final String CUSTOMIZERCLASS = "customizerClass";
 
-    static private void initFeatureDescriptor(FeatureDescriptor fd, String key, Object value)
+    private static void initFeatureDescriptor(FeatureDescriptor fd, String key, Object value)
     {
         if (DISPLAYNAME.equals(key)) {
             fd.setDisplayName((String)value);
@@ -96,19 +95,19 @@ public class BeanInfoUtils
      *        }
      *     );
      * </pre>
-     * The keywords correspond to <code>java.beans.PropertyDescriptor</code> and
-     * <code>java.beans.FeatureDescriptor</code> properties, e.g. providing a value
-     * for displayName is comparable to <code>FeatureDescriptor.setDisplayName()</code>.
+     * The keywords correspond to {@code java.beans.PropertyDescriptor} and
+     * {@code java.beans.FeatureDescriptor} properties, e.g. providing a value
+     * for displayName is comparable to {@code FeatureDescriptor.setDisplayName()}.
      * Using createPropertyDescriptor instead of the PropertyDescriptor
      * constructor and set methods is preferrable in that it regularizes
-     * the code in a <code>java.beans.BeanInfo.getPropertyDescriptors()</code>
-     * method implementation.  One can use <code>createPropertyDescriptor</code>
-     * to set <code>FeatureDescriptor</code> attributes, as in "random attribute"
+     * the code in a {@code java.beans.BeanInfo.getPropertyDescriptors()}
+     * method implementation.  One can use {@code createPropertyDescriptor}
+     * to set {@code FeatureDescriptor} attributes, as in "random attribute"
      * "random object value".
      * <p>
      * All properties should provide a reasonable value for the
-     * <code>SHORTDESCRIPTION</code> keyword and should set <code>BOUND</code>
-     * to <code>Boolean.TRUE</code> if neccessary.  The remaining keywords
+     * {@code SHORTDESCRIPTION} keyword and should set {@code BOUND}
+     * to {@code Boolean.TRUE} if neccessary.  The remaining keywords
      * are optional.  There's no need to provide values for keywords like
      * READMETHOD if the correct value can be computed, i.e. if the properties
      * get/is method follows the standard beans pattern.
@@ -118,13 +117,10 @@ public class BeanInfoUtils
      * likely to be interested to the average developer, e.g. AbstractButton.title
      * is a preferred property, AbstractButton.focusPainted is not.
      *
-     * @see java.beans#BeanInfo
-     * @see java.beans#PropertyDescriptor
-     * @see java.beans#FeatureDescriptor
      */
     public static PropertyDescriptor createPropertyDescriptor(Class cls, String name, Object[] args)
     {
-        PropertyDescriptor pd = null;
+        PropertyDescriptor pd;
         try {
             pd = new PropertyDescriptor(name, cls);
         } catch (IntrospectionException e) {
@@ -156,7 +152,7 @@ public class BeanInfoUtils
                 String methodName = (String)value;
                 Method method;
                 try {
-                    method = cls.getMethod(methodName, new Class[0]);
+                    method = cls.getMethod(methodName);
                     pd.setReadMethod(method);
                 }
                 catch(Exception e) {
@@ -169,7 +165,7 @@ public class BeanInfoUtils
                 Method method;
                 try {
                     Class type = pd.getPropertyType();
-                    method = cls.getMethod(methodName, new Class[]{type});
+                    method = cls.getMethod(methodName, type);
                     pd.setWriteMethod(method);
                 }
                 catch(Exception e) {
@@ -202,18 +198,16 @@ public class BeanInfoUtils
      *        }
      *     );
      * </pre>
-     * The keywords correspond to <code>java.beans.BeanDescriptor</code> and
-     * <code>java.beans.FeatureDescriptor</code> properties, e.g. providing a value
-     * for displayName is comparable to <code>FeatureDescriptor.setDisplayName()</code>.
+     * The keywords correspond to {@code java.beans.BeanDescriptor} and
+     * {@code java.beans.FeatureDescriptor} properties, e.g. providing a value
+     * for displayName is comparable to {@code FeatureDescriptor.setDisplayName()}.
      * Using createBeanDescriptor instead of the BeanDescriptor
      * constructor and set methods is preferrable in that it regularizes
-     * the code in a <code>java.beans.BeanInfo.getBeanDescriptor()</code>
-     * method implementation.  One can use <code>createBeanDescriptor</code>
-     * to set <code>FeatureDescriptor</code> attributes, as in "random attribute"
+     * the code in a {@code java.beans.BeanInfo.getBeanDescriptor()}
+     * method implementation.  One can use {@code createBeanDescriptor}
+     * to set {@code FeatureDescriptor} attributes, as in "random attribute"
      * "random object value".
      *
-     * @see java.beans#BeanInfo
-     * @see java.beans#PropertyDescriptor
      */
     public static BeanDescriptor createBeanDescriptor(Class cls, Object[] args)
     {
@@ -224,7 +218,7 @@ public class BeanInfoUtils
          * to the constructor here.
          */
         for(int i = 0; i < args.length; i += 2) {
-            if (CUSTOMIZERCLASS.equals((String)args[i])) {
+            if (CUSTOMIZERCLASS.equals(args[i])) {
                 customizerClass = (Class)args[i + 1];
                 break;
             }
@@ -241,7 +235,7 @@ public class BeanInfoUtils
         return bd;
     }
 
-    static private PropertyDescriptor createReadOnlyPropertyDescriptor(
+    private static PropertyDescriptor createReadOnlyPropertyDescriptor(
         String name, Class cls) throws IntrospectionException {
 
         Method readMethod = null;
@@ -276,10 +270,10 @@ public class BeanInfoUtils
 
     // Modified methods from java.beans.Introspector
     private static String capitalize(String s) {
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             return s;
         }
-        char chars[] = s.toCharArray();
+        char[] chars = s.toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
         return new String(chars);
     }
@@ -288,6 +282,6 @@ public class BeanInfoUtils
      * Fatal errors are handled by calling this method.
      */
     public static void throwError(Exception e, String s) {
-        throw new Error(e.toString() + " " + s);
+        throw new Error(e + " " + s);
     }
 }

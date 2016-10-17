@@ -33,14 +33,15 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class InvisibleOwner {
-    private static volatile boolean invisibleOwnerClicked = false;
-    private static volatile boolean backgroundClicked = false;
+public final class InvisibleOwner {
+    static volatile boolean invisibleOwnerClicked;
+    static volatile boolean backgroundClicked;
 
     private static final int F_X = 40, F_Y = 40, F_W = 200, F_H = 200;
+
+    private InvisibleOwner() {
+    }
 
     public static void main(String[] args) throws AWTException {
         // A background frame to compare a pixel color against
@@ -68,7 +69,7 @@ public class InvisibleOwner {
         });
 
         // An owned window
-        final Window window = new Window(frame);
+        Window window = new Window(frame);
         window.setBackground(Color.RED);
         window.setSize(200, 200);
         window.setLocation(300, 300);

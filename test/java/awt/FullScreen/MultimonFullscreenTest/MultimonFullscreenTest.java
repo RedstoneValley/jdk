@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 5041219
  * @bug 5101561
  * @bug 5035272
@@ -52,6 +52,7 @@
  * @run main/manual/othervm -Dsun.java2d.opengl=True MultimonFullscreenTest
  */
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
@@ -79,37 +80,40 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferStrategy;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 /**
  */
 
 public class MultimonFullscreenTest extends Frame implements ActionListener {
-    GraphicsDevice  defDev = GraphicsEnvironment.getLocalGraphicsEnvironment().
+    private static final long serialVersionUID = 6609818950772385714L;
+    final GraphicsDevice  defDev = GraphicsEnvironment.getLocalGraphicsEnvironment().
             getDefaultScreenDevice();
-    GraphicsDevice  gd[] = GraphicsEnvironment.getLocalGraphicsEnvironment().
-            getScreenDevices();
-    HashMap<Button, GraphicsDevice> deviceMap;
+    final GraphicsDevice[] gd = GraphicsEnvironment.getLocalGraphicsEnvironment().
+        getScreenDevices();
+    final Map<Button, GraphicsDevice> deviceMap;
 
-    private static boolean dmChange = false;
-    static boolean setNullOnDispose = false;
+    static boolean dmChange;
+    static boolean setNullOnDispose;
     static boolean useFSFrame = true;
-    static boolean useFSWindow = false;
-    static boolean useFSDialog = false;
-    static boolean useBS = false;
-    static boolean runRenderLoop = false;
-    static boolean addHWChildren = false;
+    static boolean useFSWindow;
+    static boolean useFSDialog;
+    static boolean useBS;
+    static boolean runRenderLoop;
+    static boolean addHWChildren;
     static volatile boolean done = true;
 
     public MultimonFullscreenTest(String title) {
         super(title);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });
         Panel p = new Panel();
-        deviceMap = new HashMap<Button, GraphicsDevice>(gd.length);
+        deviceMap = new HashMap<>(gd.length);
         int num = 0;
         for (GraphicsDevice dev : gd) {
             Button b;
@@ -127,11 +131,12 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
             deviceMap.put(b, dev);
             num++;
         }
-        add("South", p);
+        add(BorderLayout.SOUTH, p);
         Panel p1 = new Panel();
         p1.setLayout(new GridLayout(2,0));
         Checkbox cb = new Checkbox("Change DM on entering FS");
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 dmChange = ((Checkbox)e.getSource()).getState();
             }
@@ -147,6 +152,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         CheckboxGroup cbg = new CheckboxGroup();
         cb = new Checkbox("Use Frame to enter FS", cbg, true);
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 useFSFrame = true;
                 useFSWindow = false;
@@ -156,6 +162,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         p1.add(cb);
         cb = new Checkbox("Use Window to enter FS", cbg, false);
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 useFSFrame = false;
                 useFSWindow = true;
@@ -165,6 +172,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         p1.add(cb);
         cb = new Checkbox("Use Dialog to enter FS", cbg, false);
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 useFSFrame = false;
                 useFSWindow = false;
@@ -174,6 +182,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         p1.add(cb);
         cb = new Checkbox("Run render loop");
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 runRenderLoop = ((Checkbox)e.getSource()).getState();
             }
@@ -181,6 +190,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         p1.add(cb);
         cb = new Checkbox("Use BufferStrategy in render loop");
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 useBS = ((Checkbox)e.getSource()).getState();
             }
@@ -188,19 +198,20 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         p1.add(cb);
         cb = new Checkbox("Add Children to FS window");
         cb.addItemListener(new ItemListener() {
+            @Override
             public void itemStateChanged(ItemEvent e) {
                 addHWChildren = ((Checkbox)e.getSource()).getState();
             }
         });
         p1.add(cb);
-        add("North", p1);
+        add(BorderLayout.NORTH, p1);
 
         pack();
         setVisible(true);
     }
 
-    Font f = new Font("Dialog", Font.BOLD, 24);
-    Random rnd = new Random();
+    final Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 24);
+    final Random rnd = new Random();
     public void renderDimensions(Graphics g, Rectangle rectWndBounds,
                                  GraphicsConfiguration gc) {
         g.setColor(new Color(rnd.nextInt(0xffffff)));
@@ -220,7 +231,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
                               gc.getDevice().isFullScreenSupported();
         rectStrBounds = g.getFontMetrics().
                 getStringBounds(isFSupported, g).getBounds();
-        rectStrBounds.height += (10 + oldHeight);
+        rectStrBounds.height += 10 + oldHeight;
         g.drawString(isFSupported, 50, rectStrBounds.height);
 
         oldHeight = rectStrBounds.height;
@@ -228,17 +239,17 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
                               gc.getDevice().isDisplayChangeSupported();
         rectStrBounds = g.getFontMetrics().
                 getStringBounds(isDMChangeSupported, g).getBounds();
-        rectStrBounds.height += (10 + oldHeight);
+        rectStrBounds.height += 10 + oldHeight;
         g.drawString(isDMChangeSupported, 50, rectStrBounds.height);
 
         oldHeight = rectStrBounds.height;
         String usingBS = "Using BufferStrategy: " + useBS;
         rectStrBounds = g.getFontMetrics().
                 getStringBounds(usingBS, g).getBounds();
-        rectStrBounds.height += (10 + oldHeight);
+        rectStrBounds.height += 10 + oldHeight;
         g.drawString(usingBS, 50, rectStrBounds.height);
 
-        final String m_strQuitMsg = "Double-click to dispose FullScreen Window";
+        String m_strQuitMsg = "Double-click to dispose FullScreen Window";
         rectStrBounds = g.getFontMetrics().
                 getStringBounds(m_strQuitMsg, g).getBounds();
         g.drawString(m_strQuitMsg,
@@ -248,47 +259,58 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
 
     }
 
+    @Override
     public void actionPerformed(ActionEvent ae) {
         GraphicsDevice dev = deviceMap.get(ae.getSource());
         System.err.println("Setting FS on device:"+dev);
-        final Window fsWindow;
+        Window fsWindow;
 
         if (useFSWindow) {
             fsWindow = new Window(this, dev.getDefaultConfiguration()) {
+                private static final long serialVersionUID = 1136859372366206367L;
+
+                @Override
                 public void paint(Graphics g) {
-                    renderDimensions(g, getBounds(),
-                                     this.getGraphicsConfiguration());
+                    renderDimensions(g, getBounds(), getGraphicsConfiguration());
                 }
             };
         } else if (useFSDialog) {
             fsWindow = new Dialog((Frame)null, "FS Dialog on device "+dev, false,
                                  dev.getDefaultConfiguration());
             fsWindow.add(new Component() {
+                private static final long serialVersionUID = -2859604989408299455L;
+
+                @Override
                 public void paint(Graphics g) {
-                    renderDimensions(g, getBounds(),
-                                     this.getGraphicsConfiguration());
+                    renderDimensions(g, getBounds(), getGraphicsConfiguration());
                 }
             });
         } else {
             fsWindow = new Frame("FS Frame on device "+dev,
                                  dev.getDefaultConfiguration())
             {
+                private static final long serialVersionUID = -591922283831459638L;
+
+                @Override
                 public void paint(Graphics g) {
-                    renderDimensions(g, getBounds(),
-                                     this.getGraphicsConfiguration());
+                    renderDimensions(g, getBounds(), getGraphicsConfiguration());
                 }
             };
             if (addHWChildren) {
-                fsWindow.add("South", new Panel() {
+                fsWindow.add(BorderLayout.SOUTH, new Panel() {
+                    private static final long serialVersionUID = 5505267060684559113L;
+
+                    @Override
                     public void paint(Graphics g) {
                         g.setColor(Color.red);
                         g.fillRect(0, 0, getWidth(), getHeight());
                     }
                 });
-                fsWindow.add("North", new Button("Button, sucka!"));
+                fsWindow.add(BorderLayout.NORTH, new Button("Button, sucka!"));
             }
         }
         fsWindow.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() > 1) {
                     done = true;
@@ -300,7 +322,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         fsWindow.addWindowListener(new WindowHandler());
         dev.setFullScreenWindow(fsWindow);
         if (dmChange && dev.isDisplayChangeSupported()) {
-            DisplayMode dms[] = dev.getDisplayModes();
+            DisplayMode[] dms = dev.getDisplayModes();
             DisplayMode myDM = null;
             for (DisplayMode dm : dms) {
                 if (dm.getWidth() == 800 && dm.getHeight() == 600 &&
@@ -326,6 +348,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         done = false;
         if (runRenderLoop) {
             Thread updateThread = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     BufferStrategy bs = null;
                     if (useBS) {
@@ -354,15 +377,15 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         for (String s : args) {
-            if (s.equalsIgnoreCase("-dm")) {
+            if ("-dm".equalsIgnoreCase(s)) {
                 System.err.println("Do Display Change after entering FS mode");
                 dmChange = true;
-            } else if (s.equalsIgnoreCase("-usewindow")) {
+            } else if ("-usewindow".equalsIgnoreCase(s)) {
                 System.err.println("Using Window to enter FS mode");
                 useFSWindow = true;
-            } else if (s.equalsIgnoreCase("-setnull")) {
+            } else if ("-setnull".equalsIgnoreCase(s)) {
                 System.err.println("Setting null FS window on dispose");
                 setNullOnDispose = true;
             } else {
@@ -375,6 +398,7 @@ public class MultimonFullscreenTest extends Frame implements ActionListener {
                 new MultimonFullscreenTest("Test Full Screen");
     }
     class WindowHandler extends WindowAdapter {
+        @Override
         public void windowClosing(WindowEvent we) {
             done = true;
             Window w = (Window)we.getSource();

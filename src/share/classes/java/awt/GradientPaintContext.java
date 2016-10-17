@@ -35,17 +35,17 @@ import java.lang.ref.WeakReference;
 import sun.awt.image.IntegerComponentRaster;
 
 class GradientPaintContext implements PaintContext {
-  static ColorModel xrgbmodel = new DirectColorModel(24, 0x00ff0000, 0x0000ff00, 0x000000ff);
-  static ColorModel xbgrmodel = new DirectColorModel(24, 0x000000ff, 0x0000ff00, 0x00ff0000);
+  static final ColorModel xrgbmodel = new DirectColorModel(24, 0x00ff0000, 0x0000ff00, 0x000000ff);
+  static final ColorModel xbgrmodel = new DirectColorModel(24, 0x000000ff, 0x0000ff00, 0x00ff0000);
 
   static ColorModel cachedModel;
   static WeakReference<Raster> cached;
-  double x1;
-  double y1;
+  final double x1;
+  final double y1;
   double dx;
   double dy;
-  boolean cyclic;
-  int interp[];
+  final boolean cyclic;
+  final int[] interp;
   Raster saved;
   ColorModel model;
 
@@ -95,8 +95,8 @@ class GradientPaintContext implements PaintContext {
       dy = (yvec.getX() * udx + yvec.getY() * udy) / ulenSq;
 
       if (cyclic) {
-        dx = dx % 1.0;
-        dy = dy % 1.0;
+        dx %= 1.0;
+        dy %= 1.0;
       } else {
         // We are acyclic
         if (dx < 0) {
@@ -107,7 +107,6 @@ class GradientPaintContext implements PaintContext {
           // values and swap the points and colors.
           Point2D p = p1;
           p1 = p2;
-          p2 = p;
           Color c = c1;
           c1 = c2;
           c2 = c;
@@ -118,20 +117,20 @@ class GradientPaintContext implements PaintContext {
     }
 
     Point2D dp1 = xform.transform(p1, null);
-    this.x1 = dp1.getX();
-    this.y1 = dp1.getY();
+    x1 = dp1.getX();
+    y1 = dp1.getY();
 
     this.cyclic = cyclic;
     int rgb1 = c1.getRGB();
     int rgb2 = c2.getRGB();
-    int a1 = (rgb1 >> 24) & 0xff;
-    int r1 = (rgb1 >> 16) & 0xff;
-    int g1 = (rgb1 >> 8) & 0xff;
-    int b1 = (rgb1) & 0xff;
-    int da = ((rgb2 >> 24) & 0xff) - a1;
-    int dr = ((rgb2 >> 16) & 0xff) - r1;
-    int dg = ((rgb2 >> 8) & 0xff) - g1;
-    int db = ((rgb2) & 0xff) - b1;
+    int a1 = rgb1 >> 24 & 0xff;
+    int r1 = rgb1 >> 16 & 0xff;
+    int g1 = rgb1 >> 8 & 0xff;
+    int b1 = rgb1 & 0xff;
+    int da = (rgb2 >> 24 & 0xff) - a1;
+    int dr = (rgb2 >> 16 & 0xff) - r1;
+    int dg = (rgb2 >> 8 & 0xff) - g1;
+    int db = (rgb2 & 0xff) - b1;
     if (a1 == 0xff && da == 0) {
       model = xrgbmodel;
       if (cm instanceof DirectColorModel) {
@@ -156,10 +155,10 @@ class GradientPaintContext implements PaintContext {
     interp = new int[cyclic ? 513 : 257];
     for (int i = 0; i <= 256; i++) {
       float rel = i / 256.0f;
-      int rgb = (((int) (a1 + da * rel)) << 24) |
-          (((int) (r1 + dr * rel)) << 16) |
-          (((int) (g1 + dg * rel)) << 8) |
-          (((int) (b1 + db * rel)));
+      int rgb = (int) (a1 + da * rel) << 24 |
+          (int) (r1 + dr * rel) << 16 |
+          (int) (g1 + dg * rel) << 8 |
+          (int) (b1 + db * rel);
       interp[i] = rgb;
       if (cyclic) {
         interp[512 - i] = rgb;
@@ -170,7 +169,7 @@ class GradientPaintContext implements PaintContext {
   static synchronized Raster getCachedRaster(ColorModel cm, int w, int h) {
     if (cm == cachedModel) {
       if (cached != null) {
-        Raster ras = (Raster) cached.get();
+        Raster ras = cached.get();
         if (ras != null &&
             ras.getWidth() >= w &&
             ras.getHeight() >= h) {
@@ -184,7 +183,7 @@ class GradientPaintContext implements PaintContext {
 
   static synchronized void putCachedRaster(ColorModel cm, Raster ras) {
     if (cached != null) {
-      Raster cras = (Raster) cached.get();
+      Raster cras = cached.get();
       if (cras != null) {
         int cw = cras.getWidth();
         int ch = cras.getHeight();
@@ -205,6 +204,7 @@ class GradientPaintContext implements PaintContext {
   /**
    * Release the resources allocated for the operation.
    */
+  @Override
   public void dispose() {
     if (saved != null) {
       putCachedRaster(model, saved);
@@ -215,6 +215,7 @@ class GradientPaintContext implements PaintContext {
   /**
    * Return the ColorModel of the output.
    */
+  @Override
   public ColorModel getColorModel() {
     return model;
   }
@@ -226,6 +227,7 @@ class GradientPaintContext implements PaintContext {
    * @param x,y,w,h The area in device space for which colors are
    *                generated.
    */
+  @Override
   public Raster getRaster(int x, int y, int w, int h) {
     double rowrel = (x - x1) * dx + (y - y1) * dy;
 
@@ -252,47 +254,61 @@ class GradientPaintContext implements PaintContext {
 
   void cycleFillRaster(
       int[] pixels, int off, int adjust, int w, int h, double rowrel, double dx, double dy) {
-    rowrel = rowrel % 2.0;
-    int irowrel = ((int) (rowrel * (1 << 30))) << 1;
+    rowrel %= 2.0;
+    int irowrel = (int) (rowrel * (1 << 30)) << 1;
     int idx = (int) (-dx * (1 << 31));
     int idy = (int) (-dy * (1 << 31));
-    while (--h >= 0) {
+    --h;
+    while (h >= 0) {
       int icolrel = irowrel;
       for (int j = w; j > 0; j--) {
-        pixels[off++] = interp[icolrel >>> 23];
+        pixels[off] = interp[icolrel >>> 23];
+        off++;
         icolrel += idx;
       }
 
       off += adjust;
       irowrel += idy;
+      --h;
     }
   }
 
   void clipFillRaster(
       int[] pixels, int off, int adjust, int w, int h, double rowrel, double dx, double dy) {
-    while (--h >= 0) {
+    --h;
+    while (h >= 0) {
       double colrel = rowrel;
       int j = w;
       if (colrel <= 0.0) {
         int rgb = interp[0];
+        --j;
         do {
-          pixels[off++] = rgb;
+          pixels[off] = rgb;
+          off++;
           colrel += dx;
-        } while (--j > 0 && colrel <= 0.0);
+          --j;
+        } while (j > 0 && colrel <= 0.0);
       }
-      while (colrel < 1.0 && --j >= 0) {
-        pixels[off++] = interp[(int) (colrel * 256)];
+      --j;
+      while (colrel < 1.0 && j >= 0) {
+        pixels[off] = interp[(int) (colrel * 256)];
+        off++;
         colrel += dx;
+        --j;
       }
       if (j > 0) {
         int rgb = interp[256];
+        --j;
         do {
-          pixels[off++] = rgb;
-        } while (--j > 0);
+          pixels[off] = rgb;
+          off++;
+          --j;
+        } while (j > 0);
       }
 
       off += adjust;
       rowrel += dy;
+      --h;
     }
   }
 }

@@ -32,8 +32,10 @@
 import java.awt.*;
 import java.awt.event.*;
 
-public class ListFlickers
+public final class ListFlickers
 {
+    private ListFlickers() {
+    }
 
     //*** test-writer defined static variables go here ***
 
@@ -77,15 +79,15 @@ public class ListFlickers
      * There is a section following this for test-defined
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -112,11 +114,13 @@ public class ListFlickers
         }
         catch (InterruptedException e)
         {
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -180,6 +184,7 @@ public class ListFlickers
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
@@ -221,16 +226,13 @@ class NewClass implements anInterface
 
 //************** End classes defined for the test *******************
 
-
-
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -244,11 +246,14 @@ class NewClass implements anInterface
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
-    private static boolean numbering = false;
-    private static int messageNumber = 0;
+    private static boolean numbering;
+    private static int messageNumber;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -301,10 +306,11 @@ class Sysout
 class TestDialog extends Dialog implements ActionListener
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
-    Panel  buttonP = new Panel();
+    private static final long serialVersionUID = -33520503483104552L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
+    final Panel  buttonP = new Panel();
     Button passB = new Button( "pass" );
     Button failB = new Button( "fail" );
 
@@ -314,22 +320,22 @@ class TestDialog extends Dialog implements ActionListener
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         passB = new Button( "pass" );
         passB.setActionCommand( "pass" );
         passB.addActionListener( this );
-        buttonP.add( "East", passB );
+        buttonP.add( "East", passB);
 
         failB = new Button( "fail" );
         failB.setActionCommand( "fail" );
         failB.addActionListener( this );
-        buttonP.add( "West", failB );
+        buttonP.add( "West", failB);
 
-        add( "South", buttonP );
+        add(BorderLayout.SOUTH, buttonP);
         pack();
 
         setVisible(true);
@@ -344,35 +350,31 @@ class TestDialog extends Dialog implements ActionListener
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()
@@ -387,6 +389,7 @@ class TestDialog extends Dialog implements ActionListener
     //catch presses of the passed and failed buttons.
     //simply call the standard pass() or fail() static methods of
     //ManualMainTest
+    @Override
     public void actionPerformed( ActionEvent e )
     {
         if( e.getActionCommand() == "pass" )

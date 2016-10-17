@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -67,8 +66,8 @@ import java.util.logging.Logger;
  */
 final class XYZChemModel {
 
-  static final Map<String, Atom> atomTable = new HashMap<String, Atom>();
-  static Atom defaultAtom;
+  static final Map<String, Atom> atomTable = new HashMap<>();
+  static final Atom defaultAtom;
 
   static {
     atomTable.put("c", new Atom(0, 0, 0));
@@ -81,13 +80,13 @@ final class XYZChemModel {
     defaultAtom = new Atom(255, 100, 200);
   }
 
-  float vert[];
-  Atom atoms[];
-  int tvert[];
-  int ZsortMap[];
+  float[] vert;
+  Atom[] atoms;
+  int[] tvert;
+  int[] ZsortMap;
   int nvert, maxvert;
   boolean transformed;
-  Matrix3D mat;
+  final Matrix3D mat;
   float xmin, xmax, ymin, ymax, zmin, zmax;
 
   XYZChemModel() {
@@ -101,8 +100,7 @@ final class XYZChemModel {
    */
   XYZChemModel(InputStream is) throws Exception {
     this();
-    StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(
-        is,
+    StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(is,
         "UTF-8")));
     st.eolIsSignificant(true);
     st.commentChar('#');
@@ -157,11 +155,11 @@ final class XYZChemModel {
         vert = new float[maxvert * 3];
         atoms = new Atom[maxvert];
       } else {
-        maxvert *= 2;
-        float nv[] = new float[maxvert * 3];
+        maxvert <<= 1;
+        float[] nv = new float[maxvert * 3];
         System.arraycopy(vert, 0, nv, 0, vert.length);
         vert = nv;
-        Atom na[] = new Atom[maxvert];
+        Atom[] na = new Atom[maxvert];
         System.arraycopy(atoms, 0, na, 0, atoms.length);
         atoms = na;
       }
@@ -175,7 +173,9 @@ final class XYZChemModel {
     vert[i] = x;
     vert[i + 1] = y;
     vert[i + 2] = z;
-    return nvert++;
+    int result = nvert;
+    nvert++;
+    return result;
   }
 
   /**
@@ -203,12 +203,13 @@ final class XYZChemModel {
       return;
     }
     transform();
-    int v[] = tvert;
-    int zs[] = ZsortMap;
+    int[] v = tvert;
+    int[] zs = ZsortMap;
     if (zs == null) {
       ZsortMap = zs = new int[nvert];
-      for (int i = nvert; --i >= 0; ) {
+      for (int i = nvert; i >= 0; ) {
         zs[i] = i * 3;
+        --i;
       }
     }
 
@@ -219,7 +220,7 @@ final class XYZChemModel {
          * to O(N)
          */
 
-    for (int i = nvert - 1; --i >= 0; ) {
+    for (int i = nvert - 1; i >= 0; ) {
       boolean flipped = false;
       for (int j = 0; j <= i; j++) {
         int a = zs[j];
@@ -233,6 +234,7 @@ final class XYZChemModel {
       if (!flipped) {
         break;
       }
+      --i;
     }
 
     int lim = nvert;
@@ -262,7 +264,7 @@ final class XYZChemModel {
     if (nvert <= 0) {
       return;
     }
-    float v[] = vert;
+    float[] v = vert;
     float _xmin = v[0], _xmax = _xmin;
     float _ymin = v[1], _ymax = _ymin;
     float _zmin = v[2], _zmax = _zmin;
@@ -289,12 +291,12 @@ final class XYZChemModel {
         _zmax = z;
       }
     }
-    this.xmax = _xmax;
-    this.xmin = _xmin;
-    this.ymax = _ymax;
-    this.ymin = _ymin;
-    this.zmax = _zmax;
-    this.zmin = _zmin;
+    xmax = _xmax;
+    xmin = _xmin;
+    ymax = _ymax;
+    ymin = _ymin;
+    zmax = _zmax;
+    zmin = _zmin;
   }
 }
 
@@ -309,9 +311,10 @@ public class XYZApp extends Applet implements Runnable, MouseListener, MouseMoti
   float xfac;
   int prevx, prevy;
   float scalefudge = 1;
-  Matrix3D amat = new Matrix3D(), tmat = new Matrix3D();
-  String mdname = null;
-  String message = null;
+  final Matrix3D amat = new Matrix3D();
+  final Matrix3D tmat = new Matrix3D();
+  String mdname;
+  String message;
   Image backBuffer;
   Graphics backGC;
   Dimension backSize;
@@ -329,7 +332,7 @@ public class XYZApp extends Applet implements Runnable, MouseListener, MouseMoti
   public void init() {
     mdname = getParameter("model");
     try {
-      scalefudge = Float.valueOf(getParameter("scale")).floatValue();
+      scalefudge = Float.valueOf(getParameter("scale"));
     } catch (Exception ignored) {
     }
     amat.yrot(20);
@@ -495,32 +498,31 @@ public class XYZApp extends Applet implements Runnable, MouseListener, MouseMoti
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {
             "model", "path string", "The path to the model to be displayed" + " in .xyz format "
             + "(see http://chem.leeds.ac.uk/Project/MIME.html)." + "  Default is model.obj."},
         {"scale", "float", "Scale factor.  Default is 1 (i.e. no scale)."}};
-    return info;
   }
 }   // end class XYZApp
 
 class Atom {
 
-  private final static int R = 40;
-  private final static int hx = 15;
-  private final static int hy = 15;
-  private final static int bgGrey = 192;
-  private final static int nBalls = 16;
+  private static final int R = 40;
+  private static final int hx = 15;
+  private static final int hy = 15;
+  private static final int bgGrey = 192;
+  private static final int nBalls = 16;
+  private static final byte[] data;
+  private static final int maxr;
   private static Applet applet;
-  private static byte[] data;
-  private static int maxr;
 
   static {
     data = new byte[R * 2 * R * 2];
     int mr = 0;
-    for (int Y = 2 * R; --Y >= 0; ) {
+    for (int Y = 2 * R; Y >= 0; ) {
       int x0 = (int) (Math.sqrt(R * R - (Y - R) * (Y - R)) + 0.5);
-      int p = Y * (R * 2) + R - x0;
+      int p = Y * R * 2 + R - x0;
       for (int X = -x0; X < x0; X++) {
         int x = X + hx;
         int y = Y - R + hy;
@@ -528,16 +530,18 @@ class Atom {
         if (r > mr) {
           mr = r;
         }
-        data[p++] = r <= 0 ? 1 : (byte) r;
+        data[p] = r <= 0 ? 1 : (byte) r;
+        p++;
       }
+      --Y;
     }
     maxr = mr;
   }
 
-  private int Rl;
-  private int Gl;
-  private int Bl;
-  private Image balls[];
+  private final int Rl;
+  private final int Gl;
+  private final int Bl;
+  private Image[] balls;
 
   Atom(int Rl, int Gl, int Bl) {
     this.Rl = Rl;
@@ -555,11 +559,11 @@ class Atom {
 
   private void Setup() {
     balls = new Image[nBalls];
-    byte red[] = new byte[256];
+    byte[] red = new byte[256];
     red[0] = (byte) bgGrey;
-    byte green[] = new byte[256];
+    byte[] green = new byte[256];
     green[0] = (byte) bgGrey;
-    byte blue[] = new byte[256];
+    byte[] blue = new byte[256];
     blue[0] = (byte) bgGrey;
     for (int r = 0; r < nBalls; r++) {
       float b = (float) (r + 1) / nBalls;
@@ -570,12 +574,12 @@ class Atom {
         blue[i] = (byte) blend(blend(Bl, 255, d), bgGrey, b);
       }
       IndexColorModel model = new IndexColorModel(8, maxr + 1, red, green, blue, 0);
-      balls[r] = applet.createImage(new MemoryImageSource(R * 2, R * 2, model, data, 0, R * 2));
+      balls[r] = applet.createImage(new MemoryImageSource(R << 1, R << 1, model, data, 0, R << 1));
     }
   }
 
   void paint(Graphics gc, int x, int y, int r) {
-    Image ba[] = balls;
+    Image[] ba = balls;
     if (ba == null) {
       Setup();
       ba = balls;

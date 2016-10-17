@@ -39,15 +39,18 @@ import java.awt.image.SampleModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.util.Vector;
 
-public class GetSamplesTest {
+public final class GetSamplesTest {
 
-    public static int width = 100;
-    public static int height = 100;
-    public static int dataType = DataBuffer.TYPE_BYTE;
-    public static int numBands = 4;
+    public static final int width = 100;
+    public static final int height = 100;
+    public static final int dataType = DataBuffer.TYPE_BYTE;
+    public static final int numBands = 4;
+
+    private GetSamplesTest() {
+    }
 
     public static void main(String[] args) {
-        Vector<Class<? extends SampleModel>> classes = new Vector<Class<? extends SampleModel>>();
+        Vector<Class<? extends SampleModel>> classes = new Vector<>();
 
         classes.add(ComponentSampleModel.class);
         classes.add(MultiPixelPackedSampleModel.class);
@@ -103,10 +106,11 @@ public class GetSamplesTest {
     }
 
     private static SampleModel createSampleModel(Class<? extends SampleModel> cls) {
-        SampleModel res = null;
+        SampleModel res;
 
         if (cls == ComponentSampleModel.class) {
-            res = new ComponentSampleModel(dataType, width, height, 4, width * 4, new int[] { 0, 1, 2, 3 } );
+            res = new ComponentSampleModel(dataType, width, height, 4,
+                width << 2, new int[] { 0, 1, 2, 3 } );
         } else if (cls == MultiPixelPackedSampleModel.class) {
             res = new MultiPixelPackedSampleModel(dataType, width, height, 4);
         } else if (cls == SinglePixelPackedSampleModel.class) {
@@ -115,7 +119,8 @@ public class GetSamplesTest {
         } else if (cls == BandedSampleModel.class) {
             res = new BandedSampleModel(dataType, width, height, numBands);
         } else if (cls == PixelInterleavedSampleModel.class) {
-            res = new PixelInterleavedSampleModel(dataType, width, height, 4, width * 4, new int[] { 0, 1, 2, 3 });
+            res = new PixelInterleavedSampleModel(dataType, width, height, 4,
+                width << 2, new int[] { 0, 1, 2, 3 });
         } else {
             throw new RuntimeException("Unknown class " + cls);
         }

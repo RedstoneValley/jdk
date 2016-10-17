@@ -27,7 +27,6 @@ package sun.java2d.pipe;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 
 /*
@@ -36,12 +35,13 @@ import sun.java2d.SunGraphics2D;
  */
 public class TextRenderer extends GlyphListPipe {
 
-  CompositePipe outpipe;
+  final CompositePipe outpipe;
 
   public TextRenderer(CompositePipe pipe) {
     outpipe = pipe;
   }
 
+  @Override
   protected void drawGlyphList(SunGraphics2D sg2d, GlyphList gl) {
     int num = gl.getNumGlyphs();
     Region clipRegion = sg2d.getCompClip();
@@ -60,7 +60,7 @@ public class TextRenderer extends GlyphListPipe {
       ctx = outpipe.startSequence(sg2d, s, r, bounds);
       for (int i = 0; i < num; i++) {
         gl.setGlyphIndex(i);
-        int metrics[] = gl.getMetrics();
+        int[] metrics = gl.getMetrics();
         int gx1 = metrics[0];
         int gy1 = metrics[1];
         int w = metrics[2];
@@ -83,7 +83,7 @@ public class TextRenderer extends GlyphListPipe {
         }
         if (gx2 > gx1 && gy2 > gy1 &&
             outpipe.needTile(ctx, gx1, gy1, gx2 - gx1, gy2 - gy1)) {
-          byte alpha[] = gl.getGrayBits();
+          byte[] alpha = gl.getGrayBits();
           outpipe.renderPathTile(ctx, alpha, off, w, gx1, gy1, gx2 - gx1, gy2 - gy1);
         } else {
           outpipe.skipTile(ctx, gx1, gy1);

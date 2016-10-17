@@ -39,7 +39,7 @@ import sun.java2d.pipe.NullPipe;
  */
 public class NullSurfaceData extends SurfaceData {
   public static final SurfaceData theInstance = new NullSurfaceData();
-  private final static NullPipe nullpipe = new NullPipe();
+  private static final NullPipe nullpipe = new NullPipe();
 
   private NullSurfaceData() {
     super(State.IMMUTABLE, SurfaceType.Any, ColorModel.getRGBdefault());
@@ -50,6 +50,7 @@ public class NullSurfaceData extends SurfaceData {
    * objects must get a new SurfaceData object via the refresh method
    * and revalidate their pipelines before continuing.
    */
+  @Override
   public void invalidate() {
   }
 
@@ -58,10 +59,12 @@ public class NullSurfaceData extends SurfaceData {
    * of the destination that this SurfaceData object describes.
    * This method is typically called when the SurfaceData is invalidated.
    */
+  @Override
   public SurfaceData getReplacement() {
     return this;
   }
 
+  @Override
   public void validatePipe(SunGraphics2D sg2d) {
     sg2d.drawpipe = nullpipe;
     sg2d.fillpipe = nullpipe;
@@ -70,6 +73,7 @@ public class NullSurfaceData extends SurfaceData {
     sg2d.imagepipe = nullpipe;
   }
 
+  @Override
   public GraphicsConfiguration getDeviceConfiguration() {
     return null;
   }
@@ -85,6 +89,7 @@ public class NullSurfaceData extends SurfaceData {
    *
    * @see useTightBBoxes
    */
+  @Override
   public Raster getRaster(int x, int y, int w, int h) {
     throw new InvalidPipeException("should be NOP");
   }
@@ -100,6 +105,7 @@ public class NullSurfaceData extends SurfaceData {
    *
    * @see getRaster
    */
+  @Override
   public boolean useTightBBoxes() {
     return false;
   }
@@ -108,6 +114,7 @@ public class NullSurfaceData extends SurfaceData {
    * Returns the pixel data for the specified Argb value packed
    * into an integer for easy storage and conveyance.
    */
+  @Override
   public int pixelFor(int rgb) {
     return rgb;
   }
@@ -116,6 +123,7 @@ public class NullSurfaceData extends SurfaceData {
    * Returns the Argb representation for the specified integer value
    * which is packed in the format of the associated ColorModel.
    */
+  @Override
   public int rgbFor(int pixel) {
     return pixel;
   }
@@ -123,6 +131,7 @@ public class NullSurfaceData extends SurfaceData {
   /**
    * Returns the bounds of the destination surface.
    */
+  @Override
   public Rectangle getBounds() {
     return new Rectangle();
   }
@@ -132,6 +141,7 @@ public class NullSurfaceData extends SurfaceData {
    * Composite object should be allowed access to the pixels
    * of this surface.
    */
+  @Override
   protected void checkCustomComposite() {
     return;
   }
@@ -141,6 +151,7 @@ public class NullSurfaceData extends SurfaceData {
    * false if there is no algorithm to perform the copyarea
    * given the current settings of the SunGraphics2D.
    */
+  @Override
   public boolean copyArea(
       SunGraphics2D sg2d, int x, int y, int w, int h, int dx, int dy) {
     return true;
@@ -149,6 +160,7 @@ public class NullSurfaceData extends SurfaceData {
   /**
    * Returns destination Image associated with this SurfaceData (null)
    */
+  @Override
   public Object getDestination() {
     return null;
   }

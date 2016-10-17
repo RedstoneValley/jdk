@@ -31,9 +31,8 @@ import java.awt.color.ICC_Profile;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ServiceLoader;
-import sun.security.action.GetPropertyAction;
 
-public class CMSManager {
+public final class CMSManager {
   public static ColorSpace GRAYspace;       // These two fields allow access
   public static ColorSpace LINEAR_RGBspace; // to java.awt.color.ColorSpace
   // private fields from other
@@ -42,7 +41,7 @@ public class CMSManager {
   // and read by
   // java.awt.image.ColorModel.
 
-  private static PCMM cmmImpl = null;
+  private static PCMM cmmImpl;
 
   public static synchronized PCMM getModule() {
     if (cmmImpl != null) {
@@ -51,6 +50,7 @@ public class CMSManager {
 
     CMMServiceProvider spi
         = AccessController.doPrivileged(new PrivilegedAction<CMMServiceProvider>() {
+      @Override
       public CMMServiceProvider run() {
         String cmmClass = System.getProperty("sun.java2d.cmm",
             "sun.java2d.cmm.lcms.LcmsServiceProvider");
@@ -77,7 +77,7 @@ public class CMSManager {
     }
 
     GetPropertyAction gpa = new GetPropertyAction("sun.java2d.cmm.trace");
-    String cmmTrace = (String) AccessController.doPrivileged(gpa);
+    String cmmTrace = AccessController.doPrivileged(gpa);
     if (cmmTrace != null) {
       cmmImpl = new CMMTracer(cmmImpl);
     }
@@ -86,14 +86,14 @@ public class CMSManager {
   }
 
   static synchronized boolean canCreateModule() {
-    return (cmmImpl == null);
+    return cmmImpl == null;
   }
 
     /* CMM trace routines */
 
   public static class CMMTracer implements PCMM {
-    PCMM tcmm;
-    String cName;
+    final PCMM tcmm;
+    final String cName;
 
     public CMMTracer(PCMM tcmm) {
       this.tcmm = tcmm;
@@ -102,12 +102,13 @@ public class CMSManager {
 
     private static String signatureToString(int sig) {
       return String.format("%c%c%c%c",
-          (char) (0xff & (sig >> 24)),
-          (char) (0xff & (sig >> 16)),
-          (char) (0xff & (sig >> 8)),
-          (char) (0xff & (sig)));
+          (char) (0xff & sig >> 24),
+          (char) (0xff & sig >> 16),
+          (char) (0xff & sig >> 8),
+          (char) (0xff & sig));
     }
 
+    @Override
     public Profile loadProfile(byte[] data) {
       System.err.print(cName + ".loadProfile");
       Profile p = tcmm.loadProfile(data);
@@ -115,11 +116,13 @@ public class CMSManager {
       return p;
     }
 
+    @Override
     public void freeProfile(Profile p) {
       System.err.printf(cName + ".freeProfile(ID=%s)\n", p.toString());
       tcmm.freeProfile(p);
     }
 
+    @Override
     public int getProfileSize(Profile p) {
       System.err.print(cName + ".getProfileSize(ID=" + p + ")");
       int size = tcmm.getProfileSize(p);
@@ -127,12 +130,14 @@ public class CMSManager {
       return size;
     }
 
+    @Override
     public void getProfileData(Profile p, byte[] data) {
       System.err.print(cName + ".getProfileData(ID=" + p + ") ");
       System.err.println("requested " + data.length + " byte(s)");
       tcmm.getProfileData(p, data);
     }
 
+    @Override
     public void getTagData(Profile p, int tagSignature, byte[] data) {
       System.err.printf(cName + ".getTagData(ID=%x, TagSig=%s)",
           p,
@@ -141,6 +146,7 @@ public class CMSManager {
       tcmm.getTagData(p, tagSignature, data);
     }
 
+    @Override
     public int getTagSize(Profile p, int tagSignature) {
       System.err.printf(cName + ".getTagSize(ID=%x, TagSig=%s)",
           p,
@@ -150,6 +156,7 @@ public class CMSManager {
       return size;
     }
 
+    @Override
     public void setTagData(Profile p, int tagSignature, byte[] data) {
       System.err.print(cName + ".setTagData(ID=" + p +
           ", TagSig=" + tagSignature + ")");
@@ -158,11 +165,13 @@ public class CMSManager {
     }
 
     /* methods for creating ColorTransforms */
+    @Override
     public ColorTransform createTransform(ICC_Profile profile, int renderType, int transformType) {
       System.err.println(cName + ".createTransform(ICC_Profile,int,int)");
       return tcmm.createTransform(profile, renderType, transformType);
     }
 
+    @Override
     public ColorTransform createTransform(ColorTransform[] transforms) {
       System.err.println(cName + ".createTransform(ColorTransform[])");
       return tcmm.createTransform(transforms);

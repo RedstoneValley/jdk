@@ -39,6 +39,8 @@
 
 package j2dbench;
 
+import j2dbench.Group.EnableSet;
+import j2dbench.Option.Enable;
 import j2dbench.tests.GraphicsTests;
 import j2dbench.tests.ImageTests;
 import java.awt.Component;
@@ -51,8 +53,8 @@ import java.awt.image.ComponentColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
 
-public abstract class Destinations extends Option.Enable {
-  public static Group.EnableSet destroot;
+public abstract class Destinations extends Enable {
+  public static EnableSet destroot;
   public static Group bufimgdestroot;
   public static Group compatimgdestroot;
 
@@ -61,18 +63,14 @@ public abstract class Destinations extends Option.Enable {
   }
 
   public static void init() {
-    destroot = new Group.EnableSet(TestEnvironment.globaloptroot,
-        "dest",
-        "Output Destination Options");
+    destroot = new EnableSet(TestEnvironment.globaloptroot, "dest", "Output Destination Options");
 
     new Screen();
     new OffScreen();
 
     if (GraphicsTests.hasGraphics2D) {
       if (ImageTests.hasCompatImage) {
-        compatimgdestroot = new Group.EnableSet(destroot,
-            "compatimg",
-            "Compatible Image Destinations");
+        compatimgdestroot = new EnableSet(destroot, "compatimg", "Compatible Image Destinations");
         compatimgdestroot.setHorizontal();
 
         new CompatImg();
@@ -85,7 +83,7 @@ public abstract class Destinations extends Option.Enable {
         new VolatileImg();
       }
 
-      bufimgdestroot = new Group.EnableSet(destroot, "bufimg", "BufferedImage Destinations");
+      bufimgdestroot = new EnableSet(destroot, "bufimg", "BufferedImage Destinations");
 
       new BufImg(BufferedImage.TYPE_INT_RGB);
       new BufImg(BufferedImage.TYPE_INT_ARGB);
@@ -97,14 +95,17 @@ public abstract class Destinations extends Option.Enable {
     }
   }
 
+  @Override
   public void modifyTest(TestEnvironment env) {
     setDestination(env);
   }
 
+  @Override
   public void restoreTest(TestEnvironment env) {
     env.setTestImage(null);
   }
 
+  @Override
   public String getAbbreviatedModifierDescription(Object val) {
     return "to " + getModifierValueName(val);
   }
@@ -116,10 +117,12 @@ public abstract class Destinations extends Option.Enable {
       super(destroot, "screen", "Output to Screen", false);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "Screen";
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       env.setTestImage(null);
     }
@@ -130,10 +133,12 @@ public abstract class Destinations extends Option.Enable {
       super(destroot, "offscreen", "Output to OffScreen Image", false);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "OffScreen";
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       Component c = env.getCanvas();
       env.setTestImage(c.createImage(env.getWidth(), env.getHeight()));
@@ -141,17 +146,17 @@ public abstract class Destinations extends Option.Enable {
   }
 
   public static class CompatImg extends Destinations {
-    public static String ShortNames[] = {
+    public static final String[] ShortNames = {
         "compatimg", "opqcompatimg", "bmcompatimg", "transcompatimg",};
-    public static String ShortDescriptions[] = {
+    public static final String[] ShortDescriptions = {
         "Default", "Opaque", "Bitmask", "Translucent",};
-    public static String LongDescriptions[] = {
+    public static final String[] LongDescriptions = {
         "Default Compatible Image", "Opaque Compatible Image", "Bitmask Compatible Image",
         "Translucent Compatible Image",};
-    public static String ModifierNames[] = {
+    public static final String[] ModifierNames = {
         "CompatImage()", "CompatImage(Opaque)", "CompatImage(Bitmask)",
         "CompatImage(Translucent)",};
-    int transparency;
+    final int transparency;
 
     public CompatImg() {
       this(0);
@@ -162,10 +167,12 @@ public abstract class Destinations extends Option.Enable {
       this.transparency = transparency;
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return ModifierNames[transparency];
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       Component c = env.getCanvas();
       GraphicsConfiguration gc = c.getGraphicsConfiguration();
@@ -184,10 +191,12 @@ public abstract class Destinations extends Option.Enable {
       super(destroot, "volimg", "Output to Volatile Image", false);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "VolatileImg";
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       Component c = env.getCanvas();
       env.setTestImage(c.createVolatileImage(env.getWidth(), env.getHeight()));
@@ -195,18 +204,18 @@ public abstract class Destinations extends Option.Enable {
   }
 
   public static class BufImg extends Destinations {
-    public static String ShortNames[] = {
+    public static final String[] ShortNames = {
         "custom", "IntXrgb", "IntArgb", "IntArgbPre", "IntXbgr", "3ByteBgr", "4ByteAbgr",
         "4ByteAbgrPre", "Short565", "Short555", "ByteGray", "ShortGray", "ByteBinary",
         "ByteIndexed",};
-    public static String Descriptions[] = {
+    public static final String[] Descriptions = {
         "Custom Image", "32-bit XRGB Packed Image", "32-bit ARGB Packed Image",
         "32-bit ARGB Alpha Premultiplied Packed Image", "32-bit XBGR Packed Image",
         "3-byte BGR Component Image", "4-byte ABGR Component Image",
         "4-byte ABGR Alpha Premultiplied Component Image", "16-bit 565 RGB Packed Image",
         "15-bit 555 RGB Packed Image", "8-bit Grayscale Image", "16-bit Grayscale Image",
         "1-bit Binary Image", "8-bit Indexed Image",};
-    int type;
+    final int type;
     Image img;
 
     public BufImg(int type) {
@@ -214,10 +223,12 @@ public abstract class Destinations extends Option.Enable {
       this.type = type;
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "BufImg(" + getNodeName() + ")";
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       if (img == null) {
         img = new BufferedImage(env.getWidth(), env.getHeight(), type);
@@ -233,10 +244,12 @@ public abstract class Destinations extends Option.Enable {
       super(bufimgdestroot, "custom", "Custom (3-float RGB) Image", false);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "CustomImg";
     }
 
+    @Override
     public void setDestination(TestEnvironment env) {
       if (img == null) {
         ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);

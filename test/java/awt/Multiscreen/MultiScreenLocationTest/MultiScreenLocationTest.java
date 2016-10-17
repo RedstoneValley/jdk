@@ -43,14 +43,16 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
-import test.java.awt.regtesthelpers.Util;
 
-public class MultiScreenLocationTest {
+public final class MultiScreenLocationTest {
     private static final Point mouseOffset = new Point(150, 150);
     private static final Point frameOffset = new Point(100, 100);
     private static final Color color = Color.YELLOW;
 
-    private static String getErrorText(final String name, int screen)
+    private MultiScreenLocationTest() {
+    }
+
+    private static String getErrorText(String name, int screen)
     {
         return name + " test failed on Screen #" + screen + "!";
     }

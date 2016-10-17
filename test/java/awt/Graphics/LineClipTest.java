@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug   4780022 4862193 7179526
  * @summary  Tests that clipped lines are drawn over the same pixels
  * as unclipped lines (within the clip bounds)
@@ -31,134 +31,134 @@
  */
 
 
-/**
- * This app tests whether we are drawing clipped lines the same
- * as unclipped lines.  The problem occurred when we started
- * clipping d3d lines using simple integer clipping, which did not
- * account for sub-pixel precision and ended up drawing very different
- * pixels than the same line drawn unclipped.  A supposed fix
- * to that problem used floating-point clipping instead, but there
- * was some problem with very limited precision inside of d3d
- * (presumably in hardware) that caused some variation in pixels.
- * We decided that whatever the fix was, we needed a serious
- * line check test to make sure that all kinds of different
- * lines would be drawn exactly the same inside the clip area,
- * regardless of whether clipping was enabled.  This test should
- * check all kinds of different cases, such as lines that fall
- * completely outside, completely inside, start outside and
- * end inside, etc., and lines should end and originate in
- * all quadrants of the space divided up by the clip box.
- *
- * The test works as follows:
- * We create nine quadrants using the spaces bisected by the
- * edges of the clip bounds (note that only one of these
- * quadrants is actually visible when clipping is enabled).
- * We create several points in each of these quadrants
- * (three in each of the invisible quadrants, nine in the
- * center/visible quadrant).  Our resulting grid looks like
- * this:
- *
- *  x         x|x    x    x|x         x
- *             |           |
- *             |           |
- *             |           |
- *             |           |
- *             |           |
- *  x          |           |          x
- *  -----------------------------------
- *  x          |x    x    x|          x
- *             |           |
- *             |           |
- *  x          |x    x    x|          x
- *             |           |
- *             |           |
- *  x          |x    x    x|          x
- *  -----------------------------------
- *  x          |           |          x
- *             |           |
- *             |           |
- *             |           |
- *             |           |
- *             |           |
- *  x         x|x    x    x|x         x
- *
- * The test then draws lines from every point to every other
- * point.  First, we draw unclipped lines in blue and
- * then we draw clipped lines in red.
- * At certain times (after every point during the default
- * test, after every quadrant of lines if you run with the -quick
- * option), we check for errors and draw the current image
- * to the screen.  Error checking consists of copying the
- * VolatileImage to a BufferedImage (because we need access
- * to the pixels directly) and checking every pixel in the
- * image.  The check is simple: everything outside the
- * clip bounds should be blue (or the background color) and
- * everything inside the clip bounds should be red (or the
- * background color).  So any blue pixel inside or red
- * pixel outside means that there was a drawing error and
- * the test fails.
- * There are 4 modes that the test can run in (dynamic mode is
- * exclusive to the other modes, but the other modes are combinable):
- *
- *      (default): the clip is set
- *      to a default size (100x100) and the test is run.
- *
- *      -quick: The error
- *      check is run only after every quadrant of lines is
- *      drawn.  This speeds up the test considerably with
- *      some less accuracy in error checking (because pixels
- *      from some lines may overdrawn pixels from other lines
- *      before we have verified the correctness of those
- *      pixels).
- *
- *      -dynamic: There is no error checking, but this version
- *      of the test automatically resizes the clip bounds and
- *      reruns the test over and over.  Nothing besides the
- *      visual check verifies that the test is running correctly.
- *
- *      -rect: Instead of drawing lines, the test draws rectangles
- *      to/from all points in all quadrants.  This tests similar
- *      clipping functionality for drawRect().
- *
- *      n (where "n" is a number): sets the clip size to the
- *      given value.  Just like the default test except that
- *      the clip size is as specified.
- *
- * Note: this test must be run with the -Dsun.java2d.ddforcevram=true
- * option to force the test image to stay in VRAM.  We currently
- * punt VRAM images to system memory when we detect lots of
- * reads.  Since we read the whole buffer on every error check
- * to copy it to the BufferedImage), this causes us to punt the
- * buffer.  A system memory surface will have no d3d capabilities,
- * thus we are not testing the d3d line quality when this happens.
- * By using the ddforcevram flag, we make sure the buffer
- * stays put in VRAM and d3d is used to draw the lines.
+/*
+  This app tests whether we are drawing clipped lines the same
+  as unclipped lines.  The problem occurred when we started
+  clipping d3d lines using simple integer clipping, which did not
+  account for sub-pixel precision and ended up drawing very different
+  pixels than the same line drawn unclipped.  A supposed fix
+  to that problem used floating-point clipping instead, but there
+  was some problem with very limited precision inside of d3d
+  (presumably in hardware) that caused some variation in pixels.
+  We decided that whatever the fix was, we needed a serious
+  line check test to make sure that all kinds of different
+  lines would be drawn exactly the same inside the clip area,
+  regardless of whether clipping was enabled.  This test should
+  check all kinds of different cases, such as lines that fall
+  completely outside, completely inside, start outside and
+  end inside, etc., and lines should end and originate in
+  all quadrants of the space divided up by the clip box.
+
+  The test works as follows:
+  We create nine quadrants using the spaces bisected by the
+  edges of the clip bounds (note that only one of these
+  quadrants is actually visible when clipping is enabled).
+  We create several points in each of these quadrants
+  (three in each of the invisible quadrants, nine in the
+  center/visible quadrant).  Our resulting grid looks like
+  this:
+
+   x         x|x    x    x|x         x
+              |           |
+              |           |
+              |           |
+              |           |
+              |           |
+   x          |           |          x
+   -----------------------------------
+   x          |x    x    x|          x
+              |           |
+              |           |
+   x          |x    x    x|          x
+              |           |
+              |           |
+   x          |x    x    x|          x
+   -----------------------------------
+   x          |           |          x
+              |           |
+              |           |
+              |           |
+              |           |
+              |           |
+   x         x|x    x    x|x         x
+
+  The test then draws lines from every point to every other
+  point.  First, we draw unclipped lines in blue and
+  then we draw clipped lines in red.
+  At certain times (after every point during the default
+  test, after every quadrant of lines if you run with the -quick
+  option), we check for errors and draw the current image
+  to the screen.  Error checking consists of copying the
+  VolatileImage to a BufferedImage (because we need access
+  to the pixels directly) and checking every pixel in the
+  image.  The check is simple: everything outside the
+  clip bounds should be blue (or the background color) and
+  everything inside the clip bounds should be red (or the
+  background color).  So any blue pixel inside or red
+  pixel outside means that there was a drawing error and
+  the test fails.
+  There are 4 modes that the test can run in (dynamic mode is
+  exclusive to the other modes, but the other modes are combinable):
+
+       (default): the clip is set
+       to a default size (100x100) and the test is run.
+
+       -quick: The error
+       check is run only after every quadrant of lines is
+       drawn.  This speeds up the test considerably with
+       some less accuracy in error checking (because pixels
+       from some lines may overdrawn pixels from other lines
+       before we have verified the correctness of those
+       pixels).
+
+       -dynamic: There is no error checking, but this version
+       of the test automatically resizes the clip bounds and
+       reruns the test over and over.  Nothing besides the
+       visual check verifies that the test is running correctly.
+
+       -rect: Instead of drawing lines, the test draws rectangles
+       to/from all points in all quadrants.  This tests similar
+       clipping functionality for drawRect().
+
+       n (where "n" is a number): sets the clip size to the
+       given value.  Just like the default test except that
+       the clip size is as specified.
+
+  Note: this test must be run with the -Dsun.java2d.ddforcevram=true
+  option to force the test image to stay in VRAM.  We currently
+  punt VRAM images to system memory when we detect lots of
+  reads.  Since we read the whole buffer on every error check
+  to copy it to the BufferedImage), this causes us to punt the
+  buffer.  A system memory surface will have no d3d capabilities,
+  thus we are not testing the d3d line quality when this happens.
+  By using the ddforcevram flag, we make sure the buffer
+  stays put in VRAM and d3d is used to draw the lines.
  */
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.image.*;
 
 
 public class LineClipTest extends Component implements Runnable {
 
+    private static final long serialVersionUID = -3097054095385905751L;
     int clipBumpVal = 5;
     static int clipSize = 100;
     int clipX1;
     int clipY1;
     static final int NUM_QUADS = 9;
-    Point quadrants[][] = new Point[NUM_QUADS][];
-    static boolean dynamic = false;
-    BufferedImage imageChecker = null;
-    Color unclippedColor = Color.blue;
-    Color clippedColor = Color.red;
+    final Point[][] quadrants = new Point[NUM_QUADS][];
+    static boolean dynamic;
+    BufferedImage imageChecker;
+    final Color unclippedColor = Color.blue;
+    final Color clippedColor = Color.red;
     int testW = -1, testH = -1;
-    VolatileImage testImage = null;
-    static boolean keepRunning = false;
-    static boolean quickTest = false;
-    static boolean rectTest = false;
-    static boolean runTestDone = false;
-    static Frame f = null;
+    VolatileImage testImage;
+    static boolean keepRunning;
+    static boolean quickTest;
+    static boolean rectTest;
+    static boolean runTestDone;
+    static Frame f;
 
     /**
      * Check for errors in the grid.  This error check consists of
@@ -169,8 +169,8 @@ public class LineClipTest extends Component implements Runnable {
      */
     boolean gridError(Graphics g) {
         boolean error = false;
-        if (imageChecker == null || (imageChecker.getWidth() != testW) ||
-            (imageChecker.getHeight() != testH))
+        if (imageChecker == null || imageChecker.getWidth() != testW ||
+            imageChecker.getHeight() != testH)
         {
             // Recreate BufferedImage as necessary
             GraphicsConfiguration gc = getGraphicsConfiguration();
@@ -188,19 +188,13 @@ public class LineClipTest extends Component implements Runnable {
         // Set up pixel colors to check against
         int clippedPixelColor = clippedColor.getRGB();
         int unclippedPixelColor = unclippedColor.getRGB();
-        int wrongPixelColor = clippedPixelColor;
+        int wrongPixelColor;
         boolean insideClip = false;
         for (int row = 0; row < getHeight(); ++row) {
             for (int col = 0; col < getWidth(); ++col) {
-                if (row >= clipY1 && row < (clipY1 + clipSize) &&
-                    col >= clipX1 && col < (clipX1 + clipSize))
-                {
-                    // Inside clip bounds - should not see unclipped color
-                    wrongPixelColor = unclippedPixelColor;
-                } else {
-                    // Outside clip - should not see clipped color
-                    wrongPixelColor = clippedPixelColor;
-                }
+                wrongPixelColor = row >= clipY1 && row < clipY1 + clipSize &&
+                    col >= clipX1 && col < clipX1 + clipSize ? unclippedPixelColor
+                    : clippedPixelColor;
                 int pixel = imageChecker.getRGB(col, row);
                 if (pixel == wrongPixelColor) {
                     System.out.println("FAILED: pixel = " +
@@ -270,7 +264,7 @@ public class LineClipTest extends Component implements Runnable {
                         // On default test, check for errors after every
                         // src point
                         if (!quickTest && gridError(g)) {
-                            throw new java.lang.RuntimeException("Failed");
+                            throw new RuntimeException("Failed");
                         }
                     }
                 }
@@ -278,7 +272,7 @@ public class LineClipTest extends Component implements Runnable {
             if (!dynamic && quickTest && gridError(g)) {
                 // On quick test, check for errors only after every
                 // src quadrant
-                throw new java.lang.RuntimeException("Failed");
+                throw new RuntimeException("Failed");
                 //return;
             }
         }
@@ -295,6 +289,7 @@ public class LineClipTest extends Component implements Runnable {
      * changed, or if we are running the test in -dynamic mode,
      * run the test.  Then draw the test buffer to the screen
      */
+    @Override
     public void paint(Graphics g) {
         if (dynamic || testImage == null ||
             getWidth() != testW || getHeight() != testH)
@@ -331,13 +326,13 @@ public class LineClipTest extends Component implements Runnable {
 
         if (quadrants[0] == null) {
             for (int i = 0; i < 9; ++i) {
-                int numPoints = (i == 4) ? 9 : 3;
+                int numPoints = i == 4 ? 9 : 3;
                 quadrants[i] = new Point[numPoints];
             }
         }
         // Upper-left
         quadrants[quadIndex] = new Point[] {
-            new Point(leftX + xOffset,          clipY1 - 1 - yOffset),
+            new Point(leftX + xOffset, clipY1 - 1 - yOffset),
             new Point(leftX + xOffset,          topY + yOffset),
             new Point(clipX1 - 1 - xOffset,     topY + yOffset),
         };
@@ -357,7 +352,7 @@ public class LineClipTest extends Component implements Runnable {
         quadrants[quadIndex] = new Point[] {
             new Point(clipX2 + 1 + xOffset,     topY + yOffset),
             new Point(rightX - xOffset,         topY + yOffset),
-            new Point(rightX - xOffset,         clipY1 - 1 - yOffset),
+            new Point(rightX - xOffset, clipY1 - 1 - yOffset),
         };
 
         quadIndex++;
@@ -365,7 +360,7 @@ public class LineClipTest extends Component implements Runnable {
         ++xOffset;
         // Middle-left
         quadrants[quadIndex] = new Point[] {
-            new Point(leftX + xOffset,          clipY1 + 1 + yOffset),
+            new Point(leftX + xOffset, clipY1 + 1 + yOffset),
             new Point(leftX + xOffset,          centerY + yOffset),
             new Point(leftX + xOffset,          clipY2 - 1 - yOffset),
         };
@@ -374,9 +369,9 @@ public class LineClipTest extends Component implements Runnable {
         ++yOffset;
         // Middle-middle
         quadrants[quadIndex] = new Point[] {
-            new Point(clipX1 + 1 + xOffset,     clipY1 + 1 + yOffset),
-            new Point(centerX + xOffset,        clipY1 + 1 + yOffset),
-            new Point(clipX2 - 1 - xOffset,     clipY1 + 1 + yOffset),
+            new Point(clipX1 + 1 + xOffset, clipY1 + 1 + yOffset),
+            new Point(centerX + xOffset, clipY1 + 1 + yOffset),
+            new Point(clipX2 - 1 - xOffset, clipY1 + 1 + yOffset),
             new Point(clipX1 + 1 + xOffset,     centerY + yOffset),
             new Point(centerX + xOffset,        centerY + yOffset),
             new Point(clipX2 - 1 - xOffset,     centerY + yOffset),
@@ -389,7 +384,7 @@ public class LineClipTest extends Component implements Runnable {
         ++yOffset;
         // Middle-right
         quadrants[quadIndex] = new Point[] {
-            new Point(rightX - xOffset,         clipY1 + 1 + yOffset),
+            new Point(rightX - xOffset, clipY1 + 1 + yOffset),
             new Point(rightX - xOffset,         centerY + yOffset),
             new Point(rightX - xOffset,         clipY2 - 1 - yOffset),
         };
@@ -453,6 +448,7 @@ public class LineClipTest extends Component implements Runnable {
      * When running -dynamic, resize the clip bounds and run the test
      * over and over
      */
+    @Override
     public void run() {
         while (true) {
             clipSize += clipBumpVal;
@@ -467,21 +463,22 @@ public class LineClipTest extends Component implements Runnable {
         }
     }
 
-    public static void main(String args[]) {
-        for (int i = 0; i < args.length; ++i) {
-            if (args[i].equals("-dynamic")) {
+    public static void main(String[] args) {
+        for (String arg : args) {
+            if ("-dynamic".equals(arg)) {
                 dynamic = true;
-            } else if (args[i].equals("-rect")) {
+            } else if ("-rect".equals(arg)) {
                 rectTest = true;
-            } else if (args[i].equals("-quick")) {
+            } else if ("-quick".equals(arg)) {
                 quickTest = true;
-            } else if (args[i].equals("-keep")) {
+            } else if ("-keep".equals(arg)) {
                 keepRunning = true;
             } else {
                 // could be clipSize
                 try {
-                    clipSize = Integer.parseInt(args[i]);
-                } catch (Exception e) {}
+                    clipSize = Integer.parseInt(arg);
+                } catch (Exception e) {
+                }
             }
         }
         f = new Frame();

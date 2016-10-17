@@ -33,17 +33,14 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
 
 public class FocusOwnerFrameOnClick extends Applet {
     Robot robot;
-    Frame frame = new Frame("Frame");
-    Window window = new Window(frame);
-    Button fButton = new Button("fButton");
-    Button wButton = new Button("wButton");
+    final Frame frame = new Frame("Frame");
+    final Window window = new Window(frame);
+    final Button fButton = new Button("fButton");
+    final Button wButton = new Button("wButton");
 
     AtomicBoolean focused = new AtomicBoolean(false);
 
@@ -74,16 +71,18 @@ public class FocusOwnerFrameOnClick extends Applet {
 
         if (!wButton.hasFocus()) {
             if (!Util.trackFocusGained(wButton, new Runnable() {
+                    @Override
                     public void run() {
                         Util.clickOnComp(wButton, robot);
                     }
                 }, 2000, false))
             {
-                throw new TestErrorException("wButton didn't gain focus on showing");
+                throw new TestError("wButton didn't gain focus on showing");
             }
         }
 
         Runnable clickAction = new Runnable() {
+                @Override
                 public void run() {
                     Point loc = fButton.getLocationOnScreen();
                     Dimension dim = fButton.getSize();
@@ -108,6 +107,8 @@ public class FocusOwnerFrameOnClick extends Applet {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -117,6 +118,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

@@ -33,18 +33,16 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
-import test.java.awt.regtesthelpers.Util;
 
 public class CorrectTime extends Frame implements KeyListener {
     //Maximum time the event should arrive to listener
-    final static int REASONABLE_PATH_TIME = 5000;
-    static TextField tf = new TextField("press keys", 10);
-    static TextArea ta = new TextArea("press keys", 10, 10);
-    static Button bt = new Button("press button");
-    static List list = new List();
-    final static Robot robot = Util.createRobot();
+    static final int REASONABLE_PATH_TIME = 5000;
+    static final TextField tf = new TextField("press keys", 10);
+    static final TextArea ta = new TextArea("press keys", 10, 10);
+    static final Button bt = new Button("press button");
+    static final List list = new List();
+    static final Robot robot = Util.createRobot();
+    private static final long serialVersionUID = -3689084737229729893L;
 
     public CorrectTime(){
         super("Check time of KeyEvents");
@@ -84,8 +82,9 @@ public class CorrectTime extends Frame implements KeyListener {
 
     }
 
-    private static void testComponent(final Component comp){
+    private static void testComponent(Component comp){
         Runnable action = new Runnable(){
+                @Override
                 public void run(){
                     Util.clickOnComp(comp, robot);
                     Util.waitForIdle(robot);
@@ -129,12 +128,15 @@ public class CorrectTime extends Frame implements KeyListener {
         }
     }
 
+    @Override
     public void keyTyped(KeyEvent e){
         traceKey("keytyped",e);
     }
+    @Override
     public void keyPressed(KeyEvent e){
         traceKey("keypress",e);
     }
+    @Override
     public void keyReleased(KeyEvent e){
         traceKey("keyrelease",e);
     }

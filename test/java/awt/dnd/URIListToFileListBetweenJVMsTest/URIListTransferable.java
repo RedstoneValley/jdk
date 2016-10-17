@@ -32,25 +32,28 @@ class URIListTransferable implements Transferable {
 
     private final DataFlavor supportedFlavor;
 
-    private List<URI> list;
+    private final List<URI> list;
 
     public URIListTransferable(List<URI> list) {
         try {
-            this.supportedFlavor = new DataFlavor("text/uri-list;class=java.lang.String");
+            supportedFlavor = new DataFlavor("text/uri-list;class=java.lang.String");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("FAILED: could not create a DataFlavor");
         }
         this.list = list;
     }
 
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[] { supportedFlavor };
+        return new DataFlavor[] {supportedFlavor};
     }
 
+    @Override
     public boolean isDataFlavorSupported(DataFlavor flavor) {
         return supportedFlavor.equals(flavor);
     }
 
+    @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
         if (supportedFlavor.equals(flavor)) {
             return list.stream()

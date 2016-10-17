@@ -41,21 +41,21 @@ package j2dbench.ui;
 
 import j2dbench.Group;
 import j2dbench.Node;
-import j2dbench.Option;
+import j2dbench.Node.Iterator;
+import j2dbench.Option.Enable;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
 
 public class EnableButton extends JButton implements ActionListener {
   public static final int SET = 0;
   public static final int CLEAR = 1;
   public static final int INVERT = 2;
   public static final int DEFAULT = 3;
-  public static final String icons[] = {
+  public static final String[] icons = {
       "Set", "Clear", "Invert", "Default",};
-  private Group group;
-  private int type;
+  private final Group group;
+  private final int type;
 
   public EnableButton(Group group, int type) {
     super(icons[type]);
@@ -66,15 +66,16 @@ public class EnableButton extends JButton implements ActionListener {
     setBorderPainted(false);
   }
 
+  @Override
   public void actionPerformed(ActionEvent e) {
-    Node.Iterator children = group.getRecursiveChildIterator();
-    String newval = (type == SET) ? "enabled" : "disabled";
+    Iterator children = group.getRecursiveChildIterator();
+    String newval = type == SET ? "enabled" : "disabled";
     while (children.hasNext()) {
       Node child = children.next();
       if (type == DEFAULT) {
         child.restoreDefault();
-      } else if (child instanceof Option.Enable) {
-        Option.Enable enable = (Option.Enable) child;
+      } else if (child instanceof Enable) {
+        Enable enable = (Enable) child;
         if (type == INVERT) {
           newval = enable.isEnabled() ? "disabled" : "enabled";
         }

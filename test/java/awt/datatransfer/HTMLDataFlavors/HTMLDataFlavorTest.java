@@ -35,15 +35,22 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.HashMap;
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 
-public class HTMLDataFlavorTest {
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
+public final class HTMLDataFlavorTest {
 
-    private static HashMap<DataFlavor, String> dataFlavors = new HashMap<DataFlavor, String>();
+    private static final HashMap<DataFlavor, String> dataFlavors = new HashMap<>();
 
+
+
+    private HTMLDataFlavorTest() {
+    }
 
     public static void main(String[] args) throws IOException, UnsupportedFlavorException {
 
-        if (sun.awt.OSInfo.getOSType() != sun.awt.OSInfo.OSType.WINDOWS) {
+        if (OSInfo.getOSType() != OSType.WINDOWS) {
             System.err.println("This test is for MS Windows only. Considered passed.");
             return;
         }
@@ -80,7 +87,7 @@ public class HTMLDataFlavorTest {
         }
 
         if (!clipboard.getData(DataFlavor.allHtmlFlavor).toString().
-                equals(dataFlavors.get(DataFlavor.allHtmlFlavor).toString()))
+                equals(dataFlavors.get(DataFlavor.allHtmlFlavor)))
         {
             throw new RuntimeException("DataFlavor.allHtmlFlavor data " +
                     "should be identical to the data put on the source side.");
@@ -175,10 +182,10 @@ public class HTMLDataFlavorTest {
 
             System.out.println("Checking \"" + df.getParameter("document") + "\" for correspondence");
 
-            if (!dataFlavors.get(df).toString().equals(clipboard.getData(df).toString())) {
+            if (!dataFlavors.get(df).equals(clipboard.getData(df).toString())) {
 
-                System.err.println("Expected data: " + dataFlavors.get(df).toString());
-                System.err.println("Actual data: " + clipboard.getData(df).toString());
+                System.err.println("Expected data: " + dataFlavors.get(df));
+                System.err.println("Actual data: " + clipboard.getData(df));
 
 
                 throw new RuntimeException("An html flavor with parameter \"" +

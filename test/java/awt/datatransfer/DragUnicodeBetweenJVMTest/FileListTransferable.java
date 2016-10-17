@@ -27,11 +27,10 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.File;
 import java.util.Arrays;
-import java.util.List;
 
 class FileListTransferable implements Transferable {
 
-    public static File [] files = new File [] {
+    public static final File [] files = {
         new File ("\u042f\u0020\u0441\u0440\u0430\u0437\u0443\u0020\u0441\u043c\u0430\u0437\u0430\u043b" +
                 "\u0020\u043a\u0430\u0440\u0442\u0443\u0020\u0431\u0443\u0434\u043d\u044f"),
         new File ("\u043f\u043b\u0435\u0441\u043d\u0443\u0432\u0448\u0438\u0020\u043a\u0440\u0430\u0441" +
@@ -52,17 +51,20 @@ class FileListTransferable implements Transferable {
                 "\u0441\u0442\u043e\u0447\u043d\u044b\u0445\u0020\u0442\u0440\u0443\u0431"),
     };
 
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
         return new DataFlavor [] {DataFlavor.javaFileListFlavor};
     }
 
+    @Override
     public boolean isDataFlavorSupported(DataFlavor flavor) {
         return flavor.equals(DataFlavor.javaFileListFlavor) ;
     }
 
+    @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        List<File> list = Arrays.asList(files);
-        return list;
+
+        return Arrays.asList(files);
 
     }
 }

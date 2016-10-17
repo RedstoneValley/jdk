@@ -31,17 +31,22 @@
 
 import java.awt.*;
 
-public class ValidateOnShow {
-    private static Dialog dialog = new Dialog((Frame)null);
-    private static Panel panel = new Panel() {
-        @Override
+public final class ValidateOnShow {
+    private static final Dialog dialog = new Dialog((Frame)null);
+    private static final Panel panel = new Panel() {
+      private static final long serialVersionUID = 1086905032358605457L;
+
+      @Override
         public boolean isValidateRoot() {
             return true;
         }
     };
-    private static Button button = new Button("Test");
+    private static final Button button = new Button("Test");
 
-    private static void sleep() {
+  private ValidateOnShow() {
+  }
+
+  private static void sleep() {
         try { Thread.sleep(500); } catch (Exception e) {}
     }
 

@@ -29,7 +29,6 @@ import android.util.Log;
 import java.awt.IllegalComponentStateException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -59,7 +58,7 @@ public class SunDisplayChanger {
   // Create a new synchronized map with initial capacity of one listener.
   // It is asserted that the most common case is to have one GraphicsDevice
   // and one top-level Window.
-  private Map<DisplayChangedListener, Void> listeners
+  private final Map<DisplayChangedListener, Void> listeners
       = Collections.synchronizedMap(new WeakHashMap<DisplayChangedListener, Void>(1));
 
   public SunDisplayChanger() {
@@ -70,14 +69,10 @@ public class SunDisplayChanger {
    * notified when the display is changed.
    */
   public void add(DisplayChangedListener theListener) {
-    if (true) {
-      if (theListener == null) {
-        Log.d(TAG, "Assertion (theListener != null) failed");
-      }
+    if (theListener == null) {
+      Log.d(TAG, "Assertion (theListener != null) failed");
     }
-    if (true) {
-      Log.v(TAG, "Adding listener: " + theListener);
-    }
+    Log.v(TAG, "Adding listener: " + theListener);
     listeners.put(theListener, null);
   }
 
@@ -85,14 +80,10 @@ public class SunDisplayChanger {
    * Remove the given DisplayChangeListener from this SunDisplayChanger.
    */
   public void remove(DisplayChangedListener theListener) {
-    if (true) {
-      if (theListener == null) {
-        Log.d(TAG, "Assertion (theListener != null) failed");
-      }
+    if (theListener == null) {
+      Log.d(TAG, "Assertion (theListener != null) failed");
     }
-    if (true) {
-      Log.v(TAG, "Removing listener: " + theListener);
-    }
+    Log.v(TAG, "Removing listener: " + theListener);
     listeners.remove(theListener);
   }
 
@@ -116,16 +107,12 @@ public class SunDisplayChanger {
     Set<DisplayChangedListener> cloneSet;
 
     synchronized (listeners) {
-      cloneSet = new HashSet<DisplayChangedListener>(listeners.keySet());
+      cloneSet = new HashSet<>(listeners.keySet());
     }
 
-    Iterator<DisplayChangedListener> itr = cloneSet.iterator();
-    while (itr.hasNext()) {
-      DisplayChangedListener current = itr.next();
+    for (DisplayChangedListener current : cloneSet) {
       try {
-        if (true) {
-          Log.v(TAG, "displayChanged for listener: " + current);
-        }
+        Log.v(TAG, "displayChanged for listener: " + current);
         current.displayChanged();
       } catch (IllegalComponentStateException e) {
         // This DisplayChangeListener is no longer valid.  Most
@@ -143,9 +130,7 @@ public class SunDisplayChanger {
    * taken place by calling their paletteChanged() methods.
    */
   public void notifyPaletteChanged() {
-    if (true) {
-      Log.v(TAG, "notifyPaletteChanged");
-    }
+    Log.v(TAG, "notifyPaletteChanged");
     // This method is implemented by making a clone of the set of listeners,
     // and then iterating over the clone.  This is because during the course
     // of responding to a display change, it may be appropriate for a
@@ -160,15 +145,11 @@ public class SunDisplayChanger {
     Set<DisplayChangedListener> cloneSet;
 
     synchronized (listeners) {
-      cloneSet = new HashSet<DisplayChangedListener>(listeners.keySet());
+      cloneSet = new HashSet<>(listeners.keySet());
     }
-    Iterator<DisplayChangedListener> itr = cloneSet.iterator();
-    while (itr.hasNext()) {
-      DisplayChangedListener current = itr.next();
+    for (DisplayChangedListener current : cloneSet) {
       try {
-        if (true) {
-          Log.v(TAG, "paletteChanged for listener: " + current);
-        }
+        Log.v(TAG, "paletteChanged for listener: " + current);
         current.paletteChanged();
       } catch (IllegalComponentStateException e) {
         // This DisplayChangeListener is no longer valid.  Most

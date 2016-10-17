@@ -33,11 +33,8 @@
 
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.MediaTracker;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -45,19 +42,11 @@ import java.awt.image.ImageObserver;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 
 public class LUTCompareTest implements ImageObserver {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Image img = createTestImage();
 
         Toolkit tk = Toolkit.getDefaultToolkit();
@@ -78,16 +67,18 @@ public class LUTCompareTest implements ImageObserver {
         checkResults(img);
     }
 
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
 
-    Image image;
+    final Image image;
 
-    boolean isReady = false;
+    boolean isReady;
 
     public LUTCompareTest(Image img) {
-        this.image = img;
+        image = img;
     }
 
+    @SuppressWarnings("NestedSynchronizedStatement")
+    @Override
     public boolean imageUpdate(Image image, int info,
                                int x, int y, int w, int h) {
         if (image == this.image) {
@@ -136,14 +127,14 @@ public class LUTCompareTest implements ImageObserver {
         System.out.println("Test PASSED.");
     }
 
-    private static int w = 100;
-    private static int h = 100;
+    private static final int w = 100;
+    private static final int h = 100;
 
     /* Create test image with two frames:
      *  1) with {red, red} palette
      *  2) with {blue, red } palette
      */
-    private static Image createTestImage() throws IOException  {
+    private static Image createTestImage() {
         BufferedImage frame1 = createFrame(new int[] { 0xffff0000, 0xffff0000 });
         BufferedImage frame2 = createFrame(new int[] { 0xff0000ff, 0xffff0000 });
 
@@ -172,8 +163,7 @@ public class LUTCompareTest implements ImageObserver {
         Arrays.fill(samples, 0);
         wr.setSamples(0, 0, w, h, 0, samples);
 
-        BufferedImage img = new BufferedImage(icm, wr, false, null);
-        return img;
+        return new BufferedImage(icm, wr, false, null);
     }
 
     private static int getNumBits(int size) {
@@ -188,7 +178,7 @@ public class LUTCompareTest implements ImageObserver {
         }
     }
 
-     private static String[] name = new String[] {
+     private static final String[] name = {
         "WIDTH", "HEIGHT", "PROPERTIES", "SOMEBITS",
         "FRAMEBITS", "ALLBITS", "ERROR", "ABORT"
     };
@@ -200,13 +190,13 @@ public class LUTCompareTest implements ImageObserver {
             //System.out.println("info = " + info);
             if ((info & 0x1) == 1) {
                 res += name[count];
-                if ((info >> 1) != 0) {
+                if (info >> 1 != 0) {
                     res += " ";
                 }
 
             }
             count ++;
-            info = (info >> 1);
+            info >>= 1;
         }
         return res;
     }

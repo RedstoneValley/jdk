@@ -39,8 +39,6 @@ import java.awt.event.FocusEvent;
 public class CausedFocusEvent extends FocusEvent {
   private final Cause cause;
 
-  ;
-
   public CausedFocusEvent(
       Component source, int id, boolean temporary, Component opposite, Cause cause) {
     super(source, id, temporary, opposite);
@@ -68,7 +66,7 @@ public class CausedFocusEvent extends FocusEvent {
         e.getID(),
         e.isTemporary(),
         e.getOppositeComponent(),
-        (e instanceof CausedFocusEvent) ? ((CausedFocusEvent) e).getCause() : Cause.RETARGETED);
+        e instanceof CausedFocusEvent ? ((CausedFocusEvent) e).getCause() : Cause.RETARGETED);
   }
 
   public Cause getCause() {
@@ -76,7 +74,7 @@ public class CausedFocusEvent extends FocusEvent {
   }
 
   public String toString() {
-    return "java.awt.FocusEvent[" + super.paramString() + ",cause=" + cause + "] on " + getSource();
+    return "java.awt.FocusEvent[" + paramString() + ",cause=" + cause + "] on " + getSource();
   }
 
   public enum Cause {

@@ -29,26 +29,21 @@
   @run applet FileListBetweenJVMsTest.html
 */
 
-/**
- * FileListBetweenJVMsTest.java
- *
- * summary: DnD of File-List across JVM adds two empty items to the list
+/*
+  FileListBetweenJVMsTest.java
+
+  summary: DnD of File-List across JVM adds two empty items to the list
  */
 
 import static java.lang.Thread.sleep;
 
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-import test.java.awt.regtesthelpers.Util;
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.io.*;
 
 public class FileListBetweenJVMsTest extends Applet {
 
     // information related to the test in common
-    static int VISIBLE_RAWS_IN_LIST=15;
+    static final int VISIBLE_RAWS_IN_LIST=15;
 
     public void init() {
         setLayout(new BorderLayout());
@@ -61,7 +56,7 @@ public class FileListBetweenJVMsTest extends Applet {
 
         Util.waitForIdle(null);
 
-        String [] args = new String [] {
+        String [] args = {
                 String.valueOf(sourceFrame.getNextLocationX()),
                 String.valueOf(sourceFrame.getNextLocationY()),
                 String.valueOf(sourceFrame.getDragSourcePointX()),
@@ -70,7 +65,7 @@ public class FileListBetweenJVMsTest extends Applet {
         };
 
         ProcessResults processResults =
-                ProcessCommunicator.executeChildProcess(this.getClass(), args);
+                ProcessCommunicator.executeChildProcess(getClass(), args);
 
         verifyTestResults(processResults);
 
@@ -91,7 +86,6 @@ public class FileListBetweenJVMsTest extends Applet {
 
     //We cannot make an instance of the applet without the default constructor
     public FileListBetweenJVMsTest () {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
@@ -104,7 +98,7 @@ public class FileListBetweenJVMsTest extends Applet {
 
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int)dragSourcePoint.getX(),(int)dragSourcePoint.getY());
         sleep(100);
@@ -126,7 +120,7 @@ public class FileListBetweenJVMsTest extends Applet {
         FILES_IN_THE_LIST_NUMBER_ARGUMENT;
 
         int extract (String [] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
     }
 

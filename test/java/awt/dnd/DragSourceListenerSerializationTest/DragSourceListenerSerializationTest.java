@@ -52,15 +52,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static jdk.testlibrary.Asserts.assertEquals;
+public final class DragSourceListenerSerializationTest {
+  private DragSourceListenerSerializationTest() {
+  }
 
-public class DragSourceListenerSerializationTest {
-    public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
         DragSource ds = new DragSource();
         TestDragSourceAdapter dsa1 = new TestDragSourceAdapter(1);
         TestDragSourceAdapter dsa2 = new TestDragSourceAdapter(2);
@@ -71,8 +72,7 @@ public class DragSourceListenerSerializationTest {
         MouseEvent me = new MouseEvent(c, MouseEvent.MOUSE_PRESSED, 0,
                 InputEvent.CTRL_MASK, 100, 100, 0, false);
         DragGestureEvent dge = new DragGestureEvent(dgr, DnDConstants.ACTION_COPY,
-                new Point(100, 100),
-                Arrays.asList(me));
+                new Point(100, 100), Collections.singletonList(me));
         DragSourceContext dsc = new DragSourceContext(
                 Toolkit.getDefaultToolkit().createDragSourceContextPeer(dge),
                 dge,
@@ -137,7 +137,8 @@ public class DragSourceListenerSerializationTest {
 }
 
 class TestDragSourceAdapter extends DragSourceAdapter implements Serializable {
-    final int id;
+  private static final long serialVersionUID = -4627848360140478276L;
+  final int id;
 
     TestDragSourceAdapter(int id) {
         this.id = id;

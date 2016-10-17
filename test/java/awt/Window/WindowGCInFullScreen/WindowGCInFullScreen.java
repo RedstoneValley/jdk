@@ -26,31 +26,30 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.SwingUtilities;
 
 /**
  * @test
  * @bug 8019591
  * @author Sergey Bylokhov
  */
-public class WindowGCInFullScreen {
+public final class WindowGCInFullScreen {
 
-    public static void main(final String[] args)
-            throws InvocationTargetException, InterruptedException {
+    private WindowGCInFullScreen() {
+    }
+
+    public static void main(String[] args) {
         SwingUtilities.invokeAndWait(() -> {
-            final GraphicsDevice[] devices =
+            GraphicsDevice[] devices =
                     GraphicsEnvironment.getLocalGraphicsEnvironment()
                                        .getScreenDevices();
-            final Frame frame = new Frame();
+            Frame frame = new Frame();
             frame.setBackground(Color.GREEN);
             frame.setUndecorated(true);
             frame.setSize(100, 100);
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
             sleep();
-            for (final GraphicsDevice gd : devices) {
+            for (GraphicsDevice gd : devices) {
                 try {
                     gd.setFullScreenWindow(frame);
                     if (gd.getFullScreenWindow() != frame) {

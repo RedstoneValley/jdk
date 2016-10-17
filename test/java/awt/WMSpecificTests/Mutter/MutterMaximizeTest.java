@@ -34,22 +34,16 @@
   @run      main MutterMaximizeTest
 */
 
-import java.awt.AWTException;
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Window;
 import java.awt.event.InputEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import test.java.awt.regtesthelpers.Util;
 
 @SuppressWarnings("serial")
 public class MutterMaximizeTest extends Frame {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         if (Util.getWMID() != Util.MUTTER_WM) {
             System.out.println("This test is only useful on Mutter");
             return;
@@ -82,7 +76,7 @@ public class MutterMaximizeTest extends Frame {
         }
     }
 
-    private static void sleepFor(long millis) {
+    static void sleepFor(long millis) {
         long dT = 0;
         long start = System.nanoTime();
         while (dT < millis) {
@@ -123,7 +117,7 @@ public class MutterMaximizeTest extends Frame {
         click(robot);
     }
 
-    private static void dragWindow(Window w, int dx, int dy, Robot robot) {
+    static void dragWindow(Window w, int dx, int dy, Robot robot) {
         Point p = Util.getTitlePoint(w);
         rmove(robot, p);
         rdown(robot);
@@ -133,28 +127,28 @@ public class MutterMaximizeTest extends Frame {
     }
 
     // f must be visible
-    private static Thread startRegTest(final Frame f) {
-        Thread robot = new Thread(new Runnable() {
+    private static Thread startRegTest(Frame f) {
+        return new Thread(new Runnable() {
+            @Override
             public void run() {
                 Robot r = Util.createRobot();
                 dragWindow(f, 100, 100, r);
                 // wait for the location to be set.
                 sleepFor(2000);
 
-                final Point l2 = f.getLocationOnScreen();
+                Point l2 = f.getLocationOnScreen();
 
                 // double click should maximize the frame
                 doubleClick(r);
 
                 // wait for location again.
                 sleepFor(2000);
-                final Point l3 = f.getLocationOnScreen();
+                Point l3 = f.getLocationOnScreen();
                 if (l3.equals(l2)) {
                     throw new RuntimeException("Bad location after maximize. Window location has not moved");
                 }
             }
         });
-        return robot;
     }
 }
 

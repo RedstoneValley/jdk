@@ -43,8 +43,6 @@
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import javax.management.*;
-import javax.management.remote.*;
 
 /**
  * This VerboseGC class demonstrates the capability to get
@@ -73,10 +71,10 @@ public class VerboseGC {
     long interval = 5000; // default is 5 second interval
     long mins = 5;
     for (String arg : args) {
-      if (arg.startsWith("-")) {
-        if (arg.equals("-h") ||
-            arg.equals("-help") ||
-            arg.equals("-?")) {
+      if (arg.length() > 0 && arg.charAt(0) == '-') {
+        if ("-h".equals(arg) ||
+            "-help".equals(arg) ||
+            "-?".equals(arg)) {
           usage();
         } else if (arg.startsWith("-interval=")) {
           try {
@@ -114,7 +112,7 @@ public class VerboseGC {
 
     // get full thread dump and perform deadlock detection
     VerboseGC vgc = new VerboseGC(hostname, port);
-    long samples = (mins * 60 * 1000) / interval;
+    long samples = mins * 60 * 1000 / interval;
     vgc.dump(interval, samples);
   }
 
@@ -146,8 +144,8 @@ public class VerboseGC {
   private void connect(String urlPath) {
     try {
       JMXServiceURL url = new JMXServiceURL("rmi", "", 0, urlPath);
-      this.jmxc = JMXConnectorFactory.connect(url);
-      this.server = jmxc.getMBeanServerConnection();
+      jmxc = JMXConnectorFactory.connect(url);
+      server = jmxc.getMBeanServerConnection();
     } catch (MalformedURLException e) {
       // should not reach here
     } catch (IOException e) {

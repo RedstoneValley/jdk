@@ -27,6 +27,7 @@ package java.awt.peer;
 
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
 
 /**
  * The peer interface for the {@link TrayIcon}. This doesn't need to be
@@ -64,7 +65,7 @@ public interface TrayIconPeer {
    * @param caption     the message caption
    * @param text        the actual message text
    * @param messageType the message type
-   * @see TrayIcon#displayMessage(String, String, java.awt.TrayIcon.MessageType)
+   * @see TrayIcon#displayMessage(String, String, MessageType)
    */
   void displayMessage(String caption, String text, String messageType);
 

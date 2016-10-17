@@ -43,7 +43,7 @@ import java.awt.Font;
 /**
  * @author Scott Violet
  */
-public class SampleData extends Object {
+public class SampleData {
 
   /**
    * Font used for drawing.

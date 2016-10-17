@@ -71,8 +71,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import javax.swing.JComponent;
 
 public abstract class TextTests extends Test {
   // core data
@@ -90,8 +90,8 @@ public abstract class TextTests extends Test {
   static final String[] txDescNames;
   static final AffineTransform[] txList;
   static final Map[] maps;
-  public static boolean hasGraphics2D;
-  static HashMap strcache = new HashMap(tscripts.length);
+  public static final boolean hasGraphics2D;
+  static final HashMap strcache = new HashMap(tscripts.length);
   static Group textroot;
   static Group txoptroot;
   static Group txoptdataroot;
@@ -111,11 +111,11 @@ public abstract class TextTests extends Test {
   static Option gvstyList;
   static Option tlrunList;
   static Option tlmapList;
-  static Map physicalMap = new HashMap();
+  static final Map physicalMap = new HashMap();
 
   static {
     try {
-      hasGraphics2D = (Graphics2D.class != null);
+      hasGraphics2D = true;
     } catch (NoClassDefFoundError e) {
     }
   }
@@ -169,17 +169,17 @@ public abstract class TextTests extends Test {
 
     // maps
     HashMap fontMap = new HashMap();
-    fontMap.put(TextAttribute.FONT, new Font("Dialog", Font.ITALIC, 18));
+    fontMap.put(TextAttribute.FONT, new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.ITALIC, 18));
 
     HashMap emptyMap = new HashMap();
 
     HashMap simpleMap = new HashMap();
     simpleMap.put(TextAttribute.FAMILY, "Lucida Sans");
-    simpleMap.put(TextAttribute.SIZE, new Float(14));
+    simpleMap.put(TextAttribute.SIZE, 14f);
     simpleMap.put(TextAttribute.FOREGROUND, Color.blue);
 
     HashMap complexMap = new HashMap();
-    complexMap.put(TextAttribute.FAMILY, "Serif");
+    complexMap.put(TextAttribute.FAMILY, Font.SERIF);
     complexMap.put(TextAttribute.TRANSFORM, tall);
     complexMap.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
     complexMap.put(TextAttribute.RUN_DIRECTION, TextAttribute.RUN_DIRECTION_RTL);
@@ -192,6 +192,7 @@ public abstract class TextTests extends Test {
     maps = new Map[]{
         fontMap, emptyMap, simpleMap, complexMap,};
   }
+
   public TextTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
     addDependency(Destinations.destroot);
@@ -202,7 +203,7 @@ public abstract class TextTests extends Test {
   static Float[] floatObjectList(float[] input) {
     Float[] result = new Float[input.length];
     for (int i = 0; i < result.length; ++i) {
-      result[i] = new Float(input[i]);
+      result[i] = input[i];
     }
     return result;
   }
@@ -269,46 +270,6 @@ public abstract class TextTests extends Test {
   //   (tl) TL constructors
   //   (tm) line break
 
-  static String getString(Object key, int len) {
-    String keyString = key.toString();
-    String[] strings = new String[4]; // leave room for index == 3 to return null
-    int span = Math.min(32, len);
-    int n = keyString.indexOf('-');
-    if (n == -1) {
-      strings[0] = getSimpleString(keyString);
-    } else {
-      strings[0] = getSimpleString(keyString.substring(0, n));
-      int m = keyString.indexOf('-', n + 1);
-      if (m == -1) {
-        strings[1] = getSimpleString(keyString.substring(n + 1));
-        // 2 to 1 ratio, short spans between 1 and 16 chars long
-        span = Math.max(1, Math.min(16, len / 3));
-      } else {
-        strings[1] = getSimpleString(keyString.substring(n + 1, m));
-        strings[2] = getSimpleString(keyString.substring(m + 1));
-        span = Math.max(1, Math.min(16, len / 4));
-      }
-    }
-    String s = "";
-    int pos = 0;
-    int strx = 0;
-    while (s.length() < len) {
-      String src;
-      if (strings[strx] == null) {
-        src = strings[0]; // use strings[0] twice for each other string
-        strx = 0;
-      } else {
-        src = strings[strx++];
-      }
-      if (pos + span > src.length()) {
-        pos = 0; // we know all strings are longer than span
-      }
-      s += src.substring(pos, pos + span);
-      pos += span;
-    }
-    return s.substring(0, len);
-  }
-
   private static String getSimpleString(Object key) {
     String s = (String) strcache.get(key);
     if (s == null) {
@@ -319,7 +280,7 @@ public abstract class TextTests extends Test {
           throw new IOException("Can't load resource " + fname);
         }
         BufferedReader r = new BufferedReader(new InputStreamReader(is, "utf8"));
-        StringBuffer buf = new StringBuffer(r.readLine());
+        StringBuilder buf = new StringBuilder(r.readLine());
         while (null != (s = r.readLine())) {
           buf.append("  ");
           buf.append(s);
@@ -346,16 +307,16 @@ public abstract class TextTests extends Test {
 
     txoptdataroot = new Group(txoptroot, "data", "Text Data");
 
-    tlengthList = new Option.IntList(txoptdataroot,
+    tlengthList = new IntList(txoptdataroot,
         "tlength",
         "Text Length",
         tlengths,
         intStringList(tlengths),
         intStringList(tlengths, " chars"),
         0x10);
-    ((Option.ObjectList) tlengthList).setNumRows(5);
+    ((ObjectList) tlengthList).setNumRows(5);
 
-    tscriptList = new Option.ObjectList(txoptdataroot,
+    tscriptList = new ObjectList(txoptdataroot,
         "tscript",
         "Text Script",
         tscripts,
@@ -363,19 +324,19 @@ public abstract class TextTests extends Test {
         tscripts,
         tscripts,
         0x1);
-    ((Option.ObjectList) tscriptList).setNumRows(4);
+    ((ObjectList) tscriptList).setNumRows(4);
 
     txoptfontroot = new Group(txoptroot, "font", "Font");
 
     fnameList = new FontOption(txoptfontroot, "fname", "Family Name");
 
-    fstyleList = new Option.IntList(txoptfontroot, "fstyle", "Style", new int[]{
+    fstyleList = new IntList(txoptfontroot, "fstyle", "Style", new int[]{
         Font.PLAIN, Font.BOLD, Font.ITALIC, Font.BOLD + Font.ITALIC,}, new String[]{
         "plain", "bold", "italic", "bolditalic",}, new String[]{
         "Plain", "Bold", "Italic", "Bold Italic",}, 0x1);
 
     float[] fsl = hasGraphics2D ? fsizes : fintsizes;
-    fsizeList = new Option.ObjectList(txoptfontroot,
+    fsizeList = new ObjectList(txoptfontroot,
         "fsize",
         "Size",
         floatStringList(fsl),
@@ -383,10 +344,10 @@ public abstract class TextTests extends Test {
         floatStringList(fsl),
         floatStringList(fsl, "pt"),
         0x40);
-    ((Option.ObjectList) fsizeList).setNumRows(5);
+    ((ObjectList) fsizeList).setNumRows(5);
 
     if (hasGraphics2D) {
-      ftxList = new Option.ObjectList(txoptfontroot,
+      ftxList = new ObjectList(txoptfontroot,
           "ftx",
           "Transform",
           txDescNames,
@@ -394,7 +355,7 @@ public abstract class TextTests extends Test {
           txNames,
           txDescNames,
           0x1);
-      ((Option.ObjectList) ftxList).setNumRows(6);
+      ((ObjectList) ftxList).setNumRows(6);
 
       txoptgraphicsroot = new Group(txoptroot, "graphics", "Graphics");
 
@@ -415,7 +376,7 @@ public abstract class TextTests extends Test {
         taaHints = new Object[]{
             RenderingHints.VALUE_TEXT_ANTIALIAS_OFF, RenderingHints.VALUE_TEXT_ANTIALIAS_ON,};
       }
-      taaList = new Option.ObjectList(txoptgraphicsroot,
+      taaList = new ObjectList(txoptgraphicsroot,
           "textaa",
           "Text AntiAlias",
           taaNames,
@@ -423,15 +384,15 @@ public abstract class TextTests extends Test {
           taaNames,
           taaNames,
           0x1);
-      ((Option.ObjectList) taaList).setNumRows(6);
+      ((ObjectList) taaList).setNumRows(6);
       // add special TextAAOpt for backwards compatibility with
       // older options files
       new TextAAOpt();
 
-      tfmTog = new Option.Toggle(txoptgraphicsroot, "tfm", "Fractional Metrics", Option.Toggle.Off);
-      gaaTog = new Option.Toggle(txoptgraphicsroot, "gaa", "Graphics AntiAlias", Option.Toggle.Off);
+      tfmTog = new Toggle(txoptgraphicsroot, "tfm", "Fractional Metrics", Toggle.Off);
+      gaaTog = new Toggle(txoptgraphicsroot, "gaa", "Graphics AntiAlias", Toggle.Off);
 
-      gtxList = new Option.ObjectList(txoptgraphicsroot,
+      gtxList = new ObjectList(txoptgraphicsroot,
           "gtx",
           "Transform",
           txDescNames,
@@ -439,10 +400,10 @@ public abstract class TextTests extends Test {
           txNames,
           txDescNames,
           0x1);
-      ((Option.ObjectList) gtxList).setNumRows(6);
+      ((ObjectList) gtxList).setNumRows(6);
 
       advoptsroot = new Group(txoptroot, "advopts", "Advanced Options");
-      gvstyList = new Option.IntList(advoptsroot,
+      gvstyList = new IntList(advoptsroot,
           "gvstyle",
           "Style",
           new int[]{0, 1, 2, 3},
@@ -452,7 +413,7 @@ public abstract class TextTests extends Test {
           0x1);
 
       int[] runs = {1, 2, 4, 8};
-      tlrunList = new Option.IntList(advoptsroot,
+      tlrunList = new IntList(advoptsroot,
           "tlruns",
           "Attribute Runs",
           runs,
@@ -460,8 +421,8 @@ public abstract class TextTests extends Test {
           intStringList(runs, " runs"),
           0x1);
 
-      String[] tlmapnames = new String[]{"FONT", "Empty", "Simple", "Complex"};
-      tlmapList = new Option.ObjectList(advoptsroot,
+      String[] tlmapnames = {"FONT", "Empty", "Simple", "Complex"};
+      tlmapList = new ObjectList(advoptsroot,
           "maptype",
           "Map",
           tlmapnames,
@@ -472,60 +433,18 @@ public abstract class TextTests extends Test {
     }
   }
 
-  public static String physicalFontNameFor(String textname, int textlen, String text) {
-    Map lenMap = (Map) physicalMap.get(textname);
-    if (lenMap == null) {
-      lenMap = new HashMap();
-      physicalMap.put(textname, lenMap);
-    }
-    Integer key = new Integer(textlen);
-    Font textfont = (Font) lenMap.get(key);
-    if (textfont == null) {
-      Font[] fontsToTry = null;
-      if (lenMap.isEmpty()) {
-        fontsToTry = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-      } else {
-        Set fontset = new HashSet();
-        java.util.Iterator iter = lenMap.entrySet().iterator();
-        while (iter.hasNext()) {
-          Map.Entry e = (Map.Entry) iter.next();
-          fontset.add(e.getValue());
-        }
-        fontsToTry = (Font[]) fontset.toArray(new Font[fontset.size()]);
-      }
-
-      Font bestFont = null;
-      int bestCount = 0;
-      for (int i = 0; i < fontsToTry.length; ++i) {
-        Font font = fontsToTry[i];
-        int count = 0;
-        for (int j = 0, limit = text.length(); j < limit; ++j) {
-          if (font.canDisplay(text.charAt(j))) {
-            ++count;
-          }
-        }
-        if (count > bestCount) {
-          bestFont = font;
-          bestCount = count;
-        }
-      }
-
-      textfont = bestFont;
-      lenMap.put(key, textfont);
-    }
-    return textfont.getName();
-  }
-
   public Context createContext() {
     return new TextContext();
   }
 
+  @Override
   public Object initTest(TestEnvironment env, Result result) {
     Context ctx = createContext();
     ctx.init(env, result);
     return ctx;
   }
 
+  @Override
   public void cleanupTest(TestEnvironment env, Object ctx) {
     ((Context) ctx).cleanup(env);
   }
@@ -542,31 +461,35 @@ public abstract class TextTests extends Test {
       super(txoptgraphicsroot, "taa", "Text AntiAlias");
     }
 
+    @Override
     public JComponent getJComponent() {
       return null;
     }
 
+    @Override
     public void restoreDefault() {
       // no-op
     }
 
+    @Override
     public void write(PrintWriter pw) {
       // no-op (the old "taa" choice will be saved as part of the
       // new "textaa" option)
     }
 
+    @Override
     public String setOption(String key, String value) {
       String opts;
-      if (value.equals("On")) {
+      if ("On".equals(value)) {
         opts = "On";
-      } else if (value.equals("Off")) {
+      } else if ("Off".equals(value)) {
         opts = "Off";
-      } else if (value.equals("Both")) {
+      } else if ("Both".equals(value)) {
         opts = "On,Off";
       } else {
         return "Bad value";
       }
-      return ((Option.ObjectList) taaList).setValueFromString(opts);
+      return taaList.setValueFromString(opts);
     }
   }
 
@@ -584,6 +507,90 @@ public abstract class TextTests extends Test {
     char[] chars;
     Font font;
 
+    public static String physicalFontNameFor(String textname, int textlen, String text) {
+      Map lenMap = (Map) physicalMap.get(textname);
+      if (lenMap == null) {
+        lenMap = new HashMap();
+        physicalMap.put(textname, lenMap);
+      }
+      Integer key = textlen;
+      Font textfont = (Font) lenMap.get(key);
+      if (textfont == null) {
+        Font[] fontsToTry = null;
+        if (lenMap.isEmpty()) {
+          fontsToTry = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+        } else {
+          Set fontset = new HashSet();
+          for (Object o : lenMap.entrySet()) {
+            Entry e = (Entry) o;
+            fontset.add(e.getValue());
+          }
+          fontsToTry = (Font[]) fontset.toArray(new Font[fontset.size()]);
+        }
+
+        Font bestFont = null;
+        int bestCount = 0;
+        for (Font font : fontsToTry) {
+          int count = 0;
+          for (int j = 0, limit = text.length(); j < limit; ++j) {
+            if (font.canDisplay(text.charAt(j))) {
+              ++count;
+            }
+          }
+          if (count > bestCount) {
+            bestFont = font;
+            bestCount = count;
+          }
+        }
+
+        textfont = bestFont;
+        lenMap.put(key, textfont);
+      }
+      return textfont.getName();
+    }
+
+    static String getString(Object key, int len) {
+      String keyString = key.toString();
+      String[] strings = new String[4]; // leave room for index == 3 to return null
+      int span = Math.min(32, len);
+      int n = keyString.indexOf('-');
+      if (n == -1) {
+        strings[0] = getSimpleString(keyString);
+      } else {
+        strings[0] = getSimpleString(keyString.substring(0, n));
+        int m = keyString.indexOf('-', n + 1);
+        if (m == -1) {
+          strings[1] = getSimpleString(keyString.substring(n + 1));
+          // 2 to 1 ratio, short spans between 1 and 16 chars long
+          span = Math.max(1, Math.min(16, len / 3));
+        } else {
+          strings[1] = getSimpleString(keyString.substring(n + 1, m));
+          strings[2] = getSimpleString(keyString.substring(m + 1));
+          span = Math.max(1, Math.min(16, len / 4));
+        }
+      }
+      String s = "";
+      int pos = 0;
+      int strx = 0;
+      while (s.length() < len) {
+        String src;
+        if (strings[strx] == null) {
+          src = strings[0]; // use strings[0] twice for each other string
+          strx = 0;
+        } else {
+          src = strings[strx];
+          strx++;
+        }
+        if (pos + span > src.length()) {
+          pos = 0; // we know all strings are longer than span
+        }
+        s += src.substring(pos, pos + span);
+        pos += span;
+      }
+      return s.substring(0, len);
+    }
+
+    @Override
     public void init(TestEnvironment env, Result result) {
       // graphics
       graphics = env.getGraphics();
@@ -602,7 +609,7 @@ public abstract class TextTests extends Test {
         fname = physicalFontNameFor(sname, slen, text);
       }
       int fstyle = env.getIntValue(fstyleList);
-      float fsize = ((Float) env.getModifier(fsizeList)).floatValue();
+      float fsize = (Float) env.getModifier(fsizeList);
       AffineTransform ftx = (AffineTransform) env.getModifier(ftxList);
       font = new Font(fname, fstyle, (int) fsize);
       if (hasGraphics2D) {
@@ -632,6 +639,7 @@ public abstract class TextTests extends Test {
       result.setUnitName("char");
     }
 
+    @Override
     public void cleanup(TestEnvironment env) {
       graphics.dispose();
       graphics = null;
@@ -642,6 +650,7 @@ public abstract class TextTests extends Test {
     Graphics2D g2d;
     FontRenderContext frc;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
       g2d = (Graphics2D) graphics;
@@ -650,19 +659,21 @@ public abstract class TextTests extends Test {
   }
 
   static class FontOption extends ObjectList {
-    static String[] optionnames = {
+    static final String[] optionnames = {
         "default", "serif", "lucida", "physical"};
-    static String[] descnames = {
-        "Default", "Serif", "Lucida Sans", "Physical"};
+    static final String[] descnames = {
+        "Default", Font.SERIF, "Lucida Sans", "Physical"};
 
     public FontOption(Group parent, String nodeName, String description) {
       super(parent, nodeName, description, optionnames, descnames, optionnames, descnames, 0xa);
     }
 
+    @Override
     public String getValString(Object value) {
       return value.toString();
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return value.toString();
     }

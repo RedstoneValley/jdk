@@ -30,23 +30,22 @@
 
 
 
-/**
- * F10TopToplevel.java
- *
- * summary: tests if F10 has no effect if focused toplevel if not Frame
+/*
+  F10TopToplevel.java
+
+  summary: tests if F10 has no effect if focused toplevel if not Frame
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-
+import sun.awt.SunToolkit;
 
 public class F10TopToplevel extends Applet
 {
     //Declare things used in the test, like buttons and labels here
     Frame frame;
     Dialog dialog;
-    volatile boolean menuToggled = false;
+    volatile boolean menuToggled;
 
     public void init()
     {
@@ -69,10 +68,11 @@ public class F10TopToplevel extends Applet
         Menu menu;
         MenuItem item;
         frame = new Frame("am below");
-        frame.setMenuBar( (mb=new MenuBar()) );
+        frame.setMenuBar(mb=new MenuBar());
         menu = new Menu("nu");
-        menu.add((item = new MenuItem("item")));
+        menu.add(item = new MenuItem("item"));
         item.addActionListener( new ActionListener() {
+            @Override
             public void actionPerformed( ActionEvent ae ) {
                 menuToggled = true;
             }
@@ -93,9 +93,10 @@ public class F10TopToplevel extends Applet
         } catch(AWTException e){
             throw new RuntimeException("cannot create robot.", e);
         }
-        ((sun.awt.SunToolkit)Toolkit.getDefaultToolkit()).realSync();
-        robot.mouseMove(dialog.getLocationOnScreen().x + dialog.getWidth()/2,
-                        dialog.getLocationOnScreen().y + dialog.getHeight()/2 );
+        ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
+        robot.mouseMove(
+            dialog.getLocationOnScreen().x + dialog.getWidth()/2,
+            dialog.getLocationOnScreen().y + dialog.getHeight()/2 );
         robot.delay(5);
         robot.mousePress(InputEvent.BUTTON1_MASK);
         robot.delay(5);
@@ -112,7 +113,7 @@ public class F10TopToplevel extends Applet
         robot.keyRelease(KeyEvent.VK_ENTER);
         robot.delay(5);
 
-        ((sun.awt.SunToolkit)Toolkit.getDefaultToolkit()).realSync();
+        ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
 
         if(menuToggled) {
             throw new RuntimeException("Oops! Menu should not open.");

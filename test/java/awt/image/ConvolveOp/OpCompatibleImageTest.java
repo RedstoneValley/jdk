@@ -53,10 +53,10 @@ public class OpCompatibleImageTest {
         t.doTest(BufferedImage.TYPE_BYTE_INDEXED);
     }
 
-    private BufferedImageOp op;
+    private final BufferedImageOp op;
 
     public OpCompatibleImageTest() {
-        final Kernel kernel = new Kernel(3, 3,
+        Kernel kernel = new Kernel(3, 3,
                 new float[] {
             1f/9f, 1f/9f, 1f/9f,
             1f/9f, 1f/9f, 1f/9f,
@@ -69,7 +69,7 @@ public class OpCompatibleImageTest {
 
         BufferedImage src = createTestImage(type);
 
-        BufferedImage res = null;
+        BufferedImage res;
 
         System.out.println("Testing null destination...");
         try {
@@ -79,8 +79,7 @@ public class OpCompatibleImageTest {
         }
 
         if (res == null ||
-            ((src.getType() != BufferedImage.TYPE_BYTE_INDEXED) &&
-             (res.getType() != src.getType())))
+            src.getType() != BufferedImage.TYPE_BYTE_INDEXED && res.getType() != src.getType())
         {
             throw new RuntimeException("Test FAILED!");
         }

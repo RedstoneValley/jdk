@@ -25,37 +25,45 @@
 
 package java.awt.geom;
 
+import android.util.Log;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import sun.awt.geom.AreaOp;
+import sun.awt.geom.AreaOp.AddOp;
+import sun.awt.geom.AreaOp.EOWindOp;
+import sun.awt.geom.AreaOp.IntOp;
+import sun.awt.geom.AreaOp.NZWindOp;
+import sun.awt.geom.AreaOp.SubOp;
+import sun.awt.geom.AreaOp.XorOp;
 import sun.awt.geom.Crossings;
+import sun.awt.geom.Crossings.EvenOdd;
 import sun.awt.geom.Curve;
 
 /**
- * An <code>Area</code> object stores and manipulates a
+ * An {@code Area} object stores and manipulates a
  * resolution-independent description of an enclosed area of
  * 2-dimensional space.
- * <code>Area</code> objects can be transformed and can perform
+ * {@code Area} objects can be transformed and can perform
  * various Constructive Area Geometry (CAG) operations when combined
- * with other <code>Area</code> objects.
+ * with other {@code Area} objects.
  * The CAG operations include area
  * {@link #add addition}, {@link #subtract subtraction},
  * {@link #intersect intersection}, and {@link #exclusiveOr exclusive or}.
  * See the linked method documentation for examples of the various
  * operations.
  * <p>
- * The <code>Area</code> class implements the <code>Shape</code>
+ * The {@code Area} class implements the {@code Shape}
  * interface and provides full support for all of its hit-testing
- * and path iteration facilities, but an <code>Area</code> is more
+ * and path iteration facilities, but an {@code Area} is more
  * specific than a generalized path in a number of ways:
  * <ul>
  * <li>Only closed paths and sub-paths are stored.
- * <code>Area</code> objects constructed from unclosed paths
+ * {@code Area} objects constructed from unclosed paths
  * are implicitly closed during construction as if those paths
- * had been filled by the <code>Graphics2D.fill</code> method.
+ * had been filled by the {@code Graphics2D.fill} method.
  * <li>The interiors of the individual stored sub-paths are all
  * non-empty and non-overlapping.  Paths are decomposed during
  * construction into separate component non-overlapping parts,
@@ -65,31 +73,31 @@ import sun.awt.geom.Curve;
  * component sub-paths may touch each other, as long as they
  * do not cross so that their enclosed areas overlap.
  * <li>The geometry of the path describing the outline of the
- * <code>Area</code> resembles the path from which it was
+ * {@code Area} resembles the path from which it was
  * constructed only in that it describes the same enclosed
  * 2-dimensional area, but may use entirely different types
  * and ordering of the path segments to do so.
  * </ul>
  * Interesting issues which are not always obvious when using
- * the <code>Area</code> include:
+ * the {@code Area} include:
  * <ul>
- * <li>Creating an <code>Area</code> from an unclosed (open)
- * <code>Shape</code> results in a closed outline in the
- * <code>Area</code> object.
- * <li>Creating an <code>Area</code> from a <code>Shape</code>
+ * <li>Creating an {@code Area} from an unclosed (open)
+ * {@code Shape} results in a closed outline in the
+ * {@code Area} object.
+ * <li>Creating an {@code Area} from a {@code Shape}
  * which encloses no area (even when "closed") produces an
- * empty <code>Area</code>.  A common example of this issue
- * is that producing an <code>Area</code> from a line will
+ * empty {@code Area}.  A common example of this issue
+ * is that producing an {@code Area} from a line will
  * be empty since the line encloses no area.  An empty
- * <code>Area</code> will iterate no geometry in its
- * <code>PathIterator</code> objects.
- * <li>A self-intersecting <code>Shape</code> may be split into
+ * {@code Area} will iterate no geometry in its
+ * {@code PathIterator} objects.
+ * <li>A self-intersecting {@code Shape} may be split into
  * two (or more) sub-paths each enclosing one of the
  * non-intersecting portions of the original path.
- * <li>An <code>Area</code> may take more path segments to
+ * <li>An {@code Area} may take more path segments to
  * describe the same geometry even when the original
  * outline is simple and obvious.  The analysis that the
- * <code>Area</code> class must perform on the path may
+ * {@code Area} class must perform on the path may
  * not reflect the same concepts of "simple and obvious"
  * as a human being perceives.
  * </ul>
@@ -97,8 +105,23 @@ import sun.awt.geom.Curve;
  * @since 1.2
  */
 public class Area implements Shape, Cloneable {
-  private static Vector EmptyCurves = new Vector();
-
+  // coords array is big enough for holding:
+  //     coordinates returned from currentSegment (6)
+  //     OR
+  //         two subdivided quadratic curves (2+4+4=10)
+  //         AND
+  //             0-1 horizontal splitting parameters
+  //             OR
+  //             2 parametric equation derivative coefficients
+  //     OR
+  //         three subdivided cubic curves (2+6+6+6=20)
+  //         AND
+  //             0-2 horizontal splitting parameters
+  //             OR
+  //             3 parametric equation derivative coefficients
+  protected static final int COORD_ARRAY_SIZE = 23;
+  private static final String TAG = "java.awt.geom.Area";
+  private static final Vector EmptyCurves = new Vector();
   private Vector curves;
   private Rectangle2D cachedBounds;
 
@@ -112,47 +135,30 @@ public class Area implements Shape, Cloneable {
   }
 
   /**
-   * The <code>Area</code> class creates an area geometry from the
+   * The {@code Area} class creates an area geometry from the
    * specified {@link Shape} object.  The geometry is explicitly
-   * closed, if the <code>Shape</code> is not already closed.  The
+   * closed, if the {@code Shape} is not already closed.  The
    * fill rule (even-odd or winding) specified by the geometry of the
-   * <code>Shape</code> is used to determine the resulting enclosed area.
+   * {@code Shape} is used to determine the resulting enclosed area.
    *
-   * @param s the <code>Shape</code> from which the area is constructed
-   * @throws NullPointerException if <code>s</code> is null
+   * @param s the {@code Shape} from which the area is constructed
+   * @throws NullPointerException if {@code s} is null
    * @since 1.2
    */
   public Area(Shape s) {
-    if (s instanceof Area) {
-      curves = ((Area) s).curves;
-    } else {
-      curves = pathToCurves(s.getPathIterator(null));
-    }
+    curves = s instanceof Area ? ((Area) s).curves : pathToCurves(s.getPathIterator(null));
   }
 
   private static Vector pathToCurves(PathIterator pi) {
     Vector curves = new Vector();
     int windingRule = pi.getWindingRule();
-    // coords array is big enough for holding:
-    //     coordinates returned from currentSegment (6)
-    //     OR
-    //         two subdivided quadratic curves (2+4+4=10)
-    //         AND
-    //             0-1 horizontal splitting parameters
-    //             OR
-    //             2 parametric equation derivative coefficients
-    //     OR
-    //         three subdivided cubic curves (2+6+6+6=20)
-    //         AND
-    //             0-2 horizontal splitting parameters
-    //             OR
-    //             3 parametric equation derivative coefficients
-    double coords[] = new double[23];
+    double[] coords = new double[COORD_ARRAY_SIZE];
     double movx = 0, movy = 0;
     double curx = 0, cury = 0;
     double newx, newy;
     while (!pi.isDone()) {
-      switch (pi.currentSegment(coords)) {
+      int segmentType = pi.currentSegment(coords);
+      switch (segmentType) {
         case PathIterator.SEG_MOVETO:
           Curve.insertLine(curves, curx, cury, movx, movy);
           curx = movx = coords[0];
@@ -185,25 +191,37 @@ public class Area implements Shape, Cloneable {
           curx = movx;
           cury = movy;
           break;
+        default:
+          Log.e(TAG, "Unknown path segment type " + segmentType);
       }
       pi.next();
     }
     Curve.insertLine(curves, curx, cury, movx, movy);
     AreaOp operator;
-    if (windingRule == PathIterator.WIND_EVEN_ODD) {
-      operator = new AreaOp.EOWindOp();
-    } else {
-      operator = new AreaOp.NZWindOp();
-    }
+    operator = windingRule == PathIterator.WIND_EVEN_ODD ? new EOWindOp() : new NZWindOp();
     return operator.calculate(curves, EmptyCurves);
   }
 
+  public static Crossings findCrossings(
+      Iterable<Curve> curves, double xlo, double ylo, double xhi, double yhi) {
+    Crossings cross = new EvenOdd(xlo, ylo, xhi, yhi);
+    for (Curve c : curves) {
+      if (c.accumulateCrossings(cross)) {
+        return null;
+      }
+    }
+    if (Crossings.debug) {
+      cross.print();
+    }
+    return cross;
+  }
+
   /**
-   * Adds the shape of the specified <code>Area</code> to the
-   * shape of this <code>Area</code>.
-   * The resulting shape of this <code>Area</code> will include
+   * Adds the shape of the specified {@code Area} to the
+   * shape of this {@code Area}.
+   * The resulting shape of this {@code Area} will include
    * the union of both shapes, or all areas that were contained
-   * in either this or the specified <code>Area</code>.
+   * in either this or the specified {@code Area}.
    * <pre>
    *     // Example:
    *     Area a1 = new Area([triangle 0,0 =&gt; 8,0 =&gt; 0,8]);
@@ -222,22 +240,22 @@ public class Area implements Shape, Cloneable {
    *     ##                                 ##     ##            ##
    * </pre>
    *
-   * @param rhs the <code>Area</code> to be added to the
+   * @param rhs the {@code Area} to be added to the
    *            current shape
-   * @throws NullPointerException if <code>rhs</code> is null
+   * @throws NullPointerException if {@code rhs} is null
    * @since 1.2
    */
   public void add(Area rhs) {
-    curves = new AreaOp.AddOp().calculate(this.curves, rhs.curves);
+    curves = new AddOp().calculate(curves, rhs.curves);
     invalidateBounds();
   }
 
   /**
-   * Subtracts the shape of the specified <code>Area</code> from the
-   * shape of this <code>Area</code>.
-   * The resulting shape of this <code>Area</code> will include
-   * areas that were contained only in this <code>Area</code>
-   * and not in the specified <code>Area</code>.
+   * Subtracts the shape of the specified {@code Area} from the
+   * shape of this {@code Area}.
+   * The resulting shape of this {@code Area} will include
+   * areas that were contained only in this {@code Area}
+   * and not in the specified {@code Area}.
    * <pre>
    *     // Example:
    *     Area a1 = new Area([triangle 0,0 =&gt; 8,0 =&gt; 0,8]);
@@ -256,22 +274,22 @@ public class Area implements Shape, Cloneable {
    *     ##                                 ##     ##
    * </pre>
    *
-   * @param rhs the <code>Area</code> to be subtracted from the
+   * @param rhs the {@code Area} to be subtracted from the
    *            current shape
-   * @throws NullPointerException if <code>rhs</code> is null
+   * @throws NullPointerException if {@code rhs} is null
    * @since 1.2
    */
   public void subtract(Area rhs) {
-    curves = new AreaOp.SubOp().calculate(this.curves, rhs.curves);
+    curves = new SubOp().calculate(curves, rhs.curves);
     invalidateBounds();
   }
 
   /**
-   * Sets the shape of this <code>Area</code> to the intersection of
-   * its current shape and the shape of the specified <code>Area</code>.
-   * The resulting shape of this <code>Area</code> will include
-   * only areas that were contained in both this <code>Area</code>
-   * and also in the specified <code>Area</code>.
+   * Sets the shape of this {@code Area} to the intersection of
+   * its current shape and the shape of the specified {@code Area}.
+   * The resulting shape of this {@code Area} will include
+   * only areas that were contained in both this {@code Area}
+   * and also in the specified {@code Area}.
    * <pre>
    *     // Example:
    *     Area a1 = new Area([triangle 0,0 =&gt; 8,0 =&gt; 0,8]);
@@ -290,23 +308,23 @@ public class Area implements Shape, Cloneable {
    *     ##                                 ##
    * </pre>
    *
-   * @param rhs the <code>Area</code> to be intersected with this
-   *            <code>Area</code>
-   * @throws NullPointerException if <code>rhs</code> is null
+   * @param rhs the {@code Area} to be intersected with this
+   *            {@code Area}
+   * @throws NullPointerException if {@code rhs} is null
    * @since 1.2
    */
   public void intersect(Area rhs) {
-    curves = new AreaOp.IntOp().calculate(this.curves, rhs.curves);
+    curves = new IntOp().calculate(curves, rhs.curves);
     invalidateBounds();
   }
 
   /**
-   * Sets the shape of this <code>Area</code> to be the combined area
-   * of its current shape and the shape of the specified <code>Area</code>,
+   * Sets the shape of this {@code Area} to be the combined area
+   * of its current shape and the shape of the specified {@code Area},
    * minus their intersection.
-   * The resulting shape of this <code>Area</code> will include
-   * only areas that were contained in either this <code>Area</code>
-   * or in the specified <code>Area</code>, but not in both.
+   * The resulting shape of this {@code Area} will include
+   * only areas that were contained in either this {@code Area}
+   * or in the specified {@code Area}, but not in both.
    * <pre>
    *     // Example:
    *     Area a1 = new Area([triangle 0,0 =&gt; 8,0 =&gt; 0,8]);
@@ -325,18 +343,18 @@ public class Area implements Shape, Cloneable {
    *     ##                                 ##     ##            ##
    * </pre>
    *
-   * @param rhs the <code>Area</code> to be exclusive ORed with this
-   *            <code>Area</code>.
-   * @throws NullPointerException if <code>rhs</code> is null
+   * @param rhs the {@code Area} to be exclusive ORed with this
+   *            {@code Area}.
+   * @throws NullPointerException if {@code rhs} is null
    * @since 1.2
    */
   public void exclusiveOr(Area rhs) {
-    curves = new AreaOp.XorOp().calculate(this.curves, rhs.curves);
+    curves = new XorOp().calculate(curves, rhs.curves);
     invalidateBounds();
   }
 
   /**
-   * Removes all of the geometry from this <code>Area</code> and
+   * Removes all of the geometry from this {@code Area} and
    * restores it to an empty area.
    *
    * @since 1.2
@@ -347,23 +365,23 @@ public class Area implements Shape, Cloneable {
   }
 
   /**
-   * Tests whether this <code>Area</code> object encloses any area.
+   * Tests whether this {@code Area} object encloses any area.
    *
-   * @return <code>true</code> if this <code>Area</code> object
-   * represents an empty area; <code>false</code> otherwise.
+   * @return {@code true} if this {@code Area} object
+   * represents an empty area; {@code false} otherwise.
    * @since 1.2
    */
   public boolean isEmpty() {
-    return (curves.size() == 0);
+    return curves.isEmpty();
   }
 
   /**
-   * Tests whether this <code>Area</code> consists entirely of
+   * Tests whether this {@code Area} consists entirely of
    * straight edged polygonal geometry.
    *
-   * @return <code>true</code> if the geometry of this
-   * <code>Area</code> consists entirely of line segments;
-   * <code>false</code> otherwise.
+   * @return {@code true} if the geometry of this
+   * {@code Area} consists entirely of line segments;
+   * {@code false} otherwise.
    * @since 1.2
    */
   public boolean isPolygonal() {
@@ -377,10 +395,10 @@ public class Area implements Shape, Cloneable {
   }
 
   /**
-   * Tests whether this <code>Area</code> is rectangular in shape.
+   * Tests whether this {@code Area} is rectangular in shape.
    *
-   * @return <code>true</code> if the geometry of this
-   * <code>Area</code> is rectangular in shape; <code>false</code>
+   * @return {@code true} if the geometry of this
+   * {@code Area} is rectangular in shape; {@code false}
    * otherwise.
    * @since 1.2
    */
@@ -400,23 +418,19 @@ public class Area implements Shape, Cloneable {
     if (c1.getXTop() != c1.getXBot() || c2.getXTop() != c2.getXBot()) {
       return false;
     }
-    if (c1.getYTop() != c2.getYTop() || c1.getYBot() != c2.getYBot()) {
-      // One might be able to prove that this is impossible...
-      return false;
-    }
-    return true;
+    return !(c1.getYTop() != c2.getYTop() || c1.getYBot() != c2.getYBot());
   }
 
   /**
-   * Tests whether this <code>Area</code> is comprised of a single
-   * closed subpath.  This method returns <code>true</code> if the
-   * path contains 0 or 1 subpaths, or <code>false</code> if the path
+   * Tests whether this {@code Area} is comprised of a single
+   * closed subpath.  This method returns {@code true} if the
+   * path contains 0 or 1 subpaths, or {@code false} if the path
    * contains more than 1 subpath.  The subpaths are counted by the
    * number of {@link PathIterator#SEG_MOVETO SEG_MOVETO}  segments
    * that appear in the path.
    *
-   * @return <code>true</code> if the <code>Area</code> is comprised
-   * of a single basic geometry; <code>false</code> otherwise.
+   * @return {@code true} if the {@code Area} is comprised
+   * of a single basic geometry; {@code false} otherwise.
    * @since 1.2
    */
   public boolean isSingular() {
@@ -442,7 +456,7 @@ public class Area implements Shape, Cloneable {
       return cachedBounds;
     }
     Rectangle2D r = new Rectangle2D.Double();
-    if (curves.size() > 0) {
+    if (!curves.isEmpty()) {
       Curve c = (Curve) curves.get(0);
       // First point is always an order 0 curve (moveto)
       r.setRect(c.getX0(), c.getY0(), 0, 0);
@@ -450,12 +464,12 @@ public class Area implements Shape, Cloneable {
         ((Curve) curves.get(i)).enlarge(r);
       }
     }
-    return (cachedBounds = r);
+    return cachedBounds = r;
   }
 
   /**
    * Returns a bounding {@link Rectangle} that completely encloses
-   * this <code>Area</code>.
+   * this {@code Area}.
    * <p>
    * The Area class will attempt to return the tightest bounding
    * box possible for the Shape.  The bounding box will not be
@@ -466,17 +480,18 @@ public class Area implements Shape, Cloneable {
    * as tight as the nearest integer coordinates that encompass
    * the geometry of the Shape.
    *
-   * @return the bounding <code>Rectangle</code> for the
-   * <code>Area</code>.
+   * @return the bounding {@code Rectangle} for the
+   * {@code Area}.
    * @since 1.2
    */
+  @Override
   public Rectangle getBounds() {
     return getCachedBounds().getBounds();
   }
 
   /**
    * Returns a high precision bounding {@link Rectangle2D} that
-   * completely encloses this <code>Area</code>.
+   * completely encloses this {@code Area}.
    * <p>
    * The Area class will attempt to return the tightest bounding
    * box possible for the Shape.  The bounding box will not be
@@ -484,19 +499,19 @@ public class Area implements Shape, Cloneable {
    * of the Shape, but should tightly fit the actual geometry of
    * the outline itself.
    *
-   * @return the bounding <code>Rectangle2D</code> for the
-   * <code>Area</code>.
+   * @return the bounding {@code Rectangle2D} for the
+   * {@code Area}.
    * @since 1.2
    */
+  @Override
   public Rectangle2D getBounds2D() {
     return getCachedBounds().getBounds2D();
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y) {
     if (!getCachedBounds().contains(x, y)) {
       return false;
@@ -507,23 +522,21 @@ public class Area implements Shape, Cloneable {
       Curve c = (Curve) enum_.nextElement();
       crossings += c.crossingsFor(x, y);
     }
-    return ((crossings & 1) == 1);
+    return (crossings & 1) == 1;
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(Point2D p) {
     return contains(p.getX(), p.getY());
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(double x, double y, double w, double h) {
     if (w < 0 || h < 0) {
       return false;
@@ -531,24 +544,22 @@ public class Area implements Shape, Cloneable {
     if (!getCachedBounds().intersects(x, y, w, h)) {
       return false;
     }
-    Crossings c = Crossings.findCrossings(curves, x, y, x + w, y + h);
-    return (c == null || !c.isEmpty());
+    Crossings c = findCrossings(curves, x, y, x + w, y + h);
+    return c == null || !c.isEmpty();
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(Rectangle2D r) {
     return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y, double w, double h) {
     if (w < 0 || h < 0) {
       return false;
@@ -556,100 +567,104 @@ public class Area implements Shape, Cloneable {
     if (!getCachedBounds().contains(x, y, w, h)) {
       return false;
     }
-    Crossings c = Crossings.findCrossings(curves, x, y, x + w, y + h);
-    return (c != null && c.covers(y, y + h));
+    Crossings c = findCrossings(curves, x, y, x + w, y + h);
+    return c != null && c.covers(y, y + h);
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(Rectangle2D r) {
     return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
   }
 
   /**
    * Creates a {@link PathIterator} for the outline of this
-   * <code>Area</code> object.  This <code>Area</code> object is unchanged.
+   * {@code Area} object.  This {@code Area} object is unchanged.
    *
-   * @param at an optional <code>AffineTransform</code> to be applied to
+   * @param at an optional {@code AffineTransform} to be applied to
    *           the coordinates as they are returned in the iteration, or
-   *           <code>null</code> if untransformed coordinates are desired
-   * @return the <code>PathIterator</code> object that returns the
-   * geometry of the outline of this <code>Area</code>, one
+   *           {@code null} if untransformed coordinates are desired
+   * @return the {@code PathIterator} object that returns the
+   * geometry of the outline of this {@code Area}, one
    * segment at a time.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at) {
     return new AreaIterator(curves, at);
   }
 
   /**
-   * Creates a <code>PathIterator</code> for the flattened outline of
-   * this <code>Area</code> object.  Only uncurved path segments
+   * Creates a {@code PathIterator} for the flattened outline of
+   * this {@code Area} object.  Only uncurved path segments
    * represented by the SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point
-   * types are returned by the iterator.  This <code>Area</code>
+   * types are returned by the iterator.  This {@code Area}
    * object is unchanged.
    *
-   * @param at       an optional <code>AffineTransform</code> to be
+   * @param at       an optional {@code AffineTransform} to be
    *                 applied to the coordinates as they are returned in the
-   *                 iteration, or <code>null</code> if untransformed coordinates
+   *                 iteration, or {@code null} if untransformed coordinates
    *                 are desired
    * @param flatness the maximum amount that the control points
    *                 for a given curve can vary from colinear before a subdivided
    *                 curve is replaced by a straight line connecting the end points
-   * @return the <code>PathIterator</code> object that returns the
-   * geometry of the outline of this <code>Area</code>, one segment
+   * @return the {@code PathIterator} object that returns the
+   * geometry of the outline of this {@code Area}, one segment
    * at a time.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at, double flatness) {
     return new FlatteningPathIterator(getPathIterator(at), flatness);
   }
 
   /**
-   * Returns an exact copy of this <code>Area</code> object.
-   *
-   * @return Created clone object
-   * @since 1.2
-   */
-  public Object clone() {
-    return new Area(this);
-  }
-
-  /**
-   * Tests whether the geometries of the two <code>Area</code> objects
+   * Tests whether the geometries of the two {@code Area} objects
    * are equal.
    * This method will return false if the argument is null.
    *
-   * @param other the <code>Area</code> to be compared to this
-   *              <code>Area</code>
-   * @return <code>true</code> if the two geometries are equal;
-   * <code>false</code> otherwise.
+   * @param other the {@code Area} to be compared to this
+   *              {@code Area}
+   * @return {@code true} if the two geometries are equal;
+   * {@code false} otherwise.
    * @since 1.2
    */
-  public boolean equals(Area other) {
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
+  public boolean equals(Object other) {
     // REMIND: A *much* simpler operation should be possible...
     // Should be able to do a curve-wise comparison since all Areas
     // should evaluate their curves in the same top-down order.
     if (other == this) {
       return true;
     }
-    if (other == null) {
-      return false;
+    if (other instanceof Area) {
+      Vector c = new XorOp().calculate(curves, ((Area) other).curves);
+      return c.isEmpty();
     }
-    Vector c = new AreaOp.XorOp().calculate(this.curves, other.curves);
-    return c.isEmpty();
+    return false;
   }
 
   /**
-   * Transforms the geometry of this <code>Area</code> using the specified
+   * Returns an exact copy of this {@code Area} object.
+   *
+   * @return Created clone object
+   * @since 1.2
+   */
+  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @Override
+  public Object clone() {
+    return new Area(this);
+  }
+
+  /**
+   * Transforms the geometry of this {@code Area} using the specified
    * {@link AffineTransform}.  The geometry is transformed in place, which
    * permanently changes the enclosed area defined by this object.
    *
    * @param t the transformation used to transform the area
-   * @throws NullPointerException if <code>t</code> is null
+   * @throws NullPointerException if {@code t} is null
    * @since 1.2
    */
   public void transform(AffineTransform t) {
@@ -663,16 +678,16 @@ public class Area implements Shape, Cloneable {
   }
 
   /**
-   * Creates a new <code>Area</code> object that contains the same
-   * geometry as this <code>Area</code> transformed by the specified
-   * <code>AffineTransform</code>.  This <code>Area</code> object
+   * Creates a new {@code Area} object that contains the same
+   * geometry as this {@code Area} transformed by the specified
+   * {@code AffineTransform}.  This {@code Area} object
    * is unchanged.
    *
-   * @param t the specified <code>AffineTransform</code> used to transform
-   *          the new <code>Area</code>
-   * @return a new <code>Area</code> object representing the transformed
+   * @param t the specified {@code AffineTransform} used to transform
+   *          the new {@code Area}
+   * @return a new {@code Area} object representing the transformed
    * geometry.
-   * @throws NullPointerException if <code>t</code> is null
+   * @throws NullPointerException if {@code t} is null
    * @since 1.2
    */
   public Area createTransformedArea(AffineTransform t) {
@@ -683,20 +698,21 @@ public class Area implements Shape, Cloneable {
 }
 
 class AreaIterator implements PathIterator {
-  private AffineTransform transform;
-  private Vector curves;
+  private final AffineTransform transform;
+  private final Vector curves;
   private int index;
   private Curve prevcurve;
   private Curve thiscurve;
 
   public AreaIterator(Vector curves, AffineTransform at) {
     this.curves = curves;
-    this.transform = at;
+    transform = at;
     if (curves.size() >= 1) {
       thiscurve = (Curve) curves.get(0);
     }
   }
 
+  @Override
   public int getWindingRule() {
     // REMIND: Which is better, EVEN_ODD or NON_ZERO?
     //         The paths calculated could be classified either way.
@@ -704,10 +720,12 @@ class AreaIterator implements PathIterator {
     return WIND_NON_ZERO;
   }
 
+  @Override
   public boolean isDone() {
-    return (prevcurve == null && thiscurve == null);
+    return prevcurve == null && thiscurve == null;
   }
 
+  @Override
   public void next() {
     if (prevcurve != null) {
       prevcurve = null;
@@ -727,18 +745,20 @@ class AreaIterator implements PathIterator {
     }
   }
 
-  public int currentSegment(float coords[]) {
-    double dcoords[] = new double[6];
+  @Override
+  public int currentSegment(float[] coords) {
+    double[] dcoords = new double[6];
     int segtype = currentSegment(dcoords);
-    int numpoints = (segtype == SEG_CLOSE ? 0
-                         : (segtype == SEG_QUADTO ? 2 : (segtype == SEG_CUBICTO ? 3 : 1)));
-    for (int i = 0; i < numpoints * 2; i++) {
+    int numpoints = segtype == SEG_CLOSE ? 0
+        : segtype == SEG_QUADTO ? 2 : segtype == SEG_CUBICTO ? 3 : 1;
+    for (int i = 0; i < numpoints << 1; i++) {
       coords[i] = (float) dcoords[i];
     }
     return segtype;
   }
 
-  public int currentSegment(double coords[]) {
+  @Override
+  public int currentSegment(double[] coords) {
     int segtype;
     int numpoints;
     if (prevcurve != null) {

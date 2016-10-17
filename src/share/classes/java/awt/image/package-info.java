@@ -1,0 +1,26 @@
+/**
+ * Provides classes for creating and modifying images.
+ * Images are processed using a streaming framework that involves an
+ * image producer, optional image filters, and an image consumer. This
+ * framework makes it possible to progressively render an image while it
+ * is being fetched and generated. Moreover, the framework allows an
+ * application to discard the storage used by an image and to regenerate
+ * it at any time. This package provides a number of image producers,
+ * consumers, and filters that you can configure for your image
+ * processing needs.
+ * <!--
+ * <h2>Package Specification</h2>
+ * ##### FILL IN ANY SPECS NEEDED BY JAVA COMPATIBILITY KIT #####
+ * <ul>
+ * <li><a href="">##### REFER TO ANY FRAMEMAKER SPECIFICATION HERE #####</a>
+ * </ul>
+ * <h2>Related Documentation</h2>
+ * For overviews, tutorials, examples, guides, and tool documentation, please see:
+ * <ul>
+ * <li><a href="">##### REFER TO NON-SPEC DOCUMENTATION HERE #####</a>
+ * </ul>
+ * -->
+ *
+ * @since JDK1.0
+ */
+package java.awt.image;

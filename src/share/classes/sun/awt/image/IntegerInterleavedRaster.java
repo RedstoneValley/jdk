@@ -55,12 +55,12 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
   /**
    * A cached copy of minX + width for use in bounds checks.
    */
-  private int maxX;
+  private final int maxX;
 
   /**
    * A cached copy of minY + height for use in bounds checks.
    */
-  private int maxY;
+  private final int maxY;
 
   /**
    * Constructs a IntegerInterleavedRaster with the given SampleModel.
@@ -73,8 +73,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param origin      The Point that specified the origin.
    */
   public IntegerInterleavedRaster(SampleModel sampleModel, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         sampleModel.createDataBuffer(),
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -93,8 +92,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param origin      The Point that specifies the origin.
    */
   public IntegerInterleavedRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -124,26 +122,26 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
       SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point origin,
       IntegerInterleavedRaster parent) {
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
     if (!(dataBuffer instanceof DataBufferInt)) {
       throw new RasterFormatException(
           "IntegerInterleavedRasters must have" + "integer DataBuffers");
     }
     DataBufferInt dbi = (DataBufferInt) dataBuffer;
-    this.data = stealData(dbi, 0);
+    data = stealData(dbi, 0);
 
     if (sampleModel instanceof SinglePixelPackedSampleModel) {
       SinglePixelPackedSampleModel sppsm = (SinglePixelPackedSampleModel) sampleModel;
-      this.scanlineStride = sppsm.getScanlineStride();
-      this.pixelStride = 1;
-      this.dataOffsets = new int[1];
-      this.dataOffsets[0] = dbi.getOffset();
-      this.bandOffset = this.dataOffsets[0];
+      scanlineStride = sppsm.getScanlineStride();
+      pixelStride = 1;
+      dataOffsets = new int[1];
+      dataOffsets[0] = dbi.getOffset();
+      bandOffset = dataOffsets[0];
       int xOffset = aRegion.x - origin.x;
       int yOffset = aRegion.y - origin.y;
       dataOffsets[0] += xOffset + yOffset * scanlineStride;
-      this.numDataElems = sppsm.getNumDataElements();
+      numDataElems = sppsm.getNumDataElements();
     } else {
       throw new RasterFormatException(
           "IntegerInterleavedRasters must have" + " SinglePixelPackedSampleModel");
@@ -152,19 +150,11 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
   }
 
   /**
-   * Returns a copy of the data offsets array. For each band the data offset
-   * is the index into the band's data array, of the first sample of the
-   * band.
-   */
-  public int[] getDataOffsets() {
-    return (int[]) dataOffsets.clone();
-  }
-
-  /**
    * Returns data offset for the specified band.  The data offset
    * is the index into the data array in which the first sample
    * of the first scanline is stored.
    */
+  @Override
   public int getDataOffset(int band) {
     return dataOffsets[band];
   }
@@ -173,6 +163,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * Returns the scanline stride -- the number of data array elements between
    * a given sample and the sample in the same column of the next row.
    */
+  @Override
   public int getScanlineStride() {
     return scanlineStride;
   }
@@ -181,6 +172,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * Returns pixel stride -- the number of data array elements  between two
    * samples for the same band on the same scanline.
    */
+  @Override
   public int getPixelStride() {
     return pixelStride;
   }
@@ -188,6 +180,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
   /**
    * Returns a reference to the data array.
    */
+  @Override
   public int[] getDataStorage() {
     return data;
   }
@@ -211,34 +204,30 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public WritableRaster createWritableChild(
-      int x, int y, int width, int height, int x0, int y0, int bandList[]) {
-    if (x < this.minX) {
+      int x, int y, int width, int height, int x0, int y0, int[] bandList) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside raster");
     }
-    if ((x + width < x) || (x + width > this.minX + this.width)) {
+    if (x + width < x || x + width > minX + this.width) {
       throw new RasterFormatException("(x + width) is outside raster");
     }
-    if ((y + height < y) || (y + height > this.minY + this.height)) {
+    if (y + height < y || y + height > minY + this.height) {
       throw new RasterFormatException("(y + height) is outside raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
 
-    return new IntegerInterleavedRaster(
-        sm,
+    return new IntegerInterleavedRaster(sm,
         dataBuffer,
         new Rectangle(x0, y0, width, height),
         new Point(sampleModelTranslateX + deltaX, sampleModelTranslateY + deltaY),
@@ -254,18 +243,16 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int inData[] = (int[]) obj;
+    int[] inData = (int[]) obj;
 
-    int off = (y - minY) * scanlineStride + (x - minX) + dataOffsets[0];
+    int off = (y - minY) * scanlineStride + x - minX + dataOffsets[0];
 
     data[off] = inData[0];
 
@@ -282,13 +269,14 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     int dstOffX = x + inRaster.getMinX();
     int dstOffY = y + inRaster.getMinY();
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
 
@@ -313,18 +301,15 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int inData[] = (int[]) obj;
-    int yoff = (y - minY) * scanlineStride + (x - minX) + dataOffsets[0];
+    int[] inData = (int[]) obj;
+    int yoff = (y - minY) * scanlineStride + x - minX + dataOffsets[0];
     int off = 0;
 
     for (int ystart = 0; ystart < h; ystart++) {
@@ -342,6 +327,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * the raster is a subraster, this will call
    * createCompatibleRaster(width, height).
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -350,9 +336,10 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * Creates a raster with the same band layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -378,7 +365,8 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
-  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int bandList[]) {
+  @Override
+  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
     return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
@@ -392,25 +380,18 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int outData[];
-    if (obj == null) {
-      outData = new int[1];
-    } else {
-      outData = (int[]) obj;
-    }
-    int off = (y - minY) * scanlineStride + (x - minX) + dataOffsets[0];
+    int[] outData;
+    outData = obj == null ? new int[1] : (int[]) obj;
+    int off = (y - minY) * scanlineStride + x - minX + dataOffsets[0];
     outData[0] = data[off];
 
     return outData;
@@ -434,27 +415,18 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int outData[];
-    if (obj instanceof int[]) {
-      outData = (int[]) obj;
-    } else {
-      outData = new int[w * h];
-    }
-    int yoff = (y - minY) * scanlineStride + (x - minX) + dataOffsets[0];
+    int[] outData;
+    outData = obj instanceof int[] ? (int[]) obj : new int[w * h];
+    int yoff = (y - minY) * scanlineStride + x - minX + dataOffsets[0];
     int off = 0;
 
     for (int ystart = 0; ystart < h; ystart++) {
@@ -467,10 +439,9 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
   }
 
   public String toString() {
-    return new String(
-        "IntegerInterleavedRaster: width = " + width + " height = " + height + " #Bands = "
-            + numBands + " xOff = " + sampleModelTranslateX + " yOff = " + sampleModelTranslateY
-            + " dataOffset[0] " + dataOffsets[0]);
+    return "IntegerInterleavedRaster: width = " + width + " height = " + height + " #Bands = "
+        + numBands + " xOff = " + sampleModelTranslateX + " yOff = " + sampleModelTranslateY
+        + " dataOffset[0] " + dataOffsets[0];
   }
 
   /**
@@ -496,7 +467,7 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
 
     int srcOffX = inRaster.getMinX();
     int srcOffY = inRaster.getMinY();
-    int tdata[] = null;
+    int[] tdata;
 
     if (inRaster instanceof IntegerInterleavedRaster) {
       IntegerInterleavedRaster ict = (IntegerInterleavedRaster) inRaster;
@@ -504,11 +475,10 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
       // Extract the raster parameters
       tdata = ict.getDataStorage();
       int tss = ict.getScanlineStride();
-      int toff = ict.getDataOffset(0);
 
-      int srcOffset = toff;
+      int srcOffset = ict.getDataOffset(0);
       int dstOffset = dataOffsets[0] + (dstY - minY) * scanlineStride +
-          (dstX - minX);
+          dstX - minX;
 
       // Fastest case.  We can copy scanlines
       // Loop through all of the scanlines and copy the data

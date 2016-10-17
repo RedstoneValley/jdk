@@ -63,7 +63,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
   /**
    * The RenderableImage source for the producer.
    */
-  RenderableImage rdblImage;
+  final RenderableImage rdblImage;
 
   /**
    * The RenderContext to use for producing the image.
@@ -73,7 +73,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
   /**
    * A Vector of image consumers.
    */
-  Vector ics = new Vector();
+  final Vector ics = new Vector();
 
   /**
    * Constructs a new RenderableImageProducer from a RenderableImage
@@ -103,6 +103,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    *
    * @param ic an ImageConsumer to be added to the interest list.
    */
+  @Override
   public synchronized void addConsumer(ImageConsumer ic) {
     if (!ics.contains(ic)) {
       ics.addElement(ic);
@@ -116,6 +117,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    * @param ic the ImageConsumer to be checked.
    * @return true if the ImageConsumer is on the list; false otherwise.
    */
+  @Override
   public synchronized boolean isConsumer(ImageConsumer ic) {
     return ics.contains(ic);
   }
@@ -126,6 +128,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    *
    * @param ic the ImageConsumer to be removed.
    */
+  @Override
   public synchronized void removeConsumer(ImageConsumer ic) {
     ics.removeElement(ic);
   }
@@ -137,6 +140,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    *
    * @param ic the ImageConsumer to be added to the list of consumers.
    */
+  @Override
   public synchronized void startProduction(ImageConsumer ic) {
     addConsumer(ic);
     // Need to build a runnable object for the Thread.
@@ -150,6 +154,7 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    *
    * @param ic the ImageConsumer requesting the resend.
    */
+  @Override
   public void requestTopDownLeftRightResend(ImageConsumer ic) {
     // So far, all pixels are already sent in TDLR order
   }
@@ -159,14 +164,11 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
    * the current RenderableImage and RenderContext and send it to all the
    * ImageConsumer currently registered with this class.
    */
+  @Override
   public void run() {
     // First get the rendered image
     RenderedImage rdrdImage;
-    if (rc != null) {
-      rdrdImage = rdblImage.createRendering(rc);
-    } else {
-      rdrdImage = rdblImage.createDefaultRendering();
-    }
+    rdrdImage = rc != null ? rdblImage.createRendering(rc) : rdblImage.createDefaultRendering();
 
     // And its ColorModel
     ColorModel colorModel = rdrdImage.getColorModel();
@@ -197,10 +199,10 @@ public class RenderableImageProducer implements ImageProducer, Runnable {
 
     // Get RGB pixels from the raster scanline by scanline and
     // send to consumers.
-    int pix[] = new int[width];
+    int[] pix = new int[width];
     int i, j;
     int numBands = sampleModel.getNumBands();
-    int tmpPixel[] = new int[numBands];
+    int[] tmpPixel = new int[numBands];
     for (j = 0; j < height; j++) {
       for (i = 0; i < width; i++) {
         sampleModel.getPixel(i, j, tmpPixel, dataBuffer);

@@ -29,8 +29,8 @@ final class Edge {
   static final int INIT_PARTS = 4;
   static final int GROW_PARTS = 10;
 
-  Curve curve;
-  int ctag;
+  final Curve curve;
+  final int ctag;
   int etag;
   double activey;
   int equivalence;
@@ -43,7 +43,7 @@ final class Edge {
   }
 
   public Edge(Curve c, int ctag, int etag) {
-    this.curve = c;
+    curve = c;
     this.ctag = ctag;
     this.etag = etag;
   }
@@ -72,7 +72,7 @@ final class Edge {
     equivalence = eq;
   }
 
-  public int compareTo(Edge other, double yrange[]) {
+  public int compareTo(Edge other, double[] yrange) {
     if (other == lastEdge && yrange[0] < lastLimit) {
       if (yrange[1] > lastLimit) {
         yrange[1] = lastLimit;
@@ -104,20 +104,20 @@ final class Edge {
   }
 
   public void record(double yend, int etag) {
-    this.activey = yend;
+    activey = yend;
     this.etag = etag;
   }
 
   public boolean isActiveFor(double y, int etag) {
-    return (this.etag == etag && this.activey >= y);
+    return this.etag == etag && activey >= y;
   }
 
   public String toString() {
-    return ("Edge[" + curve +
-                ", " +
-                (ctag == AreaOp.CTAG_LEFT ? "L" : "R") +
-                ", " +
-                (etag == AreaOp.ETAG_ENTER ? "I" : (etag == AreaOp.ETAG_EXIT ? "O" : "N")) +
-                "]");
+    return "Edge[" + curve +
+        ", " +
+        (ctag == AreaOp.CTAG_LEFT ? "L" : "R") +
+        ", " +
+        (etag == AreaOp.ETAG_ENTER ? "I" : etag == AreaOp.ETAG_EXIT ? "O" : "N") +
+        "]";
   }
 }

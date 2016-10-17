@@ -32,9 +32,12 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.util.*;
 
-public class DecorationBoundsTest {
+public final class DecorationBoundsTest {
 
-    public static void main(String[] args) {
+  private DecorationBoundsTest() {
+  }
+
+  public static void main(String[] args) {
         BufferedImage bi =
            new BufferedImage(600, 300, BufferedImage.TYPE_INT_RGB);
        Graphics2D g2d = bi.createGraphics();
@@ -46,7 +49,7 @@ public class DecorationBoundsTest {
        Map map = new HashMap();
        map.put(TextAttribute.STRIKETHROUGH,
                TextAttribute.STRIKETHROUGH_ON);
-       map.put(TextAttribute.SIZE, new Float(80));
+       map.put(TextAttribute.SIZE, 80f);
 
        FontRenderContext frc = g2d.getFontRenderContext();
 
@@ -67,7 +70,7 @@ public class DecorationBoundsTest {
 
        map = new HashMap();
        map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-       map.put(TextAttribute.SIZE, new Float(80));
+       map.put(TextAttribute.SIZE, 80f);
        tl = new TextLayout(text, map, frc);
        g2d.translate(0, 100);
        g2d.setColor(Color.RED);

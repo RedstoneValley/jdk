@@ -30,26 +30,27 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
 
 import java.lang.ref.*;
 import java.lang.reflect.*;
 
 import java.util.*;
 
-public class OwnedWindowsLeak
+public final class OwnedWindowsLeak
 {
+    private OwnedWindowsLeak() {
+    }
+
     public static void main(String[] args)
     {
         Frame owner = new Frame("F");
 
         // First, create many windows
-        Vector<WeakReference<Window>> children =
-            new Vector<WeakReference<Window>>();
+        Vector<WeakReference<Window>> children = new Vector<>();
         for (int i = 0; i < 1000; i++)
         {
             Window child = new Window(owner);
-            children.add(new WeakReference<Window>(child));
+            children.add(new WeakReference<>(child));
         }
 
         // Second, make sure all the memory is allocated
@@ -65,7 +66,6 @@ public class OwnedWindowsLeak
                 break;
             }
         }
-        garbage = null;
 
         // Third, make sure all the weak references are null
         for (WeakReference<Window> ref : children)
@@ -82,7 +82,7 @@ public class OwnedWindowsLeak
             Field f = Window.class.getDeclaredField("ownedWindowList");
             f.setAccessible(true);
             Vector ownersChildren = (Vector)f.get(owner);
-            if (ownersChildren.size() > 0)
+            if (!ownersChildren.isEmpty())
             {
                 throw new RuntimeException("Test FAILED: some of the child windows are not removed from owner's children list");
             }

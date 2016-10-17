@@ -41,8 +41,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.metal.DefaultMetalTheme;
 
 /**
  * This class allows you to load a theme from a file.
@@ -117,7 +115,7 @@ public class PropertiesMetalTheme extends DefaultMetalTheme {
       name = tempName.toString();
     }
 
-    Object colorString = null;
+    Object colorString;
 
     colorString = prop.get("primary1");
     if (colorString != null) {

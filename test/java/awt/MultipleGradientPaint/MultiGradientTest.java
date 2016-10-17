@@ -42,7 +42,6 @@ import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
@@ -57,22 +56,10 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import javax.swing.AbstractListModel;
-import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 public class MultiGradientTest extends JPanel {
 
-    private static final Color[] COLORS = {
+    static final Color[] COLORS = {
         new Color(0, 0, 0),
         new Color(128, 128, 128),
         new Color(255, 0, 0),
@@ -83,23 +70,25 @@ public class MultiGradientTest extends JPanel {
         new Color(128, 128, 128),
     };
 
-    private static enum PaintType {BASIC, LINEAR, RADIAL};
-    private static enum ShapeType {RECT, ELLIPSE, MULTIPLE};
-    private static enum XformType {IDENTITY, TRANSLATE, SCALE, SHEAR, ROTATE};
+    private enum PaintType {BASIC, LINEAR, RADIAL}
 
-    private PaintType paintType = PaintType.LINEAR;
-    private ShapeType shapeType = ShapeType.RECT;
-    private XformType xformType = XformType.IDENTITY;
-    private CycleMethod cycleMethod = CycleMethod.NO_CYCLE;
-    private ColorSpaceType colorSpace = ColorSpaceType.SRGB;
-    private Object antialiasHint = RenderingHints.VALUE_ANTIALIAS_OFF;
-    private Object renderHint = RenderingHints.VALUE_RENDER_SPEED;
-    private AffineTransform transform = new AffineTransform();
+    private enum ShapeType {RECT, ELLIPSE, MULTIPLE}
 
-    private int numColors;
+    private enum XformType {IDENTITY, TRANSLATE, SCALE, SHEAR, ROTATE}
 
-    private GradientPanel gradientPanel;
-    private ControlsPanel controlsPanel;
+    PaintType paintType = PaintType.LINEAR;
+    ShapeType shapeType = ShapeType.RECT;
+    XformType xformType = XformType.IDENTITY;
+    CycleMethod cycleMethod = CycleMethod.NO_CYCLE;
+    ColorSpaceType colorSpace = ColorSpaceType.SRGB;
+    Object antialiasHint = RenderingHints.VALUE_ANTIALIAS_OFF;
+    Object renderHint = RenderingHints.VALUE_RENDER_SPEED;
+    AffineTransform transform = new AffineTransform();
+
+    int numColors;
+
+    final GradientPanel gradientPanel;
+    private final ControlsPanel controlsPanel;
 
     private MultiGradientTest() {
         numColors = COLORS.length;
@@ -114,16 +103,16 @@ public class MultiGradientTest extends JPanel {
     private class GradientPanel extends JPanel {
         private int startX, startY, endX, endY;
         private int ctrX, ctrY, focusX, focusY;
-        private float radius;
+        private final float radius;
         private Paint paint;
 
-        private GradientPanel() {
+        GradientPanel() {
             startX = 20;
             startY = 20;
-            endX   = 100;
-            endY   = 100;
-            ctrX   = 100;
-            ctrY   = 100;
+            endX = 100;
+            endY = 100;
+            ctrX = 100;
+            ctrY = 100;
             focusX = 100;
             focusY = 100;
             radius = 100.0f;
@@ -143,10 +132,8 @@ public class MultiGradientTest extends JPanel {
             g2d.setColor(Color.black);
             g2d.fillRect(0, 0, w, h);
 
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                                 antialiasHint);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING,
-                                 renderHint);
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasHint);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, renderHint);
 
             g2d.transform(transform);
             g2d.setPaint(paint);
@@ -180,17 +167,17 @@ public class MultiGradientTest extends JPanel {
             case BASIC:
             case LINEAR:
                 g2d.setColor(Color.white);
-                g2d.fillRect(startX-1, startY-1, 2, 2);
+                g2d.fillRect(startX -1, startY -1, 2, 2);
                 g2d.drawString("1", startX, startY + 12);
-                g2d.fillRect(endX-1, endY-1, 2, 2);
+                g2d.fillRect(endX -1, endY -1, 2, 2);
                 g2d.drawString("2", endX, endY + 12);
                 break;
 
             case RADIAL:
                 g2d.setColor(Color.white);
-                g2d.fillRect(ctrX-1, ctrY-1, 2, 2);
+                g2d.fillRect(ctrX -1, ctrY -1, 2, 2);
                 g2d.drawString("C", ctrX, ctrY + 12);
-                g2d.fillRect(focusX-1, focusY-1, 2, 2);
+                g2d.fillRect(focusX -1, focusY -1, 2, 2);
                 g2d.drawString("F", focusX, focusY + 12);
                 break;
             }
@@ -198,7 +185,7 @@ public class MultiGradientTest extends JPanel {
             g2d.dispose();
         }
 
-        private void updatePoints(int x, int y) {
+        void updatePoints(int x, int y) {
             Point2D inv = new Point2D.Double(x, y);
 
             try {
@@ -243,14 +230,14 @@ public class MultiGradientTest extends JPanel {
             Color[] colors = Arrays.copyOf(COLORS, numColors);
             float[] fractions = new float[colors.length];
             for (int i = 0; i < fractions.length; i++) {
-                fractions[i] = ((float)i) / (fractions.length-1);
+                fractions[i] = (float)i / (fractions.length-1);
             }
 
             switch (paintType) {
             case BASIC:
-                boolean cyclic = (cycleMethod != CycleMethod.NO_CYCLE);
+                boolean cyclic = cycleMethod != CycleMethod.NO_CYCLE;
                 paint = new GradientPaint(startX, startY, Color.RED,
-                                          endX, endY, Color.BLUE, cyclic);
+                    endX, endY, Color.BLUE, cyclic);
                 break;
 
             default:
@@ -258,18 +245,15 @@ public class MultiGradientTest extends JPanel {
                 paint =
                     new LinearGradientPaint(new Point2D.Float(startX, startY),
                                             new Point2D.Float(endX, endY),
-                                            fractions, colors,
-                                            cycleMethod, colorSpace,
+                                            fractions, colors, cycleMethod, colorSpace,
                                             new AffineTransform());
                 break;
 
             case RADIAL:
                 paint =
-                    new RadialGradientPaint(new Point2D.Float(ctrX, ctrY),
-                                            radius,
+                    new RadialGradientPaint(new Point2D.Float(ctrX, ctrY), radius,
                                             new Point2D.Float(focusX, focusY),
-                                            fractions, colors,
-                                            cycleMethod, colorSpace,
+                                            fractions, colors, cycleMethod, colorSpace,
                                             new AffineTransform());
                 break;
             }
@@ -302,6 +286,9 @@ public class MultiGradientTest extends JPanel {
         }
 
         private class MyMouseAdapter extends MouseAdapter {
+            MyMouseAdapter() {
+            }
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 updatePoints(e.getX(), e.getY());
@@ -319,11 +306,16 @@ public class MultiGradientTest extends JPanel {
     }
 
     private class ControlsPanel extends JPanel implements ActionListener {
-        private JComboBox cmbPaint, cmbCycle, cmbSpace, cmbShape, cmbXform;
-        private JCheckBox cbAntialias, cbRender;
-        private JSpinner spinNumColors;
+        private final JComboBox cmbPaint;
+        private final JComboBox cmbCycle;
+        private final JComboBox cmbSpace;
+        private final JComboBox cmbShape;
+        private final JComboBox cmbXform;
+        private final JCheckBox cbAntialias;
+        private final JCheckBox cbRender;
+        final JSpinner spinNumColors;
 
-        private ControlsPanel() {
+        ControlsPanel() {
             cmbPaint = createCombo(this, paintType);
             cmbPaint.setSelectedIndex(1);
             cmbCycle = createCombo(this, cycleMethod);
@@ -336,7 +328,7 @@ public class MultiGradientTest extends JPanel {
             spinNumColors = new JSpinner(model);
             spinNumColors.addChangeListener(new ChangeListener() {
                 public void stateChanged(ChangeEvent e) {
-                    numColors = ((Integer)spinNumColors.getValue()).intValue();
+                    numColors = (Integer) spinNumColors.getValue();
                     gradientPanel.updatePaint();
                 }
             });
@@ -361,19 +353,20 @@ public class MultiGradientTest extends JPanel {
             return cb;
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
 
             if (source == cmbPaint) {
-                paintType = (PaintType)cmbPaint.getSelectedItem();
+                paintType = (PaintType) cmbPaint.getSelectedItem();
             } else if (source == cmbCycle) {
-                cycleMethod = (CycleMethod)cmbCycle.getSelectedItem();
+                cycleMethod = (CycleMethod) cmbCycle.getSelectedItem();
             } else if (source == cmbSpace) {
-                colorSpace = (ColorSpaceType)cmbSpace.getSelectedItem();
+                colorSpace = (ColorSpaceType) cmbSpace.getSelectedItem();
             } else if (source == cmbShape) {
-                shapeType = (ShapeType)cmbShape.getSelectedItem();
+                shapeType = (ShapeType) cmbShape.getSelectedItem();
             } else if (source == cmbXform) {
-                xformType = (XformType)cmbXform.getSelectedItem();
+                xformType = (XformType) cmbXform.getSelectedItem();
             } else if (source == cbAntialias) {
                 antialiasHint = cbAntialias.isSelected() ?
                     RenderingHints.VALUE_ANTIALIAS_ON :
@@ -392,12 +385,12 @@ public class MultiGradientTest extends JPanel {
         extends AbstractListModel
         implements ComboBoxModel
     {
-        private E selected = null;
-        private List<E> list;
+        private E selected;
+        private final List<E> list;
 
         public EnumComboBoxModel(Class<E> en) {
             EnumSet<E> ens = EnumSet.allOf(en);
-            list = new ArrayList<E>(ens);
+            list = new ArrayList<>(ens);
             selected = list.get(0);
         }
 
@@ -411,7 +404,7 @@ public class MultiGradientTest extends JPanel {
 
         public void setSelectedItem(Object anItem) {
             selected = (E)anItem;
-            this.fireContentsChanged(this, 0, getSize());
+            fireContentsChanged(this, 0, getSize());
         }
 
         public E getSelectedItem() {
@@ -420,8 +413,9 @@ public class MultiGradientTest extends JPanel {
     }
 
     public static void main(String[] args) {
-        final JFrame frame = new JFrame("Multistop Gradient Demo");
+        JFrame frame = new JFrame("Multistop Gradient Demo");
         frame.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 frame.dispose();
             }

@@ -25,15 +25,16 @@
 
 package sun.java2d.pipe;
 
+import android.util.Log;
 import java.awt.BasicStroke;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.ServiceLoader;
 import sun.awt.geom.PathConsumer2D;
-import sun.security.action.GetPropertyAction;
 
 /**
  * This class abstracts a number of features for which the Java 2D
@@ -82,6 +83,7 @@ import sun.security.action.GetPropertyAction;
  * registered (and possibly trace-enabled) version of the RenderingEngine.
  */
 public abstract class RenderingEngine {
+  private static final String TAG = "java2d.RenderingEngine";
   private static RenderingEngine reImpl;
 
   /**
@@ -117,8 +119,9 @@ public abstract class RenderingEngine {
     }
 
     reImpl = AccessController.doPrivileged(new PrivilegedAction<RenderingEngine>() {
+      @Override
       public RenderingEngine run() {
-        final String ductusREClass = "sun.dc.DuctusRenderingEngine";
+        String ductusREClass = "sun.dc.DuctusRenderingEngine";
         String reClass = System.getProperty("sun.java2d.renderer", ductusREClass);
         if (reClass.equals(ductusREClass)) {
           try {
@@ -164,7 +167,7 @@ public abstract class RenderingEngine {
    * feeding the consumer a segment at a time.
    */
   public static void feedConsumer(PathIterator pi, PathConsumer2D consumer) {
-    float coords[] = new float[6];
+    float[] coords = new float[6];
     while (!pi.isDone()) {
       switch (pi.currentSegment(coords)) {
         case PathIterator.SEG_MOVETO:
@@ -205,7 +208,7 @@ public abstract class RenderingEngine {
    * @since 1.7
    */
   public abstract Shape createStrokedShape(
-      Shape src, float width, int caps, int join, float miterlimit, float dashes[],
+      Shape src, float width, int caps, int join, float miterlimit, float[] dashes,
       float dashphase);
 
   /**
@@ -288,7 +291,7 @@ public abstract class RenderingEngine {
    */
   public abstract AATileGenerator getAATileGenerator(
       Shape s, AffineTransform at, Region clip, BasicStroke bs, boolean thin, boolean normalize,
-      int bbox[]);
+      int[] bbox);
 
   /**
    * Construct an antialiased tile generator for the given parallelogram
@@ -351,7 +354,7 @@ public abstract class RenderingEngine {
    */
   public abstract AATileGenerator getAATileGenerator(
       double x, double y, double dx1, double dy1, double dx2, double dy2, double lw1, double lw2,
-      Region clip, int bbox[]);
+      Region clip, int[] bbox);
 
   /**
    * Returns the minimum pen width that the antialiasing rasterizer
@@ -362,28 +365,30 @@ public abstract class RenderingEngine {
   public abstract float getMinimumAAPenSize();
 
   static class Tracer extends RenderingEngine {
-    RenderingEngine target;
-    String name;
+    final RenderingEngine target;
+    final String name;
 
     public Tracer(RenderingEngine target) {
       this.target = target;
       name = target.getClass().getName();
     }
 
+    @Override
     public Shape createStrokedShape(
-        Shape src, float width, int caps, int join, float miterlimit, float dashes[],
+        Shape src, float width, int caps, int join, float miterlimit, float[] dashes,
         float dashphase) {
-      System.out.println(name + ".createStrokedShape(" +
+      Log.v(TAG, name + ".createStrokedShape(" +
           src.getClass().getName() + ", " +
           "width = " + width + ", " +
           "caps = " + caps + ", " +
           "join = " + join + ", " +
           "miter = " + miterlimit + ", " +
-          "dashes = " + dashes + ", " +
+          "dashes = " + Arrays.toString(dashes) + ", " +
           "dashphase = " + dashphase + ")");
       return target.createStrokedShape(src, width, caps, join, miterlimit, dashes, dashphase);
     }
 
+    @Override
     public void strokeTo(
         Shape src, AffineTransform at, BasicStroke bs, boolean thin, boolean normalize,
         boolean antialias, PathConsumer2D consumer) {
@@ -398,9 +403,10 @@ public abstract class RenderingEngine {
       target.strokeTo(src, at, bs, thin, normalize, antialias, consumer);
     }
 
+    @Override
     public AATileGenerator getAATileGenerator(
         Shape s, AffineTransform at, Region clip, BasicStroke bs, boolean thin, boolean normalize,
-        int bbox[]) {
+        int[] bbox) {
       System.out.println(name + ".getAATileGenerator(" +
           s.getClass().getName() + ", " +
           at + ", " +
@@ -411,9 +417,10 @@ public abstract class RenderingEngine {
       return target.getAATileGenerator(s, at, clip, bs, thin, normalize, bbox);
     }
 
+    @Override
     public AATileGenerator getAATileGenerator(
         double x, double y, double dx1, double dy1, double dx2, double dy2, double lw1, double lw2,
-        Region clip, int bbox[]) {
+        Region clip, int[] bbox) {
       System.out.println(name + ".getAATileGenerator(" +
           x + ", " + y + ", " +
           dx1 + ", " + dy1 + ", " +
@@ -423,6 +430,7 @@ public abstract class RenderingEngine {
       return target.getAATileGenerator(x, y, dx1, dy1, dx2, dy2, lw1, lw2, clip, bbox);
     }
 
+    @Override
     public float getMinimumAAPenSize() {
       System.out.println(name + ".getMinimumAAPenSize()");
       return target.getMinimumAAPenSize();

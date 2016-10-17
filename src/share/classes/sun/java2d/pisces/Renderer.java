@@ -25,6 +25,7 @@
 
 package sun.java2d.pisces;
 
+import java.util.Arrays;
 import sun.awt.geom.PathConsumer2D;
 
 final class Renderer implements PathConsumer2D {
@@ -54,63 +55,62 @@ final class Renderer implements PathConsumer2D {
   private static final float INC_BND = 8f;
   final int MAX_AA_ALPHA;
   // Antialiasing
-  final private int SUBPIXEL_LG_POSITIONS_X;
-  final private int SUBPIXEL_LG_POSITIONS_Y;
-  final private int SUBPIXEL_POSITIONS_X;
-  final private int SUBPIXEL_POSITIONS_Y;
-  final private int SUBPIXEL_MASK_X;
-  final private int SUBPIXEL_MASK_Y;
+  private final int SUBPIXEL_LG_POSITIONS_X;
+  private final int SUBPIXEL_LG_POSITIONS_Y;
+  private final int SUBPIXEL_POSITIONS_X;
+  private final int SUBPIXEL_POSITIONS_Y;
+  private final int SUBPIXEL_MASK_X;
+  private final int SUBPIXEL_MASK_Y;
   // Bounds of the drawing region, at subpixel precision.
-  private final int boundsMinX, boundsMinY, boundsMaxX, boundsMaxY;
+  final int boundsMinX, boundsMinY, boundsMaxX, boundsMaxY;
   // Current winding rule
   private final int windingRule;
+  final int[] edgeBuckets;
+  final int[] edgeBucketCounts; // 2*newedges + (1 if pruning needed)
+  private final Curve c = new Curve();
   // Cache to store RLE-encoded coverage mask of the current primitive
   PiscesCache cache;
   private float edgeMinY = Float.POSITIVE_INFINITY;
-
   // END EDGE LIST
   //////////////////////////////////////////////////////////////////////////////
   private float edgeMaxY = Float.NEGATIVE_INFINITY;
   private float edgeMinX = Float.POSITIVE_INFINITY;
   private float edgeMaxX = Float.NEGATIVE_INFINITY;
-  private float[] edges = null;
-  private int[] edgeBuckets = null;
-  private int[] edgeBucketCounts = null; // 2*newedges + (1 if pruning needed)
+  float[] edges;
   private int numEdges;
   // Current drawing position, i.e., final point of last segment
   private float x0, y0;
   // Position of most recent 'moveTo' command
   private float pix_sx0, pix_sy0;
-  private Curve c = new Curve();
 
   public Renderer(
       int subpixelLgPositionsX, int subpixelLgPositionsY, int pix_boundsX, int pix_boundsY,
       int pix_boundsWidth, int pix_boundsHeight, int windingRule) {
-    this.SUBPIXEL_LG_POSITIONS_X = subpixelLgPositionsX;
-    this.SUBPIXEL_LG_POSITIONS_Y = subpixelLgPositionsY;
-    this.SUBPIXEL_MASK_X = (1 << (SUBPIXEL_LG_POSITIONS_X)) - 1;
-    this.SUBPIXEL_MASK_Y = (1 << (SUBPIXEL_LG_POSITIONS_Y)) - 1;
-    this.SUBPIXEL_POSITIONS_X = 1 << (SUBPIXEL_LG_POSITIONS_X);
-    this.SUBPIXEL_POSITIONS_Y = 1 << (SUBPIXEL_LG_POSITIONS_Y);
-    this.MAX_AA_ALPHA = (SUBPIXEL_POSITIONS_X * SUBPIXEL_POSITIONS_Y);
+    SUBPIXEL_LG_POSITIONS_X = subpixelLgPositionsX;
+    SUBPIXEL_LG_POSITIONS_Y = subpixelLgPositionsY;
+    SUBPIXEL_MASK_X = (1 << SUBPIXEL_LG_POSITIONS_X) - 1;
+    SUBPIXEL_MASK_Y = (1 << SUBPIXEL_LG_POSITIONS_Y) - 1;
+    SUBPIXEL_POSITIONS_X = 1 << SUBPIXEL_LG_POSITIONS_X;
+    SUBPIXEL_POSITIONS_Y = 1 << SUBPIXEL_LG_POSITIONS_Y;
+    MAX_AA_ALPHA = SUBPIXEL_POSITIONS_X * SUBPIXEL_POSITIONS_Y;
 
     this.windingRule = windingRule;
 
-    this.boundsMinX = pix_boundsX * SUBPIXEL_POSITIONS_X;
-    this.boundsMinY = pix_boundsY * SUBPIXEL_POSITIONS_Y;
-    this.boundsMaxX = (pix_boundsX + pix_boundsWidth) * SUBPIXEL_POSITIONS_X;
-    this.boundsMaxY = (pix_boundsY + pix_boundsHeight) * SUBPIXEL_POSITIONS_Y;
+    boundsMinX = pix_boundsX * SUBPIXEL_POSITIONS_X;
+    boundsMinY = pix_boundsY * SUBPIXEL_POSITIONS_Y;
+    boundsMaxX = (pix_boundsX + pix_boundsWidth) * SUBPIXEL_POSITIONS_X;
+    boundsMaxY = (pix_boundsY + pix_boundsHeight) * SUBPIXEL_POSITIONS_Y;
 
     edges = new float[INIT_NUM_EDGES * SIZEOF_EDGE];
     numEdges = 0;
     edgeBuckets = new int[boundsMaxY - boundsMinY];
-    java.util.Arrays.fill(edgeBuckets, NULL);
+    Arrays.fill(edgeBuckets, NULL);
     edgeBucketCounts = new int[edgeBuckets.length + 1];
   }
 
   // each bucket is a linked list. this method adds eptr to the
   // start of the "bucket"th linked list.
-  private void addEdgeToBucket(final int eptr, final int bucket) {
+  private void addEdgeToBucket(int eptr, int bucket) {
     edges[eptr + NEXT] = edgeBuckets[bucket];
     edgeBuckets[bucket] = eptr;
     edgeBucketCounts[bucket] += 2;
@@ -120,9 +120,9 @@ final class Renderer implements PathConsumer2D {
   // one iteration of the AFD loop. All it does is update AFD variables (i.e.
   // X0, Y0, D*[X|Y], COUNT; not variables used for computing scanline crossings).
   private void quadBreakIntoLinesAndAdd(
-      float x0, float y0, final Curve c, final float x2, final float y2) {
-    final float QUAD_DEC_BND = 32;
-    final int countlg = 4;
+      float x0, float y0, Curve c, float x2, float y2) {
+    float QUAD_DEC_BND = 32;
+    int countlg = 4;
     int count = 1 << countlg;
     int countsq = count * count;
     float maxDD = Math.max(c.dbx / countsq, c.dby / countsq);
@@ -132,12 +132,13 @@ final class Renderer implements PathConsumer2D {
     }
 
     countsq = count * count;
-    final float ddx = c.dbx / countsq;
-    final float ddy = c.dby / countsq;
+    float ddx = c.dbx / countsq;
+    float ddy = c.dby / countsq;
     float dx = c.bx / countsq + c.cx / count;
     float dy = c.by / countsq + c.cy / count;
 
-    while (count-- > 1) {
+    while (count > 1) {
+      count--;
       float x1 = x0 + dx;
       dx += ddx;
       float y1 = y0 + dy;
@@ -146,6 +147,7 @@ final class Renderer implements PathConsumer2D {
       x0 = x1;
       y0 = y1;
     }
+    count--;
     addLine(x0, y0, x2, y2);
   }
 
@@ -155,20 +157,20 @@ final class Renderer implements PathConsumer2D {
   // Another alternative would be to pass all the control points, and call c.set
   // here, but then too many numbers are passed around.
   private void curveBreakIntoLinesAndAdd(
-      float x0, float y0, final Curve c, final float x3, final float y3) {
-    final int countlg = 3;
+      float x0, float y0, Curve c, float x3, float y3) {
+    int countlg = 3;
     int count = 1 << countlg;
 
     // the dx and dy refer to forward differencing variables, not the last
     // coefficients of the "points" polynomial
     float dddx, dddy, ddx, ddy, dx, dy;
-    dddx = 2f * c.dax / (1 << (3 * countlg));
-    dddy = 2f * c.day / (1 << (3 * countlg));
+    dddx = 2f * c.dax / (1 << 3 * countlg);
+    dddy = 2f * c.day / (1 << 3 * countlg);
 
-    ddx = dddx + c.dbx / (1 << (2 * countlg));
-    ddy = dddy + c.dby / (1 << (2 * countlg));
-    dx = c.ax / (1 << (3 * countlg)) + c.bx / (1 << (2 * countlg)) + c.cx / (1 << countlg);
-    dy = c.ay / (1 << (3 * countlg)) + c.by / (1 << (2 * countlg)) + c.cy / (1 << countlg);
+    ddx = dddx + c.dbx / (1 << 2 * countlg);
+    ddy = dddy + c.dby / (1 << 2 * countlg);
+    dx = c.ax / (1 << 3 * countlg) + c.bx / (1 << 2 * countlg) + c.cx / (1 << countlg);
+    dy = c.ay / (1 << 3 * countlg) + c.by / (1 << 2 * countlg) + c.cy / (1 << countlg);
 
     // we use x0, y0 to walk the line
     float x1 = x0, y1 = y0;
@@ -221,8 +223,8 @@ final class Renderer implements PathConsumer2D {
       x1 = or;
       or = 0;
     }
-    final int firstCrossing = Math.max((int) Math.ceil(y1), boundsMinY);
-    final int lastCrossing = Math.min((int) Math.ceil(y2), boundsMaxY);
+    int firstCrossing = Math.max((int) Math.ceil(y1), boundsMinY);
+    int lastCrossing = Math.min((int) Math.ceil(y2), boundsMaxY);
     if (firstCrossing >= lastCrossing) {
       return;
     }
@@ -233,7 +235,7 @@ final class Renderer implements PathConsumer2D {
       edgeMaxY = y2;
     }
 
-    final float slope = (x2 - x1) / (y2 - y1);
+    float slope = (x2 - x1) / (y2 - y1);
 
     if (slope > 0) { // <==> x1 < x2
       if (x1 < edgeMinX) {
@@ -251,14 +253,14 @@ final class Renderer implements PathConsumer2D {
       }
     }
 
-    final int ptr = numEdges * SIZEOF_EDGE;
+    int ptr = numEdges * SIZEOF_EDGE;
     edges = Helpers.widenArray(edges, ptr, SIZEOF_EDGE);
     numEdges++;
     edges[ptr + OR] = or;
     edges[ptr + CURX] = x1 + (firstCrossing - y1) * slope;
     edges[ptr + SLOPE] = slope;
     edges[ptr + YMAX] = lastCrossing;
-    final int bucketIdx = firstCrossing - boundsMinY;
+    int bucketIdx = firstCrossing - boundsMinY;
     addEdgeToBucket(ptr, bucketIdx);
     edgeBucketCounts[lastCrossing - boundsMinY] |= 1;
   }
@@ -271,14 +273,16 @@ final class Renderer implements PathConsumer2D {
     return pix_y * SUBPIXEL_POSITIONS_Y;
   }
 
+  @Override
   public void moveTo(float pix_x0, float pix_y0) {
     closePath();
-    this.pix_sx0 = pix_x0;
-    this.pix_sy0 = pix_y0;
-    this.y0 = tosubpixy(pix_y0);
-    this.x0 = tosubpixx(pix_x0);
+    pix_sx0 = pix_x0;
+    pix_sy0 = pix_y0;
+    y0 = tosubpixy(pix_y0);
+    x0 = tosubpixx(pix_x0);
   }
 
+  @Override
   public void lineTo(float pix_x1, float pix_y1) {
     float x1 = tosubpixx(pix_x1);
     float y1 = tosubpixy(pix_y1);
@@ -289,8 +293,8 @@ final class Renderer implements PathConsumer2D {
 
   @Override
   public void quadTo(float x1, float y1, float x2, float y2) {
-    final float xe = tosubpixx(x2);
-    final float ye = tosubpixy(y2);
+    float xe = tosubpixx(x2);
+    float ye = tosubpixy(y2);
     c.set(x0, y0, tosubpixx(x1), tosubpixy(y1), xe, ye);
     quadBreakIntoLinesAndAdd(x0, y0, c, xe, ye);
     x0 = xe;
@@ -300,19 +304,21 @@ final class Renderer implements PathConsumer2D {
   @Override
   public void curveTo(
       float x1, float y1, float x2, float y2, float x3, float y3) {
-    final float xe = tosubpixx(x3);
-    final float ye = tosubpixy(y3);
+    float xe = tosubpixx(x3);
+    float ye = tosubpixy(y3);
     c.set(x0, y0, tosubpixx(x1), tosubpixy(y1), tosubpixx(x2), tosubpixy(y2), xe, ye);
     curveBreakIntoLinesAndAdd(x0, y0, c, xe, ye);
     x0 = xe;
     y0 = ye;
   }
 
+  @Override
   public void closePath() {
     // lineTo expects its input in pixel coordinates.
     lineTo(pix_sx0, pix_sy0);
   }
 
+  @Override
   public void pathDone() {
     closePath();
   }
@@ -323,10 +329,10 @@ final class Renderer implements PathConsumer2D {
   }
 
   private void _endRendering(
-      final int pix_bboxx0, final int pix_bboxx1, int ymin, int ymax) {
+      int pix_bboxx0, int pix_bboxx1, int ymin, int ymax) {
     // Mask to determine the relevant bit of the crossing sum
     // 0x1 if EVEN_ODD, all bits if NON_ZERO
-    int mask = (windingRule == WIND_EVEN_ODD) ? 0x1 : ~0x0;
+    int mask = windingRule == WIND_EVEN_ODD ? 0x1 : ~0x0;
 
     // add 2 to better deal with the last pixel in a pixel row.
     int width = pix_bboxx1 - pix_bboxx0;
@@ -376,18 +382,18 @@ final class Renderer implements PathConsumer2D {
             x1 -= bboxx0; // in the alpha array.
 
             int pix_x = x0 >> SUBPIXEL_LG_POSITIONS_X;
-            int pix_xmaxm1 = (x1 - 1) >> SUBPIXEL_LG_POSITIONS_X;
+            int pix_xmaxm1 = x1 - 1 >> SUBPIXEL_LG_POSITIONS_X;
 
             if (pix_x == pix_xmaxm1) {
               // Start and end in same pixel
-              alpha[pix_x] += (x1 - x0);
-              alpha[pix_x + 1] -= (x1 - x0);
+              alpha[pix_x] += x1 - x0;
+              alpha[pix_x + 1] -= x1 - x0;
             } else {
               int pix_xmax = x1 >> SUBPIXEL_LG_POSITIONS_X;
               alpha[pix_x] += SUBPIXEL_POSITIONS_X - (x0 & SUBPIXEL_MASK_X);
-              alpha[pix_x + 1] += (x0 & SUBPIXEL_MASK_X);
+              alpha[pix_x + 1] += x0 & SUBPIXEL_MASK_X;
               alpha[pix_xmax] -= SUBPIXEL_POSITIONS_X - (x1 & SUBPIXEL_MASK_X);
-              alpha[pix_xmax + 1] -= (x1 & SUBPIXEL_MASK_X);
+              alpha[pix_xmax + 1] -= x1 & SUBPIXEL_MASK_X;
             }
           }
         }
@@ -418,20 +424,19 @@ final class Renderer implements PathConsumer2D {
     int spmaxY = Math.min((int) Math.ceil(edgeMaxY), boundsMaxY);
 
     int pminX = spminX >> SUBPIXEL_LG_POSITIONS_X;
-    int pmaxX = (spmaxX + SUBPIXEL_MASK_X) >> SUBPIXEL_LG_POSITIONS_X;
+    int pmaxX = spmaxX + SUBPIXEL_MASK_X >> SUBPIXEL_LG_POSITIONS_X;
     int pminY = spminY >> SUBPIXEL_LG_POSITIONS_Y;
-    int pmaxY = (spmaxY + SUBPIXEL_MASK_Y) >> SUBPIXEL_LG_POSITIONS_Y;
+    int pmaxY = spmaxY + SUBPIXEL_MASK_Y >> SUBPIXEL_LG_POSITIONS_Y;
 
     if (pminX > pmaxX || pminY > pmaxY) {
-      this.cache = new PiscesCache(
-          boundsMinX >> SUBPIXEL_LG_POSITIONS_X,
+      cache = new PiscesCache(boundsMinX >> SUBPIXEL_LG_POSITIONS_X,
           boundsMinY >> SUBPIXEL_LG_POSITIONS_Y,
           boundsMaxX >> SUBPIXEL_LG_POSITIONS_X,
           boundsMaxY >> SUBPIXEL_LG_POSITIONS_Y);
       return;
     }
 
-    this.cache = new PiscesCache(pminX, pminY, pmaxX, pmaxY);
+    cache = new PiscesCache(pminX, pminY, pmaxX, pmaxY);
     _endRendering(pminX, pmaxX, spminY, spmaxY);
   }
 
@@ -467,7 +472,7 @@ final class Renderer implements PathConsumer2D {
         cache.addRLERun(startVal, runLen);
       }
     }
-    java.util.Arrays.fill(alphaRow, 0);
+    Arrays.fill(alphaRow, 0);
   }
 
   private class ScanlineIterator {
@@ -477,7 +482,7 @@ final class Renderer implements PathConsumer2D {
     // at minY, for example, might have no crossings). The x bounds will
     // be accumulated as crossings are computed.
     private final int maxY;
-    private int[] crossings;
+    int[] crossings;
     private int nextY;
     // indices into the segment pointer lists. They indicate the "active"
     // sublist in the segment lists (the portion of the list that contains
@@ -489,7 +494,7 @@ final class Renderer implements PathConsumer2D {
     // (start <= subpixel_y <= end) will be evaluated. No
     // edge may have a valid (i.e. inside the supplied clip)
     // crossing that would be generated outside that range.
-    private ScanlineIterator(int start, int end) {
+    ScanlineIterator(int start, int end) {
       crossings = new int[INIT_CROSSINGS_SIZE];
       edgePtrs = new int[INIT_CROSSINGS_SIZE];
 
@@ -498,52 +503,57 @@ final class Renderer implements PathConsumer2D {
       edgeCount = 0;
     }
 
-    private int next() {
-      int cury = nextY++;
+    int next() {
+      int cury = nextY;
+      nextY++;
       int bucket = cury - boundsMinY;
-      int count = this.edgeCount;
-      int ptrs[] = this.edgePtrs;
+      int count = edgeCount;
+      int[] ptrs = edgePtrs;
       int bucketcount = edgeBucketCounts[bucket];
       if ((bucketcount & 0x1) != 0) {
         int newCount = 0;
         for (int i = 0; i < count; i++) {
           int ecur = ptrs[i];
           if (edges[ecur + YMAX] > cury) {
-            ptrs[newCount++] = ecur;
+            ptrs[newCount] = ecur;
+            newCount++;
           }
         }
         count = newCount;
       }
       ptrs = Helpers.widenArray(ptrs, count, bucketcount >> 1);
       for (int ecur = edgeBuckets[bucket]; ecur != NULL; ecur = (int) edges[ecur + NEXT]) {
-        ptrs[count++] = ecur;
+        ptrs[count] = ecur;
+        count++;
         // REMIND: Adjust start Y if necessary
       }
-      this.edgePtrs = ptrs;
-      this.edgeCount = count;
+      edgePtrs = ptrs;
+      edgeCount = count;
       //            if ((count & 0x1) != 0) {
       //                System.out.println("ODD NUMBER OF EDGES!!!!");
       //            }
-      int xings[] = this.crossings;
+      int[] xings = crossings;
       if (xings.length < count) {
-        this.crossings = xings = new int[ptrs.length];
+        crossings = xings = new int[ptrs.length];
       }
       for (int i = 0; i < count; i++) {
         int ecur = ptrs[i];
         float curx = edges[ecur + CURX];
-        int cross = ((int) curx) << 1;
+        int cross = (int) curx << 1;
         edges[ecur + CURX] = curx + edges[ecur + SLOPE];
         if (edges[ecur + OR] > 0) {
           cross |= 1;
         }
         int j = i;
-        while (--j >= 0) {
+        --j;
+        while (j >= 0) {
           int jcross = xings[j];
           if (jcross <= cross) {
             break;
           }
           xings[j + 1] = jcross;
           ptrs[j + 1] = ptrs[j];
+          --j;
         }
         xings[j + 1] = cross;
         ptrs[j + 1] = ecur;
@@ -551,11 +561,11 @@ final class Renderer implements PathConsumer2D {
       return count;
     }
 
-    private boolean hasNext() {
+    boolean hasNext() {
       return nextY < maxY;
     }
 
-    private int curY() {
+    int curY() {
       return nextY - 1;
     }
   }

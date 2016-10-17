@@ -27,7 +27,7 @@ package java.awt.datatransfer;
 import java.util.EventObject;
 
 /**
- * <code>FlavorEvent</code> is used to notify interested parties
+ * {@code FlavorEvent} is used to notify interested parties
  * that available {@link DataFlavor}s have changed in the
  * {@link Clipboard} (the event source).
  *
@@ -36,10 +36,12 @@ import java.util.EventObject;
  * @since 1.5
  */
 public class FlavorEvent extends EventObject {
+  private static final long serialVersionUID = -5842664112252414548L;
+
   /**
-   * Constructs a <code>FlavorEvent</code> object.
+   * Constructs a {@code FlavorEvent} object.
    *
-   * @param source the <code>Clipboard</code> that is the source of the event
+   * @param source the {@code Clipboard} that is the source of the event
    * @throws IllegalArgumentException if the {@code source} is {@code null}
    */
   public FlavorEvent(Clipboard source) {

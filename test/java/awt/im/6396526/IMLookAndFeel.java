@@ -31,15 +31,17 @@
  */
 
 import java.awt.*;
-import javax.swing.*;
 
-public class IMLookAndFeel {
-    /**
+public final class IMLookAndFeel {
+  private IMLookAndFeel() {
+  }
+
+  /**
      * Create the GUI and show it.  For thread safety,
      * this method should be invoked from the
      * event-dispatching thread.
      */
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
         //Suggest that the L&F (rather than the system)
         //decorate all windows.  This must be invoked before
         //creating the JFrame.  Native look and feels will
@@ -69,6 +71,7 @@ public class IMLookAndFeel {
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 createAndShowGUI();
             }

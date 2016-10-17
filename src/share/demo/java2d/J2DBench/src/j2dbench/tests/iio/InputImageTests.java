@@ -40,7 +40,6 @@
 package j2dbench.tests.iio;
 
 import j2dbench.Group;
-import j2dbench.Modifier;
 import j2dbench.Option;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
@@ -58,12 +57,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.event.IIOReadProgressListener;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.stream.ImageInputStream;
 
 abstract class InputImageTests extends InputTests {
 
@@ -74,23 +67,23 @@ abstract class InputImageTests extends InputTests {
   private static Group imageRoot;
 
   private static Group toolkitRoot;
-  private static Group toolkitOptRoot;
-  private static Option toolkitReadFormatList;
-  private static Group toolkitTestRoot;
+  static Group toolkitOptRoot;
+  static Option toolkitReadFormatList;
+  static Group toolkitTestRoot;
 
   private static Group imageioRoot;
-  private static Group imageioOptRoot;
+  static Group imageioOptRoot;
   private static ImageReaderSpi[] imageioReaderSpis;
   private static String[] imageioReadFormatShortNames;
-  private static Option imageioReadFormatList;
-  private static Group imageioTestRoot;
+  static Option imageioReadFormatList;
+  static Group imageioTestRoot;
 
   private static Group imageReaderRoot;
-  private static Group imageReaderOptRoot;
-  private static Option seekForwardOnlyTog;
-  private static Option ignoreMetadataTog;
-  private static Option installListenerTog;
-  private static Group imageReaderTestRoot;
+  static Group imageReaderOptRoot;
+  static Option seekForwardOnlyTog;
+  static Option ignoreMetadataTog;
+  static Option installListenerTog;
+  static Group imageReaderTestRoot;
 
   protected InputImageTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
@@ -104,8 +97,8 @@ abstract class InputImageTests extends InputTests {
     toolkitRoot = new Group(imageRoot, "toolkit", "Toolkit");
 
     toolkitOptRoot = new Group(toolkitRoot, "opts", "Toolkit Options");
-    String[] tkFormats = new String[]{"gif", "jpg", "png"};
-    toolkitReadFormatList = new Option.ObjectList(toolkitOptRoot,
+    String[] tkFormats = {"gif", "jpg", "png"};
+    toolkitReadFormatList = new ObjectList(toolkitOptRoot,
         "format",
         "Image Format",
         tkFormats,
@@ -124,7 +117,7 @@ abstract class InputImageTests extends InputTests {
       // Image I/O Options
       imageioOptRoot = new Group(imageioRoot, "opts", "Image I/O Options");
       initIIOReadFormats();
-      imageioReadFormatList = new Option.ObjectList(imageioOptRoot,
+      imageioReadFormatList = new ObjectList(imageioOptRoot,
           "format",
           "Image Format",
           imageioReadFormatShortNames,
@@ -140,18 +133,18 @@ abstract class InputImageTests extends InputTests {
       // ImageReader Options
       imageReaderRoot = new Group(imageioRoot, "reader", "ImageReader Benchmarks");
       imageReaderOptRoot = new Group(imageReaderRoot, "opts", "ImageReader Options");
-      seekForwardOnlyTog = new Option.Toggle(imageReaderOptRoot,
+      seekForwardOnlyTog = new Toggle(imageReaderOptRoot,
           "seekForwardOnly",
           "Seek Forward Only",
-          Option.Toggle.On);
-      ignoreMetadataTog = new Option.Toggle(imageReaderOptRoot,
+          Toggle.On);
+      ignoreMetadataTog = new Toggle(imageReaderOptRoot,
           "ignoreMetadata",
           "Ignore Metadata",
-          Option.Toggle.On);
-      installListenerTog = new Option.Toggle(imageReaderOptRoot,
+          Toggle.On);
+      installListenerTog = new Toggle(imageReaderOptRoot,
           "installListener",
           "Install Progress Listener",
-          Option.Toggle.Off);
+          Toggle.Off);
 
       // ImageReader Tests
       imageReaderTestRoot = new Group(imageReaderRoot, "tests", "ImageReader Tests");
@@ -175,15 +168,11 @@ abstract class InputImageTests extends InputTests {
       String klass = spi.getClass().getName();
       String format = spi.getFormatNames()[0].toLowerCase();
       String suffix = spi.getFileSuffixes()[0].toLowerCase();
-      if (suffix == null || suffix.equals("")) {
+      if (suffix == null || "".equals(suffix)) {
         suffix = format;
       }
       String shortName;
-      if (klass.startsWith("com.sun.imageio.plugins")) {
-        shortName = "core-" + suffix;
-      } else {
-        shortName = "ext-" + suffix;
-      }
+      shortName = klass.startsWith("com.sun.imageio.plugins") ? "core-" + suffix : "ext-" + suffix;
       spis.add(spi);
       shortNames.add(shortName);
     }
@@ -195,7 +184,7 @@ abstract class InputImageTests extends InputTests {
   }
 
   private static class Context extends InputTests.Context {
-    String format;
+    final String format;
     BufferedImage image;
     ImageReader reader;
     boolean seekForwardOnly;
@@ -230,7 +219,7 @@ abstract class InputImageTests extends InputTests {
             reader.addIIOReadProgressListener(new ReadProgressListener());
           }
         }
-        if (format.equals("wbmp")) {
+        if ("wbmp".equals(format)) {
           // REMIND: this is a hack to create an image that the
           //         WBMPImageWriter can handle (a better approach
           //         would involve checking the ImageTypeSpecifier
@@ -250,14 +239,17 @@ abstract class InputImageTests extends InputTests {
       initInput();
     }
 
+    @Override
     void initContents(File f) throws IOException {
       ImageIO.write(image, format, f);
     }
 
+    @Override
     void initContents(OutputStream out) throws IOException {
       ImageIO.write(image, format, out);
     }
 
+    @Override
     void cleanup(TestEnvironment env) {
       super.cleanup(env);
       if (reader != null) {
@@ -265,41 +257,43 @@ abstract class InputImageTests extends InputTests {
         reader = null;
       }
     }
-  }  public void cleanupTest(TestEnvironment env, Object ctx) {
-    Context iioctx = (Context) ctx;
-    iioctx.cleanup(env);
   }
 
   private static class ToolkitCreateImage extends InputImageTests {
     private static final Component canvas = new Component() {
+      private static final long serialVersionUID = -2159230127813375873L;
     };
 
     public ToolkitCreateImage() {
       super(toolkitTestRoot, "createImage", "Toolkit.createImage()");
-      addDependency(generalSourceRoot, new Modifier.Filter() {
+      addDependency(generalSourceRoot, new Filter() {
+        @Override
         public boolean isCompatible(Object val) {
           // Toolkit handles FILE, URL, and ARRAY, but
           // not FILECHANNEL
           InputType t = (InputType) val;
-          return (t.getType() != INPUT_FILECHANNEL);
+          return t.getType() != INPUT_FILECHANNEL;
         }
       });
       addDependencies(toolkitOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       return new Context(env, result, TEST_TOOLKIT);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final Object input = ictx.input;
-      final int inputType = ictx.inputType;
-      final Toolkit tk = Toolkit.getDefaultToolkit();
-      final MediaTracker mt = new MediaTracker(canvas);
+      Context ictx = (Context) ctx;
+      Object input = ictx.input;
+      int inputType = ictx.inputType;
+      Toolkit tk = Toolkit.getDefaultToolkit();
+      MediaTracker mt = new MediaTracker(canvas);
       switch (inputType) {
         case INPUT_FILE:
           String filename = ((File) input).getAbsolutePath();
+          --numReps;
           do {
             try {
               Image img = tk.createImage(filename);
@@ -309,9 +303,11 @@ abstract class InputImageTests extends InputTests {
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         case INPUT_URL:
+          --numReps;
           do {
             try {
               Image img = tk.createImage((URL) input);
@@ -321,9 +317,11 @@ abstract class InputImageTests extends InputTests {
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         case INPUT_ARRAY:
+          --numReps;
           do {
             try {
               Image img = tk.createImage((byte[]) input);
@@ -333,18 +331,24 @@ abstract class InputImageTests extends InputTests {
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         default:
           throw new IllegalArgumentException("Invalid input type");
       }
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object ctx) {
+    Context iioctx = (Context) ctx;
+    iioctx.cleanup(env);
   }
 
   private static class ImageIORead extends InputImageTests {
     public ImageIORead() {
       super(imageioTestRoot, "imageioRead", "ImageIO.read()");
-      addDependency(generalSourceRoot, new Modifier.Filter() {
+      addDependency(generalSourceRoot, new Filter() {
+        @Override
         public boolean isCompatible(Object val) {
           // ImageIO.read() handles FILE, URL, and ARRAY, but
           // not FILECHANNEL (well, I suppose we could create
@@ -352,40 +356,47 @@ abstract class InputImageTests extends InputTests {
           // but that's not a common use case; FileChannel is
           // better handled by the ImageReader tests below)
           InputType t = (InputType) val;
-          return (t.getType() != INPUT_FILECHANNEL);
+          return t.getType() != INPUT_FILECHANNEL;
         }
       });
       addDependencies(imageioOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       return new Context(env, result, TEST_IMAGEIO);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final Object input = ictx.input;
-      final int inputType = ictx.inputType;
+      Context ictx = (Context) ctx;
+      Object input = ictx.input;
+      int inputType = ictx.inputType;
       switch (inputType) {
         case INPUT_FILE:
+          --numReps;
           do {
             try {
               ImageIO.read((File) input);
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         case INPUT_URL:
+          --numReps;
           do {
             try {
               ImageIO.read((URL) input);
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         case INPUT_ARRAY:
+          --numReps;
           do {
             try {
               ByteArrayInputStream bais = new ByteArrayInputStream((byte[]) input);
@@ -395,7 +406,8 @@ abstract class InputImageTests extends InputTests {
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         default:
           throw new IllegalArgumentException("Invalid input type");
@@ -412,15 +424,18 @@ abstract class InputImageTests extends InputTests {
       addDependencies(imageReaderOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       return new Context(env, result, TEST_IMAGEREADER);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageReader reader = ictx.reader;
-      final boolean seekForwardOnly = ictx.seekForwardOnly;
-      final boolean ignoreMetadata = ictx.ignoreMetadata;
+      Context ictx = (Context) ctx;
+      ImageReader reader = ictx.reader;
+      boolean seekForwardOnly = ictx.seekForwardOnly;
+      boolean ignoreMetadata = ictx.ignoreMetadata;
+      --numReps;
       do {
         try {
           ImageInputStream iis = ictx.createImageInputStream();
@@ -432,7 +447,8 @@ abstract class InputImageTests extends InputTests {
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -445,6 +461,7 @@ abstract class InputImageTests extends InputTests {
       addDependencies(imageReaderOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result, TEST_IMAGEREADER);
       // override units since this test doesn't read "pixels"
@@ -453,11 +470,13 @@ abstract class InputImageTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageReader reader = ictx.reader;
-      final boolean seekForwardOnly = ictx.seekForwardOnly;
-      final boolean ignoreMetadata = ictx.ignoreMetadata;
+      Context ictx = (Context) ctx;
+      ImageReader reader = ictx.reader;
+      boolean seekForwardOnly = ictx.seekForwardOnly;
+      boolean ignoreMetadata = ictx.ignoreMetadata;
+      --numReps;
       do {
         try {
           ImageInputStream iis = ictx.createImageInputStream();
@@ -469,11 +488,15 @@ abstract class InputImageTests extends InputTests {
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   private static class ReadProgressListener implements IIOReadProgressListener {
+    ReadProgressListener() {
+    }
+
     public void sequenceStarted(ImageReader source, int minIndex) {
     }
 

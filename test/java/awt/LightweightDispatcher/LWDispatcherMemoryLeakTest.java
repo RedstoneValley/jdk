@@ -21,20 +21,11 @@
  * questions.
  */
 
-import java.awt.AWTException;
 import java.awt.FlowLayout;
 import java.awt.Robot;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import test.java.awt.regtesthelpers.Util;
 
 /*
  @test
@@ -45,11 +36,14 @@ import test.java.awt.regtesthelpers.Util;
  @compile LWDispatcherMemoryLeakTest.java
  @run main/othervm -Xmx10M LWDispatcherMemoryLeakTest
  */
-public class LWDispatcherMemoryLeakTest {
+public final class LWDispatcherMemoryLeakTest {
 
-    private static JFrame frame;
-    private static WeakReference<JButton> button;
-    private static WeakReference<JPanel> p;
+    static JFrame frame;
+    static WeakReference<JButton> button;
+    static WeakReference<JPanel> p;
+
+    private LWDispatcherMemoryLeakTest() {
+    }
 
     public static void init() throws Throwable {
         SwingUtilities.invokeAndWait(new Runnable() {
@@ -82,8 +76,8 @@ public class LWDispatcherMemoryLeakTest {
     }
 
     public static void assertGC() throws Throwable {
-        List<byte[]> alloc = new ArrayList<byte[]>();
-        int size = 10 * 1024;
+        List<byte[]> alloc = new ArrayList<>();
+        int size = 10 << 10;
         while (true) {
             try {
                 alloc.add(new byte[size]);
@@ -91,13 +85,12 @@ public class LWDispatcherMemoryLeakTest {
                 break;
             }
         }
-        alloc = null;
         if (button.get() != null) {
             throw new Exception("Test failed: JButton was not collected");
         }
     }
 
-    public static void main(String args[]) throws Throwable {
+    public static void main(String[] args) throws Throwable {
         init();
     }
 }

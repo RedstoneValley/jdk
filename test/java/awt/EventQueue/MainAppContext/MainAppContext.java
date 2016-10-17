@@ -28,14 +28,14 @@
  * @author anthony.petrov@oracle.com, petr.pchelko@oracle.com
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import sun.awt.*;
 
-public class MainAppContext {
+public final class MainAppContext {
 
-    public static void main(String[] args) {
+  private MainAppContext() {
+  }
+
+  public static void main(String[] args) {
         ThreadGroup secondGroup = new ThreadGroup("test");
         new Thread(secondGroup, () -> {
             SunToolkit.createNewAppContext();

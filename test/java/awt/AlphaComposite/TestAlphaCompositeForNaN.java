@@ -30,7 +30,10 @@
 
 import java.awt.*;
 
-public class TestAlphaCompositeForNaN {
+public final class TestAlphaCompositeForNaN {
+  private TestAlphaCompositeForNaN() {
+  }
+
   public static void main(String[] args) {
     try {
       AlphaComposite a = AlphaComposite.getInstance(AlphaComposite.DST, Float.NaN);

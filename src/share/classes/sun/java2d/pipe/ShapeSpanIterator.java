@@ -64,23 +64,26 @@ import sun.awt.geom.PathConsumer2D;
  */
 public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
   static {
-    initIDs();
   }
 
   long pData;
+  private boolean normalize;
+  private int outputLoX;
+  private int outputLoY;
+  private int outputHiX;
+  private int outputHiY;
+  private int windingRule;
 
   public ShapeSpanIterator(boolean adjust) {
     setNormalize(adjust);
   }
-
-  public static native void initIDs();
 
   /*
    * Appends the geometry and winding rule from the indicated
    * path iterator.
    */
   public void appendPath(PathIterator pi) {
-    float coords[] = new float[6];
+    float[] coords = new float[6];
 
     setRule(pi.getWindingRule());
     while (!pi.isDone()) {
@@ -93,14 +96,18 @@ public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
   /*
    * Appends the geometry from the indicated set of polygon points.
    */
-  public native void appendPoly(
-      int xPoints[], int yPoints[], int nPoints, int xoff, int yoff);
+  public void appendPoly(
+      int[] xPoints, int[] yPoints, int nPoints, int xoff, int yoff) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /*
    * Sets the normalization flag so that incoming data is
    * adjusted to nearest (0.25, 0.25) subpixel position.
    */
-  private native void setNormalize(boolean adjust);
+  private void setNormalize(boolean adjust) {
+    normalize = adjust;
+  }
 
   /*
    * Sets the rectangle of interest for storing and returning
@@ -114,7 +121,12 @@ public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
    * Sets the rectangle of interest for storing and returning
    * span segments.
    */
-  public native void setOutputAreaXYXY(int lox, int loy, int hix, int hiy);
+  public void setOutputAreaXYXY(int lox, int loy, int hix, int hiy) {
+    outputLoX = lox;
+    outputLoY = loy;
+    outputHiX = hix;
+    outputHiY = hiy;
+  }
 
   /*
    * Sets the rectangle of interest for storing and returning
@@ -135,38 +147,55 @@ public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
   /*
    * Sets the winding rule in the native data structures.
    */
-  public native void setRule(int rule);
+  public void setRule(int rule) {
+    windingRule = rule;
+  }
 
   /*
    * Adds a single PathIterator segment to the internal list of
    * path element structures.
    */
-  public native void addSegment(int type, float coords[]);
+  public void addSegment(int type, float[] coords) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /*
    * Gets the bbox of the available path segments, clipped to the
    * OutputArea.
    */
-  public native void getPathBox(int pathbox[]);
+  @Override
+  public void getPathBox(int[] pathbox) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /*
    * Intersects the path box with the given bbox.
    * Returned spans are clipped to this region, or discarded
    * altogether if they lie outside it.
    */
-  public native void intersectClipBox(int lox, int loy, int hix, int hiy);
+  @Override
+  public void intersectClipBox(int lox, int loy, int hix, int hiy) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /*
    * Fetches the next span that needs to be operated on.
    * If the return value is false then there are no more spans.
    */
-  public native boolean nextSpan(int spanbox[]);
+  @Override
+  public boolean nextSpan(int[] spanbox) {
+    // TODO: This is native in OpenJDK AWT
+    return false;
+  }
 
   /**
    * This method tells the iterator that it may skip all spans
    * whose Y range is completely above the indicated Y coordinate.
    */
-  public native void skipDownTo(int y);
+  @Override
+  public void skipDownTo(int y) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /**
    * This method returns a native pointer to a function block that
@@ -179,26 +208,53 @@ public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
    *     src/share/native/sun/java2d/pipe/SpanIterator.h
    * </pre>
    */
-  public native long getNativeIterator();
+  @Override
+  public long getNativeIterator() {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   /*
    * Cleans out all internal data structures.
    */
-  public native void dispose();
+  public void dispose() {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void moveTo(float x, float y);
+  @Override
+  public void moveTo(float x, float y) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void lineTo(float x, float y);
+  @Override
+  public void lineTo(float x, float y) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void quadTo(
-      float x1, float y1, float x2, float y2);
+  @Override
+  public void quadTo(
+      float x1, float y1, float x2, float y2) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void curveTo(
-      float x1, float y1, float x2, float y2, float x3, float y3);
+  @Override
+  public void curveTo(
+      float x1, float y1, float x2, float y2, float x3, float y3) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void closePath();
+  @Override
+  public void closePath() {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native void pathDone();
+  @Override
+  public void pathDone() {
+    // TODO: This is native in OpenJDK AWT
+  }
 
-  public native long getNativeConsumer();
+  @Override
+  public long getNativeConsumer() {
+    // TODO: This is native in OpenJDK AWT
+    return 0;
+  }
 }

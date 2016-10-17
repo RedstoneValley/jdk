@@ -34,7 +34,7 @@ import sun.java2d.SunGraphics2D;
  * objects.
  */
 public interface ShapeDrawPipe {
-  public void draw(SunGraphics2D sg, Shape s);
+  void draw(SunGraphics2D sg, Shape s);
 
-  public void fill(SunGraphics2D sg, Shape s);
+  void fill(SunGraphics2D sg, Shape s);
 }

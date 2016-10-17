@@ -28,11 +28,10 @@ package java.awt.event;
 import android.util.Log;
 import java.awt.Component;
 import java.awt.Event;
-import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.util.Arrays;
 import sun.awt.AWTAccessor;
-import sun.security.util.SecurityConstants;
+import sun.awt.AWTAccessor.InputEventAccessor;
 
 /**
  * The root event class for all component-level input events.
@@ -151,7 +150,7 @@ public abstract class InputEvent extends ComponentEvent {
   // see bug# 5066958
   static final int FIRST_HIGH_BIT = 1 << 31;
   static final int JDK_1_3_MODIFIERS = SHIFT_DOWN_MASK - 1;
-  static final int HIGH_MODIFIERS = ~(FIRST_HIGH_BIT - 1);
+  @SuppressWarnings("NumericOverflow") static final int HIGH_MODIFIERS = ~(FIRST_HIGH_BIT - 1);
   // state serialization compatibility with JDK 1.1
   static final long serialVersionUID = -2482525981698309786L;
   private static final String TAG = "AWT InputEvent";
@@ -164,7 +163,7 @@ public abstract class InputEvent extends ComponentEvent {
    * one more bit is reserved for FIRST_HIGH_BIT.
    * @since 7.0
    */
-  private static final int[] BUTTON_DOWN_MASK = new int[]{
+  private static final int[] BUTTON_DOWN_MASK = {
       BUTTON1_DOWN_MASK, BUTTON2_DOWN_MASK, BUTTON3_DOWN_MASK, 1 << 14,
       //4th phisical button (this is not a wheel!)
       1 << 15, //(this is not a wheel!)
@@ -174,16 +173,19 @@ public abstract class InputEvent extends ComponentEvent {
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-    AWTAccessor.setInputEventAccessor(new AWTAccessor.InputEventAccessor() {
+    AWTAccessor.setInputEventAccessor(new InputEventAccessor() {
+      @Override
       public int[] getButtonDownMasks() {
         return InputEvent.getButtonDownMasks();
       }
     });
   }
 
+  /*
+   * A flag that indicates that this instance can be used to access
+   * the system clipboard.
+   */
+  private final transient boolean canAccessSystemClipboard;
   /**
    * The input event's Time stamp in UTC format.  The time stamp
    * indicates when the input event was created.
@@ -191,8 +193,7 @@ public abstract class InputEvent extends ComponentEvent {
    * @serial
    * @see #getWhen()
    */
-  long when;
-
+  final long when;
   /**
    * The state of the modifier mask at the time the input
    * event was fired.
@@ -200,23 +201,17 @@ public abstract class InputEvent extends ComponentEvent {
    * @serial
    * @see #getModifiers()
    * @see #getModifiersEx()
-   * @see java.awt.event.KeyEvent
-   * @see java.awt.event.MouseEvent
+   * @see KeyEvent
+   * @see MouseEvent
    */
   int modifiers;
-
-  /*
-   * A flag that indicates that this instance can be used to access
-   * the system clipboard.
-   */
-  private transient boolean canAccessSystemClipboard;
 
   /**
    * Constructs an InputEvent object with the specified source component,
    * modifiers, and type.
    * <p> This method throws an
-   * <code>IllegalArgumentException</code> if <code>source</code>
-   * is <code>null</code>.
+   * {@code IllegalArgumentException} if {@code source}
+   * is {@code null}.
    *
    * @param source    the object where the event originated
    * @param id        the integer that identifies the event type.
@@ -236,7 +231,7 @@ public abstract class InputEvent extends ComponentEvent {
    *                  Passing negative parameter
    *                  is not recommended.
    *                  Zero value means that no modifiers were passed
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @see #getSource()
    * @see #getID()
    * @see #getWhen()
@@ -254,7 +249,7 @@ public abstract class InputEvent extends ComponentEvent {
    *
    * @since 7.0
    */
-  private static int[] getButtonDownMasks() {
+  static int[] getButtonDownMasks() {
     return Arrays.copyOf(BUTTON_DOWN_MASK, BUTTON_DOWN_MASK.length);
   }
 
@@ -271,12 +266,13 @@ public abstract class InputEvent extends ComponentEvent {
    * @param button is a number to represent a button starting from 1.
    *               For example,
    *               <pre>
-   *                             int button = InputEvent.getMaskForButton(1);
-   *                             </pre>
+   *                                           int button = InputEvent.getMaskForButton(1);
+   *                                           </pre>
    *               will have the same meaning as
    *               <pre>
-   *                             int button = InputEvent.getMaskForButton(MouseEvent.BUTTON1);
-   *                             </pre>
+   *                                           int button = InputEvent.getMaskForButton
+   *                                           (MouseEvent.BUTTON1);
+   *                                           </pre>
    *               because {@link MouseEvent#BUTTON1 MouseEvent.BUTTON1} equals to 1.
    *               If a mouse has three enabled buttons(see
    *               {@link java.awt.MouseInfo#getNumberOfButtons() MouseInfo.getNumberOfButtons()})
@@ -323,16 +319,10 @@ public abstract class InputEvent extends ComponentEvent {
   }
 
   /**
-   * Initialize JNI field and method IDs for fields that may be
-   * accessed from C.
-   */
-  private static native void initIDs();
-
-  /**
    * Returns a String describing the extended modifier keys and
    * mouse buttons, such as "Shift", "Button1", or "Ctrl+Shift".
    * These strings can be localized by changing the
-   * <code>awt.properties</code> file.
+   * {@code awt.properties} file.
    * <p>
    * Note that passing negative parameter is incorrect,
    * and will cause the returning an unspecified string.
@@ -348,29 +338,29 @@ public abstract class InputEvent extends ComponentEvent {
    */
   public static String getModifiersExText(int modifiers) {
     StringBuilder buf = new StringBuilder();
-    if ((modifiers & InputEvent.META_DOWN_MASK) != 0) {
+    if ((modifiers & META_DOWN_MASK) != 0) {
       buf.append(Toolkit.getProperty("AWT.meta", "Meta"));
       buf.append("+");
     }
-    if ((modifiers & InputEvent.CTRL_DOWN_MASK) != 0) {
+    if ((modifiers & CTRL_DOWN_MASK) != 0) {
       buf.append(Toolkit.getProperty("AWT.control", "Ctrl"));
       buf.append("+");
     }
-    if ((modifiers & InputEvent.ALT_DOWN_MASK) != 0) {
+    if ((modifiers & ALT_DOWN_MASK) != 0) {
       buf.append(Toolkit.getProperty("AWT.alt", "Alt"));
       buf.append("+");
     }
-    if ((modifiers & InputEvent.SHIFT_DOWN_MASK) != 0) {
+    if ((modifiers & SHIFT_DOWN_MASK) != 0) {
       buf.append(Toolkit.getProperty("AWT.shift", "Shift"));
       buf.append("+");
     }
-    if ((modifiers & InputEvent.ALT_GRAPH_DOWN_MASK) != 0) {
+    if ((modifiers & ALT_GRAPH_DOWN_MASK) != 0) {
       buf.append(Toolkit.getProperty("AWT.altGraph", "Alt Graph"));
       buf.append("+");
     }
 
     int buttonNumber = 1;
-    for (int mask : InputEvent.BUTTON_DOWN_MASK) {
+    for (int mask : BUTTON_DOWN_MASK) {
       if ((modifiers & mask) != 0) {
         buf.append(Toolkit.getProperty("AWT.button" + buttonNumber, "Button" + buttonNumber));
         buf.append("+");
@@ -386,18 +376,16 @@ public abstract class InputEvent extends ComponentEvent {
   private boolean canAccessSystemClipboard() {
     boolean b = false;
 
-    if (!GraphicsEnvironment.isHeadless()) {
-      SecurityManager sm = System.getSecurityManager();
-      if (sm != null) {
-        try {
-          sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
-          b = true;
-        } catch (SecurityException se) {
-          Log.d(TAG, "InputEvent.canAccessSystemClipboard() got SecurityException ", se);
-        }
-      } else {
+    SecurityManager sm = System.getSecurityManager();
+    if (sm != null) {
+      try {
+        sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
         b = true;
+      } catch (SecurityException se) {
+        Log.d(TAG, "InputEvent.canAccessSystemClipboard() got SecurityException ", se);
       }
+    } else {
+      b = true;
     }
 
     return b;
@@ -467,16 +455,16 @@ public abstract class InputEvent extends ComponentEvent {
    * <b>button 2</b>, and then releases them in the same order,
    * the following sequence of events is generated:
    * <PRE>
-   * <code>MOUSE_PRESSED</code>:  <code>BUTTON1_DOWN_MASK</code>
-   * <code>MOUSE_PRESSED</code>:  <code>BUTTON1_DOWN_MASK | BUTTON2_DOWN_MASK</code>
-   * <code>MOUSE_RELEASED</code>: <code>BUTTON2_DOWN_MASK</code>
-   * <code>MOUSE_CLICKED</code>:  <code>BUTTON2_DOWN_MASK</code>
-   * <code>MOUSE_RELEASED</code>:
-   * <code>MOUSE_CLICKED</code>:
+   * {@code MOUSE_PRESSED}:  {@code BUTTON1_DOWN_MASK}
+   * {@code MOUSE_PRESSED}:  {@code BUTTON1_DOWN_MASK | BUTTON2_DOWN_MASK}
+   * {@code MOUSE_RELEASED}: {@code BUTTON2_DOWN_MASK}
+   * {@code MOUSE_CLICKED}:  {@code BUTTON2_DOWN_MASK}
+   * {@code MOUSE_RELEASED}:
+   * {@code MOUSE_CLICKED}:
    * </PRE>
    * <p>
    * It is not recommended to compare the return value of this method
-   * using <code>==</code> because new modifiers can be added in the future.
+   * using {@code ==} because new modifiers can be added in the future.
    * For example, the appropriate way to check that SHIFT and BUTTON1 are
    * down, but CTRL is up is demonstrated by the following code:
    * <PRE>
@@ -498,6 +486,7 @@ public abstract class InputEvent extends ComponentEvent {
    * Consumes this event so that it will not be processed
    * in the default manner by the source which originated it.
    */
+  @Override
   public void consume() {
     consumed = true;
   }
@@ -507,6 +496,7 @@ public abstract class InputEvent extends ComponentEvent {
    *
    * @see #consume
    */
+  @Override
   public boolean isConsumed() {
     return consumed;
   }

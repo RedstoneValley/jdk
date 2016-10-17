@@ -32,15 +32,13 @@
 */
 
 import java.awt.*;
-import java.applet.Applet;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class IconifiedFrameFocusChangeTest extends Applet {
-    Frame testFrame = new Frame("Test Frame");
-    Frame otherFrame = new Frame("Other Frame");
-    Button testButton = new Button("test button");
-    Button otherButton = new Button("other button");
+    final Frame testFrame = new Frame("Test Frame");
+    final Frame otherFrame = new Frame("Other Frame");
+    final Button testButton = new Button("test button");
+    final Button otherButton = new Button("other button");
     Robot robot;
 
     public static void main(String[] args) {
@@ -59,6 +57,7 @@ public class IconifiedFrameFocusChangeTest extends Applet {
         otherFrame.setLocation(200, 0);
 
         testButton.addFocusListener(new FocusAdapter() {
+            @Override
             public void focusLost(FocusEvent e) {
                 testButton.requestFocus();
             }
@@ -77,7 +76,7 @@ public class IconifiedFrameFocusChangeTest extends Applet {
             testButton.requestFocus();
             Util.waitForIdle(robot);
             if (!testButton.hasFocus()) {
-                throw new TestErrorException("couldn't focus " + testButton);
+                throw new TestError("couldn't focus " + testButton);
             }
         }
 
@@ -85,6 +84,7 @@ public class IconifiedFrameFocusChangeTest extends Applet {
          * Iconify the Frame. Test that focus switches properly.
          */
         Runnable action = new Runnable() {
+            @Override
             public void run() {
                 testFrame.setExtendedState(Frame.ICONIFIED);
             }
@@ -97,6 +97,7 @@ public class IconifiedFrameFocusChangeTest extends Applet {
          * Test that key events go into the focus owner.
          */
         action = new Runnable() {
+            @Override
             public void run() {
                 robot.keyPress(KeyEvent.VK_SPACE);
                 robot.delay(50);
@@ -115,6 +116,8 @@ public class IconifiedFrameFocusChangeTest extends Applet {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -124,6 +127,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

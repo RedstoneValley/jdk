@@ -35,9 +35,12 @@ import java.lang.ref.WeakReference;
 
 import java.util.Vector;
 
-public class WindowsLeak {
+public final class WindowsLeak {
 
-    public static void main(String[] args) {
+  private WindowsLeak() {
+  }
+
+  public static void main(String[] args) {
         for (int i = 0; i < 100; i++)
         {
             Frame f = new Frame();
@@ -57,9 +60,8 @@ public class WindowsLeak {
                 break;
             }
         }
-        garbage = null;
 
-        Vector<WeakReference<Window>> windowList =
+    Vector<WeakReference<Window>> windowList =
                         (Vector<WeakReference<Window>>) AppContext.getAppContext().get(Window.class);
 
         if (windowList != null && !windowList.isEmpty()) {

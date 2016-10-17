@@ -26,7 +26,6 @@
 package sun.java2d.pipe;
 
 import sun.awt.SunHints;
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 
 /**
@@ -36,6 +35,7 @@ import sun.java2d.SunGraphics2D;
  */
 
 public abstract class GlyphListLoopPipe extends GlyphListPipe implements LoopBasedPipe {
+  @Override
   protected void drawGlyphList(
       SunGraphics2D sg2d, GlyphList gl, int aaHint) {
     switch (aaHint) {

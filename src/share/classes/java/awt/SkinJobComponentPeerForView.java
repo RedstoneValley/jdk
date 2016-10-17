@@ -3,14 +3,14 @@ package java.awt;
 import android.util.DisplayMetrics;
 import android.view.View;
 import java.awt.peer.ComponentPeer;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * Skeletal implementation of {@link SkinJobComponentPeer}&lt;T extends {@link View}&gt;.
  */
 public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T> {
 
-  protected Graphics graphics;
+  protected final Graphics graphics;
 
   public SkinJobComponentPeerForView(T androidComponent) {
     this(androidComponent, SkinJobGraphicsConfiguration.get(androidComponent.getDisplay()));
@@ -86,7 +86,7 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   @Override
   public boolean requestFocus(
       Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time,
-      CausedFocusEvent.Cause cause) {
+      Cause cause) {
     return androidWidget.requestFocus();
   }
 

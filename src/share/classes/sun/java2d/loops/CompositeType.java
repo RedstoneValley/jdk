@@ -138,20 +138,20 @@ public final class CompositeType {
   public static final CompositeType OpaqueSrcOverNoEa = SrcOverNoEa
       .deriveSubType(DESC_SRC)
       .deriveSubType(DESC_SRC_NO_EA);
-  private static final HashMap<String, Integer> compositeUIDMap = new HashMap<String, Integer>(100);
+  private static final HashMap<String, Integer> compositeUIDMap = new HashMap<>(100);
   private static int unusedUID = 1;
 
   /*
    * END OF CompositeType OBJECTS FOR THE VARIOUS CONSTANTS
    */
-  private int uniqueID;
-  private String desc;
-  private CompositeType next;
+  private final int uniqueID;
+  private final String desc;
+  private final CompositeType next;
 
   private CompositeType(CompositeType parent, String desc) {
     next = parent;
     this.desc = desc;
-    this.uniqueID = makeUniqueID(desc);
+    uniqueID = makeUniqueID(desc);
   }
 
   /**
@@ -163,19 +163,11 @@ public final class CompositeType {
       case AlphaComposite.CLEAR:
         return Clear;
       case AlphaComposite.SRC:
-        if (ac.getAlpha() >= 1.0f) {
-          return SrcNoEa;
-        } else {
-          return Src;
-        }
+        return ac.getAlpha() >= 1.0f ? SrcNoEa : Src;
       case AlphaComposite.DST:
         return Dst;
       case AlphaComposite.SRC_OVER:
-        if (ac.getAlpha() >= 1.0f) {
-          return SrcOverNoEa;
-        } else {
-          return SrcOver;
-        }
+        return ac.getAlpha() >= 1.0f ? SrcOverNoEa : SrcOver;
       case AlphaComposite.DST_OVER:
         return DstOver;
       case AlphaComposite.SRC_IN:
@@ -197,14 +189,15 @@ public final class CompositeType {
     }
   }
 
-  public synchronized static final int makeUniqueID(String desc) {
+  public static synchronized int makeUniqueID(String desc) {
     Integer i = compositeUIDMap.get(desc);
 
     if (i == null) {
       if (unusedUID > 255) {
         throw new InternalError("composite type id overflow");
       }
-      i = unusedUID++;
+      i = unusedUID;
+      unusedUID++;
       compositeUIDMap.put(desc, i);
     }
     return i;
@@ -239,7 +232,7 @@ public final class CompositeType {
 
   public boolean equals(Object o) {
     if (o instanceof CompositeType) {
-      return (((CompositeType) o).uniqueID == this.uniqueID);
+      return ((CompositeType) o).uniqueID == uniqueID;
     }
     return false;
   }

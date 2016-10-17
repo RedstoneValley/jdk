@@ -46,7 +46,7 @@ public class SingleArrayTest {
         t.doTest(BufferedImage.TYPE_BYTE_GRAY);
     }
 
-    private LookupOp op;
+    private final LookupOp op;
 
     public SingleArrayTest() {
 

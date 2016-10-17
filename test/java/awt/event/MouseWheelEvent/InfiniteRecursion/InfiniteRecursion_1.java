@@ -31,31 +31,30 @@
   @run main InfiniteRecursion_1
 */
 
-/**
- * InfiniteRecursion_1.java
- *
- * summary: put a JButton into JPanel and then put JPanel into JFrame.
- * Add MouseWheelListener to JFrame.
- * Add MouseListener to JPanel.
- * Rotating a wheel over the JButton would result in stack overflow.
+/*
+  InfiniteRecursion_1.java
+
+  summary: put a JButton into JPanel and then put JPanel into JFrame.
+  Add MouseWheelListener to JFrame.
+  Add MouseListener to JPanel.
+  Rotating a wheel over the JButton would result in stack overflow.
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class InfiniteRecursion_1 {
-    final static Robot robot = Util.createRobot();
-    final static int MOVE_COUNT = 5;
+public final class InfiniteRecursion_1 {
+    static final Robot robot = Util.createRobot();
+    static final int MOVE_COUNT = 5;
     //*2 for both rotation directions,
     //*2 as Java sends the wheel event to every for nested component in hierarchy under cursor
-    final static int EXPECTED_COUNT = MOVE_COUNT * 2 * 2;
-    static int actualEvents = 0;
+    static final int EXPECTED_COUNT = MOVE_COUNT * 2 * 2;
+    static int actualEvents;
 
-    public static void main(String []s)
+  private InfiniteRecursion_1() {
+  }
+
+  public static void main(String []s)
     {
         JFrame frame = new JFrame("A test frame");
         JPanel outputBox = new JPanel();
@@ -63,6 +62,7 @@ public class InfiniteRecursion_1 {
 
         frame.setSize(200, 200);
         frame.addMouseWheelListener(new MouseWheelListener() {
+                @Override
                 public void mouseWheelMoved(MouseWheelEvent e)
                 {
                     System.out.println("Wheel moved on FRAME : "+e);
@@ -71,6 +71,7 @@ public class InfiniteRecursion_1 {
             });
 
         outputBox.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     System.out.println("MousePressed on OUTBOX : "+e);

@@ -26,9 +26,12 @@
 
 import java.awt.Toolkit;
 
-public class LoadToolkit {
+public final class LoadToolkit {
 
-    public static void main(String[] args) {
+  private LoadToolkit() {
+  }
+
+  public static void main(String[] args) {
         Toolkit kit = Toolkit.getDefaultToolkit();
         // This starts a thread which never exits - so we suicide.
         try {

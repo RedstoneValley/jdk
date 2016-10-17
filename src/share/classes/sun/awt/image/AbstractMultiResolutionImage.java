@@ -31,9 +31,9 @@ import java.awt.image.ImageProducer;
 
 /**
  * This class provides default implementations for the
- * <code>MultiResolutionImage</code> interface. The developer needs only
- * to subclass this abstract class and define the <code>getResolutionVariant</code>,
- * <code>getResolutionVariants</code>, and <code>getBaseImage</code> methods.
+ * {@code MultiResolutionImage} interface. The developer needs only
+ * to subclass this abstract class and define the {@code getResolutionVariant},
+ * {@code getResolutionVariants}, and {@code getBaseImage} methods.
  * <p>
  * <p>
  * For example,
@@ -64,11 +64,10 @@ import java.awt.image.ImageProducer;
  * }
  * }
  * }
- * @see java.awt.Image
+ * @see Image
  * @see java.awt.image.MultiResolutionImage
  */
-public abstract class AbstractMultiResolutionImage extends java.awt.Image
-    implements MultiResolutionImage {
+public abstract class AbstractMultiResolutionImage extends Image implements MultiResolutionImage {
 
   /**
    * @inheritDoc

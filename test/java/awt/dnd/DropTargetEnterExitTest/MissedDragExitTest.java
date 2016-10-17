@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8024163
  * @summary Checks that dragExit is generated when the new DropTarget is created under the drag
  * @library ../../regtesthelpers
@@ -32,9 +32,6 @@
  * @author Petr Pchelko
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
@@ -48,20 +45,23 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
 import java.awt.event.InputEvent;
 
-public class MissedDragExitTest {
+public final class MissedDragExitTest {
 
     private static final int FRAME_SIZE = 100;
     private static final int FRAME_LOCATION = 100;
 
-    private static volatile boolean dragExitCalled = false;
+    static volatile boolean dragExitCalled;
 
     private static volatile Frame f;
 
-    private static void initAndShowUI() {
+    private MissedDragExitTest() {
+    }
+
+    static void initAndShowUI() {
         f = new Frame("Test frame");
         f.setBounds(FRAME_LOCATION,FRAME_LOCATION,FRAME_SIZE,FRAME_SIZE);
 
-        final DraggablePanel dragSource = new DraggablePanel();
+        DraggablePanel dragSource = new DraggablePanel();
         dragSource.setBackground(Color.yellow);
         DropTarget dt = new DropTarget(dragSource, new DropTargetAdapter() {
             @Override public void drop(DropTargetDropEvent dtde) { }
@@ -100,7 +100,8 @@ public class MissedDragExitTest {
             Util.waitForIdle(r);
             Util.drag(r,
                     new Point(FRAME_LOCATION + FRAME_SIZE / 3, FRAME_LOCATION + FRAME_SIZE / 3),
-                    new Point(FRAME_LOCATION + FRAME_SIZE / 3 * 2, FRAME_LOCATION + FRAME_SIZE / 3 * 2),
+                    new Point(FRAME_LOCATION + (FRAME_SIZE / 3 << 1), FRAME_LOCATION + (FRAME_SIZE / 3
+                                                                                         << 1)),
                     InputEvent.BUTTON1_MASK);
             Util.waitForIdle(r);
 
@@ -116,8 +117,10 @@ public class MissedDragExitTest {
 
     private static class DraggablePanel extends Panel implements DragGestureListener {
 
+        private static final long serialVersionUID = -4212102060297185401L;
+
         public DraggablePanel() {
-            (new DragSource()).createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
+            new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
         }
 
         @Override

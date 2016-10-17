@@ -41,19 +41,19 @@ import java.util.Map;
  * If no concrete style is provided, a renderer should use
  * {@link java.awt.Toolkit#mapInputMethodHighlight} to map to a concrete style.
  * <p>
- * The abstract description consists of three fields: <code>selected</code>,
- * <code>state</code>, and <code>variation</code>.
- * <code>selected</code> indicates whether the text range is the one that the
+ * The abstract description consists of three fields: {@code selected},
+ * {@code state}, and {@code variation}.
+ * {@code selected} indicates whether the text range is the one that the
  * input method is currently working on, for example, the segment for which
  * conversion candidates are currently shown in a menu.
- * <code>state</code> represents the conversion state. State values are defined
+ * {@code state} represents the conversion state. State values are defined
  * by the input method framework and should be distinguished in all
  * mappings from abstract to concrete styles. Currently defined state values
  * are raw (unconverted) and converted.
  * These state values are recommended for use before and after the
  * main conversion step of text composition, say, before and after kana-&gt;kanji
  * or pinyin-&gt;hanzi conversion.
- * The <code>variation</code> field allows input methods to express additional
+ * The {@code variation} field allows input methods to express additional
  * information about the conversion results.
  * <p>
  * <p>
@@ -71,42 +71,42 @@ public class InputMethodHighlight {
   /**
    * Constant for the raw text state.
    */
-  public final static int RAW_TEXT = 0;
+  public static final int RAW_TEXT = 0;
 
   /**
    * Constant for the converted text state.
    */
-  public final static int CONVERTED_TEXT = 1;
+  public static final int CONVERTED_TEXT = 1;
 
   /**
    * Constant for the default highlight for unselected raw text.
    */
-  public final static InputMethodHighlight UNSELECTED_RAW_TEXT_HIGHLIGHT = new
+  public static final InputMethodHighlight UNSELECTED_RAW_TEXT_HIGHLIGHT = new
       InputMethodHighlight(false,
       RAW_TEXT);
 
   /**
    * Constant for the default highlight for selected raw text.
    */
-  public final static InputMethodHighlight SELECTED_RAW_TEXT_HIGHLIGHT = new InputMethodHighlight
+  public static final InputMethodHighlight SELECTED_RAW_TEXT_HIGHLIGHT = new InputMethodHighlight
       (true,
       RAW_TEXT);
 
   /**
    * Constant for the default highlight for unselected converted text.
    */
-  public final static InputMethodHighlight UNSELECTED_CONVERTED_TEXT_HIGHLIGHT
+  public static final InputMethodHighlight UNSELECTED_CONVERTED_TEXT_HIGHLIGHT
       = new InputMethodHighlight(false, CONVERTED_TEXT);
 
   /**
    * Constant for the default highlight for selected converted text.
    */
-  public final static InputMethodHighlight SELECTED_CONVERTED_TEXT_HIGHLIGHT
+  public static final InputMethodHighlight SELECTED_CONVERTED_TEXT_HIGHLIGHT
       = new InputMethodHighlight(true, CONVERTED_TEXT);
-  private boolean selected;
-  private int state;
-  private int variation;
-  private Map<TextAttribute, ?> style;
+  private final boolean selected;
+  private final int state;
+  private final int variation;
+  private final Map<TextAttribute, ?> style;
 
   /**
    * Constructs an input method highlight record.
@@ -194,4 +194,4 @@ public class InputMethodHighlight {
   public Map<TextAttribute, ?> getStyle() {
     return style;
   }
-};
+}

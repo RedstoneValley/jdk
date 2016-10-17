@@ -26,6 +26,7 @@
 package java.awt;
 
 import android.util.Log;
+import java.util.Arrays;
 
 abstract class AttributeValue {
   private static final String TAG = "java.awt.AttributeValue";
@@ -33,8 +34,8 @@ abstract class AttributeValue {
   private final String[] names;
 
   protected AttributeValue(int value, String[] names) {
-    Log.v(TAG, "value = " + value + ", names = " + names);
-    if ((value < 0) || (names == null) || (value >= names.length)) {
+    Log.v(TAG, "value = " + value + ", names = " + Arrays.toString(names));
+    if (value < 0 || names == null || value >= names.length) {
       Log.d(TAG, "Assertion failed");
     }
     this.value = value;
@@ -45,6 +46,23 @@ abstract class AttributeValue {
   // index.
   public int hashCode() {
     return value;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof AttributeValue)) {
+      return false;
+    }
+
+    AttributeValue that = (AttributeValue) o;
+
+    if (value != that.value) {
+      return false;
+    }
+    return Arrays.equals(names, that.names);
   }
 
   public String toString() {

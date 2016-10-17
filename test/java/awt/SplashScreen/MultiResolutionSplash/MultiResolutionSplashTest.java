@@ -32,7 +32,6 @@ import java.awt.SplashScreen;
 import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import javax.imageio.ImageIO;
 import sun.java2d.SunGraphics2D;
 
 /**
@@ -46,7 +45,7 @@ import sun.java2d.SunGraphics2D;
  * @run main/othervm -splash:splash2 MultiResolutionSplashTest TEST_SPLASH 1
  * @run main/othervm -splash:splash3. MultiResolutionSplashTest TEST_SPLASH 2
  */
-public class MultiResolutionSplashTest {
+public final class MultiResolutionSplashTest {
 
     private static final int IMAGE_WIDTH = 300;
     private static final int IMAGE_HEIGHT = 200;
@@ -56,6 +55,9 @@ public class MultiResolutionSplashTest {
         new ImageInfo("splash2", "splash2@2x", Color.WHITE, Color.BLACK),
         new ImageInfo("splash3.", "splash3@2x.", Color.YELLOW, Color.RED)
     };
+
+    private MultiResolutionSplashTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -90,7 +92,7 @@ public class MultiResolutionSplashTest {
         Color splashScreenColor = robot.getPixelColor(screenX, screenY);
 
         float scaleFactor = getScaleFactor();
-        Color testColor = (1 < scaleFactor) ? test.color2x : test.color1x;
+        Color testColor = 1 < scaleFactor ? test.color2x : test.color1x;
 
         if (!testColor.equals(splashScreenColor)) {
             throw new RuntimeException(
@@ -100,11 +102,13 @@ public class MultiResolutionSplashTest {
 
     static float getScaleFactor() {
 
-        final Dialog dialog = new Dialog((Window) null);
+        Dialog dialog = new Dialog((Window) null);
         dialog.setSize(100, 100);
         dialog.setModal(true);
-        final float[] scaleFactors = new float[1];
+        float[] scaleFactors = new float[1];
         Panel panel = new Panel() {
+
+            private static final long serialVersionUID = 994108655050775928L;
 
             @Override
             public void paint(Graphics g) {

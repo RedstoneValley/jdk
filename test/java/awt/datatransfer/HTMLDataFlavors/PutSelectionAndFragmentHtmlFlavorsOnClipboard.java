@@ -25,8 +25,11 @@
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 
-public class PutSelectionAndFragmentHtmlFlavorsOnClipboard {
-    public static void main(String[] args) {
+public final class PutSelectionAndFragmentHtmlFlavorsOnClipboard {
+  private PutSelectionAndFragmentHtmlFlavorsOnClipboard() {
+  }
+
+  public static void main(String[] args) {
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                 new HtmlTransferable(new DataFlavor[]{DataFlavor.selectionHtmlFlavor,
                         DataFlavor.fragmentHtmlFlavor}), null);

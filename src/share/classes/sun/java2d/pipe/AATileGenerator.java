@@ -37,7 +37,7 @@ package sun.java2d.pipe;
  * The iteration order of the tiles will be as specified by the pseudo-code:
  * <pre>
  *     int bbox[] = {left, top, right, bottom};
- *     AATileGenerator aatg = renderengine.getAATileGenerator(..., bbox);
+ *     AATileGenerator aatg = renderingEngine.getAATileGenerator(..., bbox);
  *     int tw = aatg.getTileWidth();
  *     int th = aatg.getTileHeight();
  *     byte tile[] = new byte[tw * th];
@@ -70,14 +70,14 @@ public interface AATileGenerator {
    *
    * @return the width of the standard alpha tile
    */
-  public int getTileWidth();
+  int getTileWidth();
 
   /**
    * Gets the height of the tiles that the generator batches output into.
    *
    * @return the height of the standard alpha tile
    */
-  public int getTileHeight();
+  int getTileHeight();
 
   /**
    * Gets the typical alpha value that will characterize the current
@@ -90,25 +90,25 @@ public interface AATileGenerator {
    * @return 0x00 for no coverage, 0xff for total coverage, or any other
    * value for partial coverage of the tile
    */
-  public int getTypicalAlpha();
+  int getTypicalAlpha();
 
   /**
    * Skips the current tile and moves on to the next tile.
    * Either this method, or the getAlpha() method should be called
    * once per tile, but not both.
    */
-  public void nextTile();
+  void nextTile();
 
   /**
    * Gets the alpha coverage values for the current tile.
    * Either this method, or the nextTile() method should be called
    * once per tile, but not both.
    */
-  public void getAlpha(byte tile[], int offset, int rowstride);
+  void getAlpha(byte[] tile, int offset, int rowstride);
 
   /**
    * Disposes this tile generator.
    * No further calls will be made on this instance.
    */
-  public void dispose();
+  void dispose();
 }

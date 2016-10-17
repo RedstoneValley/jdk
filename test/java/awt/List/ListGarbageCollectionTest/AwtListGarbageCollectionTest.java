@@ -21,19 +21,18 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8040076
  * @summary AwtList not garbage collected
  * @run main/othervm -Xmx100m AwtListGarbageCollectionTest
  */
 
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.lang.ref.WeakReference;
 
-public class AwtListGarbageCollectionTest {
+@SuppressWarnings("MagicNumber")
+public final class AwtListGarbageCollectionTest {
     public static void main(String[] args) {
         Frame frame = new Frame("List leak test");
         try {
@@ -53,8 +52,7 @@ public class AwtListGarbageCollectionTest {
             frame.add(strongListRef);
             strongListRef.setMultipleMode(true);
             frame.remove(strongListRef);
-            weakListRef = new WeakReference<List>(strongListRef);
-            strongListRef = null;
+            weakListRef = new WeakReference<>(strongListRef);
 
             //make out of memory to force gc
             String veryLongString = new String(new char[100]);

@@ -46,7 +46,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    * of the StateTrackable interface that is permanently in the
    * {@link State#UNTRACKABLE UNTRACKABLE} state.
    */
-  public final static StateTrackableDelegate UNTRACKABLE_DELEGATE = new StateTrackableDelegate(
+  public static final StateTrackableDelegate UNTRACKABLE_DELEGATE = new StateTrackableDelegate(
       UNTRACKABLE);
 
   /**
@@ -54,7 +54,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    * of the StateTrackable interface that is permanently in the
    * {@link State#IMMUTABLE IMMUTABLE} state.
    */
-  public final static StateTrackableDelegate IMMUTABLE_DELEGATE = new StateTrackableDelegate(
+  public static final StateTrackableDelegate IMMUTABLE_DELEGATE = new StateTrackableDelegate(
       IMMUTABLE);
   StateTracker theTracker;   // package private for easy access from tracker
   private State theState;
@@ -65,7 +65,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    * initial State.
    */
   private StateTrackableDelegate(State state) {
-    this.theState = state;
+    theState = state;
   }
 
   /**
@@ -97,6 +97,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    * @inheritDoc
    * @since 1.7
    */
+  @Override
   public State getState() {
     return theState;
   }
@@ -105,6 +106,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    * @inheritDoc
    * @since 1.7
    */
+  @Override
   public synchronized StateTracker getStateTracker() {
     StateTracker st = theTracker;
     if (st == null) {
@@ -114,8 +116,9 @@ public final class StateTrackableDelegate implements StateTrackable {
           break;
         case STABLE:
           st = new StateTracker() {
+            @Override
             public boolean isCurrent() {
-              return (theTracker == this);
+              return theTracker == this;
             }
           };
           break;
@@ -228,7 +231,8 @@ public final class StateTrackableDelegate implements StateTrackable {
    * @since 1.7
    */
   protected synchronized void removeDynamicAgent() {
-    if (--numDynamicAgents == 0 && theState == DYNAMIC) {
+    --numDynamicAgents;
+    if (numDynamicAgents == 0 && theState == DYNAMIC) {
       theState = STABLE;
       theTracker = null;
     }
@@ -252,7 +256,7 @@ public final class StateTrackableDelegate implements StateTrackable {
    *
    * @since 1.7
    */
-  public final void markDirty() {
+  public void markDirty() {
     theTracker = null;
   }
 }

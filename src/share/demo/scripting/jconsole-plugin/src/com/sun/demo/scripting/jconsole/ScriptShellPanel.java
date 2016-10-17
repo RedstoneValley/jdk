@@ -44,8 +44,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.swing.event.*;
-import javax.swing.text.*;
 
 /**
  * A JPanel subclass containing a scrollable text area displaying the
@@ -54,19 +52,18 @@ import javax.swing.text.*;
 
 public class ScriptShellPanel extends JPanel {
 
-  private static final long serialVersionUID = 4116273141148726319L;
-  private final ExecutorService commandExecutor = Executors.newSingleThreadExecutor();
+  final ExecutorService commandExecutor = Executors.newSingleThreadExecutor();
   // my script command processor
-  private CommandProcessor commandProcessor;
+  private final CommandProcessor commandProcessor;
   // editor component for command editing
-  private JTextComponent editor;
+  final JTextComponent editor;
   // document management
-  private boolean updating;
+  boolean updating;
 
   public ScriptShellPanel(CommandProcessor cmdProc) {
     setLayout(new BorderLayout());
-    this.commandProcessor = cmdProc;
-    this.editor = new JTextArea();
+    commandProcessor = cmdProc;
+    editor = new JTextArea();
     editor.setDocument(new EditableAtEndDocument());
     JScrollPane scroller = new JScrollPane();
     scroller.getViewport().add(editor);
@@ -87,13 +84,13 @@ public class ScriptShellPanel extends JPanel {
         if (insertContains(e, '\n')) {
           String cmd = getMarkedText();
           // Handle multi-line input
-          if ((cmd.length() == 0) || (cmd.charAt(cmd.length() - 1) != '\\')) {
+          if (cmd.isEmpty() || cmd.charAt(cmd.length() - 1) != '\\') {
             // Trim "\\n" combinations
-            final String cmd1 = trimContinuations(cmd);
+            String cmd1 = trimContinuations(cmd);
             commandExecutor.execute(new Runnable() {
               @Override
               public void run() {
-                final String result = executeCommand(cmd1);
+                String result = executeCommand(cmd1);
 
                 SwingUtilities.invokeLater(new Runnable() {
                   @Override
@@ -181,7 +178,7 @@ public class ScriptShellPanel extends JPanel {
     try {
       String s = ((EditableAtEndDocument) editor.getDocument()).getMarkedText();
       int i = s.length();
-      while ((i > 0) && (s.charAt(i - 1) == '\n')) {
+      while (i > 0 && s.charAt(i - 1) == '\n') {
         i--;
       }
       return s.substring(0, i);
@@ -200,7 +197,7 @@ public class ScriptShellPanel extends JPanel {
     }
   }
 
-  private String executeCommand(String cmd) {
+  String executeCommand(String cmd) {
     return commandProcessor.executeCommand(cmd);
   }
 
@@ -212,22 +209,22 @@ public class ScriptShellPanel extends JPanel {
     return commandProcessor.getPrompt();
   }
 
-  private void beginUpdate() {
+  void beginUpdate() {
     editor.setEditable(false);
     updating = true;
   }
 
-  private void endUpdate() {
+  void endUpdate() {
     editor.setEditable(true);
     updating = false;
   }
 
-  private void printPrompt() {
+  void printPrompt() {
     print(getPrompt());
   }
 
-  private boolean insertContains(DocumentEvent e, char c) {
-    String s = null;
+  boolean insertContains(DocumentEvent e, char c) {
+    String s;
     try {
       s = editor.getText(e.getOffset(), e.getLength());
       for (int i = 0; i < e.getLength(); i++) {
@@ -241,7 +238,7 @@ public class ScriptShellPanel extends JPanel {
     return false;
   }
 
-  private String trimContinuations(String text) {
+  String trimContinuations(String text) {
     int i;
     while ((i = text.indexOf("\\\n")) >= 0) {
       text = text.substring(0, i) + text.substring(i + 1, text.length());
@@ -252,9 +249,9 @@ public class ScriptShellPanel extends JPanel {
   // interface to evaluate script command and script prompt
   interface CommandProcessor {
     // execute given String as script and return the result
-    public String executeCommand(String cmd);
+    String executeCommand(String cmd);
 
     // get prompt used for interactive read-eval-loop
-    public String getPrompt();
+    String getPrompt();
   }
 }

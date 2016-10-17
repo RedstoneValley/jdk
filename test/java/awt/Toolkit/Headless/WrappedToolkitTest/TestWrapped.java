@@ -33,10 +33,11 @@ import java.awt.*;
 
 import java.lang.reflect.*;
 
-import sun.awt.*;
-
-public class TestWrapped
+public final class TestWrapped
 {
+    private TestWrapped() {
+    }
+
     public static void main(String[] args)
     {
         try
@@ -49,7 +50,7 @@ public class TestWrapped
         String correctToolkitClassName = args[0];
         Toolkit tk = Toolkit.getDefaultToolkit();
         Class tkClass = tk.getClass();
-        if (!tkClass.getName().equals("sun.awt.HeadlessToolkit"))
+        if (!"sun.awt.HeadlessToolkit".equals(tkClass.getName()))
         {
             System.err.println(tkClass.getName());
             System.err.println("Error: default toolkit is not an instance of HeadlessToolkit");

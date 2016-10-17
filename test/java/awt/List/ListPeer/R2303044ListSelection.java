@@ -38,9 +38,12 @@ public final class R2303044ListSelection {
 
     public static final String ITEM_NAME = "myItem";
 
-    public static void main(final String[] args) throws HeadlessException {
-        final Frame frame = new Frame("Test Frame");
-        final List list = new List();
+  private R2303044ListSelection() {
+  }
+
+  public static void main(String[] args) throws HeadlessException {
+        Frame frame = new Frame("Test Frame");
+        List list = new List();
         frame.setSize(300, 200);
         list.add(ITEM_NAME);
         list.select(0);
@@ -59,7 +62,7 @@ public final class R2303044ListSelection {
         try {
             ((SunToolkit) Toolkit.getDefaultToolkit()).realSync();
             Thread.sleep(1000);
-        } catch (final InterruptedException ignored) {
+        } catch (InterruptedException ignored) {
         }
     }
 }

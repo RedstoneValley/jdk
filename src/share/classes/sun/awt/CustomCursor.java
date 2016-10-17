@@ -43,7 +43,8 @@ import java.awt.image.PixelGrabber;
  */
 public abstract class CustomCursor extends Cursor {
 
-  protected Image image;
+  private static final long serialVersionUID = -7003421558754515334L;
+  protected final Image image;
 
   public CustomCursor(Image cursor, Point hotSpot, String name) throws IndexOutOfBoundsException {
     super(name);

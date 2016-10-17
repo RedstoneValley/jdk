@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6467557
  * @summary No exception should be thrown.
  * @run main ExceptionTest
@@ -32,9 +32,9 @@ import java.awt.*;
 import java.awt.print.*;
 
 public class ExceptionTest {
-private TextCanvas c;
+private final TextCanvas c;
 
-public static void main(String args[]) {
+public static void main(String[] args) {
     ExceptionTest f = new ExceptionTest();
 }
 
@@ -59,22 +59,30 @@ public ExceptionTest() {
 class TextCanvas extends Panel implements Pageable, Printable {
 
     public static final int MAXPAGE = 8;
+  private static final long serialVersionUID = 5954857709960999902L;
 
+  @Override
     public int getNumberOfPages() {
         return MAXPAGE;
     }
 
+    @Override
     public PageFormat getPageFormat(int pageIndex) {
-       if (pageIndex > MAXPAGE) throw new IndexOutOfBoundsException();
-           PageFormat pf = new PageFormat();
-       return pf;
+       if (pageIndex > MAXPAGE) {
+         throw new IndexOutOfBoundsException();
+       }
+      return new PageFormat();
     }
 
+    @Override
     public Printable getPrintable(int pageIndex) {
-       if (pageIndex == 1) throw new IndexOutOfBoundsException();
+       if (pageIndex == 1) {
+           throw new IndexOutOfBoundsException();
+       }
        return this;
     }
 
+    @Override
     public int print(Graphics g, PageFormat pgFmt, int pgIndex) {
         System.out.println("****"+pgIndex);
         return Printable.PAGE_EXISTS;

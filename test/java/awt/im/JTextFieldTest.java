@@ -33,13 +33,11 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.*;
-import javax.swing.*;
 
 public class JTextFieldTest extends Applet implements ActionListener {
 
-    TextField  tf1;
-    JTextField tf2;
+    final TextField  tf1;
+    final JTextField tf2;
 
     public JTextFieldTest() {
         tf1 = new TextField("ABCDEFGH", 10);
@@ -50,11 +48,12 @@ public class JTextFieldTest extends Applet implements ActionListener {
         add(tf2);
     }
 
+    @Override
     public void actionPerformed(ActionEvent ae) {
 
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         JFrame  win = new JFrame();
         JTextFieldTest jtf = new JTextFieldTest();
         win.getContentPane().setLayout(new FlowLayout());

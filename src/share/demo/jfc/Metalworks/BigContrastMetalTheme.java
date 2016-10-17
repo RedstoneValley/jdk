@@ -39,9 +39,6 @@
 
 import java.awt.Color;
 import java.awt.Font;
-import javax.swing.border.*;
-import javax.swing.plaf.*;
-import javax.swing.plaf.metal.*;
 
 /**
  * This class describes a theme using "green" colors.
@@ -49,13 +46,17 @@ import javax.swing.plaf.metal.*;
  * @author Steve Wilson
  * @author Alexander Kouznetsov
  */
+@SuppressWarnings("MagicNumber")
 public class BigContrastMetalTheme extends ContrastMetalTheme {
 
-  private final FontUIResource controlFont = new FontUIResource("Dialog", Font.BOLD, 24);
-  private final FontUIResource systemFont = new FontUIResource("Dialog", Font.PLAIN, 24);
-  private final FontUIResource windowTitleFont = new FontUIResource("Dialog", Font.BOLD, 24);
-  private final FontUIResource userFont = new FontUIResource("SansSerif", Font.PLAIN, 24);
-  private final FontUIResource smallFont = new FontUIResource("Dialog", Font.PLAIN, 20);
+  private final FontUIResource controlFont = new FontUIResource(OwnedWindowsSerialization
+      .DIALOG_LABEL, Font.BOLD, 24);
+  private final FontUIResource systemFont = new FontUIResource(OwnedWindowsSerialization
+      .DIALOG_LABEL, Font.PLAIN, 24);
+  private final FontUIResource windowTitleFont = new FontUIResource(OwnedWindowsSerialization
+      .DIALOG_LABEL, Font.BOLD, 24);
+  private final FontUIResource userFont = new FontUIResource(Font.SANS_SERIF, Font.PLAIN, 24);
+  private final FontUIResource smallFont = new FontUIResource(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 20);
 
   @Override
   public String getName() {
@@ -66,7 +67,7 @@ public class BigContrastMetalTheme extends ContrastMetalTheme {
   public void addCustomEntriesToTable(UIDefaults table) {
     super.addCustomEntriesToTable(table);
 
-    final int internalFrameIconSize = 30;
+    int internalFrameIconSize = 30;
     table.put("InternalFrame.closeIcon", MetalIconFactory.
         getInternalFrameCloseIcon(internalFrameIconSize));
     table.put("InternalFrame.maximizeIcon", MetalIconFactory.
@@ -77,15 +78,14 @@ public class BigContrastMetalTheme extends ContrastMetalTheme {
         getInternalFrameAltMaximizeIcon(internalFrameIconSize));
 
     Border blackLineBorder = new BorderUIResource(new MatteBorder(2, 2, 2, 2, Color.black));
-    Border textBorder = blackLineBorder;
 
     table.put("ToolTip.border", blackLineBorder);
     table.put("TitledBorder.border", blackLineBorder);
 
-    table.put("TextField.border", textBorder);
-    table.put("PasswordField.border", textBorder);
-    table.put("TextArea.border", textBorder);
-    table.put("TextPane.font", textBorder);
+    table.put("TextField.border", blackLineBorder);
+    table.put("PasswordField.border", blackLineBorder);
+    table.put("TextArea.border", blackLineBorder);
+    table.put("TextPane.font", blackLineBorder);
 
     table.put("ScrollPane.border", blackLineBorder);
 

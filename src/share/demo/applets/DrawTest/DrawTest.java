@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
@@ -65,13 +64,13 @@ public class DrawTest extends Applet {
   DrawPanel panel;
   DrawControls controls;
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     Frame f = new Frame("DrawTest");
     DrawTest drawTest = new DrawTest();
     drawTest.init();
     drawTest.start();
 
-    f.add("Center", drawTest);
+    f.add(BorderLayout.CENTER, drawTest);
     f.setSize(300, 300);
     f.setVisible(true);
   }
@@ -81,8 +80,8 @@ public class DrawTest extends Applet {
     setLayout(new BorderLayout());
     panel = new DrawPanel();
     controls = new DrawControls(panel);
-    add("Center", panel);
-    add("South", controls);
+    add(BorderLayout.CENTER, panel);
+    add(BorderLayout.SOUTH, controls);
   }
 
   @Override
@@ -103,8 +102,8 @@ class DrawPanel extends Panel implements MouseListener, MouseMotionListener {
   public static final int LINES = 0;
   public static final int POINTS = 1;
   int mode = LINES;
-  List<Rectangle> lines = new ArrayList<Rectangle>();
-  List<Color> colors = new ArrayList<Color>();
+  final List<Rectangle> lines = new ArrayList<>();
+  final List<Color> colors = new ArrayList<>();
   int x1, y1;
   int x2, y2;
 
@@ -224,7 +223,7 @@ class DrawPanel extends Panel implements MouseListener, MouseMotionListener {
 @SuppressWarnings("serial")
 class DrawControls extends Panel implements ItemListener {
 
-  DrawPanel target;
+  final DrawPanel target;
 
   @SuppressWarnings("LeakingThisInConstructor")
   public DrawControls(DrawPanel target) {
@@ -267,13 +266,15 @@ class DrawControls extends Panel implements ItemListener {
       target.setForeground(((Component) e.getSource()).getForeground());
     } else if (e.getSource() instanceof Choice) {
       String choice = (String) e.getItem();
-      if (choice.equals("Lines")) {
+      if ("Lines".equals(choice)) {
         target.setDrawMode(DrawPanel.LINES);
-      } else if (choice.equals("Points")) {
+      } else if ("Points".equals(choice)) {
         target.setDrawMode(DrawPanel.POINTS);
       }
     }
-  }  @Override
+  }
+
+  @Override
   public void paint(Graphics g) {
     Rectangle r = getBounds();
     g.setColor(Color.lightGray);
@@ -290,6 +291,4 @@ class DrawControls extends Panel implements ItemListener {
       }
     }
   }
-
-
 }

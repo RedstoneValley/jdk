@@ -31,7 +31,6 @@
   @run       main ContainerFocusAutoTransferTest
 */
 
-import java.applet.Applet;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
@@ -44,10 +43,6 @@ import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowEvent;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import test.java.awt.regtesthelpers.Util;
 
 public class ContainerFocusAutoTransferTest extends Applet {
     Robot robot;
@@ -59,7 +54,7 @@ public class ContainerFocusAutoTransferTest extends Applet {
         DISABLING { public String toString() { return "disabling"; } },
         DEFOCUSING { public String toString() { return "defocusing"; } };
         public abstract String toString();
-    };
+    }
 
     public static void main(String[] args) {
         ContainerFocusAutoTransferTest app = new ContainerFocusAutoTransferTest();
@@ -71,6 +66,7 @@ public class ContainerFocusAutoTransferTest extends Applet {
         robot = Util.createRobot();
         kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent event) {
                 System.out.println("--> " + event);
             }
@@ -96,14 +92,15 @@ public class ContainerFocusAutoTransferTest extends Applet {
         System.out.println("Test passed.");
     }
 
-    void test(final TestCase t) {
+    void test(TestCase t) {
         showFrame();
         test1(t); // Test for correct auto-transfer
         test2(t); // Test for clearing focus
     }
 
-    void test1(final TestCase t) {
+    void test1(TestCase t) {
         Runnable action = new Runnable() {
+            @Override
             public void run() {
                 KeyboardFocusManager.setCurrentKeyboardFocusManager(new TestKFM());
                 if (t == TestCase.REMOVAL) {
@@ -136,9 +133,10 @@ public class ContainerFocusAutoTransferTest extends Applet {
         }
     }
 
-    void test3(final TestCase t) {
+    void test3(TestCase t) {
         showFrame();
         Runnable action = new Runnable() {
+            @Override
             public void run() {
                 if (t == TestCase.DISABLING) {
                     frame.b0.setEnabled(false);
@@ -174,12 +172,13 @@ public class ContainerFocusAutoTransferTest extends Applet {
             Util.clickOnComp(frame.b0, robot);
             Util.waitForIdle(robot);
             if (!frame.b0.hasFocus()) {
-                throw new TestErrorException("couldn't set focus on " + frame.b2);
+                throw new TestError("couldn't set focus on " + frame.b2);
             }
         }
     }
 
     class TestKFM extends DefaultKeyboardFocusManager {
+        @Override
         public boolean dispatchEvent(AWTEvent e) {
             if (e.getID() == FocusEvent.FOCUS_GAINED) {
                 System.out.println(e);
@@ -194,13 +193,13 @@ public class ContainerFocusAutoTransferTest extends Applet {
 }
 
 class TestFrame extends JFrame {
-    public JPanel panel0 = new JPanel();
-    public JPanel panel1 = new JPanel();
-    public JButton b0 = new JButton("b0");
-    public JButton b1 = new JButton("b1");
-    public JButton b2 = new JButton("b2");
-    public JButton b3 = new JButton("b3");
-    public JButton b4 = new JButton("b4");
+    public final JPanel panel0 = new JPanel();
+    public final JPanel panel1 = new JPanel();
+    public final JButton b0 = new JButton("b0");
+    public final JButton b1 = new JButton("b1");
+    public final JButton b2 = new JButton("b2");
+    public final JButton b3 = new JButton("b3");
+    public final JButton b4 = new JButton("b4");
 
     public TestFrame() {
         super("TestFrame");
@@ -230,6 +229,8 @@ class TestFrame extends JFrame {
 
 // Thrown when the behavior being verified is found wrong.
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -237,6 +238,8 @@ class TestFailedException extends RuntimeException {
 
 // Thrown when an error not related to the behavior being verified is encountered.
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

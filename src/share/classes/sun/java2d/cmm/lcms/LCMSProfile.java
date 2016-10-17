@@ -42,8 +42,8 @@ final class LCMSProfile extends Profile {
     tagCache = new TagCache(this);
   }
 
-  final long getLcmsPtr() {
-    return this.getNativePtr();
+  long getLcmsPtr() {
+    return getNativePtr();
   }
 
   TagData getTag(int sig) {
@@ -56,17 +56,19 @@ final class LCMSProfile extends Profile {
 
   static class TagCache {
     final LCMSProfile profile;
-    private HashMap<Integer, TagData> tags;
+    private final HashMap<Integer, TagData> tags;
 
     TagCache(LCMSProfile p) {
       profile = p;
       tags = new HashMap<>();
     }
 
+    static native byte[] getTagNative(long profileID, int signature);
+
     TagData getTag(int sig) {
       TagData t = tags.get(sig);
       if (t == null) {
-        byte[] tagData = LCMS.getTagNative(profile.getNativePtr(), sig);
+        byte[] tagData = getTagNative(profile.getNativePtr(), sig);
         if (tagData != null) {
           t = new TagData(sig, tagData);
           tags.put(sig, t);
@@ -81,11 +83,11 @@ final class LCMSProfile extends Profile {
   }
 
   static class TagData {
-    private int signature;
-    private byte[] data;
+    private final int signature;
+    private final byte[] data;
 
     TagData(int sig, byte[] data) {
-      this.signature = sig;
+      signature = sig;
       this.data = data;
     }
 

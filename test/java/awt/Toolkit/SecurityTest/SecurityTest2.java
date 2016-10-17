@@ -32,9 +32,12 @@ exceptions thrown
 
 import java.awt.*;
 
-public class SecurityTest2
+public final class SecurityTest2
 {
-    public static void main(String[] args)
+  private SecurityTest2() {
+  }
+
+  public static void main(String[] args)
     {
         System.setSecurityManager(new SecurityManager());
 

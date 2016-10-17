@@ -29,13 +29,8 @@
   @run applet MenuDragMouseEventAbsoluteCoordsTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
-import javax.swing.event.*;
 import java.awt.event.*;
-import javax.swing.MenuSelectionManager;
-import javax.swing.MenuElement;
-import test.java.awt.regtesthelpers.Util;
 
 // The test consits of several parts:
 // 1. create MenuDragMouseEvent with new Ctor and checking get(X|Y)OnScreen(),
@@ -46,10 +41,10 @@ import test.java.awt.regtesthelpers.Util;
 
 public class MenuDragMouseEventAbsoluteCoordsTest extends Applet implements MouseListener
 {
-    Frame frame = new Frame("MenuDragMouseEvent Test Frame");
+    final Frame frame = new Frame("MenuDragMouseEvent Test Frame");
 
     Point mousePositionOnScreen = new Point(200, 200);
-    Point mousePosition = new Point(100, 100);
+    final Point mousePosition = new Point(100, 100);
     public void init()
     {
         frame.addMouseListener(this);
@@ -76,71 +71,81 @@ public class MenuDragMouseEventAbsoluteCoordsTest extends Applet implements Mous
         // now we are going to use old MenuDragMouseEvent's Ctor thus absolute
         // position calculates as frame's location + relative coords
         // of the event.
-        mousePositionOnScreen = new Point(frame.getLocationOnScreen().x + mousePosition.x,
-                                          frame.getLocationOnScreen().y + mousePosition.y);
+        mousePositionOnScreen = new Point(
+            frame.getLocationOnScreen().x + mousePosition.x,
+            frame.getLocationOnScreen().y + mousePosition.y);
 
         System.out.println("Old Ctor Stage MOUSE_PRESSED");
         postMenuDragMouseEventOldCtor(MouseEvent.MOUSE_PRESSED);
     }// start()
 
+    @Override
     public void mousePressed(MouseEvent e){
         checkEventAbsolutePosition(e, "MousePressed OK");
-    };
+    }
 
+    @Override
     public void mouseExited(MouseEvent e){
         System.out.println("mouse exited");
-    };
+    }
+
+    @Override
     public void mouseReleased(MouseEvent e){
         checkEventAbsolutePosition(e, "MousePressed OK");
-    };
+    }
+
+    @Override
     public void mouseEntered(MouseEvent e){
         System.out.println("mouse entered");
-    };
+    }
+
+    @Override
     public void mouseClicked(MouseEvent e){
         checkEventAbsolutePosition(e, "MousePressed OK");
-    };
+    }
 
     public void postMenuDragMouseEventNewCtor(int MouseEventType)    {
-        MouseEvent me = new MenuDragMouseEvent(frame,
+        MouseEvent me = new MenuDragMouseEvent(
+            frame,
                                                MouseEventType,
                                                System.currentTimeMillis(),
                                                MouseEvent.BUTTON1_DOWN_MASK,
-                                               mousePosition.x, mousePosition.y,
-                                               mousePositionOnScreen.x,
-                                               mousePositionOnScreen.y,
+            mousePosition.x, mousePosition.y,
+            mousePositionOnScreen.x, mousePositionOnScreen.y,
                                                1,                   //clickCount
                                                false,              //popupTrigger
                                                null,                //MenuElement
                                                null                 //MenuSelectionManager
                                                );
-        frame.dispatchEvent( ( AWTEvent )me );
+        frame.dispatchEvent(me);
     }
 
     public void postMenuDragMouseEventOldCtor(int MouseEventType)    {
-        MouseEvent meOld = new MenuDragMouseEvent(frame,
+        MouseEvent meOld = new MenuDragMouseEvent(
+            frame,
                                           MouseEventType,
                                           System.currentTimeMillis(),
-                                          MouseEvent.BUTTON1_DOWN_MASK,
-                                          mousePosition.x, mousePosition.y,
+                                          MouseEvent.BUTTON1_DOWN_MASK, mousePosition.x,
+            mousePosition.y,
                                           1,
                                           false,              //popupTrigger
                                           null, null
                                           );
-        frame.dispatchEvent( ( AWTEvent )meOld );
+        frame.dispatchEvent(meOld);
     }
 
     public void checkEventAbsolutePosition(MouseEvent evt, String message){
             if (evt.getXOnScreen() != mousePositionOnScreen.x ||
                 evt.getYOnScreen() != mousePositionOnScreen.y ||
-                !evt.getLocationOnScreen().equals( mousePositionOnScreen )  ){
+                !evt.getLocationOnScreen().equals(mousePositionOnScreen)  ){
                 System.out.println("evt.location = "+evt.getLocationOnScreen());
-                System.out.println("mouse.location = "+mousePositionOnScreen);
+                System.out.println("mouse.location = "+ mousePositionOnScreen);
                 throw new RuntimeException("get(X|Y)OnScreen() or getPointOnScreen() work incorrectly");
             }
 
             if (evt.getX() != mousePosition.x ||
                 evt.getY() != mousePosition.y ||
-                !evt.getPoint().equals( mousePosition )  ){
+                !evt.getPoint().equals(mousePosition)  ){
                 throw new RuntimeException("get(X|Y)() or getPoint() work incorrectly");
             }
         System.out.println(message);

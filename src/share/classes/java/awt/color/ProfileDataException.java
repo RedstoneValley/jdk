@@ -30,7 +30,9 @@ package java.awt.color;
  * processing an ICC_Profile object.
  */
 
-public class ProfileDataException extends java.lang.RuntimeException {
+public class ProfileDataException extends RuntimeException {
+
+  private static final long serialVersionUID = 7286140888240322498L;
 
   /**
    * Constructs a ProfileDataException with the specified detail message.

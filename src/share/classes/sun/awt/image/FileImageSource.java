@@ -31,7 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class FileImageSource extends InputStreamImageSource {
-  String imagefile;
+  final String imagefile;
 
   public FileImageSource(String filename) {
     SecurityManager security = System.getSecurityManager();
@@ -41,12 +41,14 @@ public class FileImageSource extends InputStreamImageSource {
     imagefile = filename;
   }
 
+  @Override
   final boolean checkSecurity(Object context, boolean quiet) {
     // File based images only ever need to be checked statically
     // when the image is retrieved from the cache.
     return true;
   }
 
+  @Override
   protected ImageDecoder getDecoder() {
     if (imagefile == null) {
       return null;

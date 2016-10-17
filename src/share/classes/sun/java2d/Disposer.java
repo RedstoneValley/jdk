@@ -33,7 +33,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import sun.misc.ThreadGroupUtils;
 
 /**
  * This class is used for registering and disposing the native
@@ -54,28 +53,26 @@ public class Disposer implements Runnable {
   public static final int PHANTOM = 1;
   private static final ReferenceQueue queue = new ReferenceQueue();
   private static final Hashtable records = new Hashtable();
-  public static int refType = PHANTOM;
+  private static final Disposer disposerInstance;
+  public static final int refType = PHANTOM;
   /*
    * Set to indicate the queue is presently being polled.
    */
-  public static volatile boolean pollingQueue = false;
-  private static Disposer disposerInstance;
-  private static ArrayList<DisposerRecord> deferredRecords = null;
+  public static volatile boolean pollingQueue;
+  private static ArrayList<DisposerRecord> deferredRecords;
 
   static {
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         System.loadLibrary("awt");
         return null;
       }
     });
-    initIDs();
-    String type
-        = (String) java.security.AccessController.doPrivileged(new sun.security.action
-        .GetPropertyAction(
+    String type = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
         "sun.java2d.reftype"));
     if (type != null) {
-      if (type.equals("weak")) {
+      if ("weak".equals(type)) {
         refType = WEAK;
         System.err.println("Using WEAK refs");
       } else {
@@ -137,8 +134,6 @@ public class Disposer implements Runnable {
     deferredRecords.clear();
   }
 
-  ;
-
   /*
    * The pollRemove() method is called back from a dispose method
    * that is running on the toolkit thread and wants to
@@ -164,15 +159,13 @@ public class Disposer implements Runnable {
         DisposerRecord rec = (DisposerRecord) records.remove(obj);
         if (rec instanceof PollDisposable) {
           rec.dispose();
-          obj = null;
-          rec = null;
         } else {
           if (rec == null) { // shouldn't happen, but just in case.
             continue;
           }
           deferred++;
           if (deferredRecords == null) {
-            deferredRecords = new ArrayList<DisposerRecord>(5);
+            deferredRecords = new ArrayList<>(5);
           }
           deferredRecords.add(rec);
         }
@@ -183,8 +176,6 @@ public class Disposer implements Runnable {
       pollingQueue = false;
     }
   }
-
-  private static native void initIDs();
 
   /*
    * This was added for use by the 2D font implementation to avoid creation
@@ -221,15 +212,13 @@ public class Disposer implements Runnable {
     if (target instanceof DisposerTarget) {
       target = ((DisposerTarget) target).getDisposerReferent();
     }
-    java.lang.ref.Reference ref;
-    if (refType == PHANTOM) {
-      ref = new PhantomReference(target, queue);
-    } else {
-      ref = new WeakReference(target, queue);
-    }
+    Reference ref;
+    ref = refType == PHANTOM ? new PhantomReference(target, queue)
+        : new WeakReference(target, queue);
     records.put(ref, rec);
   }
 
+  @Override
   public void run() {
     while (true) {
       try {
@@ -237,8 +226,6 @@ public class Disposer implements Runnable {
         ((Reference) obj).clear();
         DisposerRecord rec = (DisposerRecord) records.remove(obj);
         rec.dispose();
-        obj = null;
-        rec = null;
         clearDeferredRecords();
       } catch (Exception e) {
         System.out.println("Exception while removing reference.");
@@ -252,6 +239,6 @@ public class Disposer implements Runnable {
    * be disposed in the poll loop on whatever thread
    * which happens to be the Toolkit thread, is in use.
    */
-  public static interface PollDisposable {
+  public interface PollDisposable {
   }
 }

@@ -31,11 +31,11 @@ import java.awt.font.NumericShaper;
 import java.util.EnumSet;
 import static java.awt.font.NumericShaper.*;
 
-public class EasternArabicTest {
+public final class EasternArabicTest {
     static NumericShaper ns_old, ns_new;
-    static boolean err = false;
+    static boolean err;
 
-    static String[][] testData = {
+    static final String[][] testData = {
         // Arabic "October 10"
         {"\u0623\u0643\u062a\u0648\u0628\u0631 10",
          "\u0623\u0643\u062a\u0648\u0628\u0631 \u06f1\u06f0"}, // EASTERN_ARABIC digits
@@ -52,6 +52,9 @@ public class EasternArabicTest {
         // Ethiopic zero doesn't exist even in Unicode 5.1.0.
     };
 
+    private EasternArabicTest() {
+    }
+
     public static void main(String[] args) {
         ns_old = getContextualShaper(TAMIL|ETHIOPIC|EASTERN_ARABIC|ARABIC|THAI|LAO,
                                      EUROPEAN);
@@ -66,9 +69,9 @@ public class EasternArabicTest {
 
         StringBuilder cData = new StringBuilder();
         StringBuilder cExpected = new StringBuilder();
-        for (int i = 0; i < testData.length; i++) {
-            String data = testData[i][0];
-            String expected = testData[i][1];
+        for (String[] aTestData : testData) {
+            String data = aTestData[0];
+            String expected = aTestData[1];
             test(data, expected);
             cData.append(data).append(' ');
             cExpected.append(expected).append(' ');

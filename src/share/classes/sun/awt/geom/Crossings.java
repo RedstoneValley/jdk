@@ -31,12 +31,13 @@ import java.util.Vector;
 
 public abstract class Crossings {
   public static final boolean debug = false;
-
-  int limit = 0;
-  double yranges[] = new double[10];
-
-  double xlo, ylo, xhi, yhi;
-  private Vector tmp = new Vector();
+  private final Vector tmp = new Vector();
+  int limit;
+  double[] yranges = new double[10];
+  final double xlo;
+  final double ylo;
+  final double xhi;
+  final double yhi;
 
   public Crossings(double xlo, double ylo, double xhi, double yhi) {
     this.xlo = xlo;
@@ -46,29 +47,10 @@ public abstract class Crossings {
   }
 
   public static Crossings findCrossings(
-      Vector curves, double xlo, double ylo, double xhi, double yhi) {
-    Crossings cross = new EvenOdd(xlo, ylo, xhi, yhi);
-    Enumeration enum_ = curves.elements();
-    while (enum_.hasMoreElements()) {
-      Curve c = (Curve) enum_.nextElement();
-      if (c.accumulateCrossings(cross)) {
-        return null;
-      }
-    }
-    if (debug) {
-      cross.print();
-    }
-    return cross;
-  }
-
-  public static Crossings findCrossings(
       PathIterator pi, double xlo, double ylo, double xhi, double yhi) {
     Crossings cross;
-    if (pi.getWindingRule() == pi.WIND_EVEN_ODD) {
-      cross = new EvenOdd(xlo, ylo, xhi, yhi);
-    } else {
-      cross = new NonZero(xlo, ylo, xhi, yhi);
-    }
+    cross = pi.getWindingRule() == PathIterator.WIND_EVEN_ODD ? new EvenOdd(xlo, ylo, xhi, yhi)
+        : new NonZero(xlo, ylo, xhi, yhi);
     // coords array is big enough for holding:
     //     coordinates returned from currentSegment (6)
     //     OR
@@ -83,7 +65,7 @@ public abstract class Crossings {
     //             0-2 horizontal splitting parameters
     //             OR
     //             3 parametric equation derivative coefficients
-    double coords[] = new double[23];
+    double[] coords = new double[23];
     double movx = 0;
     double movy = 0;
     double curx = 0;
@@ -175,17 +157,13 @@ public abstract class Crossings {
   }
 
   public final boolean isEmpty() {
-    return (limit == 0);
+    return limit == 0;
   }
 
   public abstract boolean covers(double ystart, double yend);
 
   public boolean accumulateLine(double x0, double y0, double x1, double y1) {
-    if (y0 <= y1) {
-      return accumulateLine(x0, y0, x1, y1, 1);
-    } else {
-      return accumulateLine(x1, y1, x0, y0, -1);
-    }
+    return y0 <= y1 ? accumulateLine(x0, y0, x1, y1, 1) : accumulateLine(x1, y1, x0, y0, -1);
   }
 
   public boolean accumulateLine(double x0, double y0, double x1, double y1, int direction) {
@@ -196,11 +174,11 @@ public abstract class Crossings {
       return false;
     }
     if (y0 == y1) {
-      return (x0 >= xlo || x1 >= xlo);
+      return x0 >= xlo || x1 >= xlo;
     }
     double xstart, ystart, xend, yend;
-    double dx = (x1 - x0);
-    double dy = (y1 - y0);
+    double dx = x1 - x0;
+    double dy = y1 - y0;
     if (y0 < ylo) {
       xstart = x0 + (ylo - y0) * dx / dy;
       ystart = ylo;
@@ -225,7 +203,7 @@ public abstract class Crossings {
     return false;
   }
 
-  public boolean accumulateQuad(double x0, double y0, double coords[]) {
+  public boolean accumulateQuad(double x0, double y0, double[] coords) {
     if (y0 < ylo && coords[1] < ylo && coords[3] < ylo) {
       return false;
     }
@@ -255,7 +233,7 @@ public abstract class Crossings {
     return false;
   }
 
-  public boolean accumulateCubic(double x0, double y0, double coords[]) {
+  public boolean accumulateCubic(double x0, double y0, double[] coords) {
     if (y0 < ylo && coords[1] < ylo &&
         coords[3] < ylo && coords[5] < ylo) {
       return false;
@@ -289,11 +267,12 @@ public abstract class Crossings {
     return false;
   }
 
-  public final static class EvenOdd extends Crossings {
+  public static final class EvenOdd extends Crossings {
     public EvenOdd(double xlo, double ylo, double xhi, double yhi) {
       super(xlo, ylo, xhi, yhi);
     }
 
+    @Override
     public void record(double ystart, double yend, int direction) {
       if (ystart >= yend) {
         return;
@@ -305,12 +284,16 @@ public abstract class Crossings {
       }
       int to = from;
       while (from < limit) {
-        double yrlo = yranges[from++];
-        double yrhi = yranges[from++];
+        double yrlo = yranges[from];
+        from++;
+        double yrhi = yranges[from];
+        from++;
         if (yend < yrlo) {
           // Quickly handle insertion of the new range
-          yranges[to++] = ystart;
-          yranges[to++] = yend;
+          yranges[to] = ystart;
+          to++;
+          yranges[to] = yend;
+          to++;
           ystart = yrlo;
           yend = yrhi;
           continue;
@@ -341,8 +324,10 @@ public abstract class Crossings {
             ylh = ystart;
           }
           if (yll != ylh) {
-            yranges[to++] = yll;
-            yranges[to++] = ylh;
+            yranges[to] = yll;
+            to++;
+            yranges[to] = ylh;
+            to++;
           }
           ystart = yhl;
           yend = yhh;
@@ -354,26 +339,29 @@ public abstract class Crossings {
       if (to < from && from < limit) {
         System.arraycopy(yranges, from, yranges, to, limit - from);
       }
-      to += (limit - from);
+      to += limit - from;
       if (ystart < yend) {
         if (to >= yranges.length) {
-          double newranges[] = new double[to + 10];
+          double[] newranges = new double[to + 10];
           System.arraycopy(yranges, 0, newranges, 0, to);
           yranges = newranges;
         }
-        yranges[to++] = ystart;
-        yranges[to++] = yend;
+        yranges[to] = ystart;
+        to++;
+        yranges[to] = yend;
+        to++;
       }
       limit = to;
     }
 
-    public final boolean covers(double ystart, double yend) {
-      return (limit == 2 && yranges[0] <= ystart && yranges[1] >= yend);
+    @Override
+    public boolean covers(double ystart, double yend) {
+      return limit == 2 && yranges[0] <= ystart && yranges[1] >= yend;
     }
   }
 
-  public final static class NonZero extends Crossings {
-    private int crosscounts[];
+  public static final class NonZero extends Crossings {
+    private int[] crosscounts;
 
     public NonZero(double xlo, double ylo, double xhi, double yhi) {
       super(xlo, ylo, xhi, yhi);
@@ -391,8 +379,8 @@ public abstract class Crossings {
 
     public void insert(int cur, double lo, double hi, int dir) {
       int rem = limit - cur;
-      double oldranges[] = yranges;
-      int oldcounts[] = crosscounts;
+      double[] oldranges = yranges;
+      int[] oldcounts = crosscounts;
       if (limit >= yranges.length) {
         yranges = new double[limit + 10];
         System.arraycopy(oldranges, 0, yranges, 0, cur);
@@ -403,15 +391,20 @@ public abstract class Crossings {
         System.arraycopy(oldranges, cur, yranges, cur + 2, rem);
         System.arraycopy(oldcounts, cur / 2, crosscounts, cur / 2 + 1, rem / 2);
       }
-      yranges[cur + 0] = lo;
+      yranges[cur] = lo;
       yranges[cur + 1] = hi;
       crosscounts[cur / 2] = dir;
       limit += 2;
-    }    public final boolean covers(double ystart, double yend) {
+    }
+
+    @Override
+    public boolean covers(double ystart, double yend) {
       int i = 0;
       while (i < limit) {
-        double ylo = yranges[i++];
-        double yhi = yranges[i++];
+        double ylo = yranges[i];
+        i++;
+        double yhi = yranges[i];
+        i++;
         if (ystart >= yhi) {
           continue;
         }
@@ -423,11 +416,10 @@ public abstract class Crossings {
         }
         ystart = yhi;
       }
-      return (ystart >= yend);
+      return ystart >= yend;
     }
 
-
-
+    @Override
     public void record(double ystart, double yend, int direction) {
       if (ystart >= yend) {
         return;
@@ -439,7 +431,7 @@ public abstract class Crossings {
       }
       if (cur < limit) {
         int rdir = crosscounts[cur / 2];
-        double yrlo = yranges[cur + 0];
+        double yrlo = yranges[cur];
         double yrhi = yranges[cur + 1];
         if (yrhi == ystart && rdir == direction) {
           // Remove the range from the list and collapse it
@@ -454,7 +446,7 @@ public abstract class Crossings {
           remove(cur);
           ystart = yrlo;
           rdir = crosscounts[cur / 2];
-          yrlo = yranges[cur + 0];
+          yrlo = yranges[cur];
           yrhi = yranges[cur + 1];
         }
         if (yend < yrlo) {
@@ -475,7 +467,6 @@ public abstract class Crossings {
         } else if (yrlo < ystart) {
           insert(cur, yrlo, ystart, rdir);
           cur += 2;
-          yrlo = ystart;
         }
         // assert(yrlo == ystart);
         int newdir = rdir + direction;
@@ -484,8 +475,10 @@ public abstract class Crossings {
           remove(cur);
         } else {
           crosscounts[cur / 2] = newdir;
-          yranges[cur++] = ystart;
-          yranges[cur++] = newend;
+          yranges[cur] = ystart;
+          cur++;
+          yranges[cur] = newend;
+          cur++;
         }
         ystart = yrlo = newend;
         if (yrlo < yrhi) {

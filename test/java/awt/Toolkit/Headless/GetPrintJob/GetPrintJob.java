@@ -33,20 +33,21 @@
 
 import java.awt.*;
 import java.util.Properties;
-import test.java.awt.regtesthelpers.Sysout;
 /*
  * In headfull mode we should always getting NPE on the getPrintJob() call if frame == null.
  */
 
-public class GetPrintJob {
+public final class GetPrintJob {
 
-    public static void main(String[] s) {
+  private GetPrintJob() {
+  }
+
+  public static void main(String[] s) {
         boolean stage1Passed = false;
         boolean stage2Passed = false;
 
         try {
-            Toolkit.getDefaultToolkit().getPrintJob(
-                    (Frame) null, "title", new Properties());
+            Toolkit.getDefaultToolkit().getPrintJob(null, "title", new Properties());
         } catch (NullPointerException e) {
             stage1Passed = true;
             Sysout.println("Stage 1 passed. getPrintJob(null, String, property) has thrown NPE.");
@@ -56,8 +57,7 @@ public class GetPrintJob {
         }
 
         try {
-            Toolkit.getDefaultToolkit().getPrintJob(
-                    (Frame) null, "title", new JobAttributes(), new PageAttributes());
+            Toolkit.getDefaultToolkit().getPrintJob(null, "title", new JobAttributes(), new PageAttributes());
         } catch (NullPointerException e) {
             stage2Passed = true;
             Sysout.println("Stage 2 passed. getPrintJob(null, String, jobAttrs, pageAttr) has thrown NPE.");

@@ -37,23 +37,23 @@ final class PiscesTileGenerator implements AATileGenerator {
   // never contain more than one element - the one with key 64, since
   // we only do 8x8 supersampling.
   private static final Map<Integer, byte[]> alphaMapsCache
-      = new ConcurrentHashMap<Integer, byte[]>();
+      = new ConcurrentHashMap<>();
   final int maxalpha;
   private final int maxTileAlphaSum;
-  PiscesCache cache;
+  final PiscesCache cache;
   int x, y;
   // The alpha map used by this object (taken out of our map cache) to convert
   // pixel coverage counts gotten from PiscesCache (which are in the range
   // [0, maxalpha]) into alpha values, which are in [0,256).
-  byte alphaMap[];
+  final byte[] alphaMap;
 
   public PiscesTileGenerator(Renderer r, int maxalpha) {
-    this.cache = r.getCache();
-    this.x = cache.bboxX0;
-    this.y = cache.bboxY0;
-    this.alphaMap = getAlphaMap(maxalpha);
+    cache = r.getCache();
+    x = cache.bboxX0;
+    y = cache.bboxY0;
+    alphaMap = getAlphaMap(maxalpha);
     this.maxalpha = maxalpha;
-    this.maxTileAlphaSum = TILE_SIZE * TILE_SIZE * maxalpha;
+    maxTileAlphaSum = TILE_SIZE * TILE_SIZE * maxalpha;
   }
 
   private static byte[] buildAlphaMap(int maxalpha) {
@@ -80,7 +80,7 @@ final class PiscesTileGenerator implements AATileGenerator {
     return s.substring(0, d);
   }
 
-  public void getBbox(int bbox[]) {
+  public void getBbox(int[] bbox) {
     bbox[0] = cache.bboxX0;
     bbox[1] = cache.bboxY0;
     bbox[2] = cache.bboxX1;
@@ -93,6 +93,7 @@ final class PiscesTileGenerator implements AATileGenerator {
    *
    * @return the width of the standard alpha tile
    */
+  @Override
   public int getTileWidth() {
     return TILE_SIZE;
   }
@@ -102,6 +103,7 @@ final class PiscesTileGenerator implements AATileGenerator {
    *
    * @return the height of the standard alpha tile
    */
+  @Override
   public int getTileHeight() {
     return TILE_SIZE;
   }
@@ -117,6 +119,7 @@ final class PiscesTileGenerator implements AATileGenerator {
    * @return 0x00 for no coverage, 0xff for total coverage, or any other
    * value for partial coverage of the tile
    */
+  @Override
   public int getTypicalAlpha() {
     int al = cache.alphaSumInTile(x, y);
     // Note: if we have a filled rectangle that doesn't end on a tile
@@ -134,7 +137,7 @@ final class PiscesTileGenerator implements AATileGenerator {
     // of the current tile. This would eliminate the 2 Math.min calls that
     // would be needed here, since our caller needs to compute these 2
     // values anyway.
-    return (al == 0x00 ? 0x00 : (al == maxTileAlphaSum ? 0xff : 0x80));
+    return al == 0x00 ? 0x00 : al == maxTileAlphaSum ? 0xff : 0x80;
   }
 
   /**
@@ -142,6 +145,7 @@ final class PiscesTileGenerator implements AATileGenerator {
    * Either this method, or the getAlpha() method should be called
    * once per tile, but not both.
    */
+  @Override
   public void nextTile() {
     if ((x += TILE_SIZE) >= cache.bboxX1) {
       x = cache.bboxX0;
@@ -154,15 +158,16 @@ final class PiscesTileGenerator implements AATileGenerator {
    * Either this method, or the nextTile() method should be called
    * once per tile, but not both.
    */
-  public void getAlpha(byte tile[], int offset, int rowstride) {
+  @Override
+  public void getAlpha(byte[] tile, int offset, int rowstride) {
     // Decode run-length encoded alpha mask data
     // The data for row j begins at cache.rowOffsetsRLE[j]
     // and is encoded as a set of 2-byte pairs (val, runLen)
     // terminated by a (0, 0) pair.
 
-    int x0 = this.x;
+    int x0 = x;
     int x1 = x0 + TILE_SIZE;
-    int y0 = this.y;
+    int y0 = y;
     int y1 = y0 + TILE_SIZE;
     if (x1 > cache.bboxX1) {
       x1 = cache.bboxX1;
@@ -183,7 +188,8 @@ final class PiscesTileGenerator implements AATileGenerator {
       }
 
       for (int i = x0; i < cx; i++) {
-        tile[idx++] = 0x00;
+        tile[idx] = 0x00;
+        idx++;
       }
 
       int pos = 2;
@@ -202,7 +208,7 @@ final class PiscesTileGenerator implements AATileGenerator {
           System.out.println("cx = " + cx + ", cy = " + cy);
           System.out.println("idx = " + idx + ", pos = " + pos);
           System.out.println("len = " + runLen);
-          System.out.print(cache.toString());
+          System.out.print(cache);
           e0.printStackTrace();
           throw e0;
         }
@@ -218,9 +224,11 @@ final class PiscesTileGenerator implements AATileGenerator {
         }
         runLen = rx1 - rx0;
         //System.out.println("M["+runLen+"]");
-        while (--runLen >= 0) {
+        --runLen;
+        while (runLen >= 0) {
           try {
-            tile[idx++] = val;
+            tile[idx] = val;
+            idx++;
           } catch (RuntimeException e) {
             System.out.println("maxalpha = " + maxalpha);
             System.out.println("tile[" + x0 + ", " + y0 +
@@ -229,10 +237,11 @@ final class PiscesTileGenerator implements AATileGenerator {
             System.out.println("idx = " + idx + ", pos = " + pos);
             System.out.println("rx0 = " + rx0 + ", rx1 = " + rx1);
             System.out.println("len = " + runLen);
-            System.out.print(cache.toString());
+            System.out.print(cache);
             e.printStackTrace();
             throw e;
           }
+          --runLen;
         }
         pos += 2;
       }
@@ -240,7 +249,8 @@ final class PiscesTileGenerator implements AATileGenerator {
         cx = x0;
       }
       while (cx < x1) {
-        tile[idx++] = 0x00;
+        tile[idx] = 0x00;
+        idx++;
         cx++;
       }
             /*
@@ -249,7 +259,7 @@ final class PiscesTileGenerator implements AATileGenerator {
             }
             System.out.println();
             */
-      idx += (rowstride - (x1 - x0));
+      idx += rowstride - (x1 - x0);
     }
     nextTile();
   }
@@ -258,6 +268,7 @@ final class PiscesTileGenerator implements AATileGenerator {
    * Disposes this tile generator.
    * No further calls will be made on this instance.
    */
+  @Override
   public void dispose() {
   }
 }

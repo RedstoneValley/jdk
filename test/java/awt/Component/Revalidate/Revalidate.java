@@ -31,15 +31,20 @@
 
 import java.awt.*;
 
-public class Revalidate {
-    private static Frame frame = new Frame();
-    private static Panel panel = new Panel() {
+public final class Revalidate {
+    private static final Frame frame = new Frame();
+    private static final Panel panel = new Panel() {
+        private static final long serialVersionUID = -4577922394411602557L;
+
         @Override
         public boolean isValidateRoot() {
             return true;
         }
     };
-    private static Button button = new Button("Test");
+    private static final Button button = new Button("Test");
+
+    private Revalidate() {
+    }
 
     private static void sleep() {
         try { Thread.sleep(500); } catch (Exception e) {}
@@ -65,9 +70,9 @@ public class Revalidate {
     private static void check(String str, boolean f, boolean p, boolean b) {
         printState(str);
 
-        check("frame", frame, f);
-        check("panel", panel, p);
-        check("button", button, b);
+        check(Frame.base, frame, f);
+        check(Panel.base, panel, p);
+        check(Button.base, button, b);
     }
 
     public static void main(String[] args) {

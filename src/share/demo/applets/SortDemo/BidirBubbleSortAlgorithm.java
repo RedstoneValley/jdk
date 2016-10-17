@@ -46,7 +46,7 @@
 class BidirBubbleSortAlgorithm extends SortAlgorithm {
 
   @Override
-  void sort(int a[]) throws Exception {
+  void sort(int[] a) throws Exception {
     int j;
     int limit = a.length;
     int st = -1;
@@ -68,10 +68,10 @@ class BidirBubbleSortAlgorithm extends SortAlgorithm {
       }
       if (!swapped) {
         return;
-      } else {
-        swapped = false;
       }
-      for (j = limit; --j >= st; ) {
+      swapped = false;
+      --j;
+      for (j = limit; j >= st; ) {
         if (stopRequested) {
           return;
         }
@@ -82,6 +82,7 @@ class BidirBubbleSortAlgorithm extends SortAlgorithm {
           swapped = true;
         }
         pause(st, limit);
+        --j;
       }
       if (!swapped) {
         return;

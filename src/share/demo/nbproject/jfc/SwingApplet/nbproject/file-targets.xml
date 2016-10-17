@@ -33,14 +33,14 @@
 
 <project name="SwingApplet/file" basedir="..">
 
-    <import file="../build.xml" />
+    <import file="../build.xml"/>
 
     <target name="compile-selected" depends="-init">
         <fail unless="includes">Must set property 'includes'</fail>
-        <mkdir dir="${classes.dir}" />
+        <mkdir dir="${classes.dir}"/>
         <javac debug="${debug}" deprecation="${deprecation}" destdir="${classes.dir}"
-            includes="${includes}" srcdir="${src.dir}">
-            <classpath path="${cp}" />
+               includes="${includes}" srcdir="${src.dir}">
+            <classpath path="${cp}"/>
         </javac>
     </target>
 

@@ -42,11 +42,11 @@ import sun.java2d.pipe.Region;
  */
 
 public class ScaledBlit extends GraphicsPrimitive {
-  public static final String methodSignature = "ScaledBlit(...)".toString();
+  public static final String methodSignature = "ScaledBlit(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache blitcache = new RenderCache(20);
+  private static final RenderCache blitcache = new RenderCache(20);
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new ScaledBlit(null, null, null));
@@ -85,10 +85,13 @@ public class ScaledBlit extends GraphicsPrimitive {
     return blit;
   }
 
-  public native void Scale(
+  public void Scale(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
-      int sy2, double dx1, double dy1, double dx2, double dy2);
+      int sy2, double dx1, double dy1, double dx2, double dy2) {
+    // TODO: Native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
@@ -100,18 +103,20 @@ public class ScaledBlit extends GraphicsPrimitive {
     return null;
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceScaledBlit(this);
   }
 
   private static class TraceScaledBlit extends ScaledBlit {
-    ScaledBlit target;
+    final ScaledBlit target;
 
     public TraceScaledBlit(ScaledBlit target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void Scale(
         SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
         int sy2, double dx1, double dy1, double dx2, double dy2) {
@@ -119,6 +124,7 @@ public class ScaledBlit extends GraphicsPrimitive {
       target.Scale(src, dst, comp, clip, sx1, sy1, sx2, sy2, dx1, dy1, dx2, dy2);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

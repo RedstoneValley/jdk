@@ -42,8 +42,6 @@ import java.awt.Cursor;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.swing.event.*;
-import javax.swing.text.*;
 
 /**
  * @author Steve Wilson
@@ -66,7 +64,7 @@ public class MetalworksHelp extends JInternalFrame {
 @SuppressWarnings("serial")
 class HtmlPane extends JScrollPane implements HyperlinkListener {
 
-  JEditorPane html;
+  final JEditorPane html;
 
   @SuppressWarnings("LeakingThisInConstructor")
   public HtmlPane() {
@@ -122,13 +120,14 @@ class HtmlPane extends JScrollPane implements HyperlinkListener {
   class PageLoader implements Runnable {
 
     URL url;
-    Cursor cursor;
+    final Cursor cursor;
 
     PageLoader(URL u, Cursor c) {
       url = u;
       cursor = c;
     }
 
+    @Override
     public void run() {
       if (url == null) {
         // restore the original cursor

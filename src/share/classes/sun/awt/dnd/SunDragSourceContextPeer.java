@@ -31,6 +31,7 @@ import java.awt.Cursor;
 import java.awt.EventQueue;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.dnd.DnDConstants;
@@ -44,7 +45,10 @@ import java.awt.dnd.peer.DragSourceContextPeer;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
+import sun.awt.AppContext;
+import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
 import sun.awt.datatransfer.DataTransferer;
 
@@ -57,14 +61,14 @@ import sun.awt.datatransfer.DataTransferer;
  */
 public abstract class SunDragSourceContextPeer implements DragSourceContextPeer {
 
-  protected final static int DISPATCH_ENTER = 1;
-  protected final static int DISPATCH_MOTION = 2;
-  protected final static int DISPATCH_CHANGED = 3;
-  protected final static int DISPATCH_EXIT = 4;
-  protected final static int DISPATCH_FINISH = 5;
-  protected final static int DISPATCH_MOUSE_MOVED = 6;
-  private static boolean dragDropInProgress = false;
-  private static boolean discardingMouseEvents = false;
+  protected static final int DISPATCH_ENTER = 1;
+  protected static final int DISPATCH_MOTION = 2;
+  protected static final int DISPATCH_CHANGED = 3;
+  protected static final int DISPATCH_EXIT = 4;
+  protected static final int DISPATCH_FINISH = 5;
+  protected static final int DISPATCH_MOUSE_MOVED = 6;
+  private static boolean dragDropInProgress;
+  static boolean discardingMouseEvents;
   private DragGestureEvent trigger;
   private Component component;
 
@@ -84,20 +88,16 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
 
   public SunDragSourceContextPeer(DragGestureEvent dge) {
     trigger = dge;
-    if (trigger != null) {
-      component = trigger.getComponent();
-    } else {
-      component = null;
-    }
+    component = trigger != null ? trigger.getComponent() : null;
   }
 
-  public static void setDragDropInProgress(boolean b) throws InvalidDnDOperationException {
-    synchronized (SunDragSourceContextPeer.class) {
-      if (dragDropInProgress == b) {
-        throw new InvalidDnDOperationException(getExceptionMessage(b));
-      }
-      dragDropInProgress = b;
+  public static synchronized void setDragDropInProgress(boolean b)
+      throws InvalidDnDOperationException {
+
+    if (dragDropInProgress == b) {
+      throw new InvalidDnDOperationException(getExceptionMessage(b));
     }
+    dragDropInProgress = b;
   }
 
   /**
@@ -124,7 +124,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
     return b ? "Drag and drop in progress" : "No drag in progress";
   }
 
-  public static int convertModifiersToDropAction(final int modifiers, final int supportedActions) {
+  public static int convertModifiersToDropAction(int modifiers, int supportedActions) {
     int dropAction = DnDConstants.ACTION_NONE;
 
         /*
@@ -161,6 +161,36 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
     return dropAction & supportedActions;
   }
 
+  /*
+     * Execute a chunk of code on the Java event handler thread. The
+     * method takes into account provided AppContext and sets
+     * <code>SunToolkit.getDefaultToolkit()</code> as a target of the
+     * event. See 6451487 for detailes.
+     * Does not wait for the execution to occur before returning to
+     * the caller.
+     */
+  public static void invokeLaterOnAppContext(
+      AppContext appContext, Runnable dispatcher) {
+    SunToolkit.postEvent(appContext,
+        new PeerEvent(Toolkit.getDefaultToolkit(), dispatcher, PeerEvent.PRIORITY_EVENT));
+  }
+
+  /**
+   * Helper function to reduce a Map with Long keys to a long array.
+   * <p>
+   * The map keys are sorted according to the native formats preference
+   * order.
+   */
+  public static long[] keysToLongArray(SortedMap<Long, ?> map) {
+    Set<Long> keySet = map.keySet();
+    long[] retval = new long[keySet.size()];
+    int i = 0;
+    for (long key : keySet) {
+      retval[i] = key;
+    }
+    return retval;
+  }
+
   /**
    * Synchro messages in AWT
    */
@@ -174,6 +204,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * initiate a DnD operation ...
    */
 
+  @Override
   public void startDrag(DragSourceContext dsc, Cursor c, Image di, Point p)
       throws InvalidDnDOperationException {
 
@@ -193,8 +224,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
     SortedMap<Long, DataFlavor> formatMap = DataTransferer.getInstance().
         getFormatsForTransferable(transferable,
             DataTransferer.adaptFlavorMap(getTrigger().getDragSource().getFlavorMap()));
-    long[] formats = DataTransferer.getInstance().
-        keysToLongArray(formatMap);
+    long[] formats = keysToLongArray(formatMap);
     startDrag(transferable, formats, formatMap);
 
         /*
@@ -203,6 +233,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
          */
     discardingMouseEvents = true;
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         discardingMouseEvents = false;
       }
@@ -213,6 +244,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * return cursor
    */
 
+  @Override
   public Cursor getCursor() {
     return cursor;
   }
@@ -221,14 +253,13 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * set cursor
    */
 
-  public void setCursor(Cursor c) throws InvalidDnDOperationException {
-    synchronized (this) {
-      if (cursor == null || !cursor.equals(c)) {
-        cursor = c;
-        // NOTE: native context can be null at this point.
-        // setNativeCursor() should handle it properly.
-        setNativeCursor(getNativeContext(), c, c != null ? c.getType() : 0);
-      }
+  @Override
+  public synchronized void setCursor(Cursor c) throws InvalidDnDOperationException {
+    if (cursor == null || !cursor.equals(c)) {
+      cursor = c;
+      // NOTE: native context can be null at this point.
+      // setNativeCursor() should handle it properly.
+      setNativeCursor(getNativeContext(), c, c != null ? c.getType() : 0);
     }
   }
 
@@ -239,6 +270,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * of the drag.
    */
 
+  @Override
   public void transferablesFlavorsChanged() {
   }
 
@@ -281,11 +313,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
 
   protected synchronized void setTrigger(DragGestureEvent dge) {
     trigger = dge;
-    if (trigger != null) {
-      component = trigger.getComponent();
-    } else {
-      component = null;
-    }
+    component = trigger != null ? trigger.getComponent() : null;
   }
 
   protected Component getComponent() {
@@ -305,11 +333,9 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
   }
 
   protected final void postDragSourceDragEvent(
-      final int targetAction, final int modifiers, final int x, final int y,
-      final int dispatchType) {
+      int targetAction, int modifiers, int x, int y, int dispatchType) {
 
-    final int dropAction = SunDragSourceContextPeer.convertModifiersToDropAction(modifiers,
-        sourceActions);
+    int dropAction = convertModifiersToDropAction(modifiers, sourceActions);
 
     DragSourceDragEvent event = new DragSourceDragEvent(getDragSourceContext(),
         dropAction,
@@ -319,7 +345,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
         y);
     EventDispatcher dispatcher = new EventDispatcher(dispatchType, event);
 
-    SunToolkit.invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
+    invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
 
     startSecondaryEventLoop();
   }
@@ -328,7 +354,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * upcall from native code
    */
 
-  protected void dragEnter(final int targetActions, final int modifiers, final int x, final int y) {
+  protected void dragEnter(int targetActions, int modifiers, int x, int y) {
     postDragSourceDragEvent(targetActions, modifiers, x, y, DISPATCH_ENTER);
   }
 
@@ -336,7 +362,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * upcall from native code
    */
 
-  private void dragMotion(final int targetActions, final int modifiers, final int x, final int y) {
+  private void dragMotion(int targetActions, int modifiers, int x, int y) {
     postDragSourceDragEvent(targetActions, modifiers, x, y, DISPATCH_MOTION);
   }
 
@@ -345,7 +371,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    */
 
   private void operationChanged(
-      final int targetActions, final int modifiers, final int x, final int y) {
+      int targetActions, int modifiers, int x, int y) {
     postDragSourceDragEvent(targetActions, modifiers, x, y, DISPATCH_CHANGED);
   }
 
@@ -353,11 +379,11 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    * upcall from native code
    */
 
-  protected final void dragExit(final int x, final int y) {
+  protected final void dragExit(int x, int y) {
     DragSourceEvent event = new DragSourceEvent(getDragSourceContext(), x, y);
     EventDispatcher dispatcher = new EventDispatcher(DISPATCH_EXIT, event);
 
-    SunToolkit.invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
+    invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
 
     startSecondaryEventLoop();
   }
@@ -367,7 +393,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    */
 
   private void dragMouseMoved(
-      final int targetActions, final int modifiers, final int x, final int y) {
+      int targetActions, int modifiers, int x, int y) {
     postDragSourceDragEvent(targetActions, modifiers, x, y, DISPATCH_MOUSE_MOVED);
   }
 
@@ -376,7 +402,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
    */
 
   protected final void dragDropFinished(
-      final boolean success, final int operations, final int x, final int y) {
+      boolean success, int operations, int x, int y) {
     DragSourceEvent event = new DragSourceDropEvent(getDragSourceContext(),
         operations & sourceActions,
         success,
@@ -384,7 +410,7 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
         y);
     EventDispatcher dispatcher = new EventDispatcher(DISPATCH_FINISH, event);
 
-    SunToolkit.invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
+    invokeLaterOnAppContext(SunToolkit.targetToAppContext(getComponent()), dispatcher);
 
     startSecondaryEventLoop();
     setNativeContext(0);
@@ -392,13 +418,13 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
     dragImageOffset = null;
   }
 
-  private void cleanup() {
+  void cleanup() {
     trigger = null;
     component = null;
     cursor = null;
     dragSourceContext = null;
     SunDropTargetContextPeer.setCurrentJVMLocalSourceTransferable(null);
-    SunDragSourceContextPeer.setDragDropInProgress(false);
+    setDragDropInProgress(false);
   }
 
   private class EventDispatcher implements Runnable {
@@ -432,8 +458,9 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
       this.event = event;
     }
 
+    @Override
     public void run() {
-      DragSourceContext dragSourceContext = SunDragSourceContextPeer.this.getDragSourceContext();
+      DragSourceContext dragSourceContext = getDragSourceContext();
       try {
         switch (dispatchType) {
           case DISPATCH_ENTER:
@@ -455,14 +482,14 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
             try {
               dragSourceContext.dragDropEnd((DragSourceDropEvent) event);
             } finally {
-              SunDragSourceContextPeer.this.cleanup();
+              cleanup();
             }
             break;
           default:
             throw new IllegalStateException("Dispatch type: " + dispatchType);
         }
       } finally {
-        SunDragSourceContextPeer.this.quitSecondaryEventLoop();
+        quitSecondaryEventLoop();
       }
     }
   }

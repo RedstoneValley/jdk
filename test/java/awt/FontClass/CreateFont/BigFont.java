@@ -21,25 +21,26 @@
  * questions.
  */
 
-import java.applet.*;
 import java.awt.*;
 import java.io.*;
 import java.net.*;
 
+@SuppressWarnings("MagicNumber")
 public class BigFont extends Applet {
 
-   static private class SizedInputStream extends InputStream {
+   private static class SizedInputStream extends InputStream {
 
-       int size;
-       int cnt = 0;
+       final int size;
+       int cnt;
 
        SizedInputStream(int size) {
            this.size = size;
        }
 
+       @Override
        public int read() {
            if (cnt < size) {
-              cnt++;
+             cnt++;
               return 0;
            } else {
               return -1;
@@ -55,8 +56,8 @@ public class BigFont extends Applet {
     String fileName;
 
     public void init() {
-        id = getParameter("number");
-        fileName = getParameter("font");
+      id = getParameter("number");
+      fileName = getParameter("font");
 
         System.out.println("Applet " + id + " "+
                            Thread.currentThread().getThreadGroup());

@@ -8,7 +8,7 @@ import java.awt.peer.CheckboxMenuItemPeer;
  */
 public class SkinJobMenuItemPeer implements CheckboxMenuItemPeer {
   protected final android.view.MenuItem androidMenuItem;
-  protected int textColor = SkinJob.menuTextColor;
+  protected final int textColor = SkinJob.menuTextColor;
 
   public SkinJobMenuItemPeer(MenuItem target) {
     androidMenuItem = target.androidMenuItem;

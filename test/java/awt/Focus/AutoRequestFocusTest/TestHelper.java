@@ -28,19 +28,20 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.lang.reflect.InvocationTargetException;
 
-public class TestHelper {
-    private static volatile boolean focusChanged;
-    private static volatile boolean trackFocusChange;
+public final class TestHelper {
+    static volatile boolean focusChanged;
+    static volatile boolean trackFocusChange;
     private static boolean focusChangeTrackerSet;
 
-    /*
-     * @param action the action to perform
-     * @return if {@code action} caused focus change
-     */
+  private TestHelper() {
+  }
+
+  /*
+   * @param action the action to perform
+   * @return if {@code action} caused focus change
+   */
     public static boolean trackFocusChangeFor(Runnable action, Robot robot) {
         if (!focusChangeTrackerSet) {
             setFocusChangeTracker();
@@ -62,16 +63,18 @@ public class TestHelper {
         EventQueue.invokeLater(action);
         try {
             EventQueue.invokeAndWait(new Runnable() { // waiting for action
+                    @Override
                     public void run() {}
                 });
-        } catch (InterruptedException ie) {
-        } catch (InvocationTargetException ite) {}
+        } catch (InterruptedException | InvocationTargetException ie) {
+        }
 
-        Util.waitForIdle(robot); // waiting for events
+      Util.waitForIdle(robot); // waiting for events
     }
 
     private static void setFocusChangeTracker() {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
                     int id = e.getID();
                     if (trackFocusChange &&
@@ -79,7 +82,7 @@ public class TestHelper {
                          id == WindowEvent.WINDOW_GAINED_FOCUS || id == WindowEvent.WINDOW_LOST_FOCUS ||
                          id == WindowEvent.WINDOW_ACTIVATED || id == WindowEvent.WINDOW_DEACTIVATED))
                     {
-                        System.out.println(e.toString());
+                        System.out.println(e);
                         focusChanged = true;
                     }
                 }

@@ -32,15 +32,15 @@ public class ShellFolderColumnInfo {
   private Integer width;
   private boolean visible;
   /**
-   * Allowed values are {@link SwingConstants#LEFT}, {@link SwingConstants#RIGHT},
-   * {@link SwingConstants#LEADING},
-   * {@link SwingConstants#TRAILING}, {@link SwingConstants#CENTER}
+   * Allowed values are , ,
+   * ,
+   * ,
    */
   private Integer alignment;
   private Comparator comparator;
   /**
-   * <code>false</code> (default) if the {@link comparator} expects folders as arguments,
-   * and <code>true</code> if folder's column values. The first option is used default for
+   * {@code false} (default) if the {@link comparator} expects folders as arguments,
+   * and {@code true} if folder's column values. The first option is used default for
    * comparison
    * on Windows and also for separating files from directories when sorting using
    * ShellFolderManager's inner comparator.

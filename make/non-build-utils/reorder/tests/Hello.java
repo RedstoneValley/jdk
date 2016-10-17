@@ -25,9 +25,12 @@
 
 
 
-public class Hello {
+public final class Hello {
 
-    public static void main(String[] args) {
+  private Hello() {
+  }
+
+  public static void main(String[] args) {
         System.err.println("Hello");
     }
 }

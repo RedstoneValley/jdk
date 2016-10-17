@@ -30,7 +30,6 @@ import static sun.java2d.pipe.BufferedOpCodes.RESTORE_STATE;
 import static sun.java2d.pipe.BufferedOpCodes.SAVE_STATE;
 import static sun.java2d.pipe.BufferedOpCodes.SET_SCRATCH_SURFACE;
 
-import java.lang.annotation.Native;
 import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.RenderBuffer;
 import sun.java2d.pipe.RenderQueue;
@@ -119,8 +118,11 @@ public class OGLContext extends BufferedContext {
    *
    * @return an id string for the adapter
    */
-  static final native String getOGLIdString();
+  static final String getOGLIdString() {
+    return "SkinJob"; // TODO: Find and implement the format spec for this
+  }
 
+  @Override
   public RenderQueue getRenderQueue() {
     return OGLRenderQueue.getInstance();
   }
@@ -163,7 +165,7 @@ public class OGLContext extends BufferedContext {
      * This cap will only be set if the fbobject system property has been
      * enabled and we are able to create an FBO with depth buffer.
      */
-    @Native static final int CAPS_EXT_FBOBJECT = (CAPS_RT_TEXTURE_ALPHA | CAPS_RT_TEXTURE_OPAQUE);
+    @Native static final int CAPS_EXT_FBOBJECT = CAPS_RT_TEXTURE_ALPHA | CAPS_RT_TEXTURE_OPAQUE;
     /**
      * Indicates that the context supports a stored alpha channel.
      */
@@ -171,29 +173,29 @@ public class OGLContext extends BufferedContext {
     /**
      * Indicates that the context is doublebuffered.
      */
-    @Native static final int CAPS_DOUBLEBUFFERED = (FIRST_PRIVATE_CAP << 0);
+    @Native static final int CAPS_DOUBLEBUFFERED = FIRST_PRIVATE_CAP;
     /**
      * Indicates the presence of the GL_ARB_fragment_shader extension.
      * This cap will only be set if the lcdshader system property has been
      * enabled and the hardware supports the minimum number of texture units
      */
-    @Native static final int CAPS_EXT_LCD_SHADER = (FIRST_PRIVATE_CAP << 1);
+    @Native static final int CAPS_EXT_LCD_SHADER = FIRST_PRIVATE_CAP << 1;
     /**
      * Indicates the presence of the GL_ARB_fragment_shader extension.
      * This cap will only be set if the biopshader system property has been
      * enabled and the hardware meets our minimum requirements.
      */
-    @Native static final int CAPS_EXT_BIOP_SHADER = (FIRST_PRIVATE_CAP << 2);
+    @Native static final int CAPS_EXT_BIOP_SHADER = FIRST_PRIVATE_CAP << 2;
     /**
      * Indicates the presence of the GL_ARB_fragment_shader extension.
      * This cap will only be set if the gradshader system property has been
      * enabled and the hardware meets our minimum requirements.
      */
-    @Native static final int CAPS_EXT_GRAD_SHADER = (FIRST_PRIVATE_CAP << 3);
+    @Native static final int CAPS_EXT_GRAD_SHADER = FIRST_PRIVATE_CAP << 3;
     /**
      * Indicates the presence of the GL_ARB_texture_rectangle extension.
      */
-    @Native static final int CAPS_EXT_TEXRECT = (FIRST_PRIVATE_CAP << 4);
+    @Native static final int CAPS_EXT_TEXRECT = FIRST_PRIVATE_CAP << 4;
 
     OGLContextCaps(int caps, String adapterId) {
       super(caps, adapterId);
@@ -201,7 +203,7 @@ public class OGLContext extends BufferedContext {
 
     @Override
     public String toString() {
-      StringBuffer buf = new StringBuffer(super.toString());
+      StringBuilder buf = new StringBuilder(super.toString());
       if ((caps & CAPS_EXT_FBOBJECT) != 0) {
         buf.append("CAPS_EXT_FBOBJECT|");
       }

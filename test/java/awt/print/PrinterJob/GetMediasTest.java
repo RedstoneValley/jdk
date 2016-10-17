@@ -27,15 +27,16 @@
  * @summary No exception should be thrown.
  * @run main GetMediasTest
  */
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.attribute.standard.Media;
 
-public class GetMediasTest {
-    public static void main(String[] args) {
+public final class GetMediasTest {
+  private GetMediasTest() {
+  }
+
+  public static void main(String[] args) {
         PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-        for(final PrintService service: services) {
+        for(PrintService service: services) {
             Thread thread = new Thread() {
+                @Override
                 public void run() {
                     service.getSupportedAttributeValues(Media.class, null, null);
                 }

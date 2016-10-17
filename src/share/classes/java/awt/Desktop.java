@@ -25,7 +25,6 @@
 
 package java.awt;
 
-import android.content.Context;
 import java.awt.peer.DesktopPeer;
 import java.io.File;
 import java.io.FilePermission;
@@ -34,13 +33,14 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import sun.awt.AppContext;
+import sun.awt.DesktopBrowse;
 import sun.awt.SunToolkit;
-import sun.security.util.SecurityConstants;
 
 /**
  * The {@code Desktop} class allows a Java application to launch
  * associated applications registered on the native desktop to handle
- * a {@link java.net.URI} or a file.
+ * a {@link URI} or a file.
  * <p>
  * <p> Supported operations include:
  * <ul>
@@ -64,7 +64,7 @@ import sun.security.util.SecurityConstants;
  * launching the associated application is platform-dependent.
  * <p>
  * <p> Each operation is an action type represented by the {@link
- * Desktop.Action} class.
+ * Action} class.
  * <p>
  * <p> Note: when some action is invoked and the associated
  * application is executed, it will be executed on the same system as
@@ -76,9 +76,7 @@ import sun.security.util.SecurityConstants;
  */
 public class Desktop {
 
-  private DesktopPeer peer;
-
-  ;
+  private final DesktopPeer peer;
 
   /**
    * Suppresses default constructor for noninstantiability.
@@ -88,7 +86,7 @@ public class Desktop {
   }
 
   /**
-   * Returns the <code>Desktop</code> instance of the current
+   * Returns the {@code Desktop} instance of the current
    * browser context.  On some platforms the Desktop API may not be
    * supported; use the {@link #isDesktopSupported} method to
    * determine if the current desktop is supported.
@@ -99,18 +97,15 @@ public class Desktop {
    * @throws UnsupportedOperationException if this class is not
    *                                       supported on the current platform
    * @see #isDesktopSupported()
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   public static synchronized Desktop getDesktop() {
-    if (GraphicsEnvironment.isHeadless()) {
-      throw new HeadlessException();
-    }
-    if (!Desktop.isDesktopSupported()) {
+    if (!isDesktopSupported()) {
       throw new UnsupportedOperationException(
           "Desktop API is not " + "supported on the current platform");
     }
 
-    sun.awt.AppContext context = sun.awt.AppContext.getAppContext();
+    AppContext context = AppContext.getAppContext();
     Desktop desktop = (Desktop) context.get(Desktop.class);
 
     if (desktop == null) {
@@ -126,8 +121,8 @@ public class Desktop {
    * If it's supported, use {@link #getDesktop()} to retrieve an
    * instance.
    *
-   * @return <code>true</code> if this class is supported on the
-   * current platform; <code>false</code> otherwise
+   * @return {@code true} if this class is supported on the
+   * current platform; {@code false} otherwise
    * @see #getDesktop()
    */
   public static boolean isDesktopSupported() {
@@ -142,7 +137,7 @@ public class Desktop {
    * Checks if the file is a valid file and readable.
    *
    * @throws SecurityException        If a security manager exists and its
-   *                                  {@link SecurityManager#checkRead(java.lang.String)} method
+   *                                  {@link SecurityManager#checkRead(String)} method
    *                                  denies read access to the file
    * @throws NullPointerException     if file is null
    * @throws IllegalArgumentException if file doesn't exist
@@ -164,16 +159,16 @@ public class Desktop {
    * <p>
    * <p>Even when the platform supports an action, a file or URI may
    * not have a registered application for the action.  For example,
-   * most of the platforms support the {@link Desktop.Action#OPEN}
+   * most of the platforms support the {@link Action#OPEN}
    * action.  But for a specific file, there may not be an
-   * application registered to open it.  In this case, {@link
-   * #isSupported} may return {@code true}, but the corresponding
+   * application registered to open it.  In this case,  may return {@code true}, but the
+   * corresponding
    * action method will throw an {@link IOException}.
    *
    * @param action the specified {@link Action}
-   * @return <code>true</code> if the specified action is supported on
-   * the current platform; <code>false</code> otherwise
-   * @see Desktop.Action
+   * @return {@code true} if the specified action is supported on
+   * the current platform; {@code false} otherwise
+   * @see Action
    */
   public boolean isSupported(Action action) {
     return peer.isSupported(action);
@@ -194,8 +189,8 @@ public class Desktop {
   }
 
   /**
-   * Calls to the security manager's <code>checkPermission</code> method with
-   * an <code>AWTPermission("showWindowWithoutWarningBanner")</code>
+   * Calls to the security manager's {@code checkPermission} method with
+   * an {@code AWTPermission("showWindowWithoutWarningBanner")}
    * permission.
    */
   private void checkAWTPermission() {
@@ -216,19 +211,19 @@ public class Desktop {
    * @throws IllegalArgumentException      if the specified file doesn't
    *                                       exist
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#OPEN} action
+   *                                       does not support the {@link Action#OPEN} action
    * @throws IOException                   if the specified file has no associated
    *                                       application or the associated application fails to
    *                                       be launched
    * @throws SecurityException             if a security manager exists and its
-   *                                       {@link java.lang.SecurityManager#checkRead(java.lang.String)}
+   *                                       {@link SecurityManager#checkRead(String)}
    *                                       method denies read access to the file, or it denies the
-   *                                       <code>AWTPermission("showWindowWithoutWarningBanner")
-   *                                       </code>
+   *                                       {@code AWTPermission("showWindowWithoutWarningBanner")
+   *                                       }
    *                                       permission, or the calling thread is not allowed to
    *                                       create a
    *                                       subprocess
-   * @see java.awt.AWTPermission
+   * @see AWTPermission
    */
   public void open(File file) throws IOException {
     checkAWTPermission();
@@ -248,22 +243,20 @@ public class Desktop {
    * @throws IllegalArgumentException      if the specified file doesn't
    *                                       exist
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#EDIT} action
+   *                                       does not support the {@link Action#EDIT} action
    * @throws IOException                   if the specified file has no associated
    *                                       editor, or the associated application fails to be
    *                                       launched
    * @throws SecurityException             if a security manager exists and its
-   *                                       {@link java.lang.SecurityManager#checkRead(java.lang.String)}
-   *                                       method denies read access to the file, or {@link
-   *                                       java.lang.SecurityManager#checkWrite(java.lang
-   *                                       .String)} method
+   *                                       {@link SecurityManager#checkRead(String)}
+   *                                       method denies read access to the file, or  method
    *                                       denies write access to the file, or it denies the
-   *                                       <code>AWTPermission("showWindowWithoutWarningBanner")
-   *                                       </code>
+   *                                       {@code AWTPermission("showWindowWithoutWarningBanner")
+   *                                       }
    *                                       permission, or the calling thread is not allowed to
    *                                       create a
    *                                       subprocess
-   * @see java.awt.AWTPermission
+   * @see AWTPermission
    */
   public void edit(File file) throws IOException {
     checkAWTPermission();
@@ -285,14 +278,14 @@ public class Desktop {
    * @throws IllegalArgumentException      if the specified file doesn't
    *                                       exist
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#PRINT}
+   *                                       does not support the {@link Action#PRINT}
    *                                       action
    * @throws IOException                   if the specified file has no associated
    *                                       application that can be used to print it
    * @throws SecurityException             if a security manager exists and its
-   *                                       {@link java.lang.SecurityManager#checkRead(java.lang.String)}
+   *                                       {@link SecurityManager#checkRead(String)}
    *                                       method denies read access to the file, or its {@link
-   *                                       java.lang.SecurityManager#checkPrintJobAccess()}
+   *                                       SecurityManager#checkPrintJobAccess()}
    *                                       method denies
    *                                       the permission to print the file, or the calling
    *                                       thread is not
@@ -328,7 +321,7 @@ public class Desktop {
    * @param uri the URI to be displayed in the user default browser
    * @throws NullPointerException          if {@code uri} is {@code null}
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#BROWSE}
+   *                                       does not support the {@link Action#BROWSE}
    *                                       action
    * @throws IOException                   if the user default browser is not found,
    *                                       or it fails to be launched, or the default handler
@@ -336,8 +329,8 @@ public class Desktop {
    *                                       failed to be launched
    * @throws SecurityException             if a security manager exists and it
    *                                       denies the
-   *                                       <code>AWTPermission("showWindowWithoutWarningBanner")
-   *                                       </code>
+   *                                       {@code AWTPermission("showWindowWithoutWarningBanner")
+   *                                       }
    *                                       permission, or the calling thread is not allowed to
    *                                       create a
    *                                       subprocess; and not invoked from within an applet or
@@ -346,8 +339,8 @@ public class Desktop {
    * @throws IllegalArgumentException      if the necessary permissions
    *                                       are not available and the URI can not be converted to
    *                                       a {@code URL}
-   * @see java.net.URI
-   * @see java.awt.AWTPermission
+   * @see URI
+   * @see AWTPermission
    * @see java.applet.AppletContext
    */
   public void browse(URI uri) throws IOException {
@@ -370,13 +363,13 @@ public class Desktop {
     // Calling thread doesn't have necessary priviledges.
     // Delegate to DesktopBrowse so that it can work in
     // applet/webstart.
-    URL url = null;
+    URL url;
     try {
       url = uri.toURL();
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Unable to convert URI to URL", e);
     }
-    sun.awt.DesktopBrowse db = sun.awt.DesktopBrowse.getInstance();
+    DesktopBrowse db = DesktopBrowse.getInstance();
     if (db == null) {
       // Not in webstart/applet, throw the exception.
       throw securityException;
@@ -389,23 +382,23 @@ public class Desktop {
    * client.
    *
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#MAIL} action
+   *                                       does not support the {@link Action#MAIL} action
    * @throws IOException                   if the user default mail client is not
    *                                       found, or it fails to be launched
    * @throws SecurityException             if a security manager exists and it
    *                                       denies the
-   *                                       <code>AWTPermission
-   *                                       ("showWindowWithoutWarningBanner")</code>
+   *                                       {@code AWTPermission
+   *                                       ("showWindowWithoutWarningBanner")}
    *                                       permission, or the calling thread is not allowed to
    *                                       create a
    *                                       subprocess
-   * @see java.awt.AWTPermission
+   * @see AWTPermission
    */
   public void mail() throws IOException {
     checkAWTPermission();
     checkExec();
     checkActionSupport(Action.MAIL);
-    URI mailtoURI = null;
+    URI mailtoURI;
     try {
       mailtoURI = new URI("mailto:?");
       peer.mail(mailtoURI);
@@ -419,7 +412,7 @@ public class Desktop {
    * client, filling the message fields specified by a {@code
    * mailto:} URI.
    * <p>
-   * <p> A <code>mailto:</code> URI can specify message fields
+   * <p> A {@code mailto:} URI can specify message fields
    * including <i>"to"</i>, <i>"cc"</i>, <i>"subject"</i>,
    * <i>"body"</i>, etc.  See <a
    * href="http://www.ietf.org/rfc/rfc2368.txt">The mailto URL
@@ -430,20 +423,20 @@ public class Desktop {
    * @throws NullPointerException          if the specified URI is {@code
    *                                       null}
    * @throws IllegalArgumentException      if the URI scheme is not
-   *                                       <code>"mailto"</code>
+   *                                       {@code "mailto"}
    * @throws UnsupportedOperationException if the current platform
-   *                                       does not support the {@link Desktop.Action#MAIL} action
+   *                                       does not support the {@link Action#MAIL} action
    * @throws IOException                   if the user default mail client is not
    *                                       found or fails to be launched
    * @throws SecurityException             if a security manager exists and it
    *                                       denies the
-   *                                       <code>AWTPermission("showWindowWithoutWarningBanner")
-   *                                       </code>
+   *                                       {@code AWTPermission("showWindowWithoutWarningBanner")
+   *                                       }
    *                                       permission, or the calling thread is not allowed to
    *                                       create a
    *                                       subprocess
-   * @see java.net.URI
-   * @see java.awt.AWTPermission
+   * @see URI
+   * @see AWTPermission
    */
   public void mail(URI mailtoURI) throws IOException {
     checkAWTPermission();
@@ -474,39 +467,39 @@ public class Desktop {
    * method to determine if the given action is supported by the
    * current platform.
    *
-   * @see java.awt.Desktop#isSupported(java.awt.Desktop.Action)
+   * @see java.awt.Desktop#isSupported(Action)
    * @since 1.6
    */
-  public static enum Action {
+  public enum Action {
     /**
      * Represents an "open" action.
      *
-     * @see Desktop#open(java.io.File)
+     * @see Desktop#open(File)
      */
     OPEN,
     /**
      * Represents an "edit" action.
      *
-     * @see Desktop#edit(java.io.File)
+     * @see Desktop#edit(File)
      */
     EDIT,
     /**
      * Represents a "print" action.
      *
-     * @see Desktop#print(java.io.File)
+     * @see Desktop#print(File)
      */
     PRINT,
     /**
      * Represents a "mail" action.
      *
      * @see Desktop#mail()
-     * @see Desktop#mail(java.net.URI)
+     * @see Desktop#mail(URI)
      */
     MAIL,
     /**
      * Represents a "browse" action.
      *
-     * @see Desktop#browse(java.net.URI)
+     * @see Desktop#browse(URI)
      */
     BROWSE
   }

@@ -41,10 +41,6 @@ import java.awt.FlowLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 
 /**
  * A very simple applet.
@@ -54,7 +50,7 @@ public class SwingApplet extends JApplet {
 
   JButton button;
 
-  private void initUI() {
+  void initUI() {
     // Trying to set Nimbus look and feel
     try {
       UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -78,10 +74,7 @@ public class SwingApplet extends JApplet {
           initUI();
         }
       });
-    } catch (InterruptedException ex) {
-      Logger.getLogger(SwingApplet.class.getName()).
-          log(Level.SEVERE, null, ex);
-    } catch (InvocationTargetException ex) {
+    } catch (InterruptedException | InvocationTargetException ex) {
       Logger.getLogger(SwingApplet.class.getName()).
           log(Level.SEVERE, null, ex);
     }

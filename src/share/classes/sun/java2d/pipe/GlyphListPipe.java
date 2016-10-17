@@ -28,7 +28,6 @@ package sun.java2d.pipe;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.font.TextLayout;
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
 import sun.java2d.loops.FontInfo;
@@ -39,6 +38,7 @@ import sun.java2d.loops.FontInfo;
 
 public abstract class GlyphListPipe implements TextPipe {
 
+  @Override
   public void drawString(SunGraphics2D sg2d, String s, double x, double y) {
     FontInfo info = sg2d.getFontInfo();
     if (info.pixelHeight > OutlineTextRenderer.THRESHHOLD) {
@@ -48,7 +48,7 @@ public abstract class GlyphListPipe implements TextPipe {
 
     float devx, devy;
     if (sg2d.transformState >= SunGraphics2D.TRANSFORM_TRANSLATESCALE) {
-      double origin[] = {x + info.originX, y + info.originY};
+      double[] origin = {x + info.originX, y + info.originY};
       sg2d.transform.transform(origin, 0, origin, 0, 1);
       devx = (float) origin[0];
       devy = (float) origin[1];
@@ -71,6 +71,7 @@ public abstract class GlyphListPipe implements TextPipe {
     }
   }
 
+  @Override
   public void drawGlyphVector(SunGraphics2D sg2d, GlyphVector gv, float x, float y) {
     FontRenderContext frc = gv.getFontRenderContext();
     FontInfo info = sg2d.getGVFontInfo(gv.getFont(), frc);
@@ -79,7 +80,7 @@ public abstract class GlyphListPipe implements TextPipe {
       return;
     }
     if (sg2d.transformState >= SunGraphics2D.TRANSFORM_TRANSLATESCALE) {
-      double origin[] = {x, y};
+      double[] origin = {x, y};
       sg2d.transform.transform(origin, 0, origin, 0, 1);
       x = (float) origin[0];
       y = (float) origin[1];
@@ -94,7 +95,8 @@ public abstract class GlyphListPipe implements TextPipe {
     gl.dispose();
   }
 
-  public void drawChars(SunGraphics2D sg2d, char data[], int offset, int length, int ix, int iy) {
+  @Override
+  public void drawChars(SunGraphics2D sg2d, char[] data, int offset, int length, int ix, int iy) {
     FontInfo info = sg2d.getFontInfo();
     float x, y;
     if (info.pixelHeight > OutlineTextRenderer.THRESHHOLD) {
@@ -102,7 +104,7 @@ public abstract class GlyphListPipe implements TextPipe {
       return;
     }
     if (sg2d.transformState >= SunGraphics2D.TRANSFORM_TRANSLATESCALE) {
-      double origin[] = {ix + info.originX, iy + info.originY};
+      double[] origin = {ix + info.originX, iy + info.originY};
       sg2d.transform.transform(origin, 0, origin, 0, 1);
       x = (float) origin[0];
       y = (float) origin[1];

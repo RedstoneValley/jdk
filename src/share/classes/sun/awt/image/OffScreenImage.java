@@ -46,7 +46,7 @@ import sun.java2d.SurfaceData;
  */
 public class OffScreenImage extends BufferedImage {
 
-  protected Component c;
+  protected final Component c;
   private OffScreenImageSource osis;
   private Font defaultFont;
 
@@ -72,6 +72,7 @@ public class OffScreenImage extends BufferedImage {
     }
   }
 
+  @Override
   public ImageProducer getSource() {
     if (osis == null) {
       osis = new OffScreenImageSource(this);
@@ -79,10 +80,12 @@ public class OffScreenImage extends BufferedImage {
     return osis;
   }
 
+  @Override
   public Graphics getGraphics() {
     return createGraphics();
   }
 
+  @Override
   public Graphics2D createGraphics() {
     if (c == null) {
       GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -102,7 +105,7 @@ public class OffScreenImage extends BufferedImage {
     Font font = c.getFont();
     if (font == null) {
       if (defaultFont == null) {
-        defaultFont = new Font("Dialog", Font.PLAIN, 12);
+        defaultFont = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12);
       }
       font = defaultFont;
     }

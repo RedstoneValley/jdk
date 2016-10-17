@@ -29,9 +29,6 @@
   @run applet/manual=yesno bug8023392.html
 */
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,7 +53,7 @@ public class bug8023392 extends Applet {
         "   shouldn't appear as if they are stretched along X axis."};
 
     public void init() {
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
         add(new SimplePrint2(), BorderLayout.CENTER);
 
         Sysout.createDialogWithInstructions(instructions);
@@ -65,9 +62,9 @@ public class bug8023392 extends Applet {
 
     public static class SimplePrint2 extends JPanel
             implements ActionListener, Printable {
-        JLabel label1;
-        JLabel label2;
-        JButton printButton;
+        final JLabel label1;
+        final JLabel label2;
+        final JButton printButton;
 
 
         public SimplePrint2() {
@@ -80,7 +77,7 @@ public class bug8023392 extends Applet {
             p1.add(label1);
             p1.add(label2);
             p1.add(new JLabel("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww") {
-                String s = "3a) a b c d e                                     ";
+                final String s = "3a) a b c d e                                     ";
                 @Override
                 protected void paintComponent(Graphics g) {
                     sun.swing.SwingUtilities2.drawChars(this, g, s.toCharArray(),
@@ -88,7 +85,7 @@ public class bug8023392 extends Applet {
                 }
             });
             p1.add(new JLabel("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww") {
-                String s = "3b) a b c d e";
+                final String s = "3b) a b c d e";
                 @Override
                 protected void paintComponent(Graphics g) {
                     sun.swing.SwingUtilities2.drawChars(this, g, s.toCharArray(),
@@ -96,7 +93,7 @@ public class bug8023392 extends Applet {
                 }
             });
             p1.add(new JLabel("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww") {
-                String s = "4a) a b c d e                                     ";
+                final String s = "4a) a b c d e                                     ";
                 AttributedCharacterIterator it;
                 {
                     AttributedString as = new AttributedString(s);
@@ -111,7 +108,7 @@ public class bug8023392 extends Applet {
             });
 
             p1.add(new JLabel("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww") {
-                String s = "4b) a b c d e";
+                final String s = "4b) a b c d e";
                 AttributedCharacterIterator it;
                 {
                     AttributedString as = new AttributedString(s);
@@ -146,10 +143,11 @@ public class bug8023392 extends Applet {
             c.add(jsp, BorderLayout.NORTH);
 
             for (Component comp : new Component[]{label1, label2, printButton}) {
-                comp.setFont(new Font("Monospaced", 0, 16));
+                comp.setFont(new Font(Font.MONOSPACED, 0, 16));
             }
         }
 
+        @Override
         public void actionPerformed(ActionEvent e) {
             PrinterJob job = PrinterJob.getPrinterJob();
             job.setPrintable(this);
@@ -162,6 +160,7 @@ public class bug8023392 extends Applet {
             }
         }
 
+        @Override
         public int print(Graphics graphics,
                          PageFormat pageFormat,
                          int pageIndex)
@@ -170,7 +169,7 @@ public class bug8023392 extends Applet {
                 return Printable.NO_SUCH_PAGE;
             }
 
-            this.paint(graphics);
+            paint(graphics);
             return Printable.PAGE_EXISTS;
         }
     }
@@ -186,7 +185,7 @@ public class bug8023392 extends Applet {
  * to read and understand someone else's test.
  * **************************************************
  */
-class Sysout {
+final class Sysout {
     private static TestDialog dialog;
 
     public static void createDialogWithInstructions(String[] instructions) {
@@ -219,19 +218,20 @@ class Sysout {
 
 class TestDialog extends Dialog {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = -175121528743417031L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog(Frame frame, String name) {
         super(frame, name);
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea("", 15, maxStringLength, scrollBoth);
-        add("North", instructionsText);
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea("", 5, maxStringLength, scrollBoth);
-        add("South", messageText);
+        add(BorderLayout.SOUTH, messageText);
 
         pack();
 
@@ -246,17 +246,19 @@ class TestDialog extends Dialog {
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for (int i = 0; i < instructions.length; i++) {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[i];
-            while (remainingStr.length() > 0) {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
                 if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                            lastIndexOf(' ', maxStringLength - 1);
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if (posOfSpace <= 0) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
                     printStr = remainingStr.substring(0, posOfSpace + 1);
                     remainingStr = remainingStr.substring(posOfSpace + 1);
@@ -268,9 +270,7 @@ class TestDialog extends Dialog {
                 }
 
                 instructionsText.append(printStr + "\n");
-
             }// while
-
         }// for
 
     }//printInstructions()

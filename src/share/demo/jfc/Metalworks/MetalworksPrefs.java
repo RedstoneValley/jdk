@@ -47,18 +47,6 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
-import javax.swing.border.TitledBorder;
 
 /**
  * This is dialog which allows users to choose preferences
@@ -85,6 +73,7 @@ public final class MetalworksPrefs extends JDialog {
     JButton cancel = new JButton("Cancel");
     cancel.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         CancelPressed();
       }
@@ -93,6 +82,7 @@ public final class MetalworksPrefs extends JDialog {
     JButton ok = new JButton("OK");
     ok.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         OKPressed();
       }
@@ -187,64 +177,69 @@ public final class MetalworksPrefs extends JDialog {
   }
 
   protected void centerDialog() {
-    Dimension screenSize = this.getToolkit().getScreenSize();
-    Dimension size = this.getSize();
-    screenSize.height = screenSize.height / 2;
-    screenSize.width = screenSize.width / 2;
-    size.height = size.height / 2;
-    size.width = size.width / 2;
+    Dimension screenSize = getToolkit().getScreenSize();
+    Dimension size = getSize();
+    screenSize.height /= 2;
+    screenSize.width /= 2;
+    size.height /= 2;
+    size.width /= 2;
     int y = screenSize.height - size.height;
     int x = screenSize.width - size.width;
-    this.setLocation(x, y);
+    setLocation(x, y);
   }
 
   public void CancelPressed() {
-    this.setVisible(false);
+    setVisible(false);
   }
 
   public void OKPressed() {
-    this.setVisible(false);
+    setVisible(false);
   }
 }
 
 class ColumnLayout implements LayoutManager {
 
-  int xInset = 5;
-  int yInset = 5;
-  int yGap = 2;
+  final int xInset = 5;
+  final int yInset = 5;
+  final int yGap = 2;
 
+  @Override
   public void addLayoutComponent(String s, Component c) {
   }
 
+  @Override
   public void removeLayoutComponent(Component c) {
   }
 
+  @Override
   public Dimension preferredLayoutSize(Container c) {
     return minimumLayoutSize(c);
   }
 
+  @Override
   public Dimension minimumLayoutSize(Container c) {
     Insets insets = c.getInsets();
     int height = yInset + insets.top;
-    int width = 0 + insets.left + insets.right;
+    int width = insets.left + insets.right;
 
     Component[] children = c.getComponents();
-    Dimension compSize = null;
+    Dimension compSize;
     for (Component child : children) {
       compSize = child.getPreferredSize();
       height += compSize.height + yGap;
-      width = Math.max(width, compSize.width + insets.left + insets.right + xInset * 2);
+      width = Math.max(width, compSize.width + insets.left + insets.right + (xInset << 1));
     }
     height += insets.bottom;
     return new Dimension(width, height);
   }
 
+  @Override
   public void layoutContainer(Container c) {
     Insets insets = c.getInsets();
     int height = yInset + insets.top;
 
     Component[] children = c.getComponents();
-    Dimension compSize = null;
+    Dimension compSize;
     for (Component child : children) {
       compSize = child.getPreferredSize();
       child.setSize(compSize.width, compSize.height);

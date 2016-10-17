@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6446094
  * @summary Don't re-create print services.
  * @run main SameService
@@ -30,11 +30,10 @@
 
 import java.awt.*;
 import java.awt.print.*;
-import javax.print.*;
 
 public class SameService implements Printable {
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String[] args) throws Exception {
         PrinterJob job1 = PrinterJob.getPrinterJob();
         job1.setPrintable(new SameService());
         PrintService service1 = job1.getPrintService();
@@ -47,6 +46,7 @@ public class SameService implements Printable {
         }
     }
 
+     @Override
      public int print(Graphics g, PageFormat pf, int pi)
                        throws PrinterException  {
           return NO_SUCH_PAGE;

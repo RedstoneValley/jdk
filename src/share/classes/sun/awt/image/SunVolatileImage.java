@@ -33,6 +33,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
+import java.awt.Image;
 import java.awt.ImageCapabilities;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
@@ -54,12 +55,13 @@ import sun.java2d.SurfaceManagerFactory;
  */
 public class SunVolatileImage extends VolatileImage implements DestSurfaceProvider {
 
+  private final int width;
+  private final int height;
+  private final int forcedAccelSurfaceType;
   protected VolatileSurfaceManager volSurfaceManager;
-  protected Component comp;
+  protected final Component comp;
   private GraphicsConfiguration graphicsConfig;
   private Font defaultFont;
-  private int width, height;
-  private int forcedAccelSurfaceType;
 
   protected SunVolatileImage(
       Component comp, GraphicsConfiguration graphicsConfig, int width, int height, Object context,
@@ -68,14 +70,14 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
     this.graphicsConfig = graphicsConfig;
     this.width = width;
     this.height = height;
-    this.forcedAccelSurfaceType = accType;
+    forcedAccelSurfaceType = accType;
     if (!(transparency == Transparency.OPAQUE ||
               transparency == Transparency.BITMASK ||
               transparency == Transparency.TRANSLUCENT)) {
       throw new IllegalArgumentException("Unknown transparency type:" + transparency);
     }
     this.transparency = transparency;
-    this.volSurfaceManager = createSurfaceManager(context, caps);
+    volSurfaceManager = createSurfaceManager(context, caps);
     SurfaceManager.setManager(this, volSurfaceManager);
 
     // post-construction initialization of the surface manager
@@ -132,21 +134,20 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
   }
 
   protected VolatileSurfaceManager createSurfaceManager(Object context, ImageCapabilities caps) {
-    /**
-     * Platform-specific SurfaceManagerFactories will return a
-     * manager suited to acceleration on each platform.  But if
-     * the user is asking for a VolatileImage from a BufferedImageGC,
-     * then we need to return the appropriate unaccelerated manager.
-     * Note: this could change in the future; if some platform would
-     * like to accelerate BIGC volatile images, then this special-casing
-     * of the BIGC graphicsConfig should live in platform-specific
-     * code instead.
-     * We do the same for a Printer Device, and if user requested an
-     * unaccelerated VolatileImage by passing the capabilities object.
+    /*
+      Platform-specific SurfaceManagerFactories will return a
+      manager suited to acceleration on each platform.  But if
+      the user is asking for a VolatileImage from a BufferedImageGC,
+      then we need to return the appropriate unaccelerated manager.
+      Note: this could change in the future; if some platform would
+      like to accelerate BIGC volatile images, then this special-casing
+      of the BIGC graphicsConfig should live in platform-specific
+      code instead.
+      We do the same for a Printer Device, and if user requested an
+      unaccelerated VolatileImage by passing the capabilities object.
      */
-    if (graphicsConfig instanceof BufferedImageGraphicsConfig ||
-        graphicsConfig instanceof sun.print.PrinterGraphicsConfig ||
-        (caps != null && !caps.isAccelerated())) {
+    if (graphicsConfig instanceof BufferedImageGraphicsConfig
+        || caps != null && !caps.isAccelerated()) {
       return new BufImgVolatileSurfaceManager(this, context);
     }
     SurfaceManagerFactory smf = SurfaceManagerFactory.getInstance();
@@ -154,19 +155,11 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
   }
 
   private Color getForeground() {
-    if (comp != null) {
-      return comp.getForeground();
-    } else {
-      return Color.black;
-    }
+    return comp != null ? comp.getForeground() : Color.black;
   }
 
   private Color getBackground() {
-    if (comp != null) {
-      return comp.getBackground();
-    } else {
-      return Color.white;
-    }
+    return comp != null ? comp.getBackground() : Color.white;
   }
 
   private Font getFont() {
@@ -174,26 +167,29 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
       return comp.getFont();
     } else {
       if (defaultFont == null) {
-        defaultFont = new Font("Dialog", Font.PLAIN, 12);
+        defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
       }
       return defaultFont;
     }
   }
 
+  @Override
   public int getWidth(ImageObserver observer) {
     return getWidth();
   }
 
+  @Override
   public int getHeight(ImageObserver observer) {
     return getHeight();
   }
 
   // Image method implementations
+  @Override
   public Object getProperty(String name, ImageObserver observer) {
     if (name == null) {
       throw new NullPointerException("null property name is not allowed");
     }
-    return java.awt.Image.UndefinedProperty;
+    return Image.UndefinedProperty;
   }
 
   /**
@@ -204,6 +200,7 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
     return graphicsConfig.createCompatibleImage(getWidth(), getHeight(), getTransparency());
   }
 
+  @Override
   public BufferedImage getSnapshot() {
     BufferedImage bi = getBackupImage();
     Graphics2D g = bi.createGraphics();
@@ -213,38 +210,40 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
     return bi;
   }
 
+  @Override
   public int getWidth() {
     return width;
   }
 
+  @Override
   public int getHeight() {
     return height;
   }
 
+  @Override
   public Graphics2D createGraphics() {
-    return new SunGraphics2D(volSurfaceManager.getPrimarySurfaceData(),
+    return new SunGraphics2D(
+        volSurfaceManager.getPrimarySurfaceData(),
         getForeground(),
         getBackground(),
         getFont());
   }
 
+  @Override
   public int validate(GraphicsConfiguration gc) {
     return volSurfaceManager.validate(gc);
   }
 
+  @Override
   public boolean contentsLost() {
     return volSurfaceManager.contentsLost();
   }
 
+  @Override
   public ImageCapabilities getCapabilities() {
     return volSurfaceManager.getCapabilities(graphicsConfig);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see sun.java2d.DestSurfaceProvider#getDestSurface
-   */
   @Override
   public Surface getDestSurface() {
     return volSurfaceManager.getPrimarySurfaceData();

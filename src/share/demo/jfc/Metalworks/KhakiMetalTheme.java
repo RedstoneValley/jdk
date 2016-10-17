@@ -37,9 +37,6 @@
  * this sample code.
  */
 
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.metal.DefaultMetalTheme;
-
 /**
  * This class describes a theme using "khaki" colors.
  *

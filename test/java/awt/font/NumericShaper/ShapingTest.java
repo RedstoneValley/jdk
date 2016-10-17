@@ -32,9 +32,12 @@ import java.awt.font.NumericShaper;
 import java.util.EnumSet;
 import static java.awt.font.NumericShaper.*;
 
-public class ShapingTest {
+public final class ShapingTest {
 
-    private static boolean err = false;
+    private static boolean err;
+
+    private ShapingTest() {
+    }
 
     public static void main(String[] args) {
         test6842557();
@@ -70,12 +73,10 @@ public class ShapingTest {
            // Ethiopic zero doesn't exist even in Unicode 5.1.0.
         };
 
-        for (int i = 0; i < data.length; i++) {
-            checkResult("ARABIC | TAMIL | ETHIOPIC",
-                        ns_old, data[i][0], data[i][1]);
+        for (String[] aData : data) {
+            checkResult("ARABIC | TAMIL | ETHIOPIC", ns_old, aData[0], aData[1]);
 
-            checkResult("Range.ARABIC, Range.TAMIL, Range.ETHIOPIC",
-                        ns_new, data[i][0], data[i][1]);
+            checkResult("Range.ARABIC, Range.TAMIL, Range.ETHIOPIC", ns_new, aData[0], aData[1]);
         }
     }
 

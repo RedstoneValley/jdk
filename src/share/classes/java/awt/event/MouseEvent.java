@@ -26,7 +26,6 @@
 package java.awt.event;
 
 import java.awt.Component;
-import java.awt.GraphicsEnvironment;
 import java.awt.IllegalComponentStateException;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -77,26 +76,26 @@ import sun.awt.SunToolkit;
  * </ul>
  * </ul>
  * <p>
- * A <code>MouseEvent</code> object is passed to every
- * <code>MouseListener</code>
- * or <code>MouseAdapter</code> object which is registered to receive
+ * A {@code MouseEvent} object is passed to every
+ * {@code MouseListener}
+ * or {@code MouseAdapter} object which is registered to receive
  * the "interesting" mouse events using the component's
- * <code>addMouseListener</code> method.
- * (<code>MouseAdapter</code> objects implement the
- * <code>MouseListener</code> interface.) Each such listener object
- * gets a <code>MouseEvent</code> containing the mouse event.
+ * {@code addMouseListener} method.
+ * ({@code MouseAdapter} objects implement the
+ * {@code MouseListener} interface.) Each such listener object
+ * gets a {@code MouseEvent} containing the mouse event.
  * <p>
- * A <code>MouseEvent</code> object is also passed to every
- * <code>MouseMotionListener</code> or
- * <code>MouseMotionAdapter</code> object which is registered to receive
+ * A {@code MouseEvent} object is also passed to every
+ * {@code MouseMotionListener} or
+ * {@code MouseMotionAdapter} object which is registered to receive
  * mouse motion events using the component's
- * <code>addMouseMotionListener</code>
- * method. (<code>MouseMotionAdapter</code> objects implement the
- * <code>MouseMotionListener</code> interface.) Each such listener object
- * gets a <code>MouseEvent</code> containing the mouse motion event.
+ * {@code addMouseMotionListener}
+ * method. ({@code MouseMotionAdapter} objects implement the
+ * {@code MouseMotionListener} interface.) Each such listener object
+ * gets a {@code MouseEvent} containing the mouse motion event.
  * <p>
  * When a mouse button is clicked, events are generated and sent to the
- * registered <code>MouseListener</code>s.
+ * registered {@code MouseListener}s.
  * The state of modal keys can be retrieved using {@link InputEvent#getModifiers}
  * and {@link InputEvent#getModifiersEx}.
  * The button mask returned by {@link InputEvent#getModifiers} reflects
@@ -112,9 +111,9 @@ import sun.awt.SunToolkit;
  * following order:
  * <PRE>
  * <b   >id           </b   >   <b   >modifiers   </b   > <b   >button </b   >
- * <code>MOUSE_PRESSED</code>:  <code>BUTTON1_MASK</code> <code>BUTTON1</code>
- * <code>MOUSE_RELEASED</code>: <code>BUTTON1_MASK</code> <code>BUTTON1</code>
- * <code>MOUSE_CLICKED</code>:  <code>BUTTON1_MASK</code> <code>BUTTON1</code>
+ * {@code MOUSE_PRESSED}:  {@code BUTTON1_MASK} {@code BUTTON1}
+ * {@code MOUSE_RELEASED}: {@code BUTTON1_MASK} {@code BUTTON1}
+ * {@code MOUSE_CLICKED}:  {@code BUTTON1_MASK} {@code BUTTON1}
  * </PRE>
  * When multiple mouse buttons are pressed, each press, release, and click
  * results in a separate event.
@@ -124,17 +123,17 @@ import sun.awt.SunToolkit;
  * the following sequence of events is generated:
  * <PRE>
  * <b   >id           </b   >   <b   >modifiers   </b   > <b   >button </b   >
- * <code>MOUSE_PRESSED</code>:  <code>BUTTON1_MASK</code> <code>BUTTON1</code>
- * <code>MOUSE_PRESSED</code>:  <code>BUTTON2_MASK</code> <code>BUTTON2</code>
- * <code>MOUSE_RELEASED</code>: <code>BUTTON1_MASK</code> <code>BUTTON1</code>
- * <code>MOUSE_CLICKED</code>:  <code>BUTTON1_MASK</code> <code>BUTTON1</code>
- * <code>MOUSE_RELEASED</code>: <code>BUTTON2_MASK</code> <code>BUTTON2</code>
- * <code>MOUSE_CLICKED</code>:  <code>BUTTON2_MASK</code> <code>BUTTON2</code>
+ * {@code MOUSE_PRESSED}:  {@code BUTTON1_MASK} {@code BUTTON1}
+ * {@code MOUSE_PRESSED}:  {@code BUTTON2_MASK} {@code BUTTON2}
+ * {@code MOUSE_RELEASED}: {@code BUTTON1_MASK} {@code BUTTON1}
+ * {@code MOUSE_CLICKED}:  {@code BUTTON1_MASK} {@code BUTTON1}
+ * {@code MOUSE_RELEASED}: {@code BUTTON2_MASK} {@code BUTTON2}
+ * {@code MOUSE_CLICKED}:  {@code BUTTON2_MASK} {@code BUTTON2}
  * </PRE>
  * If <b>button 2</b> is released first, the
- * <code>MOUSE_RELEASED</code>/<code>MOUSE_CLICKED</code> pair
- * for <code>BUTTON2_MASK</code> arrives first,
- * followed by the pair for <code>BUTTON1_MASK</code>.
+ * {@code MOUSE_RELEASED}/{@code MOUSE_CLICKED} pair
+ * for {@code BUTTON2_MASK} arrives first,
+ * followed by the pair for {@code BUTTON1_MASK}.
  * <p>
  * Some extra mouse buttons are added to extend the standard set of buttons
  * represented by the following constants:{@code BUTTON1}, {@code BUTTON2}, and {@code BUTTON3}.
@@ -153,20 +152,20 @@ import sun.awt.SunToolkit;
  * Drag&amp;Drop operation.
  * <p>
  * In a multi-screen environment mouse drag events are delivered to the
- * <code>Component</code> even if the mouse position is outside the bounds of the
- * <code>GraphicsConfiguration</code> associated with that
- * <code>Component</code>. However, the reported position for mouse drag events
+ * {@code Component} even if the mouse position is outside the bounds of the
+ * {@code GraphicsConfiguration} associated with that
+ * {@code Component}. However, the reported position for mouse drag events
  * in this case may differ from the actual mouse position:
  * <ul>
  * <li>In a multi-screen environment without a virtual device:
  * <br>
  * The reported coordinates for mouse drag events are clipped to fit within the
- * bounds of the <code>GraphicsConfiguration</code> associated with
- * the <code>Component</code>.
+ * bounds of the {@code GraphicsConfiguration} associated with
+ * the {@code Component}.
  * <li>In a multi-screen environment with a virtual device:
  * <br>
  * The reported coordinates for mouse drag events are clipped to fit within the
- * bounds of the virtual device associated with the <code>Component</code>.
+ * bounds of the virtual device associated with the {@code Component}.
  * </ul>
  * <p>
  * An unspecified behavior will be caused if the {@code id} parameter
@@ -199,51 +198,51 @@ public class MouseEvent extends InputEvent {
   public static final int MOUSE_LAST = 507;
 
   /**
-   * The "mouse clicked" event. This <code>MouseEvent</code>
+   * The "mouse clicked" event. This {@code MouseEvent}
    * occurs when a mouse button is pressed and released.
    */
   public static final int MOUSE_CLICKED = MOUSE_FIRST;
 
   /**
-   * The "mouse pressed" event. This <code>MouseEvent</code>
+   * The "mouse pressed" event. This {@code MouseEvent}
    * occurs when a mouse button is pushed down.
    */
   public static final int MOUSE_PRESSED = 1 + MOUSE_FIRST; //Event.MOUSE_DOWN
 
   /**
-   * The "mouse released" event. This <code>MouseEvent</code>
+   * The "mouse released" event. This {@code MouseEvent}
    * occurs when a mouse button is let up.
    */
   public static final int MOUSE_RELEASED = 2 + MOUSE_FIRST; //Event.MOUSE_UP
 
   /**
-   * The "mouse moved" event. This <code>MouseEvent</code>
+   * The "mouse moved" event. This {@code MouseEvent}
    * occurs when the mouse position changes.
    */
   public static final int MOUSE_MOVED = 3 + MOUSE_FIRST; //Event.MOUSE_MOVE
 
   /**
-   * The "mouse entered" event. This <code>MouseEvent</code>
+   * The "mouse entered" event. This {@code MouseEvent}
    * occurs when the mouse cursor enters the unobscured part of component's
    * geometry.
    */
   public static final int MOUSE_ENTERED = 4 + MOUSE_FIRST; //Event.MOUSE_ENTER
 
   /**
-   * The "mouse exited" event. This <code>MouseEvent</code>
+   * The "mouse exited" event. This {@code MouseEvent}
    * occurs when the mouse cursor exits the unobscured part of component's
    * geometry.
    */
   public static final int MOUSE_EXITED = 5 + MOUSE_FIRST; //Event.MOUSE_EXIT
 
   /**
-   * The "mouse dragged" event. This <code>MouseEvent</code>
+   * The "mouse dragged" event. This {@code MouseEvent}
    * occurs when the mouse position changes while a mouse button is pressed.
    */
   public static final int MOUSE_DRAGGED = 6 + MOUSE_FIRST; //Event.MOUSE_DRAG
 
   /**
-   * The "mouse wheel" event.  This is the only <code>MouseWheelEvent</code>.
+   * The "mouse wheel" event.  This is the only {@code MouseWheelEvent}.
    * It occurs when a mouse equipped with a wheel has its wheel rotated.
    *
    * @since 1.4
@@ -284,22 +283,13 @@ public class MouseEvent extends InputEvent {
   /**
    * A number of buttons available on the mouse at the {@code Toolkit} machinery startup.
    */
-  private static int cachedNumberOfButtons;
+  private static final int cachedNumberOfButtons;
 
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
-    final Toolkit tk = Toolkit.getDefaultToolkit();
-    if (tk instanceof SunToolkit) {
-      cachedNumberOfButtons = ((SunToolkit) tk).getNumberOfButtons();
-    } else {
-      //It's expected that some toolkits (Headless,
-      //whatever besides SunToolkit) could also operate.
-      cachedNumberOfButtons = 3;
-    }
+    Toolkit tk = Toolkit.getDefaultToolkit();
+    cachedNumberOfButtons = tk instanceof SunToolkit ? ((SunToolkit) tk).getNumberOfButtons() : 3;
   }
 
   /**
@@ -322,16 +312,16 @@ public class MouseEvent extends InputEvent {
    * Indicates the number of quick consecutive clicks of
    * a mouse button.
    * clickCount will be valid for only three mouse events :<BR>
-   * <code>MOUSE_CLICKED</code>,
-   * <code>MOUSE_PRESSED</code> and
-   * <code>MOUSE_RELEASED</code>.
-   * For the above, the <code>clickCount</code> will be at least 1.
+   * {@code MOUSE_CLICKED},
+   * {@code MOUSE_PRESSED} and
+   * {@code MOUSE_RELEASED}.
+   * For the above, the {@code clickCount} will be at least 1.
    * For all other events the count will be 0.
    *
    * @serial
    * @see #getClickCount()
    */
-  int clickCount;
+  final int clickCount;
   /**
    * Indicates which, if any, of the mouse buttons has changed state.
    * <p>
@@ -361,21 +351,21 @@ public class MouseEvent extends InputEvent {
    *
    * @serial
    * @see #getButton()
-   * @see java.awt.Toolkit#areExtraMouseButtonsEnabled()
+   * @see Toolkit#areExtraMouseButtonsEnabled()
    */
   int button;
   /**
    * A property used to indicate whether a Popup Menu
    * should appear  with a certain gestures.
-   * If <code>popupTrigger</code> = <code>false</code>,
-   * no popup menu should appear.  If it is <code>true</code>
+   * If {@code popupTrigger} = {@code false},
+   * no popup menu should appear.  If it is {@code true}
    * then a popup menu should appear.
    *
    * @serial
    * @see java.awt.PopupMenu
    * @see #isPopupTrigger()
    */
-  boolean popupTrigger = false;
+  final boolean popupTrigger;
   /**
    * The mouse event's x absolute coordinate.
    * In a virtual device multi-screen environment in which the
@@ -400,10 +390,10 @@ public class MouseEvent extends InputEvent {
   private int yAbs;
   /* if the button is an extra button and it is released or clicked then in Xsystem its state
      is not modified. Exclude this button number from ExtModifiers mask.*/
-  transient private boolean shouldExcludeButtonFromExtModifiers = false;
+  private transient boolean shouldExcludeButtonFromExtModifiers;
 
   /**
-   * Constructs a <code>MouseEvent</code> object with the
+   * Constructs a {@code MouseEvent} object with the
    * specified source component,
    * type, time, modifiers, coordinates, click count, popupTrigger flag,
    * and button number.
@@ -421,13 +411,13 @@ public class MouseEvent extends InputEvent {
    * relative coordinates x and y.
    * xAbs and yAbs are set to zero if the source is not showing.
    * This method throws an
-   * <code>IllegalArgumentException</code> if <code>source</code>
-   * is <code>null</code>.
+   * {@code IllegalArgumentException} if {@code source}
+   * is {@code null}.
    *
-   * @param source       The <code>Component</code> that originated the event
+   * @param source       The {@code Component} that originated the event
    * @param id           An integer indicating the type of event.
    *                     For information on allowable values, see
-   *                     the class description for {@link MouseEvent}
+   *                     the class description for
    * @param when         A long integer that gives the time the event occurred.
    *                     Passing negative or zero value
    *                     is not recommended
@@ -472,7 +462,7 @@ public class MouseEvent extends InputEvent {
    *                     if the mouse has more than three buttons.
    *                     </ul>
    * @throws IllegalArgumentException if {@code button} is less then zero
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @throws IllegalArgumentException if {@code button} is greater then BUTTON3 and the support
    *                                  for extended mouse buttons is
    *                                  {@link Toolkit#areExtraMouseButtonsEnabled() disabled} by
@@ -482,9 +472,9 @@ public class MouseEvent extends InputEvent {
    *                                  for extended mouse buttons is
    *                                  {@link Toolkit#areExtraMouseButtonsEnabled() enabled}
    *                                  by Java
-   * @throws IllegalArgumentException if an invalid <code>button</code>
+   * @throws IllegalArgumentException if an invalid {@code button}
    *                                  value is passed in
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @see #getSource()
    * @see #getID()
    * @see #getWhen()
@@ -503,16 +493,16 @@ public class MouseEvent extends InputEvent {
     Point eventLocationOnScreen = new Point(0, 0);
     try {
       eventLocationOnScreen = source.getLocationOnScreen();
-      this.xAbs = eventLocationOnScreen.x + x;
-      this.yAbs = eventLocationOnScreen.y + y;
+      xAbs = eventLocationOnScreen.x + x;
+      yAbs = eventLocationOnScreen.y + y;
     } catch (IllegalComponentStateException e) {
-      this.xAbs = 0;
-      this.yAbs = 0;
+      xAbs = 0;
+      yAbs = 0;
     }
   }
 
   /**
-   * Constructs a <code>MouseEvent</code> object with the
+   * Constructs a {@code MouseEvent} object with the
    * specified source component,
    * type, modifiers, coordinates, click count, and popupTrigger flag.
    * An invocation of the form
@@ -524,13 +514,13 @@ public class MouseEvent extends InputEvent {
    * where xAbs and yAbs defines as source's location on screen plus
    * relative coordinates x and y.
    * xAbs and yAbs are set to zero if the source is not showing.
-   * This method throws an <code>IllegalArgumentException</code>
-   * if <code>source</code> is <code>null</code>.
+   * This method throws an {@code IllegalArgumentException}
+   * if {@code source} is {@code null}.
    *
-   * @param source       The <code>Component</code> that originated the event
+   * @param source       The {@code Component} that originated the event
    * @param id           An integer indicating the type of event.
    *                     For information on allowable values, see
-   *                     the class description for {@link MouseEvent}
+   *                     the class description for
    * @param when         A long integer that gives the time the event occurred.
    *                     Passing negative or zero value
    *                     is not recommended
@@ -552,7 +542,7 @@ public class MouseEvent extends InputEvent {
    *                     is not recommended
    * @param popupTrigger A boolean that equals {@code true} if this event
    *                     is a trigger for a popup menu
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @see #getSource()
    * @see #getID()
    * @see #getWhen()
@@ -569,7 +559,7 @@ public class MouseEvent extends InputEvent {
   }
 
   /**
-   * Constructs a <code>MouseEvent</code> object with the
+   * Constructs a {@code MouseEvent} object with the
    * specified source component,
    * type, time, modifiers, coordinates, absolute coordinates, click count, popupTrigger flag,
    * and button number.
@@ -581,13 +571,13 @@ public class MouseEvent extends InputEvent {
    * passed to the constructor, the mouse event instance is still
    * created and no exception is thrown.
    * This method throws an
-   * <code>IllegalArgumentException</code> if <code>source</code>
-   * is <code>null</code>.
+   * {@code IllegalArgumentException} if {@code source}
+   * is {@code null}.
    *
-   * @param source       The <code>Component</code> that originated the event
+   * @param source       The {@code Component} that originated the event
    * @param id           An integer indicating the type of event.
    *                     For information on allowable values, see
-   *                     the class description for {@link MouseEvent}
+   *                     the class description for
    * @param when         A long integer that gives the time the event occurred.
    *                     Passing negative or zero value
    *                     is not recommended
@@ -636,7 +626,7 @@ public class MouseEvent extends InputEvent {
    *                     if the mouse has more than three buttons.
    *                     </ul>
    * @throws IllegalArgumentException if {@code button} is less then zero
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @throws IllegalArgumentException if {@code button} is greater then BUTTON3 and the support
    *                                  for extended mouse buttons is
    *                                  {@link Toolkit#areExtraMouseButtonsEnabled() disabled} by
@@ -646,9 +636,9 @@ public class MouseEvent extends InputEvent {
    *                                  for extended mouse buttons is
    *                                  {@link Toolkit#areExtraMouseButtonsEnabled() enabled}
    *                                  by Java
-   * @throws IllegalArgumentException if an invalid <code>button</code>
+   * @throws IllegalArgumentException if an invalid {@code button}
    *                                  value is passed in
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @see #getSource()
    * @see #getID()
    * @see #getWhen()
@@ -682,10 +672,9 @@ public class MouseEvent extends InputEvent {
     if (button > BUTTON3) {
       if (!Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()) {
         throw new IllegalArgumentException("Extra mouse events are disabled " + button);
-      } else {
-        if (button > cachedNumberOfButtons) {
-          throw new IllegalArgumentException("Nonexistent button " + button);
-        }
+      }
+      if (button > cachedNumberOfButtons) {
+        throw new IllegalArgumentException("Nonexistent button " + button);
       }
       // XToolkit: extra buttons are not reporting about their state correctly.
       // Being pressed they report the state=0 both on the press and on the release.
@@ -698,7 +687,7 @@ public class MouseEvent extends InputEvent {
       // This may have to be moved into the peer code instead if possible.
 
       if (getModifiersEx() != 0) { //There is at least one more button in a pressed state.
-        if (id == MouseEvent.MOUSE_RELEASED || id == MouseEvent.MOUSE_CLICKED) {
+        if (id == MOUSE_RELEASED || id == MOUSE_CLICKED) {
           shouldExcludeButtonFromExtModifiers = true;
         }
       }
@@ -706,32 +695,26 @@ public class MouseEvent extends InputEvent {
 
     this.button = button;
 
-    if ((getModifiers() != 0) && (getModifiersEx() == 0)) {
+    if (getModifiers() != 0 && getModifiersEx() == 0) {
       setNewModifiers();
-    } else if ((getModifiers() == 0) &&
+    } else if (getModifiers() == 0 &&
         (getModifiersEx() != 0 || button != NOBUTTON) &&
-        (button <= BUTTON3)) {
+        button <= BUTTON3) {
       setOldModifiers();
     }
   }
 
   /**
-   * Initialize JNI field and method IDs for fields that may be
-   * accessed from C.
-   */
-  private static native void initIDs();
-
-  /**
-   * Returns a <code>String</code> instance describing the modifier keys and
+   * Returns a {@code String} instance describing the modifier keys and
    * mouse buttons that were down during the event, such as "Shift",
    * or "Ctrl+Shift". These strings can be localized by changing
-   * the <code>awt.properties</code> file.
+   * the {@code awt.properties} file.
    * <p>
-   * Note that the <code>InputEvent.ALT_MASK</code> and
-   * <code>InputEvent.BUTTON2_MASK</code> have equal values,
+   * Note that the {@code InputEvent.ALT_MASK} and
+   * {@code InputEvent.BUTTON2_MASK} have equal values,
    * so the "Alt" string is returned for both modifiers.  Likewise,
-   * the <code>InputEvent.META_MASK</code> and
-   * <code>InputEvent.BUTTON3_MASK</code> have equal values,
+   * the {@code InputEvent.META_MASK} and
+   * {@code InputEvent.BUTTON3_MASK} have equal values,
    * so the "Meta" string is returned for both modifiers.
    * <p>
    * Note that passing negative parameter is incorrect,
@@ -814,7 +797,7 @@ public class MouseEvent extends InputEvent {
    * Otherwise, these coordinates are relative to the coordinate system
    * associated with the Component's GraphicsConfiguration.
    *
-   * @return a <code>Point</code> object containing the absolute  x
+   * @return a {@code Point} object containing the absolute  x
    * and y coordinates.
    * @see java.awt.GraphicsConfiguration
    * @since 1.6
@@ -855,13 +838,11 @@ public class MouseEvent extends InputEvent {
     return yAbs;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public int getModifiersEx() {
     int tmpModifiers = modifiers;
     if (shouldExcludeButtonFromExtModifiers) {
-      tmpModifiers &= ~(InputEvent.getMaskForButton(getButton()));
+      tmpModifiers &= ~InputEvent.getMaskForButton(getButton());
     }
     return tmpModifiers & ~JDK_1_3_MODIFIERS;
   }
@@ -891,7 +872,7 @@ public class MouseEvent extends InputEvent {
   /**
    * Returns the x,y position of the event relative to the source component.
    *
-   * @return a <code>Point</code> object containing the x and y coordinates
+   * @return a {@code Point} object containing the x and y coordinates
    * relative to the source component
    */
   public Point getPoint() {
@@ -906,7 +887,7 @@ public class MouseEvent extends InputEvent {
 
   /**
    * Translates the event's coordinates to a new position
-   * by adding specified <code>x</code> (horizontal) and <code>y</code>
+   * by adding specified {@code x} (horizontal) and {@code y}
    * (vertical) offsets.
    *
    * @param x the horizontal x value to add to the current x
@@ -996,9 +977,9 @@ public class MouseEvent extends InputEvent {
    * Returns whether or not this mouse event is the popup menu
    * trigger event for the platform.
    * <p><b>Note</b>: Popup menus are triggered differently
-   * on different systems. Therefore, <code>isPopupTrigger</code>
-   * should be checked in both <code>mousePressed</code>
-   * and <code>mouseReleased</code>
+   * on different systems. Therefore, {@code isPopupTrigger}
+   * should be checked in both {@code mousePressed}
+   * and {@code mouseReleased}
    * for proper cross-platform functionality.
    *
    * @return boolean, true if this event is the popup menu trigger
@@ -1014,6 +995,7 @@ public class MouseEvent extends InputEvent {
    *
    * @return a string identifying the event and its attributes
    */
+  @Override
   public String paramString() {
     StringBuilder str = new StringBuilder(80);
 

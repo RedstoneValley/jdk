@@ -33,8 +33,11 @@
 import java.awt.FocusTraversalPolicy;
 import java.awt.Window;
 
-public class InitialFTP {
-    public static void test(Window win, Class<? extends FocusTraversalPolicy> expectedPolicy) {
+public final class InitialFTP {
+  private InitialFTP() {
+  }
+
+  public static void test(Window win, Class<? extends FocusTraversalPolicy> expectedPolicy) {
         FocusTraversalPolicy ftp = win.getFocusTraversalPolicy();
 
         System.out.println("==============" + "\n" +

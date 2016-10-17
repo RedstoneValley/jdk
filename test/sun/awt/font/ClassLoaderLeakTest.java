@@ -20,8 +20,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-/**
- * @test
+/*
+  @test
  * @bug     6936389
  *
  * @summary Test verifes that LogManager shutdown hook does not cause
@@ -31,7 +31,6 @@
  */
 
 import java.awt.Font;
-import java.awt.Graphics;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -41,11 +40,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.concurrent.CountDownLatch;
 
-public class ClassLoaderLeakTest {
+public final class ClassLoaderLeakTest {
 
-    private static CountDownLatch doneSignal;
-    private static CountDownLatch launchSignal;
-    private static Throwable launchFailure = null;
+    static CountDownLatch doneSignal;
+    static CountDownLatch launchSignal;
+    static Throwable launchFailure;
 
     public static void main(String[] args) {
         doneSignal = new CountDownLatch(1);
@@ -58,7 +57,7 @@ public class ClassLoaderLeakTest {
         }
 
         /* prepare test  class loader */
-        URL pwd = null;
+        URL pwd;
         try {
 
             pwd = new File(System.getProperty("test.classes", ".")).toURL();
@@ -66,11 +65,10 @@ public class ClassLoaderLeakTest {
             throw new RuntimeException("Test failed.", e);
         }
         System.out.println("PWD: " + pwd);
-        URL[] urls = new URL[]{pwd};
+        URL[] urls = {pwd};
 
         MyClassLoader appClassLoader = new MyClassLoader(urls, "test0");
-        WeakReference<MyClassLoader> ref =
-            new WeakReference<MyClassLoader>(appClassLoader);
+        WeakReference<MyClassLoader> ref = new WeakReference<>(appClassLoader);
 
         ThreadGroup appsThreadGroup = new ThreadGroup("MyAppsThreadGroup");
 
@@ -80,10 +78,6 @@ public class ClassLoaderLeakTest {
         appThread.setContextClassLoader(appClassLoader);
 
         appThread.start();
-        appsThreadGroup = null;
-        appClassLoader = null;
-        launcher = null;
-        appThread = null;
 
         /* wait for laucnh completion */
         try {
@@ -115,12 +109,13 @@ public class ClassLoaderLeakTest {
 
     private static class TestLauncher implements Runnable {
 
-        private String className;
+        private final String className;
 
         public TestLauncher(String name) {
             className = name;
         }
 
+        @Override
         public void run() {
             try {
                 ClassLoader cl =
@@ -145,9 +140,9 @@ public class ClassLoaderLeakTest {
 
     private static class MyClassLoader extends URLClassLoader {
 
-        private static boolean verbose =
+        private static final boolean verbose =
             Boolean.getBoolean("verboseClassLoading");
-        private String uniqClassName;
+        private final String uniqClassName;
 
         public MyClassLoader(URL[] urls, String uniq) {
             super(urls);
@@ -155,6 +150,7 @@ public class ClassLoaderLeakTest {
             uniqClassName = uniq;
         }
 
+        @Override
         public Class loadClass(String name) throws ClassNotFoundException {
             if (verbose) {
                 System.out.printf("%s: load class %s\n", uniqClassName, name);
@@ -173,7 +169,8 @@ public class ClassLoaderLeakTest {
     private static void waitAndGC(int sec) {
         int cnt = sec;
         System.out.print("Wait ");
-        while (cnt-- > 0) {
+        while (cnt > 0) {
+            cnt--;
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -187,6 +184,7 @@ public class ClassLoaderLeakTest {
             }
             //checkErrors();
         }
+        cnt--;
         System.out.println("");
     }
 }
@@ -199,7 +197,7 @@ abstract class AppTest {
     protected abstract void doTest();
 
     public void launch(CountDownLatch done) {
-        System.out.println("Testcase: " + this.getClass().getName());
+        System.out.println("Testcase: " + getClass().getName());
         try {
             doTest();
         } finally {
@@ -213,6 +211,7 @@ class FontManagerTest extends AppTest {
     public FontManagerTest() {
     }
 
+    @Override
     protected void doTest() {
         Font f = new Font(Font.SANS_SERIF, Font.ITALIC, 24);
         f.getNumGlyphs();

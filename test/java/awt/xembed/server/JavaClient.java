@@ -39,7 +39,7 @@ public class JavaClient {
         System.setProperty("sun.awt.xembed.testing", "true");
 
         boolean xtoolkit = "sun.awt.X11.XToolkit".equals(Toolkit.getDefaultToolkit().getClass().getName());
-        final EmbeddedFrame ef = createEmbeddedFrame(xtoolkit, Long.parseLong(args[0]));
+        EmbeddedFrame ef = createEmbeddedFrame(xtoolkit, Long.parseLong(args[0]));
         ef.setBackground(new Color(100, 100, 200));
         ef.setLayout(new BorderLayout());
         ef.add(new ClientContainer(ef), BorderLayout.CENTER);
@@ -49,9 +49,10 @@ public class JavaClient {
     }
     private static EmbeddedFrame createEmbeddedFrame(boolean xtoolkit, long window) {
         try {
-            Class cl = (xtoolkit?Class.forName("sun.awt.X11.XEmbeddedFrame"):Class.forName("sun.awt.motif.MEmbeddedFrame"));
-            Constructor cons = cl.getConstructor(new Class[]{Long.TYPE, Boolean.TYPE});
-            return (EmbeddedFrame)cons.newInstance(new Object[] {window, true});
+            Class cl = Class.forName(
+                xtoolkit ? "sun.awt.X11.XEmbeddedFrame" : "sun.awt.motif.MEmbeddedFrame");
+            Constructor cons = cl.getConstructor(Long.TYPE, Boolean.TYPE);
+            return (EmbeddedFrame)cons.newInstance(window, true);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Can't create embedded frame");
@@ -60,53 +61,60 @@ public class JavaClient {
 }
 
 class ClientContainer extends Container {
-    Window parent;
+    private static final long serialVersionUID = 3383319675284104873L;
+    final Window parent;
     int width, height;
     public ClientContainer(Window w) {
         parent = w;
         width = 500;
         height = 50;
-        final TextField tf = new TextField(30);
+        TextField tf = new TextField(30);
 
         DragSource ds = new DragSource();
-        final DragSourceListener dsl = new DragSourceAdapter() {
+        DragSourceListener dsl = new DragSourceAdapter() {
+                @Override
                 public void dragDropEnd(DragSourceDropEvent dsde) {
                 }
             };
-        final DragGestureListener dgl = new DragGestureListener() {
+        DragGestureListener dgl = new DragGestureListener() {
+                @Override
                 public void dragGestureRecognized(DragGestureEvent dge) {
                     dge.startDrag(null, new StringSelection(tf.getText()), dsl);
                 }
             };
         ds.createDefaultDragGestureRecognizer(tf, DnDConstants.ACTION_COPY, dgl);
 
-        final DropTargetListener dtl = new DropTargetAdapter() {
+        DropTargetListener dtl = new DropTargetAdapter() {
+                @Override
                 public void drop(DropTargetDropEvent dtde) {
                     dtde.acceptDrop(DnDConstants.ACTION_COPY);
                     try {
-                        tf.setText(tf.getText() + (String)dtde.getTransferable().getTransferData(DataFlavor.stringFlavor));
+                        tf.setText(tf.getText() + dtde.getTransferable().getTransferData(DataFlavor.stringFlavor));
                     } catch (Exception e) {
                     }
                 }
             };
-        final DropTarget dt = new DropTarget(tf, dtl);
+        DropTarget dt = new DropTarget(tf, dtl);
 
         setLayout(new FlowLayout());
         add(tf);
         Button close = new Button("Close");
         close.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     parent.dispose();
                 }
             });
         Button inc = new Button("Increase size");
         inc.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     changeSize(10);
                 }
             });
         Button dec = new Button("Decrease size");
         dec.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     changeSize(-10);
                 }
@@ -120,6 +128,7 @@ class ClientContainer extends Container {
         height += step;
         parent.pack();
     }
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(width, height);
     }

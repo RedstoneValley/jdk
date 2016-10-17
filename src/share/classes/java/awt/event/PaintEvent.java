@@ -75,25 +75,25 @@ public class PaintEvent extends ComponentEvent {
    * This rectangle should be non null.
    *
    * @serial
-   * @see java.awt.Rectangle
+   * @see Rectangle
    * @see #setUpdateRect(Rectangle)
    * @see #getUpdateRect()
    */
   Rectangle updateRect;
 
   /**
-   * Constructs a <code>PaintEvent</code> object with the specified
+   * Constructs a {@code PaintEvent} object with the specified
    * source component and type.
    * <p> This method throws an
-   * <code>IllegalArgumentException</code> if <code>source</code>
-   * is <code>null</code>.
+   * {@code IllegalArgumentException} if {@code source}
+   * is {@code null}.
    *
    * @param source     The object where the event originated
    * @param id         The integer that identifies the event type.
    *                   For information on allowable values, see
-   *                   the class description for {@link PaintEvent}
+   *                   the class description for
    * @param updateRect The rectangle area which needs to be repainted
-   * @throws IllegalArgumentException if <code>source</code> is null
+   * @throws IllegalArgumentException if {@code source} is null
    * @see #getSource()
    * @see #getID()
    * @see #getUpdateRect()
@@ -121,6 +121,7 @@ public class PaintEvent extends ComponentEvent {
     this.updateRect = updateRect;
   }
 
+  @Override
   public String paramString() {
     String typeStr;
     switch (id) {

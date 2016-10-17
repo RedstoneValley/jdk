@@ -23,6 +23,7 @@
 
 import java.awt.Dialog;
 import java.awt.Frame;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -35,16 +36,19 @@ import java.util.TimerTask;
 */
 public final class ModalDialogPermission {
 
-    public static void main(final String[] args) {
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+  private ModalDialogPermission() {
+  }
+
+  public static void main(String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
             @Override
-            public void uncaughtException(final Thread t, final Throwable e) {
+            public void uncaughtException(Thread t, Throwable e) {
                 throw new RuntimeException(e);
             }
         });
-        final Frame frame = new Frame();
-        final Dialog dialog = new Dialog(frame, "ModalDialog", true);
-        final Timer t = new Timer();
+        Frame frame = new Frame();
+        Dialog dialog = new Dialog(frame, "ModalDialog", true);
+        Timer t = new Timer();
         t.schedule(new TimerTask() {
 
             @Override

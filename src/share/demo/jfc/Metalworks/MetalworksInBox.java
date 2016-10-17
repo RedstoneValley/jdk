@@ -37,11 +37,6 @@
  * this sample code.
  */
 
-import javax.swing.JInternalFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
-
 /**
  * This is a subclass of JInternalFrame which displays a tree.
  *

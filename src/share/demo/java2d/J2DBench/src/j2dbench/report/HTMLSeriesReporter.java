@@ -37,10 +37,10 @@
  * this sample code.
  */
 
-/**
- * HTMLSeriesReporter.java
- * <p>
- * Show series data in graphical form.
+/*
+  HTMLSeriesReporter.java
+  <p>
+  Show series data in graphical form.
  */
 
 package j2dbench.report;
@@ -65,14 +65,17 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class HTMLSeriesReporter {
+public final class HTMLSeriesReporter {
 
   static final Comparator numericComparator = new Comparator() {
+    @Override
     public int compare(Object lhs, Object rhs) {
       double lval = -1;
       try {
@@ -96,7 +99,7 @@ public class HTMLSeriesReporter {
   private static final int HTMLGEN_FILE_UPDATE = 2;
   private static final DecimalFormat decimalFormat = new DecimalFormat("0.##");
   private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-      "EEE, MMM d, yyyy G 'at' HH:mm:ss z");
+      "EEE, MMM d, yyyy G 'at' HH:mm:ss z", Locale.US);
   /**
    * Path to results directory where all results are stored
    */
@@ -110,7 +113,10 @@ public class HTMLSeriesReporter {
    * Level at which tests are grouped to be displayed in summary
    */
   public static int LEVEL = 2;
-  static boolean logScale = false;
+  static boolean logScale;
+
+  private HTMLSeriesReporter() {
+  }
 
   /**
    * Opens a File and returns a PrintWriter instance based on new/update
@@ -164,7 +170,7 @@ public class HTMLSeriesReporter {
     // it safe.
 
     // final since referenced from inner class comparator below
-    final SingleResultSetHolder[] results = new SingleResultSetHolder[J2DAnalyzer.results.size()];
+    SingleResultSetHolder[] results = new SingleResultSetHolder[J2DAnalyzer.results.size()];
     Set propKeys = new HashSet();
     for (int i = 0; i < results.length; ++i) {
       SingleResultSetHolder srsh = (SingleResultSetHolder) J2DAnalyzer.results.get(i);
@@ -194,7 +200,7 @@ public class HTMLSeriesReporter {
             v = props.get(k);
           } else {
             Object mv = props.get(k);
-            if (!(v == null ? v == mv : v.equals(mv))) {
+            if (v == null ? null != mv : !v.equals(mv)) {
               // not common, keep this key
               continue loop;
             }
@@ -203,8 +209,8 @@ public class HTMLSeriesReporter {
 
         // common, so put value in commonProps and remove this key
         commonProps.put(k, v);
-        for (int i = 0; i < uniqueProps.length; ++i) {
-          uniqueProps[i].remove(k);
+        for (Map uniqueProp : uniqueProps) {
+          uniqueProp.remove(k);
         }
       }
     }
@@ -213,8 +219,9 @@ public class HTMLSeriesReporter {
         "#fc9505", "#fcd805", "#fc5c05", "#b5fc05", "1cfc05", "#05fc7a", "#44ff88", "#77ff77",
         "#aaff66", "#ddff55", "#ffff44", "#ffdd33",};
     Comparator comparator = new Comparator() {
+      @Override
       public int compare(Object lhs, Object rhs) {
-        return ((String) ((Map.Entry) lhs).getKey()).compareTo((String) ((Map.Entry) rhs).getKey());
+        return ((Comparable<String>) ((Entry) lhs).getKey()).compareTo((String) ((Entry) rhs).getKey());
       }
     };
 
@@ -231,9 +238,8 @@ public class HTMLSeriesReporter {
               + "</td></tr>");
       TreeSet ts = new TreeSet(comparator);
       ts.addAll(uniqueProps[i].entrySet());
-      Iterator iter = ts.iterator();
-      while (iter.hasNext()) {
-        Map.Entry e = (Map.Entry) iter.next();
+      for (Object t : ts) {
+        Entry e = (Entry) t;
         w.println(
             "<tr><td width='30%'><b>" + e.getKey() + "</b></td><td>" + e.getValue() + "</td></tr>");
       }
@@ -244,9 +250,8 @@ public class HTMLSeriesReporter {
     {
       TreeSet ts = new TreeSet(comparator);
       ts.addAll(commonProps.entrySet());
-      Iterator iter = ts.iterator();
-      while (iter.hasNext()) {
-        Map.Entry e = (Map.Entry) iter.next();
+      for (Object t : ts) {
+        Entry e = (Entry) t;
         w.println(
             "<tr><td width='30%'><b>" + e.getKey() + "</b></td><td>" + e.getValue() + "</td></tr>");
       }
@@ -256,9 +261,7 @@ public class HTMLSeriesReporter {
     {
       TreeSet ts = new TreeSet(String.CASE_INSENSITIVE_ORDER);
       ts.addAll(ResultHolder.commonkeys.keySet());
-      Iterator iter = ts.iterator();
-      while (iter.hasNext()) {
-        Object key = iter.next();
+      for (Object key : ts) {
         Object val = ResultHolder.commonkeymap.get(key);
         w.println("<tr><td width='30%'><b>" + key + "</b></td><td>" + val + "</td></tr>");
       }
@@ -273,8 +276,8 @@ public class HTMLSeriesReporter {
 
     Map testRuns = new HashMap(); // from test name to resultholders
     Set testNames = new TreeSet(String.CASE_INSENSITIVE_ORDER);
-    for (int i = 0; i < results.length; ++i) {
-      Enumeration en = results[i].getResultEnumeration();
+    for (SingleResultSetHolder result : results) {
+      Enumeration en = result.getResultEnumeration();
       while (en.hasMoreElements()) {
         ResultHolder rh = (ResultHolder) en.nextElement();
         String name = rh.getName();
@@ -294,9 +297,8 @@ public class HTMLSeriesReporter {
     w.println("<br/>");
     w.println(
         "<table align='center' cols='2' cellspacing='0' cellpadding='0' border='0' width='80%'>");
-    Iterator iter = testNames.iterator();
-    while (iter.hasNext()) {
-      String name = (String) iter.next();
+    for (Object testName : testNames) {
+      String name = (String) testName;
       w.println("<tr bgcolor='#aaaaaa'><th colspan='2'>" + name + "</th></tr>");
 
       double bestScore = 0;
@@ -309,14 +311,12 @@ public class HTMLSeriesReporter {
 
       Map optionMap = new TreeMap(String.CASE_INSENSITIVE_ORDER);
       ArrayList list = (ArrayList) testRuns.get(name);
-      Iterator riter = list.iterator();
-      while (riter.hasNext()) {
-        ResultHolder rh = (ResultHolder) riter.next();
+      for (Object aList : list) {
+        ResultHolder rh = (ResultHolder) aList;
         Hashtable options = rh.getOptions();
         Set entries = options.entrySet();
-        Iterator eiter = entries.iterator();
-        while (eiter.hasNext()) {
-          Map.Entry e = (Map.Entry) eiter.next();
+        for (Object entry : entries) {
+          Entry e = (Entry) entry;
           Object key = e.getKey();
           if (ResultHolder.commonkeys.contains(key)) {
             continue;
@@ -352,19 +352,17 @@ public class HTMLSeriesReporter {
         }
       }
 
-      Iterator oi = optionMap.keySet().iterator();
-      while (oi.hasNext()) {
-        String optionName = (String) oi.next();
+      for (Object o2 : optionMap.keySet()) {
+        String optionName = (String) o2;
         Map optionValues = (Map) optionMap.get(optionName);
         if (optionValues.size() == 1) {
           continue; // don't group by this if only one value
         }
 
-        StringBuffer grouping = new StringBuffer();
-        grouping.append("Grouped by " + optionName + ", Result set");
-        Iterator oi2 = optionMap.keySet().iterator();
-        while (oi2.hasNext()) {
-          String oname2 = (String) oi2.next();
+        StringBuilder grouping = new StringBuilder();
+        grouping.append("Grouped by ").append(optionName).append(", Result set");
+        for (Object o1 : optionMap.keySet()) {
+          String oname2 = (String) o1;
           if (oname2.equals(optionName)) {
             continue;
           }
@@ -372,7 +370,7 @@ public class HTMLSeriesReporter {
           if (ov2.size() == 1) {
             continue;
           }
-          grouping.append(", " + oname2);
+          grouping.append(", ").append(oname2);
           Iterator ov2i = ov2.entrySet().iterator();
           grouping.append(" (");
           boolean comma = false;
@@ -380,16 +378,15 @@ public class HTMLSeriesReporter {
             if (comma) {
               grouping.append(", ");
             }
-            grouping.append(((Map.Entry) ov2i.next()).getKey());
+            grouping.append(((Entry) ov2i.next()).getKey());
             comma = true;
           }
           grouping.append(")");
         }
         w.println("<tr><td colspan='2'>&nbsp;</td></tr>");
-        w.println("<tr><td colspan='2'><b>" + grouping.toString() + "</b></td></tr>");
-        Iterator vi = optionValues.keySet().iterator();
-        while (vi.hasNext()) {
-          String valueName = (String) vi.next();
+        w.println("<tr><td colspan='2'><b>" + grouping + "</b></td></tr>");
+        for (Object o : optionValues.keySet()) {
+          String valueName = (String) o;
           w.print(
               "<tr><td align='right' valign='center' width='10%'>" + valueName + "&nbsp;</td><td>");
           ArrayList resultList = (ArrayList) optionValues.get(valueName);
@@ -398,6 +395,7 @@ public class HTMLSeriesReporter {
           // we count on this being a stable sort, otherwise we'd have to also sort
           // within each result set on all other variables
           Comparator c = new Comparator() {
+            @Override
             public int compare(Object lhs, Object rhs) {
               ResultSetHolder lh = ((ResultHolder) lhs).rsh;
               ResultSetHolder rh = ((ResultHolder) rhs).rsh;
@@ -423,8 +421,7 @@ public class HTMLSeriesReporter {
           ResultHolder[] sorted = new ResultHolder[resultList.size()];
           sorted = (ResultHolder[]) resultList.toArray(sorted);
           Arrays.sort(sorted, c);
-          for (int k = 0; k < sorted.length; ++k) {
-            ResultHolder holder = sorted[k];
+          for (ResultHolder holder : sorted) {
             String color = null;
             for (int n = 0; n < results.length; ++n) {
               if (results[n] == holder.rsh) {
@@ -434,8 +431,7 @@ public class HTMLSeriesReporter {
             double score = holder.getScore();
             int pix = 0;
             if (bestScore > 1) {
-              double scale = logScale ? Math.log(score) / Math.log(bestScore)
-                  : (score) / (bestScore);
+              double scale = logScale ? Math.log(score) / Math.log(bestScore) : score / bestScore;
 
               pix = (int) (scale * 80.0);
             }
@@ -485,11 +481,11 @@ public class HTMLSeriesReporter {
   /**
    * main
    */
-  public static void main(String args[]) {
+  public static void main(String[] args) {
 
     String resDir = ".";
     ArrayList results = new ArrayList();
-    int group = 2;
+    int group;
 
         /* ---- Analysis Mode ----
             BEST    = 1;
@@ -514,13 +510,13 @@ public class HTMLSeriesReporter {
         } else if (args[i].startsWith("-analyzermode") || args[i].startsWith("-am")) {
           i++;
           String strAnalyzerMode = args[i];
-          if (strAnalyzerMode.equalsIgnoreCase("BEST")) {
+          if ("BEST".equalsIgnoreCase(strAnalyzerMode)) {
             analyzerMode = 0;
-          } else if (strAnalyzerMode.equalsIgnoreCase("WORST")) {
+          } else if ("WORST".equalsIgnoreCase(strAnalyzerMode)) {
             analyzerMode = 1;
-          } else if (strAnalyzerMode.equalsIgnoreCase("AVERAGE")) {
+          } else if ("AVERAGE".equalsIgnoreCase(strAnalyzerMode)) {
             analyzerMode = 2;
-          } else if (strAnalyzerMode.equalsIgnoreCase("MIDAVG")) {
+          } else if ("MIDAVG".equalsIgnoreCase(strAnalyzerMode)) {
             analyzerMode = 3;
           } else {
             printUsage();
@@ -537,7 +533,7 @@ public class HTMLSeriesReporter {
     if (resDir != null) {
       J2DAnalyzer.setMode(analyzerMode);
 
-      HTMLSeriesReporter.generateSeriesReport(resDir, results);
+      generateSeriesReport(resDir, results);
     } else {
       printUsage();
     }

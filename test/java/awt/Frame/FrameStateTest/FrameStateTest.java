@@ -32,37 +32,34 @@
   @run applet/manual=yesno FrameStateTest.html
 */
 
-/**
- * FrameStateTest.java
- *
- * summary: Checks that when setState(Frame.ICONIFIED) is called before
- *      setVisible(true) the Frame is shown in the proper iconified state.
- *      The problem was that it did not honor the initial iconic state, but
- *      instead was shown in the NORMAL state.
+/*
+  FrameStateTest.java
+
+  summary: Checks that when setState(Frame.ICONIFIED) is called before
+       setVisible(true) the Frame is shown in the proper iconified state.
+       The problem was that it did not honor the initial iconic state, but
+       instead was shown in the NORMAL state.
  */
 
 import java.awt.event.*;
 import java.awt.*;
-import java.lang.*;
-import java.applet.Applet;
-
 
 public class FrameStateTest extends Applet implements ActionListener, ItemListener{
 
-   Button btnCreate = new Button("Create Frame");
-   Button btnDispose = new Button("Dispose Frame");
-   CheckboxGroup cbgState = new CheckboxGroup();
-   CheckboxGroup cbgResize = new CheckboxGroup();
-   Checkbox cbIconState = new Checkbox("Frame state ICONIFIED",cbgState,false);
-   Checkbox cbNormState = new Checkbox("Frame state NORMAL",cbgState,true);
-   Checkbox cbNonResize = new Checkbox("Frame Nonresizable",cbgResize,false);
-   Checkbox cbResize = new Checkbox("Frame Resizable",cbgResize,true);
-   int iState = 0;
+   final Button btnCreate = new Button("Create Frame");
+   final Button btnDispose = new Button("Dispose Frame");
+   final CheckboxGroup cbgState = new CheckboxGroup();
+   final CheckboxGroup cbgResize = new CheckboxGroup();
+   final Checkbox cbIconState = new Checkbox("Frame state ICONIFIED", cbgState,false);
+   final Checkbox cbNormState = new Checkbox("Frame state NORMAL", cbgState,true);
+   final Checkbox cbNonResize = new Checkbox("Frame Nonresizable", cbgResize,false);
+   final Checkbox cbResize = new Checkbox("Frame Resizable", cbgResize,true);
+   int iState;
    boolean bResize = true;
    CreateFrame icontst;
 
    public void init() {
-      this.setLayout (new BorderLayout ());
+     setLayout(new BorderLayout ());
 
       String[] instructions =
        {
@@ -83,7 +80,7 @@ public class FrameStateTest extends Applet implements ActionListener, ItemListen
        };
       Sysout.createDialogWithInstructions( instructions );
 
-      btnDispose.setEnabled(false);
+     btnDispose.setEnabled(false);
       add(btnCreate, BorderLayout.NORTH);
       add(btnDispose, BorderLayout.SOUTH);
 
@@ -98,38 +95,48 @@ public class FrameStateTest extends Applet implements ActionListener, ItemListen
       add(p, BorderLayout.EAST);
 
       // Add Listeners
-      btnDispose.addActionListener(this);
-      btnCreate.addActionListener(this);
-      cbNormState.addItemListener(this);
-      cbResize.addItemListener(this);
-      cbIconState.addItemListener(this);
-      cbNonResize.addItemListener(this);
+     btnDispose.addActionListener(this);
+     btnCreate.addActionListener(this);
+     cbNormState.addItemListener(this);
+     cbResize.addItemListener(this);
+     cbIconState.addItemListener(this);
+     cbNonResize.addItemListener(this);
 
       resize(600, 200);
 
    }//End  init()
 
+   @Override
    public void actionPerformed(ActionEvent evt) {
 
 
         if (evt.getSource() == btnCreate) {
-            btnCreate.setEnabled(false);
-            btnDispose.setEnabled(true);
-            icontst = new CreateFrame(iState, bResize);
-            icontst.show();
+          btnCreate.setEnabled(false);
+          btnDispose.setEnabled(true);
+          icontst = new CreateFrame(iState, bResize);
+          icontst.show();
         } else if (evt.getSource() == btnDispose) {
-            btnCreate.setEnabled(true);
-            btnDispose.setEnabled(false);
-            icontst.dispose();
+          btnCreate.setEnabled(true);
+          btnDispose.setEnabled(false);
+          icontst.dispose();
         }
     }
 
+    @Override
     public void itemStateChanged(ItemEvent evt) {
 
-        if (cbNormState.getState()) iState = 0;
-        if (cbIconState.getState()) iState = 1;
-        if (cbResize.getState()) bResize = true;
-        if (cbNonResize.getState()) bResize = false;
+        if (cbNormState.getState()) {
+          iState = 0;
+        }
+        if (cbIconState.getState()) {
+          iState = 1;
+        }
+        if (cbResize.getState()) {
+          bResize = true;
+        }
+        if (cbNonResize.getState()) {
+          bResize = false;
+        }
 
     }
 
@@ -138,36 +145,43 @@ public class FrameStateTest extends Applet implements ActionListener, ItemListen
 
 class CreateFrame extends Frame implements ActionListener , WindowListener {
 
-  static int e=0;
-  static int u=0;
-  static int p=0;
-  static int i=0;
-  static int v=0;
+  private static final long serialVersionUID = 724958885260460912L;
+  static int e;
+  static int u;
+  static int p;
+  static int i;
+  static int v;
 
-  Button b1, b2, b3, b4, b5, b6, b7;
+  final Button b1;
+  final Button b2;
+  final Button b3;
+  final Button b4;
+  final Button b5;
+  final Button b6;
+  final Button b7;
   boolean resizable = true;
-  boolean iconic = false;
-  String name = "Frame State Test";
+  boolean iconic;
+  final String name = "Frame State Test";
 
   CreateFrame (int iFrameState, boolean bFrameResizable) {
 
     setTitle("Frame State Test (Window 2)");
 
     if (iFrameState == 1) {
-        iconic = true;
+      iconic = true;
     }
 
-    if (!(bFrameResizable)) {
-        resizable = false;
+    if (!bFrameResizable) {
+      resizable = false;
     }
 
     System.out.println("CREATING FRAME - Initially "+
-        ((iconic) ? "ICONIFIED" : "NORMAL (NON-ICONIFIED)") + " and " +
-        ((resizable) ? "RESIZABLE" : "NON-RESIZABLE") );
+        (iconic ? "ICONIFIED" : "NORMAL (NON-ICONIFIED)") + " and " +
+        (resizable ? "RESIZABLE" : "NON-RESIZABLE") );
 
     Sysout.println("CREATING FRAME - Initially "+
-        ((iconic) ? "ICONIFIED" : "NORMAL (NON-ICONIFIED)") + " and " +
-        ((resizable) ? "RESIZABLE" : "NON-RESIZABLE") );
+        (iconic ? "ICONIFIED" : "NORMAL (NON-ICONIFIED)") + " and " +
+        (resizable ? "RESIZABLE" : "NON-RESIZABLE") );
 
     setLayout(new FlowLayout() );
     b1 = new Button("resizable");
@@ -201,132 +215,140 @@ class CreateFrame extends Frame implements ActionListener , WindowListener {
 
   }
 
+  @Override
   public void actionPerformed ( ActionEvent e )
   {
-    if ( e.getSource() == b2 ) {
-        Rectangle r = this.getBounds();
+    if ( e.getSource() == b2) {
+        Rectangle r = getBounds();
         r.width += 10;
         System.out.println(" - button pressed - setting bounds on Frame to: "+r);
-        setBounds(r);
-        validate();
-    } else if ( e.getSource() == b1 ) {
-        resizable = !resizable;
-        System.out.println(" - button pressed - setting Resizable to: "+resizable);
-        ((Frame)(b1.getParent())).setResizable(resizable);
-    } else if ( e.getSource() == b3 ) {
+      setBounds(r);
+      validate();
+    } else if ( e.getSource() == b1) {
+      resizable = !resizable;
+        System.out.println(" - button pressed - setting Resizable to: "+ resizable);
+        ((Frame) b1.getParent()).setResizable(resizable);
+    } else if ( e.getSource() == b3) {
         System.out.println(" - button pressed - setting Iconic: ");
-        dolog();
-        ((Frame)(b1.getParent())).setState(Frame.ICONIFIED);
-        dolog();
-    } else if ( e.getSource() == b4 ) {
+      dolog();
+        ((Frame) b1.getParent()).setState(Frame.ICONIFIED);
+      dolog();
+    } else if ( e.getSource() == b4) {
         System.out.println(" - button pressed - setting Iconic: ");
-        dolog();
-        ((Frame)(b1.getParent())).setState(Frame.ICONIFIED);
-        dolog();
+      dolog();
+        ((Frame) b1.getParent()).setState(Frame.ICONIFIED);
+      dolog();
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - now restoring: ");
-        ((Frame)(b1.getParent())).setState(Frame.NORMAL);
-        dolog();
-    } else if ( e.getSource() == b5 ) {
+        } catch (Exception ex) {}
+      System.out.println(" - now restoring: ");
+        ((Frame) b1.getParent()).setState(Frame.NORMAL);
+      dolog();
+    } else if ( e.getSource() == b5) {
         System.out.println(" - button pressed - hiding : ");
-        dolog();
-        ((Frame)(b1.getParent())).setVisible(false);
-        dolog();
+      dolog();
+      b1.getParent().setVisible(false);
+      dolog();
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - now reshowing: ");
-        ((Frame)(b1.getParent())).setVisible(true);
-        dolog();
-    } else if ( e.getSource() == b6 ) {
+        } catch (Exception ex) {}
+      System.out.println(" - now reshowing: ");
+      b1.getParent().setVisible(true);
+      dolog();
+    } else if ( e.getSource() == b6) {
         System.out.println(" - button pressed - hiding : ");
-        dolog();
-        ((Frame)(b1.getParent())).setVisible(false);
-        dolog();
+      dolog();
+      b1.getParent().setVisible(false);
+      dolog();
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - setting Iconic: ");
-        dolog();
-        ((Frame)(b1.getParent())).setState(Frame.ICONIFIED);
+        } catch (Exception ex) {}
+      System.out.println(" - setting Iconic: ");
+      dolog();
+        ((Frame) b1.getParent()).setState(Frame.ICONIFIED);
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - now reshowing: ");
-        ((Frame)(b1.getParent())).setVisible(true);
-        dolog();
-    } else if ( e.getSource() == b7 ) {
+        } catch (Exception ex) {}
+      System.out.println(" - now reshowing: ");
+      b1.getParent().setVisible(true);
+      dolog();
+    } else if ( e.getSource() == b7) {
         System.out.println(" - button pressed - hiding : ");
-        dolog();
-        ((Frame)(b1.getParent())).setVisible(false);
-        dolog();
+      dolog();
+      b1.getParent().setVisible(false);
+      dolog();
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - setting Iconic: ");
-        dolog();
-        ((Frame)(b1.getParent())).setState(Frame.ICONIFIED);
+        } catch (Exception ex) {}
+      System.out.println(" - setting Iconic: ");
+      dolog();
+        ((Frame) b1.getParent()).setState(Frame.ICONIFIED);
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - now reshowing: ");
-        ((Frame)(b1.getParent())).setVisible(true);
-        dolog();
+        } catch (Exception ex) {}
+      System.out.println(" - now reshowing: ");
+      b1.getParent().setVisible(true);
+      dolog();
         try {
                 Thread.sleep(1000);
-        } catch (Exception ex) {};
-        System.out.println(" - now restoring: ");
-        ((Frame)(b1.getParent())).setState(Frame.NORMAL);
-        dolog();
+        } catch (Exception ex) {}
+      System.out.println(" - now restoring: ");
+        ((Frame) b1.getParent()).setState(Frame.NORMAL);
+      dolog();
     }
   }
 
+    @Override
     public void windowActivated(WindowEvent e) {
         System.out.println(name + " Activated");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowClosed(WindowEvent e) {
         System.out.println(name + " Closed");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowClosing(WindowEvent e) {
-        ((Window)(e.getSource())).dispose();
+        ((Window) e.getSource()).dispose();
         System.out.println(name + " Closing");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowDeactivated(WindowEvent e) {
         System.out.println(name + " Deactivated");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowDeiconified(WindowEvent e) {
         System.out.println(name + " Deiconified");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowIconified(WindowEvent e) {
         System.out.println(name + " Iconified");
-        dolog();
+      dolog();
     }
+    @Override
     public void windowOpened(WindowEvent e) {
         System.out.println(name + " Opened");
-        dolog();
+      dolog();
     }
 
     public void dolog() {
-        System.out.println(" getState returns: "+getState());
+        System.out.println(" getState returns: "+ getState());
     }
 }
 
 // }// class FrameStateTest
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -340,9 +362,12 @@ class CreateFrame extends Frame implements ActionListener , WindowListener {
   as standalone.
  */
 
-class Sysout
+final class Sysout
  {
    private static TestDialog dialog;
+
+   private Sysout() {
+   }
 
    public static void createDialogWithInstructions( String[] instructions )
     {
@@ -386,9 +411,10 @@ class Sysout
 class TestDialog extends Dialog
  {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+   private static final long serialVersionUID = 4421905612345965770L;
+   final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -397,10 +423,10 @@ class TestDialog extends Dialog
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       int scrollNone = TextArea.SCROLLBARS_NONE;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 10, maxStringLength, scrollBoth );
-      add("South", messageText);
+      add(BorderLayout.SOUTH, messageText);
 
       pack();
 
@@ -416,36 +442,32 @@ class TestDialog extends Dialog
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

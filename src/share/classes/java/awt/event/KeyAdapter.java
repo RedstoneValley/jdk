@@ -30,17 +30,17 @@ package java.awt.event;
  * The methods in this class are empty. This class exists as
  * convenience for creating listener objects.
  * <p>
- * Extend this class to create a <code>KeyEvent</code> listener
+ * Extend this class to create a {@code KeyEvent} listener
  * and override the methods for the events of interest. (If you implement the
- * <code>KeyListener</code> interface, you have to define all of
+ * {@code KeyListener} interface, you have to define all of
  * the methods in it. This abstract class defines null methods for them
  * all, so you can only have to define methods for events you care about.)
  * <p>
  * Create a listener object using the extended class and then register it with
- * a component using the component's <code>addKeyListener</code>
+ * a component using the component's {@code addKeyListener}
  * method. When a key is pressed, released, or typed,
  * the relevant method in the listener object is invoked,
- * and the <code>KeyEvent</code> is passed to it.
+ * and the {@code KeyEvent} is passed to it.
  *
  * @author Carl Quinn
  * @see KeyEvent
@@ -54,18 +54,21 @@ public abstract class KeyAdapter implements KeyListener {
    * Invoked when a key has been typed.
    * This event occurs when a key press is followed by a key release.
    */
+  @Override
   public void keyTyped(KeyEvent e) {
   }
 
   /**
    * Invoked when a key has been pressed.
    */
+  @Override
   public void keyPressed(KeyEvent e) {
   }
 
   /**
    * Invoked when a key has been released.
    */
+  @Override
   public void keyReleased(KeyEvent e) {
   }
 }

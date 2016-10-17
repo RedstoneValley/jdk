@@ -35,9 +35,12 @@ import sun.awt.SunToolkit;
  * @run main/timeout=5 DeadKeySystemAssertionDialog
  */
 
-public class DeadKeySystemAssertionDialog {
+public final class DeadKeySystemAssertionDialog {
 
-    public static void main(String[] args) throws Exception {
+      private DeadKeySystemAssertionDialog() {
+      }
+
+      public static void main(String[] args) throws Exception {
 
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
         Frame frame = new Frame();

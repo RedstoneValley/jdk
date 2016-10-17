@@ -30,7 +30,7 @@ import java.awt.image.ImageObserver;
 import java.lang.ref.WeakReference;
 
 public abstract class ImageWatched {
-  public static Link endlink = new Link();
+  public static final Link endlink = new Link();
 
   public Link watcherList;
 
@@ -62,7 +62,7 @@ public abstract class ImageWatched {
     synchronized (this) {
       watcherList = watcherList.removeWatcher(null);
     }
-    return (watcherList == endlink);
+    return watcherList == endlink;
   }
 
   public void newInfo(Image img, int info, int x, int y, int w, int h) {
@@ -125,18 +125,20 @@ public abstract class ImageWatched {
    * to an ImageObserver.
    */
   public static class WeakLink extends Link {
-    private WeakReference<ImageObserver> myref;
+    private final WeakReference<ImageObserver> myref;
     private Link next;
 
     public WeakLink(ImageObserver obs, Link next) {
-      myref = new WeakReference<ImageObserver>(obs);
+      myref = new WeakReference<>(obs);
       this.next = next;
     }
 
+    @Override
     public boolean isWatcher(ImageObserver iw) {
-      return (myref.get() == iw || next.isWatcher(iw));
+      return myref.get() == iw || next.isWatcher(iw);
     }
 
+    @Override
     public Link removeWatcher(ImageObserver iw) {
       ImageObserver myiw = myref.get();
       if (myiw == null) {
@@ -155,6 +157,7 @@ public abstract class ImageWatched {
       return this;
     }
 
+    @Override
     public boolean newInfo(
         Image img, int info, int x, int y, int w, int h) {
       // Note tail recursion because items are added LIFO.
@@ -163,7 +166,7 @@ public abstract class ImageWatched {
       if (myiw == null) {
         // My referent is null so we must prune in a second pass.
         ret = true;
-      } else if (myiw.imageUpdate(img, info, x, y, w, h) == false) {
+      } else if (!myiw.imageUpdate(img, info, x, y, w, h)) {
         // My referent has lost interest so clear it and ask
         // for a pruning pass to remove it later.
         myref.clear();

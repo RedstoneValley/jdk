@@ -35,9 +35,6 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import static java.awt.Transparency.TRANSLUCENT;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
@@ -51,13 +48,16 @@ import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
  */
 public final class IncorrectUnmanagedImageRotatedClip {
 
-    public static void main(final String[] args) throws IOException {
+    private IncorrectUnmanagedImageRotatedClip() {
+    }
+
+    public static void main(String[] args) {
         BufferedImage bi = makeUnmanagedBI();
         fill(bi);
         test(bi);
     }
 
-    private static void test(final BufferedImage bi) throws IOException {
+    private static void test(BufferedImage bi) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -71,7 +71,8 @@ public final class IncorrectUnmanagedImageRotatedClip {
         int attempt = 0;
         BufferedImage snapshot;
         while (true) {
-            if (++attempt > 10) {
+            ++attempt;
+            if (attempt > 10) {
                 throw new RuntimeException("Too many attempts: " + attempt);
             }
             vi.validate(gc);
@@ -97,8 +98,8 @@ public final class IncorrectUnmanagedImageRotatedClip {
         }
     }
 
-    private static void draw(final BufferedImage from,final Image to) {
-        final Graphics2D g2d = (Graphics2D) to.getGraphics();
+    private static void draw(BufferedImage from, Image to) {
+        Graphics2D g2d = (Graphics2D) to.getGraphics();
         g2d.setComposite(AlphaComposite.Src);
         g2d.setColor(Color.ORANGE);
         g2d.fillRect(0, 0, to.getWidth(null), to.getHeight(null));
@@ -109,8 +110,8 @@ public final class IncorrectUnmanagedImageRotatedClip {
     }
 
     private static BufferedImage makeUnmanagedBI() {
-        final BufferedImage bi = new BufferedImage(500, 200, TYPE_INT_ARGB);
-        final DataBuffer db = bi.getRaster().getDataBuffer();
+        BufferedImage bi = new BufferedImage(500, 200, TYPE_INT_ARGB);
+        DataBuffer db = bi.getRaster().getDataBuffer();
         if (db instanceof DataBufferInt) {
             ((DataBufferInt) db).getData();
         } else if (db instanceof DataBufferShort) {
@@ -120,14 +121,14 @@ public final class IncorrectUnmanagedImageRotatedClip {
         } else {
             try {
                 bi.setAccelerationPriority(0.0f);
-            } catch (final Throwable ignored) {
+            } catch (Throwable ignored) {
             }
         }
         return bi;
     }
 
-    private static void fill(final Image image) {
-        final Graphics2D graphics = (Graphics2D) image.getGraphics();
+    private static void fill(Image image) {
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setComposite(AlphaComposite.Src);
         for (int i = 0; i < image.getHeight(null); ++i) {
             graphics.setColor(new Color(i, 0, 0));

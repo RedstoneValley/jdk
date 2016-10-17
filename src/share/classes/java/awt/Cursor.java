@@ -27,11 +27,16 @@ package java.awt;
 import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.Serializable;
 import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.CursorAccessor;
+import sun.java2d.Disposer;
+import sun.java2d.DisposerRecord;
 
 /**
  * A class to encapsulate the bitmap representation of the mouse cursor.
@@ -39,7 +44,7 @@ import sun.awt.AWTAccessor;
  * @author Amy Fowler
  * @see Component#setCursor
  */
-public class Cursor implements java.io.Serializable {
+public class Cursor implements Serializable {
 
   /**
    * The default cursor type (gets set if no cursor is defined).
@@ -128,14 +133,14 @@ public class Cursor implements java.io.Serializable {
   /**
    * This field is a private replacement for 'predefined' array.
    */
-  private final static Cursor[] predefinedPrivate = new Cursor[14];
+  private static final Cursor[] predefinedPrivate = new Cursor[14];
   private static final Hashtable<String, Cursor> systemCustomCursors = new Hashtable<>(1);
-  private static final String systemCustomCursorDirPrefix = initCursorDir();
+  static final String systemCustomCursorDirPrefix = initCursorDir();
 
   /*
    * hashtable, filesystem dir prefix, filename, and properties for custom cursors support
    */
-  private static final String systemCustomCursorPropertiesFile = systemCustomCursorDirPrefix
+  static final String systemCustomCursorPropertiesFile = systemCustomCursorDirPrefix
       + "cursors.properties";
   private static final String CursorDotPrefix = "Cursor.";
   private static final String DotFileSuffix = ".File";
@@ -150,19 +155,22 @@ public class Cursor implements java.io.Serializable {
    * @deprecated As of JDK version 1.7, the {@link #getPredefinedCursor(int)}
    * method should be used instead.
    */
-  @Deprecated protected static Cursor predefined[] = new Cursor[14];
-  private static Properties systemCustomCursorProperties = null;
+  @Deprecated protected static final Cursor[] predefined = new Cursor[14];
+  static Properties systemCustomCursorProperties;
 
   static {
-    AWTAccessor.setCursorAccessor(new AWTAccessor.CursorAccessor() {
+    AWTAccessor.setCursorAccessor(new CursorAccessor() {
+      @Override
       public long getPData(Cursor cursor) {
         return cursor.pData;
       }
 
+      @Override
       public void setPData(Cursor cursor, long pData) {
         cursor.pData = pData;
       }
 
+      @Override
       public int getType(Cursor cursor) {
         return cursor.type;
       }
@@ -178,7 +186,7 @@ public class Cursor implements java.io.Serializable {
   protected String name;
   /**
    * The chosen cursor type initially set to
-   * the <code>DEFAULT_CURSOR</code>.
+   * the {@code DEFAULT_CURSOR}.
    *
    * @serial
    * @see #getType()
@@ -188,7 +196,7 @@ public class Cursor implements java.io.Serializable {
   /**
    * Hook into native data.
    */
-  private transient long pData;
+  transient long pData;
   private transient Object anchor = new Object();
 
   /**
@@ -199,7 +207,7 @@ public class Cursor implements java.io.Serializable {
    *                                  is invalid
    */
   public Cursor(int type) {
-    if (type < Cursor.DEFAULT_CURSOR || type > Cursor.MOVE_CURSOR) {
+    if (type < DEFAULT_CURSOR || type > MOVE_CURSOR) {
       throw new IllegalArgumentException("illegal cursor type");
     }
     this.type = type;
@@ -215,10 +223,10 @@ public class Cursor implements java.io.Serializable {
    * use Toolkit.createCustomCursor().
    *
    * @param name the user-visible name of the cursor.
-   * @see java.awt.Toolkit#createCustomCursor
+   * @see Toolkit#createCustomCursor
    */
   protected Cursor(String name) {
-    this.type = Cursor.CUSTOM_CURSOR;
+    type = CUSTOM_CURSOR;
     this.name = name;
   }
 
@@ -237,8 +245,8 @@ public class Cursor implements java.io.Serializable {
    * @throws IllegalArgumentException if the specified cursor type is
    *                                  invalid
    */
-  static public Cursor getPredefinedCursor(int type) {
-    if (type < Cursor.DEFAULT_CURSOR || type > Cursor.MOVE_CURSOR) {
+  public static Cursor getPredefinedCursor(int type) {
+    if (type < DEFAULT_CURSOR || type > MOVE_CURSOR) {
       throw new IllegalArgumentException("illegal cursor type");
     }
     Cursor c = predefinedPrivate[type];
@@ -259,10 +267,9 @@ public class Cursor implements java.io.Serializable {
    * @param name a string describing the desired system-specific custom cursor
    * @return the system specific custom cursor named
    * @throws HeadlessException if
-   *                           <code>GraphicsEnvironment.isHeadless</code> returns true
+   *                           {@code GraphicsEnvironment.isHeadless} returns true
    */
-  static public Cursor getSystemCustomCursor(final String name)
-      throws AWTException, HeadlessException {
+  public static Cursor getSystemCustomCursor(String name) throws AWTException, HeadlessException {
     GraphicsEnvironment.checkHeadless();
     Cursor cursor = systemCustomCursors.get(name);
 
@@ -281,7 +288,7 @@ public class Cursor implements java.io.Serializable {
         return null;
       }
 
-      final String fileName = systemCustomCursorProperties.getProperty(key);
+      String fileName = systemCustomCursorProperties.getProperty(key);
 
       String localized = systemCustomCursorProperties.getProperty(prefix + DotNameSuffix);
 
@@ -301,8 +308,8 @@ public class Cursor implements java.io.Serializable {
         throw new AWTException("failed to parse hotspot property for cursor: " + name);
       }
 
-      int x = 0;
-      int y = 0;
+      int x;
+      int y;
 
       try {
         x = Integer.parseInt(st.nextToken());
@@ -312,17 +319,13 @@ public class Cursor implements java.io.Serializable {
       }
 
       try {
-        final int fx = x;
-        final int fy = y;
-        final String flocalized = localized;
 
-        cursor
-            = java.security.AccessController.<Cursor>doPrivileged(new java.security
-            .PrivilegedExceptionAction<Cursor>() {
+        cursor = AccessController.doPrivileged(new PrivilegedExceptionAction<Cursor>() {
+          @Override
           public Cursor run() throws Exception {
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             Image image = toolkit.getImage(systemCustomCursorDirPrefix + fileName);
-            return toolkit.createCustomCursor(image, new Point(fx, fy), flocalized);
+            return toolkit.createCustomCursor(image, new Point(x, y), localized);
           }
         });
       } catch (Exception e) {
@@ -343,8 +346,8 @@ public class Cursor implements java.io.Serializable {
   /**
    * Return the system default cursor.
    */
-  static public Cursor getDefaultCursor() {
-    return getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+  public static Cursor getDefaultCursor() {
+    return getPredefinedCursor(DEFAULT_CURSOR);
   }
 
   /*
@@ -355,8 +358,8 @@ public class Cursor implements java.io.Serializable {
       systemCustomCursorProperties = new Properties();
 
       try {
-        AccessController.<Object>doPrivileged(new java.security.PrivilegedExceptionAction<Object>
-            () {
+        AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+          @Override
           public Object run() throws Exception {
             FileInputStream fis = null;
             try {
@@ -379,20 +382,19 @@ public class Cursor implements java.io.Serializable {
     }
   }
 
-  private native static void finalizeImpl(long pData);
+  static void finalizeImpl(long pData) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
   private void setPData(long pData) {
     this.pData = pData;
-    if (GraphicsEnvironment.isHeadless()) {
-      return;
-    }
     if (disposer == null) {
       disposer = new CursorDisposer(pData);
       // anchor is null after deserialization
       if (anchor == null) {
         anchor = new Object();
       }
-      sun.java2d.Disposer.addRecord(anchor, disposer);
+      Disposer.addRecord(anchor, disposer);
     } else {
       disposer.pData = pData;
     }
@@ -425,13 +427,14 @@ public class Cursor implements java.io.Serializable {
     return getClass().getName() + "[" + getName() + "]";
   }
 
-  static class CursorDisposer implements sun.java2d.DisposerRecord {
+  static class CursorDisposer implements DisposerRecord {
     volatile long pData;
 
     public CursorDisposer(long pData) {
       this.pData = pData;
     }
 
+    @Override
     public void dispose() {
       if (pData != 0) {
         finalizeImpl(pData);

@@ -33,14 +33,16 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class DialogSizeOverflowTest
+public final class DialogSizeOverflowTest
 {
-    public static void main(String [] s) {
+  private DialogSizeOverflowTest() {
+  }
+
+  public static void main(String [] s) {
         Robot robot;
         Frame f = new Frame("a frame");
-        final Dialog dlg = new Dialog(f, false);
+        Dialog dlg = new Dialog(f, false);
 
         f.setVisible(true);
 
@@ -54,6 +56,7 @@ public class DialogSizeOverflowTest
         dlg.setLocation(100, 100);
         dlg.setResizable(false);
         dlg.addComponentListener(new ComponentAdapter() {
+                @Override
                 public void componentResized(ComponentEvent e) {
                     Dimension size = dlg.getSize();
                     System.out.println("size.width : size.height "+size.width + " : "+ size.height);

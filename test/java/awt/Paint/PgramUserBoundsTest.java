@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 7043054
  * @summary Verifies that Paint objects receive the appropriate user space
  *          bounds in their createContext() method
@@ -41,14 +41,17 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 
-public class PgramUserBoundsTest {
+public final class PgramUserBoundsTest {
     static final int MinX = 10;
     static final int MinY = 20;
     static final int MaxX = 30;
     static final int MaxY = 50;
-    static AffineTransform identity = new AffineTransform();
+    static final AffineTransform identity = new AffineTransform();
 
-    public static void main(String argv[]) {
+  private PgramUserBoundsTest() {
+  }
+
+  public static void main(String[] argv) {
         BufferedImage bimg =
             new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bimg.createGraphics();
@@ -96,8 +99,8 @@ public class PgramUserBoundsTest {
     }
 
     static class BoundsCheckerPaint implements Paint {
-        private Color c = Color.WHITE;
-        private Rectangle2D expectedBounds;
+        private final Color c = Color.WHITE;
+        private final Rectangle2D expectedBounds;
 
         public BoundsCheckerPaint(double x1, double y1,
                                   double x2, double y2)
@@ -106,10 +109,12 @@ public class PgramUserBoundsTest {
             expectedBounds.setFrameFromDiagonal(x1, y1, x2, y2);
         }
 
+        @Override
         public int getTransparency() {
             return c.getTransparency();
         }
 
+        @Override
         public PaintContext createContext(ColorModel cm,
                                           Rectangle deviceBounds,
                                           Rectangle2D userBounds,

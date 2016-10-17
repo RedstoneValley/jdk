@@ -45,7 +45,7 @@ public class ShortLookupTable extends LookupTable {
    * Constants
    */
 
-  short data[][];
+  final short[][] data;
 
   /**
    * Constructs a ShortLookupTable object from an array of short
@@ -60,15 +60,13 @@ public class ShortLookupTable extends LookupTable {
    * @param data   an array of short arrays representing a lookup
    *               table for each band
    */
-  public ShortLookupTable(int offset, short data[][]) {
+  public ShortLookupTable(int offset, short[][] data) {
     super(offset, data.length);
     numComponents = data.length;
     numEntries = data[0].length;
     this.data = new short[numComponents][];
     // Allocate the array and copy the data reference
-    for (int i = 0; i < numComponents; i++) {
-      this.data[i] = data[i];
-    }
+    System.arraycopy(data, 0, this.data, 0, numComponents);
   }
 
   /**
@@ -82,7 +80,7 @@ public class ShortLookupTable extends LookupTable {
    *               before indexing into the arrays
    * @param data   an array of shorts
    */
-  public ShortLookupTable(int offset, short data[]) {
+  public ShortLookupTable(int offset, short[] data) {
     super(offset, data.length);
     numComponents = 1;
     numEntries = data.length;
@@ -104,22 +102,23 @@ public class ShortLookupTable extends LookupTable {
   /**
    * Returns an array of samples of a pixel, translated with the lookup
    * table. The source and destination array can be the same array.
-   * Array <code>dst</code> is returned.
+   * Array {@code dst} is returned.
    *
    * @param src the source array.
    * @param dst the destination array. This array must be at least as
-   *            long as <code>src</code>.  If <code>dst</code> is
-   *            <code>null</code>, a new array will be allocated having the
-   *            same length as <code>src</code>.
-   * @return the array <code>dst</code>, an <code>int</code> array of
+   *            long as {@code src}.  If {@code dst} is
+   *            {@code null}, a new array will be allocated having the
+   *            same length as {@code src}.
+   * @return the array {@code dst}, an {@code int} array of
    * samples.
-   * @throws ArrayIndexOutOfBoundsException if <code>src</code> is
-   *                                        longer than <code>dst</code> or if for any element
-   *                                        <code>i</code> of <code>src</code>,
+   * @throws ArrayIndexOutOfBoundsException if {@code src} is
+   *                                        longer than {@code dst} or if for any element
+   *                                        {@code i} of {@code src},
    *                                        {@code (src[i]&0xffff)-offset} is either less than
    *                                        zero or greater than or equal to the length of the
    *                                        lookup table for any band.
    */
+  @Override
   public int[] lookupPixel(int[] src, int[] dst) {
     if (dst == null) {
       // Need to alloc a new destination array
@@ -154,18 +153,18 @@ public class ShortLookupTable extends LookupTable {
   /**
    * Returns an array of samples of a pixel, translated with the lookup
    * table. The source and destination array can be the same array.
-   * Array <code>dst</code> is returned.
+   * Array {@code dst} is returned.
    *
    * @param src the source array.
    * @param dst the destination array. This array must be at least as
-   *            long as <code>src</code>.  If <code>dst</code> is
-   *            <code>null</code>, a new array will be allocated having the
-   *            same length as <code>src</code>.
-   * @return the array <code>dst</code>, an <code>int</code> array of
+   *            long as {@code src}.  If {@code dst} is
+   *            {@code null}, a new array will be allocated having the
+   *            same length as {@code src}.
+   * @return the array {@code dst}, an {@code int} array of
    * samples.
-   * @throws ArrayIndexOutOfBoundsException if <code>src</code> is
-   *                                        longer than <code>dst</code> or if for any element
-   *                                        <code>i</code> of <code>src</code>,
+   * @throws ArrayIndexOutOfBoundsException if {@code src} is
+   *                                        longer than {@code dst} or if for any element
+   *                                        {@code i} of {@code src},
    *                                        {@code (src[i]&0xffff)-offset} is either less than
    *                                        zero or greater than or equal to the length of the
    *                                        lookup table for any band.

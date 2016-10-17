@@ -34,10 +34,13 @@ import java.awt.image.BufferedImage;
  */
 public final class ScaledCopyArea {
 
-    public static void main(final String[] args) {
-        final BufferedImage bi = new BufferedImage(100, 300,
+  private ScaledCopyArea() {
+  }
+
+  public static void main(String[] args) {
+        BufferedImage bi = new BufferedImage(100, 300,
                                                    BufferedImage.TYPE_INT_RGB);
-        final Graphics2D g = bi.createGraphics();
+        Graphics2D g = bi.createGraphics();
         g.scale(2, 2);
         g.setColor(Color.RED);
         g.fillRect(0, 0, 100, 300);
@@ -47,8 +50,8 @@ public final class ScaledCopyArea {
         g.dispose();
         for (int x = 0; x < 100; ++x) {
             for (int y = 0; y < 100; ++y) {
-                final int actual = bi.getRGB(x, y);
-                final int exp = Color.GREEN.getRGB();
+                int actual = bi.getRGB(x, y);
+                int exp = Color.GREEN.getRGB();
                 if (actual != exp) {
                     System.err.println("Expected:" + Integer.toHexString(exp));
                     System.err.println("Actual:" + Integer.toHexString(actual));

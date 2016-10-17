@@ -23,13 +23,14 @@
 
 import java.awt.*;
 import java.util.Properties;
-import sun.awt.*;
 
 public class StringWidth extends Frame {
 
+  private static final long serialVersionUID = -1894237269619198704L;
+
   public StringWidth() {
-    Font plain = new Font("Dialog", Font.PLAIN, 10);
-    Font bold = new Font("Dialog", Font.BOLD, 10);
+    Font plain = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 10);
+    Font bold = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 10);
     Properties props = new Properties();
     int x, y;
 

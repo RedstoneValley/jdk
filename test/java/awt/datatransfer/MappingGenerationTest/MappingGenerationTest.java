@@ -32,12 +32,15 @@ import java.util.List;
   @author das@sparc.spb.su area=datatransfer
 */
 
-public class MappingGenerationTest {
+public final class MappingGenerationTest {
 
     private static final SystemFlavorMap fm =
         (SystemFlavorMap)SystemFlavorMap.getDefaultFlavorMap();
 
-    public static void main(String[] args)  {
+  private MappingGenerationTest() {
+  }
+
+  public static void main(String[] args)  {
         test1();
         test2();
         test3();
@@ -87,7 +90,7 @@ public class MappingGenerationTest {
 
         List<String> natives = fm.getNativesForFlavor(df);
         natives.add("Should not be here");
-        java.util.List nativesNew = fm.getNativesForFlavor(df);
+        List nativesNew = fm.getNativesForFlavor(df);
         if (natives.equals(nativesNew)) {
             System.err.println("orig=" + natives);
             System.err.println("new=" + nativesNew);
@@ -96,7 +99,7 @@ public class MappingGenerationTest {
 
         List<DataFlavor> flavors = fm.getFlavorsForNative(nat);
         flavors.add(extraDf);
-        java.util.List flavorsNew = fm.getFlavorsForNative(nat);
+        List flavorsNew = fm.getFlavorsForNative(nat);
         if (flavors.equals(flavorsNew)) {
             System.err.println("orig=" + flavors);
             System.err.println("new=" + flavorsNew);
@@ -148,7 +151,7 @@ public class MappingGenerationTest {
      * array as arguments.
      */
     public static void test5() {
-        final DataFlavor flavor =
+        DataFlavor flavor =
             new DataFlavor("text/plain-TEST5; charset=Unicode", null);
 
         fm.getNativesForFlavor(flavor);
@@ -169,7 +172,7 @@ public class MappingGenerationTest {
      * array as arguments.
      */
     public static void test6() {
-        final String nat = "STRING";
+        String nat = "STRING";
         fm.getFlavorsForNative(nat);
         fm.setFlavorsForNative(nat, new DataFlavor[0]);
 

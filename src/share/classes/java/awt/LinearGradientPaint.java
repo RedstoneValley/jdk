@@ -29,11 +29,10 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
-import java.beans.ConstructorProperties;
 
 /**
  * The {@code LinearGradientPaint} class provides a way to fill
- * a {@link java.awt.Shape} with a linear color gradient pattern.  The user
+ * a {@link Shape} with a linear color gradient pattern.  The user
  * may specify two or more gradient colors, and this paint will provide an
  * interpolation between each color.  The user also specifies start and end
  * points which define where in user space the color gradient should begin
@@ -97,8 +96,8 @@ import java.beans.ConstructorProperties;
  * </center>
  *
  * @author Nicholas Talian, Vincent Hardy, Jim Graham, Jerry Evans
- * @see java.awt.Paint
- * @see java.awt.Graphics2D#setPaint
+ * @see Paint
+ * @see Graphics2D#setPaint
  * @since 1.6
  */
 public final class LinearGradientPaint extends MultipleGradientPaint {
@@ -135,8 +134,7 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
    */
   public LinearGradientPaint(
       float startX, float startY, float endX, float endY, float[] fractions, Color[] colors) {
-    this(
-        new Point2D.Float(startX, startY),
+    this(new Point2D.Float(startX, startY),
         new Point2D.Float(endX, endY),
         fractions,
         colors,
@@ -174,8 +172,7 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
   public LinearGradientPaint(
       float startX, float startY, float endX, float endY, float[] fractions, Color[] colors,
       CycleMethod cycleMethod) {
-    this(
-        new Point2D.Float(startX, startY),
+    this(new Point2D.Float(startX, startY),
         new Point2D.Float(endX, endY),
         fractions,
         colors,
@@ -310,6 +307,7 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
    * @see AffineTransform
    * @see RenderingHints
    */
+  @Override
   public PaintContext createContext(
       ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform transform,
       RenderingHints hints) {
@@ -318,16 +316,15 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
     // incorporate the gradient transform
     transform.concatenate(gradientTransform);
 
-    if ((fractions.length == 2) &&
-        (cycleMethod != CycleMethod.REPEAT) &&
-        (colorSpace == ColorSpaceType.SRGB)) {
+    if (fractions.length == 2 &&
+        cycleMethod != CycleMethod.REPEAT &&
+        colorSpace == ColorSpaceType.SRGB) {
       // faster to use the basic GradientPaintContext for this
       // common case
-      boolean cyclic = (cycleMethod != CycleMethod.NO_CYCLE);
+      boolean cyclic = cycleMethod != CycleMethod.NO_CYCLE;
       return new GradientPaintContext(cm, start, end, transform, colors[0], colors[1], cyclic);
     } else {
-      return new LinearGradientPaintContext(
-          this,
+      return new LinearGradientPaintContext(this,
           cm,
           deviceBounds,
           userBounds,

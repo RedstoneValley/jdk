@@ -39,7 +39,7 @@
 
 package com.sun.demo.scripting.jconsole;
 
-import com.sun.tools.jconsole.*;
+import com.sun.demo.scripting.jconsole.ScriptShellPanel.CommandProcessor;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -49,25 +49,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import javax.script.*;
 
 /**
  * This is script console plugin. This class uses javax.script API to create
  * interactive read-eval-print script shell within the jconsole GUI.
  */
-public class ScriptJConsolePlugin extends JConsolePlugin
-    implements ScriptShellPanel.CommandProcessor {
+public class ScriptJConsolePlugin extends JConsolePlugin implements CommandProcessor {
   // Name of the System property used to select scripting language
   private static final String LANGUAGE_KEY = "com.sun.demo.jconsole.console.language";
+  // script engine initialization occurs in background.
+  // This latch is used to coorrdinate engine init and eval.
+  final CountDownLatch engineReady = new CountDownLatch(1);
   // Panel for our tab
   private volatile ScriptShellPanel window;
   // Tabs that we add to jconsole GUI
   private Map<String, JPanel> tabs;
   // Script engine that evaluates scripts
   private volatile ScriptEngine engine;
-  // script engine initialization occurs in background.
-  // This latch is used to coorrdinate engine init and eval.
-  private CountDownLatch engineReady = new CountDownLatch(1);
   // File extension used for scripts of chosen language.
   // For eg. ".js" for JavaScript, ".bsh" for BeanShell.
   private String extension;
@@ -120,7 +118,7 @@ public class ScriptJConsolePlugin extends JConsolePlugin
     try {
       engineReady.await();
       Object tmp = engine.eval(cmd);
-      res = (tmp == null) ? null : tmp.toString();
+      res = tmp == null ? null : tmp.toString();
     } catch (InterruptedException ie) {
       res = ie.getMessage();
     } catch (ScriptException se) {
@@ -164,7 +162,7 @@ public class ScriptJConsolePlugin extends JConsolePlugin
   }
 
   // create and initialize script engine
-  private void initScriptEngine() {
+  void initScriptEngine() {
     // set pre-defined global variables
     setGlobals();
     // load pre-defined initialization file
@@ -185,7 +183,7 @@ public class ScriptJConsolePlugin extends JConsolePlugin
     String oldFilename = (String) engine.get(ScriptEngine.FILENAME);
     engine.put(ScriptEngine.FILENAME, "<built-in jconsole." + extension + ">");
     try {
-      Class<? extends ScriptJConsolePlugin> myClass = this.getClass();
+      Class<? extends ScriptJConsolePlugin> myClass = getClass();
       InputStream stream = myClass.getResourceAsStream("/resources/jconsole." + extension);
       if (stream != null) {
         engine.eval(new InputStreamReader(new BufferedInputStream(stream)));
@@ -207,7 +205,7 @@ public class ScriptJConsolePlugin extends JConsolePlugin
       return;
     }
     String fileName = home + File.separator + "jconsole." + extension;
-    if (!(new File(fileName).exists())) {
+    if (!new File(fileName).exists()) {
       // user does not have ~/jconsole.<extension>
       return;
     }

@@ -34,11 +34,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
-import static java.awt.Transparency.*;
 import static java.awt.image.BufferedImage.*;
 
 /**
@@ -60,9 +56,12 @@ public final class IncorrectUnmanagedImageSourceOffset {
                                         TYPE_BYTE_INDEXED};
     private static final int[] TRANSPARENCIES = {OPAQUE, BITMASK, TRANSLUCENT};
 
-    public static void main(final String[] args) throws IOException {
-        for (final int viType : TRANSPARENCIES) {
-            for (final int biType : TYPES) {
+    private IncorrectUnmanagedImageSourceOffset() {
+    }
+
+    public static void main(String[] args) {
+        for (int viType : TRANSPARENCIES) {
+            for (int biType : TYPES) {
                 BufferedImage bi = makeUnmanagedBI(biType);
                 fill(bi);
                 test(bi, viType);
@@ -70,8 +69,7 @@ public final class IncorrectUnmanagedImageSourceOffset {
         }
     }
 
-    private static void test(BufferedImage bi, int type)
-            throws IOException {
+    private static void test(BufferedImage bi, int type) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -81,7 +79,7 @@ public final class IncorrectUnmanagedImageSourceOffset {
         // draw to compatible Image
         Graphics2D big = gold.createGraphics();
         // force scaled blit
-        big.drawImage(bi, 7, 11, 127, 111, 7, 11, 127 * 2, 111, null);
+        big.drawImage(bi, 7, 11, 127, 111, 7, 11, 127 << 1, 111, null);
         big.dispose();
         // draw to volatile image
         BufferedImage snapshot;
@@ -90,19 +88,19 @@ public final class IncorrectUnmanagedImageSourceOffset {
             if (vi.validate(gc) != VolatileImage.IMAGE_OK) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }
             Graphics2D vig = vi.createGraphics();
             // force scaled blit
-            vig.drawImage(bi, 7, 11, 127, 111, 7, 11, 127 * 2, 111, null);
+            vig.drawImage(bi, 7, 11, 127, 111, 7, 11, 127 << 1, 111, null);
             vig.dispose();
             snapshot = vi.getSnapshot();
             if (vi.contentsLost()) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }
@@ -120,9 +118,9 @@ public final class IncorrectUnmanagedImageSourceOffset {
         }
     }
 
-    private static BufferedImage makeUnmanagedBI(final int type) {
-        final BufferedImage bi = new BufferedImage(511, 255, type);
-        final DataBuffer db = bi.getRaster().getDataBuffer();
+    private static BufferedImage makeUnmanagedBI(int type) {
+        BufferedImage bi = new BufferedImage(511, 255, type);
+        DataBuffer db = bi.getRaster().getDataBuffer();
         if (db instanceof DataBufferInt) {
             ((DataBufferInt) db).getData();
         } else if (db instanceof DataBufferShort) {
@@ -132,14 +130,14 @@ public final class IncorrectUnmanagedImageSourceOffset {
         } else {
             try {
                 bi.setAccelerationPriority(0.0f);
-            } catch (final Throwable ignored) {
+            } catch (Throwable ignored) {
             }
         }
         return bi;
     }
 
-    private static void fill(final Image image) {
-        final Graphics2D graphics = (Graphics2D) image.getGraphics();
+    private static void fill(Image image) {
+        Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setComposite(AlphaComposite.Src);
         for (int i = 0; i < image.getHeight(null); ++i) {
             graphics.setColor(new Color(i, 0, 0));

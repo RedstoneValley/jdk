@@ -21,8 +21,6 @@
  * questions.
  */
 
-import test.java.awt.regtesthelpers.Util;
-
 import java.awt.*;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragSource;
@@ -34,9 +32,10 @@ import java.util.Arrays;
 
 class SourceFileListFrame extends Frame implements DragGestureListener {
 
-    private final static int SOURCE_POINT_SHIFT = 3;
+    private static final int SOURCE_POINT_SHIFT = 3;
+    private static final long serialVersionUID = 7093380057172507366L;
 
-    private List list = new List(URIListBetweenJVMsTest.VISIBLE_RAWS_IN_LIST);
+    private final List list = new List(URIListBetweenJVMsTest.VISIBLE_RAWS_IN_LIST);
     private File[] files;
 
     SourceFileListFrame() {
@@ -44,7 +43,8 @@ class SourceFileListFrame extends Frame implements DragGestureListener {
         extractFilesFromTheWorkingDirectory();
         initList();
         initGUI();
-        new DragSource().createDefaultDragGestureRecognizer(list,
+        new DragSource().createDefaultDragGestureRecognizer(
+            list,
                 DnDConstants.ACTION_COPY,this);
     }
 
@@ -53,21 +53,21 @@ class SourceFileListFrame extends Frame implements DragGestureListener {
     }
 
     private void initList() {
-        for (File currFile:files) {
+        for (File currFile: files) {
             list.add(currFile.getName());
         }
     }
 
     private void initGUI() {
-        this.addWindowListener(Util.getClosingWindowAdapter());
-        this.setLocation(300,250);
-        this.add(new Panel().add(list));
-        this.pack();
-        this.setVisible(true);
+        addWindowListener(Util.getClosingWindowAdapter());
+        setLocation(300,250);
+        add(new Panel().add(list));
+        pack();
+        setVisible(true);
     }
 
     int getNextLocationX() {
-        return getX()+getWidth();
+        return getX()+ getWidth();
     }
 
     int getNextLocationY() {
@@ -75,17 +75,18 @@ class SourceFileListFrame extends Frame implements DragGestureListener {
     }
 
     int getDragSourcePointX() {
-        return (int)list.getLocationOnScreen().getX()+(list.getWidth()/2);
+        return (int) list.getLocationOnScreen().getX()+ list.getWidth()/2;
     }
 
    int getDragSourcePointY() {
-        return (int)list.getLocationOnScreen().getY()+ SOURCE_POINT_SHIFT;
+        return (int) list.getLocationOnScreen().getY()+ SOURCE_POINT_SHIFT;
     }
 
     int getSourceFilesNumber() {
         return files.length;
     }
 
+    @Override
     public void dragGestureRecognized(DragGestureEvent dge) {
         String [] filesAsStringArray = list.getItems();
         File [] files = new File[filesAsStringArray.length];

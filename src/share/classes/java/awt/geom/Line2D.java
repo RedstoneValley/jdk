@@ -30,7 +30,7 @@ import java.awt.Shape;
 import java.io.Serializable;
 
 /**
- * This <code>Line2D</code> represents a line segment in {@code (x,y)}
+ * This {@code Line2D} represents a line segment in {@code (x,y)}
  * coordinate space.  This class, like all of the Java 2D API, uses a
  * default coordinate system called <i>user space</i> in which the y-axis
  * values increase downward and x-axis values increase to the right.  For
@@ -55,8 +55,8 @@ public abstract class Line2D implements Shape, Cloneable {
    * the information necessary to satisfy the various accessory
    * methods below.
    *
-   * @see java.awt.geom.Line2D.Float
-   * @see java.awt.geom.Line2D.Double
+   * @see Float
+   * @see Double
    * @since 1.2
    */
   protected Line2D() {
@@ -134,7 +134,7 @@ public abstract class Line2D implements Shape, Cloneable {
         }
       }
     }
-    return (ccw < 0.0) ? -1 : ((ccw > 0.0) ? 1 : 0);
+    return ccw < 0.0 ? -1 : ccw > 0.0 ? 1 : 0;
   }
 
   /**
@@ -158,15 +158,15 @@ public abstract class Line2D implements Shape, Cloneable {
    *           specified line segment
    * @param y4 the Y coordinate of the end point of the second
    *           specified line segment
-   * @return <code>true</code> if the first specified line segment
+   * @return {@code true} if the first specified line segment
    * and the second specified line segment intersect
-   * each other; <code>false</code> otherwise.
+   * each other; {@code false} otherwise.
    * @since 1.2
    */
   public static boolean linesIntersect(
       double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
-    return ((relativeCCW(x1, y1, x2, y2, x3, y3) * relativeCCW(x1, y1, x2, y2, x4, y4) <= 0) && (
-        relativeCCW(x3, y3, x4, y4, x1, y1) * relativeCCW(x3, y3, x4, y4, x2, y2) <= 0));
+    return relativeCCW(x1, y1, x2, y2, x3, y3) * relativeCCW(x1, y1, x2, y2, x4, y4) <= 0
+        && relativeCCW(x3, y3, x4, y4, x1, y1) * relativeCCW(x3, y3, x4, y4, x2, y2) <= 0;
   }
 
   /**
@@ -218,18 +218,7 @@ public abstract class Line2D implements Shape, Cloneable {
       px = x2 - px;
       py = y2 - py;
       dotprod = px * x2 + py * y2;
-      if (dotprod <= 0.0) {
-        // px,py is on the side of x2,y2 away from x1,y1
-        // distance to segment is length of (backwards) px,py vector
-        // "length of its (clipped) projection" is now 0.0
-        projlenSq = 0.0;
-      } else {
-        // px,py is between x1,y1 and x2,y2
-        // dotprod is the length of the px,py vector
-        // projected on the x2,y2=>x1,y1 vector times the
-        // length of the x2,y2=>x1,y1 vector
-        projlenSq = dotprod * dotprod / (x2 * x2 + y2 * y2);
-      }
+      projlenSq = dotprod <= 0.0 ? 0.0 : dotprod * dotprod / (x2 * x2 + y2 * y2);
     }
     // Distance to line is now the length of the relative point
     // vector minus the length of its projection onto the line
@@ -357,9 +346,9 @@ public abstract class Line2D implements Shape, Cloneable {
   public abstract double getY1();
 
   /**
-   * Returns the start <code>Point2D</code> of this <code>Line2D</code>.
+   * Returns the start {@code Point2D} of this {@code Line2D}.
    *
-   * @return the start <code>Point2D</code> of this <code>Line2D</code>.
+   * @return the start {@code Point2D} of this {@code Line2D}.
    * @since 1.2
    */
   public abstract Point2D getP1();
@@ -383,15 +372,15 @@ public abstract class Line2D implements Shape, Cloneable {
   public abstract double getY2();
 
   /**
-   * Returns the end <code>Point2D</code> of this <code>Line2D</code>.
+   * Returns the end {@code Point2D} of this {@code Line2D}.
    *
-   * @return the end <code>Point2D</code> of this <code>Line2D</code>.
+   * @return the end {@code Point2D} of this {@code Line2D}.
    * @since 1.2
    */
   public abstract Point2D getP2();
 
   /**
-   * Sets the location of the end points of this <code>Line2D</code> to
+   * Sets the location of the end points of this {@code Line2D} to
    * the specified double coordinates.
    *
    * @param x1 the X coordinate of the start point
@@ -403,11 +392,11 @@ public abstract class Line2D implements Shape, Cloneable {
   public abstract void setLine(double x1, double y1, double x2, double y2);
 
   /**
-   * Sets the location of the end points of this <code>Line2D</code> to
-   * the specified <code>Point2D</code> coordinates.
+   * Sets the location of the end points of this {@code Line2D} to
+   * the specified {@code Point2D} coordinates.
    *
-   * @param p1 the start <code>Point2D</code> of the line segment
-   * @param p2 the end <code>Point2D</code> of the line segment
+   * @param p1 the start {@code Point2D} of the line segment
+   * @param p2 the end {@code Point2D} of the line segment
    * @since 1.2
    */
   public void setLine(Point2D p1, Point2D p2) {
@@ -415,10 +404,10 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * Sets the location of the end points of this <code>Line2D</code> to
-   * the same as those end points of the specified <code>Line2D</code>.
+   * Sets the location of the end points of this {@code Line2D} to
+   * the same as those end points of the specified {@code Line2D}.
    *
-   * @param l the specified <code>Line2D</code>
+   * @param l the specified {@code Line2D}
    * @since 1.2
    */
   public void setLine(Line2D l) {
@@ -433,11 +422,11 @@ public abstract class Line2D implements Shape, Cloneable {
    * to interpret the return value.
    *
    * @param px the X coordinate of the specified point
-   *           to be compared with this <code>Line2D</code>
+   *           to be compared with this {@code Line2D}
    * @param py the Y coordinate of the specified point
-   *           to be compared with this <code>Line2D</code>
+   *           to be compared with this {@code Line2D}
    * @return an integer that indicates the position of the specified
-   * coordinates with respect to this <code>Line2D</code>
+   * coordinates with respect to this {@code Line2D}
    * @see #relativeCCW(double, double, double, double, double, double)
    * @since 1.2
    */
@@ -446,16 +435,16 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * Returns an indicator of where the specified <code>Point2D</code>
+   * Returns an indicator of where the specified {@code Point2D}
    * lies with respect to this line segment.
    * See the method comments of
    * {@link #relativeCCW(double, double, double, double, double, double)}
    * to interpret the return value.
    *
-   * @param p the specified <code>Point2D</code> to be compared
-   *          with this <code>Line2D</code>
+   * @param p the specified {@code Point2D} to be compared
+   *          with this {@code Line2D}
    * @return an integer that indicates the position of the specified
-   * <code>Point2D</code> with respect to this <code>Line2D</code>
+   * {@code Point2D} with respect to this {@code Line2D}
    * @see #relativeCCW(double, double, double, double, double, double)
    * @since 1.2
    */
@@ -476,7 +465,7 @@ public abstract class Line2D implements Shape, Cloneable {
    * @param y2 the Y coordinate of the end point of the
    *           specified line segment
    * @return {@code <true>} if this line segment and the specified line segment
-   * intersect each other; <code>false</code> otherwise.
+   * intersect each other; {@code false} otherwise.
    * @since 1.2
    */
   public boolean intersectsLine(double x1, double y1, double x2, double y2) {
@@ -486,10 +475,10 @@ public abstract class Line2D implements Shape, Cloneable {
   /**
    * Tests if the specified line segment intersects this line segment.
    *
-   * @param l the specified <code>Line2D</code>
-   * @return <code>true</code> if this line segment and the specified line
+   * @param l the specified {@code Line2D}
+   * @return {@code true} if this line segment and the specified line
    * segment intersect each other;
-   * <code>false</code> otherwise.
+   * {@code false} otherwise.
    * @since 1.2
    */
   public boolean intersectsLine(Line2D l) {
@@ -524,17 +513,17 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * Returns the square of the distance from a <code>Point2D</code> to
+   * Returns the square of the distance from a {@code Point2D} to
    * this line segment.
    * The distance measured is the distance between the specified
    * point and the closest point between the current line's end points.
    * If the specified point intersects the line segment in between the
    * end points, this method returns 0.0.
    *
-   * @param pt the specified <code>Point2D</code> being measured against
+   * @param pt the specified {@code Point2D} being measured against
    *           this line segment.
    * @return a double value that is the square of the distance from the
-   * specified <code>Point2D</code> to the current
+   * specified {@code Point2D} to the current
    * line segment.
    * @see #ptLineDistSq(Point2D)
    * @since 1.2
@@ -564,17 +553,17 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * Returns the distance from a <code>Point2D</code> to this line
+   * Returns the distance from a {@code Point2D} to this line
    * segment.
    * The distance measured is the distance between the specified
    * point and the closest point between the current line's end points.
    * If the specified point intersects the line segment in between the
    * end points, this method returns 0.0.
    *
-   * @param pt the specified <code>Point2D</code> being measured
+   * @param pt the specified {@code Point2D} being measured
    *           against this line segment
    * @return a double value that is the distance from the specified
-   * <code>Point2D</code> to the current line
+   * {@code Point2D} to the current line
    * segment.
    * @see #ptLineDist(Point2D)
    * @since 1.2
@@ -587,7 +576,7 @@ public abstract class Line2D implements Shape, Cloneable {
    * Returns the square of the distance from a point to this line.
    * The distance measured is the distance between the specified
    * point and the closest point on the infinitely-extended line
-   * defined by this <code>Line2D</code>.  If the specified point
+   * defined by this {@code Line2D}.  If the specified point
    * intersects the line, this method returns 0.0.
    *
    * @param px the X coordinate of the specified point being
@@ -605,16 +594,16 @@ public abstract class Line2D implements Shape, Cloneable {
 
   /**
    * Returns the square of the distance from a specified
-   * <code>Point2D</code> to this line.
+   * {@code Point2D} to this line.
    * The distance measured is the distance between the specified
    * point and the closest point on the infinitely-extended line
-   * defined by this <code>Line2D</code>.  If the specified point
+   * defined by this {@code Line2D}.  If the specified point
    * intersects the line, this method returns 0.0.
    *
-   * @param pt the specified <code>Point2D</code> being measured
+   * @param pt the specified {@code Point2D} being measured
    *           against this line
    * @return a double value that is the square of the distance from a
-   * specified <code>Point2D</code> to the current
+   * specified {@code Point2D} to the current
    * line.
    * @see #ptSegDistSq(Point2D)
    * @since 1.2
@@ -627,7 +616,7 @@ public abstract class Line2D implements Shape, Cloneable {
    * Returns the distance from a point to this line.
    * The distance measured is the distance between the specified
    * point and the closest point on the infinitely-extended line
-   * defined by this <code>Line2D</code>.  If the specified point
+   * defined by this {@code Line2D}.  If the specified point
    * intersects the line, this method returns 0.0.
    *
    * @param px the X coordinate of the specified point being
@@ -644,15 +633,15 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * Returns the distance from a <code>Point2D</code> to this line.
+   * Returns the distance from a {@code Point2D} to this line.
    * The distance measured is the distance between the specified
    * point and the closest point on the infinitely-extended line
-   * defined by this <code>Line2D</code>.  If the specified point
+   * defined by this {@code Line2D}.  If the specified point
    * intersects the line, this method returns 0.0.
    *
-   * @param pt the specified <code>Point2D</code> being measured
+   * @param pt the specified {@code Point2D} being measured
    * @return a double value that is the distance from a specified
-   * <code>Point2D</code> to the current line.
+   * {@code Point2D} to the current line.
    * @see #ptSegDist(Point2D)
    * @since 1.2
    */
@@ -661,10 +650,9 @@ public abstract class Line2D implements Shape, Cloneable {
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public Rectangle getBounds() {
     return getBounds2D().getBounds();
   }
@@ -674,9 +662,10 @@ public abstract class Line2D implements Shape, Cloneable {
    *
    * @return a clone of this instance.
    * @throws OutOfMemoryError if there is not enough memory.
-   * @see java.lang.Cloneable
+   * @see Cloneable
    * @since 1.2
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();
@@ -747,11 +736,11 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * Constructs and initializes a <code>Line2D</code> from the
-     * specified <code>Point2D</code> objects.
+     * Constructs and initializes a {@code Line2D} from the
+     * specified {@code Point2D} objects.
      *
-     * @param p1 the start <code>Point2D</code> of this line segment
-     * @param p2 the end <code>Point2D</code> of this line segment
+     * @param p1 the start {@code Point2D} of this line segment
+     * @param p2 the end {@code Point2D} of this line segment
      * @since 1.2
      */
     public Float(Point2D p1, Point2D p2) {
@@ -759,16 +748,15 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX1() {
       return (double) x1;
     }
 
     /**
-     * Sets the location of the end points of this <code>Line2D</code>
+     * Sets the location of the end points of this {@code Line2D}
      * to the specified float coordinates.
      *
      * @param x1 the X coordinate of the start point
@@ -782,58 +770,52 @@ public abstract class Line2D implements Shape, Cloneable {
       this.y1 = y1;
       this.x2 = x2;
       this.y2 = y2;
-    }    /**
-     * {@inheritDoc}
-     *
+    }
+
+    /**
      * @since 1.2
      */
+    @Override
     public double getY1() {
       return (double) y1;
     }
 
-
-
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Point2D getP1() {
       return new Point2D.Float(x1, y1);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX2() {
       return (double) x2;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getY2() {
       return (double) y2;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Point2D getP2() {
       return new Point2D.Float(x2, y2);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setLine(double x1, double y1, double x2, double y2) {
       this.x1 = (float) x1;
       this.y1 = (float) y1;
@@ -842,10 +824,9 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Rectangle2D getBounds2D() {
       float x, y, w, h;
       if (x1 < x2) {
@@ -914,7 +895,7 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * Constructs and initializes a <code>Line2D</code> from the
+     * Constructs and initializes a {@code Line2D} from the
      * specified coordinates.
      *
      * @param x1 the X coordinate of the start point
@@ -928,11 +909,11 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * Constructs and initializes a <code>Line2D</code> from the
-     * specified <code>Point2D</code> objects.
+     * Constructs and initializes a {@code Line2D} from the
+     * specified {@code Point2D} objects.
      *
-     * @param p1 the start <code>Point2D</code> of this line segment
-     * @param p2 the end <code>Point2D</code> of this line segment
+     * @param p1 the start {@code Point2D} of this line segment
+     * @param p2 the end {@code Point2D} of this line segment
      * @since 1.2
      */
     public Double(Point2D p1, Point2D p2) {
@@ -940,64 +921,57 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX1() {
       return x1;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getY1() {
       return y1;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Point2D getP1() {
       return new Point2D.Double(x1, y1);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX2() {
       return x2;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getY2() {
       return y2;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Point2D getP2() {
       return new Point2D.Double(x2, y2);
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setLine(double x1, double y1, double x2, double y2) {
       this.x1 = x1;
       this.y1 = y1;
@@ -1006,10 +980,9 @@ public abstract class Line2D implements Shape, Cloneable {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Rectangle2D getBounds2D() {
       double x, y, w, h;
       if (x1 < x2) {
@@ -1028,64 +1001,64 @@ public abstract class Line2D implements Shape, Cloneable {
       }
       return new Rectangle2D.Double(x, y, w, h);
     }
-  }  /**
+  }
+
+  /**
    * Tests if a specified coordinate is inside the boundary of this
-   * <code>Line2D</code>.  This method is required to implement the
-   * {@link Shape} interface, but in the case of <code>Line2D</code>
-   * objects it always returns <code>false</code> since a line contains
+   * {@code Line2D}.  This method is required to implement the
+   * {@link Shape} interface, but in the case of {@code Line2D}
+   * objects it always returns {@code false} since a line contains
    * no area.
    *
    * @param x the X coordinate of the specified point to be tested
    * @param y the Y coordinate of the specified point to be tested
-   * @return <code>false</code> because a <code>Line2D</code> contains
+   * @return {@code false} because a {@code Line2D} contains
    * no area.
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y) {
     return false;
   }
 
-
-
   /**
-   * Tests if a given <code>Point2D</code> is inside the boundary of
-   * this <code>Line2D</code>.
+   * Tests if a given {@code Point2D} is inside the boundary of
+   * this {@code Line2D}.
    * This method is required to implement the {@link Shape} interface,
-   * but in the case of <code>Line2D</code> objects it always returns
-   * <code>false</code> since a line contains no area.
+   * but in the case of {@code Line2D} objects it always returns
+   * {@code false} since a line contains no area.
    *
-   * @param p the specified <code>Point2D</code> to be tested
-   * @return <code>false</code> because a <code>Line2D</code> contains
+   * @param p the specified {@code Point2D} to be tested
+   * @return {@code false} because a {@code Line2D} contains
    * no area.
    * @since 1.2
    */
+  @Override
   public boolean contains(Point2D p) {
     return false;
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(double x, double y, double w, double h) {
     return intersects(new Rectangle2D.Double(x, y, w, h));
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(Rectangle2D r) {
     return r.intersectsLine(getX1(), getY1(), getX2(), getY2());
   }
 
   /**
-   * Tests if the interior of this <code>Line2D</code> entirely contains
+   * Tests if the interior of this {@code Line2D} entirely contains
    * the specified set of rectangular coordinates.
-   * This method is required to implement the <code>Shape</code> interface,
-   * but in the case of <code>Line2D</code> objects it always returns
+   * This method is required to implement the {@code Shape} interface,
+   * but in the case of {@code Line2D} objects it always returns
    * false since a line contains no area.
    *
    * @param x the X coordinate of the upper-left corner of the
@@ -1094,67 +1067,71 @@ public abstract class Line2D implements Shape, Cloneable {
    *          specified rectangular area
    * @param w the width of the specified rectangular area
    * @param h the height of the specified rectangular area
-   * @return <code>false</code> because a <code>Line2D</code> contains
+   * @return {@code false} because a {@code Line2D} contains
    * no area.
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y, double w, double h) {
     return false;
   }
 
   /**
-   * Tests if the interior of this <code>Line2D</code> entirely contains
-   * the specified <code>Rectangle2D</code>.
-   * This method is required to implement the <code>Shape</code> interface,
-   * but in the case of <code>Line2D</code> objects it always returns
-   * <code>false</code> since a line contains no area.
+   * Tests if the interior of this {@code Line2D} entirely contains
+   * the specified {@code Rectangle2D}.
+   * This method is required to implement the {@code Shape} interface,
+   * but in the case of {@code Line2D} objects it always returns
+   * {@code false} since a line contains no area.
    *
-   * @param r the specified <code>Rectangle2D</code> to be tested
-   * @return <code>false</code> because a <code>Line2D</code> contains
+   * @param r the specified {@code Rectangle2D} to be tested
+   * @return {@code false} because a {@code Line2D} contains
    * no area.
    * @since 1.2
    */
+  @Override
   public boolean contains(Rectangle2D r) {
     return false;
   }
 
   /**
    * Returns an iteration object that defines the boundary of this
-   * <code>Line2D</code>.
+   * {@code Line2D}.
    * The iterator for this class is not multi-threaded safe,
-   * which means that this <code>Line2D</code> class does not
+   * which means that this {@code Line2D} class does not
    * guarantee that modifications to the geometry of this
-   * <code>Line2D</code> object do not affect any iterations of that
+   * {@code Line2D} object do not affect any iterations of that
    * geometry that are already in process.
    *
    * @param at the specified {@link AffineTransform}
    * @return a {@link PathIterator} that defines the boundary of this
-   * <code>Line2D</code>.
+   * {@code Line2D}.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at) {
     return new LineIterator(this, at);
   }
 
   /**
    * Returns an iteration object that defines the boundary of this
-   * flattened <code>Line2D</code>.
+   * flattened {@code Line2D}.
    * The iterator for this class is not multi-threaded safe,
-   * which means that this <code>Line2D</code> class does not
+   * which means that this {@code Line2D} class does not
    * guarantee that modifications to the geometry of this
-   * <code>Line2D</code> object do not affect any iterations of that
+   * {@code Line2D} object do not affect any iterations of that
    * geometry that are already in process.
    *
-   * @param at       the specified <code>AffineTransform</code>
+   * @param at       the specified {@code AffineTransform}
    * @param flatness the maximum amount that the control points for a
    *                 given curve can vary from colinear before a subdivided
    *                 curve is replaced by a straight line connecting the
-   *                 end points.  Since a <code>Line2D</code> object is
+   *                 end points.  Since a {@code Line2D} object is
    *                 always flat, this parameter is ignored.
-   * @return a <code>PathIterator</code> that defines the boundary of the
-   * flattened <code>Line2D</code>
+   * @return a {@code PathIterator} that defines the boundary of the
+   * flattened {@code Line2D}
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at, double flatness) {
     return new LineIterator(this, at);
   }

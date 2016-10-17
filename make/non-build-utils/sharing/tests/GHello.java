@@ -30,13 +30,15 @@ import java.awt.Label;
 
 public class GHello extends Frame {
 
+    private static final long serialVersionUID = -3722027017966400909L;
+
     public static void main(String[] args) {
         System.out.println("Hello");
 
         new GHello().show();
-        if (args.length == 1 && args[0].equals("quit")) {
+        if (args.length == 1 && "quit".equals(args[0])) {
             try {
-                Thread.currentThread().sleep(200);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
             }
             System.exit(0);
@@ -46,7 +48,7 @@ public class GHello extends Frame {
 
     GHello() {
         Label label = new Label("Hello");
-        label.setFont(new Font("Monospaced", Font.PLAIN, 144));
+        label.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 144));
         add(label);
         pack();
     }

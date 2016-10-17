@@ -30,7 +30,6 @@ import java.awt.Window;
 import java.awt.font.TextHitInfo;
 import java.awt.im.InputMethodRequests;
 import java.text.AttributedCharacterIterator;
-import javax.swing.JFrame;
 
 /**
  * Provides methods that input methods
@@ -38,7 +37,7 @@ import javax.swing.JFrame;
  * other services.  This interface is implemented by the input method
  * framework, and input methods call its methods on the instance they
  * receive through
- * {@link java.awt.im.spi.InputMethod#setInputMethodContext}.
+ * {@link InputMethod#setInputMethodContext}.
  * There should be no other implementors or callers.
  *
  * @author JavaSoft International
@@ -52,7 +51,7 @@ public interface InputMethodContext extends InputMethodRequests {
    * and dispatches it to the client component. For arguments,
    * see {@link java.awt.event.InputMethodEvent#InputMethodEvent}.
    */
-  public void dispatchInputMethodEvent(
+  void dispatchInputMethodEvent(
       int id, AttributedCharacterIterator text, int committedCharacterCount, TextHitInfo caret,
       TextHitInfo visiblePosition);
 
@@ -74,20 +73,20 @@ public interface InputMethodContext extends InputMethodRequests {
    * Also, when the window is opened using setVisible(true), the input context will prevent
    * deactivate and activate calls to the input method that might otherwise be caused.
    * <p>
-   * Input methods must call {@link java.awt.Window#dispose() Window.dispose} on the
+   * Input methods must call {@link Window#dispose() Window.dispose} on the
    * returned input method window when it is no longer needed.
    * <p>
    *
    * @param title                the title to be displayed in the window's title bar,
    *                             if there is such a title bar.
-   *                             A <code>null</code> value is treated as an empty string, "".
+   *                             A {@code null} value is treated as an empty string, "".
    * @param attachToInputContext whether this window should share the input context
    *                             that corresponds to this input method context
    * @return a window with special characteristics for use by input methods
-   * @throws HeadlessException if <code>GraphicsEnvironment.isHeadless
-   *                           </code> returns <code>true</code>
+   * @throws HeadlessException if {@code GraphicsEnvironment.isHeadless
+   *                           } returns {@code true}
    */
-  public Window createInputMethodWindow(String title, boolean attachToInputContext);
+  Window createInputMethodWindow(String title, boolean attachToInputContext);
 
   /**
    * Creates a top-level Swing JFrame for use by the input method.
@@ -107,27 +106,27 @@ public interface InputMethodContext extends InputMethodRequests {
    * Also, when the window is opened using setVisible(true), the input context will prevent
    * deactivate and activate calls to the input method that might otherwise be caused.
    * <p>
-   * Input methods must call {@link java.awt.Window#dispose() Window.dispose} on the
+   * Input methods must call {@link Window#dispose() Window.dispose} on the
    * returned input method window when it is no longer needed.
    * <p>
    *
    * @param title                the title to be displayed in the window's title bar,
    *                             if there is such a title bar.
-   *                             A <code>null</code> value is treated as an empty string, "".
+   *                             A {@code null} value is treated as an empty string, "".
    * @param attachToInputContext whether this window should share the input context
    *                             that corresponds to this input method context
    * @return a JFrame with special characteristics for use by input methods
-   * @throws HeadlessException if <code>GraphicsEnvironment.isHeadless
-   *                           </code> returns <code>true</code>
+   * @throws HeadlessException if {@code GraphicsEnvironment.isHeadless
+   *                           } returns {@code true}
    * @since 1.4
    */
-  public JFrame createInputMethodJFrame(String title, boolean attachToInputContext);
+  JFrame createInputMethodJFrame(String title, boolean attachToInputContext);
 
   /**
    * Enables or disables notification of the current client window's
    * location and state for the specified input method. When
    * notification is enabled, the input method's {@link
-   * java.awt.im.spi.InputMethod#notifyClientWindowChange
+   * InputMethod#notifyClientWindowChange
    * notifyClientWindowChange} method is called as described in that
    * method's specification. Notification is automatically disabled
    * when the input method is disposed.
@@ -136,5 +135,5 @@ public interface InputMethodContext extends InputMethodRequests {
    *                    enabled or disabled
    * @param enable      true to enable, false to disable
    */
-  public void enableClientWindowNotification(InputMethod inputMethod, boolean enable);
+  void enableClientWindowNotification(InputMethod inputMethod, boolean enable);
 }

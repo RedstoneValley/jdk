@@ -24,9 +24,12 @@
  */
 
 
-public class Sleep {
+public final class Sleep {
 
-    public static void main(String[] args) {
+  private Sleep() {
+  }
+
+  public static void main(String[] args) {
         // What is loaded on a sleep?
         try {
             Thread.sleep(5000);

@@ -35,22 +35,22 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 import java.util.concurrent.*;
 import sun.awt.SunToolkit;
 
-import test.java.awt.regtesthelpers.Util;
+public final class DragWindowTest {
 
-public class DragWindowTest {
+    static volatile int dragWindowMouseEnteredCount;
+    static volatile int dragWindowMouseReleasedCount;
+    static volatile int buttonMouseEnteredCount;
+    static volatile int labelMouseReleasedCount;
+    static MyDragWindow dragWindow;
+    static JLabel label;
+    static JButton button;
 
-    private static volatile int dragWindowMouseEnteredCount = 0;
-    private static volatile int dragWindowMouseReleasedCount = 0;
-    private static volatile int buttonMouseEnteredCount = 0;
-    private static volatile int labelMouseReleasedCount = 0;
-    private static MyDragWindow dragWindow;
-    private static JLabel label;
-    private static JButton button;
+    private DragWindowTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -110,19 +110,19 @@ public class DragWindowTest {
 
     }
 
-    private static Point getCenterPoint(Component comp) {
+    static Point getCenterPoint(Component comp) {
         Point p = comp.getLocationOnScreen();
         Rectangle rect = comp.getBounds();
         return new Point(p.x + rect.width / 2, p.y + rect.height / 2);
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
 
         JFrame frame = new JFrame("Main Frame");
         frame.setSize(300, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        label = new JLabel("Label");
+        label = new JLabel(Notepad.labelSuffix);
 
         LabelMouseListener listener = new LabelMouseListener(frame);
         label.addMouseListener(listener);
@@ -139,13 +139,14 @@ public class DragWindowTest {
 
     }
 
-    private static Point getAbsoluteLocation(MouseEvent e) {
+    static Point getAbsoluteLocation(MouseEvent e) {
         return new Point(e.getXOnScreen(), e.getYOnScreen());
     }
 
     static class MyDragWindow extends Window {
 
-        static int d = 30;
+        static final int d = 30;
+        private static final long serialVersionUID = -8161526751000524336L;
 
         public MyDragWindow(Window parent, Point location) {
             super(parent);
@@ -165,7 +166,7 @@ public class DragWindowTest {
     static class LabelMouseListener extends MouseAdapter {
 
         Point origin;
-        Window parent;
+        final Window parent;
 
         public LabelMouseListener(Window parent) {
             this.parent = parent;
@@ -189,6 +190,7 @@ public class DragWindowTest {
             }
         }
 
+        @Override
         public void mouseDragged(MouseEvent e) {
             if (dragWindow != null) {
                 dragWindow.dragTo(getAbsoluteLocation(e));

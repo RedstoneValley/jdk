@@ -34,16 +34,19 @@ import java.util.NoSuchElementException;
  * @author Jim Graham
  */
 class RectIterator implements PathIterator {
-  double x, y, w, h;
-  AffineTransform affine;
+  final double x;
+  final double y;
+  final double w;
+  final double h;
+  final AffineTransform affine;
   int index;
 
   RectIterator(Rectangle2D r, AffineTransform at) {
-    this.x = r.getX();
-    this.y = r.getY();
-    this.w = r.getWidth();
-    this.h = r.getHeight();
-    this.affine = at;
+    x = r.getX();
+    y = r.getY();
+    w = r.getWidth();
+    h = r.getHeight();
+    affine = at;
     if (w < 0 || h < 0) {
       index = 6;
     }
@@ -56,6 +59,7 @@ class RectIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -65,6 +69,7 @@ class RectIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
     return index > 5;
   }
@@ -74,6 +79,7 @@ class RectIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -97,6 +103,7 @@ class RectIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("rect iterator out of bounds");
@@ -115,7 +122,7 @@ class RectIterator implements PathIterator {
     if (affine != null) {
       affine.transform(coords, 0, coords, 0, 1);
     }
-    return (index == 0 ? SEG_MOVETO : SEG_LINETO);
+    return index == 0 ? SEG_MOVETO : SEG_LINETO;
   }
 
   /**
@@ -137,6 +144,7 @@ class RectIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("rect iterator out of bounds");
@@ -155,6 +163,6 @@ class RectIterator implements PathIterator {
     if (affine != null) {
       affine.transform(coords, 0, coords, 0, 1);
     }
-    return (index == 0 ? SEG_MOVETO : SEG_LINETO);
+    return index == 0 ? SEG_MOVETO : SEG_LINETO;
   }
 }

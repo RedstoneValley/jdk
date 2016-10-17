@@ -29,75 +29,7 @@ import java.awt.geom.AffineTransform;
 import sun.awt.geom.PathConsumer2D;
 
 final class TransformingPathConsumer2D {
-  public static PathConsumer2D transformConsumer(PathConsumer2D out, AffineTransform at) {
-    if (at == null) {
-      return out;
-    }
-    float Mxx = (float) at.getScaleX();
-    float Mxy = (float) at.getShearX();
-    float Mxt = (float) at.getTranslateX();
-    float Myx = (float) at.getShearY();
-    float Myy = (float) at.getScaleY();
-    float Myt = (float) at.getTranslateY();
-    if (Mxy == 0f && Myx == 0f) {
-      if (Mxx == 1f && Myy == 1f) {
-        if (Mxt == 0f && Myt == 0f) {
-          return out;
-        } else {
-          return new TranslateFilter(out, Mxt, Myt);
-        }
-      } else {
-        if (Mxt == 0f && Myt == 0f) {
-          return new DeltaScaleFilter(out, Mxx, Myy);
-        } else {
-          return new ScaleFilter(out, Mxx, Myy, Mxt, Myt);
-        }
-      }
-    } else if (Mxt == 0f && Myt == 0f) {
-      return new DeltaTransformFilter(out, Mxx, Mxy, Myx, Myy);
-    } else {
-      return new TransformFilter(out, Mxx, Mxy, Mxt, Myx, Myy, Myt);
-    }
-  }
-
-  public static PathConsumer2D deltaTransformConsumer(PathConsumer2D out, AffineTransform at) {
-    if (at == null) {
-      return out;
-    }
-    float Mxx = (float) at.getScaleX();
-    float Mxy = (float) at.getShearX();
-    float Myx = (float) at.getShearY();
-    float Myy = (float) at.getScaleY();
-    if (Mxy == 0f && Myx == 0f) {
-      if (Mxx == 1f && Myy == 1f) {
-        return out;
-      } else {
-        return new DeltaScaleFilter(out, Mxx, Myy);
-      }
-    } else {
-      return new DeltaTransformFilter(out, Mxx, Mxy, Myx, Myy);
-    }
-  }
-
-  public static PathConsumer2D inverseDeltaTransformConsumer(
-      PathConsumer2D out, AffineTransform at) {
-    if (at == null) {
-      return out;
-    }
-    float Mxx = (float) at.getScaleX();
-    float Mxy = (float) at.getShearX();
-    float Myx = (float) at.getShearY();
-    float Myy = (float) at.getScaleY();
-    if (Mxy == 0f && Myx == 0f) {
-      if (Mxx == 1f && Myy == 1f) {
-        return out;
-      } else {
-        return new DeltaScaleFilter(out, 1.0f / Mxx, 1.0f / Myy);
-      }
-    } else {
-      float det = Mxx * Myy - Mxy * Myx;
-      return new DeltaTransformFilter(out, Myy / det, -Mxy / det, -Myx / det, Mxx / det);
-    }
+  private TransformingPathConsumer2D() {
   }
 
   static final class TranslateFilter implements PathConsumer2D {
@@ -111,30 +43,37 @@ final class TransformingPathConsumer2D {
       this.ty = ty;
     }
 
+    @Override
     public void moveTo(float x0, float y0) {
       out.moveTo(x0 + tx, y0 + ty);
     }
 
+    @Override
     public void lineTo(float x1, float y1) {
       out.lineTo(x1 + tx, y1 + ty);
     }
 
+    @Override
     public void quadTo(float x1, float y1, float x2, float y2) {
       out.quadTo(x1 + tx, y1 + ty, x2 + tx, y2 + ty);
     }
 
+    @Override
     public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
       out.curveTo(x1 + tx, y1 + ty, x2 + tx, y2 + ty, x3 + tx, y3 + ty);
     }
 
+    @Override
     public void closePath() {
       out.closePath();
     }
 
+    @Override
     public void pathDone() {
       out.pathDone();
     }
 
+    @Override
     public long getNativeConsumer() {
       return 0;
     }
@@ -155,18 +94,22 @@ final class TransformingPathConsumer2D {
       this.ty = ty;
     }
 
+    @Override
     public void moveTo(float x0, float y0) {
       out.moveTo(x0 * sx + tx, y0 * sy + ty);
     }
 
+    @Override
     public void lineTo(float x1, float y1) {
       out.lineTo(x1 * sx + tx, y1 * sy + ty);
     }
 
+    @Override
     public void quadTo(float x1, float y1, float x2, float y2) {
       out.quadTo(x1 * sx + tx, y1 * sy + ty, x2 * sx + tx, y2 * sy + ty);
     }
 
+    @Override
     public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
       out.curveTo(x1 * sx + tx,
           y1 * sy + ty,
@@ -176,14 +119,17 @@ final class TransformingPathConsumer2D {
           y3 * sy + ty);
     }
 
+    @Override
     public void closePath() {
       out.closePath();
     }
 
+    @Override
     public void pathDone() {
       out.pathDone();
     }
 
+    @Override
     public long getNativeConsumer() {
       return 0;
     }
@@ -209,14 +155,17 @@ final class TransformingPathConsumer2D {
       this.Myt = Myt;
     }
 
+    @Override
     public void moveTo(float x0, float y0) {
       out.moveTo(x0 * Mxx + y0 * Mxy + Mxt, x0 * Myx + y0 * Myy + Myt);
     }
 
+    @Override
     public void lineTo(float x1, float y1) {
       out.lineTo(x1 * Mxx + y1 * Mxy + Mxt, x1 * Myx + y1 * Myy + Myt);
     }
 
+    @Override
     public void quadTo(float x1, float y1, float x2, float y2) {
       out.quadTo(x1 * Mxx + y1 * Mxy + Mxt,
           x1 * Myx + y1 * Myy + Myt,
@@ -224,6 +173,7 @@ final class TransformingPathConsumer2D {
           x2 * Myx + y2 * Myy + Myt);
     }
 
+    @Override
     public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
       out.curveTo(x1 * Mxx + y1 * Mxy + Mxt,
           x1 * Myx + y1 * Myy + Myt,
@@ -233,14 +183,17 @@ final class TransformingPathConsumer2D {
           x3 * Myx + y3 * Myy + Myt);
     }
 
+    @Override
     public void closePath() {
       out.closePath();
     }
 
+    @Override
     public void pathDone() {
       out.pathDone();
     }
 
+    @Override
     public long getNativeConsumer() {
       return 0;
     }
@@ -256,30 +209,37 @@ final class TransformingPathConsumer2D {
       this.out = out;
     }
 
+    @Override
     public void moveTo(float x0, float y0) {
       out.moveTo(x0 * sx, y0 * sy);
     }
 
+    @Override
     public void lineTo(float x1, float y1) {
       out.lineTo(x1 * sx, y1 * sy);
     }
 
+    @Override
     public void quadTo(float x1, float y1, float x2, float y2) {
       out.quadTo(x1 * sx, y1 * sy, x2 * sx, y2 * sy);
     }
 
+    @Override
     public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
       out.curveTo(x1 * sx, y1 * sy, x2 * sx, y2 * sy, x3 * sx, y3 * sy);
     }
 
+    @Override
     public void closePath() {
       out.closePath();
     }
 
+    @Override
     public void pathDone() {
       out.pathDone();
     }
 
+    @Override
     public long getNativeConsumer() {
       return 0;
     }
@@ -290,7 +250,7 @@ final class TransformingPathConsumer2D {
     private final float Mxy;
     private final float Myx;
     private final float Myy;
-    private PathConsumer2D out;
+    private final PathConsumer2D out;
 
     DeltaTransformFilter(PathConsumer2D out, float Mxx, float Mxy, float Myx, float Myy) {
       this.out = out;
@@ -300,14 +260,17 @@ final class TransformingPathConsumer2D {
       this.Myy = Myy;
     }
 
+    @Override
     public void moveTo(float x0, float y0) {
       out.moveTo(x0 * Mxx + y0 * Mxy, x0 * Myx + y0 * Myy);
     }
 
+    @Override
     public void lineTo(float x1, float y1) {
       out.lineTo(x1 * Mxx + y1 * Mxy, x1 * Myx + y1 * Myy);
     }
 
+    @Override
     public void quadTo(float x1, float y1, float x2, float y2) {
       out.quadTo(x1 * Mxx + y1 * Mxy,
           x1 * Myx + y1 * Myy,
@@ -315,6 +278,7 @@ final class TransformingPathConsumer2D {
           x2 * Myx + y2 * Myy);
     }
 
+    @Override
     public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
       out.curveTo(x1 * Mxx + y1 * Mxy,
           x1 * Myx + y1 * Myy,
@@ -324,14 +288,17 @@ final class TransformingPathConsumer2D {
           x3 * Myx + y3 * Myy);
     }
 
+    @Override
     public void closePath() {
       out.closePath();
     }
 
+    @Override
     public void pathDone() {
       out.pathDone();
     }
 
+    @Override
     public long getNativeConsumer() {
       return 0;
     }

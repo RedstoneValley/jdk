@@ -38,10 +38,6 @@
  */
 
 import java.awt.Font;
-import javax.swing.UIDefaults;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.metal.DefaultMetalTheme;
-import javax.swing.plaf.metal.MetalIconFactory;
 
 /**
  * This class describes a theme using large fonts.
@@ -53,10 +49,12 @@ import javax.swing.plaf.metal.MetalIconFactory;
  */
 public class DemoMetalTheme extends DefaultMetalTheme {
 
-  private final FontUIResource controlFont = new FontUIResource("Dialog", Font.BOLD, 18);
-  private final FontUIResource systemFont = new FontUIResource("Dialog", Font.PLAIN, 18);
-  private final FontUIResource userFont = new FontUIResource("SansSerif", Font.PLAIN, 18);
-  private final FontUIResource smallFont = new FontUIResource("Dialog", Font.PLAIN, 14);
+  private final FontUIResource controlFont = new FontUIResource(OwnedWindowsSerialization
+      .DIALOG_LABEL, Font.BOLD, 18);
+  private final FontUIResource systemFont = new FontUIResource(OwnedWindowsSerialization
+      .DIALOG_LABEL, Font.PLAIN, 18);
+  private final FontUIResource userFont = new FontUIResource(Font.SANS_SERIF, Font.PLAIN, 18);
+  private final FontUIResource smallFont = new FontUIResource(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 14);
 
   @Override
   public String getName() {
@@ -97,7 +95,7 @@ public class DemoMetalTheme extends DefaultMetalTheme {
   public void addCustomEntriesToTable(UIDefaults table) {
     super.addCustomEntriesToTable(table);
 
-    final int internalFrameIconSize = 22;
+    int internalFrameIconSize = 22;
     table.put("InternalFrame.closeIcon", MetalIconFactory.
         getInternalFrameCloseIcon(internalFrameIconSize));
     table.put("InternalFrame.maximizeIcon", MetalIconFactory.

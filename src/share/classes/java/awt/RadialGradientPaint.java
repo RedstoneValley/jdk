@@ -29,7 +29,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
-import java.beans.ConstructorProperties;
 
 /**
  * The {@code RadialGradientPaint} class provides a way to fill a shape with
@@ -145,8 +144,8 @@ import java.beans.ConstructorProperties;
  * </center>
  *
  * @author Nicholas Talian, Vincent Hardy, Jim Graham, Jerry Evans
- * @see java.awt.Paint
- * @see java.awt.Graphics2D#setPaint
+ * @see Paint
+ * @see Graphics2D#setPaint
  * @since 1.6
  */
 public final class RadialGradientPaint extends MultipleGradientPaint {
@@ -550,6 +549,7 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
    * @see AffineTransform
    * @see RenderingHints
    */
+  @Override
   public PaintContext createContext(
       ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform transform,
       RenderingHints hints) {

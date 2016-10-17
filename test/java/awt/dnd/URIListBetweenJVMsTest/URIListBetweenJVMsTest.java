@@ -29,26 +29,21 @@
   @run applet URIListBetweenJVMsTest.html
 */
 
-/**
- * URIListBetweenJVMsTest.java
- *
- * summary: Transferable has no DataFlavors when dragging from Gnome window to Swing
+/*
+  URIListBetweenJVMsTest.java
+
+  summary: Transferable has no DataFlavors when dragging from Gnome window to Swing
  */
 
 import static java.lang.Thread.sleep;
 
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-import test.java.awt.regtesthelpers.Util;
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.io.*;
 
 public class URIListBetweenJVMsTest extends Applet {
 
     // information related to the test in common
-    static int VISIBLE_RAWS_IN_LIST=15;
+    static final int VISIBLE_RAWS_IN_LIST=15;
 
     public void init() {
         setLayout(new BorderLayout());
@@ -58,18 +53,17 @@ public class URIListBetweenJVMsTest extends Applet {
     public void start() {
 
     String toolkit = Toolkit.getDefaultToolkit().getClass().getName();
-    if (toolkit.equals("sun.awt.windows.WToolkit")){
+    if ("sun.awt.windows.WToolkit".equals(toolkit)){
         System.out.println("This test is not for the Windows platform. Passed.");
         return;
-    } else {
-        System.out.println("Toolkit = " + toolkit);
     }
+        System.out.println("Toolkit = " + toolkit);
 
         SourceFileListFrame sourceFrame = new SourceFileListFrame();
 
         Util.waitForIdle(null);
 
-        String [] args = new String [] {
+        String [] args = {
                 String.valueOf(sourceFrame.getNextLocationX()),
                 String.valueOf(sourceFrame.getNextLocationY()),
                 String.valueOf(sourceFrame.getDragSourcePointX()),
@@ -79,7 +73,7 @@ public class URIListBetweenJVMsTest extends Applet {
 
         String classpath = System.getProperty("java.class.path");
         ProcessResults processResults =
-                ProcessCommunicator.executeChildProcess(this.getClass(), classpath, args);
+                ProcessCommunicator.executeChildProcess(getClass(), classpath, args);
 
         verifyTestResults(processResults);
 
@@ -100,7 +94,6 @@ public class URIListBetweenJVMsTest extends Applet {
 
     //We cannot make an instance of the applet without the default constructor
     public URIListBetweenJVMsTest () {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
@@ -113,7 +106,7 @@ public class URIListBetweenJVMsTest extends Applet {
 
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int)dragSourcePoint.getX(),(int)dragSourcePoint.getY());
         sleep(100);
@@ -135,7 +128,7 @@ public class URIListBetweenJVMsTest extends Applet {
         FILES_IN_THE_LIST_NUMBER_ARGUMENT;
 
         int extract (String [] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
     }
 

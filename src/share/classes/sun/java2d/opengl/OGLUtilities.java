@@ -30,7 +30,9 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Rectangle;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
+import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.Region;
+import sun.java2d.pipe.hw.AccelSurface;
 
 /**
  * This class contains a number of static utility methods that may be
@@ -42,7 +44,7 @@ import sun.java2d.pipe.Region;
  * this class is not an officially supported public API; it may be modified
  * at will or removed completely in a future release.
  */
-class OGLUtilities {
+final class OGLUtilities {
 
   /**
    * These OGL-specific surface type constants are the same as those
@@ -82,7 +84,7 @@ class OGLUtilities {
    * <p>
    * In order to avoid deadlock, it is important that the given Runnable
    * does not attempt to acquire the AWT lock, as that will be handled
-   * automatically as part of the <code>rq.flushAndInvokeNow()</code> step.
+   * automatically as part of the {@code rq.flushAndInvokeNow()} step.
    *
    * @param g the Graphics object for the corresponding destination surface;
    *          if null, the step making a context current to the destination surface
@@ -106,7 +108,7 @@ class OGLUtilities {
         }
 
         // make a context current to the destination surface
-        OGLContext.validateContext((OGLSurfaceData) sData);
+        BufferedContext.validateContext((AccelSurface) sData);
       }
 
       // invoke the given runnable on the QFT
@@ -135,7 +137,7 @@ class OGLUtilities {
    * <p>
    * In order to avoid deadlock, it is important that the given Runnable
    * does not attempt to acquire the AWT lock, as that will be handled
-   * automatically as part of the <code>rq.flushAndInvokeNow()</code> step.
+   * automatically as part of the {@code rq.flushAndInvokeNow()} step.
    *
    * @param config the GraphicsConfiguration object whose "shared"
    *               context will be made current during this operation; if this value is
@@ -197,7 +199,7 @@ class OGLUtilities {
     }
 
     SunGraphics2D sg2d = (SunGraphics2D) g;
-    SurfaceData sData = (SurfaceData) sg2d.surfaceData;
+    SurfaceData sData = sg2d.surfaceData;
 
     // this is the upper-left origin of the region to be painted,
     // relative to the upper-left origin of the surface
@@ -209,10 +211,9 @@ class OGLUtilities {
     // relative to the lower-left origin of the surface
     // (in OpenGL coordinates)
     Rectangle surfaceBounds = sData.getBounds();
-    int x1 = x0;
     int y1 = surfaceBounds.height - (y0 + componentHeight);
 
-    return new Rectangle(x1, y1, componentWidth, componentHeight);
+    return new Rectangle(x0, y1, componentWidth, componentHeight);
   }
 
   /**
@@ -238,7 +239,7 @@ class OGLUtilities {
     }
 
     SunGraphics2D sg2d = (SunGraphics2D) g;
-    SurfaceData sData = (SurfaceData) sg2d.surfaceData;
+    SurfaceData sData = sg2d.surfaceData;
     Region r = sg2d.getCompClip();
     if (!r.isRectangular()) {
       // caller probably doesn't know how to handle shape clip
@@ -259,10 +260,9 @@ class OGLUtilities {
     // this is the lower-left origin of the scissor box relative to the
     // lower-left origin of the surface (in OpenGL coordinates)
     Rectangle surfaceBounds = sData.getBounds();
-    int x1 = x0;
     int y1 = surfaceBounds.height - (y0 + h);
 
-    return new Rectangle(x1, y1, w, h);
+    return new Rectangle(x0, y1, w, h);
   }
 
   /**
@@ -294,7 +294,7 @@ class OGLUtilities {
    * @return a constant that describes the surface associated with the
    * given Graphics object; if the given Graphics object is invalid (i.e.
    * is not associated with an OpenGL surface) this method will return
-   * <code>OGLUtilities.UNDEFINED</code>
+   * {@code OGLUtilities.UNDEFINED}
    */
   public static int getOGLSurfaceType(Graphics g) {
     if (!(g instanceof SunGraphics2D)) {

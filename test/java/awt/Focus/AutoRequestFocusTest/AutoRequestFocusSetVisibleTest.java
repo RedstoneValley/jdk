@@ -32,12 +32,9 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
-import java.applet.Applet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
+import java.awt.Dialog.ModalExclusionType;
 
+@SuppressWarnings("MagicNumber")
 public class AutoRequestFocusSetVisibleTest extends Applet {
     static Frame focusedFrame;
     static Button focusOwner;
@@ -55,7 +52,7 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
     static Button dlgButton;
 
     static String toolkitClassName;
-    static Robot robot = Util.createRobot();
+    static final Robot robot = Util.createRobot();
 
     public static void main(String[] args) {
         AutoRequestFocusSetVisibleTest app = new AutoRequestFocusSetVisibleTest();
@@ -67,7 +64,7 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
         // Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
         Sysout.createDialogWithInstructions(new String[]
             {"This is an automatic test. Simply wait until it is done."
             });
@@ -86,38 +83,41 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
         }
 
         focusedFrame = new Frame("Base Frame");
-        focusOwner = new Button("button");
+        focusOwner = new Button(Button.base);
 
         frame = new Frame("Test Frame");
-        frameButton = new Button("button");
+        frameButton = new Button(Button.base);
 
         frame2 = new Frame("Test Frame");
-        frameButton2 = new Button("button");
+        frameButton2 = new Button(Button.base);
 
         window = new Window(focusedFrame);
-        winButton = new Button("button");
+        winButton = new Button(Button.base);
 
         ownedWindow = new Window(frame) {
-                /*
-                 * When 'frame' is shown along with the 'ownedWindow'
-                 * (i.e. showWithParent==true) then it can appear
-                 * that the 'ownedWindow' is shown too early and
-                 * it can't be focused due to its owner can't be
-                 * yet activated. So, to avoid this race, we pospone
-                 * a little the showing of the 'ownedWindow'.
-                 */
+            private static final long serialVersionUID = 500150366876869340L;
+
+            /*
+                             * When 'frame' is shown along with the 'ownedWindow'
+                             * (i.e. showWithParent==true) then it can appear
+                             * that the 'ownedWindow' is shown too early and
+                             * it can't be focused due to its owner can't be
+                             * yet activated. So, to avoid this race, we pospone
+                             * a little the showing of the 'ownedWindow'.
+                             */
+                @Override
                 public void show() {
                     robot.delay(100);
                     super.show();
                 }
             };
-        ownWinButton = new Button("button");
+        ownWinButton = new Button(Button.base);
 
         ownedDialog = new Dialog(frame2);
-        ownDlgButton = new Button("button");
+        ownDlgButton = new Button(Button.base);
 
         dialog = new Dialog(focusedFrame, "Test Dialog");
-        dlgButton = new Button("button");
+        dlgButton = new Button(Button.base);
 
         focusedFrame.add(focusOwner);
         focusedFrame.setBounds(100, 100, 300, 300);
@@ -157,6 +157,7 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
         setVisible(focusedFrame, true);
 
         TestHelper.invokeLaterAndWait(new Runnable() {
+                @Override
                 public void run() {
                     dialog.setVisible(true);
                 }
@@ -328,9 +329,10 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
 
             dialog.setModal(true);
             dialog.setAutoRequestFocus(false);
-            focusedFrame.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
+            focusedFrame.setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 
             TestHelper.invokeLaterAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         dialog.setVisible(true);
                     }
@@ -352,8 +354,8 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
      * @param clickButton a button of the window (owner or owned) expected to be on the top of stack order
      * @param shouldFocusChange true the test window should gain focus
      */
-    void test(String msg, final Window showWindow, Window ownedWindow, final Button clickButton, boolean shouldFocusChange) {
-        Window testWindow = (ownedWindow == null ? showWindow : ownedWindow);
+    void test(String msg, Window showWindow, Window ownedWindow, Button clickButton, boolean shouldFocusChange) {
+        Window testWindow = ownedWindow == null ? showWindow : ownedWindow;
 
         Sysout.println(msg);
 
@@ -376,14 +378,16 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
         // Test focus change on showing the window
         //////////////////////////////////////////
 
-        final Runnable showAction = new Runnable() {
+        Runnable showAction = new Runnable() {
+                @Override
                 public void run() {
                     showWindow.setAutoRequestFocus(false);
                     showWindow.setVisible(true);
                 }
             };
 
-        final Runnable trackerAction = new Runnable() {
+        Runnable trackerAction = new Runnable() {
+                @Override
                 public void run() {
                     if (showWindow instanceof Dialog && ((Dialog)showWindow).isModal()) {
                         TestHelper.invokeLaterAndWait(showAction, robot);
@@ -415,6 +419,7 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
             ((Frame)testWindow).getExtendedState() != Frame.ICONIFIED)
         {
             boolean performed = Util.trackActionPerformed(clickButton, new Runnable() {
+                    @Override
                     public void run() {
                         /*
                          * If 'showWindow' is not on the top then
@@ -429,6 +434,7 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
                 // In case of loosing ACTION_PERFORMED, try once more.
                 Sysout.println("(ACTION_EVENT was not generated. One more attemp.)");
                 performed = Util.trackActionPerformed(clickButton, new Runnable() {
+                        @Override
                         public void run() {
                             Util.clickOnComp(clickButton, robot);
                         }
@@ -443,13 +449,13 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
         recreateGUI();
     }
 
-    void test(String msg, final Window showWindow, Button clickButton) {
+    void test(String msg, Window showWindow, Button clickButton) {
         test(msg, showWindow, null, clickButton, false);
     }
-    void test(String msg, final Window showWindow, Button clickButton, boolean shouldFocusChange) {
+    void test(String msg, Window showWindow, Button clickButton, boolean shouldFocusChange) {
         test(msg, showWindow, null, clickButton, shouldFocusChange);
     }
-    void test(String msg, final Window showWindow, Window ownedWindow, Button clickButton) {
+    void test(String msg, Window showWindow, Window ownedWindow, Button clickButton) {
         test(msg, showWindow, ownedWindow, clickButton, false);
     }
 
@@ -465,18 +471,20 @@ public class AutoRequestFocusSetVisibleTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
 }
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -490,9 +498,12 @@ class TestFailedException extends RuntimeException {
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -536,9 +547,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = -175121528743417031L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -546,10 +558,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -565,35 +577,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

@@ -47,18 +47,13 @@ class WaitDispatchSupport implements SecondaryLoop {
 
   // Use a shared daemon timer to serve all the WaitDispatchSupports
   private static Timer timer;
-  private EventDispatchThread dispatchThread;
-  private EventFilter filter;
-  private volatile Conditional extCondition;
-  private volatile Conditional condition;
-  private long interval;
-  // When this WDS expires, we cancel the timer task leaving the
-  // shared timer up and running
-  private TimerTask timerTask;
-
-  private AtomicBoolean keepBlockingEDT = new AtomicBoolean(false);
-  private AtomicBoolean keepBlockingCT = new AtomicBoolean(false);
+  final EventDispatchThread dispatchThread;
+  final Conditional extCondition;
+  final Conditional condition;
+  final AtomicBoolean keepBlockingEDT = new AtomicBoolean(false);
+  final AtomicBoolean keepBlockingCT = new AtomicBoolean(false);
   private final Runnable wakingRunnable = new Runnable() {
+    @Override
     public void run() {
       Log.d(TAG, "Wake up EDT");
       synchronized (getTreeLock()) {
@@ -68,6 +63,11 @@ class WaitDispatchSupport implements SecondaryLoop {
       Log.d(TAG, "Wake up EDT done");
     }
   };
+  EventFilter filter;
+  private long interval;
+  // When this WDS expires, we cancel the timer task leaving the
+  // shared timer up and running
+  TimerTask timerTask;
 
   /**
    * Creates a {@code WaitDispatchSupport} instance to
@@ -98,15 +98,13 @@ class WaitDispatchSupport implements SecondaryLoop {
     }
 
     this.dispatchThread = dispatchThread;
-    this.extCondition = extCond;
-    this.condition = new Conditional() {
+    extCondition = extCond;
+    condition = new Conditional() {
       @Override
       public boolean evaluate() {
-        if (true) {
-          Log.v(TAG, "evaluate(): blockingEDT=" + keepBlockingEDT.get() +
-              ", blockingCT=" + keepBlockingCT.get());
-        }
-        boolean extEvaluate = (extCondition != null) ? extCondition.evaluate() : true;
+        Log.v(TAG, "evaluate(): blockingEDT=" + keepBlockingEDT.get() +
+            ", blockingCT=" + keepBlockingCT.get());
+        boolean extEvaluate = extCondition == null || extCondition.evaluate();
         if (!keepBlockingEDT.get() || !extEvaluate) {
           if (timerTask != null) {
             timerTask.cancel();
@@ -156,13 +154,10 @@ class WaitDispatchSupport implements SecondaryLoop {
     }
   }
 
-  private final static Object getTreeLock() {
+  static final Object getTreeLock() {
     return Component.LOCK;
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public boolean enter() {
     Log.d(TAG, "enter(): blockingEDT=" + keepBlockingEDT.get() +
@@ -173,13 +168,17 @@ class WaitDispatchSupport implements SecondaryLoop {
       return false;
     }
 
-    final Runnable run = new Runnable() {
+    Runnable run = new Runnable() {
+      @Override
       public void run() {
         Log.d(TAG, "Starting a new event pump");
         if (filter == null) {
           dispatchThread.pumpEvents(condition);
         } else {
-          dispatchThread.pumpEventsForFilter(condition, filter);
+          dispatchThread.pumpEventsForFilter(
+              condition,
+
+              filter);
         }
       }
     };
@@ -190,13 +189,9 @@ class WaitDispatchSupport implements SecondaryLoop {
 
     Thread currentThread = Thread.currentThread();
     if (currentThread == dispatchThread) {
-      if (true) {
-        Log.v(TAG, "On dispatch thread: " + dispatchThread);
-      }
+      Log.v(TAG, "On dispatch thread: " + dispatchThread);
       if (interval != 0) {
-        if (true) {
-          Log.v(TAG, "scheduling the timer for " + interval + " ms");
-        }
+        Log.v(TAG, "scheduling the timer for " + interval + " ms");
         timer.schedule(timerTask = new TimerTask() {
           @Override
           public void run() {
@@ -211,9 +206,7 @@ class WaitDispatchSupport implements SecondaryLoop {
       SequencedEvent currentSE = KeyboardFocusManager.
           getCurrentKeyboardFocusManager().getCurrentSequencedEvent();
       if (currentSE != null) {
-        if (true) {
-          Log.d(TAG, "Dispose current SequencedEvent: " + currentSE);
-        }
+        Log.d(TAG, "Dispose current SequencedEvent: " + currentSE);
         currentSE.dispose();
       }
       // In case the exit() method is called before starting
@@ -223,15 +216,14 @@ class WaitDispatchSupport implements SecondaryLoop {
       //
       // Event pump should be privileged. See 6300270.
       AccessController.doPrivileged(new PrivilegedAction<Void>() {
+        @Override
         public Void run() {
           run.run();
           return null;
         }
       });
     } else {
-      if (true) {
-        Log.v(TAG, "On non-dispatch thread: " + currentThread);
-      }
+      Log.v(TAG, "On non-dispatch thread: " + currentThread);
       synchronized (getTreeLock()) {
         if (filter != null) {
           dispatchThread.addEventFilter(filter);
@@ -243,23 +235,18 @@ class WaitDispatchSupport implements SecondaryLoop {
           if (interval > 0) {
             long currTime = System.currentTimeMillis();
             while (keepBlockingCT.get() &&
-                ((extCondition != null) ? extCondition.evaluate() : true) &&
-                (currTime + interval > System.currentTimeMillis())) {
+                (extCondition == null || extCondition.evaluate()) &&
+                currTime + interval > System.currentTimeMillis()) {
               getTreeLock().wait(interval);
             }
           } else {
-            while (keepBlockingCT.get() && ((extCondition != null) ? extCondition.evaluate()
-                                                : true)) {
+            while (keepBlockingCT.get() && (extCondition == null || extCondition.evaluate())) {
               getTreeLock().wait();
             }
           }
-          if (true) {
-            Log.d(TAG, "waitDone " + keepBlockingEDT.get() + " " + keepBlockingCT.get());
-          }
+          Log.d(TAG, "waitDone " + keepBlockingEDT.get() + " " + keepBlockingCT.get());
         } catch (InterruptedException e) {
-          if (true) {
-            Log.d(TAG, "Exception caught while waiting: " + e);
-          }
+          Log.d(TAG, "Exception caught while waiting: " + e);
         } finally {
           if (filter != null) {
             dispatchThread.removeEventFilter(filter);
@@ -276,14 +263,10 @@ class WaitDispatchSupport implements SecondaryLoop {
     return true;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public boolean exit() {
-    if (true) {
-      Log.d(TAG, "exit(): blockingEDT=" + keepBlockingEDT.get() +
-          ", blockingCT=" + keepBlockingCT.get());
-    }
+    Log.d(TAG, "exit(): blockingEDT=" + keepBlockingEDT.get() +
+        ", blockingCT=" + keepBlockingCT.get());
     if (keepBlockingEDT.compareAndSet(true, false)) {
       wakeupEDT();
       return true;
@@ -291,10 +274,8 @@ class WaitDispatchSupport implements SecondaryLoop {
     return false;
   }
 
-  private void wakeupEDT() {
-    if (true) {
-      Log.v(TAG, "wakeupEDT(): EDT == " + dispatchThread);
-    }
+  void wakeupEDT() {
+    Log.v(TAG, "wakeupEDT(): EDT == " + dispatchThread);
     EventQueue eq = dispatchThread.getEventQueue();
     eq.postEvent(new PeerEvent(this, wakingRunnable, PeerEvent.PRIORITY_EVENT));
   }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4493128
  * @summary Verifies that CubicCurve2D returns true for obvious intersection
  * @run main IntersectsTest
@@ -31,9 +31,12 @@
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Rectangle2D;
 
-public class IntersectsTest {
+public final class IntersectsTest {
 
-    public static void main(String[] args) throws Exception {
+  private IntersectsTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
         CubicCurve2D c = new CubicCurve2D.Double(50.0, 300.0,
                                                  150.0, 166.6666717529297,
                                                  238.0, 456.66668701171875,

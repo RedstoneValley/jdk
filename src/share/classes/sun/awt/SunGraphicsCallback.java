@@ -57,9 +57,7 @@ public abstract class SunGraphicsCallback {
       return;
     }
     boolean lightweight = comp.isLightweight();
-    if ((lightweight && (weightFlags & LIGHTWEIGHTS) == 0) || (!lightweight
-                                                                   && (weightFlags & HEAVYWEIGHTS)
-        == 0)) {
+    if ((weightFlags & (lightweight ? LIGHTWEIGHTS : HEAVYWEIGHTS)) == 0) {
       return;
     }
 
@@ -89,7 +87,7 @@ public abstract class SunGraphicsCallback {
     int ncomponents = comps.length;
     Shape clip = g.getClip();
 
-    if (true && (clip != null)) {
+    if (clip != null) {
       Rectangle newrect = clip.getBounds();
       Log.v(TAG, "x = " + newrect.x + ", y = " + newrect.y +
           ", width = " + newrect.width +
@@ -120,7 +118,7 @@ public abstract class SunGraphicsCallback {
   }
 
   public static final class PaintHeavyweightComponentsCallback extends SunGraphicsCallback {
-    private static PaintHeavyweightComponentsCallback instance
+    private static final PaintHeavyweightComponentsCallback instance
         = new PaintHeavyweightComponentsCallback();
 
     private PaintHeavyweightComponentsCallback() {
@@ -130,6 +128,7 @@ public abstract class SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       if (!comp.isLightweight()) {
         comp.paintAll(cg);
@@ -140,7 +139,7 @@ public abstract class SunGraphicsCallback {
   }
 
   public static final class PrintHeavyweightComponentsCallback extends SunGraphicsCallback {
-    private static PrintHeavyweightComponentsCallback instance
+    private static final PrintHeavyweightComponentsCallback instance
         = new PrintHeavyweightComponentsCallback();
 
     private PrintHeavyweightComponentsCallback() {
@@ -150,6 +149,7 @@ public abstract class SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       if (!comp.isLightweight()) {
         comp.printAll(cg);

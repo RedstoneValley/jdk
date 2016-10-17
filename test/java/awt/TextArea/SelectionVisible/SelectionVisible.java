@@ -22,7 +22,6 @@
  */
 
 
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -39,14 +38,14 @@ public final class SelectionVisible extends Applet {
         ta.setText("01234\n56789");
         ta.select(3, 9);
 
-        final TextArea instruction = new TextArea("INSTRUCTIONS:\n"
+        TextArea instruction = new TextArea("INSTRUCTIONS:\n"
                                                  + "The text 34567 should be selected in the TextArea.\n"
                                                  + "If this is what you observe, then the test passes.\n"
                                                  + "Otherwise, the test fails.", 40, 5,
                                          TextArea.SCROLLBARS_NONE);
         instruction.setEditable(false);
         instruction.setPreferredSize(new Dimension(300, 70));
-        final Panel panel = new Panel();
+        Panel panel = new Panel();
         panel.setLayout(new FlowLayout());
         panel.add(ta);
         setLayout(new BorderLayout());

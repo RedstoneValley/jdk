@@ -56,10 +56,10 @@ public interface LayoutManager2 extends LayoutManager {
    * Calculates the maximum size dimensions for the specified container,
    * given the components it contains.
    *
-   * @see java.awt.Component#getMaximumSize
+   * @see Component#getMaximumSize
    * @see LayoutManager
    */
-  public Dimension maximumLayoutSize(Container target);
+  Dimension maximumLayoutSize(Container target);
 
   /**
    * Returns the alignment along the x axis.  This specifies how
@@ -68,7 +68,7 @@ public interface LayoutManager2 extends LayoutManager {
    * where 0 represents alignment along the origin, 1 is aligned
    * the furthest away from the origin, 0.5 is centered, etc.
    */
-  public float getLayoutAlignmentX(Container target);
+  float getLayoutAlignmentX(Container target);
 
   /**
    * Returns the alignment along the y axis.  This specifies how
@@ -77,11 +77,11 @@ public interface LayoutManager2 extends LayoutManager {
    * where 0 represents alignment along the origin, 1 is aligned
    * the furthest away from the origin, 0.5 is centered, etc.
    */
-  public float getLayoutAlignmentY(Container target);
+  float getLayoutAlignmentY(Container target);
 
   /**
    * Invalidates the layout, indicating that if the layout manager
    * has cached information it should be discarded.
    */
-  public void invalidateLayout(Container target);
+  void invalidateLayout(Container target);
 }

@@ -29,9 +29,12 @@
  */
 
 import java.awt.*;
-public class TestGetDefScreenDevice {
+public final class TestGetDefScreenDevice {
 
-    public static void main(String[] args) throws Exception {
+  private TestGetDefScreenDevice() {
+  }
+
+  public static void main(String[] args) throws Exception {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         try {
             ge.getDefaultScreenDevice();

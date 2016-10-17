@@ -29,24 +29,21 @@
   @run applet FilenameFilterTest.html
 */
 
-/**
- * FilenameFilterTest.java
- *
- * summary: namefilter is not called for file dialog on windows
+/*
+  FilenameFilterTest.java
+
+  summary: namefilter is not called for file dialog on windows
  */
 
-import java.applet.Applet;
 import java.awt.*;
 
 import java.io.File;
 import java.io.FilenameFilter;
 
-import test.java.awt.regtesthelpers.Util;
-
 public class FilenameFilterTest extends Applet
 {
     //Declare things used in the test, like buttons and labels here
-    volatile boolean filter_was_called = false;
+    volatile boolean filter_was_called;
     FileDialog fd;
 
     public void init()
@@ -66,9 +63,11 @@ public class FilenameFilterTest extends Applet
         validate();
 
         EventQueue.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     fd = new FileDialog(new Frame(""), "hello world", FileDialog.LOAD);
                     fd.setFilenameFilter(new FilenameFilter() {
+                            @Override
                             public boolean accept(File dir, String name) {
                                 filter_was_called = true;
                                 System.out.println(Thread.currentThread() + " name = " + name );

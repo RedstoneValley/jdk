@@ -35,13 +35,13 @@
 import java.awt.*;
 import java.awt.event.*;
 
-public class CTORRestrictions{
-    static Frame frame = new Frame("MouseEvent Test Frame");
+public final class CTORRestrictions{
+    static final Frame frame = new Frame("MouseEvent Test Frame");
     static Point mousePosition;
     static Point mousePositionOnScreen;
 
     public static void main(String []s){
-        Robot robot = null;
+        Robot robot;
         try {
             robot = new Robot();
         } catch (AWTException ex) {
@@ -64,11 +64,9 @@ public class CTORRestrictions{
          * up to (MouseInfo.getNumberOfButtons() - 2) value.
          */
         int numberOfButtons;
-        if (Toolkit.getDefaultToolkit().getClass().getName().equals("sun.awt.windows.WToolkit")){
-            numberOfButtons = MouseInfo.getNumberOfButtons();
-        } else {
-            numberOfButtons = MouseInfo.getNumberOfButtons() - 2;
-        }
+        numberOfButtons =
+            "sun.awt.windows.WToolkit".equals(Toolkit.getDefaultToolkit().getClass().getName())
+                ? MouseInfo.getNumberOfButtons() : MouseInfo.getNumberOfButtons() - 2;
         System.out.println("Stage 1. Number of buttons = "+ numberOfButtons);
 
         for (int buttonId = 1; buttonId <= numberOfButtons; buttonId++){
@@ -94,7 +92,7 @@ public class CTORRestrictions{
                                        false,              //popupTrigger
                                        buttonId            //button
                                        );
-        frame.dispatchEvent( ( AWTEvent )me );
+        frame.dispatchEvent(me);
     }
 
     public static void postMouseEventOldCtor(int buttonId)    {
@@ -107,6 +105,6 @@ public class CTORRestrictions{
                                           false,              //popupTrigger
                                           buttonId //button
                                           );
-        frame.dispatchEvent( ( AWTEvent )meOld );
+        frame.dispatchEvent(meOld);
     }
 }

@@ -74,6 +74,8 @@ public abstract class PrintJob {
    *
    * @see #end
    */
+  @SuppressWarnings("FinalizeNotProtected")
+  @Override
   public void finalize() {
     end();
   }

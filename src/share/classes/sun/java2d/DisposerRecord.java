@@ -30,5 +30,5 @@ package sun.java2d;
  * disposed.
  */
 public interface DisposerRecord {
-  public void dispose();
+  void dispose();
 }

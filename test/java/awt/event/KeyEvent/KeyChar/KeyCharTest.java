@@ -37,9 +37,9 @@ import sun.awt.SunToolkit;
  * @author Alexandr Scherbatiy
  * @run main KeyCharTest
  */
-public class KeyCharTest {
+public final class KeyCharTest {
 
-    private static volatile int eventsCount = 0;
+    static volatile int eventsCount;
 
     static {
         Locale.setDefault(Locale.ENGLISH);
@@ -55,6 +55,9 @@ public class KeyCharTest {
                 }
             }
         }, AWTEvent.KEY_EVENT_MASK);
+    }
+
+    private KeyCharTest() {
     }
 
     public static void main(String[] args) throws Exception {

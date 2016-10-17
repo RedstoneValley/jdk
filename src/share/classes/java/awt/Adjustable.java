@@ -38,26 +38,26 @@ import java.awt.event.AdjustmentListener;
 public interface Adjustable {
 
   /**
-   * Indicates that the <code>Adjustable</code> has horizontal orientation.
+   * Indicates that the {@code Adjustable} has horizontal orientation.
    */
-  public static final int HORIZONTAL = 0;
+  int HORIZONTAL = 0;
 
   /**
-   * Indicates that the <code>Adjustable</code> has vertical orientation.
+   * Indicates that the {@code Adjustable} has vertical orientation.
    */
-  public static final int VERTICAL = 1;
+  int VERTICAL = 1;
 
   /**
-   * Indicates that the <code>Adjustable</code> has no orientation.
+   * Indicates that the {@code Adjustable} has no orientation.
    */
-  public static final int NO_ORIENTATION = 2;
+  @SuppressWarnings("unused") int NO_ORIENTATION = 2;
 
   /**
    * Gets the orientation of the adjustable object.
    *
    * @return the orientation of the adjustable object;
-   * either <code>HORIZONTAL</code>, <code>VERTICAL</code>,
-   * or <code>NO_ORIENTATION</code>
+   * either {@code HORIZONTAL}, {@code VERTICAL},
+   * or {@code NO_ORIENTATION}
    */
   int getOrientation();
 
@@ -73,6 +73,7 @@ public interface Adjustable {
    *
    * @param min the minimum value
    */
+  @SuppressWarnings("unused")
   void setMinimum(int min);
 
   /**
@@ -87,6 +88,7 @@ public interface Adjustable {
    *
    * @param max the maximum value
    */
+  @SuppressWarnings("unused")
   void setMaximum(int max);
 
   /**
@@ -101,6 +103,7 @@ public interface Adjustable {
    *
    * @param u the unit increment
    */
+  @SuppressWarnings("unused")
   void setUnitIncrement(int u);
 
   /**
@@ -115,6 +118,7 @@ public interface Adjustable {
    *
    * @param b the block increment
    */
+  @SuppressWarnings("unused")
   void setBlockIncrement(int b);
 
   /**
@@ -130,6 +134,7 @@ public interface Adjustable {
    *
    * @param v the length of the indicator
    */
+  @SuppressWarnings("unused")
   void setVisibleAmount(int v);
 
   /**
@@ -141,15 +146,15 @@ public interface Adjustable {
 
   /**
    * Sets the current value of the adjustable object. If
-   * the value supplied is less than <code>minimum</code>
-   * or greater than <code>maximum</code> - <code>visibleAmount</code>,
+   * the value supplied is less than {@code minimum}
+   * or greater than {@code maximum} - {@code visibleAmount},
    * then one of those values is substituted, as appropriate.
    * <p>
    * Calling this method does not fire an
-   * <code>AdjustmentEvent</code>.
+   * {@code AdjustmentEvent}.
    *
-   * @param v the current value, between <code>minimum</code>
-   *          and <code>maximum</code> - <code>visibleAmount</code>
+   * @param v the current value, between {@code minimum}
+   *          and {@code maximum} - {@code visibleAmount}
    */
   void setValue(int v);
 
@@ -160,6 +165,7 @@ public interface Adjustable {
    * @param l the listener to receive events
    * @see AdjustmentEvent
    */
+  @SuppressWarnings("unused")
   void addAdjustmentListener(AdjustmentListener l);
 
   /**
@@ -168,5 +174,6 @@ public interface Adjustable {
    * @param l the listener being removed
    * @see AdjustmentEvent
    */
+  @SuppressWarnings("unused")
   void removeAdjustmentListener(AdjustmentListener l);
 }

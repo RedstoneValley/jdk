@@ -28,14 +28,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.dnd.*;
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.Permission;
 import java.security.AccessControlException;
 
 class DragInterceptorFrame extends Frame implements DropTargetListener {
 
+    private static final long serialVersionUID = -8243380341728568008L;
     private static int exitMessage = InterprocessMessages.TEST_PASSED;
-    private static boolean dataIsAccessible = false;
-    private static boolean exceptionHasBeenThrown = false;
+    private static boolean dataIsAccessible;
+    static boolean exceptionHasBeenThrown;
 
     DragInterceptorFrame(Point location) {
         System.setSecurityManager(new ClipboardDefender());
@@ -45,20 +47,23 @@ class DragInterceptorFrame extends Frame implements DropTargetListener {
     }
 
     private void initGUI(Point location) {
-        this.setLocation(location);
-        this.addWindowListener(new WindowAdapter() {
+        setLocation(location);
+        addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
-                DragInterceptorFrame.this.dispose();
+                dispose();
             }
         });
-        setSize (200, 200);
-        this.setVisible(true);
+        setSize(200, 200);
+        setVisible(true);
     }
 
+    @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         // We want to set the exception handler on EDT
         Thread.currentThread().setUncaughtExceptionHandler (
-            new Thread.UncaughtExceptionHandler() {
+            new UncaughtExceptionHandler() {
+                @Override
                 public void uncaughtException(Thread t, Throwable e) {
                     exceptionHasBeenThrown = true;
                 }
@@ -67,16 +72,20 @@ class DragInterceptorFrame extends Frame implements DropTargetListener {
         examineTransferable(dtde);
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent dtde) {
         examineTransferable(dtde);
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         examineTransferable(dtde);
     }
 
+    @Override
     public void dragExit(DropTargetEvent dte) {}
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
 
         if (dataIsAccessible && !exceptionHasBeenThrown) {
@@ -92,8 +101,8 @@ class DragInterceptorFrame extends Frame implements DropTargetListener {
     }
 
     Point getDropTargetPoint() {
-        return new Point((int)getLocationOnScreen().getX()+(getWidth()/2),
-                (int)getLocationOnScreen().getY()+(getHeight()/2));
+        return new Point((int) getLocationOnScreen().getX()+ getWidth()/2,
+                (int) getLocationOnScreen().getY()+ getHeight()/2);
     }
 
     private void examineTransferable(DropTargetDragEvent dtde) {
@@ -114,9 +123,9 @@ class DragInterceptorFrame extends Frame implements DropTargetListener {
     }
 
     static class ClipboardDefender extends SecurityManager {
+        @Override
         public void checkPermission(Permission p) {
-           if (p instanceof java.awt.AWTPermission &&
-                   p.getName().equals("accessClipboard")) {
+           if (p instanceof AWTPermission && "accessClipboard".equals(p.getName())) {
                throw new AccessControlException("access denied ");
            }
         }

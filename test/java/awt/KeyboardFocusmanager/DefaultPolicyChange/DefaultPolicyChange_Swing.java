@@ -32,19 +32,20 @@
 */
 
 import java.awt.*;
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class DefaultPolicyChange_Swing {
+public final class DefaultPolicyChange_Swing {
+    private DefaultPolicyChange_Swing() {
+    }
+
     public static void main(String []s) {
         EventQueue.invokeLater(new Runnable(){
+            @Override
             public void run (){
-                DefaultPolicyChange_Swing.runTestSwing();
+                runTestSwing();
             }
         });
     }
-    private static void runTestSwing(){
+    static void runTestSwing(){
         KeyboardFocusManager currentKFM = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         FocusTraversalPolicy defaultFTP = currentKFM.getDefaultFocusTraversalPolicy();
         ContainerOrderFocusTraversalPolicy newFTP = new ContainerOrderFocusTraversalPolicy();

@@ -43,7 +43,7 @@ package com.sun.nio.zipfs;
  * @author Xueming Shen
  */
 
-class ZipConstants {
+final class ZipConstants {
   /*
    * Compression methods
    */
@@ -164,197 +164,159 @@ class ZipConstants {
     /*
      * Header signatures
      */
-  static long LOCSIG = 0x04034b50L;   // "PK\003\004"
-  static long EXTSIG = 0x08074b50L;   // "PK\007\008"
-  static long CENSIG = 0x02014b50L;   // "PK\001\002"
-  static long ENDSIG = 0x06054b50L;   // "PK\005\006"
+  static final long LOCSIG = 0x04034b50L;   // "PK\003\004"
+  static final long EXTSIG = 0x08074b50L;   // "PK\007\008"
+  static final long CENSIG = 0x02014b50L;   // "PK\001\002"
+  static final long ENDSIG = 0x06054b50L;   // "PK\005\006"
+
+  private ZipConstants() {
+  }
 
   /*
    * fields access methods
    */
   ///////////////////////////////////////////////////////
-  static final int CH(byte[] b, int n) {
+  static int CH(byte[] b, int n) {
     return Byte.toUnsignedInt(b[n]);
   }
 
-  static final int SH(byte[] b, int n) {
-    return Byte.toUnsignedInt(b[n]) | (Byte.toUnsignedInt(b[n + 1]) << 8);
+  static int SH(byte[] b, int n) {
+    return Byte.toUnsignedInt(b[n]) | Byte.toUnsignedInt(b[n + 1]) << 8;
   }
 
-  static final long LG(byte[] b, int n) {
-    return ((SH(b, n)) | (SH(b, n + 2) << 16)) & 0xffffffffL;
+  static long LG(byte[] b, int n) {
+    return (SH(b, n) | SH(b, n + 2) << 16) & 0xffffffffL;
   }
 
-  static final long LL(byte[] b, int n) {
-    return (LG(b, n)) | (LG(b, n + 4) << 32);
+  static long LL(byte[] b, int n) {
+    return LG(b, n) | LG(b, n + 4) << 32;
   }
 
-  static final long GETSIG(byte[] b) {
+  static long GETSIG(byte[] b) {
     return LG(b, 0);
   }
 
   // local file (LOC) header fields
-  static final long LOCSIG(byte[] b) {
+  static long LOCSIG(byte[] b) {
     return LG(b, 0);
   } // signature
 
-  static final int LOCVER(byte[] b) {
+  static int LOCVER(byte[] b) {
     return SH(b, 4);
   } // version needed to extract
 
-  static final int LOCFLG(byte[] b) {
+  static int LOCFLG(byte[] b) {
     return SH(b, 6);
   } // general purpose bit flags
 
-  static final int LOCHOW(byte[] b) {
+  static int LOCHOW(byte[] b) {
     return SH(b, 8);
   } // compression method
 
-  static final long LOCTIM(byte[] b) {
+  static long LOCTIM(byte[] b) {
     return LG(b, 10);
   } // modification time
 
-  static final long LOCCRC(byte[] b) {
+  static long LOCCRC(byte[] b) {
     return LG(b, 14);
   } // crc of uncompressed data
 
-  static final long LOCSIZ(byte[] b) {
+  static long LOCSIZ(byte[] b) {
     return LG(b, 18);
   } // compressed data size
 
-  static final long LOCLEN(byte[] b) {
+  static long LOCLEN(byte[] b) {
     return LG(b, 22);
   } // uncompressed data size
 
-  static final int LOCNAM(byte[] b) {
+  static int LOCNAM(byte[] b) {
     return SH(b, 26);
   } // filename length
 
-  static final int LOCEXT(byte[] b) {
+  static int LOCEXT(byte[] b) {
     return SH(b, 28);
   } // extra field length
 
   // extra local (EXT) header fields
-  static final long EXTCRC(byte[] b) {
+  static long EXTCRC(byte[] b) {
     return LG(b, 4);
   }  // crc of uncompressed data
 
-  static final long EXTSIZ(byte[] b) {
+  static long EXTSIZ(byte[] b) {
     return LG(b, 8);
   }  // compressed size
 
-  static final long EXTLEN(byte[] b) {
+  static long EXTLEN(byte[] b) {
     return LG(b, 12);
   } // uncompressed size
 
-  // end of central directory header (END) fields
-  static final int ENDSUB(byte[] b) {
-    return SH(b, 8);
-  }  // number of entries on this disk
-
-  static final int ENDTOT(byte[] b) {
-    return SH(b, 10);
-  }  // total number of entries
-
-  static final long ENDSIZ(byte[] b) {
-    return LG(b, 12);
-  }  // central directory size
-
-  static final long ENDOFF(byte[] b) {
-    return LG(b, 16);
-  }  // central directory offset
-
-  static final int ENDCOM(byte[] b) {
-    return SH(b, 20);
-  }  // size of zip file comment
-
-  static final int ENDCOM(byte[] b, int off) {
-    return SH(b, off + 20);
-  }
-
   // zip64 end of central directory recoder fields
-  static final long ZIP64_ENDTOD(byte[] b) {
+  static long ZIP64_ENDTOD(byte[] b) {
     return LL(b, 24);
   }  // total number of entries on disk
 
-  static final long ZIP64_ENDTOT(byte[] b) {
-    return LL(b, 32);
-  }  // total number of entries
-
-  static final long ZIP64_ENDSIZ(byte[] b) {
-    return LL(b, 40);
-  }  // central directory size
-
-  static final long ZIP64_ENDOFF(byte[] b) {
-    return LL(b, 48);
-  }  // central directory offset
-
-  static final long ZIP64_LOCOFF(byte[] b) {
-    return LL(b, 8);
-  }   // zip64 end offset
-
   // central directory header (CEN) fields
-  static final long CENSIG(byte[] b, int pos) {
-    return LG(b, pos + 0);
+  static long CENSIG(byte[] b, int pos) {
+    return LG(b, pos);
   }
 
-  static final int CENVEM(byte[] b, int pos) {
+  static int CENVEM(byte[] b, int pos) {
     return SH(b, pos + 4);
   }
 
-  static final int CENVER(byte[] b, int pos) {
+  static int CENVER(byte[] b, int pos) {
     return SH(b, pos + 6);
   }
 
-  static final int CENFLG(byte[] b, int pos) {
+  static int CENFLG(byte[] b, int pos) {
     return SH(b, pos + 8);
   }
 
-  static final int CENHOW(byte[] b, int pos) {
+  static int CENHOW(byte[] b, int pos) {
     return SH(b, pos + 10);
   }
 
-  static final long CENTIM(byte[] b, int pos) {
+  static long CENTIM(byte[] b, int pos) {
     return LG(b, pos + 12);
   }
 
-  static final long CENCRC(byte[] b, int pos) {
+  static long CENCRC(byte[] b, int pos) {
     return LG(b, pos + 16);
   }
 
-  static final long CENSIZ(byte[] b, int pos) {
+  static long CENSIZ(byte[] b, int pos) {
     return LG(b, pos + 20);
   }
 
-  static final long CENLEN(byte[] b, int pos) {
+  static long CENLEN(byte[] b, int pos) {
     return LG(b, pos + 24);
   }
 
-  static final int CENNAM(byte[] b, int pos) {
+  static int CENNAM(byte[] b, int pos) {
     return SH(b, pos + 28);
   }
 
-  static final int CENEXT(byte[] b, int pos) {
+  static int CENEXT(byte[] b, int pos) {
     return SH(b, pos + 30);
   }
 
-  static final int CENCOM(byte[] b, int pos) {
+  static int CENCOM(byte[] b, int pos) {
     return SH(b, pos + 32);
   }
 
-  static final int CENDSK(byte[] b, int pos) {
+  static int CENDSK(byte[] b, int pos) {
     return SH(b, pos + 34);
   }
 
-  static final int CENATT(byte[] b, int pos) {
+  static int CENATT(byte[] b, int pos) {
     return SH(b, pos + 36);
   }
 
-  static final long CENATX(byte[] b, int pos) {
+  static long CENATX(byte[] b, int pos) {
     return LG(b, pos + 38);
   }
 
-  static final long CENOFF(byte[] b, int pos) {
+  static long CENOFF(byte[] b, int pos) {
     return LG(b, pos + 42);
   }
 }

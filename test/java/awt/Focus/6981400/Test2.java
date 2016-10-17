@@ -35,20 +35,32 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class Test2 {
-    static Frame f = new Frame("frame");
-    static TextArea t0 = new TextArea(1, 10) { public String toString() { return "[TA-0]";} };
-    static TextArea t1 = new TextArea(1, 10) { public String toString() { return "[TA-1]";} };
-    static TextArea t2 = new TextArea(1, 10) { public String toString() { return "[TA-2]";} };
+public final class Test2 {
+    static final Frame f = new Frame(Frame.base);
+    static final TextArea t0 = new TextArea(1, 10) {
+        private static final long serialVersionUID = 7191151636629050533L;
+
+        public String toString() { return "[TA-0]";} };
+    static final TextArea t1 = new TextArea(1, 10) {
+        private static final long serialVersionUID = 7860873064053864533L;
+
+        public String toString() { return "[TA-1]";} };
+    static final TextArea t2 = new TextArea(1, 10) {
+        private static final long serialVersionUID = -5148369984483625632L;
+
+        public String toString() { return "[TA-2]";} };
 
     static volatile boolean passed = true;
 
     static Robot robot;
 
+    private Test2() {
+    }
+
     public static void main(String[] args) {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.out.println(e);
                 if (e.getID() == KeyEvent.KEY_TYPED) {
@@ -74,6 +86,7 @@ public class Test2 {
         f.pack();
 
         t0.addFocusListener(new FocusAdapter() {
+            @Override
             public void focusLost(FocusEvent e) {
                 try {
                     Thread.sleep(3000);
@@ -83,6 +96,7 @@ public class Test2 {
 
         // The request shouldn't affect the key event delivery.
         new Thread(new Runnable() {
+            @Override
             public void run() {
                 try {
                     Thread.sleep(2000);
@@ -98,7 +112,9 @@ public class Test2 {
 
         test();
 
-        if (passed) System.out.println("\nTest passed.");
+        if (passed) {
+            System.out.println("\nTest passed.");
+        }
     }
 
     static void test() {

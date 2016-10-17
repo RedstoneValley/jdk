@@ -32,9 +32,12 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.util.*;
 
-public class UnderlinePositionTest {
+public final class UnderlinePositionTest {
 
-    public static void main(String[] args) {
+  private UnderlinePositionTest() {
+  }
+
+  public static void main(String[] args) {
         BufferedImage bi =
            new BufferedImage(600, 150, BufferedImage.TYPE_INT_RGB);
        Graphics2D g2d = bi.createGraphics();
@@ -45,7 +48,7 @@ public class UnderlinePositionTest {
        float y = 90;
        Map map = new HashMap();
        map.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-       map.put(TextAttribute.SIZE, new Float(80));
+       map.put(TextAttribute.SIZE, 80f);
 
        FontRenderContext frc = g2d.getFontRenderContext();
 

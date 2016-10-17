@@ -36,9 +36,12 @@ import java.awt.image.ByteLookupTable;
 import java.awt.image.LookupOp;
 import java.awt.image.LookupTable;
 
-public class IntImageReverseTest {
+public final class IntImageReverseTest {
 
-    public static void main(String[] args) {
+  private IntImageReverseTest() {
+  }
+
+  public static void main(String[] args) {
         LookupTable tbl = createReverseTable();
         LookupOp op = new LookupOp(tbl, null);
 
@@ -84,14 +87,14 @@ public class IntImageReverseTest {
     private static final int argbTest = 0xFFDDAA77;
     private static final int argbReverse = 0xFF225588;
 
-    private static enum ImageType {
+    private enum ImageType {
 
         INT_ARGB(BufferedImage.TYPE_INT_ARGB),
         INT_ARGB_PRE(BufferedImage.TYPE_INT_ARGB_PRE),
         INT_RGB(BufferedImage.TYPE_INT_BGR),
         INT_BGR(BufferedImage.TYPE_INT_BGR);
 
-        private ImageType(int bi_type) {
+        ImageType(int bi_type) {
             this.bi_type = bi_type;
         }
         public final int bi_type;

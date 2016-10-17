@@ -31,21 +31,19 @@
 */
 
 
-import java.applet.Applet;
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
 
 
 public class InputMethodsTest extends Applet {
 
-    TextArea txtArea = null;
-    TextField txtField = null;
-    JButton btnIM = null;
+    TextArea txtArea;
+    TextField txtField;
+    JButton btnIM;
     boolean inputMethodsEnabled = true;
 
     public void init() {
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
     }
 
     public void start() {
@@ -82,7 +80,7 @@ public class InputMethodsTest extends Applet {
         setVisible(true);
     }
 
-    private void setBtnText() {
+    void setBtnText() {
         String s = inputMethodsEnabled ? "Disable" : "Enable";
         btnIM.setText(s +  " Input Methods");
     }

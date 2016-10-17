@@ -33,10 +33,10 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class PaintSetEnabledDeadlock extends Frame {
 
+    private static final long serialVersionUID = 4324826091460211626L;
     final TestPanel panel;
     final Button button;
 
@@ -92,11 +92,12 @@ public class PaintSetEnabledDeadlock extends Frame {
 
 class TestPanel extends Panel implements Runnable {
 
-    Image image = null;
-    Thread thread = null;
+    private static final long serialVersionUID = -3852987063451589140L;
+    Image image;
+    final Thread thread;
     volatile boolean active = true;
     final Object sync = new Object();
-    Panel panel = this;
+    final Panel panel = this;
 
     public TestPanel() {
         addMouseListener(new MouseAdapter() {

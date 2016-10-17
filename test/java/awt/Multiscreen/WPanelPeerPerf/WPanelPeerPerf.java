@@ -30,7 +30,6 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 /**
  * This test must be run on a multi-screen system.
@@ -39,7 +38,7 @@ import javax.swing.*;
  * recursive display change calls.  The test fails if it takes too long to
  * service the setLocation() calls and send componentMoved() events.
  */
-public class WPanelPeerPerf {
+public final class WPanelPeerPerf {
 
     private static final int NESTED_PANELS = 25;
     private static final int ITERATIONS_PER_SCREEN = 3;
@@ -47,9 +46,13 @@ public class WPanelPeerPerf {
     private static final int PAUSE_BETWEEN_MOVES = 500;
 
 
-    private static Object showLock = new Object();
+    static final Object showLock = new Object();
 
-    private static Counter instance = null;
+    private static Counter instance;
+
+    private WPanelPeerPerf() {
+    }
+
     public static Counter getCounter() {
         if (instance == null) {
             instance = new Counter();
@@ -59,7 +62,8 @@ public class WPanelPeerPerf {
 
     private static class Counter {
         int counter;
-        Counter() { counter = 0; }
+        Counter() {
+            counter = 0; }
     }
 
     // This one is very slow!
@@ -70,11 +74,13 @@ public class WPanelPeerPerf {
             System.err.println("Test must be run on a multiscreen system");
             return;
         }
-        final Frame frame = new Frame("AWT WPanelPeerPerf");
+        Frame frame = new Frame("AWT WPanelPeerPerf");
         frame.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent ev) {
                 System.exit(0);
             }
+            @Override
             public void windowOpened(WindowEvent e) {
                 synchronized(showLock) {
                     showLock.notify();
@@ -98,6 +104,7 @@ public class WPanelPeerPerf {
         frame.pack();
 
         frame.addComponentListener(new ComponentAdapter() {
+            @Override
             public void componentMoved(ComponentEvent e) {
                 System.out.println("Frame moved: ");
                 Counter ctr = getCounter();
@@ -127,25 +134,22 @@ public class WPanelPeerPerf {
 
         for (int i = 0; i < points.length; i++) {
             Rectangle bounds = devs[i].getDefaultConfiguration().getBounds();
-            points[i] = new Point(bounds.x + (bounds.width / 2),
-                    bounds.y + (bounds.height / 2));
+            points[i] = new Point(bounds.x + bounds.width / 2,
+                    bounds.y + bounds.height / 2);
             System.out.println("Added point:" + points[i]);
         }
 
-        final Frame localFrame = theFrame;
-
         for (int n = 0; n < ITERATIONS_PER_SCREEN; n++) {
-            for (int i = 0; i < points.length; i++) {
-                final Point contextPoint = points[i];
+            for (Point contextPoint : points) {
                 SwingUtilities.invokeLater(new Runnable() {
+                    @Override
                     public void run() {
-                        localFrame.setLocation(contextPoint);
+                        theFrame.setLocation(contextPoint);
                     }
                 });
                 try {
                     Thread.sleep(PAUSE_BETWEEN_MOVES);
-                }
-                catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     System.out.println("Interrupted during iteration");
                 }
             }

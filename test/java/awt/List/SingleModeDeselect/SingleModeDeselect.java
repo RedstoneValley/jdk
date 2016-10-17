@@ -32,12 +32,15 @@
 import java.awt.*;
 import sun.awt.SunToolkit;
 
-public class SingleModeDeselect
+public final class SingleModeDeselect
 {
-    public static final void main(String args[])
+    private SingleModeDeselect() {
+    }
+
+    public static void main(String[] args)
     {
-        final Frame frame = new Frame();
-        final List list = new List();
+        Frame frame = new Frame();
+        List list = new List();
 
         list.add(" item 0 ");
         list.add(" item 1 ");

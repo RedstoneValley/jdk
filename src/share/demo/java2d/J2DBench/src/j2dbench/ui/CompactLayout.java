@@ -46,7 +46,7 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 
 public class CompactLayout implements LayoutManager {
-  boolean horizontal;
+  final boolean horizontal;
 
   public CompactLayout(boolean horizontal) {
     this.horizontal = horizontal;
@@ -54,13 +54,14 @@ public class CompactLayout implements LayoutManager {
 
   /**
    * If the layout manager uses a per-component string,
-   * adds the component <code>comp</code> to the layout,
+   * adds the component {@code comp} to the layout,
    * associating it
-   * with the string specified by <code>name</code>.
+   * with the string specified by {@code name}.
    *
    * @param name the string to be associated with the component
    * @param comp the component to be added
    */
+  @Override
   public void addLayoutComponent(String name, Component comp) {
   }
 
@@ -69,6 +70,7 @@ public class CompactLayout implements LayoutManager {
    *
    * @param comp the component to be removed
    */
+  @Override
   public void removeLayoutComponent(Component comp) {
   }
 
@@ -79,6 +81,7 @@ public class CompactLayout implements LayoutManager {
    * @param parent the container to be laid out
    * @see #minimumLayoutSize
    */
+  @Override
   public Dimension preferredLayoutSize(Container parent) {
     return getSize(parent, false);
   }
@@ -90,6 +93,7 @@ public class CompactLayout implements LayoutManager {
    * @param parent the component to be laid out
    * @see #preferredLayoutSize
    */
+  @Override
   public Dimension minimumLayoutSize(Container parent) {
     return getSize(parent, true);
   }
@@ -99,6 +103,7 @@ public class CompactLayout implements LayoutManager {
    *
    * @param parent the container to be laid out
    */
+  @Override
   public void layoutContainer(Container parent) {
     int n = parent.getComponentCount();
     Insets insets = parent.getInsets();
@@ -106,17 +111,12 @@ public class CompactLayout implements LayoutManager {
     int c = horizontal ? insets.left : insets.top;
     int x, y;
     int ebx = size.width - insets.right;
-    size.width -= (insets.left + insets.right);
-    size.height -= (insets.top + insets.bottom);
+    size.width -= insets.left + insets.right;
+    size.height -= insets.top + insets.bottom;
     for (int i = 0; i < n; i++) {
       Component comp = parent.getComponent(i);
       Dimension pref = comp.getPreferredSize();
-      if (comp instanceof EnableButton) {
-        ebx -= 4;
-        ebx -= pref.width;
-        x = ebx;
-        y = (insets.top - pref.height) / 2;
-      } else if (horizontal) {
+      if (horizontal) {
         x = c;
         c += pref.width;
         y = insets.top;
@@ -137,10 +137,7 @@ public class CompactLayout implements LayoutManager {
     Dimension d = new Dimension();
     for (int i = 0; i < n; i++) {
       Component comp = parent.getComponent(i);
-      if (comp instanceof EnableButton) {
-        continue;
-      }
-      Dimension p = (minimum ? comp.getMinimumSize() : comp.getPreferredSize());
+      Dimension p = minimum ? comp.getMinimumSize() : comp.getPreferredSize();
       if (horizontal) {
         d.width += p.width;
         if (d.height < p.height) {
@@ -153,8 +150,8 @@ public class CompactLayout implements LayoutManager {
         d.height += p.height;
       }
     }
-    d.width += (insets.left + insets.right);
-    d.height += (insets.top + insets.bottom);
+    d.width += insets.left + insets.right;
+    d.height += insets.top + insets.bottom;
     return d;
   }
 }

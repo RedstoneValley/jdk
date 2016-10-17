@@ -30,20 +30,24 @@
   @run main TestFrameSize
  */
 
-/**
- * TestFrameSize.java
- *
- * Summary: test that X11 Awt windows are drawn with correct sizes
- *
- * Test fails if size of window is wrong
+/*
+  TestFrameSize.java
+
+  Summary: test that X11 Awt windows are drawn with correct sizes
+
+  Test fails if size of window is wrong
  */
 
 import java.awt.*;
+import sun.awt.SunToolkit;
 
-public class TestFrameSize {
+public final class TestFrameSize {
 
-    static Dimension desiredDimensions = new Dimension(200, 200);
+    static final Dimension desiredDimensions = new Dimension(200, 200);
     static Frame mainWindow;
+
+    private TestFrameSize() {
+    }
 
     private static Dimension getClientSize(Frame window) {
         Dimension size = window.getSize();
@@ -64,8 +68,8 @@ public class TestFrameSize {
         mainWindow.pack();
 
         Dimension actualDimensions = mainWindow.getSize();
-        System.out.println("Desired dimensions: " + desiredDimensions.toString());
-        System.out.println("Actual dimensions:  " + actualDimensions.toString());
+        System.out.println("Desired dimensions: " + desiredDimensions);
+        System.out.println("Actual dimensions:  " + actualDimensions);
         if (!actualDimensions.equals(desiredDimensions)) {
             throw new RuntimeException("Incorrect widow size");
         }
@@ -77,7 +81,7 @@ public class TestFrameSize {
 
         mainWindow.setVisible(true);
 
-        ((sun.awt.SunToolkit)Toolkit.getDefaultToolkit()).realSync();
+        ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
 
         Dimension clientSize2 = getClientSize(mainWindow);
         System.out.println("Client size after showing: " + clientSize2);

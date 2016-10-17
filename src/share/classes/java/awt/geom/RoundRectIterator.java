@@ -44,27 +44,32 @@ class RoundRectIterator implements PathIterator {
   //     4 values for each point {v0, v1, v2, v3}:
   //         point = (x + v0 * w + v1 * arcWidth,
   //                  y + v2 * h + v3 * arcHeight);
-  private static double ctrlpts[][] = {
+  private static final double[][] ctrlpts = {
       {0.0, 0.0, 0.0, 0.5}, {0.0, 0.0, 1.0, -0.5}, {
       0.0, 0.0, 1.0, -acv, 0.0, acv, 1.0, 0.0, 0.0, 0.5, 1.0, 0.0}, {1.0, -0.5, 1.0, 0.0}, {
       1.0, -acv, 1.0, 0.0, 1.0, 0.0, 1.0, -acv, 1.0, 0.0, 1.0, -0.5}, {1.0, 0.0, 0.0, 0.5}, {
       1.0, 0.0, 0.0, acv, 1.0, -acv, 0.0, 0.0, 1.0, -0.5, 0.0, 0.0}, {0.0, 0.5, 0.0, 0.0}, {
       0.0, acv, 0.0, 0.0, 0.0, 0.0, 0.0, acv, 0.0, 0.0, 0.0, 0.5}, {},};
-  private static int types[] = {
+  private static final int[] types = {
       SEG_MOVETO, SEG_LINETO, SEG_CUBICTO, SEG_LINETO, SEG_CUBICTO, SEG_LINETO, SEG_CUBICTO,
       SEG_LINETO, SEG_CUBICTO, SEG_CLOSE,};
-  double x, y, w, h, aw, ah;
-  AffineTransform affine;
+  final double x;
+  final double y;
+  final double w;
+  final double h;
+  final double aw;
+  final double ah;
+  final AffineTransform affine;
   int index;
 
   RoundRectIterator(RoundRectangle2D rr, AffineTransform at) {
-    this.x = rr.getX();
-    this.y = rr.getY();
-    this.w = rr.getWidth();
-    this.h = rr.getHeight();
-    this.aw = Math.min(w, Math.abs(rr.getArcWidth()));
-    this.ah = Math.min(h, Math.abs(rr.getArcHeight()));
-    this.affine = at;
+    x = rr.getX();
+    y = rr.getY();
+    w = rr.getWidth();
+    h = rr.getHeight();
+    aw = Math.min(w, Math.abs(rr.getArcWidth()));
+    ah = Math.min(h, Math.abs(rr.getArcHeight()));
+    affine = at;
     if (aw < 0 || ah < 0) {
       // Don't draw anything...
       index = ctrlpts.length;
@@ -78,6 +83,7 @@ class RoundRectIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -87,6 +93,7 @@ class RoundRectIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
     return index >= ctrlpts.length;
   }
@@ -96,6 +103,7 @@ class RoundRectIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -119,15 +127,18 @@ class RoundRectIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("roundrect iterator out of bounds");
     }
-    double ctrls[] = ctrlpts[index];
+    double[] ctrls = ctrlpts[index];
     int nc = 0;
     for (int i = 0; i < ctrls.length; i += 4) {
-      coords[nc++] = (float) (x + ctrls[i + 0] * w + ctrls[i + 1] * aw);
-      coords[nc++] = (float) (y + ctrls[i + 2] * h + ctrls[i + 3] * ah);
+      coords[nc] = (float) (x + ctrls[i] * w + ctrls[i + 1] * aw);
+      nc++;
+      coords[nc] = (float) (y + ctrls[i + 2] * h + ctrls[i + 3] * ah);
+      nc++;
     }
     if (affine != null) {
       affine.transform(coords, 0, coords, 0, nc / 2);
@@ -154,15 +165,18 @@ class RoundRectIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("roundrect iterator out of bounds");
     }
-    double ctrls[] = ctrlpts[index];
+    double[] ctrls = ctrlpts[index];
     int nc = 0;
     for (int i = 0; i < ctrls.length; i += 4) {
-      coords[nc++] = (x + ctrls[i + 0] * w + ctrls[i + 1] * aw);
-      coords[nc++] = (y + ctrls[i + 2] * h + ctrls[i + 3] * ah);
+      coords[nc] = x + ctrls[i] * w + ctrls[i + 1] * aw;
+      nc++;
+      coords[nc] = y + ctrls[i + 2] * h + ctrls[i + 3] * ah;
+      nc++;
     }
     if (affine != null) {
       affine.transform(coords, 0, coords, 0, nc / 2);

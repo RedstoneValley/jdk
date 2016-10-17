@@ -30,13 +30,13 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Vector;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.SystemTrayAccessor;
 import sun.awt.AppContext;
 import sun.awt.HeadlessToolkit;
 import sun.awt.SunToolkit;
-import sun.security.util.SecurityConstants;
 
 /**
- * The <code>SystemTray</code> class represents the system tray for a
+ * The {@code SystemTray} class represents the system tray for a
  * desktop.  On Microsoft Windows it is referred to as the "Taskbar
  * Status Area", on Gnome it is referred to as the "Notification
  * Area", on KDE it is referred to as the "System Tray".  The system
@@ -47,19 +47,19 @@ import sun.security.util.SecurityConstants;
  * throws {@link UnsupportedOperationException}.  To detect whether the
  * system tray is supported, use {@link SystemTray#isSupported}.
  * <p>
- * <p>The <code>SystemTray</code> may contain one or more {@link
+ * <p>The {@code SystemTray} may contain one or more {@link
  * TrayIcon TrayIcons}, which are added to the tray using the {@link
  * #add} method, and removed when no longer needed, using the
- * {@link #remove}.  <code>TrayIcon</code> consists of an
+ * {@link #remove}.  {@code TrayIcon} consists of an
  * image, a popup menu and a set of associated listeners.  Please see
  * the {@link TrayIcon} class for details.
  * <p>
- * <p>Every Java application has a single <code>SystemTray</code>
+ * <p>Every Java application has a single {@code SystemTray}
  * instance that allows the app to interface with the system tray of
- * the desktop while the app is running.  The <code>SystemTray</code>
+ * the desktop while the app is running.  The {@code SystemTray}
  * instance can be obtained from the {@link #getSystemTray} method.
  * An application may not create its own instance of
- * <code>SystemTray</code>.
+ * {@code SystemTray}.
  * <p>
  * <p>The following code snippet demonstrates how to access
  * and customize the system tray:
@@ -70,8 +70,8 @@ import sun.security.util.SecurityConstants;
  *         // get the SystemTray instance
  *         SystemTray tray = SystemTray.{@link #getSystemTray};
  *         // load an image
- *         {@link java.awt.Image} image =
- *         {@link java.awt.Toolkit#getImage(String) Toolkit.getDefaultToolkit().getImage}(...);
+ *         {@link Image} image =
+ *         {@link Toolkit#getImage(String) Toolkit.getDefaultToolkit().getImage}(...);
  *         // create a action listener to listen for default action executed on the tray icon
  *         {@link java.awt.event.ActionListener} listener = new
  *         {@link java.awt.event.ActionListener ActionListener}() {
@@ -82,7 +82,7 @@ import sun.security.util.SecurityConstants;
  *             }
  *         };
  *         // create a popup menu
- *         {@link java.awt.PopupMenu} popup = new {@link java.awt.PopupMenu#PopupMenu PopupMenu}();
+ *         {@link PopupMenu} popup = new {@link PopupMenu#PopupMenu PopupMenu}();
  *         // create menu item for the default action
  *         MenuItem defaultItem = new MenuItem(...);
  *         defaultItem.addActionListener(listener);
@@ -90,7 +90,7 @@ import sun.security.util.SecurityConstants;
  *         /// ... add other items
  *         // construct a TrayIcon
  *         trayIcon = new
- *         {@link TrayIcon#TrayIcon(java.awt.Image, String, java.awt.PopupMenu) TrayIcon}(image,
+ *         {@link TrayIcon#TrayIcon(Image, String, PopupMenu) TrayIcon}(image,
  *         "Tray Demo", popup);
  *         // set the TrayIcon properties
  *         trayIcon
@@ -113,7 +113,7 @@ import sun.security.util.SecurityConstants;
  *     // some time later
  *     // the application state has changed - update the image
  *     if (trayIcon != null) {
- *         trayIcon.{@link TrayIcon#setImage(java.awt.Image) setImage}(updatedImage);
+ *         trayIcon.{@link TrayIcon#setImage(Image) setImage}(updatedImage);
  *     }
  *     // ...
  * </code>
@@ -131,7 +131,8 @@ public class SystemTray {
   private static SystemTray systemTray;
 
   static {
-    AWTAccessor.setSystemTrayAccessor(new AWTAccessor.SystemTrayAccessor() {
+    AWTAccessor.setSystemTrayAccessor(new SystemTrayAccessor() {
+      @Override
       public void firePropertyChange(
           SystemTray tray, String propertyName, Object oldValue, Object newValue) {
         tray.firePropertyChange(propertyName, oldValue, newValue);
@@ -139,18 +140,18 @@ public class SystemTray {
     });
   }
 
-  private int currentIconID = 0; // each TrayIcon added gets a unique ID
-  transient private SystemTrayPeer peer;
+  private int currentIconID; // each TrayIcon added gets a unique ID
+  private transient SystemTrayPeer peer;
 
   /**
-   * Private <code>SystemTray</code> constructor.
+   * Private {@code SystemTray} constructor.
    */
   private SystemTray() {
     addNotify();
   }
 
   /**
-   * Gets the <code>SystemTray</code> instance that represents the
+   * Gets the {@code SystemTray} instance that represents the
    * desktop's tray area.  This always returns the same instance per
    * application.  On some platforms the system tray may not be
    * supported.  You may use the {@link #isSupported} method to
@@ -161,13 +162,13 @@ public class SystemTray {
    * {@code SystemTray} instance. Otherwise this method will throw a
    * SecurityException.
    *
-   * @return the <code>SystemTray</code> instance that represents
+   * @return the {@code SystemTray} instance that represents
    * the desktop's tray area
    * @throws UnsupportedOperationException if the system tray isn't
    *                                       supported by the current platform
    * @throws HeadlessException             if
-   *                                       <code>GraphicsEnvironment.isHeadless()</code>
-   *                                       returns <code>true</code>
+   *                                       {@code GraphicsEnvironment.isHeadless()}
+   *                                       returns {@code true}
    * @throws SecurityException             if {@code accessSystemTray} permission
    *                                       is not granted
    * @see #add(TrayIcon)
@@ -178,9 +179,6 @@ public class SystemTray {
    */
   public static SystemTray getSystemTray() {
     checkSystemTrayAllowed();
-    if (GraphicsEnvironment.isHeadless()) {
-      throw new HeadlessException();
-    }
 
     initializeSystemTrayIfNeeded();
 
@@ -197,7 +195,7 @@ public class SystemTray {
    * platform.  In addition to displaying the tray icon, minimal
    * system tray support includes either a popup menu (see {@link
    * TrayIcon#setPopupMenu(PopupMenu)}) or an action event (see
-   * {@link TrayIcon#addActionListener(ActionListener)}).
+   * ).
    * <p>
    * <p>Developers should not assume that all of the system tray
    * functionality is supported.  To guarantee that the tray icon's
@@ -205,14 +203,14 @@ public class SystemTray {
    * both the action listener and the popup menu.  See the {@link
    * SystemTray example} for an example of how to do this.
    * <p>
-   * <p><b>Note</b>: When implementing <code>SystemTray</code> and
-   * <code>TrayIcon</code> it is <em>strongly recommended</em> that
+   * <p><b>Note</b>: When implementing {@code SystemTray} and
+   * {@code TrayIcon} it is <em>strongly recommended</em> that
    * you assign different gestures to the popup menu and an action
    * event.  Overloading a gesture for both purposes is confusing
    * and may prevent the user from accessing one or the other.
    *
-   * @return <code>false</code> if no system tray access is supported; this
-   * method returns <code>true</code> if the minimal system tray access is
+   * @return {@code false} if no system tray access is supported; this
+   * method returns {@code true} if the minimal system tray access is
    * supported but does not guarantee that all system tray
    * functionality is supported for the current platform
    * @see #getSystemTray
@@ -239,46 +237,44 @@ public class SystemTray {
     }
   }
 
-  private static void initializeSystemTrayIfNeeded() {
-    synchronized (SystemTray.class) {
-      if (systemTray == null) {
-        systemTray = new SystemTray();
-      }
+  private static synchronized void initializeSystemTrayIfNeeded() {
+    if (systemTray == null) {
+      systemTray = new SystemTray();
     }
   }
 
   /**
-   * Adds a <code>TrayIcon</code> to the <code>SystemTray</code>.
+   * Adds a {@code TrayIcon} to the {@code SystemTray}.
    * The tray icon becomes visible in the system tray once it is
    * added.  The order in which icons are displayed in a tray is not
    * specified - it is platform and implementation-dependent.
    * <p>
    * <p> All icons added by the application are automatically
-   * removed from the <code>SystemTray</code> upon application exit
+   * removed from the {@code SystemTray} upon application exit
    * and also when the desktop system tray becomes unavailable.
    *
-   * @param trayIcon the <code>TrayIcon</code> to be added
-   * @throws NullPointerException     if <code>trayIcon</code> is
-   *                                  <code>null</code>
+   * @param trayIcon the {@code TrayIcon} to be added
+   * @throws NullPointerException     if {@code trayIcon} is
+   *                                  {@code null}
    * @throws IllegalArgumentException if the same instance of
-   *                                  a <code>TrayIcon</code> is added more than once
+   *                                  a {@code TrayIcon} is added more than once
    * @throws AWTException             if the desktop system tray is missing
    * @see #remove(TrayIcon)
    * @see #getSystemTray
    * @see TrayIcon
-   * @see java.awt.Image
+   * @see Image
    */
   public void add(TrayIcon trayIcon) throws AWTException {
     if (trayIcon == null) {
       throw new NullPointerException("adding null TrayIcon");
     }
-    TrayIcon[] oldArray = null, newArray = null;
-    Vector<TrayIcon> icons = null;
+    TrayIcon[] oldArray, newArray;
+    Vector<TrayIcon> icons;
     synchronized (this) {
       oldArray = systemTray.getTrayIcons();
       icons = (Vector<TrayIcon>) AppContext.getAppContext().get(TrayIcon.class);
       if (icons == null) {
-        icons = new Vector<TrayIcon>(3);
+        icons = new Vector<>(3);
         AppContext.getAppContext().put(TrayIcon.class, icons);
       } else if (icons.contains(trayIcon)) {
         throw new IllegalArgumentException("adding TrayIcon that is already added");
@@ -286,7 +282,8 @@ public class SystemTray {
       icons.add(trayIcon);
       newArray = systemTray.getTrayIcons();
 
-      trayIcon.setID(++currentIconID);
+      ++currentIconID;
+      trayIcon.setID(currentIconID);
     }
     try {
       trayIcon.addNotify();
@@ -298,18 +295,18 @@ public class SystemTray {
   }
 
   /**
-   * Removes the specified <code>TrayIcon</code> from the
-   * <code>SystemTray</code>.
+   * Removes the specified {@code TrayIcon} from the
+   * {@code SystemTray}.
    * <p>
    * <p> All icons added by the application are automatically
-   * removed from the <code>SystemTray</code> upon application exit
+   * removed from the {@code SystemTray} upon application exit
    * and also when the desktop system tray becomes unavailable.
    * <p>
-   * <p> If <code>trayIcon</code> is <code>null</code> or was not
+   * <p> If {@code trayIcon} is {@code null} or was not
    * added to the system tray, no exception is thrown and no action
    * is performed.
    *
-   * @param trayIcon the <code>TrayIcon</code> to be removed
+   * @param trayIcon the {@code TrayIcon} to be removed
    * @see #add(TrayIcon)
    * @see TrayIcon
    */
@@ -317,7 +314,7 @@ public class SystemTray {
     if (trayIcon == null) {
       return;
     }
-    TrayIcon[] oldArray = null, newArray = null;
+    TrayIcon[] oldArray, newArray;
     synchronized (this) {
       oldArray = systemTray.getTrayIcons();
       Vector<TrayIcon> icons = (Vector<TrayIcon>) AppContext.getAppContext().get(TrayIcon.class);
@@ -341,8 +338,8 @@ public class SystemTray {
    * <p>
    * <p> The returned array is a copy of the actual array and may be
    * modified in any way without affecting the system tray.  To
-   * remove a <code>TrayIcon</code> from the
-   * <code>SystemTray</code>, use the {@link
+   * remove a {@code TrayIcon} from the
+   * {@code SystemTray}, use the {@link
    * #remove(TrayIcon)} method.
    *
    * @return an array of all tray icons added to this tray, or an
@@ -353,7 +350,7 @@ public class SystemTray {
   public TrayIcon[] getTrayIcons() {
     Vector<TrayIcon> icons = (Vector<TrayIcon>) AppContext.getAppContext().get(TrayIcon.class);
     if (icons != null) {
-      return (TrayIcon[]) icons.toArray(new TrayIcon[icons.size()]);
+      return icons.toArray(new TrayIcon[icons.size()]);
     }
     return EMPTY_TRAY_ARRAY;
   }
@@ -363,11 +360,11 @@ public class SystemTray {
    * occupy in the system tray.  Developers may use this methods to
    * acquire the preferred size for the image property of a tray icon
    * before it is created.  For convenience, there is a similar
-   * method {@link TrayIcon#getSize} in the <code>TrayIcon</code> class.
+   * method {@link TrayIcon#getSize} in the {@code TrayIcon} class.
    *
    * @return the default size of a tray icon, in pixels
    * @see TrayIcon#setImageAutoSize(boolean)
-   * @see java.awt.Image
+   * @see Image
    * @see TrayIcon#getSize()
    */
   public Dimension getTrayIconSize() {
@@ -395,7 +392,7 @@ public class SystemTray {
    * <tr>
    * <td>{@code systemTray}</td>
    * <td>This property contains {@code SystemTray} instance when the system tray
-   * is available or <code>null</code> otherwise.<br> This property is changed
+   * is available or {@code null} otherwise.<br> This property is changed
    * when the system tray becomes available or unavailable on the desktop.<br>
    * The property is accessed by the {@link #getSystemTray} method.</td>
    * </tr>
@@ -472,7 +469,7 @@ public class SystemTray {
    * @param oldValue     the property's previous value
    * @param newValue     the property's new value
    */
-  private void firePropertyChange(
+  void firePropertyChange(
       String propertyName, Object oldValue, Object newValue) {
     if (oldValue != null && newValue != null && oldValue.equals(newValue)) {
       return;

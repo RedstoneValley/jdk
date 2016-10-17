@@ -28,17 +28,17 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.Arrays;
+import java.util.List;
 
 public class TargetPanel extends Panel implements DropTargetListener{
 
-    private java.util.List <File> content = new ArrayList<File>();
+    private static final long serialVersionUID = 7702484220478974078L;
+    private List <File> content = new ArrayList<>();
 
     //private final CustomDropTargetListener dropTargetListener = new CustomDropTargetListener();
 
-    private Frame frame;
+    private final Frame frame;
 
     public TargetPanel (Frame frame)
     {
@@ -48,37 +48,40 @@ public class TargetPanel extends Panel implements DropTargetListener{
         setDropTarget(new DropTarget(this, this));
     }
 
+    @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dragExit(DropTargetEvent dte) {
 
     }
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
         dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
         if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
             try {
-                content = (java.util.List)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                content = (List)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                 repaint();
-            } catch (UnsupportedFlavorException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (UnsupportedFlavorException | IOException e) {
                 e.printStackTrace();
             }
             dtde.dropComplete(true);
@@ -103,6 +106,7 @@ public class TargetPanel extends Panel implements DropTargetListener{
         System.exit(1);
     }
 
+    @Override
     public void paint(Graphics g) {
         g.setColor(Color.YELLOW);
         int i = 0;

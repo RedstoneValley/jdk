@@ -48,13 +48,13 @@ public interface SpanIterator {
    *     {PathMinX, PathMinY, PathMaxX, PathMaxY}.
    * </pre>
    */
-  public void getPathBox(int pathbox[]);
+  void getPathBox(int[] pathbox);
 
   /**
    * This method constrains the spans returned by nextSpan() to the
    * rectangle whose bounds are given.
    */
-  public void intersectClipBox(int lox, int loy, int hix, int hiy);
+  void intersectClipBox(int lox, int loy, int hix, int hiy);
 
   /**
    * This method returns the next span in the shape being iterated.
@@ -64,7 +64,7 @@ public interface SpanIterator {
    *     {SpanMinX, SpanMinY, SpanMaxX, SpanMaxY}.
    * </pre>
    */
-  public boolean nextSpan(int spanbox[]);
+  boolean nextSpan(int[] spanbox);
 
   /**
    * This method tells the iterator that it may skip all spans
@@ -78,7 +78,7 @@ public interface SpanIterator {
    * doing so could potentially cause the caller to make this callback
    * for each span that is being skipped.
    */
-  public void skipDownTo(int y);
+  void skipDownTo(int y);
 
   /**
    * This method returns a native pointer to a function block that
@@ -91,5 +91,5 @@ public interface SpanIterator {
    *     src/share/native/sun/java2d/pipe/SpanIterator.h
    * </pre>
    */
-  public long getNativeIterator();
+  long getNativeIterator();
 }

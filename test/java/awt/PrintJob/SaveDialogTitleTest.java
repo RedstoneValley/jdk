@@ -29,10 +29,17 @@
  */
 
 import java.awt.*;
+import java.awt.JobAttributes.DefaultSelectionType;
+import java.awt.JobAttributes.DestinationType;
+import java.awt.PageAttributes.MediaType;
+import java.awt.PageAttributes.OrientationRequestedType;
 
-public class SaveDialogTitleTest {
+public final class SaveDialogTitleTest {
 
-    public static void main(String args[]) {
+      private SaveDialogTitleTest() {
+      }
+
+      public static void main(String[] args) {
 
         System.out.print("Once the dialog appears, press OK and the ");
         System.out.print("Save to File dialog should appear and it ");
@@ -41,13 +48,12 @@ public class SaveDialogTitleTest {
         System.out.println("To test 8025990: Paper should be Legal and in Landscape.");
         Toolkit tk = Toolkit.getDefaultToolkit();
         JobAttributes jobAttributes = new JobAttributes();
-        jobAttributes.setDestination(JobAttributes.DestinationType.FILE);
-        jobAttributes.setDefaultSelection(JobAttributes.DefaultSelectionType.RANGE);
+        jobAttributes.setDestination(DestinationType.FILE);
+        jobAttributes.setDefaultSelection(DefaultSelectionType.RANGE);
         jobAttributes.setPageRanges(new int[][]{new int[]{3,8}});
         PageAttributes page = new PageAttributes();
-        page.setMedia(PageAttributes.MediaType.LEGAL);
-        page.setOrientationRequested(PageAttributes.
-                                        OrientationRequestedType.LANDSCAPE);
+        page.setMedia(MediaType.LEGAL);
+        page.setOrientationRequested(OrientationRequestedType.LANDSCAPE);
 
         PrintJob printJob =
             tk.getPrintJob(new Frame(), "Save Title Test",

@@ -11,12 +11,12 @@ public class GlyphLayout {
     return new GlyphLayout();
   }
 
-  public StandardGlyphVector layout(
-      Font font, FontRenderContext frc, char[] text, int start, int i, int flags, Object o) {
+  public static void done(GlyphLayout gl) {
     // TODO
   }
 
-  public static void done(GlyphLayout gl) {
+  public StandardGlyphVector layout(
+      Font font, FontRenderContext frc, char[] text, int start, int i, int flags, Object o) {
     // TODO
   }
 }

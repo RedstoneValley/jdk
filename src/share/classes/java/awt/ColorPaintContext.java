@@ -32,20 +32,23 @@ import java.util.Arrays;
 import sun.awt.image.IntegerComponentRaster;
 
 class ColorPaintContext implements PaintContext {
-  int color;
+  final int color;
   WritableRaster savedTile;
 
   protected ColorPaintContext(int color, ColorModel cm) {
     this.color = color;
   }
 
+  @Override
   public void dispose() {
   }
 
+  @Override
   public ColorModel getColorModel() {
     return ColorModel.getRGBdefault();
   }
 
+  @Override
   public synchronized Raster getRaster(int x, int y, int w, int h) {
     WritableRaster t = savedTile;
 

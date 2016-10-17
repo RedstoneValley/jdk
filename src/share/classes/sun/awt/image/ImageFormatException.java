@@ -26,6 +26,8 @@
 package sun.awt.image;
 
 public class ImageFormatException extends Exception {
+  private static final long serialVersionUID = 4730342112251090979L;
+
   public ImageFormatException(String s) {
     super(s);
   }

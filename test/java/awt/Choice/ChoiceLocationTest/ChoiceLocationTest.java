@@ -32,19 +32,16 @@
  */
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.util.stream.Stream;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class ChoiceLocationTest {
+public final class ChoiceLocationTest {
 
     private static final int FRAME_LOCATION = 100;
     private static final int FRAME_SIZE = 400;
     private static final int CLICK_STEP = 5;
 
-    private static String[] choiceItems = new String[] {
+    private static final String[] choiceItems = {
             "test item 1",
             "test item 2",
             "test item 3"

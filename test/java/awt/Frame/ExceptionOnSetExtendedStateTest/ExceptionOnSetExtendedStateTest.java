@@ -32,9 +32,12 @@ import java.awt.*;
 
 import sun.awt.SunToolkit;
 
-public class ExceptionOnSetExtendedStateTest {
+public final class ExceptionOnSetExtendedStateTest {
     private static final int[] frameStates = { Frame.NORMAL, Frame.ICONIFIED, Frame.MAXIMIZED_BOTH };
     private static final SunToolkit toolkit = (SunToolkit)Toolkit.getDefaultToolkit();
+
+    private ExceptionOnSetExtendedStateTest() {
+    }
 
     private static boolean validatePlatform() {
         String osName = System.getProperty("os.name");
@@ -61,11 +64,11 @@ public class ExceptionOnSetExtendedStateTest {
 
         boolean stateWasNotChanged = true;
         int currentState = 0;
-        for (int i = 0; (i < 3) && stateWasNotChanged; i++) {
+        for (int i = 0; i < 3 && stateWasNotChanged; i++) {
             sleep(1000);
             currentState = frame.getExtendedState();
-            if ((currentState == newState) ||
-                (((newState & Frame.ICONIFIED) != 0) && ((currentState & Frame.ICONIFIED) != 0))) {
+            if (currentState == newState ||
+                (newState & Frame.ICONIFIED) != 0 && (currentState & Frame.ICONIFIED) != 0) {
                 stateWasNotChanged = false;
             }
         }
@@ -93,11 +96,11 @@ public class ExceptionOnSetExtendedStateTest {
 
         // Verify that changing states of decorated/undecorated frame to/from supported states
         // and the state bit mask ICONIFIED | MAXIMIZED_BOTH does not raise RuntimeException.
-        for (int i = 0; i < frameStates.length; i++) {
-            testStateChange(frameStates[i], Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, true);
-            testStateChange(frameStates[i], Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, false);
-            testStateChange(Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, frameStates[i], true);
-            testStateChange(Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, frameStates[i], false);
+        for (int frameState : frameStates) {
+            testStateChange(frameState, Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, true);
+            testStateChange(frameState, Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, false);
+            testStateChange(Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, frameState, true);
+            testStateChange(Frame.ICONIFIED | Frame.MAXIMIZED_BOTH, frameState, false);
         }
     }
 }

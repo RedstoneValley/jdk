@@ -37,7 +37,8 @@ import java.lang.reflect.InvocationTargetException;
 import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
 import sun.awt.image.SunWritableRaster;
-import sun.security.util.SecurityConstants;
+import sun.java2d.Disposer;
+import sun.java2d.DisposerRecord;
 
 /**
  * This class is used to generate native system input events
@@ -49,12 +50,12 @@ import sun.security.util.SecurityConstants;
  * Using the class to generate input events differs from posting
  * events to the AWT event queue or AWT components in that the
  * events are generated in the platform's native input
- * queue. For example, <code>Robot.mouseMove</code> will actually move
+ * queue. For example, {@code Robot.mouseMove} will actually move
  * the mouse cursor instead of just generating mouse move events.
  * <p>
  * Note that some platforms require special privileges or extensions
  * to access low-level input control. If the current platform configuration
- * does not allow input control, an <code>AWTException</code> will be thrown
+ * does not allow input control, an {@code AWTException} will be thrown
  * when trying to construct Robot objects. For example, X-Window systems
  * will throw the exception if the XTEST 2.2 standard extension is not supported
  * (or not enabled) by the X server.
@@ -67,12 +68,12 @@ import sun.security.util.SecurityConstants;
  */
 public class Robot {
   private static final int MAX_DELAY = 60000;
-  private static int LEGAL_BUTTON_MASK = 0;
+  private static int LEGAL_BUTTON_MASK;
+  private final transient Object anchor = new Object();
   private RobotPeer peer;
-  private boolean isAutoWaitForIdle = false;
-  private int autoDelay = 0;
-  private DirectColorModel screenCapCM = null;
-  private transient Object anchor = new Object();
+  private boolean isAutoWaitForIdle;
+  private int autoDelay;
+  private DirectColorModel screenCapCM;
   private transient RobotDisposer disposer;
 
   /**
@@ -82,15 +83,12 @@ public class Robot {
    * @throws AWTException      if the platform configuration does not allow
    *                           low-level input control.  This exception is always thrown when
    *                           GraphicsEnvironment.isHeadless() returns true
-   * @throws SecurityException if <code>createRobot</code> permission is not granted
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @throws SecurityException if {@code createRobot} permission is not granted
+   * @see GraphicsEnvironment#isHeadless
    * @see SecurityManager#checkPermission
    * @see AWTPermission
    */
   public Robot() throws AWTException {
-    if (GraphicsEnvironment.isHeadless()) {
-      throw new AWTException("headless environment");
-    }
     init(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice());
   }
 
@@ -115,10 +113,10 @@ public class Robot {
    *                                  low-level input control.  This exception is always thrown
    *                                  when
    *                                  GraphicsEnvironment.isHeadless() returns true.
-   * @throws IllegalArgumentException if <code>screen</code> is not a screen
+   * @throws IllegalArgumentException if {@code screen} is not a screen
    *                                  GraphicsDevice.
-   * @throws SecurityException        if <code>createRobot</code> permission is not granted
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @throws SecurityException        if {@code createRobot} permission is not granted
+   * @see GraphicsEnvironment#isHeadless
    * @see GraphicsDevice
    * @see SecurityManager#checkPermission
    * @see AWTPermission
@@ -136,7 +134,7 @@ public class Robot {
     int tmpMask = 0;
     if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()) {
       if (Toolkit.getDefaultToolkit() instanceof SunToolkit) {
-        final int buttonsNumber = ((SunToolkit) (Toolkit.getDefaultToolkit())).getNumberOfButtons();
+        int buttonsNumber = ((SunToolkit) Toolkit.getDefaultToolkit()).getNumberOfButtons();
         for (int i = 0; i < buttonsNumber; i++) {
           tmpMask |= InputEvent.getMaskForButton(i + 1);
         }
@@ -170,7 +168,7 @@ public class Robot {
     if (toolkit instanceof ComponentFactory) {
       peer = ((ComponentFactory) toolkit).createRobot(this, screen);
       disposer = new RobotDisposer(peer);
-      sun.java2d.Disposer.addRecord(anchor, disposer);
+      Disposer.addRecord(anchor, disposer);
     }
     initLegalButtonMask();
   }
@@ -232,7 +230,7 @@ public class Robot {
    *                In that way, it is allowed to use the button masks corresponding to the
    *                buttons
    *                in the range from 1 to
-   *                {@link java.awt.MouseInfo#getNumberOfButtons() MouseInfo.getNumberOfButtons()}.
+   *                {@link MouseInfo#getNumberOfButtons() MouseInfo.getNumberOfButtons()}.
    *                <br>
    *                It is recommended to use the
    *                {@link InputEvent#getMaskForButton(int) InputEvent.getMaskForButton(button)}
@@ -264,7 +262,7 @@ public class Robot {
    * @see #mouseRelease(int)
    * @see InputEvent#getMaskForButton(int)
    * @see Toolkit#areExtraMouseButtonsEnabled()
-   * @see java.awt.MouseInfo#getNumberOfButtons()
+   * @see MouseInfo#getNumberOfButtons()
    * @see java.awt.event.MouseEvent
    */
   public synchronized void mousePress(int buttons) {
@@ -303,7 +301,7 @@ public class Robot {
    *                In that way, it is allowed to use the button masks corresponding to the
    *                buttons
    *                in the range from 1 to
-   *                {@link java.awt.MouseInfo#getNumberOfButtons() MouseInfo.getNumberOfButtons()}.
+   *                {@link MouseInfo#getNumberOfButtons() MouseInfo.getNumberOfButtons()}.
    *                <br>
    *                It is recommended to use the
    *                {@link InputEvent#getMaskForButton(int) InputEvent.getMaskForButton(button)}
@@ -334,7 +332,7 @@ public class Robot {
    * @see #mousePress(int)
    * @see InputEvent#getMaskForButton(int)
    * @see Toolkit#areExtraMouseButtonsEnabled()
-   * @see java.awt.MouseInfo#getNumberOfButtons()
+   * @see MouseInfo#getNumberOfButtons()
    * @see java.awt.event.MouseEvent
    */
   public synchronized void mouseRelease(int buttons) {
@@ -364,17 +362,17 @@ public class Robot {
 
   /**
    * Presses a given key.  The key should be released using the
-   * <code>keyRelease</code> method.
+   * {@code keyRelease} method.
    * <p>
    * Key codes that have more than one physical key associated with them
-   * (e.g. <code>KeyEvent.VK_SHIFT</code> could mean either the
+   * (e.g. {@code KeyEvent.VK_SHIFT} could mean either the
    * left or right shift key) will map to the left key.
    *
-   * @param keycode Key to press (e.g. <code>KeyEvent.VK_A</code>)
-   * @throws IllegalArgumentException if <code>keycode</code> is not
+   * @param keycode Key to press (e.g. {@code KeyEvent.VK_A})
+   * @throws IllegalArgumentException if {@code keycode} is not
    *                                  a valid key
    * @see #keyRelease(int)
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    */
   public synchronized void keyPress(int keycode) {
     checkKeycodeArgument(keycode);
@@ -386,14 +384,14 @@ public class Robot {
    * Releases a given key.
    * <p>
    * Key codes that have more than one physical key associated with them
-   * (e.g. <code>KeyEvent.VK_SHIFT</code> could mean either the
+   * (e.g. {@code KeyEvent.VK_SHIFT} could mean either the
    * left or right shift key) will map to the left key.
    *
-   * @param keycode Key to release (e.g. <code>KeyEvent.VK_A</code>)
-   * @throws IllegalArgumentException if <code>keycode</code> is not a
+   * @param keycode Key to release (e.g. {@code KeyEvent.VK_A})
+   * @throws IllegalArgumentException if {@code keycode} is not a
    *                                  valid key
    * @see #keyPress(int)
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    */
   public synchronized void keyRelease(int keycode) {
     checkKeycodeArgument(keycode);
@@ -419,8 +417,7 @@ public class Robot {
    * @return Color of the pixel
    */
   public synchronized Color getPixelColor(int x, int y) {
-    Color color = new Color(peer.getRGBPixel(x, y));
-    return color;
+    return new Color(peer.getRGBPixel(x, y));
   }
 
   /**
@@ -429,9 +426,9 @@ public class Robot {
    *
    * @param screenRect Rect to capture in screen coordinates
    * @return The captured image
-   * @throws IllegalArgumentException if <code>screenRect</code> width and height are not greater
+   * @throws IllegalArgumentException if {@code screenRect} width and height are not greater
    *                                  than zero
-   * @throws SecurityException        if <code>readDisplayPixels</code> permission is not granted
+   * @throws SecurityException        if {@code readDisplayPixels} permission is not granted
    * @see SecurityManager#checkPermission
    * @see AWTPermission
    */
@@ -462,7 +459,7 @@ public class Robot {
     // cases rendering to the screen may be delayed
     Toolkit.getDefaultToolkit().sync();
 
-    int pixels[];
+    int[] pixels;
     int[] bandmasks = new int[3];
 
     pixels = peer.getRGBPixels(screenRect);
@@ -494,20 +491,20 @@ public class Robot {
   }
 
   /**
-   * Returns whether this Robot automatically invokes <code>waitForIdle</code>
+   * Returns whether this Robot automatically invokes {@code waitForIdle}
    * after generating an event.
    *
-   * @return Whether <code>waitForIdle</code> is automatically called
+   * @return Whether {@code waitForIdle} is automatically called
    */
   public synchronized boolean isAutoWaitForIdle() {
     return isAutoWaitForIdle;
   }
 
   /**
-   * Sets whether this Robot automatically invokes <code>waitForIdle</code>
+   * Sets whether this Robot automatically invokes {@code waitForIdle}
    * after generating an event.
    *
-   * @param isOn Whether <code>waitForIdle</code> is automatically invoked
+   * @param isOn Whether {@code waitForIdle} is automatically invoked
    */
   public synchronized void setAutoWaitForIdle(boolean isOn) {
     isAutoWaitForIdle = isOn;
@@ -532,7 +529,7 @@ public class Robot {
   /**
    * Sets the number of milliseconds this Robot sleeps after generating an event.
    *
-   * @throws IllegalArgumentException If <code>ms</code> is not between 0 and 60,000
+   * @throws IllegalArgumentException If {@code ms} is not between 0 and 60,000
    *                                  milliseconds inclusive
    */
   public synchronized void setAutoDelay(int ms) {
@@ -549,13 +546,13 @@ public class Robot {
 
   /**
    * Sleeps for the specified time.
-   * To catch any <code>InterruptedException</code>s that occur,
-   * <code>Thread.sleep()</code> may be used instead.
+   * To catch any {@code InterruptedException}s that occur,
+   * {@code Thread.sleep()} may be used instead.
    *
    * @param ms time to sleep in milliseconds
-   * @throws IllegalArgumentException if <code>ms</code> is not between 0 and 60,000 milliseconds
+   * @throws IllegalArgumentException if {@code ms} is not between 0 and 60,000 milliseconds
    *                                  inclusive
-   * @see java.lang.Thread#sleep
+   * @see Thread#sleep
    */
   public synchronized void delay(int ms) {
     checkDelayArgument(ms);
@@ -584,16 +581,14 @@ public class Robot {
     try {
       SunToolkit.flushPendingEvents();
       EventQueue.invokeAndWait(new Runnable() {
+        @Override
         public void run() {
           // dummy implementation
         }
       });
-    } catch (InterruptedException ite) {
+    } catch (InterruptedException | InvocationTargetException ite) {
       System.err.println("Robot.waitForIdle, non-fatal exception caught:");
       ite.printStackTrace();
-    } catch (InvocationTargetException ine) {
-      System.err.println("Robot.waitForIdle, non-fatal exception caught:");
-      ine.printStackTrace();
     }
   }
 
@@ -614,13 +609,14 @@ public class Robot {
     return getClass().getName() + "[ " + params + " ]";
   }
 
-  static class RobotDisposer implements sun.java2d.DisposerRecord {
+  static class RobotDisposer implements DisposerRecord {
     private final RobotPeer peer;
 
     public RobotDisposer(RobotPeer peer) {
       this.peer = peer;
     }
 
+    @Override
     public void dispose() {
       if (peer != null) {
         peer.dispose();

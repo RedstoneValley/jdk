@@ -29,18 +29,19 @@
  */
 
 import java.awt.AWTPermission;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
 import java.security.Permission;
 
-public class Permissions {
+public final class Permissions {
 
-    static class MySecurityManager extends SecurityManager {
-        private List<Permission> permissionsChecked = new ArrayList<>();
+  private Permissions() {
+  }
+
+  static class MySecurityManager extends SecurityManager {
+        private final List<Permission> permissionsChecked = new ArrayList<>();
 
         static MySecurityManager install() {
             MySecurityManager sm = new MySecurityManager();
@@ -64,8 +65,9 @@ public class Permissions {
          */
         void assertChecked(Class<? extends Permission> type, String name) {
             for (Permission perm: permissionsChecked) {
-                if (type.isInstance(perm) && perm.getName().equals(name))
+                if (type.isInstance(perm) && perm.getName().equals(name)) {
                     return;
+                }
             }
             throw new RuntimeException(type.getName() + "(\"" + name + "\") not checked");
         }
@@ -89,7 +91,7 @@ public class Permissions {
         //sm.assertChecked(AWTPermission.class, "accessClipboard");
 
         sm.prepare("Window(Frame)");
-        new Window((Frame)null);
+        new Window(null);
         sm.assertChecked(AWTPermission.class, "showWindowWithoutWarningBanner");
 
         sm.prepare("Window(Window)");
@@ -97,7 +99,7 @@ public class Permissions {
         sm.assertChecked(AWTPermission.class, "showWindowWithoutWarningBanner");
 
         sm.prepare("Window(Window,GraphicsConfiguration)");
-        new Window((Window)null, (GraphicsConfiguration)null);
+        new Window(null, null);
         sm.assertChecked(AWTPermission.class, "showWindowWithoutWarningBanner");
     }
 }

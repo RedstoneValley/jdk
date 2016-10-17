@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8029979
  * @summary Checks if acceptDrop() can be called several times
  * @library ../../regtesthelpers
@@ -32,15 +32,12 @@
  * @author anthony.petrov@oracle.com
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
 import java.awt.event.InputEvent;
 
-public class AcceptDropMultipleTimes {
+public final class AcceptDropMultipleTimes {
 
     private static final int FRAME_SIZE = 100;
     private static final int FRAME_LOCATION = 100;
@@ -51,7 +48,7 @@ public class AcceptDropMultipleTimes {
         f = new Frame("Test frame");
         f.setBounds(FRAME_LOCATION, FRAME_LOCATION, FRAME_SIZE, FRAME_SIZE);
 
-        final DraggablePanel dragSource = new DraggablePanel();
+        DraggablePanel dragSource = new DraggablePanel();
         dragSource.setBackground(Color.yellow);
         DropTarget dt = new DropTarget(dragSource, new DropTargetAdapter() {
             @Override public void drop(DropTargetDropEvent dtde) {
@@ -79,7 +76,8 @@ public class AcceptDropMultipleTimes {
             Util.waitForIdle(r);
             Util.drag(r,
                     new Point(FRAME_LOCATION + FRAME_SIZE / 3, FRAME_LOCATION + FRAME_SIZE / 3),
-                    new Point(FRAME_LOCATION + FRAME_SIZE / 3 * 2, FRAME_LOCATION + FRAME_SIZE / 3 * 2),
+                    new Point(FRAME_LOCATION + (FRAME_SIZE / 3 << 1), FRAME_LOCATION + (FRAME_SIZE / 3
+                                                                                         << 1)),
                     InputEvent.BUTTON1_MASK);
             Util.waitForIdle(r);
         } finally {
@@ -91,8 +89,10 @@ public class AcceptDropMultipleTimes {
 
     private static class DraggablePanel extends Panel implements DragGestureListener {
 
+        private static final long serialVersionUID = 6944646306545903769L;
+
         public DraggablePanel() {
-            (new DragSource()).createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
+            new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
         }
 
         @Override

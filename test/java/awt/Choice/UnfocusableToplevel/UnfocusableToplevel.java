@@ -31,28 +31,28 @@
   @run main UnfocusableToplevel
 */
 
-/**
- * UnfocusableToplevel.java
- *
- * summary:
+/*
+  UnfocusableToplevel.java
+
+  summary:
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
-import test.java.awt.regtesthelpers.Util;
 
-public class UnfocusableToplevel {
+public final class UnfocusableToplevel {
 
-    final static Robot robot = Util.createRobot();
-    final static int REASONABLE_PATH_TIME = 5000;
+    static final Robot robot = Util.createRobot();
+    static final int REASONABLE_PATH_TIME = 5000;
 
-    public static void main(String []s)
+  private UnfocusableToplevel() {
+  }
+
+  public static void main(String []s)
     {
         Frame f = new Frame();
         Window w = new Window(f);
-        final Choice ch = new Choice();
+        Choice ch = new Choice();
 
         ch.add("item 1");
         ch.add("item 2");
@@ -64,18 +64,22 @@ public class UnfocusableToplevel {
         w.setSize(200, 200);
 
         ch.addKeyListener(new KeyAdapter(){
+                @Override
                 public void keyTyped(KeyEvent e){
                     traceEvent("keytyped", e);
                 }
+                @Override
                 public void keyPressed(KeyEvent e){
                     traceEvent("keypress", e);
                 }
+                @Override
                 public void keyReleased(KeyEvent e){
                     traceEvent("keyrelease", e);
                 }
         });
 
         ch.addItemListener(new ItemListener(){
+                @Override
                 public void itemStateChanged(ItemEvent ie){
                     traceEvent("stateChanged", ie);
                 }
@@ -114,7 +118,7 @@ public class UnfocusableToplevel {
         robot.delay(100);
     }
 
-    private static void traceEvent(String message, AWTEvent e){
-        AbstractTest.fail(message + " " + e.toString());
+    static void traceEvent(String message, AWTEvent e){
+        AbstractTest.fail(message + " " + e);
     }
 }

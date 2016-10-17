@@ -30,30 +30,29 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public interface ColorTransform {
-  public int Any = -1;/* any rendering type, whichever is
+  int Any = -1;/* any rendering type, whichever is
                            available */
                         /* search order is icPerceptual,
                            icRelativeColorimetric, icSaturation */
 
-  /* Transform types */
-  public int In = 1;
-  public int Out = 2;
-  public int Gamut = 3;
-  public int Simulation = 4;
+  /* Transform types */ int In = 1;
+  int Out = 2;
+  int Gamut = 3;
+  int Simulation = 4;
 
-  public int getNumInComponents();
+  int getNumInComponents();
 
-  public int getNumOutComponents();
+  int getNumOutComponents();
 
-  public void colorConvert(BufferedImage src, BufferedImage dst);
+  void colorConvert(BufferedImage src, BufferedImage dst);
 
-  public void colorConvert(
+  void colorConvert(
       Raster src, WritableRaster dst, float[] srcMinVal, float[] srcMaxVal, float[] dstMinVal,
       float[] dstMaxVal);
 
-  public void colorConvert(Raster src, WritableRaster dst);
+  void colorConvert(Raster src, WritableRaster dst);
 
-  public short[] colorConvert(short[] src, short[] dest);
+  short[] colorConvert(short[] src, short[] dest);
 
-  public byte[] colorConvert(byte[] src, byte[] dest);
+  byte[] colorConvert(byte[] src, byte[] dest);
 }

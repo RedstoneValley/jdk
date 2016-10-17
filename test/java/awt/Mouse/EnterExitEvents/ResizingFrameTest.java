@@ -35,14 +35,16 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 import sun.awt.SunToolkit;
 
-public class ResizingFrameTest {
+public final class ResizingFrameTest {
 
-    private static volatile int mouseEnteredCount = 0;
-    private static volatile int mouseExitedCount = 0;
-    private static JFrame frame;
+    static volatile int mouseEnteredCount;
+    static volatile int mouseExitedCount;
+    static JFrame frame;
+
+    private ResizingFrameTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -208,7 +210,7 @@ public class ResizingFrameTest {
         }
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
 
         frame = new JFrame("Main Frame");
         frame.setSize(300, 200);

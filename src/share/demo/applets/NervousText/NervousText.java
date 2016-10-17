@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -58,12 +57,12 @@ public class NervousText extends Applet implements Runnable, MouseListener {
   static final int SMALL_WD = 12;
   static final int SMALL_HT = 24;
   String banner;              // The text to be displayed
-  char bannerChars[];         // The same text as an array of characters
-  char attributes[];          // Character attributes ('^' for superscript)
-  Thread runner = null;       // The thread that is displaying the text
+  char[] bannerChars;         // The same text as an array of characters
+  char[] attributes;          // Character attributes ('^' for superscript)
+  Thread runner;       // The thread that is displaying the text
   boolean threadSuspended;    // True when thread suspended (via mouse click)
-  Font regularFont = new Font("Serif", Font.BOLD, REGULAR_HT);
-  Font smallFont = new Font("Serif", Font.BOLD, SMALL_HT);
+  final Font regularFont = new Font(Font.SERIF, Font.BOLD, REGULAR_HT);
+  final Font smallFont = new Font(Font.SERIF, Font.BOLD, SMALL_HT);
 
   @Override
   public void init() {
@@ -196,8 +195,7 @@ public class NervousText extends Applet implements Runnable, MouseListener {
 
   @Override
   public String[][] getParameterInfo() {
-    String pinfo[][] = {
+    return new String[][]{
         {"text", "string", "Text to display"},};
-    return pinfo;
   }
 }

@@ -39,9 +39,9 @@ import sun.java2d.SurfaceData;
  * from within the surface description data for clip rect
  */
 public class DrawLine extends GraphicsPrimitive {
-  public final static String methodSignature = "DrawLine(...)".toString();
+  public static final String methodSignature = "DrawLine(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected DrawLine(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -59,8 +59,11 @@ public class DrawLine extends GraphicsPrimitive {
   /**
    * All DrawLine implementors must have this invoker method
    */
-  public native void DrawLine(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int x2, int y2);
+  public void DrawLine(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int x2, int y2) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: use FillSpans or converter object?
@@ -68,23 +71,26 @@ public class DrawLine extends GraphicsPrimitive {
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawLine(this);
   }
 
   private static class TraceDrawLine extends DrawLine {
-    DrawLine target;
+    final DrawLine target;
 
     public TraceDrawLine(DrawLine target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawLine(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int x2, int y2) {
       tracePrimitive(target);
       target.DrawLine(sg2d, dest, x1, y1, x2, y2);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

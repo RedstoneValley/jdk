@@ -25,18 +25,18 @@
 
 package java.awt;
 
-import java.beans.ConstructorProperties;
-import java.lang.annotation.Native;
+import java.util.Arrays;
+import sun.java2d.pipe.RenderingEngine;
 
 /**
- * The <code>BasicStroke</code> class defines a basic set of rendering
+ * The {@code BasicStroke} class defines a basic set of rendering
  * attributes for the outlines of graphics primitives, which are rendered
  * with a {@link Graphics2D} object that has its Stroke attribute set to
- * this <code>BasicStroke</code>.
- * The rendering attributes defined by <code>BasicStroke</code> describe
+ * this {@code BasicStroke}.
+ * The rendering attributes defined by {@code BasicStroke} describe
  * the shape of the mark made by a pen drawn along the outline of a
  * {@link Shape} and the decorations applied at the ends and joins of
- * path segments of the <code>Shape</code>.
+ * path segments of the {@code Shape}.
  * These rendering attributes include:
  * <dl>
  * <dt><i>width</i>
@@ -72,20 +72,20 @@ import java.lang.annotation.Native;
  * </dl>
  * All attributes that specify measurements and distances controlling
  * the shape of the returned outline are measured in the same
- * coordinate system as the original unstroked <code>Shape</code>
- * argument.  When a <code>Graphics2D</code> object uses a
- * <code>Stroke</code> object to redefine a path during the execution
- * of one of its <code>draw</code> methods, the geometry is supplied
- * in its original form before the <code>Graphics2D</code> transform
+ * coordinate system as the original unstroked {@code Shape}
+ * argument.  When a {@code Graphics2D} object uses a
+ * {@code Stroke} object to redefine a path during the execution
+ * of one of its {@code draw} methods, the geometry is supplied
+ * in its original form before the {@code Graphics2D} transform
  * attribute is applied.  Therefore, attributes such as the pen width
  * are interpreted in the user space coordinate system of the
- * <code>Graphics2D</code> object and are subject to the scaling and
+ * {@code Graphics2D} object and are subject to the scaling and
  * shearing effects of the user-space-to-device-space transform in that
- * particular <code>Graphics2D</code>.
+ * particular {@code Graphics2D}.
  * For example, the width of a rendered shape's outline is determined
- * not only by the width attribute of this <code>BasicStroke</code>,
+ * not only by the width attribute of this {@code BasicStroke},
  * but also by the transform attribute of the
- * <code>Graphics2D</code> object.  Consider this code:
+ * {@code Graphics2D} object.  Consider this code:
  * <blockquote><tt>
  * // sets the Graphics2D object's Transform attribute
  * g2d.scale(10, 10);
@@ -93,11 +93,11 @@ import java.lang.annotation.Native;
  * g2d.setStroke(new BasicStroke(1.5f));
  * </tt></blockquote>
  * Assuming there are no other scaling transforms added to the
- * <code>Graphics2D</code> object, the resulting line
+ * {@code Graphics2D} object, the resulting line
  * will be approximately 15 pixels wide.
  * As the example code demonstrates, a floating-point line
  * offers better precision, especially when large transforms are
- * used with a <code>Graphics2D</code> object.
+ * used with a {@code Graphics2D} object.
  * When a line is diagonal, the exact width depends on how the
  * rendering pipeline chooses which pixels to fill as it traces the
  * theoretical widened outline.  The choice of which pixels to turn
@@ -106,7 +106,7 @@ import java.lang.annotation.Native;
  * partially-covered pixels.
  * <p>
  * For more information on the user space coordinate system and the
- * rendering process, see the <code>Graphics2D</code> class comments.
+ * rendering process, see the {@code Graphics2D} class comments.
  *
  * @author Jim Graham
  * @see Graphics2D
@@ -117,39 +117,39 @@ public class BasicStroke implements Stroke {
    * Joins path segments by extending their outside edges until
    * they meet.
    */
-  @Native public final static int JOIN_MITER = 0;
+  public static final int JOIN_MITER = 0;
 
   /**
    * Joins path segments by rounding off the corner at a radius
    * of half the line width.
    */
-  @Native public final static int JOIN_ROUND = 1;
+  public static final int JOIN_ROUND = 1;
 
   /**
    * Joins path segments by connecting the outer corners of their
    * wide outlines with a straight segment.
    */
-  @Native public final static int JOIN_BEVEL = 2;
+  public static final int JOIN_BEVEL = 2;
 
   /**
    * Ends unclosed subpaths and dash segments with no added
    * decoration.
    */
-  @Native public final static int CAP_BUTT = 0;
+  public static final int CAP_BUTT = 0;
 
   /**
    * Ends unclosed subpaths and dash segments with a round
    * decoration that has a radius equal to half of the width
    * of the pen.
    */
-  @Native public final static int CAP_ROUND = 1;
+  public static final int CAP_ROUND = 1;
 
   /**
    * Ends unclosed subpaths and dash segments with a square
    * projection that extends beyond the end of the segment
    * to a distance equal to half of the line width.
    */
-  @Native public final static int CAP_SQUARE = 2;
+  public static final int CAP_SQUARE = 2;
 
   float width;
 
@@ -157,41 +157,41 @@ public class BasicStroke implements Stroke {
   int cap;
   float miterlimit;
 
-  float dash[];
+  float[] dash;
   float dash_phase;
 
   /**
-   * Constructs a new <code>BasicStroke</code> with the specified
+   * Constructs a new {@code BasicStroke} with the specified
    * attributes.
    *
-   * @param width      the width of this <code>BasicStroke</code>.  The
+   * @param width      the width of this {@code BasicStroke}.  The
    *                   width must be greater than or equal to 0.0f.  If width is
    *                   set to 0.0f, the stroke is rendered as the thinnest
    *                   possible line for the target device and the antialias
    *                   hint setting.
-   * @param cap        the decoration of the ends of a <code>BasicStroke</code>
+   * @param cap        the decoration of the ends of a {@code BasicStroke}
    * @param join       the decoration applied where path segments meet
    * @param miterlimit the limit to trim the miter join.  The miterlimit
    *                   must be greater than or equal to 1.0f.
    * @param dash       the array representing the dashing pattern
    * @param dash_phase the offset to start the dashing pattern
-   * @throws IllegalArgumentException if <code>width</code> is negative
-   * @throws IllegalArgumentException if <code>cap</code> is not either
+   * @throws IllegalArgumentException if {@code width} is negative
+   * @throws IllegalArgumentException if {@code cap} is not either
    *                                  CAP_BUTT, CAP_ROUND or CAP_SQUARE
-   * @throws IllegalArgumentException if <code>miterlimit</code> is less
-   *                                  than 1 and <code>join</code> is JOIN_MITER
-   * @throws IllegalArgumentException if <code>join</code> is not
+   * @throws IllegalArgumentException if {@code miterlimit} is less
+   *                                  than 1 and {@code join} is JOIN_MITER
+   * @throws IllegalArgumentException if {@code join} is not
    *                                  either JOIN_ROUND, JOIN_BEVEL, or JOIN_MITER
-   * @throws IllegalArgumentException if <code>dash_phase</code>
-   *                                  is negative and <code>dash</code> is not <code>null</code>
+   * @throws IllegalArgumentException if {@code dash_phase}
+   *                                  is negative and {@code dash} is not {@code null}
    * @throws IllegalArgumentException if the length of
-   *                                  <code>dash</code> is zero
+   *                                  {@code dash} is zero
    * @throws IllegalArgumentException if dash lengths are all zero.
    */
   @ConstructorProperties(
       {"lineWidth", "endCap", "lineJoin", "miterLimit", "dashArray", "dashPhase"})
   public BasicStroke(
-      float width, int cap, int join, float miterlimit, float dash[], float dash_phase) {
+      float width, int cap, int join, float miterlimit, float[] dash, float dash_phase) {
     if (width < 0.0f) {
       throw new IllegalArgumentException("negative width");
     }
@@ -210,8 +210,7 @@ public class BasicStroke implements Stroke {
         throw new IllegalArgumentException("negative dash phase");
       }
       boolean allzero = true;
-      for (int i = 0; i < dash.length; i++) {
-        float d = dash[i];
+      for (float d : dash) {
         if (d > 0.0) {
           allzero = false;
         } else if (d < 0.0) {
@@ -227,25 +226,25 @@ public class BasicStroke implements Stroke {
     this.join = join;
     this.miterlimit = miterlimit;
     if (dash != null) {
-      this.dash = (float[]) dash.clone();
+      this.dash = dash.clone();
     }
     this.dash_phase = dash_phase;
   }
 
   /**
-   * Constructs a solid <code>BasicStroke</code> with the specified
+   * Constructs a solid {@code BasicStroke} with the specified
    * attributes.
    *
-   * @param width      the width of the <code>BasicStroke</code>
-   * @param cap        the decoration of the ends of a <code>BasicStroke</code>
+   * @param width      the width of the {@code BasicStroke}
+   * @param cap        the decoration of the ends of a {@code BasicStroke}
    * @param join       the decoration applied where path segments meet
    * @param miterlimit the limit to trim the miter join
-   * @throws IllegalArgumentException if <code>width</code> is negative
-   * @throws IllegalArgumentException if <code>cap</code> is not either
+   * @throws IllegalArgumentException if {@code width} is negative
+   * @throws IllegalArgumentException if {@code cap} is not either
    *                                  CAP_BUTT, CAP_ROUND or CAP_SQUARE
-   * @throws IllegalArgumentException if <code>miterlimit</code> is less
-   *                                  than 1 and <code>join</code> is JOIN_MITER
-   * @throws IllegalArgumentException if <code>join</code> is not
+   * @throws IllegalArgumentException if {@code miterlimit} is less
+   *                                  than 1 and {@code join} is JOIN_MITER
+   * @throws IllegalArgumentException if {@code join} is not
    *                                  either JOIN_ROUND, JOIN_BEVEL, or JOIN_MITER
    */
   public BasicStroke(float width, int cap, int join, float miterlimit) {
@@ -253,65 +252,66 @@ public class BasicStroke implements Stroke {
   }
 
   /**
-   * Constructs a solid <code>BasicStroke</code> with the specified
-   * attributes.  The <code>miterlimit</code> parameter is
+   * Constructs a solid {@code BasicStroke} with the specified
+   * attributes.  The {@code miterlimit} parameter is
    * unnecessary in cases where the default is allowable or the
    * line joins are not specified as JOIN_MITER.
    *
-   * @param width the width of the <code>BasicStroke</code>
-   * @param cap   the decoration of the ends of a <code>BasicStroke</code>
+   * @param width the width of the {@code BasicStroke}
+   * @param cap   the decoration of the ends of a {@code BasicStroke}
    * @param join  the decoration applied where path segments meet
-   * @throws IllegalArgumentException if <code>width</code> is negative
-   * @throws IllegalArgumentException if <code>cap</code> is not either
+   * @throws IllegalArgumentException if {@code width} is negative
+   * @throws IllegalArgumentException if {@code cap} is not either
    *                                  CAP_BUTT, CAP_ROUND or CAP_SQUARE
-   * @throws IllegalArgumentException if <code>join</code> is not
+   * @throws IllegalArgumentException if {@code join} is not
    *                                  either JOIN_ROUND, JOIN_BEVEL, or JOIN_MITER
    */
   public BasicStroke(float width, int cap, int join) {
-    this(width, cap, join, 10.0f, null, 0.0f);
+    this(width, cap, join, SkinJob.defaultMiterLimit, null, 0.0f);
   }
 
   /**
-   * Constructs a solid <code>BasicStroke</code> with the specified
+   * Constructs a solid {@code BasicStroke} with the specified
    * line width and with default values for the cap and join
    * styles.
    *
-   * @param width the width of the <code>BasicStroke</code>
-   * @throws IllegalArgumentException if <code>width</code> is negative
+   * @param width the width of the {@code BasicStroke}
+   * @throws IllegalArgumentException if {@code width} is negative
    */
   public BasicStroke(float width) {
-    this(width, CAP_SQUARE, JOIN_MITER, 10.0f, null, 0.0f);
+    this(width, CAP_SQUARE, JOIN_MITER, SkinJob.defaultMiterLimit, null, 0.0f);
   }
 
   /**
-   * Constructs a new <code>BasicStroke</code> with defaults for all
+   * Constructs a new {@code BasicStroke} with defaults for all
    * attributes.
    * The default attributes are a solid line of width 1.0, CAP_SQUARE,
-   * JOIN_MITER, a miter limit of 10.0.
+   * JOIN_MITER, a miter limit of {@link SkinJob#defaultMiterLimit}.
    */
   public BasicStroke() {
-    this(1.0f, CAP_SQUARE, JOIN_MITER, 10.0f, null, 0.0f);
+    this(1.0f, CAP_SQUARE, JOIN_MITER, SkinJob.defaultMiterLimit, null, 0.0f);
   }
 
   /**
-   * Returns a <code>Shape</code> whose interior defines the
-   * stroked outline of a specified <code>Shape</code>.
+   * Returns a {@code Shape} whose interior defines the
+   * stroked outline of a specified {@code Shape}.
    *
-   * @param s the <code>Shape</code> boundary be stroked
-   * @return the <code>Shape</code> of the stroked outline.
+   * @param s the {@code Shape} boundary be stroked
+   * @return the {@code Shape} of the stroked outline.
    */
+  @Override
   public Shape createStrokedShape(Shape s) {
-    sun.java2d.pipe.RenderingEngine re = sun.java2d.pipe.RenderingEngine.getInstance();
+    RenderingEngine re = RenderingEngine.getInstance();
     return re.createStrokedShape(s, width, cap, join, miterlimit, dash, dash_phase);
   }
 
   /**
    * Returns the line width.  Line width is represented in user space,
    * which is the default-coordinate space used by Java 2D.  See the
-   * <code>Graphics2D</code> class comments for more information on
+   * {@code Graphics2D} class comments for more information on
    * the user space coordinate system.
    *
-   * @return the line width of this <code>BasicStroke</code>.
+   * @return the line width of this {@code BasicStroke}.
    * @see Graphics2D
    */
   public float getLineWidth() {
@@ -321,8 +321,8 @@ public class BasicStroke implements Stroke {
   /**
    * Returns the end cap style.
    *
-   * @return the end cap style of this <code>BasicStroke</code> as one
-   * of the static <code>int</code> values that define possible end cap
+   * @return the end cap style of this {@code BasicStroke} as one
+   * of the static {@code int} values that define possible end cap
    * styles.
    */
   public int getEndCap() {
@@ -332,8 +332,8 @@ public class BasicStroke implements Stroke {
   /**
    * Returns the line join style.
    *
-   * @return the line join style of the <code>BasicStroke</code> as one
-   * of the static <code>int</code> values that define possible line
+   * @return the line join style of the {@code BasicStroke} as one
+   * of the static {@code int} values that define possible line
    * join styles.
    */
   public int getLineJoin() {
@@ -343,7 +343,7 @@ public class BasicStroke implements Stroke {
   /**
    * Returns the limit of miter joins.
    *
-   * @return the limit of miter joins of the <code>BasicStroke</code>.
+   * @return the limit of miter joins of the {@code BasicStroke}.
    */
   public float getMiterLimit() {
     return miterlimit;
@@ -353,7 +353,7 @@ public class BasicStroke implements Stroke {
    * Returns the array representing the lengths of the dash segments.
    * Alternate entries in the array represent the user space lengths
    * of the opaque and transparent segments of the dashes.
-   * As the pen moves along the outline of the <code>Shape</code>
+   * As the pen moves along the outline of the {@code Shape}
    * to be stroked, the user space
    * distance that the pen travels is accumulated.  The distance
    * value is used to index into the dash array.
@@ -367,7 +367,7 @@ public class BasicStroke implements Stroke {
       return null;
     }
 
-    return (float[]) dash.clone();
+    return dash.clone();
   }
 
   /**
@@ -377,7 +377,7 @@ public class BasicStroke implements Stroke {
    * phase defines the point in the dashing pattern that will correspond to
    * the beginning of the stroke.
    *
-   * @return the dash phase as a <code>float</code> value.
+   * @return the dash phase as a {@code float} value.
    */
   public float getDashPhase() {
     return dash_phase;
@@ -388,6 +388,7 @@ public class BasicStroke implements Stroke {
    *
    * @return a hash code for this stroke.
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
     int hash = Float.floatToIntBits(width);
     hash = hash * 31 + join;
@@ -395,29 +396,30 @@ public class BasicStroke implements Stroke {
     hash = hash * 31 + Float.floatToIntBits(miterlimit);
     if (dash != null) {
       hash = hash * 31 + Float.floatToIntBits(dash_phase);
-      for (int i = 0; i < dash.length; i++) {
-        hash = hash * 31 + Float.floatToIntBits(dash[i]);
+      for (float aDash : dash) {
+        hash = hash * 31 + Float.floatToIntBits(aDash);
       }
     }
     return hash;
   }
 
-  /**
-   * Returns true if this BasicStroke represents the same
-   * stroking operation as the given argument.
+  /*
+    Returns true if this BasicStroke represents the same
+    stroking operation as the given argument.
    */
   /**
-   * Tests if a specified object is equal to this <code>BasicStroke</code>
-   * by first testing if it is a <code>BasicStroke</code> and then comparing
+   * Tests if a specified object is equal to this {@code BasicStroke}
+   * by first testing if it is a {@code BasicStroke} and then comparing
    * its width, join, cap, miter limit, dash, and dash phase attributes with
-   * those of this <code>BasicStroke</code>.
+   * those of this {@code BasicStroke}.
    *
    * @param obj the specified object to compare to this
-   *            <code>BasicStroke</code>
-   * @return <code>true</code> if the width, join, cap, miter limit, dash, and
+   *            {@code BasicStroke}
+   * @return {@code true} if the width, join, cap, miter limit, dash, and
    * dash phase are the same for both objects;
-   * <code>false</code> otherwise.
+   * {@code false} otherwise.
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object obj) {
     if (!(obj instanceof BasicStroke)) {
       return false;
@@ -445,7 +447,7 @@ public class BasicStroke implements Stroke {
         return false;
       }
 
-      if (!java.util.Arrays.equals(dash, bs.dash)) {
+      if (!Arrays.equals(dash, bs.dash)) {
         return false;
       }
     } else if (bs.dash != null) {

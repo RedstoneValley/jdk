@@ -28,30 +28,31 @@ package sun.awt.geom;
 import java.awt.geom.PathIterator;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 import java.util.Vector;
 
 final class Order3 extends Curve {
-  private double x0;
-  private double y0;
-  private double cx0;
-  private double cy0;
-  private double cx1;
-  private double cy1;
-  private double x1;
-  private double y1;
+  private final double x0;
+  private final double y0;
+  private final double cx0;
+  private final double cy0;
+  private final double cx1;
+  private final double cy1;
+  private final double x1;
+  private final double y1;
 
-  private double xmin;
-  private double xmax;
+  private final double xmin;
+  private final double xmax;
 
-  private double xcoeff0;
-  private double xcoeff1;
-  private double xcoeff2;
-  private double xcoeff3;
+  private final double xcoeff0;
+  private final double xcoeff1;
+  private final double xcoeff2;
+  private final double xcoeff3;
 
-  private double ycoeff0;
-  private double ycoeff1;
-  private double ycoeff2;
-  private double ycoeff3;
+  private final double ycoeff0;
+  private final double ycoeff1;
+  private final double ycoeff2;
+  private final double ycoeff3;
   private double TforY1;
   private double YforT1;
   private double TforY2;
@@ -94,7 +95,7 @@ final class Order3 extends Curve {
   }
 
   public static void insert(
-      Vector curves, double tmp[], double x0, double y0, double cx0, double cy0, double cx1,
+      Vector curves, double[] tmp, double x0, double y0, double cx0, double cy0, double cx1,
       double cy1, double x1, double y1, int direction) {
     int numparams = getHorizontalParams(y0, cy0, cy1, y1, tmp);
     if (numparams == 0) {
@@ -131,7 +132,7 @@ final class Order3 extends Curve {
     }
     while (numparams >= 0) {
       addInstance(curves,
-          tmp[index + 0],
+          tmp[index],
           tmp[index + 1],
           tmp[index + 2],
           tmp[index + 3],
@@ -150,7 +151,7 @@ final class Order3 extends Curve {
   }
 
   public static void addInstance(
-      Vector curves, double x0, double y0, double cx0, double cy0, double cx1, double cy1,
+      List curves, double x0, double y0, double cx0, double cy0, double cx1, double cy1,
       double x1, double y1, int direction) {
     if (y0 > y1) {
       curves.add(new Order3(x1, y1, cx1, cy1, cx0, cy0, x0, y0, -direction));
@@ -198,7 +199,7 @@ final class Order3 extends Curve {
    * means outside of this method.
    */
   public static int getHorizontalParams(
-      double c0, double cp0, double cp1, double c1, double ret[]) {
+      double c0, double cp0, double cp1, double c1, double[] ret) {
     if (c0 <= cp0 && cp0 <= cp1 && cp1 <= c1) {
       return 0;
     }
@@ -207,7 +208,7 @@ final class Order3 extends Curve {
     cp0 -= c0;
     ret[0] = cp0;
     ret[1] = (cp1 - cp0) * 2;
-    ret[2] = (c1 - cp1 - cp1 + cp0);
+    ret[2] = c1 - cp1 - cp1 + cp0;
     int numroots = QuadCurve2D.solveQuadratic(ret, ret);
     int j = 0;
     for (int i = 0; i < numroots; i++) {
@@ -229,7 +230,7 @@ final class Order3 extends Curve {
    * parametric subranges [0..t] and [t..1].  Store the results back
    * into the array at coords[pos...pos+7] and coords[pos+6...pos+13].
    */
-  public static void split(double coords[], int pos, double t) {
+  public static void split(double[] coords, int pos, double t) {
     double x0, y0, cx0, cy0, cx1, cy1, x1, y1;
     coords[pos + 12] = x1 = coords[pos + 6];
     coords[pos + 13] = y1 = coords[pos + 7];
@@ -237,14 +238,14 @@ final class Order3 extends Curve {
     cy1 = coords[pos + 5];
     x1 = cx1 + (x1 - cx1) * t;
     y1 = cy1 + (y1 - cy1) * t;
-    x0 = coords[pos + 0];
+    x0 = coords[pos];
     y0 = coords[pos + 1];
     cx0 = coords[pos + 2];
     cy0 = coords[pos + 3];
-    x0 = x0 + (cx0 - x0) * t;
-    y0 = y0 + (cy0 - y0) * t;
-    cx0 = cx0 + (cx1 - cx0) * t;
-    cy0 = cy0 + (cy1 - cy0) * t;
+    x0 += (cx0 - x0) * t;
+    y0 += (cy0 - y0) * t;
+    cx0 += (cx1 - cx0) * t;
+    cy0 += (cy1 - cy0) * t;
     cx1 = cx0 + (x1 - cx0) * t;
     cy1 = cy0 + (y1 - cy0) * t;
     cx0 = x0 + (cx0 - x0) * t;
@@ -262,19 +263,19 @@ final class Order3 extends Curve {
   }
 
   public double getCX0() {
-    return (direction == INCREASING) ? cx0 : cx1;
+    return direction == INCREASING ? cx0 : cx1;
   }
 
   public double getCY0() {
-    return (direction == INCREASING) ? cy0 : cy1;
+    return direction == INCREASING ? cy0 : cy1;
   }
 
   public double getCX1() {
-    return (direction == DECREASING) ? cx0 : cx1;
+    return direction == DECREASING ? cx0 : cx1;
   }
 
   public double getCY1() {
-    return (direction == DECREASING) ? cy0 : cy1;
+    return direction == DECREASING ? cy0 : cy1;
   }
 
   public double refine(double a, double b, double c, double target, double t) {
@@ -306,7 +307,7 @@ final class Order3 extends Curve {
           useslope = false;
           continue;
         }
-        double t2 = t + ((target - y) / slope);
+        double t2 = t + (target - y) / slope;
         if (t2 == t || t2 <= t0 || t2 >= t1) {
           useslope = false;
           continue;
@@ -323,12 +324,12 @@ final class Order3 extends Curve {
       }
     }
     boolean verbose = false;
-    if (false && t >= 0 && t <= 1) {
+    if (false) {
       y = YforT(t);
       long tdiff = diffbits(t, origt);
       long ydiff = diffbits(y, origy);
       long yerr = diffbits(y, target);
-      if (yerr > 0 || (verbose && tdiff > 0)) {
+      if (yerr > 0 || verbose && tdiff > 0) {
         System.out.println("target was y = " + target);
         System.out.println("original was y = " + origy + ", t = " + origt);
         System.out.println("final was y = " + y + ", t = " + t);
@@ -345,59 +346,71 @@ final class Order3 extends Curve {
         }
       }
     }
-    return (t > 1) ? -1 : t;
+    return t > 1 ? -1 : t;
   }
 
+  @Override
   public String controlPointString() {
-    return (("(" + round(getCX0()) + ", " + round(getCY0()) + "), ") + ("(" + round(getCX1()) + ", "
-                                                                            + round(getCY1())
-                                                                            + "), "));
+    return "(" + round(getCX0()) + ", " + round(getCY0()) + "), " + "(" + round(getCX1()) + ", "
+        + round(getCY1()) + "), ";
   }
 
+  @Override
   public int getOrder() {
     return 3;
   }
 
+  @Override
   public double getXTop() {
     return x0;
   }
 
+  @Override
   public double getYTop() {
     return y0;
   }
 
+  @Override
   public double getXBot() {
     return x1;
   }
 
+  @Override
   public double getYBot() {
     return y1;
   }
 
+  @Override
   public double getXMin() {
     return xmin;
   }
 
+  @Override
   public double getXMax() {
     return xmax;
   }
 
+  @Override
   public double getX0() {
-    return (direction == INCREASING) ? x0 : x1;
+    return direction == INCREASING ? x0 : x1;
   }
 
+  @Override
   public double getY0() {
-    return (direction == INCREASING) ? y0 : y1;
+    return direction == INCREASING ? y0 : y1;
   }
 
+  @Override
   public double getX1() {
-    return (direction == DECREASING) ? x0 : x1;
+    return direction == DECREASING ? x0 : x1;
   }
 
+  @Override
   public double getY1() {
-    return (direction == DECREASING) ? y0 : y1;
+    return direction == DECREASING ? y0 : y1;
   }
 
+  @Override
   public double XforY(double y) {
     if (y <= y0) {
       return x0;
@@ -415,6 +428,7 @@ final class Order3 extends Curve {
    *     x^3 + (ycoeff2)x^2 + (ycoeff1)x + (ycoeff0) = y
    * @return the first valid root (in the range [0, 1])
    */
+  @Override
   public double TforY(double y) {
     if (y <= y0) {
       return 0;
@@ -457,7 +471,7 @@ final class Order3 extends Curve {
         t = refine(a, b, c, y, Q * Math.cos((theta - Math.PI * 2.0) / 3.0) - a_3);
       }
     } else {
-      boolean neg = (R < 0.0);
+      boolean neg = R < 0.0;
       double S = Math.sqrt(R2 - Q3);
       if (neg) {
         R = -R;
@@ -466,8 +480,8 @@ final class Order3 extends Curve {
       if (!neg) {
         A = -A;
       }
-      double B = (A == 0.0) ? 0.0 : (Q / A);
-      t = refine(a, b, c, y, (A + B) - a_3);
+      double B = A == 0.0 ? 0.0 : Q / A;
+      t = refine(a, b, c, y, A + B - a_3);
     }
     if (t < 0) {
       //throw new InternalError("bad t");
@@ -499,22 +513,25 @@ final class Order3 extends Curve {
     return t;
   }
 
+  @Override
   public double XforT(double t) {
-    return (((xcoeff3 * t) + xcoeff2) * t + xcoeff1) * t + xcoeff0;
+    return ((xcoeff3 * t + xcoeff2) * t + xcoeff1) * t + xcoeff0;
   }
 
+  @Override
   public double YforT(double t) {
-    return (((ycoeff3 * t) + ycoeff2) * t + ycoeff1) * t + ycoeff0;
+    return ((ycoeff3 * t + ycoeff2) * t + ycoeff1) * t + ycoeff0;
   }
 
+  @Override
   public double dXforT(double t, int deriv) {
     switch (deriv) {
       case 0:
-        return (((xcoeff3 * t) + xcoeff2) * t + xcoeff1) * t + xcoeff0;
+        return ((xcoeff3 * t + xcoeff2) * t + xcoeff1) * t + xcoeff0;
       case 1:
-        return ((3 * xcoeff3 * t) + 2 * xcoeff2) * t + xcoeff1;
+        return (3 * xcoeff3 * t + 2 * xcoeff2) * t + xcoeff1;
       case 2:
-        return (6 * xcoeff3 * t) + 2 * xcoeff2;
+        return 6 * xcoeff3 * t + 2 * xcoeff2;
       case 3:
         return 6 * xcoeff3;
       default:
@@ -522,14 +539,15 @@ final class Order3 extends Curve {
     }
   }
 
+  @Override
   public double dYforT(double t, int deriv) {
     switch (deriv) {
       case 0:
-        return (((ycoeff3 * t) + ycoeff2) * t + ycoeff1) * t + ycoeff0;
+        return ((ycoeff3 * t + ycoeff2) * t + ycoeff1) * t + ycoeff0;
       case 1:
-        return ((3 * ycoeff3 * t) + 2 * ycoeff2) * t + ycoeff1;
+        return (3 * ycoeff3 * t + 2 * ycoeff2) * t + ycoeff1;
       case 2:
-        return (6 * ycoeff3 * t) + 2 * ycoeff2;
+        return 6 * ycoeff3 * t + 2 * ycoeff2;
       case 3:
         return 6 * ycoeff3;
       default:
@@ -537,8 +555,9 @@ final class Order3 extends Curve {
     }
   }
 
+  @Override
   public double nextVertical(double t0, double t1) {
-    double eqn[] = {xcoeff1, 2 * xcoeff2, 3 * xcoeff3};
+    double[] eqn = {xcoeff1, 2 * xcoeff2, 3 * xcoeff3};
     int numroots = QuadCurve2D.solveQuadratic(eqn, eqn);
     for (int i = 0; i < numroots; i++) {
       if (eqn[i] > t0 && eqn[i] < t1) {
@@ -548,9 +567,10 @@ final class Order3 extends Curve {
     return t1;
   }
 
+  @Override
   public void enlarge(Rectangle2D r) {
     r.add(x0, y0);
-    double eqn[] = {xcoeff1, 2 * xcoeff2, 3 * xcoeff3};
+    double[] eqn = {xcoeff1, 2 * xcoeff2, 3 * xcoeff3};
     int numroots = QuadCurve2D.solveQuadratic(eqn, eqn);
     for (int i = 0; i < numroots; i++) {
       double t = eqn[i];
@@ -561,15 +581,17 @@ final class Order3 extends Curve {
     r.add(x1, y1);
   }
 
+  @Override
   public Curve getReversedCurve() {
     return new Order3(x0, y0, cx0, cy0, cx1, cy1, x1, y1, -direction);
   }
 
+  @Override
   public Curve getSubCurve(double ystart, double yend, int dir) {
     if (ystart <= y0 && yend >= y1) {
       return getWithDirection(dir);
     }
-    double eqn[] = new double[14];
+    double[] eqn = new double[14];
     double t0, t1;
     t0 = TforY(ystart);
     t1 = TforY(yend);
@@ -610,7 +632,7 @@ final class Order3 extends Curve {
       split(eqn, 0, t0 / t1);
       i = 6;
     }
-    return new Order3(eqn[i + 0],
+    return new Order3(eqn[i],
         ystart,
         eqn[i + 2],
         eqn[i + 3],
@@ -621,7 +643,8 @@ final class Order3 extends Curve {
         dir);
   }
 
-  public int getSegment(double coords[]) {
+  @Override
+  public int getSegment(double[] coords) {
     if (direction == INCREASING) {
       coords[0] = cx0;
       coords[1] = cy0;

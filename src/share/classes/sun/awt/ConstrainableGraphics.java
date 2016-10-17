@@ -48,5 +48,5 @@ public interface ConstrainableGraphics {
    * the object by calling the constrain() method more times, but
    * you can never enlarge its restricted maximum clip.
    */
-  public void constrain(int x, int y, int w, int h);
+  void constrain(int x, int y, int w, int h);
 }

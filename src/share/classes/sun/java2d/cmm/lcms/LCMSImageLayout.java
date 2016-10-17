@@ -50,7 +50,7 @@ class LCMSImageLayout {
   public static final int DT_SHORT = 1;
   public static final int DT_INT = 2;
   public static final int DT_DOUBLE = 3;
-  boolean isIntPacked = false;
+  boolean isIntPacked;
   int pixelType;
   int dataType;
   int width;
@@ -63,7 +63,7 @@ class LCMSImageLayout {
    * at once by doTransfrom() native call. Otherwise, the
    * image is processed scan by scan.
    */
-  private boolean imageAtOnce = false;
+  private boolean imageAtOnce;
   private int dataArrayLength; /* in bytes */
 
   private LCMSImageLayout(int np, int pixelType, int pixelSize) throws ImageLayoutException {
@@ -301,7 +301,7 @@ class LCMSImageLayout {
       l.pixelType = CHANNELS_SH(br.getNumBands()) | BYTES_SH(1);
 
       int[] bandOffsets = csm.getBandOffsets();
-      BandOrder order = BandOrder.getBandOrder(bandOffsets);
+      BandOrder order = getBandOrder(bandOffsets);
 
       int firstBand = 0;
       switch (order) {
@@ -349,11 +349,42 @@ class LCMSImageLayout {
    * @return number of bytes per pixel for given pixel format.
    */
   private static int getBytesPerPixel(int pixelType) {
-    int bytesPerSample = (0x7 & pixelType);
-    int colorSamplesPerPixel = 0xF & (pixelType >> 3);
-    int extraSamplesPerPixel = 0x7 & (pixelType >> 7);
+    int bytesPerSample = 0x7 & pixelType;
+    int colorSamplesPerPixel = 0xF & pixelType >> 3;
+    int extraSamplesPerPixel = 0x7 & pixelType >> 7;
 
     return bytesPerSample * (colorSamplesPerPixel + extraSamplesPerPixel);
+  }
+
+  public static BandOrder getBandOrder(int[] bandOffsets) {
+    BandOrder order = BandOrder.UNKNOWN;
+
+    int numBands = bandOffsets.length;
+
+    for (int i = 0; order != BandOrder.ARBITRARY && i < bandOffsets.length; i++) {
+      switch (order) {
+        case UNKNOWN:
+          if (bandOffsets[i] == i) {
+            order = BandOrder.DIRECT;
+          } else if (bandOffsets[i] == numBands - 1 - i) {
+            order = BandOrder.INVERTED;
+          } else {
+            order = BandOrder.ARBITRARY;
+          }
+          break;
+        case DIRECT:
+          if (bandOffsets[i] != i) {
+            order = BandOrder.ARBITRARY;
+          }
+          break;
+        case INVERTED:
+          if (bandOffsets[i] != numBands - 1 - i) {
+            order = BandOrder.ARBITRARY;
+          }
+          break;
+      }
+    }
+    return order;
   }
 
   private void verify() throws ImageLayoutException {
@@ -366,9 +397,9 @@ class LCMSImageLayout {
       throw new ImageLayoutException("Invalid image layout");
     }
 
-    int lastScanOffset = safeMult(nextRowOffset, (height - 1));
+    int lastScanOffset = safeMult(nextRowOffset, height - 1);
 
-    int lastPixelOffset = safeMult(nextPixelOffset, (width - 1));
+    int lastPixelOffset = safeMult(nextPixelOffset, width - 1);
 
     lastPixelOffset = safeAdd(lastPixelOffset, lastScanOffset);
 
@@ -379,45 +410,17 @@ class LCMSImageLayout {
     }
   }
 
-  private static enum BandOrder {
+  private enum BandOrder {
     DIRECT,
     INVERTED,
     ARBITRARY,
     UNKNOWN;
 
-    public static BandOrder getBandOrder(int[] bandOffsets) {
-      BandOrder order = UNKNOWN;
-
-      int numBands = bandOffsets.length;
-
-      for (int i = 0; (order != ARBITRARY) && (i < bandOffsets.length); i++) {
-        switch (order) {
-          case UNKNOWN:
-            if (bandOffsets[i] == i) {
-              order = DIRECT;
-            } else if (bandOffsets[i] == (numBands - 1 - i)) {
-              order = INVERTED;
-            } else {
-              order = ARBITRARY;
-            }
-            break;
-          case DIRECT:
-            if (bandOffsets[i] != i) {
-              order = ARBITRARY;
-            }
-            break;
-          case INVERTED:
-            if (bandOffsets[i] != (numBands - 1 - i)) {
-              order = ARBITRARY;
-            }
-            break;
-        }
-      }
-      return order;
-    }
   }
 
   public static class ImageLayoutException extends Exception {
+    private static final long serialVersionUID = 1433987366891634577L;
+
     public ImageLayoutException(String message) {
       super(message);
     }

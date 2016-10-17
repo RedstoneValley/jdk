@@ -30,7 +30,7 @@ package sun.java2d.pipe;
  * of a region object.
  */
 public class RegionIterator {
-  Region region;
+  final Region region;
   int curIndex;
   int numXbands;
 
@@ -45,8 +45,8 @@ public class RegionIterator {
    */
   public RegionIterator createCopy() {
     RegionIterator r = new RegionIterator(region);
-    r.curIndex = this.curIndex;
-    r.numXbands = this.numXbands;
+    r.curIndex = curIndex;
+    r.numXbands = numXbands;
     return r;
   }
 
@@ -56,11 +56,11 @@ public class RegionIterator {
    * branches from the current position.
    */
   public void copyStateFrom(RegionIterator ri) {
-    if (this.region != ri.region) {
+    if (region != ri.region) {
       throw new InternalError("region mismatch");
     }
-    this.curIndex = ri.curIndex;
-    this.numXbands = ri.numXbands;
+    curIndex = ri.curIndex;
+    numXbands = ri.numXbands;
   }
 
   /**
@@ -69,15 +69,18 @@ public class RegionIterator {
    * and recording the low and high Y coordinates of the
    * range in the array at locations 1 and 3 respectively.
    */
-  public boolean nextYRange(int range[]) {
-    curIndex += numXbands * 2;
+  public boolean nextYRange(int[] range) {
+    curIndex += numXbands << 1;
     numXbands = 0;
     if (curIndex >= region.endIndex) {
       return false;
     }
-    range[1] = region.bands[curIndex++];
-    range[3] = region.bands[curIndex++];
-    numXbands = region.bands[curIndex++];
+    range[1] = region.bands[curIndex];
+    curIndex++;
+    range[3] = region.bands[curIndex];
+    curIndex++;
+    numXbands = region.bands[curIndex];
+    curIndex++;
     return true;
   }
 
@@ -87,13 +90,15 @@ public class RegionIterator {
    * found and recording the low and high X coordinates of
    * the range in the array at locations 0 and 2 respectively.
    */
-  public boolean nextXBand(int range[]) {
+  public boolean nextXBand(int[] range) {
     if (numXbands <= 0) {
       return false;
     }
     numXbands--;
-    range[0] = region.bands[curIndex++];
-    range[2] = region.bands[curIndex++];
+    range[0] = region.bands[curIndex];
+    curIndex++;
+    range[2] = region.bands[curIndex];
+    curIndex++;
     return true;
   }
 }

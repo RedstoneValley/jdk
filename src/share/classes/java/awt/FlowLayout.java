@@ -26,20 +26,21 @@ package java.awt;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.Serializable;
 
 /**
  * A flow layout arranges components in a directional flow, much
  * like lines of text in a paragraph. The flow direction is
- * determined by the container's <code>componentOrientation</code>
+ * determined by the container's {@code componentOrientation}
  * property and may be one of two values:
  * <ul>
- * <li><code>ComponentOrientation.LEFT_TO_RIGHT</code>
- * <li><code>ComponentOrientation.RIGHT_TO_LEFT</code>
+ * <li>{@code ComponentOrientation.LEFT_TO_RIGHT}
+ * <li>{@code ComponentOrientation.RIGHT_TO_LEFT}
  * </ul>
  * Flow layouts are typically used
  * to arrange buttons in a panel. It arranges buttons
  * horizontally until no more buttons fit on the same line.
- * The line alignment is determined by the <code>align</code>
+ * The line alignment is determined by the {@code align}
  * property. The possible values are:
  * <ul>
  * <li>{@link #LEFT LEFT}
@@ -82,7 +83,7 @@ import java.io.ObjectInputStream;
  * @see ComponentOrientation
  * @since JDK1.0
  */
-public class FlowLayout implements LayoutManager, java.io.Serializable {
+public class FlowLayout implements LayoutManager, Serializable {
 
   /**
    * This value indicates that each row of components
@@ -107,8 +108,8 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * should be justified to the leading edge of the container's
    * orientation, for example, to the left in left-to-right orientations.
    *
-   * @see java.awt.Component#getComponentOrientation
-   * @see java.awt.ComponentOrientation
+   * @see Component#getComponentOrientation
+   * @see ComponentOrientation
    * @since 1.2
    */
   public static final int LEADING = 3;
@@ -118,8 +119,8 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * should be justified to the trailing edge of the container's
    * orientation, for example, to the right in left-to-right orientations.
    *
-   * @see java.awt.Component#getComponentOrientation
-   * @see java.awt.ComponentOrientation
+   * @see Component#getComponentOrientation
+   * @see ComponentOrientation
    * @since 1.2
    */
   public static final int TRAILING = 4;
@@ -134,13 +135,13 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   //
   private static final int currentSerialVersion = 1;
   /**
-   * <code>align</code> is the property that determines
+   * {@code align} is the property that determines
    * how each row distributes empty space.
    * It can be one of the following values:
    * <ul>
-   * <li><code>LEFT</code>
-   * <li><code>RIGHT</code>
-   * <li><code>CENTER</code>
+   * <li>{@code LEFT}
+   * <li>{@code RIGHT}
+   * <li>{@code CENTER}
    * </ul>
    *
    * @serial
@@ -149,16 +150,16 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    */
   int align;          // This is for 1.1 serialization compatibility
   /**
-   * <code>newAlign</code> is the property that determines
+   * {@code newAlign} is the property that determines
    * how each row distributes empty space for the Java 2 platform,
    * v1.2 and greater.
    * It can be one of the following three values:
    * <ul>
-   * <li><code>LEFT</code>
-   * <li><code>RIGHT</code>
-   * <li><code>CENTER</code>
-   * <li><code>LEADING</code>
-   * <li><code>TRAILING</code>
+   * <li>{@code LEFT}
+   * <li>{@code RIGHT}
+   * <li>{@code CENTER}
+   * <li>{@code LEADING}
+   * <li>{@code TRAILING}
    * </ul>
    *
    * @serial
@@ -172,7 +173,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * components with gaps.  The horizontal gap will
    * specify the space between components and between
    * the components and the borders of the
-   * <code>Container</code>.
+   * {@code Container}.
    *
    * @serial
    * @see #getHgap()
@@ -183,7 +184,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * The flow layout manager allows a seperation of
    * components with gaps.  The vertical gap will
    * specify the space between rows and between the
-   * the rows and the borders of the <code>Container</code>.
+   * the rows and the borders of the {@code Container}.
    *
    * @serial
    * @see #getHgap()
@@ -195,10 +196,10 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    */
   private boolean alignOnBaseline;
   /**
-   * This represent the <code>currentSerialVersion</code>
+   * This represent the {@code currentSerialVersion}
    * which is bein used.  It will be one of two values :
-   * <code>0</code> versions before Java 2 platform v1.2..
-   * <code>1</code> versions after  Java 2 platform v1.2..
+   * {@code 0} versions before Java 2 platform v1.2..
+   * {@code 1} versions after  Java 2 platform v1.2..
    *
    * @serial
    * @since 1.2
@@ -206,7 +207,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   private int serialVersionOnStream = currentSerialVersion;
 
   /**
-   * Constructs a new <code>FlowLayout</code> with a centered alignment and a
+   * Constructs a new {@code FlowLayout} with a centered alignment and a
    * default 5-unit horizontal and vertical gap.
    */
   public FlowLayout() {
@@ -214,12 +215,12 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   }
 
   /**
-   * Constructs a new <code>FlowLayout</code> with the specified
+   * Constructs a new {@code FlowLayout} with the specified
    * alignment and a default 5-unit horizontal and vertical gap.
    * The value of the alignment argument must be one of
-   * <code>FlowLayout.LEFT</code>, <code>FlowLayout.RIGHT</code>,
-   * <code>FlowLayout.CENTER</code>, <code>FlowLayout.LEADING</code>,
-   * or <code>FlowLayout.TRAILING</code>.
+   * {@code FlowLayout.LEFT}, {@code FlowLayout.RIGHT},
+   * {@code FlowLayout.CENTER}, {@code FlowLayout.LEADING},
+   * or {@code FlowLayout.TRAILING}.
    *
    * @param align the alignment value
    */
@@ -232,17 +233,17 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * and the indicated horizontal and vertical gaps.
    * <p>
    * The value of the alignment argument must be one of
-   * <code>FlowLayout.LEFT</code>, <code>FlowLayout.RIGHT</code>,
-   * <code>FlowLayout.CENTER</code>, <code>FlowLayout.LEADING</code>,
-   * or <code>FlowLayout.TRAILING</code>.
+   * {@code FlowLayout.LEFT}, {@code FlowLayout.RIGHT},
+   * {@code FlowLayout.CENTER}, {@code FlowLayout.LEADING},
+   * or {@code FlowLayout.TRAILING}.
    *
    * @param align the alignment value
    * @param hgap  the horizontal gap between components
    *              and between the components and the
-   *              borders of the <code>Container</code>
+   *              borders of the {@code Container}
    * @param vgap  the vertical gap between components
    *              and between the components and the
-   *              borders of the <code>Container</code>
+   *              borders of the {@code Container}
    */
   public FlowLayout(int align, int hgap, int vgap) {
     this.hgap = hgap;
@@ -252,13 +253,13 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
 
   /**
    * Gets the alignment for this layout.
-   * Possible values are <code>FlowLayout.LEFT</code>,
-   * <code>FlowLayout.RIGHT</code>, <code>FlowLayout.CENTER</code>,
-   * <code>FlowLayout.LEADING</code>,
-   * or <code>FlowLayout.TRAILING</code>.
+   * Possible values are {@code FlowLayout.LEFT},
+   * {@code FlowLayout.RIGHT}, {@code FlowLayout.CENTER},
+   * {@code FlowLayout.LEADING},
+   * or {@code FlowLayout.TRAILING}.
    *
    * @return the alignment value for this layout
-   * @see java.awt.FlowLayout#setAlignment
+   * @see FlowLayout#setAlignment
    * @since JDK1.1
    */
   public int getAlignment() {
@@ -269,11 +270,11 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * Sets the alignment for this layout.
    * Possible values are
    * <ul>
-   * <li><code>FlowLayout.LEFT</code>
-   * <li><code>FlowLayout.RIGHT</code>
-   * <li><code>FlowLayout.CENTER</code>
-   * <li><code>FlowLayout.LEADING</code>
-   * <li><code>FlowLayout.TRAILING</code>
+   * <li>{@code FlowLayout.LEFT}
+   * <li>{@code FlowLayout.RIGHT}
+   * <li>{@code FlowLayout.CENTER}
+   * <li>{@code FlowLayout.LEADING}
+   * <li>{@code FlowLayout.TRAILING}
    * </ul>
    *
    * @param align one of the alignment values shown above
@@ -281,7 +282,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * @since JDK1.1
    */
   public void setAlignment(int align) {
-    this.newAlign = align;
+    newAlign = align;
 
     // this.align is used only for serialization compatibility,
     // so set it to a value compatible with the 1.1 version
@@ -303,12 +304,12 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   /**
    * Gets the horizontal gap between components
    * and between the components and the borders
-   * of the <code>Container</code>
+   * of the {@code Container}
    *
    * @return the horizontal gap between components
    * and between the components and the borders
-   * of the <code>Container</code>
-   * @see java.awt.FlowLayout#setHgap
+   * of the {@code Container}
+   * @see FlowLayout#setHgap
    * @since JDK1.1
    */
   public int getHgap() {
@@ -318,12 +319,12 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   /**
    * Sets the horizontal gap between components and
    * between the components and the borders of the
-   * <code>Container</code>.
+   * {@code Container}.
    *
    * @param hgap the horizontal gap between components
    *             and between the components and the borders
-   *             of the <code>Container</code>
-   * @see java.awt.FlowLayout#getHgap
+   *             of the {@code Container}
+   * @see FlowLayout#getHgap
    * @since JDK1.1
    */
   public void setHgap(int hgap) {
@@ -333,12 +334,12 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
   /**
    * Gets the vertical gap between components and
    * between the components and the borders of the
-   * <code>Container</code>.
+   * {@code Container}.
    *
    * @return the vertical gap between components
    * and between the components and the borders
-   * of the <code>Container</code>
-   * @see java.awt.FlowLayout#setVgap
+   * of the {@code Container}
+   * @see FlowLayout#setVgap
    * @since JDK1.1
    */
   public int getVgap() {
@@ -347,12 +348,12 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
 
   /**
    * Sets the vertical gap between components and between
-   * the components and the borders of the <code>Container</code>.
+   * the components and the borders of the {@code Container}.
    *
    * @param vgap the vertical gap between components
    *             and between the components and the borders
-   *             of the <code>Container</code>
-   * @see java.awt.FlowLayout#getVgap
+   *             of the {@code Container}
+   * @see FlowLayout#getVgap
    * @since JDK1.1
    */
   public void setVgap(int vgap) {
@@ -391,6 +392,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * @param name the name of the component
    * @param comp the component to be added
    */
+  @Override
   public void addLayoutComponent(String name, Component comp) {
   }
 
@@ -399,8 +401,9 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * Not used by this class.
    *
    * @param comp the component to remove
-   * @see java.awt.Container#removeAll
+   * @see Container#removeAll
    */
+  @Override
   public void removeLayoutComponent(Component comp) {
   }
 
@@ -413,8 +416,9 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * subcomponents of the specified container
    * @see Container
    * @see #minimumLayoutSize
-   * @see java.awt.Container#getPreferredSize
+   * @see Container#getPreferredSize
    */
+  @Override
   public Dimension preferredLayoutSize(Container target) {
     synchronized (target.getTreeLock()) {
       Dimension dim = new Dimension(0, 0);
@@ -448,8 +452,8 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
         dim.height = Math.max(maxAscent + maxDescent, dim.height);
       }
       Insets insets = target.getInsets();
-      dim.width += insets.left + insets.right + hgap * 2;
-      dim.height += insets.top + insets.bottom + vgap * 2;
+      dim.width += insets.left + insets.right + (hgap << 1);
+      dim.height += insets.top + insets.bottom + (vgap << 1);
       return dim;
     }
   }
@@ -462,9 +466,10 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * @return the minimum dimensions to lay out the
    * subcomponents of the specified container
    * @see #preferredLayoutSize
-   * @see java.awt.Container
-   * @see java.awt.Container#doLayout
+   * @see Container
+   * @see Container#doLayout
    */
+  @Override
   public Dimension minimumLayoutSize(Container target) {
     synchronized (target.getTreeLock()) {
       boolean useBaseline = getAlignOnBaseline();
@@ -500,8 +505,8 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
       }
 
       Insets insets = target.getInsets();
-      dim.width += insets.left + insets.right + hgap * 2;
-      dim.height += insets.top + insets.bottom + vgap * 2;
+      dim.width += insets.left + insets.right + (hgap << 1);
+      dim.height += insets.top + insets.bottom + (vgap << 1);
       return dim;
     }
   }
@@ -511,16 +516,17 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
    * <i>visible</i> component take
    * its preferred size by reshaping the components in the
    * target container in order to satisfy the alignment of
-   * this <code>FlowLayout</code> object.
+   * this {@code FlowLayout} object.
    *
    * @param target the specified component being laid out
    * @see Container
-   * @see java.awt.Container#doLayout
+   * @see Container#doLayout
    */
+  @Override
   public void layoutContainer(Container target) {
     synchronized (target.getTreeLock()) {
       Insets insets = target.getInsets();
-      int maxwidth = target.width - (insets.left + insets.right + hgap * 2);
+      int maxwidth = target.width - (insets.left + insets.right + (hgap << 1));
       int nmembers = target.getComponentCount();
       int x = 0, y = insets.top + vgap;
       int rowh = 0, start = 0;
@@ -551,7 +557,7 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
               ascent[i] = -1;
             }
           }
-          if ((x == 0) || ((x + d.width) <= maxwidth)) {
+          if (x == 0 || x + d.width <= maxwidth) {
             if (x > 0) {
               x += hgap;
             }
@@ -651,11 +657,8 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
       Component m = target.getComponent(i);
       if (m.isVisible()) {
         int cy;
-        if (useBaseline && ascent[i] >= 0) {
-          cy = y + baselineOffset + maxAscent - ascent[i];
-        } else {
-          cy = y + (height - m.height) / 2;
-        }
+        cy = useBaseline && ascent[i] >= 0 ? y + baselineOffset + maxAscent - ascent[i]
+            : y + (height - m.height) / 2;
         if (ltr) {
           m.setLocation(x, cy);
         } else {
@@ -677,13 +680,13 @@ public class FlowLayout implements LayoutManager, java.io.Serializable {
 
     if (serialVersionOnStream < 1) {
       // "newAlign" field wasn't present, so use the old "align" field.
-      setAlignment(this.align);
+      setAlignment(align);
     }
     serialVersionOnStream = currentSerialVersion;
   }
 
   /**
-   * Returns a string representation of this <code>FlowLayout</code>
+   * Returns a string representation of this {@code FlowLayout}
    * object and its values.
    *
    * @return a string representation of this layout

@@ -35,13 +35,14 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class ExtraButtonDrag extends Frame {
-    static String tk = Toolkit.getDefaultToolkit().getClass().getName();
+    private static final long serialVersionUID = -1328566651881100769L;
+    static final String tk = Toolkit.getDefaultToolkit().getClass().getName();
     static Robot robot;
     static int [] buttonsPressed;
     static int [] buttonsReleased;
     static int [] buttonsClicked;
-    volatile static boolean dragged = false;
-    volatile static boolean moved = false;
+    static volatile boolean dragged;
+    static volatile boolean moved;
 
     public ExtraButtonDrag(){
         super("ExtraButtonDrag");
@@ -51,17 +52,21 @@ public class ExtraButtonDrag extends Frame {
         Frame frame = new ExtraButtonDrag();
 
         MouseAdapter ma = new MouseAdapter() {
+                @Override
                 public void mouseDragged(MouseEvent e) {
                     System.out.println("Dragged "+e);// +" : "+ e.getButton() + " : " +e.getButtonState(e.getButton()));
                     dragged = true;
                 }
+                @Override
                 public void mouseMoved(MouseEvent e) {
                     System.out.println("Moved "+e);
                     moved = true;
                 }
+                @Override
                 public void mousePressed(MouseEvent e) {
                     System.out.println(">>> "+e);
                 }
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     System.out.println(">>> "+e);
                 }
@@ -104,7 +109,7 @@ public class ExtraButtonDrag extends Frame {
                 //XToolkit: extra buttons should report MOVED events only
                 //WToolkit: extra buttons should report DRAGGED events only
                 if (i > 2){ //extra buttons only
-                    if (tk.equals("sun.awt.X11.XToolkit") || tk.equals("sun.awt.motif.MToolkit")) {
+                    if ("sun.awt.X11.XToolkit".equals(tk) || "sun.awt.motif.MToolkit".equals(tk)) {
                         if (!moved || dragged) {
                             throw new RuntimeException("Test failed."+ tk +" Button = " +(i+1) + " moved = "+moved +" : dragged = " +dragged);
                         }

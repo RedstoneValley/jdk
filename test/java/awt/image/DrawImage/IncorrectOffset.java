@@ -40,7 +40,10 @@ public final class IncorrectOffset {
     private static final int width = 400;
     private static final int height = 400;
 
-    public static void main(final String[] args) {
+    private IncorrectOffset() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsConfiguration gc =

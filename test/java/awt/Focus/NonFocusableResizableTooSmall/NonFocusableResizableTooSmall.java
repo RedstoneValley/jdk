@@ -31,18 +31,19 @@
   @run main NonFocusableResizableTooSmall
 */
 
-/**
- * NonFocusableResizableTooSmall.java
- *
- * summary:  Non-focusable frame should honor the size of the frame buttons/decorations when resizing
+/*
+  NonFocusableResizableTooSmall.java
+
+  summary:  Non-focusable frame should honor the size of the frame buttons/decorations when resizing
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class NonFocusableResizableTooSmall
+public final class NonFocusableResizableTooSmall
 {
+    private NonFocusableResizableTooSmall() {
+    }
 
     //*** test-writer defined static variables go here ***
 
@@ -60,18 +61,18 @@ public class NonFocusableResizableTooSmall
         Sysout.createDialog( );
         Sysout.printInstructions( instructions );
 
-        final Frame frame = new Frame();
+        Frame frame = new Frame();
         frame.setFocusableWindowState(false);
         frame.setSize(200, 100);
         frame.setVisible(true);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
         robot.setAutoDelay(20);
 
         // To be sure the window is shown and packed
         Util.waitForIdle(robot);
 
-        final Insets insets = frame.getInsets();
+        Insets insets = frame.getInsets();
         System.out.println("The insets of the frame: " + insets);
         if (insets.right == 0 || insets.bottom == 0) {
             System.out.println("The test environment must have non-zero right & bottom insets!");
@@ -80,7 +81,7 @@ public class NonFocusableResizableTooSmall
         }
 
         // Let's move the mouse pointer to the bottom-right coner of the frame (the "size-grip")
-        final Rectangle bounds1 = frame.getBounds();
+        Rectangle bounds1 = frame.getBounds();
         System.out.println("The bounds before resizing: " + bounds1);
 
         robot.mouseMove(bounds1.x + bounds1.width - 1, bounds1.y + bounds1.height - 1);
@@ -100,10 +101,10 @@ public class NonFocusableResizableTooSmall
         Util.waitForIdle(robot);
 
         // Check the current bounds of the frame
-        final Rectangle bounds2 = frame.getBounds();
+        Rectangle bounds2 = frame.getBounds();
         System.out.println("The bounds after resizing: " + bounds2);
 
-        if (bounds2.width <= (insets.left + insets.right)) {
+        if (bounds2.width <= insets.left + insets.right) {
             fail("The frame has been resized to very small.");
         }
         pass();
@@ -123,11 +124,11 @@ public class NonFocusableResizableTooSmall
      * There is a section following this for test-
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
@@ -135,7 +136,7 @@ public class NonFocusableResizableTooSmall
     //  instantiated in the same VM.  Being static (and using
     //  static vars), it aint gonna work.  Not worrying about
     //  it for now.
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -164,12 +165,14 @@ public class NonFocusableResizableTooSmall
         {
             //The test harness may have interrupted the test.  If so, rethrow the exception
             // so that the harness gets it and deals with it.
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
 
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -229,6 +232,7 @@ public class NonFocusableResizableTooSmall
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
@@ -271,16 +275,13 @@ class NewClass implements anInterface
 
 //************** End classes defined for the test *******************
 
-
-
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -294,9 +295,12 @@ class NewClass implements anInterface
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -341,9 +345,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -351,10 +356,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -370,35 +375,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

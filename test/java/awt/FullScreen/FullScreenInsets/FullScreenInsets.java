@@ -46,28 +46,31 @@ public final class FullScreenInsets {
 
     private static boolean passed = true;
 
-    public static void main(final String[] args) {
-        final GraphicsEnvironment ge = GraphicsEnvironment
-                .getLocalGraphicsEnvironment();
-        final GraphicsDevice[] devices = ge.getScreenDevices();
+    private FullScreenInsets() {
+    }
 
-        final Window wGreen = new Frame();
+    public static void main(String[] args) {
+        GraphicsEnvironment ge = GraphicsEnvironment
+                .getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = ge.getScreenDevices();
+
+        Window wGreen = new Frame();
         wGreen.setBackground(Color.GREEN);
         wGreen.setSize(300, 300);
         wGreen.setVisible(true);
         sleep();
-        final Insets iGreen = wGreen.getInsets();
-        final Dimension sGreen = wGreen.getSize();
+        Insets iGreen = wGreen.getInsets();
+        Dimension sGreen = wGreen.getSize();
 
-        final Window wRed = new Frame();
+        Window wRed = new Frame();
         wRed.setBackground(Color.RED);
         wRed.setSize(300, 300);
         wRed.setVisible(true);
         sleep();
-        final Insets iRed = wGreen.getInsets();
-        final Dimension sRed = wGreen.getSize();
+        Insets iRed = wGreen.getInsets();
+        Dimension sRed = wGreen.getSize();
 
-        for (final GraphicsDevice device : devices) {
+        for (GraphicsDevice device : devices) {
             if (!device.isFullScreenSupported()) {
                 continue;
             }
@@ -95,7 +98,7 @@ public final class FullScreenInsets {
         }
     }
 
-    private static void testSize(final Dimension actual, final Dimension exp) {
+    private static void testSize(Dimension actual, Dimension exp) {
         if (!exp.equals(actual)) {
             System.err.println(" Wrong window size:" +
                                " Expected: " + exp + " Actual: " + actual);
@@ -103,7 +106,7 @@ public final class FullScreenInsets {
         }
     }
 
-    private static void testInsets(final Insets actual, final Insets exp) {
+    private static void testInsets(Insets actual, Insets exp) {
         if (!actual.equals(exp)) {
             System.err.println(" Wrong window insets:" +
                                " Expected: " + exp + " Actual: " + actual);
@@ -111,7 +114,7 @@ public final class FullScreenInsets {
         }
     }
 
-    private static void testWindowBounds(final DisplayMode dm, final Window w) {
+    private static void testWindowBounds(DisplayMode dm, Window w) {
         if (w.getWidth() != dm.getWidth() || w.getHeight() != dm.getHeight()) {
             System.err.println(" Wrong window bounds:" +
                                " Expected: width = " + dm.getWidth()
@@ -121,8 +124,8 @@ public final class FullScreenInsets {
         }
     }
 
-    private static void testColor(final Window w, final Color color) {
-        final Robot r;
+    private static void testColor(Window w, Color color) {
+        Robot r;
         try {
             r = new Robot(w.getGraphicsConfiguration().getDevice());
         } catch (AWTException e) {
@@ -130,7 +133,7 @@ public final class FullScreenInsets {
             passed = false;
             return;
         }
-        final BufferedImage bi = r.createScreenCapture(w.getBounds());
+        BufferedImage bi = r.createScreenCapture(w.getBounds());
         for (int y = 0; y < bi.getHeight(); y++) {
             for (int x = 0; x < bi.getWidth(); x++) {
                 if (bi.getRGB(x, y) != color.getRGB()) {

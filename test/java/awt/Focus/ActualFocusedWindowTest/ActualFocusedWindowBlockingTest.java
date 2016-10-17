@@ -33,20 +33,25 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
+@SuppressWarnings({"MagicNumber", "ObjectEquality"})
 public class ActualFocusedWindowBlockingTest extends Applet {
-    Robot robot = Util.createRobot();
-    Frame owner = new Frame("Owner Frame");
-    Window win = new Window(owner);
-    Frame frame = new Frame("Auxiliary Frame");
-    Button fButton = new Button("frame button") {public String toString() {return "Frame_Button";}};
-    Button wButton = new Button("window button") {public String toString() {return "Window_Button";}};
-    Button aButton = new Button("auxiliary button") {public String toString() {return "Auxiliary_Button";}};
+    final Robot robot = Util.createRobot();
+    final Frame owner = new Frame("Owner Frame");
+    final Window win = new Window(owner);
+    final Frame frame = new Frame("Auxiliary Frame");
+    final Button fButton = new Button("frame button") {
+        private static final long serialVersionUID = -4889037852609973725L;
+
+        public String toString() {return "Frame_Button";}};
+    final Button wButton = new Button("window button") {
+        private static final long serialVersionUID = -417357490393930210L;
+
+        public String toString() {return "Window_Button";}};
+    final Button aButton = new Button("auxiliary button") {
+        private static final long serialVersionUID = -3971270924175502876L;
+
+        public String toString() {return "Auxiliary_Button";}};
 
     public static void main(String[] args) {
         ActualFocusedWindowBlockingTest app = new ActualFocusedWindowBlockingTest();
@@ -56,6 +61,7 @@ public class ActualFocusedWindowBlockingTest extends Applet {
 
     public void init() {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
                     System.out.println("--> " + e);
                 }
@@ -151,6 +157,8 @@ public class ActualFocusedWindowBlockingTest extends Applet {
 
     // Thrown when the behavior being verified is found wrong.
     class TestFailedException extends RuntimeException {
+        private static final long serialVersionUID = 5919022306200974243L;
+
         TestFailedException(String msg) {
             super("Test failed: " + msg);
         }
@@ -158,6 +166,8 @@ public class ActualFocusedWindowBlockingTest extends Applet {
 
     // Thrown when an error not related to the behavior being verified is encountered.
     class TestErrorException extends RuntimeException {
+        private static final long serialVersionUID = -5850716614592105036L;
+
         TestErrorException(String msg) {
             super("Unexpected error: " + msg);
         }

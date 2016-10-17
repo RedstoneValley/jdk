@@ -32,16 +32,14 @@
 import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.*;
-
 import sun.awt.*;
 
 public class ModalInternalFrameTest
 {
-    private boolean passed = true;
+    private final boolean passed = true;
 
-    private JDesktopPane pane1;
-    private JDesktopPane pane2;
+    JDesktopPane pane1;
+    JDesktopPane pane2;
 
     private JFrame frame1;
     private JFrame frame2;
@@ -56,8 +54,8 @@ public class ModalInternalFrameTest
     private Point bn2Loc;
     private Point bs2Loc;
 
-    private volatile boolean unblocked1 = true;
-    private volatile boolean unblocked2 = true;
+    volatile boolean unblocked1 = true;
+    volatile boolean unblocked2 = true;
 
     public ModalInternalFrameTest()
     {
@@ -75,6 +73,7 @@ public class ModalInternalFrameTest
         bn1 = new JButton("Test");
         bn1.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent ae)
             {
                 unblocked1 = true;
@@ -84,6 +83,7 @@ public class ModalInternalFrameTest
         bs1 = new JButton("Show dialog");
         bs1.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent ae)
             {
                 JOptionPane.showInternalMessageDialog(pane1, "Dialog1");
@@ -98,6 +98,7 @@ public class ModalInternalFrameTest
         bn2 = new JButton("Test");
         bn2.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent ae)
             {
                 unblocked2 = true;
@@ -107,6 +108,7 @@ public class ModalInternalFrameTest
         bs2 = new JButton("Show dialog");
         bs2.addActionListener(new ActionListener()
         {
+            @Override
             public void actionPerformed(ActionEvent ae)
             {
                 JOptionPane.showInternalMessageDialog(pane2, "Dialog2");
@@ -118,7 +120,7 @@ public class ModalInternalFrameTest
         frame2.setVisible(true);
     }
 
-    private void getLocations()
+    void getLocations()
     {
         bn1Loc = bn1.getLocationOnScreen();
         bn1Loc.translate(bn1.getWidth() / 2, bn1.getHeight() / 2);
@@ -188,7 +190,7 @@ public class ModalInternalFrameTest
         }
     }
 
-    private static ModalInternalFrameTest test;
+    static ModalInternalFrameTest test;
 
     public static void main(String[] args)
         throws Exception
@@ -196,6 +198,7 @@ public class ModalInternalFrameTest
         test = new ModalInternalFrameTest();
         SwingUtilities.invokeAndWait(new Runnable()
         {
+            @Override
             public void run()
             {
                 test.init();
@@ -204,6 +207,7 @@ public class ModalInternalFrameTest
         ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
         SwingUtilities.invokeAndWait(new Runnable()
         {
+            @Override
             public void run()
             {
                 test.getLocations();

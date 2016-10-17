@@ -31,8 +31,11 @@
 
 import java.awt.*;
 
-public class HugeFrame {
-    public static void main(String[] args) throws Exception {
+public final class HugeFrame {
+  private HugeFrame() {
+  }
+
+  public static void main(String[] args) throws Exception {
         Frame f = new Frame("Huge");
 
         // 8193+ should already produce a crash, but let's go extreme...

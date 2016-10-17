@@ -30,7 +30,8 @@ import java.awt.event.WindowEvent;
 
 public class TimedWindowEvent extends WindowEvent {
 
-  private long time;
+  private static final long serialVersionUID = 6522575608535652624L;
+  private final long time;
 
   public TimedWindowEvent(Window source, int id, Window opposite, long time) {
     super(source, id, opposite);

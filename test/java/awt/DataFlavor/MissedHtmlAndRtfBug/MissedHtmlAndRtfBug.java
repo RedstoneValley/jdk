@@ -24,32 +24,37 @@
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.event.*;
-import java.applet.Applet;
 import java.io.File;
 import java.util.ArrayList;
 
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-import test.java.awt.regtesthelpers.Util;
+import sun.awt.OSInfo.OSType;
 import sun.awt.OSInfo;
 
 import static java.lang.Thread.sleep;
 
 public class MissedHtmlAndRtfBug extends Applet {
 
+    public static int calculateXCenterCoordinate(Component component) {
+        return (int) component.getLocationOnScreen().getX() + component.getWidth() / 2;
+    }
+
+    public static int calculateYCenterCoordinate(Component component) {
+        return (int) component.getLocationOnScreen().getY() + component.getHeight() / 2;
+    }
+
     public void init() {
         setLayout(new BorderLayout());
     }//End  init()
 
     public void start() {
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX
-                && OSInfo.getOSType() != OSInfo.OSType.WINDOWS) {
+        if (OSInfo.getOSType() != OSType.MACOSX
+                && OSInfo.getOSType() != OSType.WINDOWS) {
             System.out.println("This test is for Windows and Mac only. Passed.");
             return;
         }
 
-        final Frame sourceFrame = new Frame("Source frame");
-        final SourcePanel sourcePanel = new SourcePanel();
+        Frame sourceFrame = new Frame("Source frame");
+        SourcePanel sourcePanel = new SourcePanel();
         sourceFrame.add(sourcePanel);
         sourceFrame.pack();
         sourceFrame.addWindowListener(new WindowAdapter() {
@@ -64,22 +69,24 @@ public class MissedHtmlAndRtfBug extends Applet {
 
         NextFramePositionCalculator positionCalculator = new NextFramePositionCalculator(sourceFrame);
 
-        ArrayList<String> args = new ArrayList<String>(5);
+        ArrayList<String> args = new ArrayList<>(5);
         args.add(String.valueOf(positionCalculator.getNextLocationX()));
         args.add(String.valueOf(positionCalculator.getNextLocationY()));
-        args.add(String.valueOf(AbsoluteComponentCenterCalculator.calculateXCenterCoordinate(sourcePanel)));
-        args.add(String.valueOf(AbsoluteComponentCenterCalculator.calculateYCenterCoordinate(sourcePanel)));
+        args.add(String.valueOf(calculateXCenterCoordinate(sourcePanel)));
+        args.add(String.valueOf(calculateYCenterCoordinate(sourcePanel)));
         args.add(concatStrings(DataFlavorSearcher.RICH_TEXT_NAMES));
 
         ProcessResults processResults =
-                ProcessCommunicator.executeChildProcess(this.getClass(),
+                ProcessCommunicator.executeChildProcess(
+                    getClass(),
                         "." + File.separator + System.getProperty("java.class.path"), args.toArray(new String[]{}));
 
         verifyTestResults(processResults);
 
         args.set(args.size() - 1, concatStrings(DataFlavorSearcher.HTML_NAMES));
 
-        ProcessCommunicator.executeChildProcess(this.getClass(),
+        ProcessCommunicator.executeChildProcess(
+            getClass(),
                 "." + File.separator + System.getProperty("java.class.path"), args.toArray(new String[]{}));
         verifyTestResults(processResults);
 
@@ -87,9 +94,9 @@ public class MissedHtmlAndRtfBug extends Applet {
     }// start()
 
     private String concatStrings(String[] strings) {
-        StringBuffer result = new StringBuffer("\"");
-        for (int i = 0; i < strings.length; i++) {
-            result.append(strings[i]);
+        StringBuilder result = new StringBuilder("\"");
+        for (String string : strings) {
+            result.append(string);
             result.append(",");
         }
         result.append("\"");
@@ -118,14 +125,12 @@ public class MissedHtmlAndRtfBug extends Applet {
 
     //We cannot make an instance of the applet without the default constructor
     public MissedHtmlAndRtfBug() {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
-    public MissedHtmlAndRtfBug(Point targetFrameLocation, Point dragSourcePoint, DataFlavor df)
-            throws InterruptedException {
-        final Frame targetFrame = new Frame("Target frame");
-        final TargetPanel targetPanel = new TargetPanel(targetFrame, df);
+    public MissedHtmlAndRtfBug(Point targetFrameLocation, Point dragSourcePoint, DataFlavor df) {
+        Frame targetFrame = new Frame("Target frame");
+        TargetPanel targetPanel = new TargetPanel(targetFrame, df);
         targetFrame.add(targetPanel);
         targetFrame.addWindowListener(new WindowAdapter() {
             @Override
@@ -143,7 +148,7 @@ public class MissedHtmlAndRtfBug extends Applet {
     private void doTest(Point dragSourcePoint, TargetPanel targetPanel) {
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int) dragSourcePoint.getX(), (int) dragSourcePoint.getY());
         try {
@@ -156,8 +161,9 @@ public class MissedHtmlAndRtfBug extends Applet {
             e.printStackTrace();
         }
 
-        Util.drag(robot, dragSourcePoint, new Point(AbsoluteComponentCenterCalculator.calculateXCenterCoordinate(targetPanel),
-                AbsoluteComponentCenterCalculator.calculateYCenterCoordinate(targetPanel)),
+        Util.drag(robot, dragSourcePoint, new Point(
+                calculateXCenterCoordinate(targetPanel),
+                calculateYCenterCoordinate(targetPanel)),
                 InputEvent.BUTTON1_MASK);
     }
 
@@ -170,11 +176,11 @@ public class MissedHtmlAndRtfBug extends Applet {
         DATA_FLAVOR_NAMES;
 
         int extractInt(String[] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
 
         String[] extractStringArray(String[] args) {
-            return args[this.ordinal()].replaceAll("\"", "").split(",");
+            return args[ordinal()].replaceAll("\"", "").split(",");
         }
     }
 

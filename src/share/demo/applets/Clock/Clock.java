@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -54,6 +53,8 @@ import java.util.Locale;
 @SuppressWarnings("serial")
 public class Clock extends Applet implements Runnable {
 
+  private final int xcenter = 80;
+  private final int ycenter = 55; // Center position
   private volatile Thread timer;       // The thread that displays clock
   private int lastxs, lastys, lastxm, lastym, lastxh, lastyh;  // Dimensions used to draw hands
   private SimpleDateFormat formatter;  // Formats the date displayed
@@ -62,7 +63,6 @@ public class Clock extends Applet implements Runnable {
   private Date currentDate;            // Used to get date to display
   private Color handColor;             // Color of main hands and dial
   private Color numberColor;           // Color of second hand and numbers
-  private int xcenter = 80, ycenter = 55; // Center position
 
   @Override
   public void init() {
@@ -70,24 +70,21 @@ public class Clock extends Applet implements Runnable {
     formatter = new SimpleDateFormat("EEE MMM dd hh:mm:ss yyyy", Locale.getDefault());
     currentDate = new Date();
     lastdate = formatter.format(currentDate);
-    clockFaceFont = new Font("Serif", Font.PLAIN, 14);
+    clockFaceFont = new Font(Font.SERIF, Font.PLAIN, 14);
     handColor = Color.blue;
     numberColor = Color.darkGray;
 
     try {
       setBackground(new Color(Integer.parseInt(getParameter("bgcolor"), 16)));
-    } catch (NullPointerException e) {
-    } catch (NumberFormatException e) {
+    } catch (NullPointerException | NumberFormatException e) {
     }
     try {
       handColor = new Color(Integer.parseInt(getParameter("fgcolor1"), 16));
-    } catch (NullPointerException e) {
-    } catch (NumberFormatException e) {
+    } catch (NullPointerException | NumberFormatException e) {
     }
     try {
       numberColor = new Color(Integer.parseInt(getParameter("fgcolor2"), 16));
-    } catch (NullPointerException e) {
-    } catch (NumberFormatException e) {
+    } catch (NullPointerException | NumberFormatException e) {
     }
     resize(300, 300);              // Set clock window size
   }
@@ -98,7 +95,7 @@ public class Clock extends Applet implements Runnable {
   @Override
   public void update(Graphics g) {
     int xh, yh, xm, ym, xs, ys;
-    int s = 0, m = 10, h = 10;
+    int s, m, h;
     String today;
 
     currentDate = new Date();
@@ -223,7 +220,7 @@ public class Clock extends Applet implements Runnable {
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {
             "bgcolor", "hexadecimal RGB number",
             "The background color. Default is the color of your browser."},
@@ -231,6 +228,5 @@ public class Clock extends Applet implements Runnable {
         {
             "fgcolor2", "hexadecimal RGB number",
             "The color of the second hand and numbers. Default is dark gray."}};
-    return info;
   }
 }

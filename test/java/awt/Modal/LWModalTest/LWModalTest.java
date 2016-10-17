@@ -34,22 +34,18 @@ to JOptionPane.showInternal*Dialog methods
 */
 
 import java.awt.*;
-import java.awt.event.*;
 
 import java.lang.reflect.*;
 
-import javax.swing.*;
-
-import sun.awt.*;
-
-import test.java.awt.regtesthelpers.Util;
-
-public class LWModalTest
+public final class LWModalTest
 {
-    private static JFrame frame;
-    private static volatile JInternalFrame internalFrame;
+    static JFrame frame;
+    static volatile JInternalFrame internalFrame;
 
-    private static volatile boolean passed = false;
+    static volatile boolean passed;
+
+    private LWModalTest() {
+    }
 
     private static void init()
     {
@@ -60,6 +56,7 @@ public class LWModalTest
 
         new Thread(new Runnable()
         {
+            @Override
             public void run()
             {
                 JOptionPane p = new JOptionPane("Message");
@@ -74,7 +71,7 @@ public class LWModalTest
                 catch (Exception z)
                 {
                     z.printStackTrace(System.err);
-                    LWModalTest.fail(z.getMessage());
+                    fail(z.getMessage());
                     return;
                 }
                 passed = true;
@@ -98,29 +95,29 @@ public class LWModalTest
         catch (Exception z)
         {
             z.printStackTrace(System.err);
-            LWModalTest.fail(z.getMessage());
+            fail(z.getMessage());
             return;
         }
 
         if (passed)
         {
-            LWModalTest.pass();
+            pass();
         }
         else
         {
-            LWModalTest.fail("showInternalMessageDialog() has not returned");
+            fail("showInternalMessageDialog() has not returned");
         }
     }
 
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 60000;
 
-    public static void main(String args[])
+    public static void main(String[] args)
         throws InterruptedException
     {
         mainThread = Thread.currentThread();
@@ -140,11 +137,13 @@ public class LWModalTest
         }
         catch (InterruptedException e)
         {
-            if(!testGeneratedInterrupt) throw e;
+            if(!testGeneratedInterrupt) {
+                throw e;
+            }
 
             testGeneratedInterrupt = false;
 
-            if (theTestPassed == false)
+            if (!theTestPassed)
             {
                 throw new RuntimeException(failureMessage);
             }
@@ -188,4 +187,5 @@ public class LWModalTest
 
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }

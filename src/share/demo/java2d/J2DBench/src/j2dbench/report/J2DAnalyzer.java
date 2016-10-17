@@ -45,16 +45,20 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
-public class J2DAnalyzer {
+public final class J2DAnalyzer {
   static final int BEST = 1;    /* The best score */
   static final int WORST = 2;   /* The worst score */
   static final int AVERAGE = 3; /* Average of all scores */
   static final int MIDAVG = 4;  /* Average of all but the best and worst */
-  static Vector results = new Vector();
+  static final Vector results = new Vector();
   static GroupResultSetHolder groupHolder;
   static int mode = MIDAVG;
+
+  private J2DAnalyzer() {
+  }
 
   public static void usage(PrintStream out) {
     out.println("usage:");
@@ -78,45 +82,44 @@ public class J2DAnalyzer {
     out.println("results within a group " + "are best of all result sets in that group");
   }
 
-  public static void main(String argv[]) {
+  public static void main(String[] argv) {
     boolean gavehelp = false;
     boolean graph = false;
     boolean ignoreuncontested = true;
-    if (argv.length > 0 && argv[0].equalsIgnoreCase("-html")) {
-      String newargs[] = new String[argv.length - 1];
+    if (argv.length > 0 && "-html".equalsIgnoreCase(argv[0])) {
+      String[] newargs = new String[argv.length - 1];
       System.arraycopy(argv, 1, newargs, 0, newargs.length);
       HTMLSeriesReporter.main(newargs);
       return;
     }
-    for (int i = 0; i < argv.length; i++) {
-      String arg = argv[i];
+    for (String arg : argv) {
       if (arg.regionMatches(true, 0, "-Group:", 0, 7)) {
         groupHolder = new GroupResultSetHolder();
         groupHolder.setTitle(arg.substring(7));
         results.add(groupHolder);
-      } else if (arg.equalsIgnoreCase("-NoGroup")) {
+      } else if ("-NoGroup".equalsIgnoreCase(arg)) {
         groupHolder = null;
-      } else if (arg.equalsIgnoreCase("-ShowUncontested")) {
+      } else if ("-ShowUncontested".equalsIgnoreCase(arg)) {
         ignoreuncontested = false;
-      } else if (arg.equalsIgnoreCase("-Graph")) {
+      } else if ("-Graph".equalsIgnoreCase(arg)) {
         graph = true;
-      } else if (arg.equalsIgnoreCase("-Best")) {
+      } else if ("-Best".equalsIgnoreCase(arg)) {
         mode = BEST;
-      } else if (arg.equalsIgnoreCase("-Worst")) {
+      } else if ("-Worst".equalsIgnoreCase(arg)) {
         mode = WORST;
-      } else if (arg.equalsIgnoreCase("-Average") || arg.equalsIgnoreCase("-Avg")) {
+      } else if ("-Average".equalsIgnoreCase(arg) || "-Avg".equalsIgnoreCase(arg)) {
         mode = AVERAGE;
-      } else if (arg.equalsIgnoreCase("-MidAverage") || arg.equalsIgnoreCase("-MidAvg")) {
+      } else if ("-MidAverage".equalsIgnoreCase(arg) || "-MidAvg".equalsIgnoreCase(arg)) {
         mode = MIDAVG;
-      } else if (arg.equalsIgnoreCase("-Help") || arg.equalsIgnoreCase("-Usage")) {
+      } else if ("-Help".equalsIgnoreCase(arg) || "-Usage".equalsIgnoreCase(arg)) {
         usage(System.out);
         gavehelp = true;
       } else {
-        readResults(argv[i]);
+        readResults(arg);
       }
     }
 
-    if (results.size() == 0) {
+    if (results.isEmpty()) {
       if (!gavehelp) {
         System.err.println("No results loaded");
         usage(System.err);
@@ -125,15 +128,15 @@ public class J2DAnalyzer {
     }
 
     int numsets = results.size();
-    double totalscore[] = new double[numsets];
-    int numwins[] = new int[numsets];
-    int numties[] = new int[numsets];
-    int numloss[] = new int[numsets];
-    int numtests[] = new int[numsets];
-    double bestscore[] = new double[numsets];
-    double worstscore[] = new double[numsets];
-    double bestspread[] = new double[numsets];
-    double worstspread[] = new double[numsets];
+    double[] totalscore = new double[numsets];
+    int[] numwins = new int[numsets];
+    int[] numties = new int[numsets];
+    int[] numloss = new int[numsets];
+    int[] numtests = new int[numsets];
+    double[] bestscore = new double[numsets];
+    double[] worstscore = new double[numsets];
+    double[] bestspread = new double[numsets];
+    double[] worstspread = new double[numsets];
     for (int i = 0; i < numsets; i++) {
       bestscore[i] = Double.NEGATIVE_INFINITY;
       worstscore[i] = Double.POSITIVE_INFINITY;
@@ -147,12 +150,12 @@ public class J2DAnalyzer {
     while (enum_.hasMoreElements()) {
       keyvector.add(enum_.nextElement());
     }
-    String keys[] = new String[keyvector.size()];
+    String[] keys = new String[keyvector.size()];
     keyvector.copyInto(keys);
     sort(keys);
     enum_ = ResultHolder.commonkeys.keys();
     System.out.println("Options common across all tests:");
-    if (ResultHolder.commonname != null && ResultHolder.commonname.length() != 0) {
+    if (ResultHolder.commonname != null && !ResultHolder.commonname.isEmpty()) {
       System.out.println("  testname=" + ResultHolder.commonname);
     }
     while (enum_.hasMoreElements()) {
@@ -160,8 +163,7 @@ public class J2DAnalyzer {
       System.out.println("  " + key + "=" + ResultHolder.commonkeymap.get(key));
     }
     System.out.println();
-    for (int k = 0; k < keys.length; k++) {
-      String key = keys[k];
+    for (String key : keys) {
       ResultHolder rh = base.getResultByKey(key);
       double score = rh.getScore();
       double maxscore = score;
@@ -220,7 +222,7 @@ public class J2DAnalyzer {
             int avgpos = (int) Math.round(maxlen * score / maxscore);
             Vector scores = rh2.getAllScores();
             for (int j = 0; j < scores.size(); j++) {
-              double s = ((Double) scores.get(j)).doubleValue();
+              double s = (Double) scores.get(j);
               int len = (int) Math.round(maxlen * s / maxscore);
               int pos = 0;
               while (pos < len) {
@@ -345,7 +347,7 @@ public class J2DAnalyzer {
           readResult(in, rh);
           srs.addResult(rh);
         }
-      } else if (line.equals("</result-set>")) {
+      } else if ("</result-set>".equals(line)) {
         break;
       } else {
         System.err.println("Unrecognized line in Result-Set: " + line);
@@ -368,7 +370,7 @@ public class J2DAnalyzer {
         if (ms >= 0) {
           rh.addTime(ms);
         }
-      } else if (line.equals("</result>")) {
+      } else if ("</result>".equals(line)) {
         break;
       } else {
         System.err.println("Unrecognized line in Result: " + line);
@@ -455,7 +457,7 @@ public class J2DAnalyzer {
     return ret;
   }
 
-  public static void sort(String strs[]) {
+  public static void sort(String[] strs) {
     for (int i = 1; i < strs.length; i++) {
       for (int j = i; j > 0; j--) {
         if (strs[j].compareTo(strs[j - 1]) >= 0) {
@@ -469,11 +471,7 @@ public class J2DAnalyzer {
   }
 
   public static void setMode(int mode) {
-    if (mode >= BEST && mode <= MIDAVG) {
-      J2DAnalyzer.mode = mode;
-    } else {
-      J2DAnalyzer.mode = MIDAVG;
-    }
+    J2DAnalyzer.mode = mode >= BEST && mode <= MIDAVG ? mode : MIDAVG;
   }
 
   public abstract static class ResultSetHolder {
@@ -495,8 +493,8 @@ public class J2DAnalyzer {
   }
 
   public static class GroupResultSetHolder extends ResultSetHolder {
-    private Vector members = new Vector();
-    private Hashtable allresultkeys = new Hashtable();
+    private final Vector members = new Vector();
+    private final Hashtable allresultkeys = new Hashtable();
 
     public void addResultSet(ResultSetHolder rsh) {
       members.add(rsh);
@@ -512,24 +510,31 @@ public class J2DAnalyzer {
       return (ResultSetHolder) members.elementAt(index);
     }
 
+    @Override
     public Enumeration getKeyEnumeration() {
       return allresultkeys.keys();
     }
 
     public class Enumerator implements Enumeration {
-      Enumeration raw = getKeyEnumeration();
+      final Enumeration raw = getKeyEnumeration();
 
+      @Override
       public boolean hasMoreElements() {
         return raw.hasMoreElements();
       }
 
+      @Override
       public Object nextElement() {
         return getResultByKey((String) raw.nextElement());
       }
-    }    public Enumeration getResultEnumeration() {
+    }
+
+    @Override
+    public Enumeration getResultEnumeration() {
       return new Enumerator();
     }
 
+    @Override
     public ResultHolder getResultByKey(String key) {
       ResultHolder best = null;
       double bestscore = 0.0;
@@ -545,17 +550,15 @@ public class J2DAnalyzer {
       }
       return best;
     }
-
-
   }
 
   public static class SingleResultSetHolder extends ResultSetHolder {
+    private final Hashtable props = new Hashtable();
+    private final Vector results = new Vector();
+    private final Hashtable resultsbykey = new Hashtable();
     private String desc;
     private long start;
     private long end;
-    private Hashtable props = new Hashtable();
-    private Vector results = new Vector();
-    private Hashtable resultsbykey = new Hashtable();
 
     public String getDescription() {
       return desc;
@@ -586,7 +589,7 @@ public class J2DAnalyzer {
     }
 
     public Hashtable getProperties() {
-      return this.props;
+      return props;
     }
 
     public void addResult(ResultHolder rh) {
@@ -595,36 +598,42 @@ public class J2DAnalyzer {
     }
 
     public class Enumerator implements Enumeration {
-      Enumeration raw = getResultEnumeration();
+      final Enumeration raw = getResultEnumeration();
 
+      @Override
       public boolean hasMoreElements() {
         return raw.hasMoreElements();
       }
 
+      @Override
       public Object nextElement() {
         return ((ResultHolder) raw.nextElement()).getKey();
       }
-    }    public Enumeration getKeyEnumeration() {
+    }
+
+    @Override
+    public Enumeration getKeyEnumeration() {
       return new Enumerator();
     }
 
+    @Override
     public Enumeration getResultEnumeration() {
       return results.elements();
     }
 
+    @Override
     public ResultHolder getResultByKey(String key) {
       return (ResultHolder) resultsbykey.get(key);
     }
-
-
   }
 
   public static class ResultHolder {
-    public static Hashtable commonkeymap = new Hashtable();
-    public static Hashtable commonkeys = new Hashtable();
+    public static final Map commonkeymap = new Hashtable();
+    public static final Hashtable commonkeys = new Hashtable();
     public static String commonname;
-
-    ResultSetHolder rsh;
+    private final Hashtable options = new Hashtable();
+    private final Vector times = new Vector();
+    final ResultSetHolder rsh;
     private String name;
     private String key;
     private String shortkey;
@@ -634,8 +643,6 @@ public class J2DAnalyzer {
     private long total;
     private long longest;
     private long shortest;
-    private Hashtable options = new Hashtable();
-    private Vector times = new Vector();
 
     public ResultHolder(ResultSetHolder rsh) {
       this.rsh = rsh;
@@ -669,22 +676,23 @@ public class J2DAnalyzer {
     }
 
     private String makeKey(boolean prunecommon) {
-      String keys[] = new String[options.size()];
+      String[] keys = new String[options.size()];
       Enumeration enum_ = options.keys();
       int i = 0;
       while (enum_.hasMoreElements()) {
-        keys[i++] = (String) enum_.nextElement();
+        keys[i] = (String) enum_.nextElement();
+        i++;
       }
       sort(keys);
-      String key = (prunecommon && commonname.equals(name)) ? "" : name;
+      String key = prunecommon && commonname.equals(name) ? "" : name;
       for (i = 0; i < keys.length; i++) {
         if (!prunecommon || !commonkeys.containsKey(keys[i])) {
           key = key + "," + keys[i] + "=" + options.get(keys[i]);
         }
       }
-      if (key.length() == 0) {
+      if (key.isEmpty()) {
         key = name;
-      } else if (key.startsWith(",")) {
+      } else if (key.length() > 0 && key.charAt(0) == ',') {
         key = key.substring(1);
       }
       return key;
@@ -725,7 +733,7 @@ public class J2DAnalyzer {
     }
 
     public void addTime(long ms) {
-      times.add(new Long(ms));
+      times.add(ms);
       if (numruns == 0) {
         longest = shortest = ms;
       } else {
@@ -758,8 +766,8 @@ public class J2DAnalyzer {
         score *= numruns;
         divisor = total;
       } else {
-        score *= (numruns - 2);
-        divisor = (total - longest - shortest);
+        score *= numruns - 2;
+        divisor = total - longest - shortest;
       }
       score /= divisor;
       return score;
@@ -781,9 +789,9 @@ public class J2DAnalyzer {
         score *= numunits;
       }
       if (mode == BEST) {
-        scores.add(new Double(score / shortest));
+        scores.add(score / shortest);
       } else if (mode == WORST) {
-        scores.add(new Double(score / longest));
+        scores.add(score / longest);
       } else {
         long elimshort, elimlong;
         if (mode == AVERAGE || numruns < 3) {
@@ -793,7 +801,7 @@ public class J2DAnalyzer {
           elimlong = longest;
         }
         for (int i = 0; i < times.size(); i++) {
-          long time = ((Long) times.get(i)).longValue();
+          long time = (Long) times.get(i);
           if (time == elimshort) {
             elimshort = -1;
             continue;
@@ -802,7 +810,7 @@ public class J2DAnalyzer {
             elimlong = -1;
             continue;
           }
-          scores.add(new Double(score / time));
+          scores.add(score / time);
         }
       }
       return scores;

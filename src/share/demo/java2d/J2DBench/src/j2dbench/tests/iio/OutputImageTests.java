@@ -40,7 +40,6 @@
 package j2dbench.tests.iio;
 
 import j2dbench.Group;
-import j2dbench.Modifier;
 import j2dbench.Option;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
@@ -53,12 +52,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.event.IIOWriteProgressListener;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageWriterSpi;
-import javax.imageio.stream.ImageOutputStream;
 
 abstract class OutputImageTests extends OutputTests {
 
@@ -68,16 +61,16 @@ abstract class OutputImageTests extends OutputTests {
   private static Group imageRoot;
 
   private static Group imageioRoot;
-  private static Group imageioOptRoot;
+  static Group imageioOptRoot;
   private static ImageWriterSpi[] imageioWriterSpis;
   private static String[] imageioWriteFormatShortNames;
-  private static Option imageioWriteFormatList;
-  private static Group imageioTestRoot;
+  static Option imageioWriteFormatList;
+  static Group imageioTestRoot;
 
   private static Group imageWriterRoot;
-  private static Group imageWriterOptRoot;
-  private static Option installListenerTog;
-  private static Group imageWriterTestRoot;
+  static Group imageWriterOptRoot;
+  static Option installListenerTog;
+  static Group imageWriterTestRoot;
 
   protected OutputImageTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
@@ -94,7 +87,7 @@ abstract class OutputImageTests extends OutputTests {
       // Image I/O Options
       imageioOptRoot = new Group(imageioRoot, "opts", "Image I/O Options");
       initIIOWriteFormats();
-      imageioWriteFormatList = new Option.ObjectList(imageioOptRoot,
+      imageioWriteFormatList = new ObjectList(imageioOptRoot,
           "format",
           "Image Format",
           imageioWriteFormatShortNames,
@@ -110,10 +103,10 @@ abstract class OutputImageTests extends OutputTests {
       // ImageWriter Options
       imageWriterRoot = new Group(imageioRoot, "writer", "ImageWriter Benchmarks");
       imageWriterOptRoot = new Group(imageWriterRoot, "opts", "ImageWriter Options");
-      installListenerTog = new Option.Toggle(imageWriterOptRoot,
+      installListenerTog = new Toggle(imageWriterOptRoot,
           "installListener",
           "Install Progress Listener",
-          Option.Toggle.Off);
+          Toggle.Off);
 
       // ImageWriter Tests
       imageWriterTestRoot = new Group(imageWriterRoot, "tests", "ImageWriter Tests");
@@ -136,15 +129,11 @@ abstract class OutputImageTests extends OutputTests {
       String klass = spi.getClass().getName();
       String format = spi.getFormatNames()[0].toLowerCase();
       String suffix = spi.getFileSuffixes()[0].toLowerCase();
-      if (suffix == null || suffix.equals("")) {
+      if (suffix == null || "".equals(suffix)) {
         suffix = format;
       }
       String shortName;
-      if (klass.startsWith("com.sun.imageio.plugins")) {
-        shortName = "core-" + suffix;
-      } else {
-        shortName = "ext-" + suffix;
-      }
+      shortName = klass.startsWith("com.sun.imageio.plugins") ? "core-" + suffix : "ext-" + suffix;
       spis.add(spi);
       shortNames.add(shortName);
     }
@@ -156,7 +145,7 @@ abstract class OutputImageTests extends OutputTests {
   }
 
   private static class Context extends OutputTests.Context {
-    String format;
+    final String format;
     BufferedImage image;
     ImageWriter writer;
 
@@ -187,7 +176,7 @@ abstract class OutputImageTests extends OutputTests {
             writer.addIIOWriteProgressListener(new WriteProgressListener());
           }
         }
-        if (format.equals("wbmp")) {
+        if ("wbmp".equals(format)) {
           // REMIND: this is a hack to create an image that the
           //         WBMPImageWriter can handle (a better approach
           //         would involve checking the ImageTypeSpecifier
@@ -213,6 +202,7 @@ abstract class OutputImageTests extends OutputTests {
       ImageIO.write(image, format, out);
     }
 
+    @Override
     void cleanup(TestEnvironment env) {
       super.cleanup(env);
       if (writer != null) {
@@ -220,15 +210,13 @@ abstract class OutputImageTests extends OutputTests {
         writer = null;
       }
     }
-  }  public void cleanupTest(TestEnvironment env, Object ctx) {
-    Context iioctx = (Context) ctx;
-    iioctx.cleanup(env);
   }
 
   private static class ImageIOWrite extends OutputImageTests {
     public ImageIOWrite() {
       super(imageioTestRoot, "imageioWrite", "ImageIO.write()");
-      addDependency(generalDestRoot, new Modifier.Filter() {
+      addDependency(generalDestRoot, new Filter() {
+        @Override
         public boolean isCompatible(Object val) {
           // ImageIO.write() handles FILE and ARRAY, but
           // not FILECHANNEL (well, I suppose we could create
@@ -236,33 +224,38 @@ abstract class OutputImageTests extends OutputTests {
           // but that's not a common use case; FileChannel is
           // better handled by the ImageWriter tests below)
           OutputType t = (OutputType) val;
-          return (t.getType() != OUTPUT_FILECHANNEL);
+          return t.getType() != OUTPUT_FILECHANNEL;
         }
       });
       addDependencies(imageioOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       return new Context(env, result, TEST_IMAGEIO);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final Object output = ictx.output;
-      final BufferedImage image = ictx.image;
-      final String format = ictx.format;
-      final int outputType = ictx.outputType;
+      Context ictx = (Context) ctx;
+      Object output = ictx.output;
+      BufferedImage image = ictx.image;
+      String format = ictx.format;
+      int outputType = ictx.outputType;
       switch (outputType) {
         case OUTPUT_FILE:
+          --numReps;
           do {
             try {
               ImageIO.write(image, format, (File) output);
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         case OUTPUT_ARRAY:
+          --numReps;
           do {
             try {
               ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -272,12 +265,17 @@ abstract class OutputImageTests extends OutputTests {
             } catch (Exception e) {
               e.printStackTrace();
             }
-          } while (--numReps >= 0);
+            --numReps;
+          } while (numReps >= 0);
           break;
         default:
           throw new IllegalArgumentException("Invalid output type");
       }
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object ctx) {
+    Context iioctx = (Context) ctx;
+    iioctx.cleanup(env);
   }
 
   private static class ImageWriterWrite extends OutputImageTests {
@@ -289,14 +287,17 @@ abstract class OutputImageTests extends OutputTests {
       addDependencies(imageWriterOptRoot, true);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       return new Context(env, result, TEST_IMAGEWRITER);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageWriter writer = ictx.writer;
-      final BufferedImage image = ictx.image;
+      Context ictx = (Context) ctx;
+      ImageWriter writer = ictx.writer;
+      BufferedImage image = ictx.image;
+      --numReps;
       do {
         try {
           ImageOutputStream ios = ictx.createImageOutputStream();
@@ -308,11 +309,15 @@ abstract class OutputImageTests extends OutputTests {
         } catch (IOException e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   private static class WriteProgressListener implements IIOWriteProgressListener {
+    WriteProgressListener() {
+    }
+
     public void imageStarted(ImageWriter source, int imageIndex) {
     }
 

@@ -40,11 +40,12 @@ import sun.awt.SunToolkit;
  */
 public final class PaintNativeOnUpdate extends Label {
 
+    private static final long serialVersionUID = 3849531898486786565L;
     private boolean fullUpdate = true;
 
-    public static void main(final String[] args) throws AWTException {
-        final Frame frame = new Frame();
-        final Component label = new PaintNativeOnUpdate();
+    public static void main(String[] args) throws AWTException {
+        Frame frame = new Frame();
+        Component label = new PaintNativeOnUpdate();
         frame.setBackground(Color.RED);
         frame.add(label);
         frame.setSize(300, 300);
@@ -71,7 +72,7 @@ public final class PaintNativeOnUpdate extends Label {
     }
 
     @Override
-    public void update(final Graphics g) {
+    public void update(Graphics g) {
         if (fullUpdate) {
             //full paint
             g.setColor(Color.GREEN);
@@ -84,13 +85,13 @@ public final class PaintNativeOnUpdate extends Label {
     }
 
     @Override
-    public void paint(final Graphics g) {
+    public void paint(Graphics g) {
         // Do nothing
     }
 
     private static void sleep() {
         try {
-            ((SunToolkit) (Toolkit.getDefaultToolkit())).realSync();
+            ((SunToolkit) Toolkit.getDefaultToolkit()).realSync();
             Thread.sleep(1000);
         } catch (InterruptedException ignored) {
         }

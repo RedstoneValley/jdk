@@ -55,7 +55,7 @@ public class RenderableImageOp implements RenderableImage {
   /**
    * The associated ContextualRenderedImageFactory.
    */
-  ContextualRenderedImageFactory myCRIF;
+  final ContextualRenderedImageFactory myCRIF;
 
   /**
    * The bounding box of the results of this RenderableImageOp.
@@ -75,7 +75,7 @@ public class RenderableImageOp implements RenderableImage {
    *                   to run.
    */
   public RenderableImageOp(ContextualRenderedImageFactory CRIF, ParameterBlock paramBlock) {
-    this.myCRIF = CRIF;
+    myCRIF = CRIF;
     this.paramBlock = (ParameterBlock) paramBlock.clone();
   }
 
@@ -87,6 +87,7 @@ public class RenderableImageOp implements RenderableImage {
    *
    * @return a (possibly empty) Vector of RenderableImages, or null.
    */
+  @Override
   public Vector<RenderableImage> getSources() {
     return getRenderableSources();
   }
@@ -100,6 +101,7 @@ public class RenderableImageOp implements RenderableImage {
    * @return a reference to the property Object, or the value
    * java.awt.Image.UndefinedProperty.
    */
+  @Override
   public Object getProperty(String name) {
     return myCRIF.getProperty(paramBlock, name);
   }
@@ -109,6 +111,7 @@ public class RenderableImageOp implements RenderableImage {
    *
    * @return a list of property names.
    */
+  @Override
   public String[] getPropertyNames() {
     return myCRIF.getPropertyNames();
   }
@@ -120,10 +123,11 @@ public class RenderableImageOp implements RenderableImage {
    * determine whether an existing rendering may be cached and
    * reused.  The CRIF's isDynamic method will be called.
    *
-   * @return <code>true</code> if successive renderings with the
+   * @return {@code true} if successive renderings with the
    * same arguments might produce different results;
-   * <code>false</code> otherwise.
+   * {@code false} otherwise.
    */
+  @Override
   public boolean isDynamic() {
     return myCRIF.isDynamic();
   }
@@ -135,6 +139,7 @@ public class RenderableImageOp implements RenderableImage {
    *
    * @return the width of the image in user coordinates.
    */
+  @Override
   public float getWidth() {
     if (boundingBox == null) {
       boundingBox = myCRIF.getBounds2D(paramBlock);
@@ -148,6 +153,7 @@ public class RenderableImageOp implements RenderableImage {
    *
    * @return the height of the image in user coordinates.
    */
+  @Override
   public float getHeight() {
     if (boundingBox == null) {
       boundingBox = myCRIF.getBounds2D(paramBlock);
@@ -158,6 +164,7 @@ public class RenderableImageOp implements RenderableImage {
   /**
    * Gets the minimum X coordinate of the rendering-independent image data.
    */
+  @Override
   public float getMinX() {
     if (boundingBox == null) {
       boundingBox = myCRIF.getBounds2D(paramBlock);
@@ -168,6 +175,7 @@ public class RenderableImageOp implements RenderableImage {
   /**
    * Gets the minimum Y coordinate of the rendering-independent image data.
    */
+  @Override
   public float getMinY() {
     if (boundingBox == null) {
       boundingBox = myCRIF.getBounds2D(paramBlock);
@@ -200,6 +208,7 @@ public class RenderableImageOp implements RenderableImage {
    * @param hints a RenderingHints object containing hints.
    * @return a RenderedImage containing the rendered data.
    */
+  @Override
   public RenderedImage createScaledRendering(int w, int h, RenderingHints hints) {
     // DSR -- code to try to get a unit scale
     double sx = (double) w / getWidth();
@@ -222,6 +231,7 @@ public class RenderableImageOp implements RenderableImage {
    *
    * @return a RenderedImage containing the rendered data.
    */
+  @Override
   public RenderedImage createDefaultRendering() {
     AffineTransform usr2dev = new AffineTransform(); // Identity
     RenderContext newRC = new RenderContext(usr2dev);
@@ -266,9 +276,10 @@ public class RenderableImageOp implements RenderableImage {
    * @param renderContext The RenderContext to use to perform the rendering.
    * @return a RenderedImage containing the desired output image.
    */
+  @Override
   public RenderedImage createRendering(RenderContext renderContext) {
     RenderedImage image = null;
-    RenderContext rcOut = null;
+    RenderContext rcOut;
 
     // Clone the original ParameterBlock; if the ParameterBlock
     // contains RenderableImage sources, they will be replaced by
@@ -294,7 +305,7 @@ public class RenderableImageOp implements RenderableImage {
           renderedSources.addElement(rdrdImage);
         }
 
-        if (renderedSources.size() > 0) {
+        if (!renderedSources.isEmpty()) {
           renderedParamBlock.setSources(renderedSources);
         }
       }
@@ -315,7 +326,7 @@ public class RenderableImageOp implements RenderableImage {
       while (i < paramBlock.getNumSources()) {
         Object o = paramBlock.getSource(i);
         if (o instanceof RenderableImage) {
-          sources.add((RenderableImage) o);
+          sources.add(o);
           i++;
         } else {
           break;
@@ -344,8 +355,8 @@ public class RenderableImageOp implements RenderableImage {
   /**
    * Returns a reference to the current parameter block.
    *
-   * @return the <code>ParameterBlock</code> of this
-   * <code>RenderableImageOp</code>.
+   * @return the {@code ParameterBlock} of this
+   * {@code RenderableImageOp}.
    * @see #setParameterBlock(ParameterBlock)
    */
   public ParameterBlock getParameterBlock() {

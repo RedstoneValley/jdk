@@ -26,7 +26,7 @@
 package sun.java2d.loops;
 
 public final class RenderCache {
-  private Entry entries[];
+  private final Entry[] entries;
 
   public RenderCache(int size) {
     entries = new Entry[size];
@@ -62,10 +62,10 @@ public final class RenderCache {
   }
 
   final class Entry {
-    private SurfaceType src;
-    private CompositeType comp;
-    private SurfaceType dst;
-    private Object value;
+    private final SurfaceType src;
+    private final CompositeType comp;
+    private final SurfaceType dst;
+    private final Object value;
 
     public Entry(
         SurfaceType src, CompositeType comp, SurfaceType dst, Object value) {
@@ -81,9 +81,9 @@ public final class RenderCache {
       // objects with the same strings to match in the cache, which is
       // not the behavior we want.  Constrain the match to succeed only
       // on object matches instead.
-      return ((this.src == src) &&
-                  (this.comp == comp) &&
-                  (this.dst == dst));
+      return this.src == src &&
+          this.comp == comp &&
+          this.dst == dst;
     }
 
     public Object getValue() {

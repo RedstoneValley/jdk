@@ -35,15 +35,15 @@ import sun.java2d.SunGraphics2D;
  * to the output (compositing) stages of the pipeline.
  */
 public interface CompositePipe {
-  public Object startSequence(
+  Object startSequence(
       SunGraphics2D sg, Shape s, Rectangle dev, int[] abox);
 
-  public boolean needTile(Object context, int x, int y, int w, int h);
+  boolean needTile(Object context, int x, int y, int w, int h);
 
-  public void renderPathTile(
+  void renderPathTile(
       Object context, byte[] atile, int offset, int tilesize, int x, int y, int w, int h);
 
-  public void skipTile(Object context, int x, int y);
+  void skipTile(Object context, int x, int y);
 
-  public void endSequence(Object context);
+  void endSequence(Object context);
 }

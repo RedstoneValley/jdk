@@ -38,5 +38,5 @@ public interface AdjustmentListener extends EventListener {
   /**
    * Invoked when the value of the adjustable has changed.
    */
-  public void adjustmentValueChanged(AdjustmentEvent e);
+  void adjustmentValueChanged(AdjustmentEvent e);
 }

@@ -30,29 +30,29 @@
 import java.awt.*;
 import java.awt.image.*;
 import java.awt.font.*;
-import java.awt.geom.*;
 import java.text.*;
 import java.util.Hashtable;
 
-public class AllFontsLBM {
+@SuppressWarnings("MagicNumber")
+public final class AllFontsLBM {
 
     public static void main(String[] args) {
         Font[] allFonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
-        for (int i=0;i<allFonts.length; i++) {
-           try {
-           Font f = allFonts[i].deriveFont(Font.PLAIN, 20);
+      for (Font allFont : allFonts) {
+        try {
+          Font f = allFont.deriveFont(Font.PLAIN, 20);
 
-           if ( f.getFontName().startsWith("HiraKaku") ) {
-               continue;
-           }
+          if (f.getFontName().startsWith("HiraKaku")) {
+            continue;
+          }
 
-           System.out.println("Try : " + f.getFontName());
-           System.out.flush();
-           breakLines(f);
-           } catch (Exception e) {
-              System.out.println(allFonts[i]);
-           }
+          System.out.println("Try : " + f.getFontName());
+          System.out.flush();
+          breakLines(f);
+        } catch (Exception e) {
+          System.out.println(allFont);
         }
+      }
     }
 
      static void breakLines(Font font) {

@@ -53,7 +53,7 @@ public interface InputMethodDescriptor {
    * mode for Roman characters, typically still only Japanese would
    * be returned. Thus, the list of locales returned is typically
    * a subset of the locales for which the corresponding input method's
-   * implementation of {@link java.awt.im.spi.InputMethod#setLocale} returns true.
+   * implementation of {@link InputMethod#setLocale} returns true.
    * <p>
    * If {@link #hasDynamicLocaleList} returns true, this method is
    * called each time the information is needed. This

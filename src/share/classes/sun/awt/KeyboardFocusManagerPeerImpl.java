@@ -25,14 +25,19 @@
 package sun.awt;
 
 import android.util.Log;
+import java.awt.AWTEvent;
 import java.awt.Canvas;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Panel;
 import java.awt.Scrollbar;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.FocusEvent;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.KeyboardFocusManagerPeer;
+import sun.awt.AWTAccessor.KeyboardFocusManagerAccessor;
+import sun.awt.CausedFocusEvent.Cause;
 
 public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManagerPeer {
 
@@ -41,7 +46,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
   public static final int SNFH_SUCCESS_HANDLED = 1;
   public static final int SNFH_SUCCESS_PROCEED = 2;
   private static final String TAG = "KeyboardFocusMgrPeerImpl";
-  private static AWTAccessor.KeyboardFocusManagerAccessor kfmAccessor
+  private static final KeyboardFocusManagerAccessor kfmAccessor
       = AWTAccessor.getKeyboardFocusManagerAccessor();
 
   /*
@@ -53,7 +58,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
    */
   @SuppressWarnings("deprecation")
   public static boolean shouldFocusOnClick(Component component) {
-    boolean acceptFocusOnClick = false;
+    boolean acceptFocusOnClick;
 
     // A component is generally allowed to accept focus on click
     // if its peer is focusable. There're some exceptions though.
@@ -64,12 +69,12 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
 
       // PANEL, empty only, accepts focus on click
     } else if (component instanceof Panel) {
-      acceptFocusOnClick = (((Panel) component).getComponentCount() == 0);
+      acceptFocusOnClick = ((Container) component).getComponentCount() == 0;
 
       // Other components
     } else {
-      ComponentPeer peer = (component != null ? component.getPeer() : null);
-      acceptFocusOnClick = (peer != null ? peer.isFocusable() : false);
+      ComponentPeer peer = component != null ? component.getPeer() : null;
+      acceptFocusOnClick = peer != null && peer.isFocusable();
     }
     return acceptFocusOnClick && AWTAccessor.getComponentAccessor().canBeFocusOwner(component);
   }
@@ -80,7 +85,7 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
   @SuppressWarnings("deprecation")
   public static boolean deliverFocus(
       Component lightweightChild, Component target, boolean temporary,
-      boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause,
+      boolean focusedWindowChangeAllowed, long time, Cause cause,
       Component currentFocusOwner) // provided by the descendant peers
   {
     if (lightweightChild == null) {
@@ -114,14 +119,14 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
   }
 
   // WARNING: Don't call it on the Toolkit thread.
-  public static boolean requestFocusFor(Component target, CausedFocusEvent.Cause cause) {
+  public static boolean requestFocusFor(Component target, Cause cause) {
     return AWTAccessor.getComponentAccessor().requestFocus(target, cause);
   }
 
   // WARNING: Don't call it on the Toolkit thread.
   public static int shouldNativelyFocusHeavyweight(
       Component heavyweight, Component descendant, boolean temporary,
-      boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+      boolean focusedWindowChangeAllowed, long time, Cause cause) {
     return kfmAccessor.shouldNativelyFocusHeavyweight(heavyweight,
         descendant,
         temporary,
@@ -145,6 +150,20 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
         time);
   }
 
+  /*
+     * Post AWTEvent of high priority.
+     */
+  public static void postPriorityEvent(AWTEvent e) {
+    PeerEvent pe = new PeerEvent(Toolkit.getDefaultToolkit(), new Runnable() {
+      @Override
+      public void run() {
+        AWTAccessor.getAWTEventAccessor().setPosted(e);
+        ((Component) e.getSource()).dispatchEvent(e);
+      }
+    }, PeerEvent.ULTIMATE_PRIORITY_EVENT);
+    SunToolkit.postEvent(SunToolkit.targetToAppContext(e.getSource()), pe);
+  }
+
   @Override
   public void clearGlobalFocusOwner(Window activeWindow) {
     if (activeWindow != null) {
@@ -155,8 +174,8 @@ public abstract class KeyboardFocusManagerPeerImpl implements KeyboardFocusManag
             FocusEvent.FOCUS_LOST,
             false,
             null,
-            CausedFocusEvent.Cause.CLEAR_GLOBAL_FOCUS_OWNER);
-        SunToolkit.postPriorityEvent(fl);
+            Cause.CLEAR_GLOBAL_FOCUS_OWNER);
+        postPriorityEvent(fl);
       }
     }
   }

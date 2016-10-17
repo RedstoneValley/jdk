@@ -26,17 +26,17 @@
 package sun.awt.geom;
 
 final class CurveLink {
-  Curve curve;
+  final Curve curve;
   double ytop;
   double ybot;
-  int etag;
+  final int etag;
 
   CurveLink next;
 
   public CurveLink(Curve curve, double ystart, double yend, int etag) {
     this.curve = curve;
-    this.ytop = ystart;
-    this.ybot = yend;
+    ytop = ystart;
+    ybot = yend;
     this.etag = etag;
     if (ytop < curve.getYTop() || ybot > curve.getYBot()) {
       throw new InternalError("bad curvelink [" + ytop + "=>" + ybot + "] for " + curve);
@@ -55,13 +55,13 @@ final class CurveLink {
     if (ystart < curve.getYTop() || yend > curve.getYBot()) {
       throw new InternalError("bad curvelink [" + ystart + "=>" + yend + "] for " + curve);
     }
-    this.ytop = Math.min(ytop, ystart);
-    this.ybot = Math.max(ybot, yend);
+    ytop = Math.min(ytop, ystart);
+    ybot = Math.max(ybot, yend);
     return true;
   }
 
   public boolean isEmpty() {
-    return (ytop == ybot);
+    return ytop == ybot;
   }
 
   public Curve getCurve() {
@@ -108,6 +108,6 @@ final class CurveLink {
   }
 
   public void setNext(CurveLink link) {
-    this.next = link;
+    next = link;
   }
 }

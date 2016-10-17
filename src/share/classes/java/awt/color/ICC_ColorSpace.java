@@ -85,7 +85,7 @@ public class ICC_ColorSpace extends ColorSpace {
 
   static final long serialVersionUID = 3455889114070431483L;
 
-  private ICC_Profile thisProfile;
+  private final ICC_Profile thisProfile;
   private float[] minVal;
   private float[] maxVal;
   private float[] diffMinMax;
@@ -111,12 +111,12 @@ public class ICC_ColorSpace extends ColorSpace {
     int profileClass = profile.getProfileClass();
 
         /* REMIND - is NAMEDCOLOR OK? */
-    if ((profileClass != ICC_Profile.CLASS_INPUT) &&
-        (profileClass != ICC_Profile.CLASS_DISPLAY) &&
-        (profileClass != ICC_Profile.CLASS_OUTPUT) &&
-        (profileClass != ICC_Profile.CLASS_COLORSPACECONVERSION) &&
-        (profileClass != ICC_Profile.CLASS_NAMEDCOLOR) &&
-        (profileClass != ICC_Profile.CLASS_ABSTRACT)) {
+    if (profileClass != ICC_Profile.CLASS_INPUT &&
+        profileClass != ICC_Profile.CLASS_DISPLAY &&
+        profileClass != ICC_Profile.CLASS_OUTPUT &&
+        profileClass != ICC_Profile.CLASS_COLORSPACECONVERSION &&
+        profileClass != ICC_Profile.CLASS_NAMEDCOLOR &&
+        profileClass != ICC_Profile.CLASS_ABSTRACT) {
       throw new IllegalArgumentException("Invalid profile type");
     }
 
@@ -140,10 +140,10 @@ public class ICC_ColorSpace extends ColorSpace {
    * This method transforms color values using algorithms designed
    * to produce the best perceptual match between input and output
    * colors.  In order to do colorimetric conversion of color values,
-   * you should use the <code>toCIEXYZ</code>
+   * you should use the {@code toCIEXYZ}
    * method of this color space to first convert from the input
    * color space to the CS_CIEXYZ color space, and then use the
-   * <code>fromCIEXYZ</code> method of the CS_sRGB color space to
+   * {@code fromCIEXYZ} method of the CS_sRGB color space to
    * convert from CS_CIEXYZ to the output color space.
    * See {@link #toCIEXYZ(float[]) toCIEXYZ} and
    * {@link #fromCIEXYZ(float[]) fromCIEXYZ} for further information.
@@ -155,6 +155,7 @@ public class ICC_ColorSpace extends ColorSpace {
    * @throws ArrayIndexOutOfBoundsException if array length is not
    *                                        at least the number of components in this ColorSpace.
    */
+  @Override
   public float[] toRGB(float[] colorvalue) {
 
     if (this2srgb == null) {
@@ -171,15 +172,15 @@ public class ICC_ColorSpace extends ColorSpace {
       }
     }
 
-    int nc = this.getNumComponents();
-    short tmp[] = new short[nc];
+    int nc = getNumComponents();
+    short[] tmp = new short[nc];
     for (int i = 0; i < nc; i++) {
       tmp[i] = (short) ((colorvalue[i] - minVal[i]) * invDiffMinMax[i] + 0.5f);
     }
     tmp = this2srgb.colorConvert(tmp, null);
     float[] result = new float[3];
     for (int i = 0; i < 3; i++) {
-      result[i] = ((float) (tmp[i] & 0xffff)) / 65535.0f;
+      result[i] = (float) (tmp[i] & 0xffff) / 65535.0f;
     }
     return result;
   }
@@ -191,10 +192,10 @@ public class ICC_ColorSpace extends ColorSpace {
    * This method transforms color values using algorithms designed
    * to produce the best perceptual match between input and output
    * colors.  In order to do colorimetric conversion of color values,
-   * you should use the <code>toCIEXYZ</code>
+   * you should use the {@code toCIEXYZ}
    * method of the CS_sRGB color space to first convert from the input
    * color space to the CS_CIEXYZ color space, and then use the
-   * <code>fromCIEXYZ</code> method of this color space to
+   * {@code fromCIEXYZ} method of this color space to
    * convert from CS_CIEXYZ to the output color space.
    * See {@link #toCIEXYZ(float[]) toCIEXYZ} and
    * {@link #fromCIEXYZ(float[]) fromCIEXYZ} for further information.
@@ -206,6 +207,7 @@ public class ICC_ColorSpace extends ColorSpace {
    * @throws ArrayIndexOutOfBoundsException if array length is not
    *                                        at least 3.
    */
+  @Override
   public float[] fromRGB(float[] rgbvalue) {
 
     if (srgb2this == null) {
@@ -222,15 +224,15 @@ public class ICC_ColorSpace extends ColorSpace {
       }
     }
 
-    short tmp[] = new short[3];
+    short[] tmp = new short[3];
     for (int i = 0; i < 3; i++) {
-      tmp[i] = (short) ((rgbvalue[i] * 65535.0f) + 0.5f);
+      tmp[i] = (short) (rgbvalue[i] * 65535.0f + 0.5f);
     }
     tmp = srgb2this.colorConvert(tmp, null);
-    int nc = this.getNumComponents();
+    int nc = getNumComponents();
     float[] result = new float[nc];
     for (int i = 0; i < nc; i++) {
-      result[i] = (((float) (tmp[i] & 0xffff)) / 65535.0f) * diffMinMax[i] + minVal[i];
+      result[i] = (float) (tmp[i] & 0xffff) / 65535.0f * diffMinMax[i] + minVal[i];
     }
     return result;
   }
@@ -339,6 +341,7 @@ public class ICC_ColorSpace extends ColorSpace {
    * @throws ArrayIndexOutOfBoundsException if array length is not
    *                                        at least the number of components in this ColorSpace.
    */
+  @Override
   public float[] toCIEXYZ(float[] colorvalue) {
 
     if (this2xyz == null) {
@@ -361,17 +364,17 @@ public class ICC_ColorSpace extends ColorSpace {
       }
     }
 
-    int nc = this.getNumComponents();
-    short tmp[] = new short[nc];
+    int nc = getNumComponents();
+    short[] tmp = new short[nc];
     for (int i = 0; i < nc; i++) {
       tmp[i] = (short) ((colorvalue[i] - minVal[i]) * invDiffMinMax[i] + 0.5f);
     }
     tmp = this2xyz.colorConvert(tmp, null);
-    float ALMOST_TWO = 1.0f + (32767.0f / 32768.0f);
+    float ALMOST_TWO = 1.0f + 32767.0f / 32768.0f;
     // For CIEXYZ, min = 0.0, max = ALMOST_TWO for all components
     float[] result = new float[3];
     for (int i = 0; i < 3; i++) {
-      result[i] = (((float) (tmp[i] & 0xffff)) / 65535.0f) * ALMOST_TWO;
+      result[i] = (float) (tmp[i] & 0xffff) / 65535.0f * ALMOST_TWO;
     }
     return result;
   }
@@ -481,6 +484,7 @@ public class ICC_ColorSpace extends ColorSpace {
    * @throws ArrayIndexOutOfBoundsException if array length is not
    *                                        at least 3.
    */
+  @Override
   public float[] fromCIEXYZ(float[] colorvalue) {
 
     if (xyz2this == null) {
@@ -505,18 +509,18 @@ public class ICC_ColorSpace extends ColorSpace {
       }
     }
 
-    short tmp[] = new short[3];
-    float ALMOST_TWO = 1.0f + (32767.0f / 32768.0f);
+    short[] tmp = new short[3];
+    float ALMOST_TWO = 1.0f + 32767.0f / 32768.0f;
     float factor = 65535.0f / ALMOST_TWO;
     // For CIEXYZ, min = 0.0, max = ALMOST_TWO for all components
     for (int i = 0; i < 3; i++) {
-      tmp[i] = (short) ((colorvalue[i] * factor) + 0.5f);
+      tmp[i] = (short) (colorvalue[i] * factor + 0.5f);
     }
     tmp = xyz2this.colorConvert(tmp, null);
-    int nc = this.getNumComponents();
+    int nc = getNumComponents();
     float[] result = new float[nc];
     for (int i = 0; i < nc; i++) {
-      result[i] = (((float) (tmp[i] & 0xffff)) / 65535.0f) * diffMinMax[i] + minVal[i];
+      result[i] = (float) (tmp[i] & 0xffff) / 65535.0f * diffMinMax[i] + minVal[i];
     }
     return result;
   }
@@ -538,8 +542,9 @@ public class ICC_ColorSpace extends ColorSpace {
    *                                  greater than numComponents - 1.
    * @since 1.4
    */
+  @Override
   public float getMinValue(int component) {
-    if ((component < 0) || (component > this.getNumComponents() - 1)) {
+    if (component < 0 || component > getNumComponents() - 1) {
       throw new IllegalArgumentException("Component index out of range: + component");
     }
     return minVal[component];
@@ -563,16 +568,17 @@ public class ICC_ColorSpace extends ColorSpace {
    *                                  greater than numComponents - 1.
    * @since 1.4
    */
+  @Override
   public float getMaxValue(int component) {
-    if ((component < 0) || (component > this.getNumComponents() - 1)) {
+    if (component < 0 || component > getNumComponents() - 1) {
       throw new IllegalArgumentException("Component index out of range: + component");
     }
     return maxVal[component];
   }
 
   private void setMinMax() {
-    int nc = this.getNumComponents();
-    int type = this.getType();
+    int nc = getNumComponents();
+    int type = getType();
     minVal = new float[nc];
     maxVal = new float[nc];
     if (type == ColorSpace.TYPE_Lab) {
@@ -584,7 +590,7 @@ public class ICC_ColorSpace extends ColorSpace {
       maxVal[2] = 127.0f;
     } else if (type == ColorSpace.TYPE_XYZ) {
       minVal[0] = minVal[1] = minVal[2] = 0.0f; // X, Y, Z
-      maxVal[0] = maxVal[1] = maxVal[2] = 1.0f + (32767.0f / 32768.0f);
+      maxVal[0] = maxVal[1] = maxVal[2] = 1.0f + 32767.0f / 32768.0f;
     } else {
       for (int i = 0; i < nc; i++) {
         minVal[i] = 0.0f;
@@ -594,12 +600,12 @@ public class ICC_ColorSpace extends ColorSpace {
   }
 
   private void setComponentScaling() {
-    int nc = this.getNumComponents();
+    int nc = getNumComponents();
     diffMinMax = new float[nc];
     invDiffMinMax = new float[nc];
     for (int i = 0; i < nc; i++) {
-      minVal[i] = this.getMinValue(i); // in case getMinVal is overridden
-      maxVal[i] = this.getMaxValue(i); // in case getMaxVal is overridden
+      minVal[i] = getMinValue(i); // in case getMinVal is overridden
+      maxVal[i] = getMaxValue(i); // in case getMaxVal is overridden
       diffMinMax[i] = maxVal[i] - minVal[i];
       invDiffMinMax[i] = 65535.0f / diffMinMax[i];
     }

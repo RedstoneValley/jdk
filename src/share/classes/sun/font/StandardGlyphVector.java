@@ -15,6 +15,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
 import java.util.ArrayList;
 import java.util.Map;
@@ -22,10 +23,10 @@ import java.util.Map;
 /**
  * Created by cryoc on 2016-10-14.
  */
-// TODO: All stubs
 public class StandardGlyphVector extends GlyphVector {
   private final TextView parentView;
   private final ArrayList<TextView> childViews;
+  private final ArrayList<Point2D> glyphPositions;
   private final SpannableStringBuilder spannableString;
   private final Font font;
   private final FontRenderContext fontRenderContext;
@@ -35,10 +36,11 @@ public class StandardGlyphVector extends GlyphVector {
     this.font = font;
     this.fontRenderContext = fontRenderContext;
     Integer color = (Integer) font.getAttributes().get(TextAttribute.FOREGROUND);
-    this.color = (color == null) ? 0x000000FF : color;
+    this.color = color == null ? 0x000000FF : color;
     spannableString = new SpannableStringBuilder();
     parentView = new TextView(SkinJob.getAndroidApplicationContext());
     childViews = new ArrayList<>();
+    glyphPositions = new ArrayList<>();
   }
 
   public StandardGlyphVector(Font font, CharSequence str, FontRenderContext frc) {
@@ -58,7 +60,7 @@ public class StandardGlyphVector extends GlyphVector {
       append(c);
       if (ci instanceof AttributedCharacterIterator) {
         charsWritten++;
-        Map<AttributedCharacterIterator.Attribute, Object> attributes = ((AttributedCharacterIterator) ci).getAttributes();
+        Map<Attribute, Object> attributes = ((AttributedCharacterIterator) ci).getAttributes();
         if (!attributes.isEmpty()) {
           new SkinJobTextAttributesDecoder(color)
               .addAttributes(attributes)
@@ -83,7 +85,9 @@ public class StandardGlyphVector extends GlyphVector {
 
   private void append(char c) {
     spannableString.append(c);
+    Point2D newCharPosition;
     // TODO
+    glyphPositions.add(newCharPosition);
   }
 
   protected void append(CharSequence str) {
@@ -126,76 +130,130 @@ public class StandardGlyphVector extends GlyphVector {
 
   @Override
   public Rectangle2D getLogicalBounds() {
+    // TODO
     return null;
   }
 
   @Override
   public Rectangle2D getVisualBounds() {
+    // TODO
     return null;
   }
 
   @Override
   public Shape getOutline() {
+    // TODO
     return null;
   }
 
   @Override
   public Shape getOutline(float x, float y) {
+    // TODO
     return null;
   }
 
   @Override
   public Shape getGlyphOutline(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
   public Point2D getGlyphPosition(int glyphIndex) {
-    return null;
+    return glyphPositions.get(glyphIndex);
   }
 
   @Override
   public void setGlyphPosition(int glyphIndex, Point2D newPos) {
-
+    glyphPositions.set(glyphIndex, newPos);
   }
 
   @Override
   public AffineTransform getGlyphTransform(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
   public void setGlyphTransform(int glyphIndex, AffineTransform newTX) {
-
+    // TODO
   }
 
   @Override
   public float[] getGlyphPositions(int beginGlyphIndex, int numEntries, float[] positionReturn) {
-    return new float[0];
+    int positionIndex = 0;
+    for (int i = beginGlyphIndex; i < beginGlyphIndex + numEntries; i++) {
+      positionReturn[positionIndex] = (float) getGlyphPosition(i).getX();
+      positionIndex++;
+      positionReturn[positionIndex] = (float) getGlyphPosition(i).getY();
+      positionIndex++;
+    }
+    return positionReturn;
   }
 
   @Override
   public Shape getGlyphLogicalBounds(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
   public Shape getGlyphVisualBounds(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
   public GlyphMetrics getGlyphMetrics(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
   public GlyphJustificationInfo getGlyphJustificationInfo(int glyphIndex) {
+    // TODO
     return null;
   }
 
   @Override
-  public boolean equals(GlyphVector set) {
-    return false;
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof StandardGlyphVector)) {
+      return false;
+    }
+
+    StandardGlyphVector that = (StandardGlyphVector) o;
+
+    if (color != that.color) {
+      return false;
+    }
+    if (!parentView.equals(that.parentView)) {
+      return false;
+    }
+    if (!childViews.equals(that.childViews)) {
+      return false;
+    }
+    if (!spannableString.equals(that.spannableString)) {
+      return false;
+    }
+    if (getFont() != null ? !getFont().equals(that.getFont()) : that.getFont() != null) {
+      return false;
+    }
+    return getFontRenderContext() != null
+        ? getFontRenderContext().equals(that.getFontRenderContext())
+        : that.getFontRenderContext() == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = parentView.hashCode();
+    result = 31 * result + childViews.hashCode();
+    result = 31 * result + spannableString.hashCode();
+    result = 31 * result + (getFont() != null ? getFont().hashCode() : 0);
+    result = 31 * result + (getFontRenderContext() != null ? getFontRenderContext().hashCode() : 0);
+    result = 31 * result + color;
+    return result;
   }
 }

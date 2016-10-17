@@ -41,7 +41,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.Random;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * DynamicTreeNode illustrates one of the possible ways in which dynamic
@@ -84,15 +83,15 @@ public class DynamicTreeNode extends DefaultMutableTreeNode {
   /**
    * Number of names.
    */
-  protected static float nameCount;
+  protected static final float nameCount;
   /**
    * Potential fonts used to draw with.
    */
-  protected static Font[] fonts;
+  protected static final Font[] fonts;
   /**
    * Used to generate the names.
    */
-  protected static Random nameGen;
+  protected static final Random nameGen;
 
   static {
     String[] fontNames;
@@ -122,7 +121,7 @@ public class DynamicTreeNode extends DefaultMutableTreeNode {
         } catch (Exception e) {
           fonts[counter] = null;
         }
-        fontSize = ((fontSize + 2 - 12) % 12) + 12;
+        fontSize = (fontSize + 2 - 12) % 12 + 12;
       }
     }
     nameCount = (float) NAMES.length;
@@ -170,20 +169,14 @@ public class DynamicTreeNode extends DefaultMutableTreeNode {
     int randomIndex;
     SampleData data;
 
-    for (int counter = 0; counter < DynamicTreeNode.DEFAULT_CHILDREN_COUNT; counter++) {
+    for (int counter = 0; counter < DEFAULT_CHILDREN_COUNT; counter++) {
       randomIndex = (int) (nameGen.nextFloat() * nameCount);
       String displayString = NAMES[randomIndex];
-      if (fonts == null || fonts[randomIndex].canDisplayUpTo(displayString) != -1) {
-        font = null;
-      } else {
-        font = fonts[randomIndex];
-      }
+      font = fonts == null || fonts[randomIndex].canDisplayUpTo(displayString) != -1 ? null
+          : fonts[randomIndex];
 
-      if (counter % 2 == 0) {
-        data = new SampleData(font, Color.red, displayString);
-      } else {
-        data = new SampleData(font, Color.blue, displayString);
-      }
+      data = counter % 2 == 0 ? new SampleData(font, Color.red, displayString)
+          : new SampleData(font, Color.blue, displayString);
       newNode = new DynamicTreeNode(data);
             /* Don't use add() here, add calls insert(newNode, getChildCount())
             so if you want to use add, just be sure to set hasLoaded = true

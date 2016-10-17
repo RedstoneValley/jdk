@@ -51,7 +51,7 @@ import sun.text.CodePointIterator;
  */
 final class StyledParagraph {
 
-  private static int INITIAL_SIZE = 8;
+  private static final int INITIAL_SIZE = 8;
 
   // If there is a single Decoration for the whole paragraph, it
   // is stored here.  Otherwise this field is ignored.
@@ -97,8 +97,8 @@ final class StyledParagraph {
     aci.first();
 
     do {
-      final int nextRunStart = aci.getRunLimit();
-      final int localIndex = index - start;
+      int nextRunStart = aci.getRunLimit();
+      int localIndex = index - start;
 
       Map<? extends Attribute, ?> attributes = aci.getAttributes();
       attributes = addInputMethodAttrs(attributes);
@@ -133,8 +133,10 @@ final class StyledParagraph {
    */
   private static void insertInto(int pos, int[] starts, int numStarts) {
 
-    while (starts[--numStarts] > pos) {
+    --numStarts;
+    while (starts[numStarts] > pos) {
       starts[numStarts] += 1;
+      --numStarts;
     }
   }
 
@@ -195,8 +197,10 @@ final class StyledParagraph {
    */
   private static void deleteFrom(int deleteAt, int[] starts, int numStarts) {
 
-    while (starts[--numStarts] > deleteAt) {
+    --numStarts;
+    while (starts[numStarts] > deleteAt) {
       starts[numStarts] -= 1;
+      --numStarts;
     }
   }
 
@@ -269,7 +273,7 @@ final class StyledParagraph {
       v.addElement(obj);
       int count = v.size();
       if (starts.length == count) {
-        int[] temp = new int[starts.length * 2];
+        int[] temp = new int[(starts.length << 1)];
         System.arraycopy(starts, 0, temp, 0, starts.length);
         starts = temp;
       }
@@ -338,11 +342,7 @@ final class StyledParagraph {
       return value;
     }
 
-    if (attributes.get(TextAttribute.FAMILY) != null) {
-      return Font.getFont(attributes);
-    } else {
-      return null;
-    }
+    return attributes.get(TextAttribute.FAMILY) != null ? Font.getFont(attributes) : null;
   }
 
   /**
@@ -421,7 +421,7 @@ final class StyledParagraph {
       decoration = d;
     } else {
       if (!decoration.equals(d)) {
-        decorations = new Vector<Decoration>(INITIAL_SIZE);
+        decorations = new Vector<>(INITIAL_SIZE);
         decorations.addElement(decoration);
         decorations.addElement(d);
         decorationStarts = new int[INITIAL_SIZE];
@@ -443,7 +443,7 @@ final class StyledParagraph {
       font = f;
     } else {
       if (!font.equals(f)) {
-        fonts = new Vector<Object>(INITIAL_SIZE);
+        fonts = new Vector<>(INITIAL_SIZE);
         fonts.addElement(font);
         fonts.addElement(f);
         fontStarts = new int[INITIAL_SIZE];

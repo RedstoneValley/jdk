@@ -30,6 +30,7 @@ import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -52,6 +53,7 @@ public abstract class ShellFolder extends File {
    * Provides a default comparator for the default column set
    */
   private static final Comparator DEFAULT_COMPARATOR = new Comparator() {
+    @Override
     public int compare(Object o1, Object o2) {
       int gt;
 
@@ -59,7 +61,7 @@ public abstract class ShellFolder extends File {
         gt = 0;
       } else if (o1 != null && o2 == null) {
         gt = 1;
-      } else if (o1 == null && o2 != null) {
+      } else if (o1 == null) {
         gt = -1;
       } else if (o1 instanceof Comparable) {
         gt = ((Comparable) o1).compareTo(o2);
@@ -70,7 +72,8 @@ public abstract class ShellFolder extends File {
       return gt;
     }
   };
-  private static final Comparator<File> FILE_COMPARATOR = new Comparator<File>() {
+  static final Comparator<File> FILE_COMPARATOR = new Comparator<File>() {
+    @Override
     public int compare(File f1, File f2) {
       ShellFolder sf1 = null;
       ShellFolder sf2 = null;
@@ -101,13 +104,7 @@ public abstract class ShellFolder extends File {
 
         // First ignore case when comparing
         int diff = name1.compareToIgnoreCase(name2);
-        if (diff != 0) {
-          return diff;
-        } else {
-          // May differ in case (e.g. "mail" vs. "Mail")
-          // We need this test for consistent sorting
-          return name1.compareTo(name2);
-        }
+        return diff != 0 ? diff : name1.compareTo(name2);
       }
     }
   };
@@ -115,23 +112,21 @@ public abstract class ShellFolder extends File {
   static {
     String managerClassName = (String) Toolkit.getDefaultToolkit().
         getDesktopProperty("Shell.shellFolderManager");
-    Class managerClass = null;
+    Class<ShellFolderManager> managerClass = null;
     try {
       managerClass = Class.forName(managerClassName, false, null);
       if (!ShellFolderManager.class.isAssignableFrom(managerClass)) {
         managerClass = null;
       }
       // swallow the exceptions below and use default shell folder
-    } catch (ClassNotFoundException e) {
-    } catch (NullPointerException e) {
-    } catch (SecurityException e) {
+    } catch (ClassNotFoundException | SecurityException | NullPointerException e) {
     }
 
     if (managerClass == null) {
       managerClass = ShellFolderManager.class;
     }
     try {
-      shellFolderManager = (ShellFolderManager) managerClass.newInstance();
+      shellFolderManager = managerClass.newInstance();
     } catch (InstantiationException e) {
       throw new Error("Could not instantiate Shell Folder Manager: " + managerClass.getName());
     } catch (IllegalAccessException e) {
@@ -141,13 +136,13 @@ public abstract class ShellFolder extends File {
     invoker = shellFolderManager.createInvoker();
   }
 
-  protected ShellFolder parent;
+  protected final ShellFolder parent;
 
   /**
    * Create a file system shell folder from a file
    */
   ShellFolder(ShellFolder parent, String pathname) {
-    super((pathname != null) ? pathname : "ShellFolder");
+    super(pathname != null ? pathname : "ShellFolder");
     this.parent = parent;
   }
 
@@ -167,8 +162,8 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * @param key a <code>String</code>
-   * @return An Object matching the string <code>key</code>.
+   * @param key a {@code String}
+   * @return An Object matching the string {@code key}.
    * @see ShellFolderManager#get(String)
    */
   public static Object get(String key) {
@@ -176,7 +171,7 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * Does <code>dir</code> represent a "computer" such as a node on the network, or
+   * Does {@code dir} represent a "computer" such as a node on the network, or
    * "My Computer" on the desktop.
    */
   public static boolean isComputerNode(File dir) {
@@ -205,7 +200,7 @@ public abstract class ShellFolder extends File {
     return new File(f.toURI().normalize());
   }
 
-  public static void sort(final List<? extends File> files) {
+  public static void sort(List<? extends File> files) {
     if (files == null || files.size() <= 1) {
       return;
     }
@@ -213,6 +208,7 @@ public abstract class ShellFolder extends File {
     // To avoid loads of synchronizations with Invoker and improve performance we
     // synchronize the whole code of the sort method once
     invoke(new Callable<Void>() {
+      @Override
       public Void call() {
         // Check that we can use the ShellFolder.sortChildren() method:
         //   1. All files have the same non-null parent
@@ -267,11 +263,13 @@ public abstract class ShellFolder extends File {
               FILE_COMPARATOR), new ShellFolderColumnInfo(COLUMN_SIZE,
           75,
           SwingConstants.RIGHT,
-          true, DEFAULT_COMPARATOR,
+          true,
+          DEFAULT_COMPARATOR,
           true), new ShellFolderColumnInfo(COLUMN_DATE,
           130,
           SwingConstants.LEADING,
-          true, DEFAULT_COMPARATOR,
+          true,
+          DEFAULT_COMPARATOR,
           true)};
     }
 
@@ -296,14 +294,14 @@ public abstract class ShellFolder extends File {
         return file;
 
       case 1: // size
-        return file.isDirectory() ? null : Long.valueOf(file.length());
+        return file.isDirectory() ? null : file.length();
 
       case 2: // date
         if (isFileSystemRoot(file)) {
           return null;
         }
         long time = file.lastModified();
-        return (time == 0L) ? null : new Date(time);
+        return time == 0L ? null : new Date(time);
 
       default:
         return null;
@@ -361,54 +359,50 @@ public abstract class ShellFolder extends File {
    * @return Whether this is a file system shell folder
    */
   public boolean isFileSystem() {
-    return (!getPath().startsWith("ShellFolder"));
+    return !getPath().startsWith("ShellFolder");
   }
 
   /**
    * This method must be implemented to make sure that no instances
-   * of <code>ShellFolder</code> are ever serialized. If <code>isFileSystem()</code> returns
-   * <code>true</code>, then the object should be representable with an instance of
-   * <code>java.io.File</code> instead. If not, then the object is most likely
+   * of {@code ShellFolder} are ever serialized. If {@code isFileSystem()} returns
+   * {@code true}, then the object should be representable with an instance of
+   * {@code java.io.File} instead. If not, then the object is most likely
    * depending on some internal (native) state and cannot be serialized.
    *
-   * @returns a <code>java.io.File</code> replacement object, or <code>null</code>
+   * @returns a {@code java.io.File} replacement object, or {@code null}
    * if no suitable replacement can be found.
    */
-  protected abstract Object writeReplace() throws java.io.ObjectStreamException;
+  protected abstract Object writeReplace() throws ObjectStreamException;
 
   /**
    * Returns the path for this object's parent,
-   * or <code>null</code> if this object does not name a parent
+   * or {@code null} if this object does not name a parent
    * folder.
    *
    * @return the path as a String for this object's parent,
-   * or <code>null</code> if this object does not name a parent
+   * or {@code null} if this object does not name a parent
    * folder
-   * @see java.io.File#getParent()
    * @since 1.4
    */
+  @Override
   public String getParent() {
     if (parent == null && isFileSystem()) {
       return super.getParent();
     }
-    if (parent != null) {
-      return (parent.getPath());
-    } else {
-      return null;
-    }
+    return parent != null ? parent.getPath() : null;
   }
 
   /**
    * Returns a File object representing this object's parent,
-   * or <code>null</code> if this object does not name a parent
+   * or {@code null} if this object does not name a parent
    * folder.
    *
    * @return a File object representing this object's parent,
-   * or <code>null</code> if this object does not name a parent
+   * or {@code null} if this object does not name a parent
    * folder
-   * @see java.io.File#getParentFile()
    * @since 1.4
    */
+  @Override
   public File getParentFile() {
     if (parent != null) {
       return parent;
@@ -419,18 +413,21 @@ public abstract class ShellFolder extends File {
     }
   }
 
+  @Override
   public boolean isAbsolute() {
-    return (!isFileSystem() || super.isAbsolute());
+    return !isFileSystem() || super.isAbsolute();
   }
 
+  @Override
   public File getAbsoluteFile() {
-    return (isFileSystem() ? super.getAbsoluteFile() : this);
+    return isFileSystem() ? super.getAbsoluteFile() : this;
   }
 
   // Override File methods
 
+  @Override
   public boolean canRead() {
-    return (isFileSystem() ? super.canRead() : true);       // ((Fix?))
+    return !isFileSystem() || super.canRead();       // ((Fix?))
   }
 
   /**
@@ -438,40 +435,49 @@ public abstract class ShellFolder extends File {
    * True for the "Desktop" folder, but false for the "My Computer"
    * folder.
    */
+  @Override
   public boolean canWrite() {
-    return (isFileSystem() ? super.canWrite() : false);     // ((Fix?))
+    return isFileSystem() && super.canWrite();     // ((Fix?))
   }
 
+  @Override
   public boolean exists() {
     // Assume top-level drives exist, because state is uncertain for
     // removable drives.
-    return (!isFileSystem() || isFileSystemRoot(this) || super.exists());
+    return !isFileSystem() || isFileSystemRoot(this) || super.exists();
   }
 
+  @Override
   public boolean isDirectory() {
-    return (isFileSystem() ? super.isDirectory() : true);   // ((Fix?))
+    return !isFileSystem() || super.isDirectory();   // ((Fix?))
   }
 
+  @Override
   public boolean isFile() {
-    return (isFileSystem() ? super.isFile() : !isDirectory());      // ((Fix?))
+    return isFileSystem() ? super.isFile() : !isDirectory();      // ((Fix?))
   }
 
+  @Override
   public long lastModified() {
-    return (isFileSystem() ? super.lastModified() : 0L);    // ((Fix?))
+    return isFileSystem() ? super.lastModified() : 0L;    // ((Fix?))
   }
 
+  @Override
   public long length() {
-    return (isFileSystem() ? super.length() : 0L);  // ((Fix?))
+    return isFileSystem() ? super.length() : 0L;  // ((Fix?))
   }
 
+  @Override
   public boolean createNewFile() throws IOException {
-    return (isFileSystem() ? super.createNewFile() : false);
+    return isFileSystem() && super.createNewFile();
   }
 
+  @Override
   public boolean delete() {
-    return (isFileSystem() ? super.delete() : false);       // ((Fix?))
+    return isFileSystem() && super.delete();       // ((Fix?))
   }
 
+  @Override
   public void deleteOnExit() {
     if (isFileSystem()) {
       super.deleteOnExit();
@@ -480,28 +486,34 @@ public abstract class ShellFolder extends File {
     }
   }
 
+  @Override
   public File[] listFiles() {
     return listFiles(true);
   }
 
+  @Override
   public boolean mkdir() {
-    return (isFileSystem() ? super.mkdir() : false);
+    return isFileSystem() && super.mkdir();
   }
 
+  @Override
   public boolean mkdirs() {
-    return (isFileSystem() ? super.mkdirs() : false);
+    return isFileSystem() && super.mkdirs();
   }
 
+  @Override
   public boolean renameTo(File dest) {
-    return (isFileSystem() ? super.renameTo(dest) : false); // ((Fix?))
+    return isFileSystem() && super.renameTo(dest); // ((Fix?))
   }
 
+  @Override
   public boolean setLastModified(long time) {
-    return (isFileSystem() ? super.setLastModified(time) : false); // ((Fix?))
+    return isFileSystem() && super.setLastModified(time); // ((Fix?))
   }
 
+  @Override
   public boolean setReadOnly() {
-    return (isFileSystem() ? super.setReadOnly() : false); // ((Fix?))
+    return isFileSystem() && super.setReadOnly(); // ((Fix?))
   }
 
   /**
@@ -509,41 +521,32 @@ public abstract class ShellFolder extends File {
    *
    * @see #compareTo(Object)
    */
+  @Override
   public int compareTo(File file2) {
-    if (file2 == null || !(file2 instanceof ShellFolder) || ((file2 instanceof ShellFolder)
-                                                                 && ((ShellFolder) file2)
-        .isFileSystem())) {
+    if (file2 == null || !(file2 instanceof ShellFolder) || ((ShellFolder) file2).isFileSystem()) {
 
-      if (isFileSystem()) {
-        return super.compareTo(file2);
-      } else {
-        return -1;
-      }
+      return isFileSystem() ? super.compareTo(file2) : -1;
     } else {
-      if (isFileSystem()) {
-        return 1;
-      } else {
-        return getName().compareTo(file2.getName());
-      }
+      return isFileSystem() ? 1 : getName().compareTo(file2.getName());
     }
   }
 
   public String toString() {
-    return (isFileSystem() ? super.toString() : getDisplayName());
+    return isFileSystem() ? super.toString() : getDisplayName();
   }
 
   public File[] listFiles(boolean includeHiddenFiles) {
     File[] files = super.listFiles();
 
     if (!includeHiddenFiles) {
-      Vector v = new Vector();
-      int nameCount = (files == null) ? 0 : files.length;
+      Vector<File> v = new Vector<>();
+      int nameCount = files == null ? 0 : files.length;
       for (int i = 0; i < nameCount; i++) {
         if (!files[i].isHidden()) {
           v.addElement(files[i]);
         }
       }
-      files = (File[]) v.toArray(new File[v.size()]);
+      files = v.toArray(new File[v.size()]);
     }
 
     return files;
@@ -583,10 +586,11 @@ public abstract class ShellFolder extends File {
     return null;
   }
 
-  public void sortChildren(final List<? extends File> files) {
+  public void sortChildren(List<? extends File> files) {
     // To avoid loads of synchronizations with Invoker and improve performance we
     // synchronize the whole code of the sort method once
     invoke(new Callable<Void>() {
+      @Override
       public Void call() {
         Collections.sort(files, FILE_COMPARATOR);
 
@@ -603,10 +607,34 @@ public abstract class ShellFolder extends File {
     return null;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof ShellFolder)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    ShellFolder that = (ShellFolder) o;
+
+    return getParent() != null ? getParent().equals(that.getParent()) : that.getParent() == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + (getParent() != null ? getParent().hashCode() : 0);
+    return result;
+  }
+
   /**
    * Interface allowing to invoke tasks in different environments on different platforms.
    */
-  public static interface Invoker {
+  public interface Invoker {
     /**
      * Invokes a callable task.
      *

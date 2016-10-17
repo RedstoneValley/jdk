@@ -36,9 +36,6 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import static java.awt.geom.Rectangle2D.Double;
 
@@ -51,7 +48,7 @@ import static java.awt.geom.Rectangle2D.Double;
  */
 public final class IncorrectClipXorModeSW2Surface {
 
-    private static int[] SIZES = {2, 10, 100};
+    private static final int[] SIZES = {2, 10, 100};
     private static final Shape[] SHAPES = {
                                            new Rectangle(0, 0, 0, 0),
                                            new Rectangle(0, 0, 1, 1),
@@ -73,7 +70,10 @@ public final class IncorrectClipXorModeSW2Surface {
                                            new Double(.10, .75, .20, .20),
     };
 
-    public static void main(final String[] args) throws IOException {
+    private IncorrectClipXorModeSW2Surface() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -127,13 +127,13 @@ public final class IncorrectClipXorModeSW2Surface {
     }
 
     private static BufferedImage getBufferedImage(int sw) {
-        final BufferedImage bi = new BufferedImage(sw, sw, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bi = new BufferedImage(sw, sw, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = bi.createGraphics();
         g2d.setColor(Color.RED);
         g2d.fillRect(0, 0, sw, sw);
         g2d.dispose();
 
-        final DataBuffer db = bi.getRaster().getDataBuffer();
+        DataBuffer db = bi.getRaster().getDataBuffer();
         if (db instanceof DataBufferInt) {
             ((DataBufferInt) db).getData();
         } else if (db instanceof DataBufferShort) {
@@ -143,7 +143,7 @@ public final class IncorrectClipXorModeSW2Surface {
         } else {
             try {
                 bi.setAccelerationPriority(0.0f);
-            } catch (final Throwable ignored) {
+            } catch (Throwable ignored) {
             }
         }
         return bi;
@@ -164,8 +164,7 @@ public final class IncorrectClipXorModeSW2Surface {
         return image;
     }
 
-    private static void validate(BufferedImage bi, BufferedImage goldbi)
-            throws IOException {
+    private static void validate(BufferedImage bi, BufferedImage goldbi) {
         for (int x = 0; x < bi.getWidth(); ++x) {
             for (int y = 0; y < bi.getHeight(); ++y) {
                 if (goldbi.getRGB(x, y) != bi.getRGB(x, y)) {

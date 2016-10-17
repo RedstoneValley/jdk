@@ -32,6 +32,7 @@ import java.util.*;
  * @bug 7017324
  */
 public class KernCrash extends Frame {
+    private static final long serialVersionUID = -5099221262944488080L;
     private static Font font0;
     private static Font font1;
     private static Font font2;
@@ -40,7 +41,7 @@ public class KernCrash extends Frame {
         HashMap attrs = new HashMap();
         font0 = Font.createFont(Font.TRUETYPE_FONT, new File("Vera.ttf"));
         System.out.println("using " + font0);
-        attrs.put(TextAttribute.SIZE, new Float(58f));
+        attrs.put(TextAttribute.SIZE, 58f);
         font1 = font0.deriveFont(attrs);
         attrs.put(TextAttribute.KERNING, TextAttribute.KERNING_ON);
         font2 = font0.deriveFont(attrs);
@@ -52,6 +53,7 @@ public class KernCrash extends Frame {
         f.show();
     }
 
+    @Override
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
         FontRenderContext frc = g2.getFontRenderContext();

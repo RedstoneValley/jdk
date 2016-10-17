@@ -31,18 +31,21 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.swing.SwingUtilities;
 import sun.awt.SunToolkit;
 
-public class NofocusListDblClickTest {
+public final class NofocusListDblClickTest {
     static final int EXPECTED_ACTION_COUNT = 2;
     static Robot robot;
     static final AtomicInteger actionPerformed = new AtomicInteger(0);
     static List lst;
     private static final SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
 
+    private NofocusListDblClickTest() {
+    }
+
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 createAndShowGUI();
             }
@@ -93,8 +96,9 @@ public class NofocusListDblClickTest {
         lst.setFocusable(false);
 
         lst.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.out.println(e.toString());
+                    System.out.println(e);
                     synchronized (actionPerformed) {
                         if (EXPECTED_ACTION_COUNT == actionPerformed.incrementAndGet()) {
                             actionPerformed.notifyAll();
@@ -115,7 +119,7 @@ public class NofocusListDblClickTest {
         Dimension d = c.getSize();
 
         if (c instanceof Frame) {
-            robot.mouseMove(p.x + (int)(d.getWidth()/2), p.y + ((Frame)c).getInsets().top/2);
+            robot.mouseMove(p.x + (int)(d.getWidth()/2), p.y + ((Container) c).getInsets().top/2);
         } else {
             robot.mouseMove(p.x + (int)(d.getWidth()/2), p.y + (int)(d.getHeight()/2));
         }

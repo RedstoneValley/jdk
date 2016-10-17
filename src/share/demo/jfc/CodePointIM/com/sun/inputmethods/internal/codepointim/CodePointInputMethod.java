@@ -49,7 +49,7 @@ import java.awt.font.TextHitInfo;
 import java.awt.im.InputMethodHighlight;
 import java.awt.im.spi.InputMethod;
 import java.awt.im.spi.InputMethodContext;
-import java.io.IOException;
+import java.lang.Character.Subset;
 import java.text.AttributedString;
 import java.util.Locale;
 
@@ -72,7 +72,7 @@ public class CodePointInputMethod implements InputMethod {
   private int insertionPoint;
   private int format = UNSET;
 
-  public CodePointInputMethod() throws IOException {
+  public CodePointInputMethod() {
   }
 
   private static void beep() {
@@ -132,7 +132,7 @@ public class CodePointInputMethod implements InputMethod {
       buffer.append(c);
       insertionPoint++;
       sendComposedText();
-      format = (c == 'u') ? ESCAPE : SPECIAL_ESCAPE;
+      format = c == 'u' ? ESCAPE : SPECIAL_ESCAPE;
     } else {
       if (c != '\\') {
         buffer.append(c);
@@ -144,7 +144,8 @@ public class CodePointInputMethod implements InputMethod {
 
   private void waitDigit(char c) {
     if (Character.digit(c, 16) != -1) {
-      buffer.insert(insertionPoint++, c);
+      buffer.insert(insertionPoint, c);
+      insertionPoint++;
       sendComposedText();
     } else {
       beep();
@@ -153,7 +154,8 @@ public class CodePointInputMethod implements InputMethod {
 
   private void waitDigit2(char c) {
     if (Character.digit(c, 16) != -1) {
-      buffer.insert(insertionPoint++, c);
+      buffer.insert(insertionPoint, c);
+      insertionPoint++;
       char codePoint = (char) getCodePoint(buffer, 2, 5);
       if (Character.isHighSurrogate(codePoint)) {
         format = SURROGATE_PAIR;
@@ -171,8 +173,7 @@ public class CodePointInputMethod implements InputMethod {
   private void waitBackSlashOrLowSurrogate(char c) {
     if (insertionPoint == 6) {
       if (c == '\\') {
-        buffer.append(c);
-        buffer.append('u');
+        buffer.append("\\u");
         insertionPoint = 8;
         sendComposedText();
       } else if (Character.digit(c, 16) != -1) {
@@ -224,7 +225,8 @@ public class CodePointInputMethod implements InputMethod {
    */
   private void moveCaretLeft() {
     int len = buffer.length();
-    if (--insertionPoint < 2) {
+    --insertionPoint;
+    if (insertionPoint < 2) {
       insertionPoint++;
       beep();
     } else if (format == SURROGATE_PAIR && insertionPoint == 7) {
@@ -244,7 +246,8 @@ public class CodePointInputMethod implements InputMethod {
    */
   private void moveCaretRight() {
     int len = buffer.length();
-    if (++insertionPoint > len) {
+    ++insertionPoint;
+    if (insertionPoint > len) {
       insertionPoint = len;
       beep();
     }
@@ -273,9 +276,11 @@ public class CodePointInputMethod implements InputMethod {
     } else if (insertionPoint == 8) {
       if (buffer.length() == 8) {
         if (format == SURROGATE_PAIR) {
-          buffer.deleteCharAt(--insertionPoint);
+          --insertionPoint;
+          buffer.deleteCharAt(insertionPoint);
         }
-        buffer.deleteCharAt(--insertionPoint);
+        --insertionPoint;
+        buffer.deleteCharAt(insertionPoint);
         sendComposedText();
       } else {
         // Do not allow deletion of the second "\\u" if there are other
@@ -283,7 +288,8 @@ public class CodePointInputMethod implements InputMethod {
         beep();
       }
     } else {
-      buffer.deleteCharAt(--insertionPoint);
+      --insertionPoint;
+      buffer.deleteCharAt(insertionPoint);
       if (buffer.length() == 0) {
         sendCommittedText();
       } else {
@@ -358,6 +364,7 @@ public class CodePointInputMethod implements InputMethod {
     return value;
   }
 
+  @Override
   public void setInputMethodContext(InputMethodContext context) {
     this.context = context;
   }
@@ -365,28 +372,34 @@ public class CodePointInputMethod implements InputMethod {
   /*
    * The Code Point Input Method supports all locales.
    */
+  @Override
   public boolean setLocale(Locale locale) {
     this.locale = locale;
     return true;
   }
 
+  @Override
   public Locale getLocale() {
     return locale;
   }
 
-  public void setCharacterSubsets(Character.Subset[] subsets) {
+  @Override
+  public void setCharacterSubsets(Subset[] subsets) {
   }
 
+  @Override
   public boolean isCompositionEnabled() {
     // always enabled
     return true;
   }
 
+  @Override
   public void setCompositionEnabled(boolean enable) {
     // not supported yet
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public void reconvert() {
     // not supported yet
     throw new UnsupportedOperationException();
@@ -396,6 +409,7 @@ public class CodePointInputMethod implements InputMethod {
    * This is the input method's main routine.  The composed text is stored
    * in buffer.
    */
+  @Override
   public void dispatchEvent(AWTEvent event) {
     // This input method handles KeyEvent only.
     if (!(event instanceof KeyEvent)) {
@@ -464,9 +478,11 @@ public class CodePointInputMethod implements InputMethod {
     e.consume();
   }
 
+  @Override
   public void notifyClientWindowChange(Rectangle location) {
   }
 
+  @Override
   public void activate() {
     if (buffer == null) {
       buffer = new StringBuffer(12);
@@ -474,25 +490,31 @@ public class CodePointInputMethod implements InputMethod {
     }
   }
 
+  @Override
   public void deactivate(boolean isTemporary) {
     if (!isTemporary) {
       buffer = null;
     }
   }
 
+  @Override
   public void hideWindows() {
   }
 
+  @Override
   public void removeNotify() {
   }
 
+  @Override
   public void endComposition() {
     sendCommittedText();
   }
 
+  @Override
   public void dispose() {
   }
 
+  @Override
   public Object getControlObject() {
     return null;
   }

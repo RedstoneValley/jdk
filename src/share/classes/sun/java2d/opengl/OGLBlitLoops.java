@@ -35,7 +35,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
-import java.lang.annotation.Native;
 import java.lang.ref.WeakReference;
 import sun.java2d.SurfaceData;
 import sun.java2d.loops.Blit;
@@ -45,9 +44,12 @@ import sun.java2d.loops.GraphicsPrimitiveMgr;
 import sun.java2d.loops.ScaledBlit;
 import sun.java2d.loops.SurfaceType;
 import sun.java2d.loops.TransformBlit;
+import sun.java2d.pipe.BufferedBufImgOps;
+import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.Region;
 import sun.java2d.pipe.RenderBuffer;
 import sun.java2d.pipe.RenderQueue;
+import sun.java2d.pipe.hw.AccelSurface;
 
 final class OGLBlitLoops {
 
@@ -62,6 +64,9 @@ final class OGLBlitLoops {
   @Native private static final int OFFSET_RTT = 2;
   @Native private static final int OFFSET_XFORM = 1;
   @Native private static final int OFFSET_ISOBLIT = 0;
+
+  private OGLBlitLoops() {
+  }
 
   static void register() {
     Blit blitIntArgbPreToSurface = new OGLSwToSurfaceBlit(SurfaceType.IntArgbPre,
@@ -155,12 +160,12 @@ final class OGLBlitLoops {
    */
   private static int createPackedParams(
       boolean isoblit, boolean texture, boolean rtt, boolean xform, int hint, int srctype) {
-    return ((srctype << OFFSET_SRCTYPE) |
-                (hint << OFFSET_HINT) |
-                ((texture ? 1 : 0) << OFFSET_TEXTURE) |
-                ((rtt ? 1 : 0) << OFFSET_RTT) |
-                ((xform ? 1 : 0) << OFFSET_XFORM) |
-                ((isoblit ? 1 : 0) << OFFSET_ISOBLIT));
+    return srctype << OFFSET_SRCTYPE |
+        hint << OFFSET_HINT |
+        (texture ? 1 : 0) << OFFSET_TEXTURE |
+        (rtt ? 1 : 0) << OFFSET_RTT |
+        (xform ? 1 : 0) << OFFSET_XFORM |
+        (isoblit ? 1 : 0);
   }
 
   /**
@@ -207,7 +212,7 @@ final class OGLBlitLoops {
         OGLGraphicsConfig gc = oglDst.getOGLGraphicsConfig();
         OGLContext.setScratchSurface(gc);
       } else {
-        OGLContext.validateContext(oglDst, oglDst, clip, comp, xform, null, null, ctxflags);
+        BufferedContext.validateContext(oglDst, oglDst, clip, comp, xform, null, null, ctxflags);
       }
 
       int packedParams = createPackedParams(false, texture, false, xform != null, hint, srctype);
@@ -255,24 +260,20 @@ final class OGLBlitLoops {
         // surface; we set rtt to true to differentiate this kind
         // of surface from a regular texture object
         rtt = true;
-        if (srctype == OGLSurfaceData.FBOBJECT) {
-          srcCtxData = oglDst;
-        } else {
-          srcCtxData = oglSrc;
-        }
+        srcCtxData = srctype == OGLSurfaceData.FBOBJECT ? oglDst : oglSrc;
       }
 
-      OGLContext.validateContext(srcCtxData, oglDst, clip, comp, xform, null, null, ctxflags);
+      BufferedContext.validateContext(srcCtxData, oglDst, clip, comp, xform, null, null, ctxflags);
 
       if (biop != null) {
-        OGLBufImgOps.enableBufImgOp(rq, oglSrc, srcImg, biop);
+        BufferedBufImgOps.enableBufImgOp(rq, oglSrc, srcImg, biop);
       }
 
       int packedParams = createPackedParams(true, texture, rtt, xform != null, hint, 0 /*unused*/);
       enqueueBlit(rq, srcData, dstData, packedParams, sx1, sy1, sx2, sy2, dx1, dy1, dx2, dy2);
 
       if (biop != null) {
-        OGLBufImgOps.disableBufImgOp(rq, biop);
+        BufferedBufImgOps.disableBufImgOp(rq, biop);
       }
 
       if (rtt && oglDst.isOnScreen()) {
@@ -293,6 +294,7 @@ class OGLSurfaceToSurfaceBlit extends Blit {
     super(OGLSurfaceData.OpenGLSurface, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -322,6 +324,7 @@ class OGLSurfaceToSurfaceScale extends ScaledBlit {
     super(OGLSurfaceData.OpenGLSurface, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Scale(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
       int sy2, double dx1, double dy1, double dx2, double dy2) {
@@ -351,6 +354,7 @@ class OGLSurfaceToSurfaceTransform extends TransformBlit {
     super(OGLSurfaceData.OpenGLSurface, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Transform(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
       int sx, int sy, int dx, int dy, int w, int h) {
@@ -380,6 +384,7 @@ class OGLRTTSurfaceToSurfaceBlit extends Blit {
     super(OGLSurfaceData.OpenGLSurfaceRTT, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -409,6 +414,7 @@ class OGLRTTSurfaceToSurfaceScale extends ScaledBlit {
     super(OGLSurfaceData.OpenGLSurfaceRTT, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Scale(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
       int sy2, double dx1, double dy1, double dx2, double dy2) {
@@ -438,6 +444,7 @@ class OGLRTTSurfaceToSurfaceTransform extends TransformBlit {
     super(OGLSurfaceData.OpenGLSurfaceRTT, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Transform(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
       int sx, int sy, int dx, int dy, int w, int h) {
@@ -467,7 +474,7 @@ final class OGLSurfaceToSwBlit extends Blit {
   private WeakReference<SurfaceData> srcTmp;
 
   // destination will actually be ArgbPre or Argb
-  OGLSurfaceToSwBlit(final SurfaceType dstType, final int typeval) {
+  OGLSurfaceToSwBlit(SurfaceType dstType, int typeval) {
     super(OGLSurfaceData.OpenGLSurface, CompositeType.SrcNoEa, dstType);
     this.typeval = typeval;
   }
@@ -488,13 +495,13 @@ final class OGLSurfaceToSwBlit extends Blit {
     // this case we simply skip conversion and use color components as is.
     // Because of this we align intermediate buffer type with type of
     // destination not source.
-    final int type = typeval == OGLSurfaceData.PF_INT_ARGB_PRE ? BufferedImage.TYPE_INT_ARGB_PRE
+    int type = typeval == OGLSurfaceData.PF_INT_ARGB_PRE ? BufferedImage.TYPE_INT_ARGB_PRE
         : BufferedImage.TYPE_INT_ARGB;
 
     src = convertFrom(this, src, sx, sy, w, h, cachedSrc, type);
 
     // copy intermediate SW to destination SW using complex clip
-    final Blit performop = Blit.getFromCache(src.getSurfaceType(),
+    Blit performop = Blit.getFromCache(src.getSurfaceType(),
         CompositeType.SrcNoEa,
         dst.getSurfaceType());
     performop.Blit(src, dst, comp, clip, 0, 0, dx, dy, w, h);
@@ -505,6 +512,7 @@ final class OGLSurfaceToSwBlit extends Blit {
     }
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -537,7 +545,7 @@ final class OGLSurfaceToSwBlit extends Blit {
       rq.addReference(dst);
 
       RenderBuffer buf = rq.getBuffer();
-      OGLContext.validateContext((OGLSurfaceData) src);
+      BufferedContext.validateContext((AccelSurface) src);
 
       rq.ensureCapacityAndAlignment(48, 32);
       buf.putInt(SURFACE_TO_SW_BLIT);
@@ -558,13 +566,14 @@ final class OGLSurfaceToSwBlit extends Blit {
 
 class OGLSwToSurfaceBlit extends Blit {
 
-  private int typeval;
+  private final int typeval;
 
   OGLSwToSurfaceBlit(SurfaceType srcType, int typeval) {
     super(srcType, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
     this.typeval = typeval;
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -589,13 +598,14 @@ class OGLSwToSurfaceBlit extends Blit {
 
 class OGLSwToSurfaceScale extends ScaledBlit {
 
-  private int typeval;
+  private final int typeval;
 
   OGLSwToSurfaceScale(SurfaceType srcType, int typeval) {
     super(srcType, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
     this.typeval = typeval;
   }
 
+  @Override
   public void Scale(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
       int sy2, double dx1, double dy1, double dx2, double dy2) {
@@ -620,13 +630,14 @@ class OGLSwToSurfaceScale extends ScaledBlit {
 
 class OGLSwToSurfaceTransform extends TransformBlit {
 
-  private int typeval;
+  private final int typeval;
 
   OGLSwToSurfaceTransform(SurfaceType srcType, int typeval) {
     super(srcType, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
     this.typeval = typeval;
   }
 
+  @Override
   public void Transform(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
       int sx, int sy, int dx, int dy, int w, int h) {
@@ -651,13 +662,14 @@ class OGLSwToSurfaceTransform extends TransformBlit {
 
 class OGLSwToTextureBlit extends Blit {
 
-  private int typeval;
+  private final int typeval;
 
   OGLSwToTextureBlit(SurfaceType srcType, int typeval) {
     super(srcType, CompositeType.SrcNoEa, OGLSurfaceData.OpenGLTexture);
     this.typeval = typeval;
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -686,6 +698,7 @@ class OGLTextureToSurfaceBlit extends Blit {
     super(OGLSurfaceData.OpenGLTexture, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -715,6 +728,7 @@ class OGLTextureToSurfaceScale extends ScaledBlit {
     super(OGLSurfaceData.OpenGLTexture, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Scale(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx1, int sy1, int sx2,
       int sy2, double dx1, double dy1, double dx2, double dy2) {
@@ -744,6 +758,7 @@ class OGLTextureToSurfaceTransform extends TransformBlit {
     super(OGLSurfaceData.OpenGLTexture, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public void Transform(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
       int sx, int sy, int dx, int dy, int w, int h) {
@@ -783,6 +798,7 @@ class OGLGeneralBlit extends Blit {
     this.performop = performop;
   }
 
+  @Override
   public synchronized void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {
@@ -820,7 +836,7 @@ final class OGLGeneralTransformedBlit extends TransformBlit {
   private final TransformBlit performop;
   private WeakReference<SurfaceData> srcTmp;
 
-  OGLGeneralTransformedBlit(final TransformBlit performop) {
+  OGLGeneralTransformedBlit(TransformBlit performop) {
     super(SurfaceType.Any, CompositeType.AnyAlpha, OGLSurfaceData.OpenGLSurface);
     this.performop = performop;
   }
@@ -833,7 +849,7 @@ final class OGLGeneralTransformedBlit extends TransformBlit {
         CompositeType.SrcNoEa,
         SurfaceType.IntArgbPre);
     // use cached intermediate surface, if available
-    final SurfaceData cachedSrc = srcTmp != null ? srcTmp.get() : null;
+    SurfaceData cachedSrc = srcTmp != null ? srcTmp.get() : null;
     // convert source to IntArgbPre
     src = convertFrom(convertsrc,
         src,
@@ -861,6 +877,7 @@ final class OGLAnyCompositeBlit extends Blit {
     super(SurfaceType.Any, CompositeType.Any, OGLSurfaceData.OpenGLSurface);
   }
 
+  @Override
   public synchronized void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int sx, int sy, int dx, int dy,
       int w, int h) {

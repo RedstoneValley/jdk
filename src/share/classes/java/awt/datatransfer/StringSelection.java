@@ -29,18 +29,18 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * A <code>Transferable</code> which implements the capability required
- * to transfer a <code>String</code>.
+ * A {@code Transferable} which implements the capability required
+ * to transfer a {@code String}.
  * <p>
- * This <code>Transferable</code> properly supports
- * <code>DataFlavor.stringFlavor</code>
+ * This {@code Transferable} properly supports
+ * {@code DataFlavor.stringFlavor}
  * and all equivalent flavors. Support for
- * <code>DataFlavor.plainTextFlavor</code>
+ * {@code DataFlavor.plainTextFlavor}
  * and all equivalent flavors is <b>deprecated</b>. No other
- * <code>DataFlavor</code>s are supported.
+ * {@code DataFlavor}s are supported.
  *
- * @see java.awt.datatransfer.DataFlavor#stringFlavor
- * @see java.awt.datatransfer.DataFlavor#plainTextFlavor
+ * @see DataFlavor#stringFlavor
+ * @see DataFlavor#plainTextFlavor
  */
 public class StringSelection implements Transferable, ClipboardOwner {
 
@@ -51,47 +51,49 @@ public class StringSelection implements Transferable, ClipboardOwner {
       DataFlavor.stringFlavor, DataFlavor.plainTextFlavor // deprecated
   };
 
-  private String data;
+  private final String data;
 
   /**
-   * Creates a <code>Transferable</code> capable of transferring
-   * the specified <code>String</code>.
+   * Creates a {@code Transferable} capable of transferring
+   * the specified {@code String}.
    */
   public StringSelection(String data) {
     this.data = data;
   }
 
   /**
-   * Returns an array of flavors in which this <code>Transferable</code>
-   * can provide the data. <code>DataFlavor.stringFlavor</code>
+   * Returns an array of flavors in which this {@code Transferable}
+   * can provide the data. {@code DataFlavor.stringFlavor}
    * is properly supported.
-   * Support for <code>DataFlavor.plainTextFlavor</code> is
+   * Support for {@code DataFlavor.plainTextFlavor} is
    * <b>deprecated</b>.
    *
-   * @return an array of length two, whose elements are <code>DataFlavor.
-   * stringFlavor</code> and <code>DataFlavor.plainTextFlavor</code>
+   * @return an array of length two, whose elements are {@code DataFlavor.
+   * stringFlavor} and {@code DataFlavor.plainTextFlavor}
    */
+  @Override
   public DataFlavor[] getTransferDataFlavors() {
     // returning flavors itself would allow client code to modify
     // our internal behavior
-    return (DataFlavor[]) flavors.clone();
+    return flavors.clone();
   }
 
   /**
    * Returns whether the requested flavor is supported by this
-   * <code>Transferable</code>.
+   * {@code Transferable}.
    *
    * @param flavor the requested flavor for the data
-   * @return true if <code>flavor</code> is equal to
-   * <code>DataFlavor.stringFlavor</code> or
-   * <code>DataFlavor.plainTextFlavor</code>; false if <code>flavor</code>
+   * @return true if {@code flavor} is equal to
+   * {@code DataFlavor.stringFlavor} or
+   * {@code DataFlavor.plainTextFlavor}; false if {@code flavor}
    * is not one of the above flavors
-   * @throws NullPointerException if flavor is <code>null</code>
+   * @throws NullPointerException if flavor is {@code null}
    */
+  @Override
   public boolean isDataFlavorSupported(DataFlavor flavor) {
     // JCK Test StringSelection0003: if 'flavor' is null, throw NPE
-    for (int i = 0; i < flavors.length; i++) {
-      if (flavor.equals(flavors[i])) {
+    for (DataFlavor flavor1 : flavors) {
+      if (flavor.equals(flavor1)) {
         return true;
       }
     }
@@ -99,35 +101,36 @@ public class StringSelection implements Transferable, ClipboardOwner {
   }
 
   /**
-   * Returns the <code>Transferable</code>'s data in the requested
-   * <code>DataFlavor</code> if possible. If the desired flavor is
-   * <code>DataFlavor.stringFlavor</code>, or an equivalent flavor,
-   * the <code>String</code> representing the selection is
+   * Returns the {@code Transferable}'s data in the requested
+   * {@code DataFlavor} if possible. If the desired flavor is
+   * {@code DataFlavor.stringFlavor}, or an equivalent flavor,
+   * the {@code String} representing the selection is
    * returned. If the desired flavor is
-   * <code>DataFlavor.plainTextFlavor</code>,
-   * or an equivalent flavor, a <code>Reader</code> is returned.
+   * {@code DataFlavor.plainTextFlavor},
+   * or an equivalent flavor, a {@code Reader} is returned.
    * <b>Note:</b> The behavior of this method for
-   * <code>DataFlavor.plainTextFlavor</code>
-   * and equivalent <code>DataFlavor</code>s is inconsistent with the
-   * definition of <code>DataFlavor.plainTextFlavor</code>.
+   * {@code DataFlavor.plainTextFlavor}
+   * and equivalent {@code DataFlavor}s is inconsistent with the
+   * definition of {@code DataFlavor.plainTextFlavor}.
    *
    * @param flavor the requested flavor for the data
    * @return the data in the requested flavor, as outlined above
    * @throws UnsupportedFlavorException if the requested data flavor is
-   *                                    not equivalent to either <code>DataFlavor
-   *                                    .stringFlavor</code>
-   *                                    or <code>DataFlavor.plainTextFlavor</code>
+   *                                    not equivalent to either {@code DataFlavor
+   *                                    .stringFlavor}
+   *                                    or {@code DataFlavor.plainTextFlavor}
    * @throws IOException                if an IOException occurs while retrieving the data.
    *                                    By default, StringSelection never throws this
    *                                    exception, but a
    *                                    subclass may.
-   * @throws NullPointerException       if flavor is <code>null</code>
+   * @throws NullPointerException       if flavor is {@code null}
    * @see java.io.Reader
    */
+  @Override
   public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
     // JCK Test StringSelection0007: if 'flavor' is null, throw NPE
     if (flavor.equals(flavors[STRING])) {
-      return (Object) data;
+      return data;
     } else if (flavor.equals(flavors[PLAIN_TEXT])) {
       return new StringReader(data == null ? "" : data);
     } else {
@@ -135,6 +138,7 @@ public class StringSelection implements Transferable, ClipboardOwner {
     }
   }
 
+  @Override
   public void lostOwnership(Clipboard clipboard, Transferable contents) {
   }
 }

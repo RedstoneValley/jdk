@@ -24,14 +24,10 @@
 import sun.awt.OSInfo;
 
 import java.awt.*;
-import java.awt.Robot;
 import java.awt.event.InputEvent;
-import java.lang.InterruptedException;
-import java.lang.System;
-import java.lang.Thread;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import javax.swing.*;
+import sun.awt.OSInfo.OSType;
 
 /*
  * @test
@@ -43,16 +39,19 @@ import javax.swing.*;
  * @author Petr Pchelko area=awt.event
  * @run main/othervm -splash:test.png FullScreenAfterSplash
  */
-public class FullScreenAfterSplash {
+public final class FullScreenAfterSplash {
 
     private static JFrame frame;
 
-    private static volatile boolean windowEnteringFullScreen = false;
-    private static volatile boolean windowEnteredFullScreen = false;
+    private static volatile boolean windowEnteringFullScreen;
+    private static volatile boolean windowEnteredFullScreen;
+
+    private FullScreenAfterSplash() {
+    }
 
     public static void main(String[] args) throws Exception {
 
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             System.out.println("The test is applicable only to Mac OS X. Passed");
             return;
         }
@@ -75,19 +74,21 @@ public class FullScreenAfterSplash {
                 r.mousePress(InputEvent.BUTTON1_MASK);
                 r.mouseRelease(InputEvent.BUTTON1_MASK);
                 Thread.sleep(100);
-                if (waitCount++ > 10) {
+                if (waitCount > 10) {
                     System.err.println("Can't enter full screen mode. Failed.");
                     System.exit(1);
                 }
+                waitCount++;
             }
 
             waitCount = 0;
             while (!windowEnteredFullScreen) {
                 Thread.sleep(100);
-                if (waitCount++ > 10) {
+                if (waitCount > 10) {
                     System.err.println("Can't enter full screen mode. Failed.");
                     System.exit(1);
                 }
+                waitCount++;
             }
         } finally {
             if (frame != null) {

@@ -39,7 +39,6 @@
 
 import java.io.File;
 import java.io.IOException;
-import javax.swing.filechooser.FileSystemView;
 
 /**
  * This is a simple example that uses the FileSystemView class.

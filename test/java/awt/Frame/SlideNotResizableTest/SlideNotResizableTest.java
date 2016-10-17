@@ -24,9 +24,6 @@
 import sun.awt.SunToolkit;
 
 import java.awt.*;
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.InputEvent;
 
 /**
  * @test
@@ -35,11 +32,14 @@ import java.awt.event.InputEvent;
  * @author Petr Pchelko
  */
 
-public class SlideNotResizableTest {
+public final class SlideNotResizableTest {
 
-    private static volatile boolean passed = false;
+    private static final boolean passed;
     private static final Dimension FRAME_SIZE = new Dimension(100, 100);
     private static final Point FRAME_LOCATION = new Point(200, 200);
+
+    private SlideNotResizableTest() {
+    }
 
     public static void main(String[] args) throws Throwable {
         Frame aFrame = null;

@@ -29,21 +29,25 @@
   @run main InvocationEventTest
 */
 
-/**
- * InvocationEventTest.java
- *
- * summary: Tests new isDispatched method of the InvocationEvent class
+/*
+  InvocationEventTest.java
+
+  summary: Tests new isDispatched method of the InvocationEvent class
  */
 
 import java.awt.*;
 import java.awt.event.*;
 
-public class InvocationEventTest
+public final class InvocationEventTest
 {
+    private InvocationEventTest() {
+    }
+
     public static void main(String []s) throws Exception
     {
         Toolkit tk = Toolkit.getDefaultToolkit();
         Runnable runnable = new Runnable() {
+            @Override
             public void run() {
             }
         };

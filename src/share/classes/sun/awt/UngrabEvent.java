@@ -37,13 +37,12 @@ import java.awt.Component;
  * </ul>
  * <p>
  * <p>Notice that this event is not generated on mouse click inside of the window area.
- * <p>To listen for this event, install AWTEventListener with {@value sun.awt
- * .SunToolkit#GRAB_EVENT_MASK}
+ * <p>To listen for this event, install AWTEventListener with
  */
 @SuppressWarnings("serial")
 public class UngrabEvent extends AWTEvent {
 
-  private final static int UNGRAB_EVENT_ID = 1998;
+  private static final int UNGRAB_EVENT_ID = 1998;
 
   public UngrabEvent(Component source) {
     super(source, UNGRAB_EVENT_ID);

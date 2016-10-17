@@ -31,9 +31,12 @@
 
 import java.awt.*;
 
-public class HeadlessTray
+public final class HeadlessTray
 {
-    public static void main (String args[]) {
+  private HeadlessTray() {
+  }
+
+  public static void main (String[] args) {
 
         System.setProperty("java.awt.headless", "true");
 

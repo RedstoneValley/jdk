@@ -40,10 +40,6 @@
 package com.sun.nio.zipfs;
 
 import java.io.IOException;
-import java.nio.file.ClosedDirectoryStreamException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.NotDirectoryException;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -60,10 +56,9 @@ public class ZipDirectoryStream implements DirectoryStream<Path> {
   private volatile Iterator<Path> itr;
 
   ZipDirectoryStream(
-      ZipPath zipPath, DirectoryStream.Filter<? super java.nio.file.Path> filter)
-      throws IOException {
-    this.zipfs = zipPath.getFileSystem();
-    this.path = zipPath.getResolvedPath();
+      ZipPath zipPath, DirectoryStream.Filter<? super java.nio.file.Path> filter) {
+    zipfs = zipPath.getFileSystem();
+    path = zipPath.getResolvedPath();
     this.filter = filter;
     // sanity check
     if (!zipfs.isDirectory(path)) {
@@ -90,18 +85,18 @@ public class ZipDirectoryStream implements DirectoryStream<Path> {
 
       @Override
       public boolean hasNext() {
-        if (isClosed) {
+        if (com.sun.nio.zipfs.ZipDirectoryStream.this.isClosed) {
           return false;
         }
-        return itr.hasNext();
+        return com.sun.nio.zipfs.ZipDirectoryStream.this.itr.hasNext();
       }
 
       @Override
       public synchronized Path next() {
-        if (isClosed) {
+        if (com.sun.nio.zipfs.ZipDirectoryStream.this.isClosed) {
           throw new NoSuchElementException();
         }
-        return itr.next();
+        return com.sun.nio.zipfs.ZipDirectoryStream.this.itr.next();
       }
 
       @Override

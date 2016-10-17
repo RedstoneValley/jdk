@@ -29,7 +29,7 @@ import java.lang.reflect.Array;
 import java.util.EventListener;
 
 /**
- * A class that assists in managing {@link java.util.EventListener}s of
+ * A class that assists in managing {@link EventListener}s of
  * the specified type. Its instance holds an array of listeners of the same
  * type and allows to perform the typical operations on the listeners.
  * This class is thread-safe.
@@ -42,13 +42,13 @@ public class EventListenerAggregate {
   private EventListener[] listenerList;
 
   /**
-   * Constructs an <code>EventListenerAggregate</code> object.
+   * Constructs an {@code EventListenerAggregate} object.
    *
    * @param listenerClass the type of the listeners to be managed by this object
-   * @throws NullPointerException if <code>listenerClass</code> is
-   *                              <code>null</code>
-   * @throws ClassCastException   if <code>listenerClass</code> is not
-   *                              assignable to <code>java.util.EventListener</code>
+   * @throws NullPointerException if {@code listenerClass} is
+   *                              {@code null}
+   * @throws ClassCastException   if {@code listenerClass} is not
+   *                              assignable to {@code java.util.EventListener}
    */
   public EventListenerAggregate(Class<? extends EventListener> listenerClass) {
     if (listenerClass == null) {
@@ -66,8 +66,8 @@ public class EventListenerAggregate {
    * Adds the listener to this aggregate.
    *
    * @param listener the listener to be added
-   * @throws ClassCastException if <code>listener</code> is not
-   *                            an instatce of <code>listenerClass</code> specified
+   * @throws ClassCastException if {@code listener} is not
+   *                            an instatce of {@code listenerClass} specified
    *                            in the constructor
    */
   public synchronized void add(EventListener listener) {
@@ -78,7 +78,8 @@ public class EventListenerAggregate {
           "an instance of listener class " + listenerClass);
     }
 
-    EventListener[] tmp = (EventListener[]) Array.newInstance(listenerClass,
+    EventListener[] tmp = (EventListener[]) Array.newInstance(
+        listenerClass,
         listenerList.length + 1);
     System.arraycopy(listenerList, 0, tmp, 0, listenerList.length);
     tmp[listenerList.length] = listener;
@@ -87,13 +88,13 @@ public class EventListenerAggregate {
 
   /**
    * Removes a listener that is equal to the given one from this aggregate.
-   * <code>equals()</code> method is used to compare listeners.
+   * {@code equals()} method is used to compare listeners.
    *
    * @param listener the listener to be removed
-   * @return <code>true</code> if this aggregate contained the specified
-   * <code>listener</code>; <code>false</code> otherwise
-   * @throws ClassCastException if <code>listener</code> is not
-   *                            an instatce of <code>listenerClass</code> specified
+   * @return {@code true} if this aggregate contained the specified
+   * {@code listener}; {@code false} otherwise
+   * @throws ClassCastException if {@code listener} is not
+   *                            an instatce of {@code listenerClass} specified
    *                            in the constructor
    */
   public synchronized boolean remove(EventListener listener) {
@@ -122,8 +123,8 @@ public class EventListenerAggregate {
   /**
    * Returns an array of all the listeners contained in this aggregate.
    * The array is the data structure in which listeners are stored internally.
-   * The runtime type of the returned array is "array of <code>listenerClass</code>"
-   * (<code>listenerClass</code> has been specified as a parameter to
+   * The runtime type of the returned array is "array of {@code listenerClass}"
+   * ({@code listenerClass} has been specified as a parameter to
    * the constructor of this class).
    *
    * @return all the listeners contained in this aggregate (an empty
@@ -137,15 +138,15 @@ public class EventListenerAggregate {
    * Returns an array of all the listeners contained in this aggregate.
    * The array is a copy of the data structure in which listeners are stored
    * internally.
-   * The runtime type of the returned array is "array of <code>listenerClass</code>"
-   * (<code>listenerClass</code> has been specified as a parameter to
+   * The runtime type of the returned array is "array of {@code listenerClass}"
+   * ({@code listenerClass} has been specified as a parameter to
    * the constructor of this class).
    *
    * @return a copy of all the listeners contained in this aggregate (an empty
    * array if there are no listeners)
    */
   public synchronized EventListener[] getListenersCopy() {
-    return (listenerList.length == 0) ? listenerList : listenerList.clone();
+    return listenerList.length == 0 ? listenerList : listenerList.clone();
   }
 
   /**
@@ -158,11 +159,11 @@ public class EventListenerAggregate {
   }
 
   /**
-   * Returns <code>true</code> if this aggregate contains no listeners,
-   * <code>false</code> otherwise.
+   * Returns {@code true} if this aggregate contains no listeners,
+   * {@code false} otherwise.
    *
-   * @return <code>true</code> if this aggregate contains no listeners,
-   * <code>false</code> otherwise
+   * @return {@code true} if this aggregate contains no listeners,
+   * {@code false} otherwise
    */
   public synchronized boolean isEmpty() {
     return listenerList.length == 0;

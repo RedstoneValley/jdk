@@ -34,7 +34,6 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 /**
  * AlwaysOnTopEvenOfWindow.java
@@ -42,13 +41,15 @@ import test.java.awt.regtesthelpers.Util;
  * a Window.
  * Test fails in case of override-redirect Window (e.g. with JDK6.0);
  */
-public class AlwaysOnTopEvenOfWindow {
-    static boolean clicked = false;
-    public static void main(String args[]) {
+@SuppressWarnings("MagicNumber")
+public final class AlwaysOnTopEvenOfWindow {
+    static boolean clicked;
+    public static void main(String[] args) {
 
         Window win = new Window(null);
         win.setBounds( 50,50, 300,50);
         win.addMouseListener( new MouseAdapter() {
+            @Override
             public void mouseClicked( MouseEvent me ) {
                 clicked = true;
             }

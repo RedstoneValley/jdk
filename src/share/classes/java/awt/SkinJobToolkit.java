@@ -5,6 +5,8 @@ import android.graphics.Typeface;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.Clipboard;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.InvalidDnDOperationException;
@@ -179,7 +181,7 @@ public class SkinJobToolkit extends Toolkit {
 
   @Override
   public int getScreenResolution() throws HeadlessException {
-    return (int) (SkinJobGraphicsConfiguration.getDefault().dpi);
+    return (int) SkinJobGraphicsConfiguration.getDefault().dpi;
   }
 
   @Override
@@ -194,7 +196,7 @@ public class SkinJobToolkit extends Toolkit {
     try {
       Field systemFontMapField = typefaceClass.getField("sSystemFontMap");
       systemFontMapField.setAccessible(true);
-      return ((Map<String, ?>) (systemFontMapField.get(null))).keySet().toArray(new String[0]);
+      return ((Map<String, ?>) systemFontMapField.get(null)).keySet().toArray(new String[0]);
     } catch (NoSuchFieldException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
@@ -282,12 +284,12 @@ public class SkinJobToolkit extends Toolkit {
   }
 
   @Override
-  public boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
+  public boolean isModalityTypeSupported(ModalityType modalityType) {
     return false;
   }
 
   @Override
-  public boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType modalExclusionType) {
+  public boolean isModalExclusionTypeSupported(ModalExclusionType modalExclusionType) {
     return false;
   }
 

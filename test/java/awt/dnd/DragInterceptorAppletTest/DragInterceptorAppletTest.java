@@ -29,18 +29,14 @@
   @run applet DragInterceptorAppletTest.html
 */
 
-/**
- * DragInterceptorAppletTest.java
- *
- * summary: Unsigned applet can retrieve the dragged information before drop action occurs
+/*
+  DragInterceptorAppletTest.java
+
+  summary: Unsigned applet can retrieve the dragged information before drop action occurs
  */
 
 import static java.lang.Thread.sleep;
 
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-import test.java.awt.regtesthelpers.Util;
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.InputEvent;
 
@@ -56,7 +52,7 @@ public class DragInterceptorAppletTest extends Applet {
 
         Util.waitForIdle(null);
 
-        String [] args = new String [] {
+        String [] args = {
             String.valueOf(sourceFrame.getNextLocationX()),
             String.valueOf(sourceFrame.getNextLocationY()),
             String.valueOf(sourceFrame.getDragSourcePointX()),
@@ -64,7 +60,7 @@ public class DragInterceptorAppletTest extends Applet {
         };
         String classpath = System.getProperty("java.class.path");
         ProcessResults processResults =
-            ProcessCommunicator.executeChildProcess(this.getClass(),classpath,args);
+            ProcessCommunicator.executeChildProcess(getClass(),classpath,args);
 
         verifyTestResults(processResults);
 
@@ -100,7 +96,6 @@ public class DragInterceptorAppletTest extends Applet {
 
     //We cannot make an instance of the applet without the default constructor
     public DragInterceptorAppletTest() {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
@@ -111,7 +106,7 @@ public class DragInterceptorAppletTest extends Applet {
 
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int)dragSourcePoint.getX(),(int)dragSourcePoint.getY());
         sleep(100);
@@ -134,7 +129,7 @@ public class DragInterceptorAppletTest extends Applet {
         DRAG_SOURCE_POINT_Y_ARGUMENT;
 
         int extract (String [] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
     }
 

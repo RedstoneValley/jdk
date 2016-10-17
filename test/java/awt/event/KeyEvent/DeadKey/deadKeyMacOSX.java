@@ -31,18 +31,21 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.event.KeyEvent;
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunToolkit;
 
-public class deadKeyMacOSX {
+public final class deadKeyMacOSX {
 
     private static SunToolkit toolkit;
-    private static volatile int state = 0;
+    static volatile int state;
+
+    private deadKeyMacOSX() {
+    }
 
     public static void main(String[] args) throws Exception {
 
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             return;
         }
 

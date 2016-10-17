@@ -31,9 +31,6 @@
   @run applet/manual=yesno URLDragTest.html
 */
 
-import test.java.awt.regtesthelpers.Sysout;
-
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;

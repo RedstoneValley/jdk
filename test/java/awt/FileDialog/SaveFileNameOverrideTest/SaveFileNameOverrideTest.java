@@ -31,22 +31,19 @@
   @run applet/manual=yesno SaveFileNameOverrideTest.html
 */
 
-import test.java.awt.regtesthelpers.Sysout;
-
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
 public class SaveFileNameOverrideTest extends Applet implements ActionListener {
-    private final static String clickDirName = "Directory for double click";
-    private final static String dirPath = ".";
+    private static final String clickDirName = FileNameOverrideTest.clickDirName;
+    private static final String dirPath = ".";
     private Button showBtn;
     private FileDialog fd;
 
     public void init() {
-        this.setLayout(new GridLayout(1, 1));
+        setLayout(new GridLayout(1, 1));
 
         fd = new FileDialog(new Frame(), "Save", FileDialog.SAVE);
 
@@ -73,13 +70,14 @@ public class SaveFileNameOverrideTest extends Applet implements ActionListener {
         show();
     }// start()
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == showBtn) {
-            fd.setFile("input");
+            fd.setFile(FileNameOverrideTest.fileName);
             fd.setDirectory(dirPath);
             fd.setVisible(true);
             String output = fd.getFile();
-            if ("input".equals(output)) {
+            if (FileNameOverrideTest.fileName.equals(output)) {
                 Sysout.println("TEST PASSED");
             } else {
                 Sysout.println("TEST FAILED (output file - " + output + ")");

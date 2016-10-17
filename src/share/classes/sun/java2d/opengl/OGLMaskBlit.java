@@ -38,6 +38,7 @@ import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.GraphicsPrimitive;
 import sun.java2d.loops.GraphicsPrimitiveMgr;
 import sun.java2d.loops.SurfaceType;
+import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.BufferedMaskBlit;
 import sun.java2d.pipe.Region;
 
@@ -58,7 +59,7 @@ class OGLMaskBlit extends BufferedMaskBlit {
   @Override
   protected void validateContext(SurfaceData dstData, Composite comp, Region clip) {
     OGLSurfaceData oglDst = (OGLSurfaceData) dstData;
-    OGLContext.validateContext(oglDst,
+    BufferedContext.validateContext(oglDst,
         oglDst,
         clip,
         comp,

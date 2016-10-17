@@ -35,12 +35,11 @@ import java.lang.reflect.*;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
-public class CheckGetMaskForButton{
+public final class CheckGetMaskForButton{
     static Robot robot;
 
     public static void main(String []s){
         System.out.println("Number Of Buttons = "+ MouseInfo.getNumberOfButtons());
-        CheckGetMaskForButton f = new CheckGetMaskForButton();
         int [] buttonMasksViaAPI = new int[MouseInfo.getNumberOfButtons()];
         for (int i = 0; i < MouseInfo.getNumberOfButtons(); i++){
             buttonMasksViaAPI[i] = InputEvent.getMaskForButton(i+1);
@@ -50,10 +49,11 @@ public class CheckGetMaskForButton{
         //get same array via reflection
         Object obj = AccessController.doPrivileged(
                 new PrivilegedAction() {
+            @Override
             public Object run() {
                 try {
                     Class clazz = Class.forName("java.awt.event.InputEvent");
-                    Method method  = clazz.getDeclaredMethod("getButtonDownMasks",new Class [] {});
+                    Method method  = clazz.getDeclaredMethod("getButtonDownMasks");
                     if (method != null) {
                         method.setAccessible(true);
                         return method.invoke(null, (Object[])null);
@@ -66,7 +66,7 @@ public class CheckGetMaskForButton{
         });
 
         if (obj == null){
-            throw new RuntimeException("Test failed. The value obtained via reflection is "+obj);
+            throw new RuntimeException("Test failed. The value obtained via reflection is "+ null);
         }
 
         int [] buttonDownMasksViaReflection = new int [Array.getLength(obj)];

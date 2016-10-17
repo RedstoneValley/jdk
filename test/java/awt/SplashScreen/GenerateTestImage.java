@@ -21,7 +21,6 @@
 * questions.
 */
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -30,17 +29,20 @@ import java.io.FileOutputStream;
 /**
  * A utility to generate a test image for the SplashScreen test
  */
-public class GenerateTestImage {
+public final class GenerateTestImage {
     private static final int IMAGE_SIZE = 20;
 
-    public static void main(String[] args) throws Exception {
+  private GenerateTestImage() {
+  }
+
+  public static void main(String[] args) throws Exception {
         String path = System.getProperty("test.classes") + File.separator + "test.png";
 
         BufferedImage image = new BufferedImage(IMAGE_SIZE, IMAGE_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D graphics2D = image.createGraphics();
         graphics2D.setColor(Color.red);
         graphics2D.fillOval(0, 0, IMAGE_SIZE, IMAGE_SIZE);
-        graphics2D.dispose();;
+        graphics2D.dispose();
 
         try(FileOutputStream fos = new FileOutputStream(path)) {
             ImageIO.write(image, "png", fos);

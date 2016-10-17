@@ -78,7 +78,6 @@ import static com.sun.nio.zipfs.ZipUtils.dosToJavaTime;
 import static com.sun.nio.zipfs.ZipUtils.unixToJavaTime;
 import static com.sun.nio.zipfs.ZipUtils.winToJavaTime;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Map;
 
@@ -88,7 +87,10 @@ import java.util.Map;
  * @author Xueming Shen
  */
 
-public class ZipInfo {
+public final class ZipInfo {
+
+  private ZipInfo() {
+  }
 
   public static void main(String[] args) throws Throwable {
     if (args.length < 1) {
@@ -96,7 +98,7 @@ public class ZipInfo {
     } else {
       Map<String, ?> env = Collections.emptyMap();
       ZipFileSystem zfs
-          = (ZipFileSystem) (new ZipFileSystemProvider().newFileSystem(Paths.get(args[0]), env));
+          = (ZipFileSystem) new ZipFileSystemProvider().newFileSystem(Paths.get(args[0]), env);
       byte[] cen = zfs.cen;
       if (cen == null) {
         print("zip file is empty%n");
@@ -106,7 +108,8 @@ public class ZipInfo {
       byte[] buf = new byte[1024];
       int no = 1;
       while (pos + CENHDR < cen.length) {
-        print("----------------#%d--------------------%n", no++);
+        print("----------------#%d--------------------%n", no);
+        no++;
         printCEN(cen, pos);
 
         // use size CENHDR as the extra bytes to read, just in case the
@@ -170,7 +173,7 @@ public class ZipInfo {
     }
     print("    VerMadeby   :       %#6x    [%d, %d.%d]%n",
         CENVEM(cen, off),
-        (CENVEM(cen, off) >> 8),
+        CENVEM(cen, off) >> 8,
         (CENVEM(cen, off) & 0xff) / 10,
         (CENVEM(cen, off) & 0xff) % 10);
     print("    VerExtract  :       %#6x    [%d.%d]%n",

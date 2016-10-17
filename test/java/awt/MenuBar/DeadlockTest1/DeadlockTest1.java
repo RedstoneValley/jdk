@@ -32,7 +32,7 @@
 import java.awt.*;
 
 public class DeadlockTest1 {
-    Frame f = new Frame("Menu Frame");
+    final Frame f = new Frame("Menu Frame");
 
     DeadlockTest1() {
         MenuBar menubar = new MenuBar();
@@ -67,7 +67,7 @@ public class DeadlockTest1 {
         f.dispose();
      }
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         new DeadlockTest1();
     }
 }

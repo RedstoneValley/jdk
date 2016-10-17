@@ -28,7 +28,7 @@ package java.awt.print;
 import java.util.Vector;
 
 /**
- * The <code>Book</code> class provides a representation of a document in
+ * The {@code Book} class provides a representation of a document in
  * which pages may have different page formats and page painters. This
  * class uses the {@link Pageable} interface to interact with a
  * {@link PrinterJob}.
@@ -48,68 +48,71 @@ public class Book implements Pageable {
   /**
    * The set of pages that make up the Book.
    */
-  private Vector mPages;
+  private final Vector mPages;
 
  /* Instance Methods */
 
   /**
-   * Creates a new, empty <code>Book</code>.
+   * Creates a new, empty {@code Book}.
    */
   public Book() {
     mPages = new Vector();
   }
 
   /**
-   * Returns the number of pages in this <code>Book</code>.
+   * Returns the number of pages in this {@code Book}.
    *
-   * @return the number of pages this <code>Book</code> contains.
+   * @return the number of pages this {@code Book} contains.
    */
+  @Override
   public int getNumberOfPages() {
     return mPages.size();
   }
 
   /**
    * Returns the {@link PageFormat} of the page specified by
-   * <code>pageIndex</code>.
+   * {@code pageIndex}.
    *
    * @param pageIndex the zero based index of the page whose
-   *                  <code>PageFormat</code> is being requested
-   * @return the <code>PageFormat</code> describing the size and
+   *                  {@code PageFormat} is being requested
+   * @return the {@code PageFormat} describing the size and
    * orientation of the page.
-   * @throws IndexOutOfBoundsException if the <code>Pageable</code>
+   * @throws IndexOutOfBoundsException if the {@code Pageable}
    *                                   does not contain the requested page
    */
+  @Override
   public PageFormat getPageFormat(int pageIndex) throws IndexOutOfBoundsException {
     return getPage(pageIndex).getPageFormat();
   }
 
   /**
    * Returns the {@link Printable} instance responsible for rendering
-   * the page specified by <code>pageIndex</code>.
+   * the page specified by {@code pageIndex}.
    *
    * @param pageIndex the zero based index of the page whose
-   *                  <code>Printable</code> is being requested
-   * @return the <code>Printable</code> that renders the page.
-   * @throws IndexOutOfBoundsException if the <code>Pageable</code>
+   *                  {@code Printable} is being requested
+   * @return the {@code Printable} that renders the page.
+   * @throws IndexOutOfBoundsException if the {@code Pageable}
    *                                   does not contain the requested page
    */
+  @Override
   public Printable getPrintable(int pageIndex) throws IndexOutOfBoundsException {
     return getPage(pageIndex).getPrintable();
   }
 
   /**
-   * Sets the <code>PageFormat</code> and the <code>Painter</code> for a
+   * Sets the {@code PageFormat} and the {@code Painter} for a
    * specified page number.
    *
    * @param pageIndex the zero based index of the page whose
    *                  painter and format is altered
-   * @param painter   the <code>Printable</code> instance that
+   * @param painter   the {@code Printable} instance that
    *                  renders the page
    * @param page      the size and orientation of the page
    * @throws IndexOutOfBoundsException if the specified
-   *                                   page is not already in this <code>Book</code>
-   * @throws NullPointerException      if the <code>painter</code> or
-   *                                   <code>page</code> argument is <code>null</code>
+   *                                   page is not already in this {@code Book}
+   * @throws NullPointerException      if the {@code painter} or
+   *                                   {@code page} argument is {@code null}
    */
   public void setPage(int pageIndex, Printable painter, PageFormat page)
       throws IndexOutOfBoundsException {
@@ -125,30 +128,30 @@ public class Book implements Pageable {
   }
 
   /**
-   * Appends a single page to the end of this <code>Book</code>.
+   * Appends a single page to the end of this {@code Book}.
    *
-   * @param painter the <code>Printable</code> instance that
+   * @param painter the {@code Printable} instance that
    *                renders the page
    * @param page    the size and orientation of the page
-   * @throws NullPointerException If the <code>painter</code> or <code>page</code>
-   *                              argument is <code>null</code>
+   * @throws NullPointerException If the {@code painter} or {@code page}
+   *                              argument is {@code null}
    */
   public void append(Printable painter, PageFormat page) {
     mPages.addElement(new BookPage(painter, page));
   }
 
   /**
-   * Appends <code>numPages</code> pages to the end of this
-   * <code>Book</code>.  Each of the pages is associated with
-   * <code>page</code>.
+   * Appends {@code numPages} pages to the end of this
+   * {@code Book}.  Each of the pages is associated with
+   * {@code page}.
    *
-   * @param painter  the <code>Printable</code> instance that renders
+   * @param painter  the {@code Printable} instance that renders
    *                 the page
    * @param page     the size and orientation of the page
    * @param numPages the number of pages to be added to the
-   *                 this <code>Book</code>.
-   * @throws NullPointerException If the <code>painter</code> or <code>page</code>
-   *                              argument is <code>null</code>
+   *                 this {@code Book}.
+   * @throws NullPointerException If the {@code painter} or {@code page}
+   *                              argument is {@code null}
    */
   public void append(Printable painter, PageFormat page, int numPages) {
     BookPage bookPage = new BookPage(painter, page);
@@ -176,20 +179,20 @@ public class Book implements Pageable {
     /**
      * The size and orientation of the page.
      */
-    private PageFormat mFormat;
+    private final PageFormat mFormat;
 
     /**
      * The instance that will draw the page.
      */
-    private Printable mPainter;
+    private final Printable mPainter;
 
     /**
      * A new instance where 'format' describes the page's
      * size and orientation and 'painter' is the instance
      * that will draw the page's graphics.
      *
-     * @throws NullPointerException If the <code>painter</code> or <code>format</code>
-     *                              argument is <code>null</code>
+     * @throws NullPointerException If the {@code painter} or {@code format}
+     *                              argument is {@code null}
      */
     BookPage(Printable painter, PageFormat format) {
 

@@ -26,6 +26,7 @@
 package java.awt.geom;
 
 import java.awt.Shape;
+import java.awt.geom.Path2D.Float;
 
 /**
  * The {@code GeneralPath} class represents a geometric path
@@ -33,8 +34,8 @@ import java.awt.Shape;
  * (B&eacute;zier) curves.  It can contain multiple subpaths.
  * <p>
  * {@code GeneralPath} is a legacy final class which exactly
- * implements the behavior of its superclass {@link Path2D.Float}.
- * Together with {@link Path2D.Double}, the {@link Path2D} classes
+ * implements the behavior of its superclass {@link Float}.
+ * Together with {@link Double}, the {@link Path2D} classes
  * provide full implementations of a general geometric path that
  * support all of the functionality of the {@link Shape} and
  * {@link PathIterator} interfaces with the ability to explicitly
@@ -48,7 +49,7 @@ import java.awt.Shape;
  * @author Jim Graham
  * @since 1.2
  */
-public final class GeneralPath extends Path2D.Float {
+public final class GeneralPath extends Float {
   /*
    * JDK 1.6 serialVersionUID
    */
@@ -65,7 +66,7 @@ public final class GeneralPath extends Path2D.Float {
   }
 
   /**
-   * Constructs a new <code>GeneralPath</code> object with the specified
+   * Constructs a new {@code GeneralPath} object with the specified
    * winding rule to control operations that require the interior of the
    * path to be defined.
    *
@@ -79,7 +80,7 @@ public final class GeneralPath extends Path2D.Float {
   }
 
   /**
-   * Constructs a new <code>GeneralPath</code> object with the specified
+   * Constructs a new {@code GeneralPath} object with the specified
    * winding rule and the specified initial capacity to store path
    * coordinates.
    * This number is an initial guess as to how many path segments
@@ -98,12 +99,12 @@ public final class GeneralPath extends Path2D.Float {
   }
 
   /**
-   * Constructs a new <code>GeneralPath</code> object from an arbitrary
+   * Constructs a new {@code GeneralPath} object from an arbitrary
    * {@link Shape} object.
    * All of the initial geometry and the winding rule for this path are
-   * taken from the specified <code>Shape</code> object.
+   * taken from the specified {@code Shape} object.
    *
-   * @param s the specified <code>Shape</code> object
+   * @param s the specified {@code Shape} object
    * @since 1.2
    */
   public GeneralPath(Shape s) {
@@ -117,7 +118,7 @@ public final class GeneralPath extends Path2D.Float {
     this.windingRule = windingRule;
     this.pointTypes = pointTypes;
     this.numTypes = numTypes;
-    this.floatCoords = pointCoords;
+    floatCoords = pointCoords;
     this.numCoords = numCoords;
   }
 }

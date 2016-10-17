@@ -34,13 +34,13 @@ import java.util.NoSuchElementException;
  * @author Jim Graham
  */
 class QuadIterator implements PathIterator {
-  QuadCurve2D quad;
-  AffineTransform affine;
+  final QuadCurve2D quad;
+  final AffineTransform affine;
   int index;
 
   QuadIterator(QuadCurve2D q, AffineTransform at) {
-    this.quad = q;
-    this.affine = at;
+    quad = q;
+    affine = at;
   }
 
   /**
@@ -50,6 +50,7 @@ class QuadIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -59,8 +60,9 @@ class QuadIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
-    return (index > 1);
+    return index > 1;
   }
 
   /**
@@ -68,6 +70,7 @@ class QuadIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -91,6 +94,7 @@ class QuadIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("quad iterator iterator out of bounds");
@@ -132,6 +136,7 @@ class QuadIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("quad iterator iterator out of bounds");

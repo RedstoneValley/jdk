@@ -41,12 +41,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.TreeMap;
 import sun.awt.DisplayChangedListener;
+import sun.awt.OSInfo;
 import sun.awt.SunDisplayChanger;
 import sun.font.FontManager;
-import sun.font.FontManagerForSGE;
 
 /**
  * This is an implementation of a GraphicsEnvironment object for the
@@ -59,14 +62,15 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
     implements DisplayChangedListener {
 
   public static boolean isOpenSolaris;
-  private static Font defaultFont;
+  static Font defaultFont;
   protected GraphicsDevice[] screens;
-  protected SunDisplayChanger displayChanger = new SunDisplayChanger();
+  protected final SunDisplayChanger displayChanger = new SunDisplayChanger();
 
   public SunGraphicsEnvironment() {
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+    AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
-        String version = System.getProperty("os.version", "0.0");
+        String version = System.getProperty(OSInfo.OS_VERSION, "0.0");
         try {
           float ver = Float.parseFloat(version);
           if (ver > 5.10f) {
@@ -75,7 +79,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
             InputStreamReader isr = new InputStreamReader(fis, "ISO-8859-1");
             BufferedReader br = new BufferedReader(isr);
             String line = br.readLine();
-            if (line.indexOf("OpenSolaris") >= 0) {
+            if (line.contains("OpenSolaris")) {
               isOpenSolaris = true;
             } else {
                                 /* We are using isOpenSolaris as meaning
@@ -123,25 +127,9 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
   }
 
   /**
-   * Return the bounds of a GraphicsDevice, less its screen insets.
-   * See also java.awt.GraphicsEnvironment.getUsableBounds();
-   */
-  public static Rectangle getUsableBounds(GraphicsDevice gd) {
-    GraphicsConfiguration gc = gd.getDefaultConfiguration();
-    Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
-    Rectangle usableBounds = gc.getBounds();
-
-    usableBounds.x += insets.left;
-    usableBounds.y += insets.top;
-    usableBounds.width -= (insets.left + insets.right);
-    usableBounds.height -= (insets.top + insets.bottom);
-
-    return usableBounds;
-  }
-
-  /**
    * Returns an array of all of the screen devices.
    */
+  @Override
   public synchronized GraphicsDevice[] getScreenDevices() {
     GraphicsDevice[] ret = screens;
     if (ret == null) {
@@ -158,6 +146,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
   /**
    * Returns the default screen graphics device.
    */
+  @Override
   public GraphicsDevice getDefaultScreenDevice() {
     GraphicsDevice[] screens = getScreenDevices();
     if (screens.length == 0) {
@@ -172,6 +161,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    *
    * @throws NullPointerException if BufferedImage argument is null
    */
+  @Override
   public Graphics2D createGraphics(BufferedImage img) {
     if (img == null) {
       throw new NullPointerException("BufferedImage cannot be null");
@@ -183,6 +173,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
   /**
    * Returns all fonts available in this environment.
    */
+  @Override
   public Font[] getAllFonts() {
     FontManagerForSGE fm = getFontManagerForSGE();
     Font[] installedFonts = fm.getAllInstalledFonts();
@@ -191,16 +182,18 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
       return installedFonts;
     } else {
       int newlen = installedFonts.length + created.length;
-      Font[] fonts = java.util.Arrays.copyOf(installedFonts, newlen);
+      Font[] fonts = Arrays.copyOf(installedFonts, newlen);
       System.arraycopy(created, 0, fonts, installedFonts.length, created.length);
       return fonts;
     }
   }
 
+  @Override
   public String[] getAvailableFontFamilyNames() {
     return getAvailableFontFamilyNames(Locale.getDefault());
   }
 
+  @Override
   public String[] getAvailableFontFamilyNames(Locale requestedLocale) {
     FontManagerForSGE fm = getFontManagerForSGE();
     String[] installed = fm.getInstalledFontFamilyNames(requestedLocale);
@@ -213,16 +206,16 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
          * to justify the extra internal interface.
          */
     TreeMap<String, String> map = fm.getCreatedFontFamilyNames();
-    if (map == null || map.size() == 0) {
+    if (map == null || map.isEmpty()) {
       return installed;
     } else {
-      for (int i = 0; i < installed.length; i++) {
-        map.put(installed[i].toLowerCase(requestedLocale), installed[i]);
+      for (String anInstalled : installed) {
+        map.put(anInstalled.toLowerCase(requestedLocale), anInstalled);
       }
       String[] retval = new String[map.size()];
       Object[] keyNames = map.keySet().toArray();
       for (int i = 0; i < keyNames.length; i++) {
-        retval[i] = (String) map.get(keyNames[i]);
+        retval[i] = map.get(keyNames[i]);
       }
       return retval;
     }
@@ -237,7 +230,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
 
   /**
    * Create and return the screen device with the specified number. The
-   * device with number <code>0</code> will be the default device (returned
+   * device with number {@code 0} will be the default device (returned
    * by {@link #getDefaultScreenDevice()}.
    *
    * @param screennum the number of the screen to create
@@ -249,6 +242,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    * From the DisplayChangedListener interface; called
    * when the display mode has been changed.
    */
+  @Override
   public void displayChanged() {
     // notify screens in device array to do display update stuff
     for (GraphicsDevice gd : getScreenDevices()) {
@@ -266,6 +260,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    * Part of the DisplayChangedListener interface:
    * propagate this event to listeners
    */
+  @Override
   public void paletteChanged() {
     displayChanger.notifyPaletteChanged();
   }

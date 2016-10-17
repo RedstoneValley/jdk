@@ -33,9 +33,10 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
+import sun.awt.SunToolkit;
+import sun.awt.UngrabEvent;
 
-public class GrabTest {
+public final class GrabTest {
     private static Frame f;
     private static Frame f1;
     private static Frame frame;
@@ -45,7 +46,7 @@ public class GrabTest {
     private static Button b;
 
     private static Robot robot;
-    private static sun.awt.SunToolkit tk;
+    private static SunToolkit tk;
 
     static volatile boolean ungrabbed;
     static volatile boolean buttonPressed;
@@ -54,20 +55,25 @@ public class GrabTest {
 
     static volatile boolean passed = true;
 
+    private GrabTest() {
+    }
+
     public static void main(String[] args) {
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
                     System.out.println(e);
-                    if (e instanceof sun.awt.UngrabEvent) {
+                    if (e instanceof UngrabEvent) {
                         ungrabbed = true;
                     }
                 }
-            }, sun.awt.SunToolkit.GRAB_EVENT_MASK);
+            }, SunToolkit.GRAB_EVENT_MASK);
 
         f = new Frame("Frame");
         f.setBounds(0, 0, 300, 300);
         f.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     System.out.println(e);
                     framePressed = true;
@@ -81,6 +87,7 @@ public class GrabTest {
         w.setLayout(new FlowLayout());
         b = new Button("Press");
         b.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     System.out.println(e);
                     buttonPressed = true;
@@ -90,6 +97,7 @@ public class GrabTest {
         w.setBounds(400, 100, 200, 200);
         w.setBackground(Color.blue);
         w.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     System.out.println(e);
                     windowPressed = true;
@@ -108,7 +116,7 @@ public class GrabTest {
         window2.setBounds(0, 0, 50, 50);
         window2.setBackground(Color.green);
 
-        tk = (sun.awt.SunToolkit)Toolkit.getDefaultToolkit();
+        tk = (SunToolkit)Toolkit.getDefaultToolkit();
 
         try {
             robot = new Robot();

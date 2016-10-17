@@ -44,22 +44,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.InputStream;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JDesktopPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.UIManager;
-import javax.swing.plaf.metal.DefaultMetalTheme;
-import javax.swing.plaf.metal.MetalTheme;
-import javax.swing.plaf.metal.OceanTheme;
 
 /**
  * This is the main container frame for the Metalworks demo app
@@ -83,12 +67,12 @@ public final class MetalworksFrame extends JFrame {
 
   public MetalworksFrame() {
     super("Metalworks");
-    final int inset = 50;
+    int inset = 50;
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    setBounds(inset, inset, screenSize.width - inset * 2, screenSize.height - inset * 2);
+    setBounds(inset, inset, screenSize.width - (inset << 1), screenSize.height - (inset << 1));
     buildContent();
     buildMenus();
-    this.addWindowListener(new WindowAdapter() {
+    addWindowListener(new WindowAdapter() {
 
       @Override
       public void windowClosing(WindowEvent e) {
@@ -142,6 +126,7 @@ public final class MetalworksFrame extends JFrame {
 
     newWin.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         newDocument();
       }
@@ -149,6 +134,7 @@ public final class MetalworksFrame extends JFrame {
 
     open.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         openDocument();
       }
@@ -156,6 +142,7 @@ public final class MetalworksFrame extends JFrame {
 
     quit.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         quit();
       }
@@ -183,6 +170,7 @@ public final class MetalworksFrame extends JFrame {
 
     prefs.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         openPrefsWindow();
       }
@@ -207,6 +195,7 @@ public final class MetalworksFrame extends JFrame {
 
     inBox.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         openInBox();
       }
@@ -235,6 +224,7 @@ public final class MetalworksFrame extends JFrame {
 
     slow.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         // for right now I'm saying if you set the mode
         // to something other than a specified mode
@@ -246,6 +236,7 @@ public final class MetalworksFrame extends JFrame {
 
     live.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         desktop.setDragMode(JDesktopPane.LIVE_DRAG_MODE);
       }
@@ -253,6 +244,7 @@ public final class MetalworksFrame extends JFrame {
 
     outline.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         desktop.setDragMode(JDesktopPane.OUTLINE_DRAG_MODE);
       }
@@ -271,6 +263,7 @@ public final class MetalworksFrame extends JFrame {
 
     about.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         showAboutBox();
       }
@@ -278,6 +271,7 @@ public final class MetalworksFrame extends JFrame {
 
     openHelp.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         openHelpWindow();
       }

@@ -50,14 +50,14 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
 
   private static final Attribute[] IM_ATTRIBUTES = {TextAttribute.INPUT_METHOD_HIGHLIGHT};
   private static final AttributedCharacterIterator EMPTY_TEXT
-      = (new AttributedString("")).getIterator();
+      = new AttributedString("").getIterator();
+  private static final Object compositionAreaLock = new Object();
   private static CompositionArea compositionArea;
-  private static Object compositionAreaLock = new Object();
   private static CompositionAreaHandler compositionAreaOwner;// synchronized through compositionArea
+  private final InputMethodContext inputMethodContext;
   private AttributedCharacterIterator composedText;
-  private TextHitInfo caret = null;
+  private TextHitInfo caret;
   private WeakReference<Component> clientComponent = new WeakReference<>(null);
-  private InputMethodContext inputMethodContext;
 
   /**
    * Constructs the composition area handler.
@@ -122,7 +122,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
         }
         if (doUpdate) {
           // Create the composition area if necessary
-          if ((composedText != null) && (compositionArea == null)) {
+          if (composedText != null && compositionArea == null) {
             createCompositionArea();
           }
           if (compositionArea != null) {
@@ -190,6 +190,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     }
   }
 
+  @Override
   public void inputMethodTextChanged(InputMethodEvent event) {
     AttributedCharacterIterator text = event.getText();
     int committedCharacterCount = event.getCommittedCharacterCount();
@@ -222,7 +223,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
 
     // send any committed text to the text component
     if (committedCharacterCount > 0) {
-      inputMethodContext.dispatchCommittedText(((Component) event.getSource()),
+      inputMethodContext.dispatchCommittedText((Component) event.getSource(),
           text,
           committedCharacterCount);
 
@@ -240,6 +241,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
   // InputMethodRequests methods
   //
 
+  @Override
   public void caretPositionChanged(InputMethodEvent event) {
     if (compositionArea != null) {
       compositionArea.setCaret(event.getCaret());
@@ -264,6 +266,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     return null;
   }
 
+  @Override
   public Rectangle getTextLocation(TextHitInfo offset) {
     synchronized (compositionAreaLock) {
       if (compositionAreaOwner == this && isCompositionAreaVisible()) {
@@ -273,26 +276,20 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
         return new Rectangle(0, 0, 0, 10);
       } else {
         InputMethodRequests requests = getClientInputMethodRequests();
-        if (requests != null) {
-          return requests.getTextLocation(offset);
-        } else {
-          // passive client, no composed text, so fake a rectangle
-          return new Rectangle(0, 0, 0, 10);
-        }
+        return requests != null ? requests.getTextLocation(offset) : new Rectangle(0, 0, 0, 10);
       }
     }
   }
 
+  @Override
   public TextHitInfo getLocationOffset(int x, int y) {
     synchronized (compositionAreaLock) {
-      if (compositionAreaOwner == this && isCompositionAreaVisible()) {
-        return compositionArea.getLocationOffset(x, y);
-      } else {
-        return null;
-      }
+      return compositionAreaOwner == this && isCompositionAreaVisible()
+          ? compositionArea.getLocationOffset(x, y) : null;
     }
   }
 
+  @Override
   public int getInsertPositionOffset() {
     InputMethodRequests req = getClientInputMethodRequests();
     if (req != null) {
@@ -303,6 +300,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     return 0;
   }
 
+  @Override
   public AttributedCharacterIterator getCommittedText(
       int beginIndex, int endIndex, Attribute[] attributes) {
     InputMethodRequests req = getClientInputMethodRequests();
@@ -314,6 +312,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     return EMPTY_TEXT;
   }
 
+  @Override
   public int getCommittedTextLength() {
     InputMethodRequests req = getClientInputMethodRequests();
     if (req != null) {
@@ -324,6 +323,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     return 0;
   }
 
+  @Override
   public AttributedCharacterIterator cancelLatestCommittedText(Attribute[] attributes) {
     InputMethodRequests req = getClientInputMethodRequests();
     if (req != null) {
@@ -334,6 +334,7 @@ class CompositionAreaHandler implements InputMethodListener, InputMethodRequests
     return null;
   }
 
+  @Override
   public AttributedCharacterIterator getSelectedText(Attribute[] attributes) {
     InputMethodRequests req = getClientInputMethodRequests();
     if (req != null) {

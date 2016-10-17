@@ -25,12 +25,13 @@
 package java.awt;
 
 import android.widget.RadioGroup;
+import java.io.Serializable;
 
 /**
- * The <code>CheckboxGroup</code> class is used to group together
- * a set of <code>Checkbox</code> buttons.
+ * The {@code CheckboxGroup} class is used to group together
+ * a set of {@code Checkbox} buttons.
  * <p>
- * Exactly one check box button in a <code>CheckboxGroup</code> can
+ * Exactly one check box button in a {@code CheckboxGroup} can
  * be in the "on" state at any given time. Pushing any
  * button sets its state to "on" and forces any other button that
  * is in the "on" state into the "off" state.
@@ -55,10 +56,10 @@ import android.widget.RadioGroup;
  * <p>
  *
  * @author Sami Shaio
- * @see java.awt.Checkbox
+ * @see Checkbox
  * @since JDK1.0
  */
-public class CheckboxGroup implements java.io.Serializable {
+public class CheckboxGroup implements Serializable {
   /*
    * JDK 1.1 serialVersionUID
    */
@@ -71,10 +72,10 @@ public class CheckboxGroup implements java.io.Serializable {
    * @see #getCurrent()
    * @see #setCurrent(Checkbox)
    */
-  Checkbox selectedCheckbox = null;
+  Checkbox selectedCheckbox;
 
   /**
-   * Creates a new instance of <code>CheckboxGroup</code>.
+   * Creates a new instance of {@code CheckboxGroup}.
    */
   public CheckboxGroup() {
     androidGroup = new RadioGroup(SkinJob.getAndroidApplicationContext());
@@ -88,13 +89,13 @@ public class CheckboxGroup implements java.io.Serializable {
    * Gets the current choice from this check box group.
    * The current choice is the check box in this
    * group that is currently in the "on" state,
-   * or <code>null</code> if all check boxes in the
+   * or {@code null} if all check boxes in the
    * group are off.
    *
    * @return the check box that is currently in the
-   * "on" state, or <code>null</code>.
-   * @see java.awt.Checkbox
-   * @see java.awt.CheckboxGroup#setSelectedCheckbox
+   * "on" state, or {@code null}.
+   * @see Checkbox
+   * @see CheckboxGroup#setSelectedCheckbox
    * @since JDK1.1
    */
   public Checkbox getSelectedCheckbox() {
@@ -112,10 +113,10 @@ public class CheckboxGroup implements java.io.Serializable {
    * belongs to a different check box group, this method does
    * nothing.
    *
-   * @param box the <code>Checkbox</code> to set as the
+   * @param box the {@code Checkbox} to set as the
    *            current selection.
-   * @see java.awt.Checkbox
-   * @see java.awt.CheckboxGroup#getSelectedCheckbox
+   * @see Checkbox
+   * @see CheckboxGroup#getSelectedCheckbox
    * @since JDK1.1
    */
   public void setSelectedCheckbox(Checkbox box) {
@@ -124,7 +125,7 @@ public class CheckboxGroup implements java.io.Serializable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getSelectedCheckbox()</code>.
+   * replaced by {@code getSelectedCheckbox()}.
    */
   @Deprecated
   public Checkbox getCurrent() {
@@ -133,15 +134,16 @@ public class CheckboxGroup implements java.io.Serializable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setSelectedCheckbox(Checkbox)</code>.
+   * replaced by {@code setSelectedCheckbox(Checkbox)}.
    */
+  @SuppressWarnings("ObjectEquality")
   @Deprecated
   public synchronized void setCurrent(Checkbox box) {
     if (box != null && box.group != this) {
       return;
     }
-    Checkbox oldChoice = this.selectedCheckbox;
-    this.selectedCheckbox = box;
+    Checkbox oldChoice = selectedCheckbox;
+    selectedCheckbox = box;
     if (oldChoice != null && oldChoice != box && oldChoice.group == this) {
       oldChoice.setState(false);
     }

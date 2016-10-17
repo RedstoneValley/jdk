@@ -69,18 +69,15 @@ import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImage;
-import java.lang.annotation.Native;
 import java.text.AttributedCharacterIterator;
-import java.util.Iterator;
 import java.util.Map;
 import sun.awt.ConstrainableGraphics;
 import sun.awt.SunHints;
+import sun.awt.SunHints.Value;
 import sun.awt.image.MultiResolutionImage;
 import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.SurfaceManager;
 import sun.awt.image.ToolkitImage;
-import sun.font.FontDesignMetrics;
-import sun.font.FontUtilities;
 import sun.java2d.loops.Blit;
 import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.FontInfo;
@@ -93,11 +90,11 @@ import sun.java2d.pipe.LoopPipe;
 import sun.java2d.pipe.PixelDrawPipe;
 import sun.java2d.pipe.PixelFillPipe;
 import sun.java2d.pipe.Region;
+import sun.java2d.pipe.RenderingEngine;
 import sun.java2d.pipe.ShapeDrawPipe;
 import sun.java2d.pipe.ShapeSpanIterator;
 import sun.java2d.pipe.TextPipe;
 import sun.java2d.pipe.ValidatePipe;
-import sun.misc.PerformanceLogger;
 
 /**
  * This is a the master Graphics2D superclass for all of the Sun
@@ -149,10 +146,8 @@ public final class SunGraphics2D extends Graphics2D
   @Native public static final int CLIP_SHAPE = 2; /* arbitrary clip */
   @Native public static final int CLIP_RECTANGULAR = 1; /* rectangular clip */
   @Native public static final int CLIP_DEVICE = 0; /* no clipping set */
-  public static final double MinPenSizeAA = sun.java2d.pipe.RenderingEngine
-      .getInstance()
-      .getMinimumAAPenSize();
-  public static final double MinPenSizeAASquared = (MinPenSizeAA * MinPenSizeAA);
+  public static final double MinPenSizeAA = RenderingEngine.getInstance().getMinimumAAPenSize();
+  public static final double MinPenSizeAASquared = MinPenSizeAA * MinPenSizeAA;
   // Since inaccuracies in the trig package can cause us to
   // calculated a rotated pen width of just slightly greater
   // than 1.0, we add a fudge factor to our comparison value
@@ -161,21 +156,21 @@ public final class SunGraphics2D extends Graphics2D
   public static final double MinPenSizeSquared = 1.000000001;
   protected static final Stroke defaultStroke = new BasicStroke();
   protected static final Composite defaultComposite = AlphaComposite.SrcOver;
-  static final int NON_UNIFORM_SCALE_MASK = (AffineTransform.TYPE_GENERAL_TRANSFORM
-                                                 | AffineTransform.TYPE_GENERAL_SCALE);
-  static final int NON_RECTILINEAR_TRANSFORM_MASK = (AffineTransform.TYPE_GENERAL_TRANSFORM
-                                                         | AffineTransform.TYPE_GENERAL_ROTATION);
+  static final int NON_UNIFORM_SCALE_MASK = AffineTransform.TYPE_GENERAL_TRANSFORM
+      | AffineTransform.TYPE_GENERAL_SCALE;
+  static final int NON_RECTILINEAR_TRANSFORM_MASK = AffineTransform.TYPE_GENERAL_TRANSFORM
+      | AffineTransform.TYPE_GENERAL_ROTATION;
   private static final Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
-  private final static int slowTextTransformMask = AffineTransform.TYPE_GENERAL_TRANSFORM
-      | AffineTransform.TYPE_MASK_ROTATION | AffineTransform.TYPE_FLIP;
+  private static final int slowTextTransformMask = AffineTransform.TYPE_GENERAL_TRANSFORM
+      | AffineTransform.TYPE_MASK_ROTATION | TYPE_FLIP;
   private static final double[] IDENT_MATRIX = {1, 0, 0, 1};
   private static final AffineTransform IDENT_ATX = new AffineTransform();
   private static final int MINALLOCATED = 8;
   private static final int TEXTARRSIZE = 17;
-  protected static ValidatePipe invalidpipe = new ValidatePipe();
-  private static int lcdTextContrastDefaultValue = 140;
-  private static double[][] textTxArr = new double[TEXTARRSIZE][];
-  private static AffineTransform[] textAtArr = new AffineTransform[TEXTARRSIZE];
+  private static final int lcdTextContrastDefaultValue = 140;
+  private static final double[][] textTxArr = new double[TEXTARRSIZE][];
+  private static final AffineTransform[] textAtArr = new AffineTransform[TEXTARRSIZE];
+  protected static final ValidatePipe invalidpipe = new ValidatePipe();
 
   static {
     if (PerformanceLogger.loggingEnabled()) {
@@ -290,14 +285,10 @@ public final class SunGraphics2D extends Graphics2D
   }
 
   public static boolean isRotated(double[] mtx) {
-    if ((mtx[0] == mtx[3]) &&
-        (mtx[1] == 0.0) &&
-        (mtx[2] == 0.0) &&
-        (mtx[0] > 0.0)) {
-      return false;
-    }
-
-    return true;
+    return !(mtx[0] == mtx[3] &&
+                 mtx[1] == 0.0 &&
+                 mtx[2] == 0.0 &&
+                 mtx[0] > 0.0);
   }
 
   protected static Shape transformShape(int tx, int ty, Shape s) {
@@ -333,7 +324,7 @@ public final class SunGraphics2D extends Graphics2D
 
     if (clip instanceof Rectangle2D && (tx.getType() & NON_RECTILINEAR_TRANSFORM_MASK) == 0) {
       Rectangle2D rect = (Rectangle2D) clip;
-      double matrix[] = new double[4];
+      double[] matrix = new double[4];
       matrix[0] = rect.getX();
       matrix[1] = rect.getY();
       matrix[2] = matrix[0] + rect.getWidth();
@@ -357,12 +348,12 @@ public final class SunGraphics2D extends Graphics2D
    * Sets orientation of the rectangle according to the clip.
    */
   private static void fixRectangleOrientation(double[] m, Rectangle2D clip) {
-    if (clip.getWidth() > 0 != (m[2] - m[0] > 0)) {
+    if (clip.getWidth() > 0 != m[2] - m[0] > 0) {
       double t = m[0];
       m[0] = m[2];
       m[2] = t;
     }
-    if (clip.getHeight() > 0 != (m[3] - m[1] > 0)) {
+    if (clip.getHeight() > 0 != m[3] - m[1] > 0) {
       double t = m[1];
       m[1] = m[3];
       m[3] = t;
@@ -377,10 +368,10 @@ public final class SunGraphics2D extends Graphics2D
     if (xform.isIdentity()) {
       return true;
     }
-    if (xform.getType() == AffineTransform.TYPE_TRANSLATION) {
+    if (xform.getType() == TYPE_TRANSLATION) {
       double tx = xform.getTranslateX();
       double ty = xform.getTranslateY();
-      return (tx == (int) tx && ty == (int) ty);
+      return tx == (int) tx && ty == (int) ty;
     }
     return false;
   }
@@ -412,9 +403,9 @@ public final class SunGraphics2D extends Graphics2D
         img.getWidth(),
         img.getHeight());
 
-    Rectangle result = null;
+    Rectangle result;
     try {
-      double p[] = new double[8];
+      double[] p = new double[8];
       p[0] = p[2] = compClip.getLoX();
       p[4] = p[6] = compClip.getHiX();
       p[1] = p[5] = compClip.getLoY();
@@ -430,13 +421,15 @@ public final class SunGraphics2D extends Graphics2D
       y0 = y1 = p[1];
 
       for (int i = 2; i < 8; ) {
-        double pt = p[i++];
+        double pt = p[i];
+        i++;
         if (pt < x0) {
           x0 = pt;
         } else if (pt > x1) {
           x1 = pt;
         }
-        pt = p[i++];
+        pt = p[i];
+        i++;
         if (pt < y0) {
           y0 = pt;
         } else if (pt > y1) {
@@ -461,12 +454,24 @@ public final class SunGraphics2D extends Graphics2D
     return result;
   }
 
+  public static ImageObserver getResolutionVariantObserver(
+      Image image, ImageObserver observer, int imgWidth, int imgHeight, int rvWidth, int rvHeight) {
+    return MultiResolutionToolkitImage.getResolutionVariantObserver(image,
+        observer,
+        imgWidth,
+        imgHeight,
+        rvWidth,
+        rvHeight,
+        false);
+  }
+
+  @Override
   protected Object clone() {
     try {
       SunGraphics2D g = (SunGraphics2D) super.clone();
-      g.transform = new AffineTransform(this.transform);
+      g.transform = new AffineTransform(transform);
       if (hints != null) {
-        g.hints = (RenderingHints) this.hints.clone();
+        g.hints = (RenderingHints) hints.clone();
       }
             /* FontInfos are re-used, so must be cloned too, if they
              * are valid, and be nulled out if invalid.
@@ -474,16 +479,12 @@ public final class SunGraphics2D extends Graphics2D
              * from re-using these objects than is lost by having to
              * clone them when the SG2D is cloned.
              */
-      if (this.fontInfo != null) {
-        if (this.validFontInfo) {
-          g.fontInfo = (FontInfo) this.fontInfo.clone();
-        } else {
-          g.fontInfo = null;
-        }
+      if (fontInfo != null) {
+        g.fontInfo = validFontInfo ? (FontInfo) fontInfo.clone() : null;
       }
-      if (this.glyphVectorFontInfo != null) {
-        g.glyphVectorFontInfo = (FontInfo) this.glyphVectorFontInfo.clone();
-        g.glyphVectorFRC = this.glyphVectorFRC;
+      if (glyphVectorFontInfo != null) {
+        g.glyphVectorFontInfo = (FontInfo) glyphVectorFontInfo.clone();
+        g.glyphVectorFRC = glyphVectorFRC;
       }
       //g.invalidatePipe();
       return g;
@@ -495,21 +496,24 @@ public final class SunGraphics2D extends Graphics2D
   /**
    * Create a new SunGraphics2D based on this one.
    */
+  @Override
   public Graphics create() {
     return (Graphics) clone();
   }
 
+  @Override
   public Color getColor() {
     return foregroundColor;
   }
 
+  @Override
   public void setColor(Color color) {
     if (color == null || color == paint) {
       return;
     }
-    this.paint = foregroundColor = color;
+    paint = foregroundColor = color;
     validateColor();
-    if ((eargb >> 24) == -1) {
+    if (eargb >> 24 == -1) {
       if (paintState == PAINT_OPAQUECOLOR) {
         return;
       }
@@ -532,10 +536,12 @@ public final class SunGraphics2D extends Graphics2D
     invalidatePipe();
   }
 
+  @Override
   public void setPaintMode() {
     setComposite(AlphaComposite.SrcOver);
   }
 
+  @Override
   public void setXORMode(Color c) {
     if (c == null) {
       throw new IllegalArgumentException("null XORColor");
@@ -543,6 +549,7 @@ public final class SunGraphics2D extends Graphics2D
     setComposite(new XORComposite(c, surfaceData));
   }
 
+  @Override
   public Font getFont() {
     if (font == null) {
       font = defaultFont;
@@ -550,6 +557,7 @@ public final class SunGraphics2D extends Graphics2D
     return font;
   }
 
+  @Override
   public void setFont(Font font) {
         /* replacing the reference equality test font != this.font with
          * !font.equals(this.font) did not yield any measurable difference
@@ -558,31 +566,34 @@ public final class SunGraphics2D extends Graphics2D
          */
     if (font != null && font != this.font/*!font.equals(this.font)*/) {
       this.font = font;
-      this.fontMetrics = null;
-      this.validFontInfo = false;
+      fontMetrics = null;
+      validFontInfo = false;
     }
   }
 
+  @Override
   public FontMetrics getFontMetrics() {
-    if (this.fontMetrics != null) {
-      return this.fontMetrics;
+    if (fontMetrics != null) {
+      return fontMetrics;
     }
         /* NB the constructor and the setter disallow "font" being null */
-    return this.fontMetrics = FontDesignMetrics.getMetrics(font, getFontRenderContext());
+    return fontMetrics = FontDesignMetrics.getMetrics(font, getFontRenderContext());
   }
 
+  @Override
   public FontMetrics getFontMetrics(Font font) {
-    if ((this.fontMetrics != null) && (font == this.font)) {
-      return this.fontMetrics;
+    if (fontMetrics != null && font == this.font) {
+      return fontMetrics;
     }
     FontMetrics fm = FontDesignMetrics.getMetrics(font, getFontRenderContext());
 
     if (this.font == font) {
-      this.fontMetrics = fm;
+      fontMetrics = fm;
     }
     return fm;
   }
 
+  @Override
   public Rectangle getClipBounds() {
     if (clipState == CLIP_DEVICE) {
       return null;
@@ -590,23 +601,28 @@ public final class SunGraphics2D extends Graphics2D
     return getClipBounds(new Rectangle());
   }
 
+  @Override
   public void clipRect(int x, int y, int w, int h) {
     clip(new Rectangle(x, y, w, h));
   }
 
+  @Override
   public void setClip(int x, int y, int w, int h) {
     setClip(new Rectangle(x, y, w, h));
   }
 
+  @Override
   public Shape getClip() {
     return untransformShape(usrClip);
   }
 
+  @Override
   public void setClip(Shape sh) {
     usrClip = transformShape(sh);
     validateCompClip();
   }
 
+  @Override
   public void copyArea(int x, int y, int w, int h, int dx, int dy) {
     try {
       doCopyArea(x, y, w, h, dx, dy);
@@ -624,6 +640,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawLine(int x1, int y1, int x2, int y2) {
     try {
       drawpipe.drawLine(this, x1, y1, x2, y2);
@@ -646,6 +663,7 @@ public final class SunGraphics2D extends Graphics2D
      * @see BasicStroke
      */
 
+  @Override
   public void fillRect(int x, int y, int w, int h) {
     try {
       fillpipe.fillRect(this, x, y, w, h);
@@ -663,6 +681,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawRect(int x, int y, int w, int h) {
     try {
       drawpipe.drawRect(this, x, y, w, h);
@@ -680,6 +699,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void clearRect(int x, int y, int w, int h) {
     // REMIND: has some "interesting" consequences if threads are
     // not synchronized
@@ -692,6 +712,7 @@ public final class SunGraphics2D extends Graphics2D
     setComposite(c);
   }
 
+  @Override
   public void drawRoundRect(int x, int y, int w, int h, int arcW, int arcH) {
     try {
       drawpipe.drawRoundRect(this, x, y, w, h, arcW, arcH);
@@ -709,6 +730,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void fillRoundRect(int x, int y, int w, int h, int arcW, int arcH) {
     try {
       fillpipe.fillRoundRect(this, x, y, w, h, arcW, arcH);
@@ -726,6 +748,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawOval(int x, int y, int w, int h) {
     try {
       drawpipe.drawOval(this, x, y, w, h);
@@ -743,6 +766,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void fillOval(int x, int y, int w, int h) {
     try {
       fillpipe.fillOval(this, x, y, w, h);
@@ -760,6 +784,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawArc(int x, int y, int w, int h, int startAngl, int arcAngl) {
     try {
       drawpipe.drawArc(this, x, y, w, h, startAngl, arcAngl);
@@ -777,6 +802,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void fillArc(int x, int y, int w, int h, int startAngl, int arcAngl) {
     try {
       fillpipe.fillArc(this, x, y, w, h, startAngl, arcAngl);
@@ -794,7 +820,8 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
-  public void drawPolyline(int xPoints[], int yPoints[], int nPoints) {
+  @Override
+  public void drawPolyline(int[] xPoints, int[] yPoints, int nPoints) {
     try {
       drawpipe.drawPolyline(this, xPoints, yPoints, nPoints);
     } catch (InvalidPipeException e) {
@@ -811,7 +838,8 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
-  public void drawPolygon(int xPoints[], int yPoints[], int nPoints) {
+  @Override
+  public void drawPolygon(int[] xPoints, int[] yPoints, int nPoints) {
     try {
       drawpipe.drawPolygon(this, xPoints, yPoints, nPoints);
     } catch (InvalidPipeException e) {
@@ -828,7 +856,8 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
-  public void fillPolygon(int xPoints[], int yPoints[], int nPoints) {
+  @Override
+  public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints) {
     try {
       fillpipe.fillPolygon(this, xPoints, yPoints, nPoints);
     } catch (InvalidPipeException e) {
@@ -845,7 +874,8 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
-  public void drawChars(char data[], int offset, int length, int x, int y) {
+  @Override
+  public void drawChars(char[] data, int offset, int length, int x, int y) {
 
     if (data == null) {
       throw new NullPointerException("char data is null");
@@ -879,7 +909,8 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
-  public void drawBytes(byte data[], int offset, int length, int x, int y) {
+  @Override
+  public void drawBytes(byte[] data, int offset, int length, int x, int y) {
     if (data == null) {
       throw new NullPointerException("byte data is null");
     }
@@ -887,8 +918,9 @@ public final class SunGraphics2D extends Graphics2D
       throw new ArrayIndexOutOfBoundsException("bad offset/length");
     }
         /* Byte data is interpreted as 8-bit ASCII. Re-use drawChars loops */
-    char chData[] = new char[length];
-    for (int i = length; i-- > 0; ) {
+    char[] chData = new char[length];
+    for (int i = length; i > 0; ) {
+      i--;
       chData[i] = (char) (data[i + offset] & 0xff);
     }
     if (font.hasLayoutAttributes()) {
@@ -918,6 +950,7 @@ public final class SunGraphics2D extends Graphics2D
   /**
    * Draws an image at x,y in nonblocking mode.
    */
+  @Override
   public boolean drawImage(Image img, int x, int y, ImageObserver observer) {
     return drawImage(img, x, y, null, observer);
   }
@@ -926,6 +959,7 @@ public final class SunGraphics2D extends Graphics2D
    * Draws an image scaled to x,y,w,h in nonblocking mode with a
    * callback object.
    */
+  @Override
   public boolean drawImage(Image img, int x, int y, int width, int height, ImageObserver observer) {
     return drawImage(img, x, y, width, height, null, observer);
   }
@@ -934,6 +968,7 @@ public final class SunGraphics2D extends Graphics2D
    * Draws an image at x,y in nonblocking mode with a solid background
    * color and a callback object.
    */
+  @Override
   public boolean drawImage(Image img, int x, int y, Color bg, ImageObserver observer) {
 
     if (img == null) {
@@ -941,8 +976,8 @@ public final class SunGraphics2D extends Graphics2D
     }
 
     if (isHiDPIImage(img)) {
-      final int imgW = img.getWidth(null);
-      final int imgH = img.getHeight(null);
+      int imgW = img.getWidth(null);
+      int imgH = img.getHeight(null);
       return drawHiDPIImage(img, x, y, x + imgW, y + imgH, 0, 0, imgW, imgH, bg, observer);
     }
 
@@ -967,6 +1002,7 @@ public final class SunGraphics2D extends Graphics2D
    * Draws an image scaled to x,y,w,h in nonblocking mode with a
    * solid background color and a callback object.
    */
+  @Override
   public boolean drawImage(
       Image img, int x, int y, int width, int height, Color bg, ImageObserver observer) {
 
@@ -974,12 +1010,12 @@ public final class SunGraphics2D extends Graphics2D
       return true;
     }
 
-    if ((width == 0) || (height == 0)) {
+    if (width == 0 || height == 0) {
       return true;
     }
 
-    final int imgW = img.getWidth(null);
-    final int imgH = img.getHeight(null);
+    int imgW = img.getWidth(null);
+    int imgH = img.getHeight(null);
     if (isHiDPIImage(img)) {
       return drawHiDPIImage(img, x, y, x + width, y + height, 0, 0, imgW, imgH, bg, observer);
     }
@@ -1009,6 +1045,7 @@ public final class SunGraphics2D extends Graphics2D
    * Draws a subrectangle of an image scaled to a destination rectangle
    * in nonblocking mode with a callback object.
    */
+  @Override
   public boolean drawImage(
       Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2,
       ImageObserver observer) {
@@ -1019,6 +1056,7 @@ public final class SunGraphics2D extends Graphics2D
    * Draws a subrectangle of an image scaled to a destination rectangle in
    * nonblocking mode with a solid background color and a callback object.
    */
+  @Override
   public boolean drawImage(
       Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2,
       Color bgcolor, ImageObserver observer) {
@@ -1036,7 +1074,7 @@ public final class SunGraphics2D extends Graphics2D
       return drawHiDPIImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, bgcolor, observer);
     }
 
-    if (((sx2 - sx1) == (dx2 - dx1)) && ((sy2 - sy1) == (dy2 - dy1))) {
+    if (sx2 - sx1 == dx2 - dx1 && sy2 - sy1 == dy2 - dy1) {
       // Not a scale - forward it to a copy routine
       int srcX, srcY, dstX, dstY, width, height;
       if (sx2 > sx1) {
@@ -1108,6 +1146,7 @@ public final class SunGraphics2D extends Graphics2D
    * other, less forgiving, VMs that really need to dispose of
    * resources.
    */
+  @Override
   public void dispose() {
     surfaceData = NullSurfaceData.theInstance;
     invalidatePipe();
@@ -1124,10 +1163,13 @@ public final class SunGraphics2D extends Graphics2D
    * enough to know that if our override is empty then it should not
    * mark us as finalizeable.
    */
+  @SuppressWarnings("FinalizeNotProtected")
+  @Override
   public void finalize() {
     // DO NOT REMOVE THIS METHOD
   }
 
+  @Override
   public boolean hitClip(int x, int y, int width, int height) {
     if (width <= 0 || height <= 0) {
       return false;
@@ -1150,7 +1192,7 @@ public final class SunGraphics2D extends Graphics2D
       // optimal test for most transforms and so the conservative
       // answer should not cause too much extra work.
 
-      double d[] = {
+      double[] d = {
           x, y, x + width, y, x, y + height, x + width, y + height};
       transform.transform(d, 0, d, 0, 4);
       x = (int) Math.floor(Math.min(Math.min(d[0], d[2]), Math.min(d[4], d[6])));
@@ -1179,6 +1221,7 @@ public final class SunGraphics2D extends Graphics2D
     return true;
   }
 
+  @Override
   public Rectangle getClipBounds(Rectangle r) {
     if (clipState != CLIP_DEVICE) {
       if (transformState <= TRANSFORM_INT_TRANSLATE) {
@@ -1199,11 +1242,7 @@ public final class SunGraphics2D extends Graphics2D
 
   public void setDevClip(int x, int y, int w, int h) {
     Region c = constrainClip;
-    if (c == null) {
-      devClip = Region.getInstanceXYWH(x, y, w, h);
-    } else {
-      devClip = c.getIntersectionXYWH(x, y, w, h);
-    }
+    devClip = c == null ? Region.getInstanceXYWH(x, y, w, h) : c.getIntersectionXYWH(x, y, w, h);
     validateCompClip();
   }
 
@@ -1223,19 +1262,15 @@ public final class SunGraphics2D extends Graphics2D
       return;
     }
     // changes parameters according to the current scale and translate.
-    final double scaleX = transform.getScaleX();
-    final double scaleY = transform.getScaleY();
+    double scaleX = transform.getScaleX();
+    double scaleY = transform.getScaleY();
     x = constrainX = (int) transform.getTranslateX();
     y = constrainY = (int) transform.getTranslateY();
     w = Region.dimAdd(x, Region.clipScale(w, scaleX));
     h = Region.dimAdd(y, Region.clipScale(h, scaleY));
 
     Region c = constrainClip;
-    if (c == null) {
-      c = Region.getInstanceXYXY(x, y, w, h);
-    } else {
-      c = c.getIntersectionXYXY(x, y, w, h);
-    }
+    c = c == null ? Region.getInstanceXYXY(x, y, w, h) : c.getIntersectionXYXY(x, y, w, h);
     if (region != null) {
       region = region.getScaledRegion(scaleX, scaleY);
       region = region.getTranslatedRegion(x, y);
@@ -1311,7 +1346,8 @@ public final class SunGraphics2D extends Graphics2D
     }
     if (s1 instanceof Rectangle2D) {
       return intersectRectShape((Rectangle2D) s1, s2, keep1, keep2);
-    } else if (s2 instanceof Rectangle2D) {
+    }
+    if (s2 instanceof Rectangle2D) {
       return intersectRectShape((Rectangle2D) s2, s1, keep2, keep1);
     }
     return intersectByArea(s1, s2, keep1, keep2);
@@ -1340,7 +1376,7 @@ public final class SunGraphics2D extends Graphics2D
       double y1 = Math.max(r.getY(), r2.getY());
       double y2 = Math.min(r.getY() + r.getHeight(), r2.getY() + r2.getHeight());
 
-      if (((x2 - x1) < 0) || ((y2 - y1) < 0))
+      if (x2 - x1 < 0 || y2 - y1 < 0)
       // Width or height is negative. No intersection.
       {
         outrect.setFrameFromDiagonal(0, 0, 0, 0);
@@ -1372,20 +1408,16 @@ public final class SunGraphics2D extends Graphics2D
 
     // First see if we can find an overwriteable source shape
     // to use as our destination area to avoid duplication.
-    if (!keep1 && (s1 instanceof Area)) {
+    if (!keep1 && s1 instanceof Area) {
       a1 = (Area) s1;
-    } else if (!keep2 && (s2 instanceof Area)) {
+    } else if (!keep2 && s2 instanceof Area) {
       a1 = (Area) s2;
       s2 = s1;
     } else {
       a1 = new Area(s1);
     }
 
-    if (s2 instanceof Area) {
-      a2 = (Area) s2;
-    } else {
-      a2 = new Area(s2);
-    }
+    a2 = s2 instanceof Area ? (Area) s2 : new Area(s2);
 
     a1.intersect(a2);
     if (a1.isRectangular()) {
@@ -1434,7 +1466,6 @@ public final class SunGraphics2D extends Graphics2D
         textAt.preConcatenate(devAt);
       } else {
         info.devTx = IDENT_MATRIX;
-        devAt = IDENT_ATX;
       }
       textAt.getMatrix(info.glyphTx = new double[4]);
       double shearx = textAt.getShearX();
@@ -1444,7 +1475,6 @@ public final class SunGraphics2D extends Graphics2D
       }
       info.pixelHeight = (int) (Math.abs(scaley) + 0.5);
     } else {
-      txFontType = AffineTransform.TYPE_IDENTITY;
       info.originX = info.originY = 0;
       if (transformState >= TRANSFORM_TRANSLATESCALE) {
         transform.getMatrix(info.devTx = new double[4]);
@@ -1484,7 +1514,6 @@ public final class SunGraphics2D extends Graphics2D
         }
 
         info.devTx = IDENT_MATRIX;
-        devAt = IDENT_ATX;
       }
     }
 
@@ -1517,17 +1546,10 @@ public final class SunGraphics2D extends Graphics2D
          * is honoured when we render, overriding the Graphics setting.
          */
     int aahint;
-    if (frc == null) {
-      aahint = textAntialiasHint;
-    } else {
-      aahint = ((SunHints.Value) frc.getAntiAliasingHint()).getIndex();
-    }
+    aahint = frc == null ? textAntialiasHint : ((Value) frc.getAntiAliasingHint()).getIndex();
     if (aahint == SunHints.INTVAL_TEXT_ANTIALIAS_DEFAULT) {
-      if (antialiasHint == SunHints.INTVAL_ANTIALIAS_ON) {
-        aahint = SunHints.INTVAL_TEXT_ANTIALIAS_ON;
-      } else {
-        aahint = SunHints.INTVAL_TEXT_ANTIALIAS_OFF;
-      }
+      aahint = antialiasHint == SunHints.INTVAL_ANTIALIAS_ON ? SunHints.INTVAL_TEXT_ANTIALIAS_ON
+          : SunHints.INTVAL_TEXT_ANTIALIAS_OFF;
     } else {
             /* If we are in checkFontInfo because a rendering hint has been
              * set then all pipes are revalidated. But we can also
@@ -1536,11 +1558,8 @@ public final class SunGraphics2D extends Graphics2D
              * See comments in SunGraphics2d.setFont(Font).
              */
       if (aahint == SunHints.INTVAL_TEXT_ANTIALIAS_GASP) {
-        if (info.font2D.useAAForPtSize(info.pixelHeight)) {
-          aahint = SunHints.INTVAL_TEXT_ANTIALIAS_ON;
-        } else {
-          aahint = SunHints.INTVAL_TEXT_ANTIALIAS_OFF;
-        }
+        aahint = info.font2D.useAAForPtSize(info.pixelHeight) ? SunHints.INTVAL_TEXT_ANTIALIAS_ON
+            : SunHints.INTVAL_TEXT_ANTIALIAS_OFF;
       } else if (aahint >= SunHints.INTVAL_TEXT_ANTIALIAS_LCD_HRGB) {
                 /* loops for default rendering modes are installed in the SG2D
                  * constructor. If there are none this will be null.
@@ -1593,10 +1612,10 @@ public final class SunGraphics2D extends Graphics2D
 
   public FontInfo getFontInfo() {
     if (!validFontInfo) {
-      this.fontInfo = checkFontInfo(this.fontInfo, font, null);
+      fontInfo = checkFontInfo(fontInfo, font, null);
       validFontInfo = true;
     }
-    return this.fontInfo;
+    return fontInfo;
   }
 
   /* Used by drawGlyphVector which specifies its own font. */
@@ -1622,20 +1641,16 @@ public final class SunGraphics2D extends Graphics2D
    * Return the SurfaceData object assigned to manage the destination
    * drawable surface of this Graphics2D.
    */
-  public final SurfaceData getSurfaceData() {
+  public SurfaceData getSurfaceData() {
     return surfaceData;
   }
 
   private void validateBasicStroke(BasicStroke bs) {
-    boolean aa = (antialiasHint == SunHints.INTVAL_ANTIALIAS_ON);
+    boolean aa = antialiasHint == SunHints.INTVAL_ANTIALIAS_ON;
     if (transformState < TRANSFORM_TRANSLATESCALE) {
       if (aa) {
         if (bs.getLineWidth() <= MinPenSizeAA) {
-          if (bs.getDashArray() == null) {
-            strokeState = STROKE_THIN;
-          } else {
-            strokeState = STROKE_THINDASHED;
-          }
+          strokeState = bs.getDashArray() == null ? STROKE_THIN : STROKE_THINDASHED;
         } else {
           strokeState = STROKE_WIDE;
         }
@@ -1643,11 +1658,7 @@ public final class SunGraphics2D extends Graphics2D
         if (bs == defaultStroke) {
           strokeState = STROKE_THIN;
         } else if (bs.getLineWidth() <= 1.0f) {
-          if (bs.getDashArray() == null) {
-            strokeState = STROKE_THIN;
-          } else {
-            strokeState = STROKE_THINDASHED;
-          }
+          strokeState = bs.getDashArray() == null ? STROKE_THIN : STROKE_THINDASHED;
         } else {
           strokeState = STROKE_WIDE;
         }
@@ -1707,17 +1718,13 @@ public final class SunGraphics2D extends Graphics2D
         double hypot = Math.sqrt(EB * EB + (EA - EC) * (EA - EC));
 
                 /* sqrt omitted, compare to squared limits below. */
-        widthsquared = ((EA + EC + hypot) / 2.0);
+        widthsquared = (EA + EC + hypot) / 2.0;
       }
       if (bs != defaultStroke) {
         widthsquared *= bs.getLineWidth() * bs.getLineWidth();
       }
       if (widthsquared <= (aa ? MinPenSizeAASquared : MinPenSizeSquared)) {
-        if (bs.getDashArray() == null) {
-          strokeState = STROKE_THIN;
-        } else {
-          strokeState = STROKE_THINDASHED;
-        }
+        strokeState = bs.getDashArray() == null ? STROKE_THIN : STROKE_THINDASHED;
       } else {
         strokeState = STROKE_WIDE;
       }
@@ -1726,24 +1733,23 @@ public final class SunGraphics2D extends Graphics2D
 
   RenderingHints makeHints(Map hints) {
     RenderingHints model = new RenderingHints(hints);
-    model.put(SunHints.KEY_RENDERING, SunHints.Value.get(SunHints.INTKEY_RENDERING, renderHint));
-    model.put(SunHints.KEY_ANTIALIASING,
-        SunHints.Value.get(SunHints.INTKEY_ANTIALIASING, antialiasHint));
+    model.put(SunHints.KEY_RENDERING, Value.get(SunHints.INTKEY_RENDERING, renderHint));
+    model.put(SunHints.KEY_ANTIALIASING, Value.get(SunHints.INTKEY_ANTIALIASING, antialiasHint));
     model.put(SunHints.KEY_TEXT_ANTIALIASING,
-        SunHints.Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, textAntialiasHint));
+        Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, textAntialiasHint));
     model.put(SunHints.KEY_FRACTIONALMETRICS,
-        SunHints.Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint));
-    model.put(SunHints.KEY_TEXT_ANTIALIAS_LCD_CONTRAST, Integer.valueOf(lcdTextContrast));
+        Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint));
+    model.put(SunHints.KEY_TEXT_ANTIALIAS_LCD_CONTRAST, lcdTextContrast);
     Object value;
     switch (interpolationHint) {
       case SunHints.INTVAL_INTERPOLATION_NEAREST_NEIGHBOR:
-        value = SunHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+        value = Value.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
         break;
       case SunHints.INTVAL_INTERPOLATION_BILINEAR:
-        value = SunHints.VALUE_INTERPOLATION_BILINEAR;
+        value = Value.VALUE_INTERPOLATION_BILINEAR;
         break;
       case SunHints.INTVAL_INTERPOLATION_BICUBIC:
-        value = SunHints.VALUE_INTERPOLATION_BICUBIC;
+        value = Value.VALUE_INTERPOLATION_BICUBIC;
         break;
       default:
         value = null;
@@ -1752,8 +1758,7 @@ public final class SunGraphics2D extends Graphics2D
     if (value != null) {
       model.put(SunHints.KEY_INTERPOLATION, value);
     }
-    model.put(SunHints.KEY_STROKE_CONTROL,
-        SunHints.Value.get(SunHints.INTKEY_STROKE_CONTROL, strokeHint));
+    model.put(SunHints.KEY_STROKE_CONTROL, Value.get(SunHints.INTKEY_STROKE_CONTROL, strokeHint));
     return model;
   }
 
@@ -1763,17 +1768,14 @@ public final class SunGraphics2D extends Graphics2D
     if (type == AffineTransform.TYPE_IDENTITY) {
       transformState = TRANSFORM_ISIDENT;
       transX = transY = 0;
-    } else if (type == AffineTransform.TYPE_TRANSLATION) {
+    } else if (type == TYPE_TRANSLATION) {
       double dtx = transform.getTranslateX();
       double dty = transform.getTranslateY();
       transX = (int) Math.floor(dtx + 0.5);
       transY = (int) Math.floor(dty + 0.5);
-      if (dtx == transX && dty == transY) {
-        transformState = TRANSFORM_INT_TRANSLATE;
-      } else {
-        transformState = TRANSFORM_ANY_TRANSLATE;
-      }
-    } else if ((type & (AffineTransform.TYPE_FLIP |
+      transformState = dtx == transX && dty == transY ? TRANSFORM_INT_TRANSLATE
+          : TRANSFORM_ANY_TRANSLATE;
+    } else if ((type & (TYPE_FLIP |
                             AffineTransform.TYPE_MASK_ROTATION |
                             AffineTransform.TYPE_GENERAL_TRANSFORM)) == 0) {
       transformState = TRANSFORM_TRANSLATESCALE;
@@ -1789,9 +1791,9 @@ public final class SunGraphics2D extends Graphics2D
              * was more than a translate that font info is invalidated
              */
       cachedFRC = null;
-      this.validFontInfo = false;
-      this.fontMetrics = null;
-      this.glyphVectorFontInfo = null;
+      validFontInfo = false;
+      fontMetrics = null;
+      glyphVectorFontInfo = null;
 
       if (transformState != origTransformState) {
         invalidatePipe();
@@ -1830,7 +1832,7 @@ public final class SunGraphics2D extends Graphics2D
      *      compositeState <= COMP_CUSTOM)
      * though nothing bad will happen if it is run in other states.
      */
-  final void validateColor() {
+  void validateColor() {
     int eargb;
     if (imageComp == CompositeType.Clear) {
       eargb = 0;
@@ -1841,11 +1843,11 @@ public final class SunGraphics2D extends Graphics2D
           imageComp != CompositeType.SrcOverNoEa) {
         AlphaComposite alphacomp = (AlphaComposite) composite;
         int a = Math.round(alphacomp.getAlpha() * (eargb >>> 24));
-        eargb = (eargb & 0x00ffffff) | (a << 24);
+        eargb = eargb & 0x00ffffff | a << 24;
       }
     }
     this.eargb = eargb;
-    this.pixel = surfaceData.pixelFor(eargb);
+    pixel = surfaceData.pixelFor(eargb);
   }
 
   protected void validateCompClip() {
@@ -1855,14 +1857,11 @@ public final class SunGraphics2D extends Graphics2D
       clipRegion = devClip;
     } else if (usrClip instanceof Rectangle2D) {
       clipState = CLIP_RECTANGULAR;
-      if (usrClip instanceof Rectangle) {
-        clipRegion = devClip.getIntersection((Rectangle) usrClip);
-      } else {
-        clipRegion = devClip.getIntersection(usrClip.getBounds());
-      }
+      clipRegion = usrClip instanceof Rectangle ? devClip.getIntersection((Rectangle) usrClip)
+          : devClip.getIntersection(usrClip.getBounds());
     } else {
       PathIterator cpi = usrClip.getPathIterator(null);
-      int box[] = new int[4];
+      int[] box = new int[4];
       ShapeSpanIterator sr = LoopPipe.getFillSSI(this);
       try {
         sr.setOutputArea(devClip);
@@ -1886,11 +1885,8 @@ public final class SunGraphics2D extends Graphics2D
     if (s == null) {
       return null;
     }
-    if (transformState > TRANSFORM_INT_TRANSLATE) {
-      return transformShape(transform, s);
-    } else {
-      return transformShape(transX, transY, s);
-    }
+    return transformState > TRANSFORM_INT_TRANSLATE ? transformShape(transform, s)
+        : transformShape(transX, transY, s);
   }
 
   public Shape untransformShape(Shape s) {
@@ -1941,10 +1937,10 @@ public final class SunGraphics2D extends Graphics2D
 
     x = (int) Math.ceil(coords[0] - 0.5);
     y = (int) Math.ceil(coords[1] - 0.5);
-    w = ((int) Math.ceil(coords[2] - 0.5)) - x;
-    h = ((int) Math.ceil(coords[3] - 0.5)) - y;
-    dx = ((int) Math.ceil(coords[4] - 0.5)) - x;
-    dy = ((int) Math.ceil(coords[5] - 0.5)) - y;
+    w = (int) Math.ceil(coords[2] - 0.5) - x;
+    h = (int) Math.ceil(coords[3] - 0.5) - y;
+    dx = (int) Math.ceil(coords[4] - 0.5) - x;
+    dy = (int) Math.ceil(coords[5] - 0.5) - y;
 
     // In case of negative scale transform, reflect the rect coords.
     if (w < 0) {
@@ -1962,7 +1958,7 @@ public final class SunGraphics2D extends Graphics2D
         int partW = Math.min(w, dx);
         w -= partW;
         int sx = x + w;
-        ob.Blit(theData, theData, comp, clip, sx, y, sx + dx, y + dy, partW, h);
+        ob.Blit(theData, theData, comp, clip, sx, y, sx + dx, y /* + dy, which is 0 */, partW, h);
       }
       return;
     }
@@ -2014,16 +2010,16 @@ public final class SunGraphics2D extends Graphics2D
    * graphics state.  The rendering attributes applied include the
    * clip, transform, paint or color, composite and stroke attributes.
    *
-   * @param p The path to be drawn.
    * @see #setStroke
    * @see #setPaint
-   * @see java.awt.Graphics#setColor
+   * @see Graphics#setColor
    * @see #transform
    * @see #setTransform
    * @see #clip
    * @see #setClip
    * @see #setComposite
    */
+  @Override
   public void draw(Shape s) {
     try {
       shapepipe.draw(this, s);
@@ -2060,6 +2056,7 @@ public final class SunGraphics2D extends Graphics2D
    * @see #setComposite
    * @see #setClip
    */
+  @Override
   public boolean drawImage(Image img, AffineTransform xform, ImageObserver observer) {
 
     if (img == null) {
@@ -2071,9 +2068,9 @@ public final class SunGraphics2D extends Graphics2D
     }
 
     if (isHiDPIImage(img)) {
-      final int w = img.getWidth(null);
-      final int h = img.getHeight(null);
-      final AffineTransform tx = new AffineTransform(transform);
+      int w = img.getWidth(null);
+      int h = img.getHeight(null);
+      AffineTransform tx = new AffineTransform(transform);
       transform(xform);
       boolean result = drawHiDPIImage(img, 0, 0, w, h, 0, 0, w, h, null, observer);
       transform.setTransform(tx);
@@ -2098,6 +2095,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawImage(BufferedImage bImg, BufferedImageOp op, int x, int y) {
 
     if (bImg == null) {
@@ -2139,6 +2137,7 @@ public final class SunGraphics2D extends Graphics2D
    * @see #clip
    * @see #setClip
    */
+  @Override
   public void drawRenderedImage(RenderedImage img, AffineTransform xform) {
 
     if (img == null) {
@@ -2155,8 +2154,8 @@ public final class SunGraphics2D extends Graphics2D
     // transformState tracks the state of transform and
     // transX, transY contain the integer casts of the
     // translation factors
-    boolean isIntegerTranslate = (transformState <= TRANSFORM_INT_TRANSLATE)
-        && isIntegerTranslation(xform);
+    boolean isIntegerTranslate = transformState <= TRANSFORM_INT_TRANSLATE && isIntegerTranslation(
+        xform);
 
     // Include padding for interpolation/antialiasing if necessary
     int pad = isIntegerTranslate ? 0 : 3;
@@ -2232,6 +2231,7 @@ public final class SunGraphics2D extends Graphics2D
     drawImage(bufImg, transXform, null);
   }
 
+  @Override
   public void drawRenderableImage(RenderableImage img, AffineTransform xform) {
 
     if (img == null) {
@@ -2256,13 +2256,14 @@ public final class SunGraphics2D extends Graphics2D
     drawRenderedImage(rendering, reverseTransform);
   }
 
+  @Override
   public void drawString(String str, float x, float y) {
     if (str == null) {
       throw new NullPointerException("String is null");
     }
 
     if (font.hasLayoutAttributes()) {
-      if (str.length() == 0) {
+      if (str.isEmpty()) {
         return;
       }
       new TextLayout(str, font, getFontRenderContext()).draw(this, x, y);
@@ -2285,6 +2286,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawString(AttributedCharacterIterator iterator, float x, float y) {
     if (iterator == null) {
       throw new NullPointerException("AttributedCharacterIterator is null");
@@ -2296,6 +2298,7 @@ public final class SunGraphics2D extends Graphics2D
     tl.draw(this, x, y);
   }
 
+  @Override
   public void drawGlyphVector(GlyphVector gv, float x, float y) {
     if (gv == null) {
       throw new NullPointerException("GlyphVector is null");
@@ -2323,13 +2326,14 @@ public final class SunGraphics2D extends Graphics2D
    * clip, transform, paint or color, and composite.
    *
    * @see #setPaint
-   * @see java.awt.Graphics#setColor
+   * @see Graphics#setColor
    * @see #transform
    * @see #setTransform
    * @see #setComposite
    * @see #clip
    * @see #setClip
    */
+  @Override
   public void fill(Shape s) {
     try {
       shapepipe.fill(this, s);
@@ -2353,18 +2357,16 @@ public final class SunGraphics2D extends Graphics2D
    * clip, transform, and stroke attributes.
    *
    * @param rect     The area in device space to check for a hit.
-   * @param p        The path to check for a hit.
    * @param onStroke Flag to choose between testing the stroked or
    *                 the filled path.
    * @return True if there is a hit, false otherwise.
    * @see #setStroke
-   * @see #fillPath
-   * @see #drawPath
    * @see #transform
    * @see #setTransform
    * @see #clip
    * @see #setClip
    */
+  @Override
   public boolean hit(Rectangle rect, Shape s, boolean onStroke) {
     if (onStroke) {
       s = stroke.createStrokedShape(s);
@@ -2382,6 +2384,7 @@ public final class SunGraphics2D extends Graphics2D
   /**
    * Return the device configuration associated with this Graphics2D.
    */
+  @Override
   public GraphicsConfiguration getDeviceConfiguration() {
     return surfaceData.getDeviceConfiguration();
   }
@@ -2398,6 +2401,7 @@ public final class SunGraphics2D extends Graphics2D
    *                  class.
    * @see RenderingHints
    */
+  @Override
   public void setRenderingHint(Key hintKey, Object hintValue) {
     // If we recognize the key, we must recognize the value
     //     otherwise throw an IllegalArgumentException
@@ -2413,40 +2417,36 @@ public final class SunGraphics2D extends Graphics2D
       boolean recognized = true;
       SunHints.Key sunKey = (SunHints.Key) hintKey;
       int newHint;
-      if (sunKey == SunHints.KEY_TEXT_ANTIALIAS_LCD_CONTRAST) {
-        newHint = ((Integer) hintValue).intValue();
-      } else {
-        newHint = ((SunHints.Value) hintValue).getIndex();
-      }
+      newHint = sunKey == SunHints.KEY_TEXT_ANTIALIAS_LCD_CONTRAST
+          ? (Integer) hintValue : ((Value) hintValue).getIndex();
       switch (sunKey.getIndex()) {
         case SunHints.INTKEY_RENDERING:
-          stateChanged = (renderHint != newHint);
+          stateChanged = renderHint != newHint;
           if (stateChanged) {
             renderHint = newHint;
             if (interpolationHint == -1) {
-              interpolationType = (newHint == SunHints.INTVAL_RENDER_QUALITY
-                                       ? AffineTransformOp.TYPE_BILINEAR
-                                       : AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+              interpolationType = newHint == SunHints.INTVAL_RENDER_QUALITY
+                  ? AffineTransformOp.TYPE_BILINEAR : AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
             }
           }
           break;
         case SunHints.INTKEY_ANTIALIASING:
-          stateChanged = (antialiasHint != newHint);
+          stateChanged = antialiasHint != newHint;
           antialiasHint = newHint;
           if (stateChanged) {
-            textStateChanged = (textAntialiasHint == SunHints.INTVAL_TEXT_ANTIALIAS_DEFAULT);
+            textStateChanged = textAntialiasHint == SunHints.INTVAL_TEXT_ANTIALIAS_DEFAULT;
             if (strokeState != STROKE_CUSTOM) {
               validateBasicStroke((BasicStroke) stroke);
             }
           }
           break;
         case SunHints.INTKEY_TEXT_ANTIALIASING:
-          stateChanged = (textAntialiasHint != newHint);
+          stateChanged = textAntialiasHint != newHint;
           textStateChanged = stateChanged;
           textAntialiasHint = newHint;
           break;
         case SunHints.INTKEY_FRACTIONALMETRICS:
-          stateChanged = (fractionalMetricsHint != newHint);
+          stateChanged = fractionalMetricsHint != newHint;
           textStateChanged = stateChanged;
           fractionalMetricsHint = newHint;
           break;
@@ -2469,15 +2469,15 @@ public final class SunGraphics2D extends Graphics2D
               newHint = AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
               break;
           }
-          stateChanged = (interpolationType != newHint);
+          stateChanged = interpolationType != newHint;
           interpolationType = newHint;
           break;
         case SunHints.INTKEY_STROKE_CONTROL:
-          stateChanged = (strokeHint != newHint);
+          stateChanged = strokeHint != newHint;
           strokeHint = newHint;
           break;
         case SunHints.INTKEY_RESOLUTION_VARIANT:
-          stateChanged = (resolutionVariantHint != newHint);
+          stateChanged = resolutionVariantHint != newHint;
           resolutionVariantHint = newHint;
           break;
         default:
@@ -2490,9 +2490,9 @@ public final class SunGraphics2D extends Graphics2D
           invalidatePipe();
           if (textStateChanged) {
             fontMetrics = null;
-            this.cachedFRC = null;
+            cachedFRC = null;
             validFontInfo = false;
-            this.glyphVectorFontInfo = null;
+            glyphVectorFontInfo = null;
           }
         }
         if (hints != null) {
@@ -2511,12 +2511,11 @@ public final class SunGraphics2D extends Graphics2D
   /**
    * Returns the preferences for the rendering algorithms.
    *
-   * @param hintCategory The category of hint to be set. The strings
-   *                     are defined in the RenderingHints class.
    * @return The preferences for rendering algorithms. The strings
    * are defined in the RenderingHints class.
    * @see RenderingHints
    */
+  @Override
   public Object getRenderingHint(Key hintKey) {
     if (hints != null) {
       return hints.get(hintKey);
@@ -2527,29 +2526,29 @@ public final class SunGraphics2D extends Graphics2D
     int keyindex = ((SunHints.Key) hintKey).getIndex();
     switch (keyindex) {
       case SunHints.INTKEY_RENDERING:
-        return SunHints.Value.get(SunHints.INTKEY_RENDERING, renderHint);
+        return Value.get(SunHints.INTKEY_RENDERING, renderHint);
       case SunHints.INTKEY_ANTIALIASING:
-        return SunHints.Value.get(SunHints.INTKEY_ANTIALIASING, antialiasHint);
+        return Value.get(SunHints.INTKEY_ANTIALIASING, antialiasHint);
       case SunHints.INTKEY_TEXT_ANTIALIASING:
-        return SunHints.Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, textAntialiasHint);
+        return Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, textAntialiasHint);
       case SunHints.INTKEY_FRACTIONALMETRICS:
-        return SunHints.Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint);
+        return Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint);
       case SunHints.INTKEY_AATEXT_LCD_CONTRAST:
-        return new Integer(lcdTextContrast);
+        return lcdTextContrast;
       case SunHints.INTKEY_INTERPOLATION:
         switch (interpolationHint) {
           case SunHints.INTVAL_INTERPOLATION_NEAREST_NEIGHBOR:
-            return SunHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+            return Value.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
           case SunHints.INTVAL_INTERPOLATION_BILINEAR:
-            return SunHints.VALUE_INTERPOLATION_BILINEAR;
+            return Value.VALUE_INTERPOLATION_BILINEAR;
           case SunHints.INTVAL_INTERPOLATION_BICUBIC:
-            return SunHints.VALUE_INTERPOLATION_BICUBIC;
+            return Value.VALUE_INTERPOLATION_BICUBIC;
         }
         return null;
       case SunHints.INTKEY_STROKE_CONTROL:
-        return SunHints.Value.get(SunHints.INTKEY_STROKE_CONTROL, strokeHint);
+        return Value.get(SunHints.INTKEY_STROKE_CONTROL, strokeHint);
       case SunHints.INTKEY_RESOLUTION_VARIANT:
-        return SunHints.Value.get(SunHints.INTKEY_RESOLUTION_VARIANT, resolutionVariantHint);
+        return Value.get(SunHints.INTKEY_RESOLUTION_VARIANT, resolutionVariantHint);
     }
     return null;
   }
@@ -2562,11 +2561,10 @@ public final class SunGraphics2D extends Graphics2D
    * @param hints The rendering hints to be set
    * @see RenderingHints
    */
+  @Override
   public void addRenderingHints(Map<?, ?> hints) {
     boolean customHintPresent = false;
-    Iterator<?> iter = hints.keySet().iterator();
-    while (iter.hasNext()) {
-      Object key = iter.next();
+    for (Object key : hints.keySet()) {
       if (key == SunHints.KEY_RENDERING ||
           key == SunHints.KEY_ANTIALIASING ||
           key == SunHints.KEY_TEXT_ANTIALIASING ||
@@ -2595,12 +2593,9 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @see RenderingHints
    */
+  @Override
   public RenderingHints getRenderingHints() {
-    if (hints == null) {
-      return makeHints(null);
-    } else {
-      return (RenderingHints) hints.clone();
-    }
+    return hints == null ? makeHints(null) : (RenderingHints) hints.clone();
   }
 
   /**
@@ -2611,6 +2606,7 @@ public final class SunGraphics2D extends Graphics2D
    * @param hints The rendering hints to be set
    * @see RenderingHints
    */
+  @Override
   public void setRenderingHints(Map<?, ?> hints) {
     this.hints = null;
     renderHint = SunHints.INTVAL_RENDER_DEFAULT;
@@ -2621,9 +2617,7 @@ public final class SunGraphics2D extends Graphics2D
     interpolationHint = -1;
     interpolationType = AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
     boolean customHintPresent = false;
-    Iterator<?> iter = hints.keySet().iterator();
-    while (iter.hasNext()) {
-      Object key = iter.next();
+    for (Object key : hints.keySet()) {
       if (key == SunHints.KEY_RENDERING ||
           key == SunHints.KEY_ANTIALIASING ||
           key == SunHints.KEY_TEXT_ANTIALIASING ||
@@ -2645,25 +2639,27 @@ public final class SunGraphics2D extends Graphics2D
   /**
    * Translate
    */
+  @Override
   public void translate(int x, int y) {
     transform.translate(x, y);
     if (transformState <= TRANSFORM_INT_TRANSLATE) {
       transX += x;
       transY += y;
-      transformState = (((transX | transY) == 0) ? TRANSFORM_ISIDENT : TRANSFORM_INT_TRANSLATE);
+      transformState = (transX | transY) == 0 ? TRANSFORM_ISIDENT : TRANSFORM_INT_TRANSLATE;
     } else {
       invalidateTransform();
     }
   }
 
   // text rendering methods
+  @Override
   public void drawString(String str, int x, int y) {
     if (str == null) {
       throw new NullPointerException("String is null");
     }
 
     if (font.hasLayoutAttributes()) {
-      if (str.length() == 0) {
+      if (str.isEmpty()) {
         return;
       }
       new TextLayout(str, font, getFontRenderContext()).draw(this, x, y);
@@ -2686,6 +2682,7 @@ public final class SunGraphics2D extends Graphics2D
     }
   }
 
+  @Override
   public void drawString(AttributedCharacterIterator iterator, int x, int y) {
     if (iterator == null) {
       throw new NullPointerException("AttributedCharacterIterator is null");
@@ -2708,6 +2705,7 @@ public final class SunGraphics2D extends Graphics2D
    *          [   0    0    1   ]
    * </pre>
    */
+  @Override
   public void translate(double tx, double ty) {
     transform.translate(tx, ty);
     invalidateTransform();
@@ -2787,6 +2785,7 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @param theta The angle of rotation in radians.
    */
+  @Override
   public void rotate(double theta) {
     transform.rotate(theta);
     invalidateTransform();
@@ -2808,6 +2807,7 @@ public final class SunGraphics2D extends Graphics2D
    * @param x     The x coordinate of the origin of the rotation
    * @param y     The x coordinate of the origin of the rotation
    */
+  @Override
   public void rotate(double theta, double x, double y) {
     transform.rotate(theta, x, y);
     invalidateTransform();
@@ -2824,6 +2824,7 @@ public final class SunGraphics2D extends Graphics2D
    *          [   0    0    1   ]
    * </pre>
    */
+  @Override
   public void scale(double sx, double sy) {
     transform.scale(sx, sy);
     invalidateTransform();
@@ -2845,6 +2846,7 @@ public final class SunGraphics2D extends Graphics2D
    * @param shy The factor by which coordinates are shifted towards the
    *            positive Y axis direction according to their X coordinate
    */
+  @Override
   public void shear(double shx, double shy) {
     transform.shear(shx, shy);
     invalidateTransform();
@@ -2863,13 +2865,12 @@ public final class SunGraphics2D extends Graphics2D
    * A copy of the Tx is made, if necessary, so further
    * modifications to Tx do not affect rendering.
    *
-   * @param Tx The Transform object to be composed with the current
-   *           transform.
    * @see #setTransform
    * @see AffineTransform
    */
+  @Override
   public void transform(AffineTransform xform) {
-    this.transform.concatenate(xform);
+    transform.concatenate(xform);
     invalidateTransform();
   }
 
@@ -2884,7 +2885,7 @@ public final class SunGraphics2D extends Graphics2D
     if ((constrainX | constrainY) == 0 && devScale == 1) {
       return new AffineTransform(transform);
     }
-    final double invScale = 1.0 / devScale;
+    double invScale = 1.0 / devScale;
     AffineTransform tx = new AffineTransform(invScale,
         0,
         0,
@@ -2918,8 +2919,9 @@ public final class SunGraphics2D extends Graphics2D
    * Returns the current Paint in the Graphics2D state.
    *
    * @see #setPaint
-   * @see java.awt.Graphics#setColor
+   * @see Graphics#setColor
    */
+  @Override
   public Paint getPaint() {
     return paint;
   }
@@ -2929,10 +2931,11 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @param paint The Paint object to be used to generate color in
    *              the rendering process.
-   * @see java.awt.Graphics#setColor
+   * @see Graphics#setColor
    * @see GradientPaint
    * @see TexturePaint
    */
+  @Override
   public void setPaint(Paint paint) {
     if (paint instanceof Color) {
       setColor((Color) paint);
@@ -2975,6 +2978,7 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @see #setComposite
    */
+  @Override
   public Composite getComposite() {
     return composite;
   }
@@ -2986,10 +2990,11 @@ public final class SunGraphics2D extends Graphics2D
    * the existing pixels on the graphics device in the rendering process.
    *
    * @param comp The Composite object to be used for drawing.
-   * @see java.awt.Graphics#setXORMode
-   * @see java.awt.Graphics#setPaintMode
+   * @see Graphics#setXORMode
+   * @see Graphics#setPaintMode
    * @see AlphaComposite
    */
+  @Override
   public void setComposite(Composite comp) {
     if (composite == comp) {
       return;
@@ -3000,13 +3005,9 @@ public final class SunGraphics2D extends Graphics2D
       AlphaComposite alphacomp = (AlphaComposite) comp;
       newCompType = CompositeType.forAlphaComposite(alphacomp);
       if (newCompType == CompositeType.SrcOverNoEa) {
-        if (paintState == PAINT_OPAQUECOLOR || (paintState > PAINT_ALPHACOLOR
-                                                    && paint.getTransparency()
-            == Transparency.OPAQUE)) {
-          newCompState = COMP_ISCOPY;
-        } else {
-          newCompState = COMP_ALPHA;
-        }
+        newCompState = paintState == PAINT_OPAQUECOLOR
+            || paintState > PAINT_ALPHACOLOR && paint.getTransparency() == Transparency.OPAQUE
+            ? COMP_ISCOPY : COMP_ALPHA;
       } else if (newCompType == CompositeType.SrcNoEa ||
           newCompType == CompositeType.Src ||
           newCompType == CompositeType.Clear) {
@@ -3044,6 +3045,7 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @see setBackground
    */
+  @Override
   public Color getBackground() {
     return backgroundColor;
   }
@@ -3061,6 +3063,7 @@ public final class SunGraphics2D extends Graphics2D
    * @see getBackground
    * @see Graphics.clearRect()
    */
+  @Override
   public void setBackground(Color color) {
     backgroundColor = color;
   }
@@ -3070,10 +3073,12 @@ public final class SunGraphics2D extends Graphics2D
    *
    * @see setStroke
    */
+  @Override
   public Stroke getStroke() {
     return stroke;
   }
 
+  @Override
   public void setStroke(Stroke s) {
     if (s == null) {
       throw new IllegalArgumentException("null Stroke");
@@ -3097,8 +3102,8 @@ public final class SunGraphics2D extends Graphics2D
    * intersected with the current clip. This method is used to make the
    * current clip smaller. To make the clip larger, use any setClip method.
    *
-   * @param p The Path to be intersected with the current clip.
    */
+  @Override
   public void clip(Shape s) {
     s = transformShape(s);
     if (usrClip != null) {
@@ -3112,6 +3117,7 @@ public final class SunGraphics2D extends Graphics2D
    * Get the rendering context of the font
    * within this Graphics2D context.
    */
+  @Override
   public FontRenderContext getFontRenderContext() {
     if (cachedFRC == null) {
       int aahint = textAntialiasHint;
@@ -3122,27 +3128,24 @@ public final class SunGraphics2D extends Graphics2D
       // Translation components should be excluded from the FRC transform
       AffineTransform tx = null;
       if (transformState >= TRANSFORM_TRANSLATESCALE) {
-        if (transform.getTranslateX() == 0 && transform.getTranslateY() == 0) {
-          tx = transform;
-        } else {
-          tx = new AffineTransform(transform.getScaleX(),
-              transform.getShearY(),
-              transform.getShearX(),
-              transform.getScaleY(),
-              0,
-              0);
-        }
+        tx = transform.getTranslateX() == 0 && transform.getTranslateY() == 0 ? transform
+            : new AffineTransform(transform.getScaleX(),
+                transform.getShearY(),
+                transform.getShearX(),
+                transform.getScaleY(),
+                0,
+                0);
       }
       cachedFRC = new FontRenderContext(tx,
-          SunHints.Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, aahint),
-          SunHints.Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint));
+          Value.get(SunHints.INTKEY_TEXT_ANTIALIASING, aahint),
+          Value.get(SunHints.INTKEY_FRACTIONALMETRICS, fractionalMetricsHint));
     }
     return cachedFRC;
   }
 
   /**
-   * Intersects <code>destRect</code> with <code>clip</code> and
-   * overwrites <code>destRect</code> with the result.
+   * Intersects {@code destRect} with {@code clip} and
+   * overwrites {@code destRect} with the result.
    * Returns false if the intersection was empty, true otherwise.
    */
   private boolean clipTo(Rectangle destRect, Rectangle clip) {
@@ -3150,7 +3153,7 @@ public final class SunGraphics2D extends Graphics2D
     int x2 = Math.min(destRect.x + destRect.width, clip.x + clip.width);
     int y1 = Math.max(destRect.y, clip.y);
     int y2 = Math.min(destRect.y + destRect.height, clip.y + clip.height);
-    if (((x2 - x1) < 0) || ((y2 - y1) < 0)) {
+    if (x2 - x1 < 0 || y2 - y1 < 0) {
       destRect.width = -1; // Set both just to be safe
       destRect.height = -1;
       return false;
@@ -3205,16 +3208,9 @@ public final class SunGraphics2D extends Graphics2D
         clipTo(tileRect, region);
 
         // Create a WritableRaster containing the tile
-        WritableRaster wRaster = null;
-        if (raster instanceof WritableRaster) {
-          wRaster = (WritableRaster) raster;
-        } else {
-          // Create a WritableRaster in the same coordinate system
-          // as the original raster.
-          wRaster = Raster.createWritableRaster(raster.getSampleModel(),
-              raster.getDataBuffer(),
-              null);
-        }
+        WritableRaster wRaster;
+        wRaster = raster instanceof WritableRaster ? (WritableRaster) raster
+            : Raster.createWritableRaster(raster.getSampleModel(), raster.getDataBuffer(), null);
 
         // Translate wRaster to start at (0, 0) and to contain
         // only the relevent portion of the tile
@@ -3262,10 +3258,10 @@ public final class SunGraphics2D extends Graphics2D
     return s.getBounds();
   }
 
-  private boolean isHiDPIImage(final Image img) {
-    return (SurfaceManager.getImageScale(img) != 1) || (
-        resolutionVariantHint != SunHints.INTVAL_RESOLUTION_VARIANT_OFF
-            && img instanceof MultiResolutionImage);
+  private boolean isHiDPIImage(Image img) {
+    return SurfaceManager.getImageScale(img) != 1
+        || resolutionVariantHint != SunHints.INTVAL_RESOLUTION_VARIANT_OFF
+        && img instanceof MultiResolutionImage;
   }
 
   private boolean drawHiDPIImage(
@@ -3273,7 +3269,7 @@ public final class SunGraphics2D extends Graphics2D
       Color bgcolor, ImageObserver observer) {
 
     if (SurfaceManager.getImageScale(img) != 1) {  // Volatile Image
-      final int scale = SurfaceManager.getImageScale(img);
+      int scale = SurfaceManager.getImageScale(img);
       sx1 = Region.clipScale(sx1, scale);
       sx2 = Region.clipScale(sx2, scale);
       sy1 = Region.clipScale(sy1, scale);
@@ -3299,16 +3295,15 @@ public final class SunGraphics2D extends Graphics2D
       if (resolutionVariant != img && resolutionVariant != null) {
         // recalculate source region for the resolution variant
 
-        ImageObserver rvObserver = MultiResolutionToolkitImage.
-            getResolutionVariantObserver(img, observer, width, height, -1, -1);
+        ImageObserver rvObserver = getResolutionVariantObserver(img, observer, width, height, -1, -1);
 
         int rvWidth = resolutionVariant.getWidth(rvObserver);
         int rvHeight = resolutionVariant.getHeight(rvObserver);
 
         if (0 < width && 0 < height && 0 < rvWidth && 0 < rvHeight) {
 
-          float widthScale = ((float) rvWidth) / width;
-          float heightScale = ((float) rvHeight) / height;
+          float widthScale = (float) rvWidth / width;
+          float heightScale = (float) rvHeight / height;
 
           sx1 = Region.clipScale(sx1, widthScale);
           sy1 = Region.clipScale(sy1, heightScale);
@@ -3444,11 +3439,6 @@ public final class SunGraphics2D extends Graphics2D
 
   // end of text rendering methods
 
-  /**
-   * {@inheritDoc}
-   *
-   * @see sun.java2d.DestSurfaceProvider#getDestSurface
-   */
   @Override
   public Surface getDestSurface() {
     return surfaceData;

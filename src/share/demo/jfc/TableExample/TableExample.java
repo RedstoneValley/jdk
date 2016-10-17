@@ -37,14 +37,14 @@
  * this sample code.
  */
 
-/**
- * A a UI around the JDBCAdaptor, allowing database data to be interactively
- * fetched, sorted and displayed using Swing.
- * <p>
- * NOTE: This example uses a modal dialog via the static convenience methods in
- * the JOptionPane. Use of modal dialogs requires JDK 1.1.4 or greater.
- *
- * @author Philip Milne
+/*
+  A a UI around the JDBCAdaptor, allowing database data to be interactively
+  fetched, sorted and displayed using Swing.
+  <p>
+  NOTE: This example uses a modal dialog via the static convenience methods in
+  the JOptionPane. Use of modal dialogs requires JDK 1.1.4 or greater.
+
+  @author Philip Milne
  */
 
 import java.awt.Color;
@@ -60,45 +60,31 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.border.BevelBorder;
 
 public final class TableExample implements LayoutManager {
 
-  static String[] ConnectOptionNames = {"Connect"};
-  static String ConnectTitle = "Connection Information";
-  Dimension origin = new Dimension(0, 0);
-  JButton fetchButton;
-  JButton showConnectionInfoButton;
+  static final String[] ConnectOptionNames = {"Connect"};
+  static final String ConnectTitle = "Connection Information";
+  final Dimension origin = new Dimension(0, 0);
+  final JButton fetchButton;
+  final JButton showConnectionInfoButton;
   JPanel connectionPanel;
-  JFrame frame; // The query/results window.
+  final JFrame frame; // The query/results window.
   JLabel userNameLabel;
   JTextField userNameField;
   JLabel passwordLabel;
   JTextField passwordField;
   // JLabel      queryLabel;
-  JTextArea queryTextArea;
-  JComponent queryAggregate;
+  final JTextArea queryTextArea;
+  final JComponent queryAggregate;
   JLabel serverLabel;
   JTextField serverField;
   JLabel driverLabel;
   JTextField driverField;
-  JPanel mainPanel;
+  final JPanel mainPanel;
   TableSorter sorter;
   JDBCAdapter dataBase;
-  JScrollPane tableAggregate;
+  final JScrollPane tableAggregate;
 
   public TableExample() {
     mainPanel = new JPanel();
@@ -110,6 +96,7 @@ public final class TableExample implements LayoutManager {
     showConnectionInfoButton = new JButton("Configuration");
     showConnectionInfoButton.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         activateConnectionDialog();
       }
@@ -118,6 +105,7 @@ public final class TableExample implements LayoutManager {
     fetchButton = new JButton("Fetch");
     fetchButton.addActionListener(new ActionListener() {
 
+      @Override
       public void actionPerformed(ActionEvent e) {
         fetch();
       }
@@ -157,11 +145,11 @@ public final class TableExample implements LayoutManager {
     activateConnectionDialog();
   }
 
-  public static void main(String s[]) {
+  public static void main(String[] s) {
     // Trying to set Nimbus look and feel
     try {
       for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
+        if (FileChooserDemo.NIMBUS_LAF_NAME.equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
           break;
         }
@@ -260,25 +248,28 @@ public final class TableExample implements LayoutManager {
     // Install a mouse listener in the TableHeader as the sorter UI.
     sorter.addMouseListenerToHeaderInTable(table);
 
-    JScrollPane scrollpane = new JScrollPane(table);
-
-    return scrollpane;
+    return new JScrollPane(table);
   }
 
+  @Override
   public void addLayoutComponent(String s, Component c) {
   }
 
+  @Override
   public void removeLayoutComponent(Component c) {
   }
 
+  @Override
   public Dimension preferredLayoutSize(Container c) {
     return origin;
   }
 
+  @Override
   public Dimension minimumLayoutSize(Container c) {
     return origin;
   }
 
+  @Override
   public void layoutContainer(Container c) {
     Rectangle b = c.getBounds();
     int topHeight = 90;

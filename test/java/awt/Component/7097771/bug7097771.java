@@ -22,7 +22,6 @@
  */
 
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
 import java.awt.AWTException;
 import java.awt.Button;
@@ -43,13 +42,14 @@ import java.awt.event.ActionListener;
 */
 public final class bug7097771 extends Frame implements ActionListener {
 
+    private static final long serialVersionUID = -1705566361252187227L;
     private static volatile boolean action;
 
-    public static void main(final String[] args) throws AWTException {
-        final bug7097771 frame = new bug7097771();
+    public static void main(String[] args) throws AWTException {
+        bug7097771 frame = new bug7097771();
         frame.setSize(300, 300);
         frame.setLocationRelativeTo(null);
-        final Button button = new Button();
+        Button button = new Button();
         button.addActionListener(frame);
         frame.add(button);
         frame.setVisible(true);
@@ -67,7 +67,7 @@ public final class bug7097771 extends Frame implements ActionListener {
     }
 
     @Override
-    public void actionPerformed(final ActionEvent e) {
+    public void actionPerformed(ActionEvent e) {
         action = true;
     }
 

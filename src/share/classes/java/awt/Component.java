@@ -27,9 +27,11 @@ package java.awt;
 import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.VSYNC_DEFAULT;
 import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.VSYNC_ON;
 
-import android.content.Context;
 import android.util.Log;
 import android.view.View;
+import java.awt.BufferCapabilities.FlipContents;
+import java.awt.GraphicsCallback.PeerPaintCallback;
+import java.awt.GraphicsCallback.PeerPrintCallback;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
@@ -69,9 +71,9 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OptionalDataException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlContext;
@@ -85,10 +87,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
+import java.util.WeakHashMap;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.ComponentAccessor;
 import sun.awt.AppContext;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.ConstrainableGraphics;
+import sun.awt.EventQueueItem;
 import sun.awt.RequestFocusController;
 import sun.awt.SubRegionShowable;
 import sun.awt.SunToolkit;
@@ -105,9 +110,9 @@ import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
  * that can be displayed on the screen and that can interact with the
  * user. Examples of components are the buttons, checkboxes, and scrollbars
  * of a typical graphical user interface. <p>
- * The <code>Component</code> class is the abstract superclass of
+ * The {@code Component} class is the abstract superclass of
  * the nonmenu-related Abstract Window Toolkit components. Class
- * <code>Component</code> can also be extended directly to create a
+ * {@code Component} can also be extended directly to create a
  * lightweight component. A lightweight component is a component that is
  * not associated with a native window. On the contrary, a heavyweight
  * component is associated with a native window. The {@link #isLightweight()}
@@ -123,10 +128,10 @@ import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
  * <p>
  * <h3>Serialization</h3>
  * It is important to note that only AWT listeners which conform
- * to the <code>Serializable</code> protocol will be saved when
+ * to the {@code Serializable} protocol will be saved when
  * the object is stored.  If an AWT object has listeners that
  * aren't marked serializable, they will be dropped at
- * <code>writeObject</code> time.  Developers will need, as always,
+ * {@code writeObject} time.  Developers will need, as always,
  * to consider the implications of making an object serializable.
  * One situation to watch out for is this:
  * <pre>
@@ -152,12 +157,12 @@ import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
  *        }
  *    }
  * </pre>
- * In this example, serializing <code>aButton</code> by itself
- * will cause <code>MyApp</code> and everything it refers to
+ * In this example, serializing {@code aButton} by itself
+ * will cause {@code MyApp} and everything it refers to
  * to be serialized as well.  The problem is that the listener
  * is serializable by coincidence, not by design.  To separate
- * the decisions about <code>MyApp</code> and the
- * <code>ActionListener</code> being serializable one can use a
+ * the decisions about {@code MyApp} and the
+ * {@code ActionListener} being serializable one can use a
  * nested class, as in the following example:
  * <pre>
  *    import java.awt.*;
@@ -204,15 +209,15 @@ public abstract class Component extends ComponentOrMenuComponent
     implements ImageObserver, MenuContainer {
 
   /**
-   * Ease-of-use constant for <code>getAlignmentY()</code>.
+   * Ease-of-use constant for {@code getAlignmentY()}.
    * Specifies an alignment to the top of the component.
    *
    * @see #getAlignmentY
    */
   public static final float TOP_ALIGNMENT = 0.0f;
   /**
-   * Ease-of-use constant for <code>getAlignmentY</code> and
-   * <code>getAlignmentX</code>. Specifies an alignment to
+   * Ease-of-use constant for {@code getAlignmentY} and
+   * {@code getAlignmentX}. Specifies an alignment to
    * the center of the component
    *
    * @see #getAlignmentX
@@ -220,21 +225,21 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   public static final float CENTER_ALIGNMENT = 0.5f;
   /**
-   * Ease-of-use constant for <code>getAlignmentY</code>.
+   * Ease-of-use constant for {@code getAlignmentY}.
    * Specifies an alignment to the bottom of the component.
    *
    * @see #getAlignmentY
    */
   public static final float BOTTOM_ALIGNMENT = 1.0f;
   /**
-   * Ease-of-use constant for <code>getAlignmentX</code>.
+   * Ease-of-use constant for {@code getAlignmentX}.
    * Specifies an alignment to the left side of the component.
    *
    * @see #getAlignmentX
    */
   public static final float LEFT_ALIGNMENT = 0.0f;
   /**
-   * Ease-of-use constant for <code>getAlignmentX</code>.
+   * Ease-of-use constant for {@code getAlignmentX}.
    * Specifies an alignment to the right side of the component.
    *
    * @see #getAlignmentX
@@ -249,24 +254,24 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Internal, constants for serialization
    */
-  final static String actionListenerK = "actionL";
-  final static String adjustmentListenerK = "adjustmentL";
-  final static String componentListenerK = "componentL";
-  final static String containerListenerK = "containerL";
-  final static String focusListenerK = "focusL";
-  final static String itemListenerK = "itemL";
-  final static String keyListenerK = "keyL";
-  final static String mouseListenerK = "mouseL";
-  final static String mouseMotionListenerK = "mouseMotionL";
-  final static String mouseWheelListenerK = "mouseWheelL";
-  final static String textListenerK = "textL";
-  final static String ownedWindowK = "ownedL";
-  final static String windowListenerK = "windowL";
-  final static String inputMethodListenerK = "inputMethodL";
-  final static String hierarchyListenerK = "hierarchyL";
-  final static String hierarchyBoundsListenerK = "hierarchyBoundsL";
-  final static String windowStateListenerK = "windowStateL";
-  final static String windowFocusListenerK = "windowFocusL";
+  static final String actionListenerK = "actionL";
+  static final String adjustmentListenerK = "adjustmentL";
+  static final String componentListenerK = "componentL";
+  static final String containerListenerK = "containerL";
+  static final String focusListenerK = "focusL";
+  static final String itemListenerK = "itemL";
+  static final String keyListenerK = "keyL";
+  static final String mouseListenerK = "mouseL";
+  static final String mouseMotionListenerK = "mouseMotionL";
+  static final String mouseWheelListenerK = "mouseWheelL";
+  static final String textListenerK = "textL";
+  static final String ownedWindowK = "ownedL";
+  static final String windowListenerK = "windowL";
+  static final String inputMethodListenerK = "inputMethodL";
+  static final String hierarchyListenerK = "hierarchyL";
+  static final String hierarchyBoundsListenerK = "hierarchyBoundsL";
+  static final String windowStateListenerK = "windowStateL";
+  static final String windowFocusListenerK = "windowFocusL";
   private static final String TAG = "java.awt.Component";
   private static final int FOCUS_TRAVERSABLE_UNKNOWN = 0;
   private static final int FOCUS_TRAVERSABLE_DEFAULT = 1;
@@ -283,8 +288,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Value indicates whether overriden.
    * Bootstrap classes are not included.
    */
-  private static final Map<Class<?>, Boolean> coalesceMap
-      = new java.util.WeakHashMap<Class<?>, Boolean>();
+  private static final Map<Class<?>, Boolean> coalesceMap = new WeakHashMap<>();
   /**
    * Parameter types of coalesceEvents(AWTEvent,AWTEVent).
    */
@@ -295,8 +299,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @see #imageUpdate
    */
-  static boolean isInc;
-  static int incRate;
+  static final boolean isInc;
+  static final int incRate;
   private static RequestFocusController requestFocusController = new DummyRequestFocusController();
 
   static {
@@ -304,26 +308,30 @@ public abstract class Component extends ComponentOrMenuComponent
         /* initialize JNI field and method ids */
 
     String s = System.getProperty("awt.image.incrementaldraw");
-    isInc = (s == null || s.equals("true"));
+    isInc = s == null || "true".equals(s);
 
     s = System.getProperty("awt.image.redrawrate");
-    incRate = (s != null) ? Integer.parseInt(s) : 100;
+    incRate = s != null ? Integer.parseInt(s) : 100;
   }
 
   static {
-    AWTAccessor.setComponentAccessor(new AWTAccessor.ComponentAccessor() {
+    AWTAccessor.setComponentAccessor(new ComponentAccessor() {
+      @Override
       public void setBackgroundEraseDisabled(Component comp, boolean disabled) {
         comp.backgroundEraseDisabled = disabled;
       }
 
+      @Override
       public boolean getBackgroundEraseDisabled(Component comp) {
         return comp.backgroundEraseDisabled;
       }
 
+      @Override
       public Rectangle getBounds(Component comp) {
         return new Rectangle(comp.x, comp.y, comp.width, comp.height);
       }
 
+      @Override
       public void setMixingCutoutShape(Component comp, Shape shape) {
         Region region = shape == null ? null : Region.getInstance(shape, null);
 
@@ -352,124 +360,154 @@ public abstract class Component extends ComponentOrMenuComponent
         }
       }
 
+      @Override
       public void setGraphicsConfiguration(Component comp, GraphicsConfiguration gc) {
         comp.setGraphicsConfiguration(gc);
       }
 
-      public boolean requestFocus(Component comp, CausedFocusEvent.Cause cause) {
+      @Override
+      public boolean requestFocus(Component comp, Cause cause) {
         return comp.requestFocus(cause);
       }
 
+      @Override
       public boolean canBeFocusOwner(Component comp) {
         return comp.canBeFocusOwner();
       }
 
+      @Override
       public boolean isVisible(Component comp) {
         return comp.isVisible_NoClientCode();
       }
 
+      @Override
       public void setRequestFocusController(RequestFocusController requestController) {
         Component.setRequestFocusController(requestController);
       }
 
+      @Override
       public AppContext getAppContext(Component comp) {
         return comp.appContext;
       }
 
+      @Override
       public void setAppContext(Component comp, AppContext appContext) {
         comp.appContext = appContext;
       }
 
+      @Override
       public Container getParent(Component comp) {
         return comp.getParent_NoClientCode();
       }
 
+      @Override
       public void setParent(Component comp, Container parent) {
         comp.parent = parent;
       }
 
+      @Override
       public void setSize(Component comp, int width, int height) {
         comp.width = width;
         comp.height = height;
       }
 
+      @Override
       public Point getLocation(Component comp) {
         return comp.location_NoClientCode();
       }
 
+      @Override
       public void setLocation(Component comp, int x, int y) {
         comp.x = x;
         comp.y = y;
       }
 
+      @Override
       public boolean isEnabled(Component comp) {
         return comp.isEnabledImpl();
       }
 
+      @Override
       public boolean isDisplayable(Component comp) {
         return comp.peer != null;
       }
 
+      @Override
       public Cursor getCursor(Component comp) {
         return comp.getCursor_NoClientCode();
       }
 
+      @Override
       public ComponentPeer getPeer(Component comp) {
         return comp.peer;
       }
 
+      @Override
       public void setPeer(Component comp, ComponentPeer peer) {
         comp.peer = peer;
       }
 
+      @Override
       public boolean isLightweight(Component comp) {
-        return (comp.peer instanceof LightweightPeer);
+        return comp.peer instanceof LightweightPeer;
       }
 
+      @Override
       public boolean getIgnoreRepaint(Component comp) {
         return comp.ignoreRepaint;
       }
 
+      @Override
       public int getWidth(Component comp) {
         return comp.width;
       }
 
+      @Override
       public int getHeight(Component comp) {
         return comp.height;
       }
 
+      @Override
       public int getX(Component comp) {
         return comp.x;
       }
 
+      @Override
       public int getY(Component comp) {
         return comp.y;
       }
 
+      @Override
       public Color getForeground(Component comp) {
         return comp.foreground;
       }
 
+      @Override
       public Color getBackground(Component comp) {
         return comp.background;
       }
 
+      @Override
       public void setBackground(Component comp, Color background) {
         comp.background = background;
       }
 
+      @Override
       public Font getFont(Component comp) {
         return comp.getFont_NoClientCode();
       }
 
+      @Override
       public void processEvent(Component comp, AWTEvent e) {
         comp.processEvent(e);
       }
 
+      @Override
       public AccessControlContext getAccessControlContext(Component comp) {
         return comp.getAccessControlContext();
       }
 
+      @Override
       public void revalidateSynchronously(Component comp) {
         comp.revalidateSynchronously();
       }
@@ -477,8 +515,14 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
+   * Component Serialized Data Version.
+   *
+   * @serial
+   */
+  private final int componentSerializedDataVersion = 4;
+  /**
    * The peer of the component. The peer implements the component's
-   * behavior. The peer is set when the <code>Component</code> is
+   * behavior. The peer is set when the {@code Component} is
    * added to a container that also is a peer.
    *
    * @see #addNotify
@@ -486,14 +530,14 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   transient ComponentPeer peer;
   /**
-   * The parent of the object. It may be <code>null</code>
+   * The parent of the object. It may be {@code null}
    * for top-level components.
    *
    * @see #getParent
    */
   transient Container parent;
   /**
-   * The <code>AppContext</code> of the component. Applets/Plugin may
+   * The {@code AppContext} of the component. Applets/Plugin may
    * change the AppContext.
    */
   transient AppContext appContext;
@@ -527,7 +571,7 @@ public abstract class Component extends ComponentOrMenuComponent
   int height;
   /**
    * The foreground color for this component.
-   * <code>foreground</code> can be <code>null</code>.
+   * {@code foreground} can be {@code null}.
    *
    * @serial
    * @see #getForeground
@@ -536,7 +580,7 @@ public abstract class Component extends ComponentOrMenuComponent
   Color foreground;
   /**
    * The background color for this component.
-   * <code>background</code> can be <code>null</code>.
+   * {@code background} can be {@code null}.
    *
    * @serial
    * @see #getBackground
@@ -545,7 +589,7 @@ public abstract class Component extends ComponentOrMenuComponent
   Color background;
   /**
    * The font used by this component.
-   * The <code>font</code> can be <code>null</code>.
+   * The {@code font} can be {@code null}.
    *
    * @serial
    * @see #getFont
@@ -554,12 +598,12 @@ public abstract class Component extends ComponentOrMenuComponent
   volatile Font font;
   /**
    * The font which the peer is currently using.
-   * (<code>null</code> if no peer exists.)
+   * ({@code null} if no peer exists.)
    */
   Font peerFont;
   /**
    * The cursor displayed when pointer is over this component.
-   * This value can be <code>null</code>.
+   * This value can be {@code null}.
    *
    * @serial
    * @see #getCursor
@@ -575,14 +619,14 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   Locale locale;
   /**
-   * A reference to a <code>BufferStrategy</code> object
+   * A reference to a {@code BufferStrategy} object
    * used to manipulate the buffers on this component.
    *
-   * @see java.awt.image.BufferStrategy
+   * @see BufferStrategy
    * @see #getBufferStrategy()
    * @since 1.4
    */
-  transient BufferStrategy bufferStrategy = null;
+  transient BufferStrategy bufferStrategy;
   /**
    * True when the object should ignore all repaint events.
    *
@@ -591,7 +635,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #getIgnoreRepaint
    * @since 1.4
    */
-  boolean ignoreRepaint = false;
+  boolean ignoreRepaint;
   /**
    * True when the object is visible. An object that is not
    * visible is not drawn on the screen.
@@ -611,7 +655,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   boolean enabled = true;
   /**
-   * The <code>DropTarget</code> associated with this component.
+   * The {@code DropTarget} associated with this component.
    *
    * @serial
    * @see #setDropTarget
@@ -678,7 +722,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   transient ComponentOrientation componentOrientation = ComponentOrientation.UNKNOWN;
   /**
-   * <code>newEventsOnly</code> will be true if the event is
+   * {@code newEventsOnly} will be true if the event is
    * one of the event types enabled for the component.
    * It will then allow for normal processing to
    * continue.  If it is false the event is passed
@@ -688,7 +732,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @serial
    * @see #dispatchEvent
    */
-  boolean newEventsOnly = false;
+  boolean newEventsOnly;
   transient ComponentListener componentListener;
   transient FocusListener focusListener;
   transient HierarchyListener hierarchyListener;
@@ -698,15 +742,15 @@ public abstract class Component extends ComponentOrMenuComponent
   transient MouseMotionListener mouseMotionListener;
   transient MouseWheelListener mouseWheelListener;
   transient InputMethodListener inputMethodListener;
-  transient RuntimeException windowClosingException = null;
+  transient RuntimeException windowClosingException;
   /**
-   * The <code>eventMask</code> is ONLY set by subclasses via
-   * <code>enableEvents</code>.
+   * The {@code eventMask} is ONLY set by subclasses via
+   * {@code enableEvents}.
    * The mask should NOT be set when listeners are registered
    * so that we can distinguish the difference between when
    * listeners request events and subclasses request them.
    * One bit is used to indicate whether input methods are
-   * enabled; this bit is set by <code>enableInputMethods</code> and is
+   * enabled; this bit is set by {@code enableInputMethods} and is
    * on by default.
    *
    * @serial
@@ -714,26 +758,26 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see AWTEvent
    */
   long eventMask = AWTEvent.INPUT_METHODS_ENABLED_MASK;
-  boolean isPacked = false;
+  boolean isPacked;
   // Whether this Component has had the background erase flag
   // specified via SunToolkit.disableBackgroundErase(). This is
   // needed in order to make this function work on X11 platforms,
   // where currently there is no chance to interpose on the creation
   // of the peer and therefore the call to XSetBackground.
   transient boolean backgroundEraseDisabled;
-  transient sun.awt.EventQueueItem[] eventCache;
+  transient EventQueueItem[] eventCache;
   /**
-   * A reference to a <code>GraphicsConfiguration</code> object
+   * A reference to a {@code GraphicsConfiguration} object
    * used to describe the characteristics of a graphics
    * destination.
-   * This value can be <code>null</code>.
+   * This value can be {@code null}.
    *
    * @serial
    * @see GraphicsConfiguration
    * @see #getGraphicsConfiguration
    * @since 1.3
    */
-  private transient GraphicsConfiguration graphicsConfig = null;
+  private transient GraphicsConfiguration graphicsConfig;
   /**
    * True when the object is valid. An invalid object needs to
    * be layed out. This flag is set to false when the object
@@ -744,10 +788,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #validate
    * @see #invalidate
    */
-  private volatile boolean valid = false;
+  private volatile boolean valid;
   /**
    * A component's name.
-   * This field can be <code>null</code>.
+   * This field can be {@code null}.
    *
    * @serial
    * @see #getName
@@ -756,7 +800,7 @@ public abstract class Component extends ComponentOrMenuComponent
   private String name;
   /**
    * A bool to determine whether the name has
-   * been set explicitly. <code>nameExplicitlySet</code> will
+   * been set explicitly. {@code nameExplicitlySet} will
    * be false if the name has not been set and
    * true if it has.
    *
@@ -764,7 +808,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #getName
    * @see #setName(String)
    */
-  private boolean nameExplicitlySet = false;
+  private boolean nameExplicitlySet;
   /**
    * Indicates whether this Component can be focused.
    *
@@ -799,8 +843,8 @@ public abstract class Component extends ComponentOrMenuComponent
      */
   private transient volatile AccessControlContext acc = AccessController.getContext();
   /**
-   * If any <code>PropertyChangeListeners</code> have been registered,
-   * the <code>changeSupport</code> field describes them.
+   * If any {@code PropertyChangeListeners} have been registered,
+   * the {@code changeSupport} field describes them.
    *
    * @serial
    * @see #addPropertyChangeListener
@@ -837,7 +881,7 @@ public abstract class Component extends ComponentOrMenuComponent
      * The 'null' value means the component has normal shape (or has no shape at all)
      * and applyCompoundShape() will skip the following shape identical to normal.
      */
-  private transient Region compoundShape = null;
+  private transient Region compoundShape;
   /*
      * Represents the shape of this lightweight component to be cut out from
      * heavyweight components should they intersect. Possible values:
@@ -845,35 +889,29 @@ public abstract class Component extends ComponentOrMenuComponent
      *    2. EMPTY_REGION - nothing gets cut out (children still get cut out)
      *    3. non-empty - this shape gets cut out.
      */
-  private transient Region mixingCutoutRegion = null;
+  transient Region mixingCutoutRegion;
   /*
      * Indicates whether addNotify() is complete
      * (i.e. the peer is created).
      */
-  private transient boolean isAddNotifyComplete = false;
+  private transient boolean isAddNotifyComplete;
   /**
    * @see #isCoalescingEnabled
    * @see #checkCoalescing
    */
-  transient private boolean coalescingEnabled = checkCoalescing();
+  private transient boolean coalescingEnabled = checkCoalescing();
   /*
      * Used to disallow auto-focus-transfer on disposal of the focus owner
      * in the process of disposing its parent container.
      */
   private boolean autoFocusTransferOnDisposal = true;
-  /**
-   * Component Serialized Data Version.
-   *
-   * @serial
-   */
-  private int componentSerializedDataVersion = 4;
 
   /**
-   * Constructs a new component. Class <code>Component</code> can be
+   * Constructs a new component. Class {@code Component} can be
    * extended directly to create a lightweight component that does not
    * utilize an opaque native window. A lightweight component must be
    * hosted by a native container somewhere higher up in the component
-   * tree (for example, by a <code>Frame</code> object).
+   * tree (for example, by a {@code Frame} object).
    */
   protected Component(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
     super(wrappedObjectsSupplier);
@@ -888,7 +926,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Indicates whether a class or its superclasses override coalesceEvents.
    * Must be called with lock on coalesceMap and privileged.
    */
-  private static boolean isCoalesceEventsOverriden(Class<?> clazz) {
+  static boolean isCoalesceEventsOverriden(Class<?> clazz) {
     assert Thread.holdsLock(coalesceMap);
 
     // First check superclass - we may not need to bother ourselves.
@@ -921,38 +959,41 @@ public abstract class Component extends ComponentOrMenuComponent
     }
   }
 
-  synchronized static void setRequestFocusController(RequestFocusController requestController) {
-    if (requestController == null) {
-      requestFocusController = new DummyRequestFocusController();
-    } else {
-      requestFocusController = requestController;
-    }
+  static synchronized void setRequestFocusController(RequestFocusController requestController) {
+    requestFocusController = requestController == null ? new DummyRequestFocusController()
+        : requestController;
   }
 
-  /**
-   * Checks that the given object is instance of the given class.
-   *
-   * @param obj       Object to be checked
-   * @param className The name of the class. Must be fully-qualified class name.
-   * @return true, if this object is instanceof given class,
-   * false, otherwise, or if obj or className is null
-   */
-  static boolean isInstanceOf(Object obj, String className) {
-    if (obj == null) {
-      return false;
-    }
-    if (className == null) {
-      return false;
+  public static boolean isSystemGenerated(AWTEvent e) {
+    return AWTAccessor.getAWTEventAccessor().isSystemGenerated(e);
+  }
+
+  static void clearMostRecentFocusOwner(Component comp) {
+    Container window;
+
+    if (comp == null) {
+      return;
     }
 
-    Class<?> cls = obj.getClass();
-    while (cls != null) {
-      if (cls.getName().equals(className)) {
-        return true;
+    synchronized (comp.getTreeLock()) {
+      window = comp.getParent();
+      while (window != null && !(window instanceof Window)) {
+        window = window.getParent();
       }
-      cls = cls.getSuperclass();
     }
-    return false;
+
+    synchronized (KeyboardFocusManager.class) {
+      if (window != null && KeyboardFocusManager.getMostRecentFocusOwner((Window) window) == comp) {
+        KeyboardFocusManager.setMostRecentFocusOwner((Window) window, null);
+      }
+      // Also clear temporary lost component stored in Window
+      if (window != null) {
+        Window realWindow = (Window) window;
+        if (realWindow.getTemporaryLostComponent() == comp) {
+          realWindow.setTemporaryLostComponent(null);
+        }
+      }
+    }
   }
 
   Object getObjectLock() {
@@ -993,8 +1034,8 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Constructs a name for this component.  Called by <code>getName</code>
-   * when the name is <code>null</code>.
+   * Constructs a name for this component.  Called by {@code getName}
+   * when the name is {@code null}.
    */
   String constructComponentName() {
     return null; // For strict compliance with prior platform versions, a Component
@@ -1043,6 +1084,11 @@ public abstract class Component extends ComponentOrMenuComponent
     return getParent_NoClientCode();
   }
 
+  @Override
+  public final Object getTreeLock() {
+    return LOCK;
+  }
+
   // NOTE: This method may be called by privileged threads.
   //       This functionality is implemented in a package-private method
   //       to insure that it cannot be overridden by client subclasses.
@@ -1061,7 +1107,7 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * @deprecated As of JDK version 1.1,
    * programs should not directly manipulate peers;
-   * replaced by <code>boolean isDisplayable()</code>.
+   * replaced by {@code boolean isDisplayable()}.
    */
   @Deprecated
   public ComponentPeer getPeer() {
@@ -1069,8 +1115,8 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Gets the <code>DropTarget</code> associated with this
-   * <code>Component</code>.
+   * Gets the {@code DropTarget} associated with this
+   * {@code Component}.
    */
 
   public synchronized DropTarget getDropTarget() {
@@ -1078,16 +1124,17 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Associate a <code>DropTarget</code> with this component.
-   * The <code>Component</code> will receive drops only if it
+   * Associate a {@code DropTarget} with this component.
+   * The {@code Component} will receive drops only if it
    * is enabled.
    *
    * @param dt The DropTarget
    * @see #isEnabled
    */
 
+  @SuppressWarnings("ObjectEquality")
   public synchronized void setDropTarget(DropTarget dt) {
-    if (dt == dropTarget || (dropTarget != null && dropTarget.equals(dt))) {
+    if (dt == dropTarget || dropTarget != null && dropTarget.equals(dt)) {
       return;
     }
 
@@ -1133,18 +1180,18 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Gets the <code>GraphicsConfiguration</code> associated with this
-   * <code>Component</code>.
-   * If the <code>Component</code> has not been assigned a specific
-   * <code>GraphicsConfiguration</code>,
-   * the <code>GraphicsConfiguration</code> of the
-   * <code>Component</code> object's top-level container is
+   * Gets the {@code GraphicsConfiguration} associated with this
+   * {@code Component}.
+   * If the {@code Component} has not been assigned a specific
+   * {@code GraphicsConfiguration},
+   * the {@code GraphicsConfiguration} of the
+   * {@code Component} object's top-level container is
    * returned.
-   * If the <code>Component</code> has been created, but not yet added
-   * to a <code>Container</code>, this method returns <code>null</code>.
+   * If the {@code Component} has been created, but not yet added
+   * to a {@code Container}, this method returns {@code null}.
    *
-   * @return the <code>GraphicsConfiguration</code> used by this
-   * <code>Component</code> or <code>null</code>
+   * @return the {@code GraphicsConfiguration} used by this
+   * {@code Component} or {@code null}
    * @since 1.3
    */
   public GraphicsConfiguration getGraphicsConfiguration() {
@@ -1183,8 +1230,8 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Checks that this component's <code>GraphicsDevice</code>
-   * <code>idString</code> matches the string argument.
+   * Checks that this component's {@code GraphicsDevice}
+   * {@code idString} matches the string argument.
    */
   void checkGD(String stringID) {
     if (graphicsConfig != null) {
@@ -1193,11 +1240,6 @@ public abstract class Component extends ComponentOrMenuComponent
             "adding a container to a container on a different GraphicsDevice");
       }
     }
-  }
-
-  @Override
-  public final Object getTreeLock() {
-    return LOCK;
   }
 
   final void checkTreeLock() {
@@ -1239,14 +1281,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * before they are first shown on the screen. By the time the parent container
    * is fully realized, all its components will be valid.
    *
-   * @return <code>true</code> if the component is valid, <code>false</code>
+   * @return {@code true} if the component is valid, {@code false}
    * otherwise
    * @see #validate
    * @see #invalidate
    * @since JDK1.0
    */
   public boolean isValid() {
-    return (peer != null) && valid;
+    return peer != null && valid;
   }
 
   /**
@@ -1264,8 +1306,8 @@ public abstract class Component extends ComponentOrMenuComponent
    * is made undisplayable.  A containment hierarchy is made
    * undisplayable when its ancestor window is disposed.
    *
-   * @return <code>true</code> if the component is displayable,
-   * <code>false</code> otherwise
+   * @return {@code true} if the component is displayable,
+   * {@code false} otherwise
    * @see Container#add(Component)
    * @see Window#pack
    * @see Window#show
@@ -1281,10 +1323,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * Determines whether this component should be visible when its
    * parent is visible. Components are
    * initially visible, with the exception of top level components such
-   * as <code>Frame</code> objects.
+   * as {@code Frame} objects.
    *
-   * @return <code>true</code> if the component is visible,
-   * <code>false</code> otherwise
+   * @return {@code true} if the component is visible,
+   * {@code false} otherwise
    * @see #setVisible
    * @since JDK1.0
    */
@@ -1294,12 +1336,12 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Shows or hides this component depending on the value of parameter
-   * <code>b</code>.
+   * {@code b}.
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
    *
-   * @param b if <code>true</code>, shows this component;
+   * @param b if {@code true}, shows this component;
    *          otherwise, hides this component
    * @see #isVisible
    * @see #invalidate
@@ -1316,9 +1358,9 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Determines whether this component will be displayed on the screen.
    *
-   * @return <code>true</code> if the component and all of its ancestors
+   * @return {@code true} if the component and all of its ancestors
    * until a toplevel window or null parent are visible,
-   * <code>false</code> otherwise
+   * {@code false} otherwise
    */
   boolean isRecursivelyVisible() {
     return visible && (parent == null || parent.isRecursivelyVisible());
@@ -1350,49 +1392,42 @@ public abstract class Component extends ComponentOrMenuComponent
     if (!Toolkit.getDefaultToolkit().getMouseInfoPeer().isWindowUnderMouse(win)) {
       return null;
     }
-    final boolean INCLUDE_DISABLED = true;
+    boolean INCLUDE_DISABLED = true;
     Point relativeToWindow = win.pointRelativeToComponent(pi.getLocation());
-    Component inTheSameWindow = win.findComponentAt(relativeToWindow.x,
-        relativeToWindow.y,
-        INCLUDE_DISABLED);
-    return inTheSameWindow;
+    return win.findComponentAt(relativeToWindow.x, relativeToWindow.y, true);
   }
 
   /**
-   * Returns the position of the mouse pointer in this <code>Component</code>'s
-   * coordinate space if the <code>Component</code> is directly under the mouse
-   * pointer, otherwise returns <code>null</code>.
-   * If the <code>Component</code> is not showing on the screen, this method
-   * returns <code>null</code> even if the mouse pointer is above the area
-   * where the <code>Component</code> would be displayed.
-   * If the <code>Component</code> is partially or fully obscured by other
-   * <code>Component</code>s or native windows, this method returns a non-null
+   * Returns the position of the mouse pointer in this {@code Component}'s
+   * coordinate space if the {@code Component} is directly under the mouse
+   * pointer, otherwise returns {@code null}.
+   * If the {@code Component} is not showing on the screen, this method
+   * returns {@code null} even if the mouse pointer is above the area
+   * where the {@code Component} would be displayed.
+   * If the {@code Component} is partially or fully obscured by other
+   * {@code Component}s or native windows, this method returns a non-null
    * value only if the mouse pointer is located above the unobscured part of the
-   * <code>Component</code>.
+   * {@code Component}.
    * <p>
-   * For <code>Container</code>s it returns a non-null value if the mouse is
-   * above the <code>Container</code> itself or above any of its descendants.
+   * For {@code Container}s it returns a non-null value if the mouse is
+   * above the {@code Container} itself or above any of its descendants.
    * Use {@link Container#getMousePosition(boolean)} if you need to exclude children.
    * <p>
    * Sometimes the exact mouse coordinates are not important, and the only thing
-   * that matters is whether a specific <code>Component</code> is under the mouse
-   * pointer. If the return value of this method is <code>null</code>, mouse
-   * pointer is not directly above the <code>Component</code>.
+   * that matters is whether a specific {@code Component} is under the mouse
+   * pointer. If the return value of this method is {@code null}, mouse
+   * pointer is not directly above the {@code Component}.
    *
-   * @return mouse coordinates relative to this <code>Component</code>, or null
+   * @return mouse coordinates relative to this {@code Component}, or null
    * @throws HeadlessException if GraphicsEnvironment.isHeadless() returns true
    * @see #isShowing
    * @see Container#getMousePosition
    * @since 1.5
    */
   public Point getMousePosition() throws HeadlessException {
-    if (GraphicsEnvironment.isHeadless()) {
-      throw new HeadlessException();
-    }
 
-    PointerInfo pi
-        = java.security.AccessController.doPrivileged(new java.security
-        .PrivilegedAction<PointerInfo>() {
+    PointerInfo pi = AccessController.doPrivileged(new PrivilegedAction<PointerInfo>() {
+      @Override
       public PointerInfo run() {
         return MouseInfo.getPointerInfo();
       }
@@ -1428,15 +1463,15 @@ public abstract class Component extends ComponentOrMenuComponent
    * {@code Container}.
    * </ul>
    *
-   * @return <code>true</code> if the component is showing,
-   * <code>false</code> otherwise
+   * @return {@code true} if the component is showing,
+   * {@code false} otherwise
    * @see #setVisible
    * @since JDK1.0
    */
   public boolean isShowing() {
-    if (visible && (peer != null)) {
+    if (visible && peer != null) {
       Container parent = this.parent;
-      return (parent == null) || parent.isShowing();
+      return parent == null || parent.isShowing();
     }
     return false;
   }
@@ -1445,10 +1480,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * Determines whether this component is enabled. An enabled component
    * can respond to user input and generate events. Components are
    * enabled initially by default. A component may be enabled or disabled by
-   * calling its <code>setEnabled</code> method.
+   * calling its {@code setEnabled} method.
    *
-   * @return <code>true</code> if the component is enabled,
-   * <code>false</code> otherwise
+   * @return {@code true} if the component is enabled,
+   * {@code false} otherwise
    * @see #setEnabled
    * @since JDK1.0
    */
@@ -1458,7 +1493,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Enables or disables this component, depending on the value of the
-   * parameter <code>b</code>. An enabled component can respond to user
+   * parameter {@code b}. An enabled component can respond to user
    * input and generate events. Components are enabled initially by default.
    * <p>
    * <p>Note: Disabling a lightweight component does not prevent it from
@@ -1467,7 +1502,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * in this container from receiving any input events.  But disabling a
    * lightweight container affects only this container.
    *
-   * @param b If <code>true</code>, this component is
+   * @param b If {@code true}, this component is
    *          enabled; otherwise this component is disabled
    * @see #isEnabled
    * @see #isLightweight
@@ -1487,7 +1522,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setEnabled(boolean)</code>.
+   * replaced by {@code setEnabled(boolean)}.
    */
   @Deprecated
   public void enable() {
@@ -1507,7 +1542,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setEnabled(boolean)</code>.
+   * replaced by {@code setEnabled(boolean)}.
    */
   @Deprecated
   public void enable(boolean b) {
@@ -1520,16 +1555,16 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setEnabled(boolean)</code>.
+   * replaced by {@code setEnabled(boolean)}.
    */
   @Deprecated
   public void disable() {
     if (enabled) {
-      KeyboardFocusManager.clearMostRecentFocusOwner(this);
+      clearMostRecentFocusOwner(this);
       synchronized (getTreeLock()) {
         enabled = false;
         // A disabled lw container is allowed to contain a focus owner.
-        if ((isFocusOwner() || (containsFocus() && !isLightweight()))
+        if ((isFocusOwner() || containsFocus() && !isLightweight())
             && KeyboardFocusManager.isAutoFocusTransferEnabled()) {
           // Don't clear the global focus owner. If transferFocus
           // fails, we want the focus to stay on the disabled
@@ -1604,7 +1639,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setVisible(boolean)</code>.
+   * replaced by {@code setVisible(boolean)}.
    */
   @Deprecated
   public void show() {
@@ -1642,7 +1677,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setVisible(boolean)</code>.
+   * replaced by {@code setVisible(boolean)}.
    */
   @Deprecated
   public void show(boolean b) {
@@ -1658,7 +1693,7 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   void clearMostRecentFocusOwnerOnHide() {
-    KeyboardFocusManager.clearMostRecentFocusOwner(this);
+    clearMostRecentFocusOwner(this);
   }
 
   void clearCurrentFocusCycleRootOnHide() {
@@ -1676,7 +1711,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setVisible(boolean)</code>.
+   * replaced by {@code setVisible(boolean)}.
    */
   @Deprecated
   public void hide() {
@@ -1734,14 +1769,14 @@ public abstract class Component extends ComponentOrMenuComponent
       return foreground;
     }
     Container parent = this.parent;
-    return (parent != null) ? parent.getForeground() : null;
+    return parent != null ? parent.getForeground() : null;
   }
 
   /**
    * Sets the foreground color of this component.
    *
    * @param c the color to become this component's
-   *          foreground color; if this parameter is <code>null</code>
+   *          foreground color; if this parameter is {@code null}
    *          then this component will inherit
    *          the foreground color of its parent
    * @see #getForeground
@@ -1764,15 +1799,15 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Returns whether the foreground color has been explicitly set for this
-   * Component. If this method returns <code>false</code>, this Component is
+   * Component. If this method returns {@code false}, this Component is
    * inheriting its foreground color from an ancestor.
    *
-   * @return <code>true</code> if the foreground color has been explicitly
-   * set for this Component; <code>false</code> otherwise.
+   * @return {@code true} if the foreground color has been explicitly
+   * set for this Component; {@code false} otherwise.
    * @since 1.4
    */
   public boolean isForegroundSet() {
-    return (foreground != null);
+    return foreground != null;
   }
 
   /**
@@ -1790,7 +1825,7 @@ public abstract class Component extends ComponentOrMenuComponent
       return background;
     }
     Container parent = this.parent;
-    return (parent != null) ? parent.getBackground() : null;
+    return parent != null ? parent.getBackground() : null;
   }
 
   /**
@@ -1801,7 +1836,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * may differ between operating systems.
    *
    * @param c the color to become this component's color;
-   *          if this parameter is <code>null</code>, then this
+   *          if this parameter is {@code null}, then this
    *          component will inherit the background color of its parent
    * @beaninfo bound: true
    * @see #getBackground
@@ -1824,15 +1859,15 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Returns whether the background color has been explicitly set for this
-   * Component. If this method returns <code>false</code>, this Component is
+   * Component. If this method returns {@code false}, this Component is
    * inheriting its background color from an ancestor.
    *
-   * @return <code>true</code> if the background color has been explicitly
-   * set for this Component; <code>false</code> otherwise.
+   * @return {@code true} if the background color has been explicitly
+   * set for this Component; {@code false} otherwise.
    * @since 1.4
    */
   public boolean isBackgroundSet() {
-    return (background != null);
+    return background != null;
   }
 
   /**
@@ -1843,6 +1878,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #setFont
    * @since JDK1.0
    */
+  @Override
   public Font getFont() {
     return getFont_NoClientCode();
   }
@@ -1854,7 +1890,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * invalidates the component hierarchy.
    *
    * @param f the font to become this component's font;
-   *          if this parameter is <code>null</code> then this
+   *          if this parameter is {@code null} then this
    *          component will inherit the font of its parent
    * @beaninfo bound: true
    * @see #getFont
@@ -1894,6 +1930,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #add(PopupMenu)
    * @since JDK1.1
    */
+  @Override
   @SuppressWarnings("unchecked")
   public void remove(MenuComponent popup) {
     synchronized (getTreeLock()) {
@@ -1908,7 +1945,7 @@ public abstract class Component extends ComponentOrMenuComponent
         }
         pmenu.parent = null;
         popups.removeElementAt(index);
-        if (popups.size() == 0) {
+        if (popups.isEmpty()) {
           popups = null;
         }
       }
@@ -1919,6 +1956,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @deprecated As of JDK version 1.1,
    * replaced by dispatchEvent(AWTEvent).
    */
+  @Override
   @Deprecated
   public boolean postEvent(Event e) {
     ComponentPeer peer = this.peer;
@@ -1954,20 +1992,20 @@ public abstract class Component extends ComponentOrMenuComponent
       return font;
     }
     Container parent = this.parent;
-    return (parent != null) ? parent.getFont_NoClientCode() : null;
+    return parent != null ? parent.getFont_NoClientCode() : null;
   }
 
   /**
    * Returns whether the font has been explicitly set for this Component. If
-   * this method returns <code>false</code>, this Component is inheriting its
+   * this method returns {@code false}, this Component is inheriting its
    * font from an ancestor.
    *
-   * @return <code>true</code> if the font has been explicitly set for this
-   * Component; <code>false</code> otherwise.
+   * @return {@code true} if the font has been explicitly set for this
+   * Component; {@code false} otherwise.
    * @since 1.4
    */
   public boolean isFontSet() {
-    return (font != null);
+    return font != null;
   }
 
   /**
@@ -1975,7 +2013,7 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @return this component's locale; if this component does not
    * have a locale, the locale of its parent is returned
-   * @throws IllegalComponentStateException if the <code>Component</code>
+   * @throws IllegalComponentStateException if the {@code Component}
    *                                        does not have its own locale and has not yet been
    *                                        added to
    *                                        a containment hierarchy such that the locale can be
@@ -2023,22 +2061,20 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Gets the instance of <code>ColorModel</code> used to display
+   * Gets the instance of {@code ColorModel} used to display
    * the component on the output device.
    *
    * @return the color model used by this component
-   * @see java.awt.image.ColorModel
-   * @see java.awt.peer.ComponentPeer#getColorModel()
+   * @see ColorModel
+   * @see ComponentPeer#getColorModel()
    * @see Toolkit#getColorModel()
    * @since JDK1.0
    */
   public ColorModel getColorModel() {
     ComponentPeer peer = this.peer;
-    if ((peer != null) && !(peer instanceof LightweightPeer)) {
+    if (peer != null && !(peer instanceof LightweightPeer)) {
       return peer.getColorModel();
-    } else if (GraphicsEnvironment.isHeadless()) {
-      return ColorModel.getRGBdefault();
-    } // else
+    }
     return getToolkit().getColorModel();
   }
 
@@ -2049,14 +2085,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * <p>
    * Due to the asynchronous nature of native event handling, this
    * method can return outdated values (for instance, after several calls
-   * of <code>setLocation()</code> in rapid succession).  For this
+   * of {@code setLocation()} in rapid succession).  For this
    * reason, the recommended method of obtaining a component's position is
-   * within <code>java.awt.event.ComponentListener.componentMoved()</code>,
+   * within {@code java.awt.event.ComponentListener.componentMoved()},
    * which is called after the operating system has finished moving the
    * component.
    * </p>
    *
-   * @return an instance of <code>Point</code> representing
+   * @return an instance of {@code Point} representing
    * the top-left corner of the component's bounds in
    * the coordinate space of the component's parent
    * @see #setLocation
@@ -2069,8 +2105,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Moves this component to a new location. The top-left corner of
-   * the new location is specified by point <code>p</code>. Point
-   * <code>p</code> is given in the parent's coordinate space.
+   * the new location is specified by point {@code p}. Point
+   * {@code p} is given in the parent's coordinate space.
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
@@ -2092,7 +2128,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * specifying the component's top-left corner in the screen's
    * coordinate space.
    *
-   * @return an instance of <code>Point</code> representing
+   * @return an instance of {@code Point} representing
    * the top-left corner of the component's bounds in the
    * coordinate space of the screen
    * @throws IllegalComponentStateException if the
@@ -2124,8 +2160,7 @@ public abstract class Component extends ComponentOrMenuComponent
         }
         return pt;
       } else {
-        Point pt = peer.getLocationOnScreen();
-        return pt;
+        return peer.getLocationOnScreen();
       }
     } else {
       throw new IllegalComponentStateException(
@@ -2135,20 +2170,20 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getLocation()</code>.
+   * replaced by {@code getLocation()}.
    */
   @Deprecated
   public Point location() {
     return location_NoClientCode();
   }
 
-  private Point location_NoClientCode() {
+  Point location_NoClientCode() {
     return new Point(x, y);
   }
 
   /**
    * Moves this component to a new location. The top-left corner of
-   * the new location is specified by the <code>x</code> and <code>y</code>
+   * the new location is specified by the {@code x} and {@code y}
    * parameters in the coordinate space of this component's parent.
    * <p>
    * This method changes layout-related information, and therefore,
@@ -2169,7 +2204,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setLocation(int, int)</code>.
+   * replaced by {@code setLocation(int, int)}.
    */
   @Deprecated
   public void move(int x, int y) {
@@ -2181,13 +2216,13 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Returns the size of this component in the form of a
-   * <code>Dimension</code> object. The <code>height</code>
-   * field of the <code>Dimension</code> object contains
-   * this component's height, and the <code>width</code>
-   * field of the <code>Dimension</code> object contains
+   * {@code Dimension} object. The {@code height}
+   * field of the {@code Dimension} object contains
+   * this component's height, and the {@code width}
+   * field of the {@code Dimension} object contains
    * this component's width.
    *
-   * @return a <code>Dimension</code> object that indicates the
+   * @return a {@code Dimension} object that indicates the
    * size of this component
    * @see #setSize
    * @since JDK1.1
@@ -2197,8 +2232,8 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Resizes this component so that it has width <code>d.width</code>
-   * and height <code>d.height</code>.
+   * Resizes this component so that it has width {@code d.width}
+   * and height {@code d.height}.
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
@@ -2206,7 +2241,6 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param d the dimension specifying the new size
    *          of this component
    * @throws NullPointerException if {@code d} is {@code null}
-   * @see #setSize
    * @see #setBounds
    * @see #invalidate
    * @since JDK1.1
@@ -2217,7 +2251,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getSize()</code>.
+   * replaced by {@code getSize()}.
    */
   @Deprecated
   public Dimension size() {
@@ -2225,8 +2259,8 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Resizes this component so that it has width <code>width</code>
-   * and height <code>height</code>.
+   * Resizes this component so that it has width {@code width}
+   * and height {@code height}.
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
@@ -2244,7 +2278,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setSize(int, int)</code>.
+   * replaced by {@code setSize(int, int)}.
    */
   @Deprecated
   public void resize(int width, int height) {
@@ -2256,7 +2290,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setSize(Dimension)</code>.
+   * replaced by {@code setSize(Dimension)}.
    */
   @Deprecated
   public void resize(Dimension d) {
@@ -2265,7 +2299,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Gets the bounds of this component in the form of a
-   * <code>Rectangle</code> object. The bounds specify this
+   * {@code Rectangle} object. The bounds specify this
    * component's width, height, and location relative to
    * its parent.
    *
@@ -2280,10 +2314,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Moves and resizes this component to conform to the new
-   * bounding rectangle <code>r</code>. This component's new
-   * position is specified by <code>r.x</code> and <code>r.y</code>,
-   * and its new size is specified by <code>r.width</code> and
-   * <code>r.height</code>
+   * bounding rectangle {@code r}. This component's new
+   * position is specified by {@code r.x} and {@code r.y},
+   * and its new size is specified by {@code r.width} and
+   * {@code r.height}
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
@@ -2304,7 +2338,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getBounds()</code>.
+   * replaced by {@code getBounds()}.
    */
   @Deprecated
   public Rectangle bounds() {
@@ -2313,16 +2347,16 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Moves and resizes this component. The new location of the top-left
-   * corner is specified by <code>x</code> and <code>y</code>, and the
-   * new size is specified by <code>width</code> and <code>height</code>.
+   * corner is specified by {@code x} and {@code y}, and the
+   * new size is specified by {@code width} and {@code height}.
    * <p>
    * This method changes layout-related information, and therefore,
    * invalidates the component hierarchy.
    *
    * @param x      the new <i>x</i>-coordinate of this component
    * @param y      the new <i>y</i>-coordinate of this component
-   * @param width  the new <code>width</code> of this component
-   * @param height the new <code>height</code> of this
+   * @param width  the new {@code width} of this component
+   * @param height the new {@code height} of this
    *               component
    * @see #getBounds
    * @see #setLocation(int, int)
@@ -2338,15 +2372,15 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setBounds(int, int, int, int)</code>.
+   * replaced by {@code setBounds(int, int, int, int)}.
    */
   @Deprecated
   public void reshape(int x, int y, int width, int height) {
     synchronized (getTreeLock()) {
       try {
         setBoundsOp(ComponentPeer.SET_BOUNDS);
-        boolean resized = (this.width != width) || (this.height != height);
-        boolean moved = (this.x != x) || (this.y != y);
+        boolean resized = this.width != width || this.height != height;
+        boolean moved = this.x != x || this.y != y;
         if (!resized && !moved) {
           return;
         }
@@ -2370,8 +2404,8 @@ public abstract class Component extends ComponentOrMenuComponent
           if (!(peer instanceof LightweightPeer)) {
             reshapeNativePeer(x, y, width, height, getBoundsOp());
             // Check peer actualy changed coordinates
-            resized = (oldWidth != this.width) || (oldHeight != this.height);
-            moved = (oldX != this.x) || (oldY != this.y);
+            resized = oldWidth != this.width || oldHeight != this.height;
+            moved = oldX != this.x || oldY != this.y;
             // fix for 5025858: do not send ComponentEvents for toplevel
             // windows here as it is done from peer or native code when
             // the window is really resized or moved, otherwise some
@@ -2411,7 +2445,7 @@ public abstract class Component extends ComponentOrMenuComponent
     // parent since parent might be lightweight.
     int nativeX = x;
     int nativeY = y;
-    for (Component c = parent; (c != null) && (c.peer instanceof LightweightPeer); c = c.parent) {
+    for (Component c = parent; c != null && c.peer instanceof LightweightPeer; c = c.parent) {
       nativeX += c.x;
       nativeY += c.y;
     }
@@ -2451,8 +2485,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the current x coordinate of the components origin.
    * This method is preferable to writing
-   * <code>component.getBounds().x</code>,
-   * or <code>component.getLocation().x</code> because it doesn't
+   * {@code component.getBounds().x},
+   * or {@code component.getLocation().x} because it doesn't
    * cause any heap allocations.
    *
    * @return the current x coordinate of the components origin
@@ -2465,8 +2499,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the current y coordinate of the components origin.
    * This method is preferable to writing
-   * <code>component.getBounds().y</code>,
-   * or <code>component.getLocation().y</code> because it
+   * {@code component.getBounds().y},
+   * or {@code component.getLocation().y} because it
    * doesn't cause any heap allocations.
    *
    * @return the current y coordinate of the components origin
@@ -2479,8 +2513,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the current width of this component.
    * This method is preferable to writing
-   * <code>component.getBounds().width</code>,
-   * or <code>component.getSize().width</code> because it
+   * {@code component.getBounds().width},
+   * or {@code component.getSize().width} because it
    * doesn't cause any heap allocations.
    *
    * @return the current width of this component
@@ -2493,8 +2527,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the current height of this component.
    * This method is preferable to writing
-   * <code>component.getBounds().height</code>,
-   * or <code>component.getSize().height</code> because it
+   * {@code component.getBounds().height},
+   * or {@code component.getSize().height} because it
    * doesn't cause any heap allocations.
    *
    * @return the current height of this component
@@ -2506,10 +2540,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Stores the bounds of this component into "return value" <b>rv</b> and
-   * return <b>rv</b>.  If rv is <code>null</code> a new
-   * <code>Rectangle</code> is allocated.
-   * This version of <code>getBounds</code> is useful if the caller
-   * wants to avoid allocating a new <code>Rectangle</code> object
+   * return <b>rv</b>.  If rv is {@code null} a new
+   * {@code Rectangle} is allocated.
+   * This version of {@code getBounds} is useful if the caller
+   * wants to avoid allocating a new {@code Rectangle} object
    * on the heap.
    *
    * @param rv the return value, modified to the components bounds
@@ -2526,10 +2560,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Stores the width/height of this component into "return value" <b>rv</b>
-   * and return <b>rv</b>.   If rv is <code>null</code> a new
-   * <code>Dimension</code> object is allocated.  This version of
-   * <code>getSize</code> is useful if the caller wants to avoid
-   * allocating a new <code>Dimension</code> object on the heap.
+   * and return <b>rv</b>.   If rv is {@code null} a new
+   * {@code Dimension} object is allocated.  This version of
+   * {@code getSize} is useful if the caller wants to avoid
+   * allocating a new {@code Dimension} object on the heap.
    *
    * @param rv the return value, modified to the components size
    * @return rv
@@ -2545,10 +2579,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Stores the x,y origin of this component into "return value" <b>rv</b>
-   * and return <b>rv</b>.   If rv is <code>null</code> a new
-   * <code>Point</code> is allocated.
-   * This version of <code>getLocation</code> is useful if the
-   * caller wants to avoid allocating a new <code>Point</code>
+   * and return <b>rv</b>.   If rv is {@code null} a new
+   * {@code Point} is allocated.
+   * This version of {@code getLocation} is useful if the
+   * caller wants to avoid allocating a new {@code Point}
    * object on the heap.
    *
    * @param rv the return value, modified to the components location
@@ -2581,21 +2615,17 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since 1.2
    */
   public boolean isOpaque() {
-    if (getPeer() == null) {
-      return false;
-    } else {
-      return !isLightweight();
-    }
+    return getPeer() == null ? false : !isLightweight();
   }
 
   /**
    * A lightweight component doesn't have a native toolkit peer.
-   * Subclasses of <code>Component</code> and <code>Container</code>,
-   * other than the ones defined in this package like <code>Button</code>
-   * or <code>Scrollbar</code>, are lightweight.
+   * Subclasses of {@code Component} and {@code Container},
+   * other than the ones defined in this package like {@code Button}
+   * or {@code Scrollbar}, are lightweight.
    * All of the Swing components are lightweights.
    * <p>
-   * This method will always return <code>false</code> if this component
+   * This method will always return {@code false} if this component
    * is not displayable because it is impossible to determine the
    * weight of an undisplayable component.
    *
@@ -2610,9 +2640,9 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Returns true if the preferred size has been set to a
-   * non-<code>null</code> value otherwise returns false.
+   * non-{@code null} value otherwise returns false.
    *
-   * @return true if <code>setPreferredSize</code> has been invoked
+   * @return true if {@code setPreferredSize} has been invoked
    * with a non-null value.
    * @since 1.5
    */
@@ -2633,8 +2663,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Sets the preferred size of this component to a constant
-   * value.  Subsequent calls to <code>getPreferredSize</code> will always
-   * return this value.  Setting the preferred size to <code>null</code>
+   * value.  Subsequent calls to {@code getPreferredSize} will always
+   * return this value.  Setting the preferred size to {@code null}
    * restores the default behavior.
    *
    * @param preferredSize The new preferred size, or null
@@ -2647,19 +2677,15 @@ public abstract class Component extends ComponentOrMenuComponent
     // If the preferred size was set, use it as the old value, otherwise
     // use null to indicate we didn't previously have a set preferred
     // size.
-    if (prefSizeSet) {
-      old = this.prefSize;
-    } else {
-      old = null;
-    }
-    this.prefSize = preferredSize;
-    prefSizeSet = (preferredSize != null);
+    old = prefSizeSet ? prefSize : null;
+    prefSize = preferredSize;
+    prefSizeSet = preferredSize != null;
     firePropertyChange("preferredSize", old, preferredSize);
   }
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getPreferredSize()</code>.
+   * replaced by {@code getPreferredSize()}.
    */
   @Deprecated
   public Dimension preferredSize() {
@@ -2669,7 +2695,7 @@ public abstract class Component extends ComponentOrMenuComponent
     Dimension dim = prefSize;
     if (dim == null || !(isPreferredSizeSet() || isValid())) {
       synchronized (getTreeLock()) {
-        prefSize = (peer != null) ? peer.getPreferredSize() : getMinimumSize();
+        prefSize = peer != null ? peer.getPreferredSize() : getMinimumSize();
         dim = prefSize;
       }
     }
@@ -2677,10 +2703,10 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Returns whether or not <code>setMinimumSize</code> has been
+   * Returns whether or not {@code setMinimumSize} has been
    * invoked with a non-null value.
    *
-   * @return true if <code>setMinimumSize</code> has been invoked with a
+   * @return true if {@code setMinimumSize} has been invoked with a
    * non-null value.
    * @since 1.5
    */
@@ -2701,8 +2727,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Sets the minimum size of this component to a constant
-   * value.  Subsequent calls to <code>getMinimumSize</code> will always
-   * return this value.  Setting the minimum size to <code>null</code>
+   * value.  Subsequent calls to {@code getMinimumSize} will always
+   * return this value.  Setting the minimum size to {@code null}
    * restores the default behavior.
    *
    * @param minimumSize the new minimum size of this component
@@ -2715,19 +2741,15 @@ public abstract class Component extends ComponentOrMenuComponent
     // If the minimum size was set, use it as the old value, otherwise
     // use null to indicate we didn't previously have a set minimum
     // size.
-    if (minSizeSet) {
-      old = this.minSize;
-    } else {
-      old = null;
-    }
-    this.minSize = minimumSize;
-    minSizeSet = (minimumSize != null);
+    old = minSizeSet ? minSize : null;
+    minSize = minimumSize;
+    minSizeSet = minimumSize != null;
     firePropertyChange("minimumSize", old, minimumSize);
   }
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getMinimumSize()</code>.
+   * replaced by {@code getMinimumSize()}.
    */
   @Deprecated
   public Dimension minimumSize() {
@@ -2737,7 +2759,7 @@ public abstract class Component extends ComponentOrMenuComponent
     Dimension dim = minSize;
     if (dim == null || !(isMinimumSizeSet() || isValid())) {
       synchronized (getTreeLock()) {
-        minSize = (peer != null) ? peer.getMinimumSize() : size();
+        minSize = peer != null ? peer.getMinimumSize() : size();
         dim = minSize;
       }
     }
@@ -2745,10 +2767,10 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Returns true if the maximum size has been set to a non-<code>null</code>
+   * Returns true if the maximum size has been set to a non-{@code null}
    * value otherwise returns false.
    *
-   * @return true if <code>maximumSize</code> is non-<code>null</code>,
+   * @return true if {@code maximumSize} is non-{@code null},
    * false otherwise
    * @since 1.5
    */
@@ -2773,11 +2795,11 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Sets the maximum size of this component to a constant
-   * value.  Subsequent calls to <code>getMaximumSize</code> will always
-   * return this value.  Setting the maximum size to <code>null</code>
+   * value.  Subsequent calls to {@code getMaximumSize} will always
+   * return this value.  Setting the maximum size to {@code null}
    * restores the default behavior.
    *
-   * @param maximumSize a <code>Dimension</code> containing the
+   * @param maximumSize a {@code Dimension} containing the
    *                    desired maximum allowable size
    * @see #getMaximumSize
    * @see #isMaximumSizeSet
@@ -2788,13 +2810,9 @@ public abstract class Component extends ComponentOrMenuComponent
     // use null to indicate we didn't previously have a set maximum
     // size.
     Dimension old;
-    if (maxSizeSet) {
-      old = this.maxSize;
-    } else {
-      old = null;
-    }
-    this.maxSize = maximumSize;
-    maxSizeSet = (maximumSize != null);
+    old = maxSizeSet ? maxSize : null;
+    maxSize = maximumSize;
+    maxSizeSet = maximumSize != null;
     firePropertyChange("maximumSize", old, maximumSize);
   }
 
@@ -2823,16 +2841,16 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the baseline.  The baseline is measured from the top of
    * the component.  This method is primarily meant for
-   * <code>LayoutManager</code>s to align components along their
+   * {@code LayoutManager}s to align components along their
    * baseline.  A return value less than 0 indicates this component
    * does not have a reasonable baseline and that
-   * <code>LayoutManager</code>s should not align this component on
+   * {@code LayoutManager}s should not align this component on
    * its baseline.
    * <p>
    * The default implementation returns -1.  Subclasses that support
    * baseline should override appropriately.  If a value &gt;= 0 is
    * returned, then the component has a valid baseline for any
-   * size &gt;= the minimum size and <code>getBaselineResizeBehavior</code>
+   * size &gt;= the minimum size and {@code getBaselineResizeBehavior}
    * can be used to determine how the baseline changes with size.
    *
    * @param width  the width to get the baseline for
@@ -2841,7 +2859,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * baseline
    * @throws IllegalArgumentException if width or height is &lt; 0
    * @see #getBaselineResizeBehavior
-   * @see java.awt.FontMetrics
+   * @see FontMetrics
    * @since 1.6
    */
   public int getBaseline(int width, int height) {
@@ -2857,15 +2875,15 @@ public abstract class Component extends ComponentOrMenuComponent
    * layout managers and GUI builders.
    * <p>
    * The default implementation returns
-   * <code>BaselineResizeBehavior.OTHER</code>.  Subclasses that have a
+   * {@code BaselineResizeBehavior.OTHER}.  Subclasses that have a
    * baseline should override appropriately.  Subclasses should
-   * never return <code>null</code>; if the baseline can not be
-   * calculated return <code>BaselineResizeBehavior.OTHER</code>.  Callers
+   * never return {@code null}; if the baseline can not be
+   * calculated return {@code BaselineResizeBehavior.OTHER}.  Callers
    * should first ask for the baseline using
-   * <code>getBaseline</code> and if a value &gt;= 0 is returned use
+   * {@code getBaseline} and if a value &gt;= 0 is returned use
    * this method.  It is acceptable for this method to return a
-   * value other than <code>BaselineResizeBehavior.OTHER</code> even if
-   * <code>getBaseline</code> returns a value less than 0.
+   * value other than {@code BaselineResizeBehavior.OTHER} even if
+   * {@code getBaseline} returns a value less than 0.
    *
    * @return an enum indicating how the baseline changes as the component
    * size changes
@@ -2890,7 +2908,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>doLayout()</code>.
+   * replaced by {@code doLayout()}.
    */
   @Deprecated
   public void layout() {
@@ -2947,7 +2965,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #validate
    * @see #doLayout
    * @see LayoutManager
-   * @see java.awt.Container#isValidateRoot
+   * @see Container#isValidateRoot
    * @since JDK1.0
    */
   public void invalidate() {
@@ -3039,10 +3057,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Creates a graphics context for this component. This method will
-   * return <code>null</code> if this component is currently not
+   * return {@code null} if this component is currently not
    * displayable.
    *
-   * @return a graphics context for this component, or <code>null</code>
+   * @return a graphics context for this component, or {@code null}
    * if it has none
    * @see #paint
    * @since JDK1.0
@@ -3069,7 +3087,7 @@ public abstract class Component extends ComponentOrMenuComponent
       return g;
     } else {
       ComponentPeer peer = this.peer;
-      return (peer != null) ? peer.getGraphics() : null;
+      return peer != null ? peer.getGraphics() : null;
     }
   }
 
@@ -3096,7 +3114,7 @@ public abstract class Component extends ComponentOrMenuComponent
       g.setFont(getFont_NoClientCode());
       return g;
     } else {
-      return (peer != null) ? peer.getGraphics() : null;
+      return peer != null ? peer.getGraphics() : null;
     }
   }
 
@@ -3113,10 +3131,10 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @param font the font for which font metrics is to be
    *             obtained
-   * @return the font metrics for <code>font</code>
+   * @return the font metrics for {@code font}
    * @see #getFont
    * @see #getPeer
-   * @see java.awt.peer.ComponentPeer#getFontMetrics(Font)
+   * @see ComponentPeer#getFontMetrics(Font)
    * @see Toolkit#getFontMetrics(Font)
    * @since JDK1.0
    */
@@ -3127,6 +3145,7 @@ public abstract class Component extends ComponentOrMenuComponent
       return peer.getFontMetrics(font);
     }
     return new FontMetrics(font) {
+      private static final long serialVersionUID = -4995738408389436298L;
     };
   }
 
@@ -3156,7 +3175,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Gets the cursor set in the component. If the component does
    * not have a cursor set, the cursor of its parent is returned.
    * If no cursor is set in the entire hierarchy,
-   * <code>Cursor.DEFAULT_CURSOR</code> is returned.
+   * {@code Cursor.DEFAULT_CURSOR} is returned.
    *
    * @see #setCursor
    * @since JDK1.1
@@ -3167,20 +3186,20 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Sets the cursor image to the specified cursor.  This cursor
-   * image is displayed when the <code>contains</code> method for
+   * image is displayed when the {@code contains} method for
    * this component returns true for the current cursor location, and
    * this Component is visible, displayable, and enabled. Setting the
-   * cursor of a <code>Container</code> causes that cursor to be displayed
+   * cursor of a {@code Container} causes that cursor to be displayed
    * within all of the container's subcomponents, except for those
-   * that have a non-<code>null</code> cursor.
+   * that have a non-{@code null} cursor.
    * <p>
    * The method may have no visual effect if the Java platform
    * implementation and/or the native system do not support
    * changing the mouse cursor shape.
    *
    * @param cursor One of the constants defined
-   *               by the <code>Cursor</code> class;
-   *               if this parameter is <code>null</code>
+   *               by the {@code Cursor} class;
+   *               if this parameter is {@code null}
    *               then this component will inherit
    *               the cursor of its parent
    * @see #isEnabled
@@ -3202,24 +3221,21 @@ public abstract class Component extends ComponentOrMenuComponent
       return cursor;
     }
     Container parent = this.parent;
-    if (parent != null) {
-      return parent.getCursor_NoClientCode();
-    } else {
-      return Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
-    }
+    return parent != null ? parent.getCursor_NoClientCode()
+        : Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
   }
 
   /**
    * Returns whether the cursor has been explicitly set for this Component.
-   * If this method returns <code>false</code>, this Component is inheriting
+   * If this method returns {@code false}, this Component is inheriting
    * its cursor from an ancestor.
    *
-   * @return <code>true</code> if the cursor has been explicitly set for this
-   * Component; <code>false</code> otherwise.
+   * @return {@code true} if the cursor has been explicitly set for this
+   * Component; {@code false} otherwise.
    * @since 1.4
    */
   public boolean isCursorSet() {
-    return (cursor != null);
+    return cursor != null;
   }
 
   /**
@@ -3228,12 +3244,12 @@ public abstract class Component extends ComponentOrMenuComponent
    * This method is called when the contents of the component should
    * be painted; such as when the component is first being shown or
    * is damaged and in need of repair.  The clip rectangle in the
-   * <code>Graphics</code> parameter is set to the area
+   * {@code Graphics} parameter is set to the area
    * which needs to be painted.
-   * Subclasses of <code>Component</code> that override this
-   * method need not call <code>super.paint(g)</code>.
+   * Subclasses of {@code Component} that override this
+   * method need not call {@code super.paint(g)}.
    * <p>
-   * For performance reasons, <code>Component</code>s with zero width
+   * For performance reasons, {@code Component}s with zero width
    * or height aren't considered to need painting when they are first shown,
    * and also aren't considered to need repair.
    * <p>
@@ -3254,21 +3270,21 @@ public abstract class Component extends ComponentOrMenuComponent
    * Updates this component.
    * <p>
    * If this component is not a lightweight component, the
-   * AWT calls the <code>update</code> method in response to
-   * a call to <code>repaint</code>.  You can assume that
+   * AWT calls the {@code update} method in response to
+   * a call to {@code repaint}.  You can assume that
    * the background is not cleared.
    * <p>
-   * The <code>update</code> method of <code>Component</code>
-   * calls this component's <code>paint</code> method to redraw
+   * The {@code update} method of {@code Component}
+   * calls this component's {@code paint} method to redraw
    * this component.  This method is commonly overridden by subclasses
    * which need to do additional work in response to a call to
-   * <code>repaint</code>.
+   * {@code repaint}.
    * Subclasses of Component that override this method should either
-   * call <code>super.update(g)</code>, or call <code>paint(g)</code>
-   * directly from their <code>update</code> method.
+   * call {@code super.update(g)}, or call {@code paint(g)}
+   * directly from their {@code update} method.
    * <p>
    * The origin of the graphics context, its
-   * (<code>0</code>,&nbsp;<code>0</code>) coordinate point, is the
+   * ({@code 0},&nbsp;{@code 0}) coordinate point, is the
    * top-left corner of this component. The clipping region of the
    * graphics context is the bounding rectangle of this component.
    * <p>
@@ -3292,7 +3308,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Paints this component and all of its subcomponents.
    * <p>
    * The origin of the graphics context, its
-   * (<code>0</code>,&nbsp;<code>0</code>) coordinate point, is the
+   * ({@code 0},&nbsp;{@code 0}) coordinate point, is the
    * top-left corner of this component. The clipping region of the
    * graphics context is the bounding rectangle of this component.
    *
@@ -3302,7 +3318,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   public void paintAll(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PeerPaintCallback.getInstance().
+      PeerPaintCallback.getInstance().
           runOneComponent(this,
               new Rectangle(0, 0, width, height),
               g,
@@ -3332,9 +3348,9 @@ public abstract class Component extends ComponentOrMenuComponent
    * Repaints this component.
    * <p>
    * If this component is a lightweight component, this method
-   * causes a call to this component's <code>paint</code>
+   * causes a call to this component's {@code paint}
    * method as soon as possible.  Otherwise, this method causes
-   * a call to this component's <code>update</code> method as soon
+   * a call to this component's {@code update} method as soon
    * as possible.
    * <p>
    * <b>Note</b>: For more information on the paint mechanisms utilitized
@@ -3352,8 +3368,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Repaints the component.  If this component is a lightweight
-   * component, this results in a call to <code>paint</code>
-   * within <code>tm</code> milliseconds.
+   * component, this results in a call to {@code paint}
+   * within {@code tm} milliseconds.
    * <p>
    * <b>Note</b>: For more information on the paint mechanisms utilitized
    * by AWT and Swing, including information on how to write the most
@@ -3374,9 +3390,9 @@ public abstract class Component extends ComponentOrMenuComponent
    * Repaints the specified rectangle of this component.
    * <p>
    * If this component is a lightweight component, this method
-   * causes a call to this component's <code>paint</code> method
+   * causes a call to this component's {@code paint} method
    * as soon as possible.  Otherwise, this method causes a call to
-   * this component's <code>update</code> method as soon as possible.
+   * this component's {@code update} method as soon as possible.
    * <p>
    * <b>Note</b>: For more information on the paint mechanisms utilitized
    * by AWT and Swing, including information on how to write the most
@@ -3397,12 +3413,12 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Repaints the specified rectangle of this component within
-   * <code>tm</code> milliseconds.
+   * {@code tm} milliseconds.
    * <p>
    * If this component is a lightweight component, this method causes
-   * a call to this component's <code>paint</code> method.
+   * a call to this component's {@code paint} method.
    * Otherwise, this method causes a call to this component's
-   * <code>update</code> method.
+   * {@code update} method.
    * <p>
    * <b>Note</b>: For more information on the paint mechanisms utilitized
    * by AWT and Swing, including information on how to write the most
@@ -3419,7 +3435,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since JDK1.0
    */
   public void repaint(long tm, int x, int y, int width, int height) {
-    if (this.peer instanceof LightweightPeer) {
+    if (peer instanceof LightweightPeer) {
       // Needs to be translated to parent coordinates since
       // a parent native container provides the actual repaint
       // services.  Additionally, the request is restricted to
@@ -3434,8 +3450,8 @@ public abstract class Component extends ComponentOrMenuComponent
           y = 0;
         }
 
-        int pwidth = (width > this.width) ? this.width : width;
-        int pheight = (height > this.height) ? this.height : height;
+        int pwidth = width > this.width ? this.width : width;
+        int pheight = height > this.height ? this.height : height;
 
         if (pwidth <= 0 || pheight <= 0) {
           return;
@@ -3446,8 +3462,8 @@ public abstract class Component extends ComponentOrMenuComponent
         parent.repaint(tm, px, py, pwidth, pheight);
       }
     } else {
-      if (isVisible() && (this.peer != null) &&
-          (width > 0) && (height > 0)) {
+      if (isVisible() && peer != null &&
+          width > 0 && height > 0) {
         PaintEvent e = new PaintEvent(this, PaintEvent.UPDATE, new Rectangle(x, y, width, height));
         SunToolkit.postEvent(SunToolkit.targetToAppContext(this), e);
       }
@@ -3460,10 +3476,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * printed or should be printed differently than they are painted.
    * <p>
    * The default implementation of this method calls the
-   * <code>paint</code> method.
+   * {@code paint} method.
    * <p>
    * The origin of the graphics context, its
-   * (<code>0</code>,&nbsp;<code>0</code>) coordinate point, is the
+   * ({@code 0},&nbsp;{@code 0}) coordinate point, is the
    * top-left corner of this component. The clipping region of the
    * graphics context is the bounding rectangle of this component.
    *
@@ -3479,7 +3495,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Prints this component and all of its subcomponents.
    * <p>
    * The origin of the graphics context, its
-   * (<code>0</code>,&nbsp;<code>0</code>) coordinate point, is the
+   * ({@code 0},&nbsp;{@code 0}) coordinate point, is the
    * top-left corner of this component. The clipping region of the
    * graphics context is the bounding rectangle of this component.
    *
@@ -3489,7 +3505,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   public void printAll(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PeerPrintCallback.getInstance().
+      PeerPrintCallback.getInstance().
           runOneComponent(this,
               new Rectangle(0, 0, width, height),
               g,
@@ -3515,7 +3531,7 @@ public abstract class Component extends ComponentOrMenuComponent
   void printHeavyweightComponents(Graphics g) {
   }
 
-  private Insets getInsets_NoClientCode() {
+  Insets getInsets_NoClientCode() {
     ComponentPeer peer = this.peer;
     if (peer instanceof ContainerPeer) {
       return (Insets) ((ContainerPeer) peer).getInsets().clone();
@@ -3525,49 +3541,49 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Repaints the component when the image has changed.
-   * This <code>imageUpdate</code> method of an <code>ImageObserver</code>
+   * This {@code imageUpdate} method of an {@code ImageObserver}
    * is called when more information about an
    * image which had been previously requested using an asynchronous
-   * routine such as the <code>drawImage</code> method of
-   * <code>Graphics</code> becomes available.
-   * See the definition of <code>imageUpdate</code> for
+   * routine such as the {@code drawImage} method of
+   * {@code Graphics} becomes available.
+   * See the definition of {@code imageUpdate} for
    * more information on this method and its arguments.
    * <p>
-   * The <code>imageUpdate</code> method of <code>Component</code>
+   * The {@code imageUpdate} method of {@code Component}
    * incrementally draws an image on the component as more of the bits
    * of the image are available.
    * <p>
-   * If the system property <code>awt.image.incrementaldraw</code>
-   * is missing or has the value <code>true</code>, the image is
+   * If the system property {@code awt.image.incrementaldraw}
+   * is missing or has the value {@code true}, the image is
    * incrementally drawn. If the system property has any other value,
    * then the image is not drawn until it has been completely loaded.
    * <p>
    * Also, if incremental drawing is in effect, the value of the
-   * system property <code>awt.image.redrawrate</code> is interpreted
+   * system property {@code awt.image.redrawrate} is interpreted
    * as an integer to give the maximum redraw rate, in milliseconds. If
    * the system property is missing or cannot be interpreted as an
    * integer, the redraw rate is once every 100ms.
    * <p>
-   * The interpretation of the <code>x</code>, <code>y</code>,
-   * <code>width</code>, and <code>height</code> arguments depends on
-   * the value of the <code>infoflags</code> argument.
+   * The interpretation of the {@code x}, {@code y},
+   * {@code width}, and {@code height} arguments depends on
+   * the value of the {@code infoflags} argument.
    *
    * @param img       the image being observed
-   * @param infoflags see <code>imageUpdate</code> for more information
+   * @param infoflags see {@code imageUpdate} for more information
    * @param x         the <i>x</i> coordinate
    * @param y         the <i>y</i> coordinate
    * @param w         the width
    * @param h         the height
-   * @return <code>false</code> if the infoflags indicate that the
-   * image is completely loaded; <code>true</code> otherwise.
-   * @see java.awt.image.ImageObserver
-   * @see Graphics#drawImage(Image, int, int, Color, java.awt.image.ImageObserver)
-   * @see Graphics#drawImage(Image, int, int, java.awt.image.ImageObserver)
-   * @see Graphics#drawImage(Image, int, int, int, int, Color, java.awt.image.ImageObserver)
-   * @see Graphics#drawImage(Image, int, int, int, int, java.awt.image.ImageObserver)
-   * @see java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
+   * @return {@code false} if the infoflags indicate that the
+   * image is completely loaded; {@code true} otherwise.
+   * @see ImageObserver
+   * @see Graphics#drawImage(Image, int, int, Color, ImageObserver)
+   * @see Graphics#drawImage(Image, int, int, ImageObserver)
+   * @see Graphics#drawImage(Image, int, int, int, int, Color, ImageObserver)
+   * @see Graphics#drawImage(Image, int, int, int, int, ImageObserver)
    * @since JDK1.0
    */
+  @Override
   public boolean imageUpdate(Image img, int infoflags, int x, int y, int w, int h) {
     int rate = -1;
     if ((infoflags & (FRAMEBITS | ALLBITS)) != 0) {
@@ -3595,7 +3611,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   public Image createImage(ImageProducer producer) {
     ComponentPeer peer = this.peer;
-    if ((peer != null) && !(peer instanceof LightweightPeer)) {
+    if (peer != null && !(peer instanceof LightweightPeer)) {
       return peer.createImage(producer);
     }
     return getToolkit().createImage(producer);
@@ -3608,10 +3624,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param width  the specified width
    * @param height the specified height
    * @return an off-screen drawable image, which can be used for double
-   * buffering.  The return value may be <code>null</code> if the
+   * buffering.  The return value may be {@code null} if the
    * component is not displayable.  This will always happen if
-   * <code>GraphicsEnvironment.isHeadless()</code> returns
-   * <code>true</code>.
+   * {@code GraphicsEnvironment.isHeadless()} returns
+   * {@code true}.
    * @see #isDisplayable
    * @see GraphicsEnvironment#isHeadless
    * @since JDK1.0
@@ -3619,13 +3635,9 @@ public abstract class Component extends ComponentOrMenuComponent
   public Image createImage(int width, int height) {
     ComponentPeer peer = this.peer;
     if (peer instanceof LightweightPeer) {
-      if (parent != null) {
-        return parent.createImage(width, height);
-      } else {
-        return null;
-      }
+      return parent != null ? parent.createImage(width, height) : null;
     } else {
-      return (peer != null) ? peer.createImage(width, height) : null;
+      return peer != null ? peer.createImage(width, height) : null;
     }
   }
 
@@ -3636,11 +3648,11 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param width  the specified width.
    * @param height the specified height.
    * @return an off-screen drawable image, which can be used for double
-   * buffering.  The return value may be <code>null</code> if the
+   * buffering.  The return value may be {@code null} if the
    * component is not displayable.  This will always happen if
-   * <code>GraphicsEnvironment.isHeadless()</code> returns
-   * <code>true</code>.
-   * @see java.awt.image.VolatileImage
+   * {@code GraphicsEnvironment.isHeadless()} returns
+   * {@code true}.
+   * @see VolatileImage
    * @see #isDisplayable
    * @see GraphicsEnvironment#isHeadless
    * @since 1.4
@@ -3648,13 +3660,9 @@ public abstract class Component extends ComponentOrMenuComponent
   public VolatileImage createVolatileImage(int width, int height) {
     ComponentPeer peer = this.peer;
     if (peer instanceof LightweightPeer) {
-      if (parent != null) {
-        return parent.createVolatileImage(width, height);
-      } else {
-        return null;
-      }
+      return parent != null ? parent.createVolatileImage(width, height) : null;
     } else {
-      return (peer != null) ? peer.createVolatileImage(width, height) : null;
+      return peer != null ? peer.createVolatileImage(width, height) : null;
     }
   }
 
@@ -3662,7 +3670,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Creates a volatile off-screen drawable image, with the given capabilities.
    * The contents of this image may be lost at any time due
    * to operating system issues, so the image must be managed
-   * via the <code>VolatileImage</code> interface.
+   * via the {@code VolatileImage} interface.
    *
    * @param width  the specified width.
    * @param height the specified height.
@@ -3671,7 +3679,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * to manage surface contents loss and capabilities.
    * @throws AWTException if an image with the specified capabilities cannot
    *                      be created
-   * @see java.awt.image.VolatileImage
+   * @see VolatileImage
    * @since 1.4
    */
   public VolatileImage createVolatileImage(int width, int height, ImageCapabilities caps)
@@ -3685,12 +3693,12 @@ public abstract class Component extends ComponentOrMenuComponent
    * data is downloaded asynchronously in another thread and the
    * appropriate screen representation of the image is generated.
    *
-   * @param image    the <code>Image</code> for which to
+   * @param image    the {@code Image} for which to
    *                 prepare a screen representation
-   * @param observer the <code>ImageObserver</code> object
+   * @param observer the {@code ImageObserver} object
    *                 to be notified as the image is being prepared
-   * @return <code>true</code> if the image has already been fully
-   * prepared; <code>false</code> otherwise
+   * @return {@code true} if the image has already been fully
+   * prepared; {@code false} otherwise
    * @since JDK1.0
    */
   public boolean prepareImage(Image image, ImageObserver observer) {
@@ -3705,24 +3713,24 @@ public abstract class Component extends ComponentOrMenuComponent
    * and an appropriately scaled screen representation of the image is
    * generated.
    *
-   * @param image    the instance of <code>Image</code>
+   * @param image    the instance of {@code Image}
    *                 for which to prepare a screen representation
    * @param width    the width of the desired screen representation
    * @param height   the height of the desired screen representation
-   * @param observer the <code>ImageObserver</code> object
+   * @param observer the {@code ImageObserver} object
    *                 to be notified as the image is being prepared
-   * @return <code>true</code> if the image has already been fully
-   * prepared; <code>false</code> otherwise
-   * @see java.awt.image.ImageObserver
+   * @return {@code true} if the image has already been fully
+   * prepared; {@code false} otherwise
+   * @see ImageObserver
    * @since JDK1.0
    */
   public boolean prepareImage(Image image, int width, int height, ImageObserver observer) {
     ComponentPeer peer = this.peer;
     if (peer instanceof LightweightPeer) {
-      return (parent != null) ? parent.prepareImage(image, width, height, observer)
+      return parent != null ? parent.prepareImage(image, width, height, observer)
           : getToolkit().prepareImage(image, width, height, observer);
     } else {
-      return (peer != null) ? peer.prepareImage(image, width, height, observer)
+      return peer != null ? peer.prepareImage(image, width, height, observer)
           : getToolkit().prepareImage(image, width, height, observer);
     }
   }
@@ -3732,22 +3740,22 @@ public abstract class Component extends ComponentOrMenuComponent
    * of the specified image.
    * <p>
    * This method does not cause the image to begin loading. An
-   * application must use the <code>prepareImage</code> method
+   * application must use the {@code prepareImage} method
    * to force the loading of an image.
    * <p>
    * Information on the flags returned by this method can be found
-   * with the discussion of the <code>ImageObserver</code> interface.
+   * with the discussion of the {@code ImageObserver} interface.
    *
-   * @param image    the <code>Image</code> object whose status
+   * @param image    the {@code Image} object whose status
    *                 is being checked
-   * @param observer the <code>ImageObserver</code>
+   * @param observer the {@code ImageObserver}
    *                 object to be notified as the image is being prepared
    * @return the bitwise inclusive <b>OR</b> of
-   * <code>ImageObserver</code> flags indicating what
+   * {@code ImageObserver} flags indicating what
    * information about the image is currently available
-   * @see #prepareImage(Image, int, int, java.awt.image.ImageObserver)
-   * @see Toolkit#checkImage(Image, int, int, java.awt.image.ImageObserver)
-   * @see java.awt.image.ImageObserver
+   * @see #prepareImage(Image, int, int, ImageObserver)
+   * @see Toolkit#checkImage(Image, int, int, ImageObserver)
+   * @see ImageObserver
    * @since JDK1.0
    */
   public int checkImage(Image image, ImageObserver observer) {
@@ -3759,41 +3767,41 @@ public abstract class Component extends ComponentOrMenuComponent
    * of the specified image.
    * <p>
    * This method does not cause the image to begin loading. An
-   * application must use the <code>prepareImage</code> method
+   * application must use the {@code prepareImage} method
    * to force the loading of an image.
    * <p>
-   * The <code>checkImage</code> method of <code>Component</code>
-   * calls its peer's <code>checkImage</code> method to calculate
+   * The {@code checkImage} method of {@code Component}
+   * calls its peer's {@code checkImage} method to calculate
    * the flags. If this component does not yet have a peer, the
-   * component's toolkit's <code>checkImage</code> method is called
+   * component's toolkit's {@code checkImage} method is called
    * instead.
    * <p>
    * Information on the flags returned by this method can be found
-   * with the discussion of the <code>ImageObserver</code> interface.
+   * with the discussion of the {@code ImageObserver} interface.
    *
-   * @param image    the <code>Image</code> object whose status
+   * @param image    the {@code Image} object whose status
    *                 is being checked
    * @param width    the width of the scaled version
    *                 whose status is to be checked
    * @param height   the height of the scaled version
    *                 whose status is to be checked
-   * @param observer the <code>ImageObserver</code> object
+   * @param observer the {@code ImageObserver} object
    *                 to be notified as the image is being prepared
    * @return the bitwise inclusive <b>OR</b> of
-   * <code>ImageObserver</code> flags indicating what
+   * {@code ImageObserver} flags indicating what
    * information about the image is currently available
-   * @see #prepareImage(Image, int, int, java.awt.image.ImageObserver)
-   * @see Toolkit#checkImage(Image, int, int, java.awt.image.ImageObserver)
-   * @see java.awt.image.ImageObserver
+   * @see #prepareImage(Image, int, int, ImageObserver)
+   * @see Toolkit#checkImage(Image, int, int, ImageObserver)
+   * @see ImageObserver
    * @since JDK1.0
    */
   public int checkImage(Image image, int width, int height, ImageObserver observer) {
     ComponentPeer peer = this.peer;
     if (peer instanceof LightweightPeer) {
-      return (parent != null) ? parent.checkImage(image, width, height, observer)
+      return parent != null ? parent.checkImage(image, width, height, observer)
           : getToolkit().checkImage(image, width, height, observer);
     } else {
-      return (peer != null) ? peer.checkImage(image, width, height, observer)
+      return peer != null ? peer.checkImage(image, width, height, observer)
           : getToolkit().checkImage(image, width, height, observer);
     }
   }
@@ -3802,7 +3810,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Creates a new strategy for multi-buffering on this component.
    * Multi-buffering is useful for rendering performance.  This method
    * attempts to create the best strategy available with the number of
-   * buffers supplied.  It will always create a <code>BufferStrategy</code>
+   * buffers supplied.  It will always create a {@code BufferStrategy}
    * with that number of buffers.
    * A page-flipping strategy is attempted first, then a blitting strategy
    * using accelerated buffers.  Finally, an unaccelerated blitting
@@ -3825,7 +3833,7 @@ public abstract class Component extends ComponentOrMenuComponent
       // Try to create a page-flipping strategy
       bufferCaps = new BufferCapabilities(new ImageCapabilities(true),
           new ImageCapabilities(true),
-          BufferCapabilities.FlipContents.UNDEFINED);
+          FlipContents.UNDEFINED);
       try {
         createBufferStrategy(numBuffers, bufferCaps);
         return; // Success
@@ -3864,12 +3872,12 @@ public abstract class Component extends ComponentOrMenuComponent
    * buffer capabilities).
    * <p>
    * Each time this method
-   * is called, <code>dispose</code> will be invoked on the existing
-   * <code>BufferStrategy</code>.
+   * is called, {@code dispose} will be invoked on the existing
+   * {@code BufferStrategy}.
    *
    * @param numBuffers number of buffers to create
    * @param caps       the required capabilities for creating the buffer strategy;
-   *                   cannot be <code>null</code>
+   *                   cannot be {@code null}
    * @throws AWTException             if the capabilities supplied could not be
    *                                  supported or met; this may happen, for example, if there is
    *                                  not enough
@@ -3877,7 +3885,7 @@ public abstract class Component extends ComponentOrMenuComponent
    *                                  flipping is specified
    *                                  but not possible.
    * @throws IllegalArgumentException if numBuffers is less than 1, or if
-   *                                  caps is <code>null</code>
+   *                                  caps is {@code null}
    * @see Window#getBufferStrategy()
    * @see Canvas#getBufferStrategy()
    * @since 1.4
@@ -3903,11 +3911,8 @@ public abstract class Component extends ComponentOrMenuComponent
         caps = new ProxyCapabilities(caps);
       }
       // assert numBuffers > 1;
-      if (caps.isPageFlipping()) {
-        bufferStrategy = new FlipSubRegionBufferStrategy(numBuffers, caps);
-      } else {
-        bufferStrategy = new BltSubRegionBufferStrategy(numBuffers, caps);
-      }
+      bufferStrategy = caps.isPageFlipping() ? new FlipSubRegionBufferStrategy(numBuffers, caps)
+          : new BltSubRegionBufferStrategy(numBuffers, caps);
     }
   }
 
@@ -3962,7 +3967,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #getIgnoreRepaint
    * @see Canvas#createBufferStrategy
    * @see Window#createBufferStrategy
-   * @see java.awt.image.BufferStrategy
+   * @see BufferStrategy
    * @see GraphicsDevice#setFullScreenWindow
    * @since 1.4
    */
@@ -3972,7 +3977,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Checks whether this component "contains" the specified point,
-   * where <code>x</code> and <code>y</code> are defined to be
+   * where {@code x} and {@code y} are defined to be
    * relative to the coordinate system of this component.
    *
    * @param x the <i>x</i> coordinate of the point
@@ -3990,7 +3995,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   @Deprecated
   public boolean inside(int x, int y) {
-    return (x >= 0) && (x < width) && (y >= 0) && (y < height);
+    return x >= 0 && x < width && y >= 0 && y < height;
   }
 
   /**
@@ -4015,16 +4020,16 @@ public abstract class Component extends ComponentOrMenuComponent
    * inside a subcomponent that itself has subcomponents, it does not
    * go looking down the subcomponent tree.
    * <p>
-   * The <code>locate</code> method of <code>Component</code> simply
+   * The {@code locate} method of {@code Component} simply
    * returns the component itself if the (<i>x</i>,&nbsp;<i>y</i>)
-   * coordinate location is inside its bounding box, and <code>null</code>
+   * coordinate location is inside its bounding box, and {@code null}
    * otherwise.
    *
    * @param x the <i>x</i> coordinate
    * @param y the <i>y</i> coordinate
    * @return the component or subcomponent that contains the
    * (<i>x</i>,&nbsp;<i>y</i>) location;
-   * <code>null</code> if the location
+   * {@code null} if the location
    * is outside this component
    * @see #contains(int, int)
    * @since JDK1.0
@@ -4047,7 +4052,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * specified point.
    *
    * @param p the point
-   * @see java.awt.Component#contains
+   * @see Component#contains
    * @since JDK1.1
    */
   public Component getComponentAt(Point p) {
@@ -4056,7 +4061,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>dispatchEvent(AWTEvent e)</code>.
+   * replaced by {@code dispatchEvent(AWTEvent e)}.
    */
   @Deprecated
   public void deliverEvent(Event e) {
@@ -4065,8 +4070,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Dispatches an event to this component or one of its sub components.
-   * Calls <code>processEvent</code> before returning for 1.1-style
-   * events which have been enabled for the <code>Component</code>.
+   * Calls {@code processEvent} before returning for 1.1-style
+   * events which have been enabled for the {@code Component}.
    *
    * @param e the event
    */
@@ -4129,9 +4134,9 @@ public abstract class Component extends ComponentOrMenuComponent
     // the event is dispatched to the ancestor, and dispatching here
     // stops.
     if (id == MouseEvent.MOUSE_WHEEL &&
-        (!eventTypeEnabled(id)) &&
-        (peer != null && !peer.handlesWheelScrolling()) &&
-        (dispatchMouseWheelToAncestor((MouseWheelEvent) e))) {
+        !eventTypeEnabled(id) &&
+        peer != null && !peer.handlesWheelScrolling() &&
+        dispatchMouseWheelToAncestor((MouseWheelEvent) e)) {
       return;
     }
 
@@ -4147,7 +4152,7 @@ public abstract class Component extends ComponentOrMenuComponent
          *    KeyboardFocusManager to process it.
          */
     if (!e.isConsumed()) {
-      if (e instanceof java.awt.event.KeyEvent) {
+      if (e instanceof KeyEvent) {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().
             processKeyEvent(this, (KeyEvent) e);
         if (e.isConsumed()) {
@@ -4164,14 +4169,13 @@ public abstract class Component extends ComponentOrMenuComponent
       // input method adapters send them through the Java
       // event queue instead of directly to the component,
       // and the input context also handles the Java composition window
-      if (((e instanceof InputMethodEvent) && !(getClass()
-                                                    .getName()
-                                                    .equals("sun.awt.im.CompositionArea"))) ||
+      if (e instanceof InputMethodEvent
+          && !"sun.awt.im.CompositionArea".equals(getClass().getName()) ||
           // Otherwise, we only pass on input and focus events, because
           // a) input methods shouldn't know about semantic or component-level events
           // b) passing on the events takes time
           // c) isConsumed() is always true for semantic events.
-          (e instanceof InputEvent) || (e instanceof FocusEvent)) {
+          e instanceof InputEvent || e instanceof FocusEvent) {
         InputContext inputContext = getInputContext();
 
         if (inputContext != null) {
@@ -4206,7 +4210,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
       case KeyEvent.KEY_PRESSED:
       case KeyEvent.KEY_RELEASED:
-        Container p = (Container) ((this instanceof Container) ? this : parent);
+        Container p = (Container) (this instanceof Container ? this : parent);
         if (p != null) {
           p.preProcessKeyEvent((KeyEvent) e);
           if (e.isConsumed()) {
@@ -4370,7 +4374,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
       Log.v(TAG, "new event src is " + anc.getClass());
 
-      if (anc != null && anc.eventEnabled(e)) {
+      if (anc.eventEnabled(e)) {
         // Change event to be from new source, with new x,y
         // For now, just create a new event - yucky
 
@@ -4427,7 +4431,7 @@ public abstract class Component extends ComponentOrMenuComponent
     // in 1.2, we assume input method support is required for all
     // components that handle key events, but components can turn off
     // input methods by calling enableInputMethods(false).
-    return ((eventMask & AWTEvent.INPUT_METHODS_ENABLED_MASK) != 0) && (
+    return (eventMask & AWTEvent.INPUT_METHODS_ENABLED_MASK) != 0 && (
         (eventMask & AWTEvent.KEY_EVENT_MASK) != 0 || keyListener != null);
   }
 
@@ -4523,23 +4527,20 @@ public abstract class Component extends ComponentOrMenuComponent
     //
     // Always pass on events defined by external programs.
     //
-    if (type > AWTEvent.RESERVED_ID_MAX) {
-      return true;
-    }
-    return false;
+    return type > AWTEvent.RESERVED_ID_MAX;
   }
 
   /**
    * Adds the specified component listener to receive component events from
    * this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the component listener
-   * @see java.awt.event.ComponentEvent
-   * @see java.awt.event.ComponentListener
+   * @see ComponentEvent
+   * @see ComponentListener
    * @see #removeComponentListener
    * @see #getComponentListeners
    * @since JDK1.1
@@ -4557,14 +4558,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives component events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the component listener
-   * @see java.awt.event.ComponentEvent
-   * @see java.awt.event.ComponentListener
+   * @see ComponentEvent
+   * @see ComponentListener
    * @see #addComponentListener
    * @see #getComponentListeners
    * @since JDK1.1
@@ -4580,7 +4581,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the component listeners
    * registered on this component.
    *
-   * @return all <code>ComponentListener</code>s of this component
+   * @return all {@code ComponentListener}s of this component
    * or an empty array if no component
    * listeners are currently registered
    * @see #addComponentListener
@@ -4594,14 +4595,14 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Adds the specified focus listener to receive focus events from
    * this component when this component gains input focus.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the focus listener
-   * @see java.awt.event.FocusEvent
-   * @see java.awt.event.FocusListener
+   * @see FocusEvent
+   * @see FocusListener
    * @see #removeFocusListener
    * @see #getFocusListeners
    * @since JDK1.1
@@ -4625,14 +4626,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives focus events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the focus listener
-   * @see java.awt.event.FocusEvent
-   * @see java.awt.event.FocusListener
+   * @see FocusEvent
+   * @see FocusListener
    * @see #addFocusListener
    * @see #getFocusListeners
    * @since JDK1.1
@@ -4648,7 +4649,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the focus listeners
    * registered on this component.
    *
-   * @return all of this component's <code>FocusListener</code>s
+   * @return all of this component's {@code FocusListener}s
    * or an empty array if no component
    * listeners are currently registered
    * @see #addFocusListener
@@ -4663,14 +4664,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * Adds the specified hierarchy listener to receive hierarchy changed
    * events from this component when the hierarchy to which this container
    * belongs changes.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the hierarchy listener
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyListener
+   * @see HierarchyEvent
+   * @see HierarchyListener
    * @see #removeHierarchyListener
    * @see #getHierarchyListeners
    * @since 1.3
@@ -4681,10 +4682,10 @@ public abstract class Component extends ComponentOrMenuComponent
     }
     boolean notifyAncestors;
     synchronized (this) {
-      notifyAncestors = (hierarchyListener == null
-                             && (eventMask & AWTEvent.HIERARCHY_EVENT_MASK) == 0);
+      notifyAncestors = hierarchyListener == null
+          && (eventMask & AWTEvent.HIERARCHY_EVENT_MASK) == 0;
       hierarchyListener = AWTEventMulticaster.add(hierarchyListener, l);
-      notifyAncestors = (notifyAncestors && hierarchyListener != null);
+      notifyAncestors = notifyAncestors && hierarchyListener != null;
       newEventsOnly = true;
     }
     if (notifyAncestors) {
@@ -4699,14 +4700,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives hierarchy changed events from this component. This method
    * performs no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the hierarchy listener
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyListener
+   * @see HierarchyEvent
+   * @see HierarchyListener
    * @see #addHierarchyListener
    * @see #getHierarchyListeners
    * @since 1.3
@@ -4717,10 +4718,10 @@ public abstract class Component extends ComponentOrMenuComponent
     }
     boolean notifyAncestors;
     synchronized (this) {
-      notifyAncestors = (hierarchyListener != null
-                             && (eventMask & AWTEvent.HIERARCHY_EVENT_MASK) == 0);
+      notifyAncestors = hierarchyListener != null
+          && (eventMask & AWTEvent.HIERARCHY_EVENT_MASK) == 0;
       hierarchyListener = AWTEventMulticaster.remove(hierarchyListener, l);
-      notifyAncestors = (notifyAncestors && hierarchyListener == null);
+      notifyAncestors = notifyAncestors && hierarchyListener == null;
     }
     if (notifyAncestors) {
       synchronized (getTreeLock()) {
@@ -4733,7 +4734,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the hierarchy listeners
    * registered on this component.
    *
-   * @return all of this component's <code>HierarchyListener</code>s
+   * @return all of this component's {@code HierarchyListener}s
    * or an empty array if no hierarchy
    * listeners are currently registered
    * @see #addHierarchyListener
@@ -4748,14 +4749,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * Adds the specified hierarchy bounds listener to receive hierarchy
    * bounds events from this component when the hierarchy to which this
    * container belongs changes.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the hierarchy bounds listener
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyBoundsListener
+   * @see HierarchyEvent
+   * @see HierarchyBoundsListener
    * @see #removeHierarchyBoundsListener
    * @see #getHierarchyBoundsListeners
    * @since 1.3
@@ -4766,10 +4767,10 @@ public abstract class Component extends ComponentOrMenuComponent
     }
     boolean notifyAncestors;
     synchronized (this) {
-      notifyAncestors = (hierarchyBoundsListener == null
-                             && (eventMask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) == 0);
+      notifyAncestors = hierarchyBoundsListener == null
+          && (eventMask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) == 0;
       hierarchyBoundsListener = AWTEventMulticaster.add(hierarchyBoundsListener, l);
-      notifyAncestors = (notifyAncestors && hierarchyBoundsListener != null);
+      notifyAncestors = notifyAncestors && hierarchyBoundsListener != null;
       newEventsOnly = true;
     }
     if (notifyAncestors) {
@@ -4784,14 +4785,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives hierarchy bounds events from this component. This method
    * performs no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the hierarchy bounds listener
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyBoundsListener
+   * @see HierarchyEvent
+   * @see HierarchyBoundsListener
    * @see #addHierarchyBoundsListener
    * @see #getHierarchyBoundsListeners
    * @since 1.3
@@ -4802,10 +4803,10 @@ public abstract class Component extends ComponentOrMenuComponent
     }
     boolean notifyAncestors;
     synchronized (this) {
-      notifyAncestors = (hierarchyBoundsListener != null
-                             && (eventMask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) == 0);
+      notifyAncestors = hierarchyBoundsListener != null
+          && (eventMask & AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) == 0;
       hierarchyBoundsListener = AWTEventMulticaster.remove(hierarchyBoundsListener, l);
-      notifyAncestors = (notifyAncestors && hierarchyBoundsListener == null);
+      notifyAncestors = notifyAncestors && hierarchyBoundsListener == null;
     }
     if (notifyAncestors) {
       synchronized (getTreeLock()) {
@@ -4817,21 +4818,17 @@ public abstract class Component extends ComponentOrMenuComponent
   // Should only be called while holding the tree lock
   int numListening(long mask) {
     // One mask or the other, but not neither or both.
-    if ((mask != AWTEvent.HIERARCHY_EVENT_MASK) && (mask != AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK)) {
+    if (mask != AWTEvent.HIERARCHY_EVENT_MASK && mask != AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK) {
       Log.d(TAG, "numListening: Assertion failed");
     }
-    if ((mask == AWTEvent.HIERARCHY_EVENT_MASK && (hierarchyListener != null ||
-                                                       (eventMask & AWTEvent.HIERARCHY_EVENT_MASK)
-                                                           != 0)) || (
-        mask == AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK && (hierarchyBoundsListener != null ||
-                                                             (eventMask
-                                                                  & AWTEvent
-                                                                 .HIERARCHY_BOUNDS_EVENT_MASK)
-                                                                 != 0))) {
-      return 1;
-    } else {
-      return 0;
-    }
+    return mask == AWTEvent.HIERARCHY_EVENT_MASK && (hierarchyListener != null ||
+                                                         (eventMask & AWTEvent.HIERARCHY_EVENT_MASK)
+                                                             != 0)
+        || mask == AWTEvent.HIERARCHY_BOUNDS_EVENT_MASK && (hierarchyBoundsListener != null ||
+                                                                (eventMask
+                                                                     & AWTEvent
+                                                                    .HIERARCHY_BOUNDS_EVENT_MASK)
+                                                                    != 0) ? 1 : 0;
   }
 
   // Should only be called while holding tree lock
@@ -4878,7 +4875,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the hierarchy bounds listeners
    * registered on this component.
    *
-   * @return all of this component's <code>HierarchyBoundsListener</code>s
+   * @return all of this component's {@code HierarchyBoundsListener}s
    * or an empty array if no hierarchy bounds
    * listeners are currently registered
    * @see #addHierarchyBoundsListener
@@ -4908,8 +4905,8 @@ public abstract class Component extends ComponentOrMenuComponent
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the key listener.
-   * @see java.awt.event.KeyEvent
-   * @see java.awt.event.KeyListener
+   * @see KeyEvent
+   * @see KeyListener
    * @see #removeKeyListener
    * @see #getKeyListeners
    * @since JDK1.1
@@ -4933,14 +4930,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives key events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the key listener
-   * @see java.awt.event.KeyEvent
-   * @see java.awt.event.KeyListener
+   * @see KeyEvent
+   * @see KeyListener
    * @see #addKeyListener
    * @see #getKeyListeners
    * @since JDK1.1
@@ -4956,7 +4953,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the key listeners
    * registered on this component.
    *
-   * @return all of this component's <code>KeyListener</code>s
+   * @return all of this component's {@code KeyListener}s
    * or an empty array if no key
    * listeners are currently registered
    * @see #addKeyListener
@@ -4970,14 +4967,14 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Adds the specified mouse listener to receive mouse events from
    * this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse listener
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseListener
+   * @see MouseEvent
+   * @see MouseListener
    * @see #removeMouseListener
    * @see #getMouseListeners
    * @since JDK1.1
@@ -5001,14 +4998,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives mouse events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse listener
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseListener
+   * @see MouseEvent
+   * @see MouseListener
    * @see #addMouseListener
    * @see #getMouseListeners
    * @since JDK1.1
@@ -5024,7 +5021,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the mouse listeners
    * registered on this component.
    *
-   * @return all of this component's <code>MouseListener</code>s
+   * @return all of this component's {@code MouseListener}s
    * or an empty array if no mouse
    * listeners are currently registered
    * @see #addMouseListener
@@ -5038,14 +5035,14 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Adds the specified mouse motion listener to receive mouse motion
    * events from this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse motion listener
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseMotionListener
+   * @see MouseEvent
+   * @see MouseMotionListener
    * @see #removeMouseMotionListener
    * @see #getMouseMotionListeners
    * @since JDK1.1
@@ -5069,14 +5066,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives mouse motion events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse motion listener
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseMotionListener
+   * @see MouseEvent
+   * @see MouseMotionListener
    * @see #addMouseMotionListener
    * @see #getMouseMotionListeners
    * @since JDK1.1
@@ -5092,7 +5089,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the mouse motion listeners
    * registered on this component.
    *
-   * @return all of this component's <code>MouseMotionListener</code>s
+   * @return all of this component's {@code MouseMotionListener}s
    * or an empty array if no mouse motion
    * listeners are currently registered
    * @see #addMouseMotionListener
@@ -5111,14 +5108,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * For information on how mouse wheel events are dispatched, see
    * the class description for {@link MouseWheelEvent}.
    * <p>
-   * If l is <code>null</code>, no exception is thrown and no
+   * If l is {@code null}, no exception is thrown and no
    * action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse wheel listener
-   * @see java.awt.event.MouseWheelEvent
-   * @see java.awt.event.MouseWheelListener
+   * @see MouseWheelEvent
+   * @see MouseWheelListener
    * @see #removeMouseWheelListener
    * @see #getMouseWheelListeners
    * @since 1.4
@@ -5147,8 +5144,8 @@ public abstract class Component extends ComponentOrMenuComponent
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the mouse wheel listener.
-   * @see java.awt.event.MouseWheelEvent
-   * @see java.awt.event.MouseWheelListener
+   * @see MouseWheelEvent
+   * @see MouseWheelListener
    * @see #addMouseWheelListener
    * @see #getMouseWheelListeners
    * @since 1.4
@@ -5164,7 +5161,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the mouse wheel listeners
    * registered on this component.
    *
-   * @return all of this component's <code>MouseWheelListener</code>s
+   * @return all of this component's {@code MouseWheelListener}s
    * or an empty array if no mouse wheel
    * listeners are currently registered
    * @see #addMouseWheelListener
@@ -5179,16 +5176,16 @@ public abstract class Component extends ComponentOrMenuComponent
    * Adds the specified input method listener to receive
    * input method events from this component. A component will
    * only receive input method events from input methods
-   * if it also overrides <code>getInputMethodRequests</code> to return an
-   * <code>InputMethodRequests</code> instance.
-   * If listener <code>l</code> is <code>null</code>,
+   * if it also overrides {@code getInputMethodRequests} to return an
+   * {@code InputMethodRequests} instance.
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="{@docRoot}/java/awt/doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the input method listener
-   * @see java.awt.event.InputMethodEvent
-   * @see java.awt.event.InputMethodListener
+   * @see InputMethodEvent
+   * @see InputMethodListener
    * @see #removeInputMethodListener
    * @see #getInputMethodListeners
    * @see #getInputMethodRequests
@@ -5207,14 +5204,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * receives input method events from this component. This method performs
    * no function, nor does it throw an exception, if the listener
    * specified by the argument was not previously added to this component.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
    *
    * @param l the input method listener
-   * @see java.awt.event.InputMethodEvent
-   * @see java.awt.event.InputMethodListener
+   * @see InputMethodEvent
+   * @see InputMethodListener
    * @see #addInputMethodListener
    * @see #getInputMethodListeners
    * @since 1.2
@@ -5230,7 +5227,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the input method listeners
    * registered on this component.
    *
-   * @return all of this component's <code>InputMethodListener</code>s
+   * @return all of this component's {@code InputMethodListener}s
    * or an empty array if no input method
    * listeners are currently registered
    * @see #addInputMethodListener
@@ -5244,16 +5241,16 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns an array of all the objects currently registered
    * as <code><em>Foo</em>Listener</code>s
-   * upon this <code>Component</code>.
+   * upon this {@code Component}.
    * <code><em>Foo</em>Listener</code>s are registered using the
    * <code>add<em>Foo</em>Listener</code> method.
    * <p>
    * <p>
-   * You can specify the <code>listenerType</code> argument
+   * You can specify the {@code listenerType} argument
    * with a class literal, such as
    * <code><em>Foo</em>Listener.class</code>.
    * For example, you can query a
-   * <code>Component</code> <code>c</code>
+   * {@code Component} {@code c}
    * for its mouse listeners with the following code:
    * <p>
    * <pre>MouseListener[] mls = (MouseListener[])(c.getListeners(MouseListener.class));</pre>
@@ -5262,13 +5259,13 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @param listenerType the type of listeners requested; this parameter
    *                     should specify an interface that descends from
-   *                     <code>java.util.EventListener</code>
+   *                     {@code java.util.EventListener}
    * @return an array of all objects registered as
    * <code><em>Foo</em>Listener</code>s on this component,
    * or an empty array if no such listeners have been added
-   * @throws ClassCastException   if <code>listenerType</code>
+   * @throws ClassCastException   if {@code listenerType}
    *                              doesn't specify a class or interface that implements
-   *                              <code>java.util.EventListener</code>
+   *                              {@code java.util.EventListener}
    * @throws NullPointerException if {@code listenerType} is {@code null}
    * @see #getComponentListeners
    * @see #getFocusListeners
@@ -5313,11 +5310,11 @@ public abstract class Component extends ComponentOrMenuComponent
    * Gets the input method request handler which supports
    * requests from input methods for this component. A component
    * that supports on-the-spot text input must override this
-   * method to return an <code>InputMethodRequests</code> instance.
+   * method to return an {@code InputMethodRequests} instance.
    * At the same time, it also has to handle input method events.
    *
    * @return the input method request handler for this component,
-   * <code>null</code> by default
+   * {@code null} by default
    * @see #addInputMethodListener
    * @since 1.2
    */
@@ -5333,16 +5330,12 @@ public abstract class Component extends ComponentOrMenuComponent
    * override this to return a private input context.
    *
    * @return the input context used by this component;
-   * <code>null</code> if no context can be determined
+   * {@code null} if no context can be determined
    * @since 1.2
    */
   public InputContext getInputContext() {
     Container parent = this.parent;
-    if (parent == null) {
-      return null;
-    } else {
-      return parent.getInputContext();
-    }
+    return parent == null ? null : parent.getInputContext();
   }
 
   /**
@@ -5353,8 +5346,8 @@ public abstract class Component extends ComponentOrMenuComponent
    * that event type is added to the component.
    * <p>
    * This method only needs to be invoked by subclasses of
-   * <code>Component</code> which desire to have the specified event
-   * types delivered to <code>processEvent</code> regardless of whether
+   * {@code Component} which desire to have the specified event
+   * types delivered to {@code processEvent} regardless of whether
    * or not a listener is registered.
    *
    * @param eventsToEnable the event mask defining the event types
@@ -5434,7 +5427,7 @@ public abstract class Component extends ComponentOrMenuComponent
     if (getClass().getClassLoader() == null) {
       return false;
     }
-    final Class<? extends Component> clazz = getClass();
+    Class<? extends Component> clazz = getClass();
     synchronized (coalesceMap) {
       // Check cache.
       Boolean value = coalesceMap.get(clazz);
@@ -5443,9 +5436,8 @@ public abstract class Component extends ComponentOrMenuComponent
       }
 
       // Need to check non-bootstraps.
-      Boolean enabled
-          = java.security.AccessController.doPrivileged(new java.security
-          .PrivilegedAction<Boolean>() {
+      Boolean enabled = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+        @Override
         public Boolean run() {
           return isCoalesceEventsOverriden(clazz);
         }
@@ -5464,28 +5456,28 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Potentially coalesce an event being posted with an existing
-   * event.  This method is called by <code>EventQueue.postEvent</code>
+   * event.  This method is called by {@code EventQueue.postEvent}
    * if an event with the same ID as the event to be posted is found in
    * the queue (both events must have this component as their source).
    * This method either returns a coalesced event which replaces
    * the existing event (and the new event is then discarded), or
-   * <code>null</code> to indicate that no combining should be done
+   * {@code null} to indicate that no combining should be done
    * (add the second event to the end of the queue).  Either event
    * parameter may be modified and returned, as the other one is discarded
-   * unless <code>null</code> is returned.
+   * unless {@code null} is returned.
    * <p>
-   * This implementation of <code>coalesceEvents</code> coalesces
+   * This implementation of {@code coalesceEvents} coalesces
    * two event types: mouse move (and drag) events,
    * and paint (and update) events.
    * For mouse move events the last event is always returned, causing
    * intermediate moves to be discarded.  For paint events, the new
-   * event is coalesced into a complex <code>RepaintArea</code> in the peer.
-   * The new <code>AWTEvent</code> is always returned.
+   * event is coalesced into a complex {@code RepaintArea} in the peer.
+   * The new {@code AWTEvent} is always returned.
    *
-   * @param existingEvent the event already on the <code>EventQueue</code>
+   * @param existingEvent the event already on the {@code EventQueue}
    * @param newEvent      the event being posted to the
-   *                      <code>EventQueue</code>
-   * @return a coalesced event, or <code>null</code> indicating that no
+   *                      {@code EventQueue}
+   * @return a coalesced event, or {@code null} indicating that no
    * coalescing was done
    */
   protected AWTEvent coalesceEvents(AWTEvent existingEvent, AWTEvent newEvent) {
@@ -5495,9 +5487,9 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes events occurring on this component. By default this
    * method calls the appropriate
-   * <code>process&lt;event&nbsp;type&gt;Event</code>
+   * {@code process&lt;event&nbsp;type&gt;Event}
    * method for the given class of event.
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
@@ -5529,6 +5521,7 @@ public abstract class Component extends ComponentOrMenuComponent
           processMouseMotionEvent((MouseEvent) e);
           break;
         case MouseEvent.MOUSE_WHEEL:
+          //noinspection CastConflictsWithInstanceof
           processMouseWheelEvent((MouseWheelEvent) e);
           break;
       }
@@ -5554,23 +5547,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes component events occurring on this component by
    * dispatching them to any registered
-   * <code>ComponentListener</code> objects.
+   * {@code ComponentListener} objects.
    * <p>
    * This method is not called unless component events are
    * enabled for this component. Component events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>ComponentListener</code> object is registered
-   * via <code>addComponentListener</code>.
-   * <li>Component events are enabled via <code>enableEvents</code>.
+   * <li>A {@code ComponentListener} object is registered
+   * via {@code addComponentListener}.
+   * <li>Component events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the component event
-   * @see java.awt.event.ComponentEvent
-   * @see java.awt.event.ComponentListener
+   * @see ComponentEvent
+   * @see ComponentListener
    * @see #addComponentListener
    * @see #enableEvents
    * @since JDK1.1
@@ -5599,40 +5592,40 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes focus events occurring on this component by
    * dispatching them to any registered
-   * <code>FocusListener</code> objects.
+   * {@code FocusListener} objects.
    * <p>
    * This method is not called unless focus events are
    * enabled for this component. Focus events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>FocusListener</code> object is registered
-   * via <code>addFocusListener</code>.
-   * <li>Focus events are enabled via <code>enableEvents</code>.
+   * <li>A {@code FocusListener} object is registered
+   * via {@code addFocusListener}.
+   * <li>Focus events are enabled via {@code enableEvents}.
    * </ul>
    * <p>
-   * If focus events are enabled for a <code>Component</code>,
-   * the current <code>KeyboardFocusManager</code> determines
+   * If focus events are enabled for a {@code Component},
+   * the current {@code KeyboardFocusManager} determines
    * whether or not a focus event should be dispatched to
-   * registered <code>FocusListener</code> objects.  If the
-   * events are to be dispatched, the <code>KeyboardFocusManager</code>
-   * calls the <code>Component</code>'s <code>dispatchEvent</code>
-   * method, which results in a call to the <code>Component</code>'s
-   * <code>processFocusEvent</code> method.
+   * registered {@code FocusListener} objects.  If the
+   * events are to be dispatched, the {@code KeyboardFocusManager}
+   * calls the {@code Component}'s {@code dispatchEvent}
+   * method, which results in a call to the {@code Component}'s
+   * {@code processFocusEvent} method.
    * <p>
-   * If focus events are enabled for a <code>Component</code>, calling
-   * the <code>Component</code>'s <code>dispatchEvent</code> method
-   * with a <code>FocusEvent</code> as the argument will result in a
-   * call to the <code>Component</code>'s <code>processFocusEvent</code>
-   * method regardless of the current <code>KeyboardFocusManager</code>.
+   * If focus events are enabled for a {@code Component}, calling
+   * the {@code Component}'s {@code dispatchEvent} method
+   * with a {@code FocusEvent} as the argument will result in a
+   * call to the {@code Component}'s {@code processFocusEvent}
+   * method regardless of the current {@code KeyboardFocusManager}.
    * <p>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the focus event
-   * @see java.awt.event.FocusEvent
-   * @see java.awt.event.FocusListener
-   * @see java.awt.KeyboardFocusManager
+   * @see FocusEvent
+   * @see FocusListener
+   * @see KeyboardFocusManager
    * @see #addFocusListener
    * @see #enableEvents
    * @see #dispatchEvent
@@ -5656,47 +5649,47 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes key events occurring on this component by
    * dispatching them to any registered
-   * <code>KeyListener</code> objects.
+   * {@code KeyListener} objects.
    * <p>
    * This method is not called unless key events are
    * enabled for this component. Key events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>KeyListener</code> object is registered
-   * via <code>addKeyListener</code>.
-   * <li>Key events are enabled via <code>enableEvents</code>.
+   * <li>A {@code KeyListener} object is registered
+   * via {@code addKeyListener}.
+   * <li>Key events are enabled via {@code enableEvents}.
    * </ul>
    * <p>
    * <p>
-   * If key events are enabled for a <code>Component</code>,
-   * the current <code>KeyboardFocusManager</code> determines
+   * If key events are enabled for a {@code Component},
+   * the current {@code KeyboardFocusManager} determines
    * whether or not a key event should be dispatched to
-   * registered <code>KeyListener</code> objects.  The
-   * <code>DefaultKeyboardFocusManager</code> will not dispatch
-   * key events to a <code>Component</code> that is not the focus
+   * registered {@code KeyListener} objects.  The
+   * {@code DefaultKeyboardFocusManager} will not dispatch
+   * key events to a {@code Component} that is not the focus
    * owner or is not showing.
    * <p>
-   * As of J2SE 1.4, <code>KeyEvent</code>s are redirected to
+   * As of J2SE 1.4, {@code KeyEvent}s are redirected to
    * the focus owner. Please see the
    * <a href="doc-files/FocusSpec.html">Focus Specification</a>
    * for further information.
    * <p>
-   * Calling a <code>Component</code>'s <code>dispatchEvent</code>
-   * method with a <code>KeyEvent</code> as the argument will
-   * result in a call to the <code>Component</code>'s
-   * <code>processKeyEvent</code> method regardless of the
-   * current <code>KeyboardFocusManager</code> as long as the
+   * Calling a {@code Component}'s {@code dispatchEvent}
+   * method with a {@code KeyEvent} as the argument will
+   * result in a call to the {@code Component}'s
+   * {@code processKeyEvent} method regardless of the
+   * current {@code KeyboardFocusManager} as long as the
    * component is showing, focused, and enabled, and key events
    * are enabled on it.
-   * <p>If the event parameter is <code>null</code>
+   * <p>If the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the key event
-   * @see java.awt.event.KeyEvent
-   * @see java.awt.event.KeyListener
-   * @see java.awt.KeyboardFocusManager
-   * @see java.awt.DefaultKeyboardFocusManager
+   * @see KeyEvent
+   * @see KeyListener
+   * @see KeyboardFocusManager
+   * @see DefaultKeyboardFocusManager
    * @see #processEvent
    * @see #dispatchEvent
    * @see #addKeyListener
@@ -5725,23 +5718,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes mouse events occurring on this component by
    * dispatching them to any registered
-   * <code>MouseListener</code> objects.
+   * {@code MouseListener} objects.
    * <p>
    * This method is not called unless mouse events are
    * enabled for this component. Mouse events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>MouseListener</code> object is registered
-   * via <code>addMouseListener</code>.
-   * <li>Mouse events are enabled via <code>enableEvents</code>.
+   * <li>A {@code MouseListener} object is registered
+   * via {@code addMouseListener}.
+   * <li>Mouse events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the mouse event
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseListener
+   * @see MouseEvent
+   * @see MouseListener
    * @see #addMouseListener
    * @see #enableEvents
    * @since JDK1.1
@@ -5773,23 +5766,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes mouse motion events occurring on this component by
    * dispatching them to any registered
-   * <code>MouseMotionListener</code> objects.
+   * {@code MouseMotionListener} objects.
    * <p>
    * This method is not called unless mouse motion events are
    * enabled for this component. Mouse motion events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>MouseMotionListener</code> object is registered
-   * via <code>addMouseMotionListener</code>.
-   * <li>Mouse motion events are enabled via <code>enableEvents</code>.
+   * <li>A {@code MouseMotionListener} object is registered
+   * via {@code addMouseMotionListener}.
+   * <li>Mouse motion events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the mouse motion event
-   * @see java.awt.event.MouseEvent
-   * @see java.awt.event.MouseMotionListener
+   * @see MouseEvent
+   * @see MouseMotionListener
    * @see #addMouseMotionListener
    * @see #enableEvents
    * @since JDK1.1
@@ -5812,27 +5805,27 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes mouse wheel events occurring on this component by
    * dispatching them to any registered
-   * <code>MouseWheelListener</code> objects.
+   * {@code MouseWheelListener} objects.
    * <p>
    * This method is not called unless mouse wheel events are
    * enabled for this component. Mouse wheel events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>A <code>MouseWheelListener</code> object is registered
-   * via <code>addMouseWheelListener</code>.
-   * <li>Mouse wheel events are enabled via <code>enableEvents</code>.
+   * <li>A {@code MouseWheelListener} object is registered
+   * via {@code addMouseWheelListener}.
+   * <li>Mouse wheel events are enabled via {@code enableEvents}.
    * </ul>
    * <p>
    * For information on how mouse wheel events are dispatched, see
    * the class description for {@link MouseWheelEvent}.
    * <p>
-   * Note that if the event parameter is <code>null</code>
+   * Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the mouse wheel event
-   * @see java.awt.event.MouseWheelEvent
-   * @see java.awt.event.MouseWheelListener
+   * @see MouseWheelEvent
+   * @see MouseWheelListener
    * @see #addMouseWheelListener
    * @see #enableEvents
    * @since 1.4
@@ -5856,23 +5849,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes input method events occurring on this component by
    * dispatching them to any registered
-   * <code>InputMethodListener</code> objects.
+   * {@code InputMethodListener} objects.
    * <p>
    * This method is not called unless input method events
    * are enabled for this component. Input method events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>An <code>InputMethodListener</code> object is registered
-   * via <code>addInputMethodListener</code>.
-   * <li>Input method events are enabled via <code>enableEvents</code>.
+   * <li>An {@code InputMethodListener} object is registered
+   * via {@code addInputMethodListener}.
+   * <li>Input method events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the input method event
-   * @see java.awt.event.InputMethodEvent
-   * @see java.awt.event.InputMethodListener
+   * @see InputMethodEvent
+   * @see InputMethodListener
    * @see #addInputMethodListener
    * @see #enableEvents
    * @since 1.2
@@ -5895,23 +5888,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes hierarchy events occurring on this component by
    * dispatching them to any registered
-   * <code>HierarchyListener</code> objects.
+   * {@code HierarchyListener} objects.
    * <p>
    * This method is not called unless hierarchy events
    * are enabled for this component. Hierarchy events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>An <code>HierarchyListener</code> object is registered
-   * via <code>addHierarchyListener</code>.
-   * <li>Hierarchy events are enabled via <code>enableEvents</code>.
+   * <li>An {@code HierarchyListener} object is registered
+   * via {@code addHierarchyListener}.
+   * <li>Hierarchy events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the hierarchy event
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyListener
+   * @see HierarchyEvent
+   * @see HierarchyListener
    * @see #addHierarchyListener
    * @see #enableEvents
    * @since 1.3
@@ -5931,23 +5924,23 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Processes hierarchy bounds events occurring on this component by
    * dispatching them to any registered
-   * <code>HierarchyBoundsListener</code> objects.
+   * {@code HierarchyBoundsListener} objects.
    * <p>
    * This method is not called unless hierarchy bounds events
    * are enabled for this component. Hierarchy bounds events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>An <code>HierarchyBoundsListener</code> object is registered
-   * via <code>addHierarchyBoundsListener</code>.
-   * <li>Hierarchy bounds events are enabled via <code>enableEvents</code>.
+   * <li>An {@code HierarchyBoundsListener} object is registered
+   * via {@code addHierarchyBoundsListener}.
+   * <li>Hierarchy bounds events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the hierarchy event
-   * @see java.awt.event.HierarchyEvent
-   * @see java.awt.event.HierarchyBoundsListener
+   * @see HierarchyEvent
+   * @see HierarchyBoundsListener
    * @see #addHierarchyBoundsListener
    * @see #enableEvents
    * @since 1.3
@@ -6093,7 +6086,7 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Makes this <code>Component</code> displayable by connecting it to a
+   * Makes this {@code Component} displayable by connecting it to a
    * native screen resource.
    * This method is called internally by the toolkit and should
    * not be called directly by programs.
@@ -6122,15 +6115,13 @@ public abstract class Component extends ComponentOrMenuComponent
         // be enabled.
         if (parent != null) {
           long mask = 0;
-          if ((mouseListener != null) || ((eventMask & AWTEvent.MOUSE_EVENT_MASK) != 0)) {
+          if (mouseListener != null || (eventMask & AWTEvent.MOUSE_EVENT_MASK) != 0) {
             mask |= AWTEvent.MOUSE_EVENT_MASK;
           }
-          if ((mouseMotionListener != null) || ((eventMask & AWTEvent.MOUSE_MOTION_EVENT_MASK)
-                                                    != 0)) {
+          if (mouseMotionListener != null || (eventMask & AWTEvent.MOUSE_MOTION_EVENT_MASK) != 0) {
             mask |= AWTEvent.MOUSE_MOTION_EVENT_MASK;
           }
-          if ((mouseWheelListener != null) || ((eventMask & AWTEvent.MOUSE_WHEEL_EVENT_MASK)
-                                                   != 0)) {
+          if (mouseWheelListener != null || (eventMask & AWTEvent.MOUSE_WHEEL_EVENT_MASK) != 0) {
             mask |= AWTEvent.MOUSE_WHEEL_EVENT_MASK;
           }
           if (focusListener != null || (eventMask & AWTEvent.FOCUS_EVENT_MASK) != 0) {
@@ -6156,7 +6147,7 @@ public abstract class Component extends ComponentOrMenuComponent
       }
       invalidate();
 
-      int npopups = (popups != null ? popups.size() : 0);
+      int npopups = popups != null ? popups.size() : 0;
       for (int i = 0; i < npopups; i++) {
         PopupMenu popup = popups.elementAt(i);
         popup.addNotify();
@@ -6188,7 +6179,7 @@ public abstract class Component extends ComponentOrMenuComponent
             HierarchyEvent.HIERARCHY_CHANGED,
             this,
             parent,
-            HierarchyEvent.DISPLAYABILITY_CHANGED | ((isRecursivelyVisible())
+            HierarchyEvent.DISPLAYABILITY_CHANGED | (isRecursivelyVisible()
                                                          ? HierarchyEvent.SHOWING_CHANGED : 0));
         dispatchEvent(e);
       }
@@ -6196,12 +6187,12 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Makes this <code>Component</code> undisplayable by destroying it native
+   * Makes this {@code Component} undisplayable by destroying it native
    * screen resource.
    * <p>
    * This method is called by the toolkit internally and should
    * not be called directly by programs. Code overriding
-   * this method should call <code>super.removeNotify</code> as
+   * this method should call {@code super.removeNotify} as
    * the first line of the overriding method.
    *
    * @see #isDisplayable
@@ -6209,7 +6200,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since JDK1.0
    */
   public void removeNotify() {
-    KeyboardFocusManager.clearMostRecentFocusOwner(this);
+    clearMostRecentFocusOwner(this);
     if (KeyboardFocusManager.getCurrentKeyboardFocusManager().
         getPermanentFocusOwner() == this) {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -6227,7 +6218,7 @@ public abstract class Component extends ComponentOrMenuComponent
         getContainer().decreaseComponentCount(this);
       }
 
-      int npopups = (popups != null ? popups.size() : 0);
+      int npopups = popups != null ? popups.size() : 0;
       for (int i = 0; i < npopups; i++) {
         PopupMenu popup = popups.elementAt(i);
         popup.removeNotify();
@@ -6273,7 +6264,7 @@ public abstract class Component extends ComponentOrMenuComponent
         isAddNotifyComplete = false;
         // Nullifying compoundShape means that the component has normal shape
         // (or has no shape at all).
-        this.compoundShape = null;
+        compoundShape = null;
       }
 
       if (hierarchyListener != null ||
@@ -6283,7 +6274,7 @@ public abstract class Component extends ComponentOrMenuComponent
             HierarchyEvent.HIERARCHY_CHANGED,
             this,
             parent,
-            HierarchyEvent.DISPLAYABILITY_CHANGED | ((isRecursivelyVisible())
+            HierarchyEvent.DISPLAYABILITY_CHANGED | (isRecursivelyVisible()
                                                          ? HierarchyEvent.SHOWING_CHANGED : 0));
         dispatchEvent(e);
       }
@@ -6309,14 +6300,14 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Returns whether this <code>Component</code> can become the focus
+   * Returns whether this {@code Component} can become the focus
    * owner.
    *
-   * @return <code>true</code> if this <code>Component</code> is
-   * focusable; <code>false</code> otherwise
+   * @return {@code true} if this {@code Component} is
+   * focusable; {@code false} otherwise
    * @see #setFocusable
    * @since JDK1.1
-   * @deprecated As of 1.4, replaced by <code>isFocusable()</code>.
+   * @deprecated As of 1.4, replaced by {@code isFocusable()}.
    */
   @Deprecated
   public boolean isFocusTraversable() {
@@ -6329,8 +6320,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns whether this Component can be focused.
    *
-   * @return <code>true</code> if this Component is focusable;
-   * <code>false</code> otherwise.
+   * @return {@code true} if this Component is focusable;
+   * {@code false} otherwise.
    * @see #setFocusable
    * @since 1.4
    */
@@ -6360,12 +6351,12 @@ public abstract class Component extends ComponentOrMenuComponent
       if (isFocusOwner() && KeyboardFocusManager.isAutoFocusTransferEnabled()) {
         transferFocus(true);
       }
-      KeyboardFocusManager.clearMostRecentFocusOwner(this);
+      clearMostRecentFocusOwner(this);
     }
   }
 
   final boolean isFocusTraversableOverridden() {
-    return (isFocusTraversableOverridden != FOCUS_TRAVERSABLE_DEFAULT);
+    return isFocusTraversableOverridden != FOCUS_TRAVERSABLE_DEFAULT;
   }
 
   /**
@@ -6452,7 +6443,7 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the Set of focus traversal keys for a given traversal operation
    * for this Component. (See
-   * <code>setFocusTraversalKeys</code> for a full description of each key.)
+   * {@code setFocusTraversalKeys} for a full description of each key.)
    * <p>
    * If a Set of traversal keys has not been explicitly defined for this
    * Component, then this Component's parent's Set is returned. If no Set
@@ -6522,7 +6513,7 @@ public abstract class Component extends ComponentOrMenuComponent
       }
 
       oldKeys = focusTraversalKeys[id];
-      focusTraversalKeys[id] = (keystrokes != null)
+      focusTraversalKeys[id] = keystrokes != null
           ? Collections.unmodifiableSet(new HashSet<AWTKeyStroke>(keystrokes)) : null;
     }
 
@@ -6531,34 +6522,31 @@ public abstract class Component extends ComponentOrMenuComponent
 
   final Set<AWTKeyStroke> getFocusTraversalKeys_NoIDCheck(int id) {
     // Okay to return Set directly because it is an unmodifiable view
-    @SuppressWarnings("unchecked") Set<AWTKeyStroke> keystrokes = (focusTraversalKeys != null)
+    @SuppressWarnings("unchecked") Set<AWTKeyStroke> keystrokes = focusTraversalKeys != null
         ? focusTraversalKeys[id] : null;
 
     if (keystrokes != null) {
       return keystrokes;
     } else {
       Container parent = this.parent;
-      if (parent != null) {
-        return parent.getFocusTraversalKeys(id);
-      } else {
-        return KeyboardFocusManager.getCurrentKeyboardFocusManager().
-            getDefaultFocusTraversalKeys(id);
-      }
+      return parent != null ? parent.getFocusTraversalKeys(id)
+          : KeyboardFocusManager.getCurrentKeyboardFocusManager().
+              getDefaultFocusTraversalKeys(id);
     }
   }
 
   /**
    * Returns whether the Set of focus traversal keys for the given focus
    * traversal operation has been explicitly defined for this Component. If
-   * this method returns <code>false</code>, this Component is inheriting the
+   * this method returns {@code false}, this Component is inheriting the
    * Set from an ancestor, or from the current KeyboardFocusManager.
    *
    * @param id one of KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
    *           KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, or
    *           KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS
-   * @return <code>true</code> if the the Set of focus traversal keys for the
+   * @return {@code true} if the the Set of focus traversal keys for the
    * given focus traversal operation has been explicitly defined for
-   * this Component; <code>false</code> otherwise.
+   * this Component; {@code false} otherwise.
    * @throws IllegalArgumentException if id is not one of
    *                                  KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
    *                                  KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, or
@@ -6570,7 +6558,7 @@ public abstract class Component extends ComponentOrMenuComponent
       throw new IllegalArgumentException("invalid focus traversal key identifier");
     }
 
-    return (focusTraversalKeys != null && focusTraversalKeys[id] != null);
+    return focusTraversalKeys != null && focusTraversalKeys[id] != null;
   }
 
   /**
@@ -6631,19 +6619,19 @@ public abstract class Component extends ComponentOrMenuComponent
    * Window is later focused by the user.
    * <p>
    * This method cannot be used to set the focus owner to no Component at
-   * all. Use <code>KeyboardFocusManager.clearGlobalFocusOwner()</code>
+   * all. Use {@code KeyboardFocusManager.clearGlobalFocusOwner()}
    * instead.
    * <p>
    * Because the focus behavior of this method is platform-dependent,
    * developers are strongly encouraged to use
-   * <code>requestFocusInWindow</code> when possible.
+   * {@code requestFocusInWindow} when possible.
    * <p>
    * <p>Note: Not all focus transfers result from invoking this method. As
    * such, a component may receive focus without this or any of the other
    * {@code requestFocus} methods of {@code Component} being invoked.
    *
    * @see #requestFocusInWindow
-   * @see java.awt.event.FocusEvent
+   * @see FocusEvent
    * @see #addFocusListener
    * @see #isFocusable
    * @see #isDisplayable
@@ -6654,14 +6642,14 @@ public abstract class Component extends ComponentOrMenuComponent
     requestFocusHelper(false, true);
   }
 
-  boolean requestFocus(CausedFocusEvent.Cause cause) {
+  boolean requestFocus(Cause cause) {
     return requestFocusHelper(false, true, cause);
   }
 
   /**
-   * Requests that this <code>Component</code> get the input focus,
-   * and that this <code>Component</code>'s top-level ancestor
-   * become the focused <code>Window</code>. This component must be
+   * Requests that this {@code Component} get the input focus,
+   * and that this {@code Component}'s top-level ancestor
+   * become the focused {@code Window}. This component must be
    * displayable, focusable, visible and all of its ancestors (with
    * the exception of the top-level Window) must be visible for the
    * request to be granted. Every effort will be made to honor the
@@ -6673,29 +6661,29 @@ public abstract class Component extends ComponentOrMenuComponent
    * will be remembered and will be granted when the window is later
    * focused by the user.
    * <p>
-   * This method returns a boolean value. If <code>false</code> is returned,
-   * the request is <b>guaranteed to fail</b>. If <code>true</code> is
+   * This method returns a boolean value. If {@code false} is returned,
+   * the request is <b>guaranteed to fail</b>. If {@code true} is
    * returned, the request will succeed <b>unless</b> it is vetoed, or an
    * extraordinary event, such as disposal of the component's peer, occurs
    * before the request can be granted by the native windowing system. Again,
-   * while a return value of <code>true</code> indicates that the request is
+   * while a return value of {@code true} indicates that the request is
    * likely to succeed, developers must never assume that this component is
    * the focus owner until this component receives a FOCUS_GAINED event.
    * <p>
    * This method cannot be used to set the focus owner to no component at
-   * all. Use <code>KeyboardFocusManager.clearGlobalFocusOwner</code>
+   * all. Use {@code KeyboardFocusManager.clearGlobalFocusOwner}
    * instead.
    * <p>
    * Because the focus behavior of this method is platform-dependent,
    * developers are strongly encouraged to use
-   * <code>requestFocusInWindow</code> when possible.
+   * {@code requestFocusInWindow} when possible.
    * <p>
-   * Every effort will be made to ensure that <code>FocusEvent</code>s
+   * Every effort will be made to ensure that {@code FocusEvent}s
    * generated as a
    * result of this request will have the specified temporary value. However,
    * because specifying an arbitrary temporary state may not be implementable
    * on all native windowing systems, correct behavior for this method can be
-   * guaranteed only for lightweight <code>Component</code>s.
+   * guaranteed only for lightweight {@code Component}s.
    * This method is not intended
    * for general use, but exists instead as a hook for lightweight component
    * libraries, such as Swing.
@@ -6708,9 +6696,9 @@ public abstract class Component extends ComponentOrMenuComponent
    *                  such as when the window loses the focus; for
    *                  more information on temporary focus changes see the
    *                  <a href="../../java/awt/doc-files/FocusSpec.html">Focus Specification</a>
-   * @return <code>false</code> if the focus change request is guaranteed to
-   * fail; <code>true</code> if it is likely to succeed
-   * @see java.awt.event.FocusEvent
+   * @return {@code false} if the focus change request is guaranteed to
+   * fail; {@code true} if it is likely to succeed
+   * @see FocusEvent
    * @see #addFocusListener
    * @see #isFocusable
    * @see #isDisplayable
@@ -6721,7 +6709,7 @@ public abstract class Component extends ComponentOrMenuComponent
     return requestFocusHelper(temporary, true);
   }
 
-  boolean requestFocus(boolean temporary, CausedFocusEvent.Cause cause) {
+  boolean requestFocus(boolean temporary, Cause cause) {
     return requestFocusHelper(temporary, true, cause);
   }
 
@@ -6736,33 +6724,33 @@ public abstract class Component extends ComponentOrMenuComponent
    * assume that this Component is the focus owner until this
    * Component receives a FOCUS_GAINED event.
    * <p>
-   * This method returns a boolean value. If <code>false</code> is returned,
-   * the request is <b>guaranteed to fail</b>. If <code>true</code> is
+   * This method returns a boolean value. If {@code false} is returned,
+   * the request is <b>guaranteed to fail</b>. If {@code true} is
    * returned, the request will succeed <b>unless</b> it is vetoed, or an
    * extraordinary event, such as disposal of the Component's peer, occurs
    * before the request can be granted by the native windowing system. Again,
-   * while a return value of <code>true</code> indicates that the request is
+   * while a return value of {@code true} indicates that the request is
    * likely to succeed, developers must never assume that this Component is
    * the focus owner until this Component receives a FOCUS_GAINED event.
    * <p>
    * This method cannot be used to set the focus owner to no Component at
-   * all. Use <code>KeyboardFocusManager.clearGlobalFocusOwner()</code>
+   * all. Use {@code KeyboardFocusManager.clearGlobalFocusOwner()}
    * instead.
    * <p>
    * The focus behavior of this method can be implemented uniformly across
    * platforms, and thus developers are strongly encouraged to use this
-   * method over <code>requestFocus</code> when possible. Code which relies
-   * on <code>requestFocus</code> may exhibit different focus behavior on
+   * method over {@code requestFocus} when possible. Code which relies
+   * on {@code requestFocus} may exhibit different focus behavior on
    * different platforms.
    * <p>
    * <p>Note: Not all focus transfers result from invoking this method. As
    * such, a component may receive focus without this or any of the other
    * {@code requestFocus} methods of {@code Component} being invoked.
    *
-   * @return <code>false</code> if the focus change request is guaranteed to
-   * fail; <code>true</code> if it is likely to succeed
+   * @return {@code false} if the focus change request is guaranteed to
+   * fail; {@code true} if it is likely to succeed
    * @see #requestFocus
-   * @see java.awt.event.FocusEvent
+   * @see FocusEvent
    * @see #addFocusListener
    * @see #isFocusable
    * @see #isDisplayable
@@ -6773,14 +6761,14 @@ public abstract class Component extends ComponentOrMenuComponent
     return requestFocusHelper(false, false);
   }
 
-  boolean requestFocusInWindow(CausedFocusEvent.Cause cause) {
+  boolean requestFocusInWindow(Cause cause) {
     return requestFocusHelper(false, false, cause);
   }
 
   /**
-   * Requests that this <code>Component</code> get the input focus,
-   * if this <code>Component</code>'s top-level ancestor is already
-   * the focused <code>Window</code>.  This component must be
+   * Requests that this {@code Component} get the input focus,
+   * if this {@code Component}'s top-level ancestor is already
+   * the focused {@code Window}.  This component must be
    * displayable, focusable, visible and all of its ancestors (with
    * the exception of the top-level Window) must be visible for the
    * request to be granted. Every effort will be made to honor the
@@ -6788,26 +6776,26 @@ public abstract class Component extends ComponentOrMenuComponent
    * so. Developers must never assume that this component is the
    * focus owner until this component receives a FOCUS_GAINED event.
    * <p>
-   * This method returns a boolean value. If <code>false</code> is returned,
-   * the request is <b>guaranteed to fail</b>. If <code>true</code> is
+   * This method returns a boolean value. If {@code false} is returned,
+   * the request is <b>guaranteed to fail</b>. If {@code true} is
    * returned, the request will succeed <b>unless</b> it is vetoed, or an
    * extraordinary event, such as disposal of the component's peer, occurs
    * before the request can be granted by the native windowing system. Again,
-   * while a return value of <code>true</code> indicates that the request is
+   * while a return value of {@code true} indicates that the request is
    * likely to succeed, developers must never assume that this component is
    * the focus owner until this component receives a FOCUS_GAINED event.
    * <p>
    * This method cannot be used to set the focus owner to no component at
-   * all. Use <code>KeyboardFocusManager.clearGlobalFocusOwner</code>
+   * all. Use {@code KeyboardFocusManager.clearGlobalFocusOwner}
    * instead.
    * <p>
    * The focus behavior of this method can be implemented uniformly across
    * platforms, and thus developers are strongly encouraged to use this
-   * method over <code>requestFocus</code> when possible. Code which relies
-   * on <code>requestFocus</code> may exhibit different focus behavior on
+   * method over {@code requestFocus} when possible. Code which relies
+   * on {@code requestFocus} may exhibit different focus behavior on
    * different platforms.
    * <p>
-   * Every effort will be made to ensure that <code>FocusEvent</code>s
+   * Every effort will be made to ensure that {@code FocusEvent}s
    * generated as a
    * result of this request will have the specified temporary value. However,
    * because specifying an arbitrary temporary state may not be implementable
@@ -6824,10 +6812,10 @@ public abstract class Component extends ComponentOrMenuComponent
    *                  such as when the window loses the focus; for
    *                  more information on temporary focus changes see the
    *                  <a href="../../java/awt/doc-files/FocusSpec.html">Focus Specification</a>
-   * @return <code>false</code> if the focus change request is guaranteed to
-   * fail; <code>true</code> if it is likely to succeed
+   * @return {@code false} if the focus change request is guaranteed to
+   * fail; {@code true} if it is likely to succeed
    * @see #requestFocus
-   * @see java.awt.event.FocusEvent
+   * @see FocusEvent
    * @see #addFocusListener
    * @see #isFocusable
    * @see #isDisplayable
@@ -6838,24 +6826,22 @@ public abstract class Component extends ComponentOrMenuComponent
     return requestFocusHelper(temporary, false);
   }
 
-  boolean requestFocusInWindow(boolean temporary, CausedFocusEvent.Cause cause) {
+  boolean requestFocusInWindow(boolean temporary, Cause cause) {
     return requestFocusHelper(temporary, false, cause);
   }
 
   final boolean requestFocusHelper(boolean temporary, boolean focusedWindowChangeAllowed) {
-    return requestFocusHelper(temporary,
-        focusedWindowChangeAllowed,
-        CausedFocusEvent.Cause.UNKNOWN);
+    return requestFocusHelper(temporary, focusedWindowChangeAllowed, Cause.UNKNOWN);
   }
 
   final boolean requestFocusHelper(
-      boolean temporary, boolean focusedWindowChangeAllowed, CausedFocusEvent.Cause cause) {
+      boolean temporary, boolean focusedWindowChangeAllowed, Cause cause) {
     // 1) Check if the event being dispatched is a system-generated mouse event.
     AWTEvent currentEvent = EventQueue.getCurrentEvent();
-    if (currentEvent instanceof MouseEvent && SunToolkit.isSystemGenerated(currentEvent)) {
+    if (currentEvent instanceof MouseEvent && isSystemGenerated(currentEvent)) {
       // 2) Sanity check: if the mouse event component source belongs to the same
       // containing window.
-      Component source = ((MouseEvent) currentEvent).getComponent();
+      Component source = ((ComponentEvent) currentEvent).getComponent();
       if (source == null || source.getContainingWindow() == getContainingWindow()) {
         Log.v(TAG, "Focus: requesting focus by mouse event \"in window\"");
 
@@ -6879,58 +6865,43 @@ public abstract class Component extends ComponentOrMenuComponent
     KeyboardFocusManager.setMostRecentFocusOwner(this);
 
     Component window = this;
-    while ((window != null) && !(window instanceof Window)) {
+    while (window != null && !(window instanceof Window)) {
       if (!window.isVisible()) {
-        if (true) {
-          Log.v(TAG, "component is recurively invisible");
-        }
+        Log.v(TAG, "component is recurively invisible");
         return false;
       }
       window = window.parent;
     }
 
     ComponentPeer peer = this.peer;
-    Component heavyweight = (peer instanceof LightweightPeer) ? getNativeContainer() : this;
+    Component heavyweight = peer instanceof LightweightPeer ? getNativeContainer() : this;
     if (heavyweight == null || !heavyweight.isVisible()) {
-      if (true) {
-        Log.v(TAG, "Component is not a part of visible hierarchy");
-      }
+      Log.v(TAG, "Component is not a part of visible hierarchy");
       return false;
     }
     peer = heavyweight.peer;
     if (peer == null) {
-      if (true) {
-        Log.v(TAG, "Peer is null");
-      }
+      Log.v(TAG, "Peer is null");
       return false;
     }
 
     // Focus this Component
-    long time = 0;
-    if (EventQueue.isDispatchThread()) {
-      time = Toolkit.getEventQueue().getMostRecentKeyEventTime();
-    } else {
-      // A focus request made from outside EDT should not be associated with any event
-      // and so its time stamp is simply set to the current time.
-      time = System.currentTimeMillis();
-    }
+    long time;
+    time = EventQueue.isDispatchThread() ? Toolkit.getEventQueue().getMostRecentKeyEventTime()
+        : System.currentTimeMillis();
 
     boolean success = peer.requestFocus(this, temporary, focusedWindowChangeAllowed, time, cause);
     if (!success) {
       KeyboardFocusManager.getCurrentKeyboardFocusManager(appContext).dequeueKeyEvents(time, this);
-      if (true) {
-        Log.v(TAG, "Peer request failed");
-      }
+      Log.v(TAG, "Peer request failed");
     } else {
-      if (true) {
-        Log.v(TAG, "Pass for " + this);
-      }
+      Log.v(TAG, "Pass for " + this);
     }
     return success;
   }
 
   private boolean isRequestFocusAccepted(
-      boolean temporary, boolean focusedWindowChangeAllowed, CausedFocusEvent.Cause cause) {
+      boolean temporary, boolean focusedWindowChangeAllowed, Cause cause) {
     if (!isFocusable() || !isVisible()) {
       Log.v(TAG, "Not focusable or not visible");
       return false;
@@ -6968,7 +6939,7 @@ public abstract class Component extends ComponentOrMenuComponent
       return true;
     }
 
-    if (CausedFocusEvent.Cause.ACTIVATION == cause) {
+    if (Cause.ACTIVATION == cause) {
       // we shouldn't call RequestFocusController in case we are
       // in activation.  We do request focus on component which
       // has got temporary focus lost and then on component which is
@@ -6979,14 +6950,12 @@ public abstract class Component extends ComponentOrMenuComponent
       return true;
     }
 
-    boolean ret = Component.requestFocusController.acceptRequestFocus(focusOwner,
+    boolean ret = requestFocusController.acceptRequestFocus(focusOwner,
         this,
         temporary,
         focusedWindowChangeAllowed,
         cause);
-    if (true) {
-      Log.v(TAG, "RequestFocusController returns " + ret);
-    }
+    Log.v(TAG, "RequestFocusController returns " + ret);
 
     return ret;
   }
@@ -7006,7 +6975,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since 1.4
    */
   public Container getFocusCycleRootAncestor() {
-    Container rootAncestor = this.parent;
+    Container rootAncestor = parent;
     while (rootAncestor != null && !rootAncestor.isFocusCycleRoot()) {
       rootAncestor = rootAncestor.parent;
     }
@@ -7020,14 +6989,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * belongs to only a single focus traversal cycle.
    *
    * @param container the Container to be tested
-   * @return <code>true</code> if the specified Container is a focus-cycle-
-   * root of this Component; <code>false</code> otherwise
+   * @return {@code true} if the specified Container is a focus-cycle-
+   * root of this Component; {@code false} otherwise
    * @see Container#isFocusCycleRoot()
    * @since 1.4
    */
   public boolean isFocusCycleRoot(Container container) {
     Container rootAncestor = getFocusCycleRootAncestor();
-    return (rootAncestor == container);
+    return rootAncestor == container;
   }
 
   Container getTraversalRoot() {
@@ -7045,8 +7014,6 @@ public abstract class Component extends ComponentOrMenuComponent
     nextFocus();
   }
 
-  ;
-
   /**
    * @deprecated As of JDK version 1.1,
    * replaced by transferFocus().
@@ -7061,7 +7028,7 @@ public abstract class Component extends ComponentOrMenuComponent
     Component toFocus = getNextFocusCandidate();
     boolean res = false;
     if (toFocus != null && !toFocus.isFocusOwner() && toFocus != this) {
-      res = toFocus.requestFocusInWindow(CausedFocusEvent.Cause.TRAVERSAL_FORWARD);
+      res = toFocus.requestFocusInWindow(Cause.TRAVERSAL_FORWARD);
     }
     if (clearOnFailure && !res) {
       Log.v(TAG, "Focus: clear global focus owner");
@@ -7120,7 +7087,7 @@ public abstract class Component extends ComponentOrMenuComponent
         toFocus = policy.getDefaultComponent(rootAncestor);
       }
       if (toFocus != null) {
-        res = toFocus.requestFocusInWindow(CausedFocusEvent.Cause.TRAVERSAL_BACKWARD);
+        res = toFocus.requestFocusInWindow(Cause.TRAVERSAL_BACKWARD);
       }
     }
     if (clearOnFailure && !res) {
@@ -7155,11 +7122,11 @@ public abstract class Component extends ComponentOrMenuComponent
 
     if (rootAncestor != null) {
       Container rootAncestorRootAncestor = rootAncestor.getFocusCycleRootAncestor();
-      Container fcr = (rootAncestorRootAncestor != null) ? rootAncestorRootAncestor : rootAncestor;
+      Container fcr = rootAncestorRootAncestor != null ? rootAncestorRootAncestor : rootAncestor;
 
       KeyboardFocusManager.getCurrentKeyboardFocusManager().
           setGlobalCurrentFocusCycleRootPriv(fcr);
-      rootAncestor.requestFocus(CausedFocusEvent.Cause.TRAVERSAL_UP);
+      rootAncestor.requestFocus(Cause.TRAVERSAL_UP);
     } else {
       Window window = getContainingWindow();
 
@@ -7169,32 +7136,32 @@ public abstract class Component extends ComponentOrMenuComponent
         if (toFocus != null) {
           KeyboardFocusManager.getCurrentKeyboardFocusManager().
               setGlobalCurrentFocusCycleRootPriv(window);
-          toFocus.requestFocus(CausedFocusEvent.Cause.TRAVERSAL_UP);
+          toFocus.requestFocus(Cause.TRAVERSAL_UP);
         }
       }
     }
   }
 
   /**
-   * Returns <code>true</code> if this <code>Component</code> is the
+   * Returns {@code true} if this {@code Component} is the
    * focus owner.  This method is obsolete, and has been replaced by
-   * <code>isFocusOwner()</code>.
+   * {@code isFocusOwner()}.
    *
-   * @return <code>true</code> if this <code>Component</code> is the
-   * focus owner; <code>false</code> otherwise
+   * @return {@code true} if this {@code Component} is the
+   * focus owner; {@code false} otherwise
    * @since 1.2
    */
   public boolean hasFocus() {
-    return (KeyboardFocusManager.getCurrentKeyboardFocusManager().
-        getFocusOwner() == this);
+    return KeyboardFocusManager.getCurrentKeyboardFocusManager().
+        getFocusOwner() == this;
   }
 
   /**
-   * Returns <code>true</code> if this <code>Component</code> is the
+   * Returns {@code true} if this {@code Component} is the
    * focus owner.
    *
-   * @return <code>true</code> if this <code>Component</code> is the
-   * focus owner; <code>false</code> otherwise
+   * @return {@code true} if this {@code Component} is the
+   * focus owner; {@code false} otherwise
    * @since 1.4
    */
   public boolean isFocusOwner() {
@@ -7223,7 +7190,7 @@ public abstract class Component extends ComponentOrMenuComponent
         popup.parent.remove(popup);
       }
       if (popups == null) {
-        popups = new Vector<PopupMenu>();
+        popups = new Vector<>();
       }
       popups.addElement(popup);
       popup.parent = this;
@@ -7241,16 +7208,16 @@ public abstract class Component extends ComponentOrMenuComponent
    * method is intended to be used only for debugging purposes, and the
    * content and format of the returned string may vary between
    * implementations. The returned string may be empty but may not be
-   * <code>null</code>.
+   * {@code null}.
    *
    * @return a string representation of this component's state
    * @since JDK1.0
    */
   protected String paramString() {
-    final String thisName = Objects.toString(getName(), "");
-    final String invalid = isValid() ? "" : ",invalid";
-    final String hidden = visible ? "" : ",hidden";
-    final String disabled = enabled ? "" : ",disabled";
+    String thisName = Objects.toString(getName(), "");
+    String invalid = isValid() ? "" : ",invalid";
+    String hidden = visible ? "" : ",hidden";
+    String disabled = enabled ? "" : ",disabled";
     return thisName + ',' + x + ',' + y + ',' + width + 'x' + height + invalid + hidden + disabled;
   }
 
@@ -7266,9 +7233,9 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Prints a listing of this component to the standard system output
-   * stream <code>System.out</code>.
+   * stream {@code System.out}.
    *
-   * @see java.lang.System#out
+   * @see System#out
    * @since JDK1.0
    */
   public void list() {
@@ -7294,7 +7261,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param out    a print stream
    * @param indent number of spaces to indent
    * @throws NullPointerException if {@code out} is {@code null}
-   * @see java.io.PrintStream#println(java.lang.Object)
+   * @see PrintStream#println(Object)
    * @since JDK1.0
    */
   public void list(PrintStream out, int indent) {
@@ -7322,7 +7289,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param out    the print writer to print to
    * @param indent the number of spaces to indent
    * @throws NullPointerException if {@code out} is {@code null}
-   * @see java.io.PrintStream#println(java.lang.Object)
+   * @see PrintStream#println(Object)
    * @since JDK1.1
    */
   public void list(PrintWriter out, int indent) {
@@ -7366,16 +7333,16 @@ public abstract class Component extends ComponentOrMenuComponent
    * <li>this Component's maximum size ("maximumSize")</li>
    * <li>this Component's name ("name")</li>
    * </ul>
-   * Note that if this <code>Component</code> is inheriting a bound property, then no
+   * Note that if this {@code Component} is inheriting a bound property, then no
    * event will be fired in response to a change in the inherited property.
    * <p>
-   * If <code>listener</code> is <code>null</code>,
+   * If {@code listener} is {@code null},
    * no exception is thrown and no action is performed.
    *
    * @param listener the property change listener to be added
    * @see #removePropertyChangeListener
    * @see #getPropertyChangeListeners
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
    */
   public void addPropertyChangeListener(
       PropertyChangeListener listener) {
@@ -7400,7 +7367,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param listener the PropertyChangeListener to be removed
    * @see #addPropertyChangeListener
    * @see #getPropertyChangeListeners
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
    */
   public void removePropertyChangeListener(
       PropertyChangeListener listener) {
@@ -7416,13 +7383,13 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the property change listeners
    * registered on this component.
    *
-   * @return all of this component's <code>PropertyChangeListener</code>s
+   * @return all of this component's {@code PropertyChangeListener}s
    * or an empty array if no property change
    * listeners are currently registered
    * @see #addPropertyChangeListener
    * @see #removePropertyChangeListener
-   * @see #getPropertyChangeListeners(java.lang.String)
-   * @see java.beans.PropertyChangeSupport#getPropertyChangeListeners
+   * @see #getPropertyChangeListeners(String)
+   * @see PropertyChangeSupport#getPropertyChangeListeners
    * @since 1.4
    */
   public PropertyChangeListener[] getPropertyChangeListeners() {
@@ -7452,17 +7419,16 @@ public abstract class Component extends ComponentOrMenuComponent
    * <li>this Component's Set of UP_CYCLE_TRAVERSAL_KEYS
    * ("upCycleFocusTraversalKeys")</li>
    * </ul>
-   * Note that if this <code>Component</code> is inheriting a bound property, then no
+   * Note that if this {@code Component} is inheriting a bound property, then no
    * event will be fired in response to a change in the inherited property.
    * <p>
-   * If <code>propertyName</code> or <code>listener</code> is <code>null</code>,
+   * If {@code propertyName} or {@code listener} is {@code null},
    * no exception is thrown and no action is taken.
    *
    * @param propertyName one of the property names listed above
    * @param listener     the property change listener to be added
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #getPropertyChangeListeners(java.lang.String)
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
+   * @see #getPropertyChangeListeners(String)
    */
   public void addPropertyChangeListener(
       String propertyName, PropertyChangeListener listener) {
@@ -7478,19 +7444,19 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Removes a <code>PropertyChangeListener</code> from the listener
+   * Removes a {@code PropertyChangeListener} from the listener
    * list for a specific property. This method should be used to remove
-   * <code>PropertyChangeListener</code>s
+   * {@code PropertyChangeListener}s
    * that were registered for a specific bound property.
    * <p>
-   * If <code>propertyName</code> or <code>listener</code> is <code>null</code>,
+   * If {@code propertyName} or {@code listener} is {@code null},
    * no exception is thrown and no action is taken.
    *
    * @param propertyName a valid property name
    * @param listener     the PropertyChangeListener to be removed
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #getPropertyChangeListeners(java.lang.String)
-   * @see #removePropertyChangeListener(java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
+   * @see #getPropertyChangeListeners(String)
+   * @see #removePropertyChangeListener(PropertyChangeListener)
    */
   public void removePropertyChangeListener(
       String propertyName, PropertyChangeListener listener) {
@@ -7506,12 +7472,12 @@ public abstract class Component extends ComponentOrMenuComponent
    * Returns an array of all the listeners which have been associated
    * with the named property.
    *
-   * @return all of the <code>PropertyChangeListener</code>s associated with
+   * @return all of the {@code PropertyChangeListener}s associated with
    * the named property; if no such listeners have been added or
-   * if <code>propertyName</code> is <code>null</code>, an empty
+   * if {@code propertyName} is {@code null}, an empty
    * array is returned
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
    * @see #getPropertyChangeListeners
    * @since 1.4
    */
@@ -7540,8 +7506,8 @@ public abstract class Component extends ComponentOrMenuComponent
     synchronized (getObjectLock()) {
       changeSupport = this.changeSupport;
     }
-    if (changeSupport == null || (oldValue != null && newValue != null
-                                      && oldValue.equals(newValue))) {
+    if (changeSupport == null
+        || oldValue != null && newValue != null && oldValue.equals(newValue)) {
       return;
     }
     changeSupport.firePropertyChange(propertyName, oldValue, newValue);
@@ -7592,8 +7558,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a byte)
    * @param newValue     the new value of the property (as a byte)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, byte oldValue, byte newValue) {
@@ -7610,8 +7576,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a char)
    * @param newValue     the new value of the property (as a char)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, char oldValue, char newValue) {
@@ -7628,8 +7594,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a short)
    * @param newValue     the old value of the property (as a short)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, short oldValue, short newValue) {
@@ -7646,8 +7612,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a long)
    * @param newValue     the new value of the property (as a long)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, long oldValue, long newValue) {
@@ -7664,8 +7630,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a float)
    * @param newValue     the new value of the property (as a float)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, float oldValue, float newValue) {
@@ -7682,8 +7648,8 @@ public abstract class Component extends ComponentOrMenuComponent
    *                     that was changed
    * @param oldValue     the old value of the property (as a double)
    * @param newValue     the new value of the property (as a double)
-   * @see #firePropertyChange(java.lang.String, java.lang.Object,
-   * java.lang.Object)
+   * @see #firePropertyChange(String, Object,
+   * Object)
    * @since 1.5
    */
   public void firePropertyChange(String propertyName, double oldValue, double newValue) {
@@ -7695,7 +7661,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * This hack is for Swing serialization. It will invoke
-   * the Swing package private method <code>compWriteObjectNotify</code>.
+   * the Swing package private method {@code compWriteObjectNotify}.
    */
   private void doSwingSerialization() {
     Package swingPackage = Package.getPackage("javax.swing");
@@ -7705,21 +7671,23 @@ public abstract class Component extends ComponentOrMenuComponent
     //
     // Swing classes MUST be loaded by the bootstrap class loader,
     // otherwise we don't consider them.
-    for (Class<?> klass = Component.this.getClass(); klass != null; klass = klass.getSuperclass()) {
+    for (Class<?> klass = getClass(); klass != null; klass = klass.getSuperclass()) {
       if (klass.getPackage() == swingPackage && klass.getClassLoader() == null) {
-        final Class<?> swingClass = klass;
+        Class<?> swingClass = klass;
         // Find the first override of the compWriteObjectNotify method
         Method[] methods = AccessController.doPrivileged(new PrivilegedAction<Method[]>() {
+          @Override
           public Method[] run() {
             return swingClass.getDeclaredMethods();
           }
         });
         for (int counter = methods.length - 1; counter >= 0; counter--) {
-          final Method method = methods[counter];
-          if (method.getName().equals("compWriteObjectNotify")) {
+          Method method = methods[counter];
+          if ("compWriteObjectNotify".equals(method.getName())) {
             // We found it, use doPrivileged to make it accessible
             // to use.
             AccessController.doPrivileged(new PrivilegedAction<Void>() {
+              @Override
               public Void run() {
                 method.setAccessible(true);
                 return null;
@@ -7728,8 +7696,7 @@ public abstract class Component extends ComponentOrMenuComponent
             // Invoke the method
             try {
               method.invoke(this, (Object[]) null);
-            } catch (IllegalAccessException iae) {
-            } catch (InvocationTargetException ite) {
+            } catch (IllegalAccessException | InvocationTargetException iae) {
             }
             // We're done, bail.
             return;
@@ -7745,33 +7712,31 @@ public abstract class Component extends ComponentOrMenuComponent
    * The non-serializable listeners are detected and
    * no attempt is made to serialize them.
    *
-   * @param s the <code>ObjectOutputStream</code> to write
-   * @serialData <code>null</code> terminated sequence of
-   * 0 or more pairs; the pair consists of a <code>String</code>
-   * and an <code>Object</code>; the <code>String</code> indicates
+   * @param s the {@code ObjectOutputStream} to write
+   * @serialData {@code null} terminated sequence of
+   * 0 or more pairs; the pair consists of a {@code String}
+   * and an {@code Object}; the {@code String} indicates
    * the type of object and is one of the following (as of 1.4):
-   * <code>componentListenerK</code> indicating an
-   * <code>ComponentListener</code> object;
-   * <code>focusListenerK</code> indicating an
-   * <code>FocusListener</code> object;
-   * <code>keyListenerK</code> indicating an
-   * <code>KeyListener</code> object;
-   * <code>mouseListenerK</code> indicating an
-   * <code>MouseListener</code> object;
-   * <code>mouseMotionListenerK</code> indicating an
-   * <code>MouseMotionListener</code> object;
-   * <code>inputMethodListenerK</code> indicating an
-   * <code>InputMethodListener</code> object;
-   * <code>hierarchyListenerK</code> indicating an
-   * <code>HierarchyListener</code> object;
-   * <code>hierarchyBoundsListenerK</code> indicating an
-   * <code>HierarchyBoundsListener</code> object;
-   * <code>mouseWheelListenerK</code> indicating an
-   * <code>MouseWheelListener</code> object
-   * @serialData an optional <code>ComponentOrientation</code>
-   * (after <code>inputMethodListener</code>, as of 1.2)
-   * @see AWTEventMulticaster#save(java.io.ObjectOutputStream, java.lang.String, java.util
-   * .EventListener)
+   * {@code componentListenerK} indicating an
+   * {@code ComponentListener} object;
+   * {@code focusListenerK} indicating an
+   * {@code FocusListener} object;
+   * {@code keyListenerK} indicating an
+   * {@code KeyListener} object;
+   * {@code mouseListenerK} indicating an
+   * {@code MouseListener} object;
+   * {@code mouseMotionListenerK} indicating an
+   * {@code MouseMotionListener} object;
+   * {@code inputMethodListenerK} indicating an
+   * {@code InputMethodListener} object;
+   * {@code hierarchyListenerK} indicating an
+   * {@code HierarchyListener} object;
+   * {@code hierarchyBoundsListenerK} indicating an
+   * {@code HierarchyBoundsListener} object;
+   * {@code mouseWheelListenerK} indicating an
+   * {@code MouseWheelListener} object
+   * @serialData an optional {@code ComponentOrientation}
+   * (after {@code inputMethodListener}, as of 1.2)
    * @see #componentListenerK
    * @see #focusListenerK
    * @see #keyListenerK
@@ -7807,12 +7772,12 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Reads the <code>ObjectInputStream</code> and if it isn't
-   * <code>null</code> adds a listener to receive a variety
+   * Reads the {@code ObjectInputStream} and if it isn't
+   * {@code null} adds a listener to receive a variety
    * of events fired by the component.
    * Unrecognized keys or values will be ignored.
    *
-   * @param s the <code>ObjectInputStream</code> to read
+   * @param s the {@code ObjectInputStream} to read
    * @see #writeObject(ObjectOutputStream)
    */
   private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
@@ -7824,33 +7789,23 @@ public abstract class Component extends ComponentOrMenuComponent
 
     appContext = AppContext.getAppContext();
     coalescingEnabled = checkCoalescing();
-    if (componentSerializedDataVersion < 4) {
-      // These fields are non-transient and rely on default
-      // serialization. However, the default values are insufficient,
-      // so we need to set them explicitly for object data streams prior
-      // to 1.4.
-      focusable = true;
-      isFocusTraversableOverridden = FOCUS_TRAVERSABLE_UNKNOWN;
-      initializeFocusTraversalKeys();
-      focusTraversalKeysEnabled = true;
-    }
 
     Object keyOrNull;
     while (null != (keyOrNull = s.readObject())) {
       String key = ((String) keyOrNull).intern();
 
       if (componentListenerK == key) {
-        addComponentListener((ComponentListener) (s.readObject()));
+        addComponentListener((ComponentListener) s.readObject());
       } else if (focusListenerK == key) {
-        addFocusListener((FocusListener) (s.readObject()));
+        addFocusListener((FocusListener) s.readObject());
       } else if (keyListenerK == key) {
-        addKeyListener((KeyListener) (s.readObject()));
+        addKeyListener((KeyListener) s.readObject());
       } else if (mouseListenerK == key) {
-        addMouseListener((MouseListener) (s.readObject()));
+        addMouseListener((MouseListener) s.readObject());
       } else if (mouseMotionListenerK == key) {
-        addMouseMotionListener((MouseMotionListener) (s.readObject()));
+        addMouseMotionListener((MouseMotionListener) s.readObject());
       } else if (inputMethodListenerK == key) {
-        addInputMethodListener((InputMethodListener) (s.readObject()));
+        addInputMethodListener((InputMethodListener) s.readObject());
       } else // skip value for unrecognized key
       {
         s.readObject();
@@ -7862,7 +7817,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
     try {
       orient = s.readObject();
-    } catch (java.io.OptionalDataException e) {
+    } catch (OptionalDataException e) {
       // JDK 1.1 instances will not have this optional data.
       // e.eof will be true to indicate that there is no more
       // data available for this object.
@@ -7871,30 +7826,27 @@ public abstract class Component extends ComponentOrMenuComponent
       // componentOrientation.
 
       if (!e.eof) {
-        throw (e);
+        throw e;
       }
     }
 
-    if (orient != null) {
-      componentOrientation = (ComponentOrientation) orient;
-    } else {
-      componentOrientation = ComponentOrientation.UNKNOWN;
-    }
+    componentOrientation = orient != null ? (ComponentOrientation) orient
+        : ComponentOrientation.UNKNOWN;
 
     try {
       while (null != (keyOrNull = s.readObject())) {
         String key = ((String) keyOrNull).intern();
 
         if (hierarchyListenerK == key) {
-          addHierarchyListener((HierarchyListener) (s.readObject()));
+          addHierarchyListener((HierarchyListener) s.readObject());
         } else if (hierarchyBoundsListenerK == key) {
-          addHierarchyBoundsListener((HierarchyBoundsListener) (s.readObject()));
+          addHierarchyBoundsListener((HierarchyBoundsListener) s.readObject());
         } else {
           // skip value for unrecognized key
           s.readObject();
         }
       }
-    } catch (java.io.OptionalDataException e) {
+    } catch (OptionalDataException e) {
       // JDK 1.1/1.2 instances will not have this optional data.
       // e.eof will be true to indicate that there is no more
       // data available for this object.
@@ -7903,7 +7855,7 @@ public abstract class Component extends ComponentOrMenuComponent
       // hierarchy and hierarchyBounds listeners.
 
       if (!e.eof) {
-        throw (e);
+        throw e;
       }
     }
 
@@ -7912,13 +7864,13 @@ public abstract class Component extends ComponentOrMenuComponent
         String key = ((String) keyOrNull).intern();
 
         if (mouseWheelListenerK == key) {
-          addMouseWheelListener((MouseWheelListener) (s.readObject()));
+          addMouseWheelListener((MouseWheelListener) s.readObject());
         } else {
           // skip value for unrecognized key
           s.readObject();
         }
       }
-    } catch (java.io.OptionalDataException e) {
+    } catch (OptionalDataException e) {
       // pre-1.3 instances will not have this optional data.
       // e.eof will be true to indicate that there is no more
       // data available for this object.
@@ -7927,7 +7879,7 @@ public abstract class Component extends ComponentOrMenuComponent
       // mouse wheel listeners
 
       if (!e.eof) {
-        throw (e);
+        throw e;
       }
     }
 
@@ -7943,8 +7895,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Retrieves the language-sensitive orientation that is to be used to order
-   * the elements or text within this component.  <code>LayoutManager</code>
-   * and <code>Component</code>
+   * the elements or text within this component.  {@code LayoutManager}
+   * and {@code Component}
    * subclasses that wish to respect orientation should call this method to
    * get the component's orientation before performing layout or drawing.
    *
@@ -7958,15 +7910,15 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Sets the language-sensitive orientation that is to be used to order
    * the elements or text within this component.  Language-sensitive
-   * <code>LayoutManager</code> and <code>Component</code>
+   * {@code LayoutManager} and {@code Component}
    * subclasses will use this property to
    * determine how to lay out and draw components.
    * <p>
    * At construction time, a component's orientation is set to
-   * <code>ComponentOrientation.UNKNOWN</code>,
+   * {@code ComponentOrientation.UNKNOWN},
    * indicating that it has not been specified
    * explicitly.  The UNKNOWN orientation behaves the same as
-   * <code>ComponentOrientation.LEFT_TO_RIGHT</code>.
+   * {@code ComponentOrientation.LEFT_TO_RIGHT}.
    * <p>
    * To set the orientation of a single component, use this method.
    * To set the orientation of an entire component
@@ -7994,7 +7946,7 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Sets the <code>ComponentOrientation</code> property of this component
+   * Sets the {@code ComponentOrientation} property of this component
    * and all components contained within it.
    * <p>
    * This method changes layout-related information, and therefore,
@@ -8002,7 +7954,7 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @param orientation the new component orientation of this component and
    *                    the components contained within it.
-   * @throws NullPointerException if <code>orientation</code> is null.
+   * @throws NullPointerException if {@code orientation} is null.
    * @see #setComponentOrientation
    * @see #getComponentOrientation
    * @see #invalidate
@@ -8017,10 +7969,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   final boolean canBeFocusOwner() {
     // It is enabled, visible, focusable.
-    if (isEnabled() && isDisplayable() && isVisible() && isFocusable()) {
-      return true;
-    }
-    return false;
+    return isEnabled() && isDisplayable() && isVisible() && isFocusable();
   }
 
   // Serialization support.
@@ -8071,7 +8020,7 @@ public abstract class Component extends ComponentOrMenuComponent
   }
 
   /**
-   * Returns the <code>Window</code> ancestor of the component.
+   * Returns the {@code Window} ancestor of the component.
    *
    * @return Window ancestor of the component or component by itself if it is Window;
    * null, if component is not a part of window hierarchy
@@ -8102,9 +8051,7 @@ public abstract class Component extends ComponentOrMenuComponent
     checkTreeLock();
 
     if (!areBoundsValid()) {
-      if (true) {
-        Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
-      }
+      Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
       return;
     }
 
@@ -8126,21 +8073,19 @@ public abstract class Component extends ComponentOrMenuComponent
         // Nullifying compoundShape means that the component has normal shape
         // (or has no shape at all).
         if (shape.equals(getNormalShape())) {
-          if (this.compoundShape == null) {
+          if (compoundShape == null) {
             return;
           }
-          this.compoundShape = null;
+          compoundShape = null;
           peer.applyShape(null);
         } else {
           if (shape.equals(getAppliedShape())) {
             return;
           }
-          this.compoundShape = shape;
+          compoundShape = shape;
           Point compAbsolute = getLocationOnWindow();
-          if (true) {
-            Log.d(TAG, "this = " + this +
-                "; compAbsolute=" + compAbsolute + "; shape=" + shape);
-          }
+          Log.d(TAG, "this = " + this +
+              "; compAbsolute=" + compAbsolute + "; shape=" + shape);
           peer.applyShape(shape.getTranslatedRegion(-compAbsolute.x, -compAbsolute.y));
         }
       }
@@ -8155,7 +8100,7 @@ public abstract class Component extends ComponentOrMenuComponent
   private Region getAppliedShape() {
     checkTreeLock();
     //XXX: if we allow LW components to have a shape, this must be changed
-    return (this.compoundShape == null || isLightweight()) ? getNormalShape() : this.compoundShape;
+    return compoundShape == null || isLightweight() ? getNormalShape() : compoundShape;
   }
 
   Point getLocationOnWindow() {
@@ -8195,11 +8140,7 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   Region getOpaqueShape() {
     checkTreeLock();
-    if (mixingCutoutRegion != null) {
-      return mixingCutoutRegion;
-    } else {
-      return getNormalShape();
-    }
+    return mixingCutoutRegion != null ? mixingCutoutRegion : getNormalShape();
   }
 
   final int getSiblingIndexAbove() {
@@ -8264,9 +8205,7 @@ public abstract class Component extends ComponentOrMenuComponent
     checkTreeLock();
     Region s = getNormalShape();
 
-    if (true) {
-      Log.d(TAG, "this = " + this + "; normalShape=" + s);
-    }
+    Log.d(TAG, "this = " + this + "; normalShape=" + s);
 
     if (getContainer() != null) {
       Component comp = this;
@@ -8298,9 +8237,7 @@ public abstract class Component extends ComponentOrMenuComponent
       }
     }
 
-    if (true) {
-      Log.d(TAG, "currentShape=" + s);
-    }
+    Log.d(TAG, "currentShape=" + s);
 
     return s;
   }
@@ -8308,23 +8245,17 @@ public abstract class Component extends ComponentOrMenuComponent
   void applyCurrentShape() {
     checkTreeLock();
     if (!areBoundsValid()) {
-      if (true) {
-        Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
-      }
+      Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
       return; // Because applyCompoundShape() ignores such components anyway
     }
-    if (true) {
-      Log.d(TAG, "this = " + this);
-    }
+    Log.d(TAG, "this = " + this);
     applyCompoundShape(calculateCurrentShape());
   }
 
   final void subtractAndApplyShape(Region s) {
     checkTreeLock();
 
-    if (true) {
-      Log.d(TAG, "this = " + this + "; s=" + s);
-    }
+    Log.d(TAG, "this = " + this + "; s=" + s);
 
     applyCompoundShape(getAppliedShape().getDifference(s));
   }
@@ -8369,9 +8300,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   void mixOnShowing() {
     synchronized (getTreeLock()) {
-      if (true) {
-        Log.d(TAG, "this = " + this);
-      }
+      Log.d(TAG, "this = " + this);
       if (!isMixingNeeded()) {
         return;
       }
@@ -8387,9 +8316,7 @@ public abstract class Component extends ComponentOrMenuComponent
     // We cannot be sure that the peer exists at this point, so we need the argument
     //    to find out whether the hiding component is (well, actually was) a LW or a HW.
     synchronized (getTreeLock()) {
-      if (true) {
-        Log.d(TAG, "this = " + this + "; isLightweight = " + isLightweight);
-      }
+      Log.d(TAG, "this = " + this + "; isLightweight = " + isLightweight);
       if (!isMixingNeeded()) {
         return;
       }
@@ -8401,9 +8328,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   void mixOnReshaping() {
     synchronized (getTreeLock()) {
-      if (true) {
-        Log.d(TAG, "this = " + this);
-      }
+      Log.d(TAG, "this = " + this);
       if (!isMixingNeeded()) {
         return;
       }
@@ -8420,10 +8345,8 @@ public abstract class Component extends ComponentOrMenuComponent
       boolean becameHigher = newZorder < oldZorder;
       Container parent = getContainer();
 
-      if (true) {
-        Log.d(TAG, "this = " + this +
-            "; oldZorder=" + oldZorder + "; newZorder=" + newZorder + "; parent=" + parent);
-      }
+      Log.d(TAG, "this = " + this +
+          "; oldZorder=" + oldZorder + "; newZorder=" + newZorder + "; parent=" + parent);
       if (!isMixingNeeded()) {
         return;
       }
@@ -8466,33 +8389,25 @@ public abstract class Component extends ComponentOrMenuComponent
 
   final boolean isMixingNeeded() {
     if (SunToolkit.getSunAwtDisableMixing()) {
-      if (true) {
-        Log.v(TAG, "this = " + this + "; Mixing disabled via sun.awt.disableMixing");
-      }
+      Log.v(TAG, "this = " + this + "; Mixing disabled via sun.awt.disableMixing");
       return false;
     }
     if (!areBoundsValid()) {
-      if (true) {
-        Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
-      }
+      Log.d(TAG, "this = " + this + "; areBoundsValid = " + areBoundsValid());
       return false;
     }
     Window window = getContainingWindow();
     if (window != null) {
       if (!window.hasHeavyweightDescendants() || !window.hasLightweightDescendants()
           || window.isDisposing()) {
-        if (true) {
-          Log.d(TAG, "containing window = " + window +
-              "; has h/w descendants = " + window.hasHeavyweightDescendants() +
-              "; has l/w descendants = " + window.hasLightweightDescendants() +
-              "; disposing = " + window.isDisposing());
-        }
+        Log.d(TAG, "containing window = " + window +
+            "; has h/w descendants = " + window.hasHeavyweightDescendants() +
+            "; has l/w descendants = " + window.hasLightweightDescendants() +
+            "; disposing = " + window.isDisposing());
         return false;
       }
     } else {
-      if (true) {
-        Log.d(TAG, "this = " + this + "; containing window is null");
-      }
+      Log.d(TAG, "this = " + this + "; containing window is null");
       return false;
     }
     return true;
@@ -8514,8 +8429,8 @@ public abstract class Component extends ComponentOrMenuComponent
    * size; not a developer specified minimum size).  For sizes
    * smaller than the minimum size the baseline may change in a way
    * other than the baseline resize behavior indicates.  Similarly,
-   * as the size approaches <code>Integer.MAX_VALUE</code> and/or
-   * <code>Short.MAX_VALUE</code> the baseline may change in a way
+   * as the size approaches {@code Integer.MAX_VALUE} and/or
+   * {@code Short.MAX_VALUE} the baseline may change in a way
    * other than the baseline resize behavior indicates.
    *
    * @see #getBaselineResizeBehavior
@@ -8525,11 +8440,11 @@ public abstract class Component extends ComponentOrMenuComponent
   public enum BaselineResizeBehavior {
     /**
      * Indicates the baseline remains fixed relative to the
-     * y-origin.  That is, <code>getBaseline</code> returns
+     * y-origin.  That is, {@code getBaseline} returns
      * the same value regardless of the height or width.  For example, a
-     * <code>JLabel</code> containing non-empty text with a
-     * vertical alignment of <code>TOP</code> should have a
-     * baseline type of <code>CONSTANT_ASCENT</code>.
+     * {@code JLabel} containing non-empty text with a
+     * vertical alignment of {@code TOP} should have a
+     * baseline type of {@code CONSTANT_ASCENT}.
      */
     CONSTANT_ASCENT,
 
@@ -8537,18 +8452,18 @@ public abstract class Component extends ComponentOrMenuComponent
      * Indicates the baseline remains fixed relative to the height
      * and does not change as the width is varied.  That is, for
      * any height H the difference between H and
-     * <code>getBaseline(w, H)</code> is the same.  For example, a
-     * <code>JLabel</code> containing non-empty text with a
-     * vertical alignment of <code>BOTTOM</code> should have a
-     * baseline type of <code>CONSTANT_DESCENT</code>.
+     * {@code getBaseline(w, H)} is the same.  For example, a
+     * {@code JLabel} containing non-empty text with a
+     * vertical alignment of {@code BOTTOM} should have a
+     * baseline type of {@code CONSTANT_DESCENT}.
      */
     CONSTANT_DESCENT,
 
     /**
      * Indicates the baseline remains a fixed distance from
      * the center of the component.  That is, for any height H the
-     * difference between <code>getBaseline(w, H)</code> and
-     * <code>H / 2</code> is the same (plus or minus one depending upon
+     * difference between {@code getBaseline(w, H)} and
+     * {@code H / 2} is the same (plus or minus one depending upon
      * rounding error).
      * <p>
      * Because of possible rounding errors it is recommended
@@ -8598,9 +8513,13 @@ public abstract class Component extends ComponentOrMenuComponent
   // Swing access this method through reflection to implement InputVerifier's functionality.
   // Perhaps, we should make this method public (later ;)
   private static class DummyRequestFocusController implements RequestFocusController {
+    DummyRequestFocusController() {
+    }
+
+    @Override
     public boolean acceptRequestFocus(
         Component from, Component to, boolean temporary, boolean focusedWindowChangeAllowed,
-        CausedFocusEvent.Cause cause) {
+        Cause cause) {
       return true;
     }
   }
@@ -8609,29 +8528,28 @@ public abstract class Component extends ComponentOrMenuComponent
    * This is a proxy capabilities class used when a FlipBufferStrategy
    * is created instead of the requested Blit strategy.
    *
-   * @see sun.java2d.SunGraphicsEnvironment#isFlipStrategyPreferred(ComponentPeer)
+   * @see SunGraphicsEnvironment#isFlipStrategyPreferred(ComponentPeer)
    */
   private class ProxyCapabilities extends ExtendedBufferCapabilities {
-    private BufferCapabilities orig;
+    private final BufferCapabilities orig;
 
-    private ProxyCapabilities(BufferCapabilities orig) {
+    ProxyCapabilities(BufferCapabilities orig) {
       super(orig.getFrontBufferCapabilities(),
           orig.getBackBufferCapabilities(),
-          orig.getFlipContents() == BufferCapabilities.FlipContents.BACKGROUND
-              ? BufferCapabilities.FlipContents.BACKGROUND
-              : BufferCapabilities.FlipContents.COPIED);
+          orig.getFlipContents() == FlipContents.BACKGROUND ? FlipContents.BACKGROUND
+              : FlipContents.COPIED);
       this.orig = orig;
     }
   }
 
   /**
    * Inner class for flipping buffers on a component.  That component must
-   * be a <code>Canvas</code> or <code>Window</code>.
+   * be a {@code Canvas} or {@code Window}.
    *
    * @author Michael Martak
    * @see Canvas
    * @see Window
-   * @see java.awt.image.BufferStrategy
+   * @see BufferStrategy
    * @since 1.4
    */
   protected class FlipBufferStrategy extends BufferStrategy {
@@ -8668,7 +8586,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
     /**
      * Creates a new flipping buffer strategy for this component.
-     * The component must be a <code>Canvas</code> or <code>Window</code>.
+     * The component must be a {@code Canvas} or {@code Window}.
      *
      * @param numBuffers the number of buffers
      * @param caps       the capabilities of the buffers
@@ -8700,22 +8618,24 @@ public abstract class Component extends ComponentOrMenuComponent
      * @param numBuffers number of buffers to create; must be greater than
      *                   one
      * @param caps       the capabilities of the buffers.
-     *                   <code>BufferCapabilities.isPageFlipping</code> must be
-     *                   <code>true</code>.
+     *                   {@code BufferCapabilities.isPageFlipping} must be
+     *                   {@code true}.
      * @throws AWTException             if the capabilities supplied could not be
      *                                  supported or met
      * @throws IllegalStateException    if the component has no peer
      * @throws IllegalArgumentException if numBuffers is less than two,
-     *                                  or if <code>BufferCapabilities.isPageFlipping</code> is not
-     *                                  <code>true</code>.
-     * @see java.awt.BufferCapabilities#isPageFlipping()
+     *                                  or if {@code BufferCapabilities.isPageFlipping} is not
+     *                                  {@code true}.
+     * @see BufferCapabilities#isPageFlipping()
      */
     protected void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException {
       if (numBuffers < 2) {
         throw new IllegalArgumentException("Number of buffers cannot be less than two");
-      } else if (peer == null) {
+      }
+      if (peer == null) {
         throw new IllegalStateException("Component must have a valid peer");
-      } else if (caps == null || !caps.isPageFlipping()) {
+      }
+      if (caps == null || !caps.isPageFlipping()) {
         throw new IllegalArgumentException("Page flipping capabilities must be specified");
       }
 
@@ -8756,11 +8676,7 @@ public abstract class Component extends ComponentOrMenuComponent
     private void updateInternalBuffers() {
       // get the images associated with the draw buffer
       drawBuffer = getBackBuffer();
-      if (drawBuffer instanceof VolatileImage) {
-        drawVBuffer = (VolatileImage) drawBuffer;
-      } else {
-        drawVBuffer = null;
-      }
+      drawVBuffer = drawBuffer instanceof VolatileImage ? (VolatileImage) drawBuffer : null;
     }
 
     /**
@@ -8782,13 +8698,13 @@ public abstract class Component extends ComponentOrMenuComponent
      *
      * @param flipAction an integer value describing the flipping action
      *                   for the contents of the back buffer.  This should be one of the
-     *                   values of the <code>BufferCapabilities.FlipContents</code>
+     *                   values of the {@code BufferCapabilities.FlipContents}
      *                   property.
      * @throws IllegalStateException if the buffers have not yet
      *                               been created
-     * @see java.awt.BufferCapabilities#getFlipContents()
+     * @see BufferCapabilities#getFlipContents()
      */
-    protected void flip(BufferCapabilities.FlipContents flipAction) {
+    protected void flip(FlipContents flipAction) {
       if (peer != null) {
         Image backBuffer = getBackBuffer();
         if (backBuffer != null) {
@@ -8799,7 +8715,7 @@ public abstract class Component extends ComponentOrMenuComponent
       }
     }
 
-    void flipSubRegion(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+    void flipSubRegion(int x1, int y1, int x2, int y2, FlipContents flipAction) {
       if (peer != null) {
         peer.flip(x1, y1, x2, y2, flipAction);
       } else {
@@ -8822,12 +8738,9 @@ public abstract class Component extends ComponentOrMenuComponent
     /**
      * @return the buffering capabilities of this strategy
      */
+    @Override
     public BufferCapabilities getCapabilities() {
-      if (caps instanceof ProxyCapabilities) {
-        return ((ProxyCapabilities) caps).orig;
-      } else {
-        return caps;
-      }
+      return caps instanceof ProxyCapabilities ? ((ProxyCapabilities) caps).orig : caps;
     }
 
     /**
@@ -8873,15 +8786,6 @@ public abstract class Component extends ComponentOrMenuComponent
           validatedContents = true;
         }
       }
-    }    /**
-     * @return the graphics on the drawing buffer.  This method may not
-     * be synchronized for performance reasons; use of this method by multiple
-     * threads should be handled at the application level.  Disposal of the
-     * graphics object must be handled by the application.
-     */
-    public Graphics getDrawGraphics() {
-      revalidate();
-      return drawBuffer.getGraphics();
     }
 
     /**
@@ -8890,14 +8794,25 @@ public abstract class Component extends ComponentOrMenuComponent
      */
     void showSubRegion(int x1, int y1, int x2, int y2) {
       flipSubRegion(x1, y1, x2, y2, caps.getFlipContents());
+    }    /**
+     * @return the graphics on the drawing buffer.  This method may not
+     * be synchronized for performance reasons; use of this method by multiple
+     * threads should be handled at the application level.  Disposal of the
+     * graphics object must be handled by the application.
+     */
+    @Override
+    public Graphics getDrawGraphics() {
+      revalidate();
+      return drawBuffer.getGraphics();
     }
 
 
 
     /**
      * @return whether the drawing buffer was lost since the last call to
-     * <code>getDrawGraphics</code>
+     * {@code getDrawGraphics}
      */
+    @Override
     public boolean contentsLost() {
       if (drawVBuffer == null) {
         return false;
@@ -8909,6 +8824,7 @@ public abstract class Component extends ComponentOrMenuComponent
      * @return whether the drawing buffer was recently restored from a lost
      * state and reinitialized to the default background color (white)
      */
+    @Override
     public boolean contentsRestored() {
       return validatedContents;
     }
@@ -8917,18 +8833,18 @@ public abstract class Component extends ComponentOrMenuComponent
      * Makes the next available buffer visible by either blitting or
      * flipping.
      */
+    @Override
     public void show() {
       flip(caps.getFlipContents());
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.6
      */
+    @Override
     public void dispose() {
-      if (Component.this.bufferStrategy == this) {
-        Component.this.bufferStrategy = null;
+      if (bufferStrategy == this) {
+        bufferStrategy = null;
         if (peer != null) {
           destroyBuffers();
         }
@@ -8947,7 +8863,7 @@ public abstract class Component extends ComponentOrMenuComponent
     /**
      * The buffering capabilities
      */
-    protected BufferCapabilities caps; // = null
+    protected final BufferCapabilities caps; // = null
     /**
      * The back buffers
      */
@@ -9024,28 +8940,7 @@ public abstract class Component extends ComponentOrMenuComponent
      * If there is no back buffer, returns null.
      */
     Image getBackBuffer() {
-      if (backBuffers != null) {
-        return backBuffers[backBuffers.length - 1];
-      } else {
-        return null;
-      }
-    }    /**
-     * {@inheritDoc}
-     *
-     * @since 1.6
-     */
-    public void dispose() {
-      if (backBuffers != null) {
-        for (int counter = backBuffers.length - 1; counter >= 0; counter--) {
-          if (backBuffers[counter] != null) {
-            backBuffers[counter].flush();
-            backBuffers[counter] = null;
-          }
-        }
-      }
-      if (Component.this.bufferStrategy == this) {
-        Component.this.bufferStrategy = null;
-      }
+      return backBuffers != null ? backBuffers[backBuffers.length - 1] : null;
     }
 
     /**
@@ -9075,16 +8970,32 @@ public abstract class Component extends ComponentOrMenuComponent
         // First image copy is in terms of Frame's coordinates, need
         // to translate to client area.
         g.translate(insets.left, insets.top);
-        for (int i = 0; i < backBuffers.length; i++) {
-          g.drawImage(backBuffers[i], x1, y1, x2, y2, x1, y1, x2, y2, null);
+        for (VolatileImage backBuffer : backBuffers) {
+          g.drawImage(backBuffer, x1, y1, x2, y2, x1, y1, x2, y2, null);
           g.dispose();
           g = null;
-          g = backBuffers[i].getGraphics();
+          g = backBuffer.getGraphics();
         }
       } finally {
         if (g != null) {
           g.dispose();
         }
+      }
+    }    /**
+     * @since 1.6
+     */
+    @Override
+    public void dispose() {
+      if (backBuffers != null) {
+        for (int counter = backBuffers.length - 1; counter >= 0; counter--) {
+          if (backBuffers[counter] != null) {
+            backBuffers[counter].flush();
+            backBuffers[counter] = null;
+          }
+        }
+      }
+      if (bufferStrategy == this) {
+        bufferStrategy = null;
       }
     }
 
@@ -9129,18 +9040,22 @@ public abstract class Component extends ComponentOrMenuComponent
       } else if (returnCode == VolatileImage.IMAGE_RESTORED) {
         validatedContents = true;
       }
-    }    /**
-     * @return the buffering capabilities of this strategy
-     */
-    public BufferCapabilities getCapabilities() {
-      return caps;
     }
 
 
 
     /**
+     * @return the buffering capabilities of this strategy
+     */
+    @Override
+    public BufferCapabilities getCapabilities() {
+      return caps;
+    }
+
+    /**
      * @return the draw graphics
      */
+    @Override
     public Graphics getDrawGraphics() {
       revalidate();
       Image backBuffer = getBackBuffer();
@@ -9155,31 +9070,28 @@ public abstract class Component extends ComponentOrMenuComponent
       return g;
     }
 
-
-
     /**
      * Makes the next available buffer visible.
      */
+    @Override
     public void show() {
       showSubRegion(insets.left, insets.top, width - insets.right, height - insets.bottom);
     }
 
     /**
      * @return whether the drawing buffer was lost since the last call to
-     * <code>getDrawGraphics</code>
+     * {@code getDrawGraphics}
      */
+    @Override
     public boolean contentsLost() {
-      if (backBuffers == null) {
-        return false;
-      } else {
-        return backBuffers[backBuffers.length - 1].contentsLost();
-      }
+      return backBuffers == null ? false : backBuffers[backBuffers.length - 1].contentsLost();
     }
 
     /**
      * @return whether the drawing buffer was recently restored from a lost
      * state and reinitialized to the default background color (white)
      */
+    @Override
     public boolean contentsRestored() {
       return validatedContents;
     }
@@ -9196,11 +9108,13 @@ public abstract class Component extends ComponentOrMenuComponent
       super(numBuffers, caps);
     }
 
+    @Override
     public void show(int x1, int y1, int x2, int y2) {
       showSubRegion(x1, y1, x2, y2);
     }
 
     // This is invoked by Swing on the toolkit thread.
+    @Override
     public boolean showIfNotLost(int x1, int y1, int x2, int y2) {
       if (!contentsLost()) {
         showSubRegion(x1, y1, x2, y2);
@@ -9222,11 +9136,13 @@ public abstract class Component extends ComponentOrMenuComponent
       super(numBuffers, caps);
     }
 
+    @Override
     public void show(int x1, int y1, int x2, int y2) {
       showSubRegion(x1, y1, x2, y2);
     }
 
     // This method is called by Swing on the toolkit thread.
+    @Override
     public boolean showIfNotLost(int x1, int y1, int x2, int y2) {
       if (!contentsLost()) {
         showSubRegion(x1, y1, x2, y2);
@@ -9240,38 +9156,43 @@ public abstract class Component extends ComponentOrMenuComponent
 
   /**
    * Inner class for flipping buffers on a component.  That component must
-   * be a <code>Canvas</code> or <code>Window</code>.
+   * be a {@code Canvas} or {@code Window}.
    *
    * @author Michael Martak
    * @see Canvas
    * @see Window
-   * @see java.awt.image.BufferStrategy
+   * @see BufferStrategy
    * @since 1.4
    */
   private class SingleBufferStrategy extends BufferStrategy {
 
-    private BufferCapabilities caps;
+    private final BufferCapabilities caps;
 
     public SingleBufferStrategy(BufferCapabilities caps) {
       this.caps = caps;
     }
 
+    @Override
     public BufferCapabilities getCapabilities() {
       return caps;
     }
 
+    @Override
     public Graphics getDrawGraphics() {
       return getGraphics();
     }
 
+    @Override
     public boolean contentsLost() {
       return false;
     }
 
+    @Override
     public boolean contentsRestored() {
       return false;
     }
 
+    @Override
     public void show() {
       // Do nothing
     }

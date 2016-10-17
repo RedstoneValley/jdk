@@ -37,6 +37,7 @@ import java.awt.event.*;
 //                             check that standard events are coming
 
 public class ToolkitPropertyTest_Enable extends Frame {
+    private static final long serialVersionUID = 8665773318393403529L;
     static boolean propValue;
     static Robot robot;
     static int [] buttonsPressed;
@@ -54,14 +55,17 @@ public class ToolkitPropertyTest_Enable extends Frame {
         frame.setVisible(true);
 
         MouseAdapter ma1 = new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     buttonsPressed[e.getButton() - 1] += 1;
                     System.out.println("PRESSED "+e);
                 }
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     buttonsReleased[e.getButton() - 1] += 1;
                     System.out.println("RELEASED "+e);
                 }
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     buttonsClicked[e.getButton() - 1] += 1;
                     System.out.println("CLICKED "+e);
@@ -80,7 +84,7 @@ public class ToolkitPropertyTest_Enable extends Frame {
             testCase1();
             System.out.println("Number Of Buttons = "+ MouseInfo.getNumberOfButtons());
 
-            boolean lessThenFourButtons = (MouseInfo.getNumberOfButtons() <= 3);
+            boolean lessThenFourButtons = MouseInfo.getNumberOfButtons() <= 3;
             if ( !lessThenFourButtons ) {
                 frame.addMouseListener(ma1);
                 testCase2();
@@ -97,12 +101,12 @@ public class ToolkitPropertyTest_Enable extends Frame {
 
     public static void testCase0(){
         if (!propValue){
-            throw new RuntimeException("TEST FAILED (0) : System property sun.awt.enableExtraMouseButtons = " + propValue);
+            throw new RuntimeException("TEST FAILED (0) : System property sun.awt.enableExtraMouseButtons = " + false);
         }
     }
 
     public static void testCase1(){
-        if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled() == false){
+        if (!Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()){
             throw new RuntimeException("TEST FAILED (1) : setting to TRUE. enabled = " + Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled());
         }
     }

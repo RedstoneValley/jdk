@@ -42,9 +42,9 @@ public class UnsupportedFlavorException extends Exception {
    * Constructs an UnsupportedFlavorException.
    *
    * @param flavor the flavor object which caused the exception. May
-   *               be <code>null</code>.
+   *               be {@code null}.
    */
   public UnsupportedFlavorException(DataFlavor flavor) {
-    super((flavor != null) ? flavor.getHumanPresentableName() : null);
+    super(flavor != null ? flavor.getHumanPresentableName() : null);
   }
 }

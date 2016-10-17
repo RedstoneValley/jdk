@@ -50,128 +50,159 @@ import java.awt.image.BufferedImage;
   @author sergey.bylokhov@oracle.com: area=awt.component
   @run main PaintAll
 */
-public class PaintAll {
+public final class PaintAll {
 
-    private static volatile boolean lwPainted;
-    private static volatile boolean buttonPainted;
-    private static volatile boolean canvasPainted;
-    private static volatile boolean checkboxPainted;
-    private static volatile boolean choicePainted;
-    private static volatile boolean containerPainted;
-    private static volatile boolean framePainted;
-    private static volatile boolean labelPainted;
-    private static volatile boolean listPainted;
-    private static volatile boolean panelPainted;
-    private static volatile boolean scrollbarPainted;
-    private static volatile boolean scrollPanePainted;
-    private static volatile boolean textAreaPainted;
-    private static volatile boolean textFieldPainted;
+    static volatile boolean lwPainted;
+    static volatile boolean buttonPainted;
+    static volatile boolean canvasPainted;
+    static volatile boolean checkboxPainted;
+    static volatile boolean choicePainted;
+    static volatile boolean containerPainted;
+    static volatile boolean framePainted;
+    static volatile boolean labelPainted;
+    static volatile boolean listPainted;
+    static volatile boolean panelPainted;
+    static volatile boolean scrollbarPainted;
+    static volatile boolean scrollPanePainted;
+    static volatile boolean textAreaPainted;
+    static volatile boolean textFieldPainted;
 
     private static final Button buttonStub = new Button() {
+        private static final long serialVersionUID = 2009712878760041628L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             buttonPainted = true;
         }
     };
 
     private static final Canvas canvasStub = new Canvas() {
+        private static final long serialVersionUID = 3062230612623972902L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             canvasPainted = true;
         }
     };
 
     private static final Checkbox checkboxStub = new Checkbox() {
+        private static final long serialVersionUID = -2555941337535991676L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             checkboxPainted = true;
         }
     };
 
     private static final Choice choiceStub = new Choice() {
+        private static final long serialVersionUID = -8020671546564801184L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             choicePainted = true;
         }
     };
 
     private static final Component lwComponentStub = new Component() {
+        private static final long serialVersionUID = 2952525056084924873L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             lwPainted = true;
         }
     };
 
     private static final Container containerStub = new Container() {
+        private static final long serialVersionUID = 4209507396693712650L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             containerPainted = true;
         }
     };
 
     private static final Frame frame = new Frame() {
+        private static final long serialVersionUID = -3692549915911700356L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             super.paint(g);
             framePainted = true;
         }
     };
 
     private static final Label labelStub = new Label() {
+        private static final long serialVersionUID = 5610635828194499959L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             labelPainted = true;
         }
     };
 
     private static final List listStub = new List() {
+        private static final long serialVersionUID = 8229065321092893676L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             listPainted = true;
         }
     };
 
     private static final Panel panelStub = new Panel() {
+        private static final long serialVersionUID = -5546183174813082101L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             panelPainted = true;
         }
     };
 
     private static final Scrollbar scrollbarStub = new Scrollbar() {
+        private static final long serialVersionUID = 1597406021799175433L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             scrollbarPainted = true;
         }
     };
 
     private static final ScrollPane scrollPaneStub = new ScrollPane() {
+        private static final long serialVersionUID = 9120061519583106371L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             scrollPanePainted = true;
         }
     };
 
     private static final TextArea textAreaStub = new TextArea() {
+        private static final long serialVersionUID = 8207182200039517139L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             textAreaPainted = true;
         }
     };
 
     private static final TextField textFieldStub = new TextField() {
+        private static final long serialVersionUID = 9151860287885547173L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             textFieldPainted = true;
         }
     };
 
-    public static void main(final String[] args) throws Exception {
+    private PaintAll() {
+    }
+
+    public static void main(String[] args) throws Exception {
         //Frame initialisation
-        final BufferedImage graphicsProducer =
+        BufferedImage graphicsProducer =
                 new BufferedImage(BufferedImage.TYPE_INT_ARGB, 1, 1);
 
-        final Graphics g = graphicsProducer.getGraphics();
+        Graphics g = graphicsProducer.getGraphics();
 
         frame.setLayout(new GridLayout());
         frame.add(buttonStub);
@@ -290,7 +321,7 @@ public class PaintAll {
         }
     }
 
-    private static void fail(final String message) {
+    private static void fail(String message) {
         cleanup();
         throw new RuntimeException(message);
     }

@@ -34,26 +34,26 @@
  */
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 import java.util.concurrent.*;
 import sun.awt.SunToolkit;
 
-import test.java.awt.regtesthelpers.Util;
+public final class DragWindowOutOfFrameTest {
 
-public class DragWindowOutOfFrameTest {
+    static volatile int dragWindowMouseEnteredCount;
+    static volatile int dragWindowMouseExitedCount;
+    static volatile int dragWindowMouseReleasedCount;
+    static volatile int buttonMouseEnteredCount;
+    static volatile int buttonMouseExitedCount;
+    static volatile int labelMouseEnteredCount;
+    static volatile int labelMouseExitedCount;
+    static volatile int labelMouseReleasedCount;
+    static MyDragWindow dragWindow;
+    static JLabel label;
+    static JButton button;
 
-    private static volatile int dragWindowMouseEnteredCount = 0;
-    private static volatile int dragWindowMouseExitedCount = 0;
-    private static volatile int dragWindowMouseReleasedCount = 0;
-    private static volatile int buttonMouseEnteredCount = 0;
-    private static volatile int buttonMouseExitedCount = 0;
-    private static volatile int labelMouseEnteredCount = 0;
-    private static volatile int labelMouseExitedCount = 0;
-    private static volatile int labelMouseReleasedCount = 0;
-    private static MyDragWindow dragWindow;
-    private static JLabel label;
-    private static JButton button;
+    private DragWindowOutOfFrameTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -136,20 +136,20 @@ public class DragWindowOutOfFrameTest {
         }
     }
 
-    private static Point getCenterPoint(Component comp) {
+    static Point getCenterPoint(Component comp) {
         Point p = comp.getLocationOnScreen();
         Rectangle rect = comp.getBounds();
         return new Point(p.x + rect.width / 2, p.y + rect.height / 2);
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
 
         JFrame frame = new JFrame("Main Frame");
         frame.setLocation(100, 100);
         frame.setSize(300, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        label = new JLabel("Label");
+        label = new JLabel(Notepad.labelSuffix);
 
         DragWindowCreationMouseListener listener = new DragWindowCreationMouseListener(frame);
         label.addMouseListener(listener);
@@ -166,11 +166,13 @@ public class DragWindowOutOfFrameTest {
 
     }
 
-    private static Point getAbsoluteLocation(MouseEvent e) {
+    static Point getAbsoluteLocation(MouseEvent e) {
         return new Point(e.getXOnScreen(), e.getYOnScreen());
     }
 
     static class MyDragWindow extends Window {
+
+        private static final long serialVersionUID = -8563771520166495679L;
 
         public MyDragWindow(Window parent, Point location) {
             super(parent);
@@ -190,7 +192,7 @@ public class DragWindowOutOfFrameTest {
     static class DragWindowCreationMouseListener extends MouseAdapter {
 
         Point origin;
-        Window parent;
+        final Window parent;
 
         public DragWindowCreationMouseListener(Window parent) {
             this.parent = parent;
@@ -214,6 +216,7 @@ public class DragWindowOutOfFrameTest {
             }
         }
 
+        @Override
         public void mouseDragged(MouseEvent e) {
             if (dragWindow != null) {
                 dragWindow.dragTo(getAbsoluteLocation(e));

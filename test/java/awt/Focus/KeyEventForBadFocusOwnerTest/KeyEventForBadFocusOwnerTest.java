@@ -30,10 +30,10 @@
   @run main KeyEventForBadFocusOwnerTest
 */
 
-/**
- * KeyEventForBadFocusOwnerTest.java
- *
- * summary: KeyEvents dispatched to old focus owner that is no longer showing
+/*
+  KeyEventForBadFocusOwnerTest.java
+
+  summary: KeyEvents dispatched to old focus owner that is no longer showing
  */
 
 
@@ -42,23 +42,25 @@ import java.awt.Toolkit;
 
 import java.awt.event.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
 import sun.awt.SunToolkit;
 
-public class KeyEventForBadFocusOwnerTest {
-    final static String ITEM_ONE_TEXT = "one";
-    final static String ITEM_TWO_TEXT = "two";
+public final class KeyEventForBadFocusOwnerTest {
+    static final String ITEM_ONE_TEXT = "one";
+    static final String ITEM_TWO_TEXT = "two";
 
-    volatile static boolean itemOneSelected = false;
-    volatile static boolean itemTwoSelected = false;
-    volatile static boolean unexpectedItemSelected = false;
+    static volatile boolean itemOneSelected;
+    static volatile boolean itemTwoSelected;
+    static volatile boolean unexpectedItemSelected;
 
     static Robot robot;
     static SunToolkit toolkit;
 
+    private KeyEventForBadFocusOwnerTest() {
+    }
+
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 JFrame frame = new JFrame("TEST");
                 JMenuBar mb = new JMenuBar();
@@ -69,6 +71,7 @@ public class KeyEventForBadFocusOwnerTest {
                 mb.add(two);
 
                 ActionListener al = new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent ae) {
                         String itemText = ((JMenuItem)ae.getSource()).getText();
                         System.out.println("--> " + itemText);

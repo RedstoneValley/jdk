@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6699843
  * @summary IllegalArgumentException when using Graphics.drawString( "", 0, 0 )
  */
@@ -33,13 +33,16 @@ import java.awt.image.*;
 import java.text.*;
 import java.util.*;
 
-public class EmptyAttrString {
+public final class EmptyAttrString {
 
-    public static void main(String[] args) {
+      private EmptyAttrString() {
+      }
+
+      public static void main(String[] args) {
         BufferedImage bi =
            new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        Font f = new Font( "Dialog", Font.PLAIN, 12 );
+        Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12 );
         Map map = new HashMap();
         map.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
         f = f.deriveFont(map);

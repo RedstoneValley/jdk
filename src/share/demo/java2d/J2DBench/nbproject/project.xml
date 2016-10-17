@@ -74,10 +74,10 @@
                     </source-file>
                 </items>
                 <context-menu>
-                    <ide-action name="build" />
-                    <ide-action name="clean" />
-                    <ide-action name="run" />
-                    <ide-action name="rebuild" />
+                    <ide-action name="build"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="run"/>
+                    <ide-action name="rebuild"/>
                 </context-menu>
             </view>
         </general-data>

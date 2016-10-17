@@ -37,13 +37,13 @@
 import java.awt.*;
 import java.awt.event.*;
 
-public class CTORRestrictions_Disable {
-    static Frame frame = new Frame("MouseEvent Test Frame");
+public final class CTORRestrictions_Disable {
+    static final Frame frame = new Frame("MouseEvent Test Frame");
     static Point mousePosition;
     static Point mousePositionOnScreen;
 
     public static void main(String []s){
-        Robot robot = null;
+        Robot robot;
         try {
             robot = new Robot();
         } catch (AWTException ex) {
@@ -104,7 +104,7 @@ public class CTORRestrictions_Disable {
                                        false,              //popupTrigger
                                        buttonId            //button
                                        );
-        frame.dispatchEvent( ( AWTEvent )me );
+        frame.dispatchEvent(me);
     }
 
     public static void postMouseEventOldCtor(int buttonId)    {
@@ -117,7 +117,7 @@ public class CTORRestrictions_Disable {
                                           false,              //popupTrigger
                                           buttonId //button
                                           );
-        frame.dispatchEvent( ( AWTEvent )meOld );
+        frame.dispatchEvent(meOld);
     }
 }
 

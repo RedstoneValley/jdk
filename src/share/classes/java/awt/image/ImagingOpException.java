@@ -26,18 +26,20 @@
 package java.awt.image;
 
 /**
- * The <code>ImagingOpException</code> is thrown if one of the
+ * The {@code ImagingOpException} is thrown if one of the
  * {@link BufferedImageOp} or {@link RasterOp} filter methods cannot
  * process the image.
  */
-public class ImagingOpException extends java.lang.RuntimeException {
+public class ImagingOpException extends RuntimeException {
+
+  private static final long serialVersionUID = 8026288481846276658L;
 
   /**
-   * Constructs an <code>ImagingOpException</code> object with the
+   * Constructs an {@code ImagingOpException} object with the
    * specified message.
    *
    * @param s the message to generate when a
-   *          <code>ImagingOpException</code> is thrown
+   *          {@code ImagingOpException} is thrown
    */
   public ImagingOpException(String s) {
     super(s);

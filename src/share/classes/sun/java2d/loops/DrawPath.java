@@ -37,9 +37,9 @@ import sun.java2d.SurfaceData;
  */
 public class DrawPath extends GraphicsPrimitive {
 
-  public final static String methodSignature = "DrawPath(...)".toString();
+  public static final String methodSignature = "DrawPath(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected DrawPath(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -57,33 +57,39 @@ public class DrawPath extends GraphicsPrimitive {
   /**
    * All DrawPath implementors must have this invoker method
    */
-  public native void DrawPath(
-      SunGraphics2D sg2d, SurfaceData sData, int transX, int transY, Path2D.Float p2df);
+  public void DrawPath(
+      SunGraphics2D sg2d, SurfaceData sData, int transX, int transY, Path2D.Float p2df) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     throw new InternalError("DrawPath not implemented for " +
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawPath(this);
   }
 
   private static class TraceDrawPath extends DrawPath {
-    DrawPath target;
+    final DrawPath target;
 
     public TraceDrawPath(DrawPath target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawPath(
         SunGraphics2D sg2d, SurfaceData sData, int transX, int transY, Path2D.Float p2df) {
       tracePrimitive(target);
       target.DrawPath(sg2d, sData, transX, transY, p2df);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

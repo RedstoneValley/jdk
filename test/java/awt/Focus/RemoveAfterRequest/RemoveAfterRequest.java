@@ -31,21 +31,23 @@
   @run main RemoveAfterRequest
 */
 
-/**
- * RemoveAfterRequest.java
- *
- * summary: Components automatically transfer focus on removal, even if developer requests focus elsewhere first
+/*
+  RemoveAfterRequest.java
+
+  summary: Components automatically transfer focus on removal, even if developer requests focus
+  elsewhere first
  */
 
 import java.awt.*;
-import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class RemoveAfterRequest {
-    final static Frame frame = new Frame("test frame");
-    final static Button btn1 = new Button("btn1");
-    final static Button btn2 = new Button("btn2");
-    final static Button btn3 = new Button("btn3");
+public final class RemoveAfterRequest {
+    static final Frame frame = new Frame("test frame");
+    static final Button btn1 = new Button("btn1");
+    static final Button btn2 = new Button("btn2");
+    static final Button btn3 = new Button("btn3");
+
+    private RemoveAfterRequest() {
+    }
 
     public static void main(String[] args) {
         frame.setLayout(new GridLayout(3, 1));
@@ -61,11 +63,12 @@ public class RemoveAfterRequest {
             btn1.requestFocus();
             Util.waitForIdle(null);
             if (!btn1.hasFocus()) {
-                throw new TestErrorException("couldn't focus " + btn1);
+                throw new TestError("couldn't focus " + btn1);
             }
         }
 
         if (!Util.trackFocusGained(btn3, new Runnable() {
+                @Override
                 public void run() {
                     btn3.requestFocus();
                     frame.remove(btn1);
@@ -86,6 +89,8 @@ public class RemoveAfterRequest {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -95,6 +100,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

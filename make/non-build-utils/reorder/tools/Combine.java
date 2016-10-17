@@ -30,9 +30,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.HashMap;
 
-public class Combine {
+public final class Combine {
 
-    private static HashMap map = new HashMap(10007);
+    private static final HashMap map = new HashMap(10007);
 
     private static void appendFile(String fileName, boolean keep) {
         try {
@@ -42,11 +42,11 @@ public class Combine {
             // hashmap, print it and add it to the hashmap, so that it will
             // not be repeated.
 
-        lineLoop:
             while (true) {
                 String line = br.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
+                }
                 if (keep || !map.containsKey(line)) {
                     System.out.println(line);
                     map.put(line,line);
@@ -67,7 +67,8 @@ public class Combine {
             System.exit(2);
         }
 
-        for (int i = 0; i < args.length; ++i)
+        for (int i = 0; i < args.length; ++i) {
             appendFile(args[i], i == 0);
+        }
     }
 }

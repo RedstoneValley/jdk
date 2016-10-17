@@ -38,13 +38,14 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
+import java.util.Arrays;
 
+@SuppressWarnings("MagicNumber")
 public class AcceptExtraMouseButtons extends Frame {
-    static String tk = Toolkit.getDefaultToolkit().getClass().getName();
+    static final String tk = Toolkit.getDefaultToolkit().getClass().getName();
+    private static final long serialVersionUID = 7953063783944988031L;
     static Robot robot;
-    static int [] standardButtonMasks = {InputEvent.BUTTON1_MASK,
+    static final int [] standardButtonMasks = {InputEvent.BUTTON1_MASK,
                                          InputEvent.BUTTON2_MASK,
                                          InputEvent.BUTTON3_MASK};
     static int [] buttonsPressed;
@@ -57,8 +58,8 @@ public class AcceptExtraMouseButtons extends Frame {
 
         //MouseInfo.getNumberOfButtons() reports two more buttons on XToolkit
         //as they reserved for wheel (both directions).
-        if (tk.equals("sun.awt.X11.XToolkit") || tk.equals("sun.awt.motif.MToolkit")) {
-            buttonsNum = buttonsNum - 2;
+        if ("sun.awt.X11.XToolkit".equals(tk) || "sun.awt.motif.MToolkit".equals(tk)) {
+            buttonsNum -= 2;
         }
         System.out.println("Number Of Buttons = "+ buttonsNum);
         if (buttonsNum < 3) {
@@ -73,14 +74,17 @@ public class AcceptExtraMouseButtons extends Frame {
         AcceptExtraMouseButtons frame = new AcceptExtraMouseButtons();
 
         MouseAdapter ma1 = new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     buttonsPressed[e.getButton() - 1] += 1;
                     System.out.println("PRESSED "+e);
                 }
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     buttonsReleased[e.getButton() - 1] += 1;
                     System.out.println("RELEASED "+e);
                 }
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     buttonsClicked[e.getButton() - 1] += 1;
                     System.out.println("CLICKED "+e);
@@ -115,9 +119,9 @@ public class AcceptExtraMouseButtons extends Frame {
                 }
             }
 
-            java.util.Arrays.fill(buttonsPressed, 0);
-            java.util.Arrays.fill(buttonsReleased, 0);
-            java.util.Arrays.fill(buttonsClicked, 0);
+            Arrays.fill(buttonsPressed, 0);
+            Arrays.fill(buttonsReleased, 0);
+            Arrays.fill(buttonsClicked, 0);
             //TestCase 2: verify that all BUTTONx_MASKs are accepted by the Robot.
             for (int i = 0; i < standardButtonMasks.length; i++){
                 int buttonMask = standardButtonMasks[i];

@@ -39,7 +39,9 @@
 
 package j2dbench;
 
-public abstract class Test extends Option.Enable {
+import j2dbench.Option.Enable;
+
+public abstract class Test extends Enable {
   /*
    * Finds a new width (w2) such that
    *     (w-2) <= w2 <= w
@@ -56,7 +58,7 @@ public abstract class Test extends Option.Enable {
   public static int adjustWidth(int w, int h) {
     int bestv = w;
     int bestw = w;
-    boolean verbose = (prevw != w && J2DBench.verbose.isEnabled());
+    boolean verbose = prevw != w && J2DBench.verbose.isEnabled();
     for (int i = 0; i < 3; i++) {
       int w2 = w - i;
       int u = w2;
@@ -71,10 +73,10 @@ public abstract class Test extends Option.Enable {
       }
       if (verbose) {
         System.out.println("w = " + w2 + ", h = " + h +
-            ", w % 3 == " + (w2 % 3) +
+            ", w % 3 == " + w2 % 3 +
             ", gcd(w, h) = " + v);
       }
-      if (v < bestv && (w2 % 3) != 0) {
+      if (v < bestv && w2 % 3 != 0) {
         bestv = v;
         bestw = w2;
       }
@@ -90,7 +92,7 @@ public abstract class Test extends Option.Enable {
     addDependency(mod, null);
   }
 
-  public void addDependency(Modifier mod, Modifier.Filter filter) {
+  public void addDependency(Modifier mod, Filter filter) {
     dependencies = DependentLink.add(dependencies, mod, filter);
   }
 
@@ -99,7 +101,7 @@ public abstract class Test extends Option.Enable {
   }
 
   public void addDependencies(
-      Group g, boolean recursive, Modifier.Filter filter) {
+      Group g, boolean recursive, Filter filter) {
     if (g instanceof Modifier) {
       addDependency((Modifier) g, filter);
     }
@@ -107,7 +109,7 @@ public abstract class Test extends Option.Enable {
       if (n instanceof Modifier) {
         addDependency((Modifier) n, filter);
       } else if (recursive && n instanceof Group) {
-        addDependencies((Group) n, recursive, filter);
+        addDependencies((Group) n, true, filter);
       }
     }
   }
@@ -138,8 +140,6 @@ public abstract class Test extends Option.Enable {
         }
         env.record(result);
       }
-      ctx = null;
-      result = null;
       env.idle();  // Also done after this method returns...
     }
   }
@@ -206,7 +206,7 @@ public abstract class Test extends Option.Enable {
       runTest(ctx, reps);
       env.sync();
       numReps += reps;
-      reps *= 2;
+      reps <<= 1;
       now = System.currentTimeMillis();
     }
 
@@ -237,16 +237,17 @@ public abstract class Test extends Option.Enable {
   }
 
   public static class DependentLink {
+    private final Modifier mod;
+    private final Filter filter;
     private DependentLink next;
-    private Modifier mod;
-    private Modifier.Filter filter;
-    private DependentLink(Modifier mod, Modifier.Filter filter) {
+
+    private DependentLink(Modifier mod, Filter filter) {
       this.mod = mod;
       this.filter = filter;
     }
 
     public static DependentLink add(
-        DependentLink d, Modifier mod, Modifier.Filter filter) {
+        DependentLink d, Modifier mod, Filter filter) {
       DependentLink dl = new DependentLink(mod, filter);
       if (d == null) {
         d = dl;
@@ -264,7 +265,7 @@ public abstract class Test extends Option.Enable {
       return mod;
     }
 
-    public Modifier.Filter getFilter() {
+    public Filter getFilter() {
       return filter;
     }
 

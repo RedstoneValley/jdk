@@ -41,15 +41,6 @@
 /*
  */
 
-import static java.lang.management.ManagementFactory.*;
-
-import java.io.IOException;
-import java.lang.management.LockInfo;
-import java.lang.management.MonitorInfo;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
-import javax.management.*;
-
 /**
  * Example of using the java.lang.management API to dump stack trace
  * and to perform deadlock detection.
@@ -57,9 +48,9 @@ import javax.management.*;
  * @author Mandy Chung
  */
 public class ThreadMonitor {
-  private static String INDENT = "    ";
+  private static final String INDENT = "    ";
+  private final ThreadMXBean tmbean;
   private MBeanServerConnection server;
-  private ThreadMXBean tmbean;
   private ObjectName objname;
   // default - JDK 6+ VM
   private String findDeadlocksMethodName = "findDeadlockedThreads";
@@ -69,9 +60,9 @@ public class ThreadMonitor {
    * Constructs a ThreadMonitor object to get thread information
    * in a remote JVM.
    */
-  public ThreadMonitor(MBeanServerConnection server) throws IOException {
+  public ThreadMonitor(MBeanServerConnection server) {
     this.server = server;
-    this.tmbean = newPlatformMXBeanProxy(server, THREAD_MXBEAN_NAME, ThreadMXBean.class);
+    tmbean = newPlatformMXBeanProxy(server, THREAD_MXBEAN_NAME, ThreadMXBean.class);
     try {
       objname = new ObjectName(THREAD_MXBEAN_NAME);
     } catch (MalformedObjectNameException e) {
@@ -88,7 +79,7 @@ public class ThreadMonitor {
    * in the local JVM.
    */
   public ThreadMonitor() {
-    this.tmbean = getThreadMXBean();
+    tmbean = getThreadMXBean();
   }
 
   /**
@@ -141,7 +132,7 @@ public class ThreadMonitor {
     MonitorInfo[] monitors = ti.getLockedMonitors();
     for (int i = 0; i < stacktrace.length; i++) {
       StackTraceElement ste = stacktrace[i];
-      System.out.println(INDENT + "at " + ste.toString());
+      System.out.println(INDENT + "at " + ste);
       for (MonitorInfo mi : monitors) {
         if (mi.getLockedStackDepth() == i) {
           System.out.println(INDENT + "  - locked " + mi);
@@ -164,7 +155,7 @@ public class ThreadMonitor {
     if (ti.isInNative()) {
       sb.append(" (running in native)");
     }
-    System.out.println(sb.toString());
+    System.out.println(sb);
     if (ti.getLockOwnerName() != null) {
       System.out.println(INDENT + " owned by " + ti.getLockOwnerName() +
           " Id=" + ti.getLockOwnerId());
@@ -195,7 +186,7 @@ public class ThreadMonitor {
    */
   public boolean findDeadlock() {
     long[] tids;
-    if (findDeadlocksMethodName.equals("findDeadlockedThreads")
+    if ("findDeadlockedThreads".equals(findDeadlocksMethodName)
         && tmbean.isSynchronizerUsageSupported()) {
       tids = tmbean.findDeadlockedThreads();
       if (tids == null) {
@@ -225,7 +216,7 @@ public class ThreadMonitor {
     return true;
   }
 
-  private void parseMBeanInfo() throws IOException {
+  private void parseMBeanInfo() {
     try {
       MBeanOperationInfo[] mopis = server.getMBeanInfo(objname).getOperations();
 
@@ -244,15 +235,7 @@ public class ThreadMonitor {
         findDeadlocksMethodName = "findMonitorDeadlockedThreads";
         canDumpLocks = false;
       }
-    } catch (IntrospectionException e) {
-      InternalError ie = new InternalError(e.getMessage());
-      ie.initCause(e);
-      throw ie;
-    } catch (InstanceNotFoundException e) {
-      InternalError ie = new InternalError(e.getMessage());
-      ie.initCause(e);
-      throw ie;
-    } catch (ReflectionException e) {
+    } catch (IntrospectionException | ReflectionException | InstanceNotFoundException e) {
       InternalError ie = new InternalError(e.getMessage());
       ie.initCause(e);
       throw ie;

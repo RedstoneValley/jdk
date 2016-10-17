@@ -32,6 +32,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 public class NoEventsTest extends Frame {
     public static final int DEF_WIDTH = 400,
@@ -40,7 +41,8 @@ public class NoEventsTest extends Frame {
         DEF_LEFT = 100,
         DEF_ROW = 0,
         DEF_COL = 0;
-    static boolean automatic = true;
+    private static final long serialVersionUID = -832343735960513374L;
+    static final boolean automatic = true;
     static Window[] windows;
     static Frame main_frame, jumpingFrame;
     static Button focus_button;
@@ -69,6 +71,7 @@ public class NoEventsTest extends Frame {
         main_frame.setVisible(true);
         main_frame.setLocation(10, 600);
         main_frame.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     listener.report();
                     System.exit(0);
@@ -178,17 +181,18 @@ public class NoEventsTest extends Frame {
     public NoEventsTest(int row, int col, boolean focusable, boolean resizable) {
         super("Frame" + row + "" + col);
         TestPanel panel = new TestPanel(row, col);
-        if (NoEventsTest.automatic) {
-            row = NoEventsTest.DEF_ROW;
-            col = NoEventsTest.DEF_COL;
+        if (automatic) {
+            row = DEF_ROW;
+            col = DEF_COL;
         }
         setName(getTitle());
-        add("Center", panel);
-        Label l = new Label(getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
+        add(BorderLayout.CENTER, panel);
+        Label l = new Label(
+            getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
                             ", " + (resizable?"resizable":"non-resizable"));
         l.setBackground(Color.green);
-        add("North", l);
-        setBounds(NoEventsTest.DEF_LEFT + DEF_WIDTH*col, DEF_TOP + DEF_HEIGHT*row, DEF_WIDTH, DEF_HEIGHT);
+        add(BorderLayout.NORTH, l);
+        setBounds(DEF_LEFT + DEF_WIDTH*col, DEF_TOP + DEF_HEIGHT*row, DEF_WIDTH, DEF_HEIGHT);
         if (!focusable) {
             setFocusableWindowState(false);
         }
@@ -199,6 +203,8 @@ public class NoEventsTest extends Frame {
     }
 }
 class TestWindow extends Window {
+    private static final long serialVersionUID = 6531064606835695935L;
+
     public TestWindow(int row, int col, boolean focusable, Frame owner) {
         super(owner);
         setName("Window" + row + "" + col);
@@ -208,11 +214,12 @@ class TestWindow extends Window {
             col = NoEventsTest.DEF_COL;
         }
 
-        add("Center", panel);
-        Label l = new Label(getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
+        add(BorderLayout.CENTER, panel);
+        Label l = new Label(
+            getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
                             ", " + (false?"resizable":"non-resizable"));
         l.setBackground(Color.green);
-        add("North", l);
+        add(BorderLayout.NORTH, l);
 
         setBounds(NoEventsTest.DEF_LEFT + NoEventsTest.DEF_WIDTH*col, NoEventsTest.DEF_TOP + NoEventsTest.DEF_HEIGHT*row, NoEventsTest.DEF_WIDTH, NoEventsTest.DEF_HEIGHT);
         if (!focusable) {
@@ -222,20 +229,23 @@ class TestWindow extends Window {
     }
 }
 class TestDialog extends Dialog {
+    private static final long serialVersionUID = 4734359662829308706L;
+
     public TestDialog(int row, int col, boolean focusable, boolean resizable, Frame owner) {
         super(owner);
-        setName("Dialog" + row + "" + col);
+        setName(Font.DIALOG + row + "" + col);
         TestPanel panel = new TestPanel(row, col);
         if (NoEventsTest.automatic) {
             row = NoEventsTest.DEF_ROW;
             col = NoEventsTest.DEF_COL;
         }
 
-        add("Center", panel);
-        Label l = new Label(getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
+        add(BorderLayout.CENTER, panel);
+        Label l = new Label(
+            getClass().getSuperclass().getName() + ", " + (focusable?"focusable":"non-focusable") +
                             ", " + (resizable?"resizable":"non-resizable"));
         l.setBackground(Color.green);
-        add("North", l);
+        add(BorderLayout.NORTH, l);
 
         setBounds(NoEventsTest.DEF_LEFT + NoEventsTest.DEF_WIDTH*col, NoEventsTest.DEF_TOP + NoEventsTest.DEF_HEIGHT*row, NoEventsTest.DEF_WIDTH, NoEventsTest.DEF_HEIGHT);
         if (!focusable) {
@@ -249,6 +259,8 @@ class TestDialog extends Dialog {
 }
 
 class TestPanel extends Panel {
+
+    private static final long serialVersionUID = 2425374278234254786L;
 
     void clickComponent(Component comp, Robot robot) {
         if (comp instanceof Choice) {
@@ -291,7 +303,7 @@ class TestPanel extends Panel {
         add(t = new TextField("text" + row + "" + col));
         t.setName(t.getText());
 
-        java.awt.List list = new java.awt.List();
+        List list = new List();
         add(list);
         list.setName("list");
         list.add("one");
@@ -309,16 +321,19 @@ class TestPanel extends Panel {
         choice.add("two");
         choice.add("three");
         add(choice);
-        choice.setName("choice" + row + "" + col);
+        choice.setName(Choice.base + row + "" + col);
 
         Canvas can = new Canvas() {
+            private static final long serialVersionUID = -4270115174880663100L;
+
+            @Override
                 public Dimension getPreferredSize() {
                     return new Dimension(10, 10);
                 }
             };
         can.setBackground(Color.blue);
         add(can);
-        can.setName("canvas" + row + "" + col);
+        can.setName(Canvas.base + row + "" + col);
 
         TextArea ta = new TextArea("text\ntttt\naaaa\nwwwww\nqqqqqq\neeeeee\nrrrrrr\nyyyyyy\nuuuuu", 3, 5);
         add(ta);
@@ -326,7 +341,7 @@ class TestPanel extends Panel {
 
         Scrollbar bar = new Scrollbar(Scrollbar.HORIZONTAL);
         add(bar);
-        bar.setName("scrollbar" + row + "" + col);
+        bar.setName(Scrollbar.base + row + "" + col);
 
         CheckboxGroup group = new CheckboxGroup();
         Checkbox ch1 = new Checkbox("one", group, true);
@@ -340,6 +355,9 @@ class TestPanel extends Panel {
         ScrollPane pane = new ScrollPane(ScrollPane.SCROLLBARS_ALWAYS);
         add(pane);
         Button bigButton = new Button("abc") {
+            private static final long serialVersionUID = -8871750876255631485L;
+
+            @Override
                 public Dimension getPreferredSize() {
                     return new Dimension(100, 100);
                 }
@@ -350,17 +368,16 @@ class TestPanel extends Panel {
 }
 
 class GlobalListener implements AWTEventListener {
-    java.util.List errors = new java.util.LinkedList();
+    final List errors = new LinkedList();
     public boolean report() {
-        if (errors.size() != 0) {
+        if (!errors.isEmpty()) {
             System.err.println("Test FAILED");
         } else {
             System.err.println("Test PASSED");
             return true;
         }
-        ListIterator iter = errors.listIterator();
-        while (iter.hasNext()) {
-            System.err.println(iter.next());
+        for (Object error : errors) {
+            System.err.println(error);
         }
         return false;
     }
@@ -377,6 +394,7 @@ class GlobalListener implements AWTEventListener {
         errors.add(error);
         System.err.println(error);
     }
+    @Override
     public void eventDispatched(AWTEvent e) {
         Component comp = (Component)e.getSource();
         Window parent = getWindowParent(comp);
@@ -396,13 +414,12 @@ class GlobalListener implements AWTEventListener {
           case WindowEvent.WINDOW_DEICONIFIED:
           case WindowEvent.WINDOW_STATE_CHANGED:
             return;
-          case WindowEvent.WINDOW_LOST_FOCUS: {
+          case WindowEvent.WINDOW_LOST_FOCUS:
               WindowEvent we = (WindowEvent)e;
               if (we.getOppositeWindow() != null && !we.getOppositeWindow().getFocusableWindowState()) {
                   reportError(e, "frame lost focus because of non-focusable window");
               }
               break;
-          }
         }
         // Check that Window owner is focusable
         if (!parent.getFocusableWindowState()) {

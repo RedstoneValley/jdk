@@ -29,16 +29,14 @@
   @run applet ToFrontFocus.html
 */
 
-/**
- * ToFrontFocus.java
- *
- * summary:
+/*
+  ToFrontFocus.java
+
+  summary:
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class ToFrontFocus extends Applet
  {
@@ -46,14 +44,14 @@ public class ToFrontFocus extends Applet
 
      Frame cover, focus_frame, nonfocus_frame;
      Button focus_button, nonfocus_button;
-     volatile boolean focus_gained = false, nonfocus_gained = false;
+     volatile boolean focus_gained, nonfocus_gained;
    public void init()
     {
       //Create instructions for the user here, as well as set up
       // the environment -- set the layout manager, add buttons,
       // etc.
 
-      this.setLayout (new BorderLayout ());
+      setLayout(new BorderLayout ());
 
       String[] instructions =
        {
@@ -71,14 +69,16 @@ public class ToFrontFocus extends Applet
       nonfocus_frame.setBounds(150, 150, 250, 200);
       focus_button = new Button("Button in focusable frame");
       focus_button.addFocusListener(new FocusAdapter() {
+              @Override
               public void focusGained(FocusEvent e) {
-                  focus_gained = true;
+                focus_gained = true;
               }
           });
       nonfocus_button = new Button("Button in non-focusable frame");
       nonfocus_button.addFocusListener(new FocusAdapter() {
+              @Override
               public void focusGained(FocusEvent e) {
-                  nonfocus_gained = true;
+                nonfocus_gained = true;
               }
           });
     }//End  init()
@@ -91,12 +91,18 @@ public class ToFrontFocus extends Applet
       Util.waitForIdle(null);
 
       focus_frame.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        private static final long serialVersionUID = 554766703569562822L;
+
+        @Override
               public Component getInitialComponent(Window w) {
                   return null;
               }
           });
       focus_frame.setVisible(true);
       nonfocus_frame.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        private static final long serialVersionUID = 6607214971794619362L;
+
+        @Override
               public Component getInitialComponent(Window w) {
                   return null;
               }
@@ -110,6 +116,9 @@ public class ToFrontFocus extends Applet
       focus_frame.add(focus_button);
       focus_frame.pack();
       focus_frame.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        private static final long serialVersionUID = -9192621192449417264L;
+
+        @Override
               public Component getInitialComponent(Window w) {
                   return focus_button;
               }
@@ -117,6 +126,9 @@ public class ToFrontFocus extends Applet
       nonfocus_frame.add(nonfocus_button);
       nonfocus_frame.pack();
       nonfocus_frame.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        private static final long serialVersionUID = 1757758589918540317L;
+
+        @Override
               public Component getInitialComponent(Window w) {
                   return nonfocus_button;
               }
@@ -138,14 +150,13 @@ public class ToFrontFocus extends Applet
 
  }// class ToFrontFocus
 
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -159,9 +170,12 @@ public class ToFrontFocus extends Applet
   as standalone.
  */
 
-class Sysout
+final class Sysout
  {
    private static TestDialog dialog;
+
+   private Sysout() {
+   }
 
    public static void createDialogWithInstructions( String[] instructions )
     {
@@ -205,9 +219,10 @@ class Sysout
 class TestDialog extends Dialog
  {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+   private static final long serialVersionUID = 4421905612345965770L;
+   final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -215,10 +230,10 @@ class TestDialog extends Dialog
       super( frame, name );
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-      add("South", messageText);
+      add(BorderLayout.SOUTH, messageText);
 
       pack();
 
@@ -234,36 +249,32 @@ class TestDialog extends Dialog
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

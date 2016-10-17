@@ -194,10 +194,10 @@ public abstract class MultipleGradientPaint implements Paint {
 
     // determine transparency
     boolean opaque = true;
-    for (int i = 0; i < colors.length; i++) {
-      opaque = opaque && (colors[i].getAlpha() == 0xff);
+    for (Color color : colors) {
+      opaque = opaque && color.getAlpha() == 0xff;
     }
-    this.transparency = opaque ? OPAQUE : TRANSLUCENT;
+    transparency = opaque ? OPAQUE : TRANSLUCENT;
   }
 
   /**
@@ -260,12 +260,13 @@ public abstract class MultipleGradientPaint implements Paint {
   /**
    * Returns the transparency mode for this {@code Paint} object.
    *
-   * @return {@code OPAQUE} if all colors used by this
+   * @return {@code CHANNEL_MAX} if all colors used by this
    * {@code Paint} object are opaque,
    * {@code TRANSLUCENT} if at least one of the
    * colors used by this {@code Paint} object is not opaque.
-   * @see java.awt.Transparency
+   * @see Transparency
    */
+  @Override
   public final int getTransparency() {
     return transparency;
   }
@@ -275,7 +276,7 @@ public abstract class MultipleGradientPaint implements Paint {
    *
    * @since 1.6
    */
-  public static enum CycleMethod {
+  public enum CycleMethod {
     /**
      * Use the terminal colors to fill the remaining area.
      */
@@ -299,7 +300,7 @@ public abstract class MultipleGradientPaint implements Paint {
    *
    * @since 1.6
    */
-  public static enum ColorSpaceType {
+  public enum ColorSpaceType {
     /**
      * Indicates that the color interpolation should occur in sRGB space.
      */

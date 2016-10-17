@@ -40,7 +40,6 @@ public class MimeTypeParseException extends Exception {
    * Constructs a MimeTypeParseException with no specified detail message.
    */
   public MimeTypeParseException() {
-    super();
   }
 
   /**

@@ -28,7 +28,7 @@ package java.awt.geom;
 import java.io.Serializable;
 
 /**
- * The <code>Ellipse2D</code> class describes an ellipse that is defined
+ * The {@code Ellipse2D} class describes an ellipse that is defined
  * by a framing rectangle.
  * <p>
  * This class is only the abstract superclass for all objects which
@@ -48,17 +48,17 @@ public abstract class Ellipse2D extends RectangularShape {
    * the information necessary to satisfy the various accessor
    * methods below.
    *
-   * @see java.awt.geom.Ellipse2D.Float
-   * @see java.awt.geom.Ellipse2D.Double
+   * @see Float
+   * @see Double
    * @since 1.2
    */
   protected Ellipse2D() {
   }
 
   /**
-   * Returns the hashcode for this <code>Ellipse2D</code>.
+   * Returns the hashcode for this {@code Ellipse2D}.
    *
-   * @return the hashcode for this <code>Ellipse2D</code>.
+   * @return the hashcode for this {@code Ellipse2D}.
    * @since 1.6
    */
   public int hashCode() {
@@ -66,21 +66,21 @@ public abstract class Ellipse2D extends RectangularShape {
     bits += java.lang.Double.doubleToLongBits(getY()) * 37;
     bits += java.lang.Double.doubleToLongBits(getWidth()) * 43;
     bits += java.lang.Double.doubleToLongBits(getHeight()) * 47;
-    return (((int) bits) ^ ((int) (bits >> 32)));
+    return (int) bits ^ (int) (bits >> 32);
   }
 
   /**
-   * Determines whether or not the specified <code>Object</code> is
-   * equal to this <code>Ellipse2D</code>.  The specified
-   * <code>Object</code> is equal to this <code>Ellipse2D</code>
-   * if it is an instance of <code>Ellipse2D</code> and if its
-   * location and size are the same as this <code>Ellipse2D</code>.
+   * Determines whether or not the specified {@code Object} is
+   * equal to this {@code Ellipse2D}.  The specified
+   * {@code Object} is equal to this {@code Ellipse2D}
+   * if it is an instance of {@code Ellipse2D} and if its
+   * location and size are the same as this {@code Ellipse2D}.
    *
-   * @param obj an <code>Object</code> to be compared with this
-   *            <code>Ellipse2D</code>.
-   * @return <code>true</code> if <code>obj</code> is an instance
-   * of <code>Ellipse2D</code> and has the same values;
-   * <code>false</code> otherwise.
+   * @param obj an {@code Object} to be compared with this
+   *            {@code Ellipse2D}.
+   * @return {@code true} if {@code obj} is an instance
+   * of {@code Ellipse2D} and has the same values;
+   * {@code false} otherwise.
    * @since 1.6
    */
   public boolean equals(Object obj) {
@@ -89,17 +89,17 @@ public abstract class Ellipse2D extends RectangularShape {
     }
     if (obj instanceof Ellipse2D) {
       Ellipse2D e2d = (Ellipse2D) obj;
-      return ((getX() == e2d.getX()) &&
-                  (getY() == e2d.getY()) &&
-                  (getWidth() == e2d.getWidth()) &&
-                  (getHeight() == e2d.getHeight()));
+      return getX() == e2d.getX() &&
+          getY() == e2d.getY() &&
+          getWidth() == e2d.getWidth() &&
+          getHeight() == e2d.getHeight();
     }
     return false;
   }
 
   /**
-   * The <code>Float</code> class defines an ellipse specified
-   * in <code>float</code> precision.
+   * The {@code Float} class defines an ellipse specified
+   * in {@code float} precision.
    *
    * @since 1.2
    */
@@ -125,14 +125,14 @@ public abstract class Ellipse2D extends RectangularShape {
      */
     public float y;
     /**
-     * The overall width of this <code>Ellipse2D</code>.
+     * The overall width of this {@code Ellipse2D}.
      *
      * @serial
      * @since 1.2
      */
     public float width;
     /**
-     * The overall height of this <code>Ellipse2D</code>.
+     * The overall height of this {@code Ellipse2D}.
      *
      * @serial
      * @since 1.2
@@ -140,7 +140,7 @@ public abstract class Ellipse2D extends RectangularShape {
     public float height;
 
     /**
-     * Constructs a new <code>Ellipse2D</code>, initialized to
+     * Constructs a new {@code Ellipse2D}, initialized to
      * location (0,&nbsp;0) and size (0,&nbsp;0).
      *
      * @since 1.2
@@ -149,7 +149,7 @@ public abstract class Ellipse2D extends RectangularShape {
     }
 
     /**
-     * Constructs and initializes an <code>Ellipse2D</code> from the
+     * Constructs and initializes an {@code Ellipse2D} from the
      * specified coordinates.
      *
      * @param x the X coordinate of the upper-left corner
@@ -165,17 +165,16 @@ public abstract class Ellipse2D extends RectangularShape {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX() {
       return (double) x;
     }
 
     /**
      * Sets the location and size of the framing rectangle of this
-     * <code>Shape</code> to the specified rectangular values.
+     * {@code Shape} to the specified rectangular values.
      *
      * @param x the X coordinate of the upper-left corner of the
      *          specified rectangular shape
@@ -188,71 +187,65 @@ public abstract class Ellipse2D extends RectangularShape {
     public void setFrame(float x, float y, float w, float h) {
       this.x = x;
       this.y = y;
-      this.width = w;
-      this.height = h;
-    }    /**
-     * {@inheritDoc}
-     *
+      width = w;
+      height = h;
+    }
+
+    /**
      * @since 1.2
      */
+    @Override
+    public Rectangle2D getBounds2D() {
+      return new Rectangle2D.Float(x, y, width, height);
+    }    /**
+     * @since 1.2
+     */
+    @Override
     public double getY() {
       return (double) y;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @since 1.2
-     */
-    public Rectangle2D getBounds2D() {
-      return new Rectangle2D.Float(x, y, width, height);
-    }
+
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getWidth() {
       return (double) width;
     }
 
-
-
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getHeight() {
       return (double) height;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public boolean isEmpty() {
-      return (width <= 0.0 || height <= 0.0);
+      return width <= 0.0 || height <= 0.0;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setFrame(double x, double y, double w, double h) {
       this.x = (float) x;
       this.y = (float) y;
-      this.width = (float) w;
-      this.height = (float) h;
+      width = (float) w;
+      height = (float) h;
     }
   }
 
   /**
-   * The <code>Double</code> class defines an ellipse specified
-   * in <code>double</code> precision.
+   * The {@code Double} class defines an ellipse specified
+   * in {@code double} precision.
    *
    * @since 1.2
    */
@@ -278,14 +271,14 @@ public abstract class Ellipse2D extends RectangularShape {
      */
     public double y;
     /**
-     * The overall width of this <code>Ellipse2D</code>.
+     * The overall width of this {@code Ellipse2D}.
      *
      * @serial
      * @since 1.2
      */
     public double width;
     /**
-     * The overall height of the <code>Ellipse2D</code>.
+     * The overall height of the {@code Ellipse2D}.
      *
      * @serial
      * @since 1.2
@@ -293,7 +286,7 @@ public abstract class Ellipse2D extends RectangularShape {
     public double height;
 
     /**
-     * Constructs a new <code>Ellipse2D</code>, initialized to
+     * Constructs a new {@code Ellipse2D}, initialized to
      * location (0,&nbsp;0) and size (0,&nbsp;0).
      *
      * @since 1.2
@@ -302,7 +295,7 @@ public abstract class Ellipse2D extends RectangularShape {
     }
 
     /**
-     * Constructs and initializes an <code>Ellipse2D</code> from the
+     * Constructs and initializes an {@code Ellipse2D} from the
      * specified coordinates.
      *
      * @param x the X coordinate of the upper-left corner
@@ -318,75 +311,69 @@ public abstract class Ellipse2D extends RectangularShape {
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getX() {
       return x;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getY() {
       return y;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getWidth() {
       return width;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getHeight() {
       return height;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public boolean isEmpty() {
-      return (width <= 0.0 || height <= 0.0);
+      return width <= 0.0 || height <= 0.0;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setFrame(double x, double y, double w, double h) {
       this.x = x;
       this.y = y;
-      this.width = w;
-      this.height = h;
+      width = w;
+      height = h;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public Rectangle2D getBounds2D() {
       return new Rectangle2D.Double(x, y, width, height);
     }
-  }  /**
-   * {@inheritDoc}
-   *
+  }
+
+  /**
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y) {
     // Normalize the coordinates compared to the ellipse
     // having a center at 0,0 and a radius of 0.5.
@@ -400,16 +387,13 @@ public abstract class Ellipse2D extends RectangularShape {
       return false;
     }
     double normy = (y - getY()) / ellh - 0.5;
-    return (normx * normx + normy * normy) < 0.25;
+    return normx * normx + normy * normy < 0.25;
   }
 
-
-
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(double x, double y, double w, double h) {
     if (w <= 0.0 || h <= 0.0) {
       return false;
@@ -450,38 +434,38 @@ public abstract class Ellipse2D extends RectangularShape {
     } else {
       neary = 0.0;
     }
-    return (nearx * nearx + neary * neary) < 0.25;
+    return nearx * nearx + neary * neary < 0.25;
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y, double w, double h) {
-    return (contains(x, y) &&
-                contains(x + w, y) &&
-                contains(x, y + h) &&
-                contains(x + w, y + h));
+    return contains(x, y) &&
+        contains(x + w, y) &&
+        contains(x, y + h) &&
+        contains(x + w, y + h);
   }
 
   /**
    * Returns an iteration object that defines the boundary of this
-   * <code>Ellipse2D</code>.
+   * {@code Ellipse2D}.
    * The iterator for this class is multi-threaded safe, which means
-   * that this <code>Ellipse2D</code> class guarantees that
-   * modifications to the geometry of this <code>Ellipse2D</code>
+   * that this {@code Ellipse2D} class guarantees that
+   * modifications to the geometry of this {@code Ellipse2D}
    * object do not affect any iterations of that geometry that
    * are already in process.
    *
-   * @param at an optional <code>AffineTransform</code> to be applied to
+   * @param at an optional {@code AffineTransform} to be applied to
    *           the coordinates as they are returned in the iteration, or
-   *           <code>null</code> if untransformed coordinates are desired
-   * @return the <code>PathIterator</code> object that returns the
-   * geometry of the outline of this <code>Ellipse2D</code>,
+   *           {@code null} if untransformed coordinates are desired
+   * @return the {@code PathIterator} object that returns the
+   * geometry of the outline of this {@code Ellipse2D},
    * one segment at a time.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at) {
     return new EllipseIterator(this, at);
   }

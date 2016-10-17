@@ -25,6 +25,8 @@
 
 package java.awt.geom;
 
+import android.util.Log;
+import java.awt.SkinJob;
 import java.util.NoSuchElementException;
 
 /**
@@ -34,38 +36,47 @@ import java.util.NoSuchElementException;
  * @author Jim Graham
  */
 class ArcIterator implements PathIterator {
-  double x, y, w, h, angStRad, increment, cv;
-  AffineTransform affine;
+  protected static final double BTAN_OF_HALF_PI = 0.5522847498307933;
+  private static final String TAG = "AWT ArcIterator";
+  final double x;
+  final double y;
+  final double w;
+  final double h;
+  final double angStRad;
+  double increment;
+  double cv;
+  final AffineTransform affine;
   int index;
   int arcSegs;
   int lineSegs;
 
+  @SuppressWarnings("MagicNumber")
   ArcIterator(Arc2D a, AffineTransform at) {
-    this.w = a.getWidth() / 2;
-    this.h = a.getHeight() / 2;
-    this.x = a.getX() + w;
-    this.y = a.getY() + h;
-    this.angStRad = -Math.toRadians(a.getAngleStart());
-    this.affine = at;
+    w = a.getWidth() / 2;
+    h = a.getHeight() / 2;
+    x = a.getX() + w;
+    y = a.getY() + h;
+    angStRad = -Math.toRadians(a.getAngleStart());
+    affine = at;
     double ext = -a.getAngleExtent();
     if (ext >= 360.0 || ext <= -360) {
       arcSegs = 4;
-      this.increment = Math.PI / 2;
-      // btan(Math.PI / 2);
-      this.cv = 0.5522847498307933;
+      increment = Math.PI / 2;
+      cv = BTAN_OF_HALF_PI;
       if (ext < 0) {
         increment = -increment;
         cv = -cv;
       }
     } else {
-      arcSegs = (int) Math.ceil(Math.abs(ext) / 90.0);
-      this.increment = Math.toRadians(ext / arcSegs);
-      this.cv = btan(increment);
+      arcSegs = (int) Math.ceil(Math.abs(ext) / SkinJob.maxDegreesPerArcSegment);
+      increment = Math.toRadians(ext / arcSegs);
+      cv = btan(increment);
       if (cv == 0) {
         arcSegs = 0;
       }
     }
-    switch (a.getArcType()) {
+    int type = a.getArcType();
+    switch (type) {
       case Arc2D.OPEN:
         lineSegs = 0;
         break;
@@ -75,6 +86,8 @@ class ArcIterator implements PathIterator {
       case Arc2D.PIE:
         lineSegs = 2;
         break;
+      default:
+        Log.e(TAG, "Unknown arc type " + type);
     }
     if (w < 0 || h < 0) {
       arcSegs = lineSegs = -1;
@@ -158,6 +171,7 @@ class ArcIterator implements PathIterator {
    *     = sin(angb) / (1 + cos(angb))
    *
    */
+  @SuppressWarnings("MagicNumber")
   private static double btan(double increment) {
     increment /= 2.0;
     return 4.0 / 3.0 * Math.sin(increment) / (1.0 + Math.cos(increment));
@@ -170,6 +184,7 @@ class ArcIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -179,6 +194,7 @@ class ArcIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
     return index > arcSegs + lineSegs;
   }
@@ -188,6 +204,7 @@ class ArcIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -211,6 +228,7 @@ class ArcIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("arc iterator out of bounds");
@@ -272,6 +290,7 @@ class ArcIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("arc iterator out of bounds");

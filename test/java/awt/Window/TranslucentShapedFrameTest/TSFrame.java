@@ -26,10 +26,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsDevice.WindowTranslucency;
-import java.awt.GraphicsEnvironment;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -39,19 +37,12 @@ import java.awt.Canvas;
 import java.awt.Component;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.Paint;
 import java.util.Random;
 import java.awt.geom.Ellipse2D;
-import javax.swing.JApplet;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
-public class TSFrame {
+public final class TSFrame {
 
-    static volatile boolean done = false;
+    static volatile boolean done;
 
     static final boolean useSwing = System.getProperty("useswing") != null;
     static final boolean useShape = System.getProperty("useshape") != null;
@@ -59,7 +50,11 @@ public class TSFrame {
     static final boolean useNonOpaque = System.getProperty("usenonop") != null;
 
     static final Random rnd = new Random();
-    private static void render(Graphics g, int w, int h, boolean useNonOpaque) {
+
+    private TSFrame() {
+    }
+
+    static void render(Graphics g, int w, int h, boolean useNonOpaque) {
         if (useNonOpaque) {
             Graphics2D g2d = (Graphics2D)g;
             GradientPaint p =
@@ -81,6 +76,11 @@ public class TSFrame {
     }
 
     private static class MyCanvas extends Canvas {
+        private static final long serialVersionUID = -1495754634946682764L;
+
+        MyCanvas() {
+        }
+
         @Override
         public void paint(Graphics g) {
             render(g, getWidth(), getHeight(), false);
@@ -108,7 +108,7 @@ public class TSFrame {
         }
     }
     private static class NonOpaqueJAppletFrame extends JFrame {
-        JPanel p;
+        final JPanel p;
         NonOpaqueJAppletFrame() {
             super("NonOpaque Swing JAppletFrame");
             JApplet ja = new JApplet() {
@@ -133,6 +133,8 @@ public class TSFrame {
         }
     }
     private static class NonOpaqueFrame extends Frame {
+        private static final long serialVersionUID = 5479381857444285839L;
+
         NonOpaqueFrame() {
             super("NonOpaque AWT Frame");
             // uncomment to test with hw child
@@ -158,6 +160,9 @@ public class TSFrame {
     }
 
     private static class MyJPanel extends JPanel {
+        MyJPanel() {
+        }
+
         @Override
         public void paintComponent(Graphics g) {
             render(g, getWidth(), getHeight(), false);
@@ -165,33 +170,31 @@ public class TSFrame {
     }
 
     public static Frame createGui(
-                                  final boolean useSwing,
-                                  final boolean useShape,
-                                  final boolean useTransl,
-                                  final boolean useNonOpaque,
-                                  final float factor)
+                                  boolean useSwing,
+                                  boolean useShape,
+                                  boolean useTransl,
+                                  boolean useNonOpaque,
+                                  float factor)
     {
         Frame frame;
         done = false;
 
         if (useNonOpaque) {
-            if (useSwing) {
-                frame = new NonOpaqueJFrame();
-//                frame = new NonOpaqueJAppletFrame(gc);
-            } else {
-                frame = new NonOpaqueFrame();
-            }
+            frame = useSwing ? new NonOpaqueJFrame() : new NonOpaqueFrame();
             animateComponent(frame);
         } else if (useSwing) {
             frame = new JFrame("Swing Frame");
             JComponent p = new JButton("Swing!");
             p.setPreferredSize(new Dimension(200, 100));
-            frame.add("North", p);
+            frame.add(BorderLayout.NORTH, p);
             p = new MyJPanel();
             animateComponent(p);
-            frame.add("Center", p);
+            frame.add(BorderLayout.CENTER, p);
         } else {
             frame = new Frame("AWT Frame") {
+                private static final long serialVersionUID = 6044871841701872050L;
+
+                @Override
                 public void paint(Graphics g) {
                     g.setColor(Color.red);
                     g.fillRect(0, 0, 100, 100);
@@ -199,16 +202,16 @@ public class TSFrame {
             };
             frame.setLayout(new BorderLayout());
             Canvas c = new MyCanvas();
-            frame.add("North", c);
+            frame.add(BorderLayout.NORTH, c);
             animateComponent(c);
             c = new MyCanvas();
-            frame.add("Center", c);
+            frame.add(BorderLayout.CENTER, c);
             animateComponent(c);
             c = new MyCanvas();
-            frame.add("South", c);
+            frame.add(BorderLayout.SOUTH, c);
             animateComponent(c);
         }
-        final Frame finalFrame = frame;
+        Frame finalFrame = frame;
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -265,12 +268,9 @@ public class TSFrame {
         return frame;
     }
 
-    public static void stopThreads() {
-        done = true;
-    }
-
-    private static void animateComponent(final Component comp) {
+    private static void animateComponent(Component comp) {
         Thread t = new Thread(new Runnable() {
+            @Override
             public void run() {
                 do {
                     try {
@@ -285,8 +285,9 @@ public class TSFrame {
 
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                TSFrame.createGui(useSwing,
+                createGui(useSwing,
                                   useShape,
                                   useTransl,
                                   useNonOpaque,

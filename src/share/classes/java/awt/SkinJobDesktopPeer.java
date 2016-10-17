@@ -1,6 +1,6 @@
 package java.awt;
 
-import android.Manifest;
+import android.Manifest.permission;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,16 +8,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import java.awt.Desktop.Action;
 import java.awt.peer.DesktopPeer;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -55,11 +54,11 @@ class SkinJobDesktopPeer implements DesktopPeer {
   }
 
   @Override
-  public boolean isSupported(Desktop.Action action) {
-    if (action == Desktop.Action.PRINT) {
-      return ContextCompat.checkSelfPermission(androidContext, Manifest.permission.INTERNET)
+  public boolean isSupported(Action action) {
+    if (action == Action.PRINT) {
+      return ContextCompat.checkSelfPermission(androidContext, permission.INTERNET)
           == PackageManager.PERMISSION_GRANTED
-          && ContextCompat.checkSelfPermission(androidContext, Manifest.permission.READ_CONTACTS)
+          && ContextCompat.checkSelfPermission(androidContext, permission.READ_CONTACTS)
           == PackageManager.PERMISSION_GRANTED;
     }
     return true;
@@ -77,7 +76,7 @@ class SkinJobDesktopPeer implements DesktopPeer {
 
   @Override
   public void print(File file) throws IOException {
-    if (!isSupported(Desktop.Action.PRINT)) {
+    if (!isSupported(Action.PRINT)) {
       throw new UnsupportedOperationException("Don't have permission to connect to a printer");
     }
     Intent printIntent = new Intent(androidContext, PrintDialogActivity.class);
@@ -122,7 +121,7 @@ class SkinJobDesktopPeer implements DesktopPeer {
       super.onCreate(icicle);
 
       dialogWebView = new WebView(this);
-      cloudPrintIntent = this.getIntent();
+      cloudPrintIntent = getIntent();
 
       WebSettings settings = dialogWebView.getSettings();
       settings.setJavaScriptEnabled(true);
@@ -158,8 +157,6 @@ class SkinJobDesktopPeer implements DesktopPeer {
           baos.flush();
 
           return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        } catch (FileNotFoundException e) {
-          e.printStackTrace();
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -178,6 +175,9 @@ class SkinJobDesktopPeer implements DesktopPeer {
     }
 
     private final class PrintDialogWebClient extends WebViewClient {
+
+      PrintDialogWebClient() {
+      }
 
       @Override
       public void onPageFinished(WebView view, String url) {

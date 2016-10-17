@@ -28,12 +28,9 @@
  */
 
 import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.text.*;
 import java.util.*;
 
-public class AttributeValuesCastTest
+public final class AttributeValuesCastTest
 {
     public static void main (String [] args)
     {
@@ -44,7 +41,7 @@ public class AttributeValuesCastTest
             Font  f = new Font(attributes);
             System.out.println("PASS: was able to create font. ");
         } catch(Throwable t) {
-            throw new RuntimeException("FAIL: caught "+t.toString());
+            throw new RuntimeException("FAIL: caught "+ t);
         }
     }
 }

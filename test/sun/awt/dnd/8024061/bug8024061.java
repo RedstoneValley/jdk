@@ -50,11 +50,8 @@ import java.awt.dnd.DropTargetListener;
 import java.awt.event.InputEvent;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import javax.swing.*;
 
 /**
  * If dragGestureRecognized() takes a while to complete and if user performs a drag quickly,
@@ -64,15 +61,15 @@ import javax.swing.*;
  * This class introduces a delay in dragGestureRecognized() to cause the exception.
  */
 public class bug8024061 {
-    private static final DataFlavor DropObjectFlavor;
+    static final DataFlavor DropObjectFlavor;
     private static final int DELAY = 1000;
 
     private final DnDPanel panel1 = new DnDPanel(Color.yellow);
     private final DnDPanel panel2 = new DnDPanel(Color.pink);
     private final JFrame frame;
 
-    private static final CountDownLatch lock = new CountDownLatch(1);
-    private static volatile Exception dragEnterException = null;
+    static final CountDownLatch lock = new CountDownLatch(1);
+    static volatile Exception dragEnterException;
 
     static {
         DataFlavor flavor = null;
@@ -105,7 +102,7 @@ public class bug8024061 {
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) throws AWTException, InvocationTargetException, InterruptedException {
+    public static void main(String[] args) throws AWTException, InterruptedException {
         OSType type = OSInfo.getOSType();
         if (type != OSType.LINUX && type != OSType.SOLARIS) {
             System.out.println("This test is for Linux and Solaris only... " +
@@ -113,14 +110,14 @@ public class bug8024061 {
             return;
         }
 
-        final bug8024061[] dnd = {null};
+        bug8024061[] dnd = {null};
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
                 dnd[0] = new bug8024061();
             }
         });
-        final Robot robot = new Robot();
+        Robot robot = new Robot();
         robot.setAutoDelay(10);
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
         toolkit.realSync();
@@ -163,9 +160,9 @@ public class bug8024061 {
 
     class DropObject implements Transferable {
         DnDPanel panel;
-        Color color = Color.CYAN;
-        int width = 50;
-        int height = 50;
+        final Color color = Color.CYAN;
+        final int width = 50;
+        final int height = 50;
         int x;
         int y;
 
@@ -179,8 +176,7 @@ public class bug8024061 {
         }
 
         boolean contains(int x, int y) {
-            return (x > this.x && x < this.x + width)
-                    && (y > this.y && y < this.y + height);
+            return x > this.x && x < this.x + width && y > this.y && y < this.y + height;
         }
 
         @Override
@@ -229,13 +225,14 @@ public class bug8024061 {
 
         DnDPanel(Color color) {
             this.color = color;
-            this.dragSource = DragSource.getDefaultDragSource();
+            dragSource = DragSource.getDefaultDragSource();
             dgListener = new DragGestureListener() {
                 @Override
                 public void dragGestureRecognized(DragGestureEvent dge) {
                     Point location = dge.getDragOrigin();
                     if (dropObject != null && dropObject.contains(location.x, location.y)) {
-                        dragSource.startDrag(dge, DragSource.DefaultCopyNoDrop, dropObject, dsListener);
+                        dragSource.startDrag(dge, DragSource.DefaultCopyNoDrop,
+                            dropObject, dsListener);
                         try {
                             Thread.sleep(DELAY);
                         } catch (InterruptedException e) {

@@ -91,6 +91,7 @@ public abstract class TextConstructionTests extends TextTests {
     }
   }
 
+  @Override
   public Context createContext() {
     return new TCContext();
   }
@@ -102,6 +103,7 @@ public abstract class TextConstructionTests extends TextTests {
     int[] glyphs;
     int flags;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
@@ -120,15 +122,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "gvfromfontstring", "Call Font.createGlyphVector(FRC, String)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       GlyphVector gv;
+      --numReps;
       do {
         gv = font.createGlyphVector(frc, text);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -137,35 +142,40 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "gvfromfontchars", "Call Font.createGlyphVector(FRC, char[])");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final char[] chars = tcctx.chars;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      char[] chars = tcctx.chars;
+      FontRenderContext frc = tcctx.frc;
       GlyphVector gv;
+      --numReps;
       do {
         gv = font.createGlyphVector(frc, chars);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class GVFromFontCI extends TextConstructionTests {
     public GVFromFontCI() {
-      super(
-          constructtestroot,
+      super(constructtestroot,
           "gvfromfontci",
           "Call Font.createGlyphVector(FRC, CharacterIterator)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final CharacterIterator ci = tcctx.ci;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      CharacterIterator ci = tcctx.ci;
+      FontRenderContext frc = tcctx.frc;
       GlyphVector gv;
+      --numReps;
       do {
         gv = font.createGlyphVector(frc, ci);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -174,15 +184,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "gvfromfontglyphs", "Call Font.createGlyphVector(FRC, int[])");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final int[] glyphs = tcctx.glyphs;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      int[] glyphs = tcctx.glyphs;
+      FontRenderContext frc = tcctx.frc;
       GlyphVector gv;
+      --numReps;
       do {
         gv = font.createGlyphVector(frc, glyphs);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -191,18 +204,21 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "gvfromfontlayout", "Call Font.layoutGlyphVector(...)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final char[] chars = tcctx.chars1;
-      final int start = 1;
-      final int limit = chars.length - 1;
-      final FontRenderContext frc = tcctx.frc;
-      final int flags = tcctx.flags;
+      Font font = tcctx.font;
+      char[] chars = tcctx.chars1;
+      int start = 1;
+      int limit = chars.length - 1;
+      FontRenderContext frc = tcctx.frc;
+      int flags = tcctx.flags;
       GlyphVector gv;
+      --numReps;
       do {
         gv = font.layoutGlyphVector(frc, chars, start, limit, flags);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -230,21 +246,25 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tlfromfont", "TextLayout(String, Font, FRC)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, font, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class TLMapContext extends G2DContext {
     Map map;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
@@ -257,25 +277,30 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tlfrommap", "TextLayout(String, Map, FRC)");
     }
 
+    @Override
     public Context createContext() {
       return new TLMapContext();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLMapContext tlmctx = (TLMapContext) ctx;
-      final String text = tlmctx.text;
-      final FontRenderContext frc = tlmctx.frc;
-      final Map map = tlmctx.map;
+      String text = tlmctx.text;
+      FontRenderContext frc = tlmctx.frc;
+      Map map = tlmctx.map;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, map, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class ACIContext extends G2DContext {
     AttributedCharacterIterator aci;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
@@ -290,13 +315,13 @@ public abstract class TextConstructionTests extends TextTests {
     int pos;
 
     ArrayCI(char[] chars, int off, int len) {
-      if (off < 0 || len < 0 || (len > 0 && (chars == null || chars.length - off < len))) {
+      if (off < 0 || len < 0 || len > 0 && (chars == null || chars.length - off < len)) {
         throw new InternalError("bad ArrayCI params");
       }
       this.chars = chars;
       this.off = off;
-      this.max = off + len;
-      this.pos = off;
+      max = off + len;
+      pos = off;
     }
 
     /**
@@ -306,6 +331,7 @@ public abstract class TextConstructionTests extends TextTests {
      * @return the first character in the text, or DONE if the text is empty
      * @see #getBeginIndex()
      */
+    @Override
     public char first() {
       if (max > off) {
         return chars[pos = off];
@@ -320,6 +346,7 @@ public abstract class TextConstructionTests extends TextTests {
      * @return the last character in the text, or DONE if the text is empty
      * @see #getEndIndex()
      */
+    @Override
     public char last() {
       if (max > off) {
         return chars[pos = max - 1];
@@ -335,6 +362,7 @@ public abstract class TextConstructionTests extends TextTests {
      * position is off the end of the text.
      * @see #getIndex()
      */
+    @Override
     public char current() {
       return pos == max ? DONE : chars[pos];
     }
@@ -348,8 +376,10 @@ public abstract class TextConstructionTests extends TextTests {
      * @return the character at the new position or DONE if the new
      * position is off the end of the text range.
      */
+    @Override
     public char next() {
-      if (++pos < max) {
+      ++pos;
+      if (pos < max) {
         return chars[pos];
       }
       pos = max;
@@ -364,8 +394,10 @@ public abstract class TextConstructionTests extends TextTests {
      * @return the character at the new position or DONE if the current
      * position is equal to getBeginIndex().
      */
+    @Override
     public char previous() {
-      if (--pos >= off) {
+      --pos;
+      if (pos >= off) {
         return chars[pos];
       }
       pos = off;
@@ -382,12 +414,13 @@ public abstract class TextConstructionTests extends TextTests {
      * @return the character at the specified position or DONE if the specified position is equal
      * to getEndIndex()
      */
+    @Override
     public char setIndex(int position) {
       if (position < off || position > max) {
         throw new IllegalArgumentException(
             "pos: " + position + " off: " + off + " len: " + (max - off));
       }
-      return ((pos = position) < max) ? chars[position] : DONE;
+      return (pos = position) < max ? chars[position] : DONE;
     }
 
     /**
@@ -395,6 +428,7 @@ public abstract class TextConstructionTests extends TextTests {
      *
      * @return the index at which the text begins.
      */
+    @Override
     public int getBeginIndex() {
       return off;
     }
@@ -405,6 +439,7 @@ public abstract class TextConstructionTests extends TextTests {
      *
      * @return the index after the last character in the text
      */
+    @Override
     public int getEndIndex() {
       return max;
     }
@@ -414,6 +449,7 @@ public abstract class TextConstructionTests extends TextTests {
      *
      * @return the current index.
      */
+    @Override
     public int getIndex() {
       return pos;
     }
@@ -423,6 +459,7 @@ public abstract class TextConstructionTests extends TextTests {
      *
      * @return A copy of this
      */
+    @Override
     public Object clone() {
       try {
         return super.clone();
@@ -437,15 +474,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tlfromaci", "TextLayout(ACI, FRC)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, font, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -454,15 +494,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tlclone", "call TextLayout.clone()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, font, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -471,15 +514,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tljustify", "call TextLayout.getJustifiedLayout(...)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, font, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -488,15 +534,18 @@ public abstract class TextConstructionTests extends TextTests {
       super(constructtestroot, "tlfromlbm", "call LineBreakMeasurer.next()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TCContext tcctx = (TCContext) ctx;
-      final Font font = tcctx.font;
-      final String text = tcctx.text;
-      final FontRenderContext frc = tcctx.frc;
+      Font font = tcctx.font;
+      String text = tcctx.text;
+      FontRenderContext frc = tcctx.frc;
       TextLayout tl;
+      --numReps;
       do {
         tl = new TextLayout(text, font, frc);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 }

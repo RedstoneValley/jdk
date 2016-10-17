@@ -26,7 +26,6 @@
 package sun.awt;
 
 import java.awt.AWTPermission;
-import sun.security.util.PermissionFactory;
 
 /**
  * A factory object for AWTPermission objects.

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4931668
  * @summary Tests XEmbed server/client functionality
  * @author denis mikhalkin: area=awt.xembed
@@ -31,10 +31,9 @@
  */
 
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
 public class TestXEmbedServerJava extends TestXEmbedServer {
     public static void main(String[] args) {
         if (System.getProperty("os.name").toLowerCase().startsWith("win")) {
@@ -74,6 +73,7 @@ public class TestXEmbedServerJava extends TestXEmbedServer {
         super(true);
     }
 
+    @Override
     public Process startClient(Rectangle[] bounds, long window) {
         try {
             String java_home = System.getProperty("java.home");

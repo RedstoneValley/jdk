@@ -35,5 +35,5 @@ public interface FontSupport {
   /**
    * Returns the current font configuration.
    */
-  public FontConfiguration getFontConfiguration();
+  FontConfiguration getFontConfiguration();
 }

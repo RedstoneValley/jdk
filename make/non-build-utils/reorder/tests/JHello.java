@@ -25,19 +25,17 @@
 
 
 import java.awt.*;
-import java.io.PrintStream;
-import javax.swing.*;
 
 public class JHello extends JFrame {
 
     JHello() {
         JLabel jlabel = new JLabel("Hello");
-        jlabel.setFont(new Font("Monospaced", 0, 144));
+        jlabel.setFont(new Font(Font.MONOSPACED, 0, 144));
         getContentPane().add(jlabel);
         pack();
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         new JHello().show();
         try {
             Thread.sleep(10000);

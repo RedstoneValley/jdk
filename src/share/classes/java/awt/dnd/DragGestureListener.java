@@ -37,9 +37,9 @@ import java.util.EventListener;
  * {@link #dragGestureRecognized dragGestureRecognized()}
  * method and passes a {@code DragGestureEvent}.
  *
- * @see java.awt.dnd.DragGestureRecognizer
- * @see java.awt.dnd.DragGestureEvent
- * @see java.awt.dnd.DragSource
+ * @see DragGestureRecognizer
+ * @see DragGestureEvent
+ * @see DragSource
  */
 
 public interface DragGestureListener extends EventListener {
@@ -52,10 +52,10 @@ public interface DragGestureListener extends EventListener {
    * the {@code DragGestureEvent} has to be invoked.
    * <p>
    *
-   * @param dge the <code>DragGestureEvent</code> describing
+   * @param dge the {@code DragGestureEvent} describing
    *            the gesture that has just occurred
-   * @see java.awt.dnd.DragGestureRecognizer
-   * @see java.awt.dnd.DragGestureEvent
+   * @see DragGestureRecognizer
+   * @see DragGestureEvent
    */
 
   void dragGestureRecognized(DragGestureEvent dge);

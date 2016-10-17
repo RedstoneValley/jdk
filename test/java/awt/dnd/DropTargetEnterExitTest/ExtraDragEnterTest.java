@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8024163
  * @summary Checks the dragEnter event is correctly generated
  * @library ../../regtesthelpers
@@ -32,9 +32,6 @@
  * @author Petr Pchelko
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
@@ -48,17 +45,20 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.InputEvent;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ExtraDragEnterTest {
+public final class ExtraDragEnterTest {
 
     private static final int FRAME_SIZE = 100;
     private static final int FRAME_LOCATION = 100;
 
-    private static AtomicInteger dragEnterCalled = new AtomicInteger(0);
+    static final AtomicInteger dragEnterCalled = new AtomicInteger(0);
 
     private static volatile Panel mainPanel;
     private static volatile Frame f;
 
-    private static void initAndShowUI() {
+    private ExtraDragEnterTest() {
+    }
+
+    static void initAndShowUI() {
         f = new Frame("Test frame");
         f.setBounds(FRAME_LOCATION,FRAME_LOCATION,FRAME_SIZE,FRAME_SIZE);
         mainPanel = new Panel();
@@ -66,7 +66,7 @@ public class ExtraDragEnterTest {
         mainPanel.setBackground(Color.black);
         mainPanel.setLayout(new GridLayout(2, 1));
 
-        final DraggablePanel dragSource = new DraggablePanel();
+        DraggablePanel dragSource = new DraggablePanel();
         dragSource.setBackground(Color.yellow);
         dragSource.setDropTarget(null);
         mainPanel.add(dragSource);
@@ -121,8 +121,10 @@ public class ExtraDragEnterTest {
 
     private static class DraggablePanel extends Panel implements DragGestureListener {
 
+        private static final long serialVersionUID = -6537766572825846929L;
+
         public DraggablePanel() {
-            (new DragSource()).createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
+            new DragSource().createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY, this);
         }
 
         @Override

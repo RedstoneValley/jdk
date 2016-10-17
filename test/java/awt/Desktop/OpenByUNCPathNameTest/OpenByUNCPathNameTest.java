@@ -28,10 +28,14 @@
 */
 
 import java.awt.*;
+import java.awt.Desktop.Action;
 import java.awt.event.*;
 import java.io.*;
 
-public class OpenByUNCPathNameTest {
+public final class OpenByUNCPathNameTest {
+    private OpenByUNCPathNameTest() {
+    }
+
     private static boolean validatePlatform() {
         String osName = System.getProperty("os.name");
         if (osName == null) {
@@ -45,7 +49,7 @@ public class OpenByUNCPathNameTest {
             System.out.println("java.awt.Desktop is not supported on this platform.");
         } else {
             Desktop desktop = Desktop.getDesktop();
-            if (!desktop.isSupported(Desktop.Action.OPEN)) {
+            if (!desktop.isSupported(Action.OPEN)) {
                 System.out.println("Action.OPEN is not supported on this platform.");
                 return;
             }

@@ -47,6 +47,9 @@ import sun.java2d.pipe.SpanIterator;
  * ANY to ANY via opaque copy
  */
 public final class CustomComponent {
+  private CustomComponent() {
+  }
+
   public static void register() {
     // REMIND: This does not work for all destinations yet since
     // the screen SurfaceData objects do not implement getRaster
@@ -111,6 +114,7 @@ class OpaqueCopyAnyToArgb extends Blit {
     super(SurfaceType.Any, CompositeType.SrcNoEa, SurfaceType.IntArgb);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
       int dsty, int w, int h) {
@@ -130,14 +134,15 @@ class OpaqueCopyAnyToArgb extends Blit {
     // assert(icr.getPixelStride() == 1);
     srcx -= dstx;
     srcy -= dsty;
-    int span[] = new int[4];
+    int[] span = new int[4];
     while (si.nextSpan(span)) {
       int rowoff = icr.getDataOffset(0) + span[1] * dstScan + span[0];
       for (int y = span[1]; y < span[3]; y++) {
         int off = rowoff;
         for (int x = span[0]; x < span[2]; x++) {
           srcPix = srcRast.getDataElements(x + srcx, y + srcy, srcPix);
-          dstPix[off++] = srcCM.getRGB(srcPix);
+          dstPix[off] = srcCM.getRGB(srcPix);
+          off++;
         }
         rowoff += dstScan;
       }
@@ -161,6 +166,7 @@ class OpaqueCopyArgbToAny extends Blit {
     super(SurfaceType.IntArgb, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
       int dsty, int w, int h) {
@@ -180,15 +186,16 @@ class OpaqueCopyArgbToAny extends Blit {
     // assert(icr.getPixelStride() == 1);
     srcx -= dstx;
     srcy -= dsty;
-    int span[] = new int[4];
+    int[] span = new int[4];
     while (si.nextSpan(span)) {
-      int rowoff = (icr.getDataOffset(0) +
-                        (srcy + span[1]) * srcScan +
-                        (srcx + span[0]));
+      int rowoff = icr.getDataOffset(0) +
+          (srcy + span[1]) * srcScan +
+          srcx + span[0];
       for (int y = span[1]; y < span[3]; y++) {
         int off = rowoff;
         for (int x = span[0]; x < span[2]; x++) {
-          dstPix = dstCM.getDataElements(srcPix[off++], dstPix);
+          dstPix = dstCM.getDataElements(srcPix[off], dstPix);
+          off++;
           dstRast.setDataElements(x, y, dstPix);
         }
         rowoff += srcScan;
@@ -210,6 +217,7 @@ class XorCopyArgbToAny extends Blit {
     super(SurfaceType.IntArgb, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
       int dsty, int w, int h) {
@@ -233,18 +241,19 @@ class XorCopyArgbToAny extends Blit {
     // assert(icr.getPixelStride() == 1);
     srcx -= dstx;
     srcy -= dsty;
-    int span[] = new int[4];
+    int[] span = new int[4];
     while (si.nextSpan(span)) {
-      int rowoff = (icr.getDataOffset(0) +
-                        (srcy + span[1]) * srcScan +
-                        (srcx + span[0]));
+      int rowoff = icr.getDataOffset(0) +
+          (srcy + span[1]) * srcScan +
+          srcx + span[0];
       for (int y = span[1]; y < span[3]; y++) {
         int off = rowoff;
         for (int x = span[0]; x < span[2]; x++) {
           // REMIND: alpha bits of the destination pixel are
           // currently altered by the XOR operation, but
           // should be left untouched
-          srcPixel = dstCM.getDataElements(srcPix[off++], srcPixel);
+          srcPixel = dstCM.getDataElements(srcPix[off], srcPixel);
+          off++;
           dstPixel = dstRast.getDataElements(x, y, dstPixel);
 
           switch (dstCM.getTransferType()) {
@@ -278,9 +287,9 @@ class XorCopyArgbToAny extends Blit {
               float[] floatdstarr = (float[]) dstPixel;
               float[] floatxorarr = (float[]) xorPixel;
               for (int i = 0; i < floatdstarr.length; i++) {
-                int v = (Float.floatToIntBits(floatdstarr[i]) ^
-                             Float.floatToIntBits(floatsrcarr[i]) ^
-                             Float.floatToIntBits(floatxorarr[i]));
+                int v = Float.floatToIntBits(floatdstarr[i]) ^
+                    Float.floatToIntBits(floatsrcarr[i]) ^
+                    Float.floatToIntBits(floatxorarr[i]);
                 floatdstarr[i] = Float.intBitsToFloat(v);
               }
               break;
@@ -289,9 +298,9 @@ class XorCopyArgbToAny extends Blit {
               double[] doubledstarr = (double[]) dstPixel;
               double[] doublexorarr = (double[]) xorPixel;
               for (int i = 0; i < doubledstarr.length; i++) {
-                long v = (Double.doubleToLongBits(doubledstarr[i]) ^
-                              Double.doubleToLongBits(doublesrcarr[i]) ^
-                              Double.doubleToLongBits(doublexorarr[i]));
+                long v = Double.doubleToLongBits(doubledstarr[i]) ^
+                    Double.doubleToLongBits(doublesrcarr[i]) ^
+                    Double.doubleToLongBits(doublexorarr[i]);
                 doubledstarr[i] = Double.longBitsToDouble(v);
               }
               break;

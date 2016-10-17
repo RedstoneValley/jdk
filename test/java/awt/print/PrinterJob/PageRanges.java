@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6575331
  * @summary The specified pages should be printed.
  * @run main/manual=yesno PageRanges
@@ -33,7 +33,7 @@ import java.awt.print.*;
 
 public class PageRanges implements Printable {
 
-    static String[] instr = {
+    static final String[] instr = {
      "This test prints two jobs, and tests that the specified range",
      "of pages is printed. You must have a printer installed for this test.",
      "In the first dialog, select a page range of 2 to 3, and press OK",
@@ -41,9 +41,9 @@ public class PageRanges implements Printable {
      "Collect the two print outs and confirm the jobs printed correctly",
     };
 
-    public static void main(String args[]) throws Exception {
-        for (int i=0;i<instr.length;i++) {
-            System.out.println(instr[i]);
+    public static void main(String[] args) throws Exception {
+        for (String anInstr : instr) {
+            System.out.println(anInstr);
         }
         PrinterJob job = PrinterJob.getPrinterJob();
         if (job.getPrintService() == null) {
@@ -63,6 +63,7 @@ public class PageRanges implements Printable {
         return;
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pi)
                      throws PrinterException  {
 

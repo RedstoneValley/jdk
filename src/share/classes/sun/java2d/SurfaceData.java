@@ -25,6 +25,7 @@
 
 package sun.java2d;
 
+import java.awt.AWTPermission;
 import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
@@ -33,6 +34,7 @@ import java.awt.Transparency;
 import java.awt.image.ColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
+import java.security.Permission;
 import sun.awt.SunHints;
 import sun.awt.image.SurfaceManager;
 import sun.java2d.loops.CompositeType;
@@ -71,6 +73,7 @@ import sun.java2d.pipe.ShapeDrawPipe;
 import sun.java2d.pipe.SolidTextRenderer;
 import sun.java2d.pipe.SpanClipRenderer;
 import sun.java2d.pipe.SpanShapeRenderer;
+import sun.java2d.pipe.SpanShapeRenderer.Composite;
 import sun.java2d.pipe.TextPipe;
 import sun.java2d.pipe.TextRenderer;
 
@@ -138,11 +141,11 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
   static final int LOOP_UNKNOWN = 0;
   static final int LOOP_FOUND = 1;
   static final int LOOP_NOTFOUND = 2;
-  static java.security.Permission compPermission;
-  private static RenderCache loopcache = new RenderCache(30);
+  private static final RenderCache loopcache = new RenderCache(30);
+  private static final int MAX_ALPHA = 255;
+  static Permission compPermission;
 
   static {
-    initIDs();
   }
 
   static {
@@ -171,7 +174,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     AAClipColorViaShape = makeConverter(AAClipColorShape);
 
     paintPipe = new AlphaPaintPipe();
-    paintShape = new SpanShapeRenderer.Composite(paintPipe);
+    paintShape = new Composite(paintPipe);
     paintViaShape = new PixelToShapeConverter(paintShape);
     paintText = new TextRenderer(paintPipe);
     clipPaintPipe = new SpanClipRenderer(paintPipe);
@@ -182,7 +185,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     AAClipPaintViaShape = makeConverter(AAClipPaintShape);
 
     compPipe = new GeneralCompositePipe();
-    compShape = new SpanShapeRenderer.Composite(compPipe);
+    compShape = new Composite(compPipe);
     compViaShape = new PixelToShapeConverter(compShape);
     compText = new TextRenderer(compPipe);
     clipCompPipe = new SpanClipRenderer(compPipe);
@@ -195,6 +198,8 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     imagepipe = new DrawImage();
   }
 
+  private final Object disposerReferent = new Object();
+  private final StateTrackableDelegate stateDelegate;
   int haveLCDLoop;
   int havePgramXORLoop;
   int havePgramSolidLoop;
@@ -203,9 +208,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
   private boolean surfaceLost; // = false;
   private SurfaceType surfaceType;
   private ColorModel colorModel;
-  private Object disposerReferent = new Object();
   private Object blitProxyKey;
-  private StateTrackableDelegate stateDelegate;
 
   protected SurfaceData(SurfaceType surfaceType, ColorModel cm) {
     this(State.STABLE, surfaceType, cm);
@@ -216,18 +219,16 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
   }
 
   protected SurfaceData(StateTrackableDelegate trackable, SurfaceType surfaceType, ColorModel cm) {
-    this.stateDelegate = trackable;
-    this.colorModel = cm;
+    stateDelegate = trackable;
+    colorModel = cm;
     this.surfaceType = surfaceType;
     valid = true;
   }
 
   protected SurfaceData(State state) {
-    this.stateDelegate = StateTrackableDelegate.createInstance(state);
+    stateDelegate = StateTrackableDelegate.createInstance(state);
     valid = true;
   }
-
-  private static native void initIDs();
 
   /**
    * Extracts the SurfaceManager from the given Image, and then
@@ -264,29 +265,17 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
       case SunGraphics2D.PAINT_ALPHACOLOR:
         return SurfaceType.AnyColor;
       case SunGraphics2D.PAINT_GRADIENT:
-        if (sg2d.paint.getTransparency() == OPAQUE) {
-          return SurfaceType.OpaqueGradientPaint;
-        } else {
-          return SurfaceType.GradientPaint;
-        }
+        return sg2d.paint.getTransparency() == OPAQUE ? SurfaceType.OpaqueGradientPaint
+            : SurfaceType.GradientPaint;
       case SunGraphics2D.PAINT_LIN_GRADIENT:
-        if (sg2d.paint.getTransparency() == OPAQUE) {
-          return SurfaceType.OpaqueLinearGradientPaint;
-        } else {
-          return SurfaceType.LinearGradientPaint;
-        }
+        return sg2d.paint.getTransparency() == OPAQUE ? SurfaceType.OpaqueLinearGradientPaint
+            : SurfaceType.LinearGradientPaint;
       case SunGraphics2D.PAINT_RAD_GRADIENT:
-        if (sg2d.paint.getTransparency() == OPAQUE) {
-          return SurfaceType.OpaqueRadialGradientPaint;
-        } else {
-          return SurfaceType.RadialGradientPaint;
-        }
+        return sg2d.paint.getTransparency() == OPAQUE ? SurfaceType.OpaqueRadialGradientPaint
+            : SurfaceType.RadialGradientPaint;
       case SunGraphics2D.PAINT_TEXTURE:
-        if (sg2d.paint.getTransparency() == OPAQUE) {
-          return SurfaceType.OpaqueTexturePaint;
-        } else {
-          return SurfaceType.TexturePaint;
-        }
+        return sg2d.paint.getTransparency() == OPAQUE ? SurfaceType.OpaqueTexturePaint
+            : SurfaceType.TexturePaint;
       default:
       case SunGraphics2D.PAINT_CUSTOM:
         return SurfaceType.AnyPaint;
@@ -296,11 +285,8 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
   private static CompositeType getFillCompositeType(SunGraphics2D sg2d) {
     CompositeType compType = sg2d.imageComp;
     if (sg2d.compositeState == SunGraphics2D.COMP_ISCOPY) {
-      if (compType == CompositeType.SrcOverNoEa) {
-        compType = CompositeType.OpaqueSrcOverNoEa;
-      } else {
-        compType = CompositeType.SrcNoEa;
-      }
+      compType = compType == CompositeType.SrcOverNoEa ? CompositeType.OpaqueSrcOverNoEa
+          : CompositeType.SrcNoEa;
     }
     return compType;
   }
@@ -343,17 +329,8 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
    * which is true when all palette entries in the color
    * model are gray and opaque.
    */
-  protected static native boolean isOpaqueGray(IndexColorModel icm);
-
-  /**
-   * For our purposes null and NullSurfaceData are the same as
-   * they represent a disposed surface.
-   */
-  public static boolean isNull(SurfaceData sd) {
-    if (sd == null || sd == NullSurfaceData.theInstance) {
-      return true;
-    }
-    return false;
+  protected static boolean isOpaqueGray(IndexColorModel icm) {
+    return icm.isAllGrayOpaque();
   }
 
   /**
@@ -389,7 +366,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     // since the getSourceSurfaceData() method only does caching
     // if the key is not null.
     if (SurfaceDataProxy.isCachingAllowed()) {
-      this.blitProxyKey = key;
+      blitProxyKey = key;
     }
   }
 
@@ -433,11 +410,8 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     if (img.getAccelerationPriority() > 0.0f && blitProxyKey != null) {
       SurfaceDataProxy sdp = (SurfaceDataProxy) srcMgr.getCacheData(blitProxyKey);
       if (sdp == null || !sdp.isValid()) {
-        if (srcData.getState() == State.UNTRACKABLE) {
-          sdp = SurfaceDataProxy.UNCACHED;
-        } else {
-          sdp = makeProxyFor(srcData);
-        }
+        sdp = srcData.getState() == State.UNTRACKABLE ? SurfaceDataProxy.UNCACHED
+            : makeProxyFor(srcData);
         srcMgr.setCacheData(blitProxyKey, sdp);
       }
       srcData = sdp.replaceData(srcData, txtype, comp, bgColor);
@@ -474,10 +448,12 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     return SurfaceDataProxy.UNCACHED;
   }
 
+  @Override
   public State getState() {
     return stateDelegate.getState();
   }
 
+  @Override
   public StateTracker getStateTracker() {
     return stateDelegate.getStateTracker();
   }
@@ -510,6 +486,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     return valid;
   }
 
+  @Override
   public Object getDisposerReferent() {
     return disposerReferent;
   }
@@ -561,7 +538,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
         DrawGlyphListLCD loop = DrawGlyphListLCD.locate(SurfaceType.AnyColor,
             CompositeType.SrcNoEa,
             getSurfaceType());
-        haveLCDLoop = (loop != null) ? LOOP_FOUND : LOOP_NOTFOUND;
+        haveLCDLoop = loop != null ? LOOP_FOUND : LOOP_NOTFOUND;
       }
       return haveLCDLoop == LOOP_FOUND;
     }
@@ -575,7 +552,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
           FillParallelogram loop = FillParallelogram.locate(SurfaceType.AnyColor,
               CompositeType.Xor,
               getSurfaceType());
-          havePgramXORLoop = (loop != null) ? LOOP_FOUND : LOOP_NOTFOUND;
+          havePgramXORLoop = loop != null ? LOOP_FOUND : LOOP_NOTFOUND;
         }
         return havePgramXORLoop == LOOP_FOUND;
       } else if (sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY &&
@@ -585,7 +562,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
           FillParallelogram loop = FillParallelogram.locate(SurfaceType.AnyColor,
               CompositeType.SrcNoEa,
               getSurfaceType());
-          havePgramSolidLoop = (loop != null) ? LOOP_FOUND : LOOP_NOTFOUND;
+          havePgramSolidLoop = loop != null ? LOOP_FOUND : LOOP_NOTFOUND;
         }
         return havePgramSolidLoop == LOOP_FOUND;
       }
@@ -637,11 +614,8 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
             sg2d.drawpipe = converter;
             sg2d.fillpipe = converter;
           } else {
-            if (sg2d.strokeState != SunGraphics2D.STROKE_THIN) {
-              sg2d.drawpipe = converter;
-            } else {
-              sg2d.drawpipe = colorPrimitives;
-            }
+            sg2d.drawpipe = sg2d.strokeState != SunGraphics2D.STROKE_THIN ? converter
+                : colorPrimitives;
             sg2d.fillpipe = colorPrimitives;
           }
           sg2d.textpipe = solidTextRenderer;
@@ -665,11 +639,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
         sg2d.drawpipe = compViaShape;
         sg2d.fillpipe = compViaShape;
         sg2d.shapepipe = compShape;
-        if (sg2d.clipState == SunGraphics2D.CLIP_SHAPE) {
-          sg2d.textpipe = clipCompText;
-        } else {
-          sg2d.textpipe = compText;
-        }
+        sg2d.textpipe = sg2d.clipState == SunGraphics2D.CLIP_SHAPE ? clipCompText : compText;
       }
     } else if (sg2d.antialiasHint == SunHints.INTVAL_ANTIALIAS_ON) {
       sg2d.alphafill = getMaskFill(sg2d);
@@ -681,17 +651,14 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
           sg2d.shapepipe = AAClipColorViaShape;
           sg2d.textpipe = clipColorText;
         } else {
-          PixelToParallelogramConverter converter = (sg2d.alphafill.canDoParallelograms()
-                                                         ? AAColorViaPgram : AAColorViaShape);
+          PixelToParallelogramConverter converter = sg2d.alphafill.canDoParallelograms()
+              ? AAColorViaPgram : AAColorViaShape;
           sg2d.drawpipe = converter;
           sg2d.fillpipe = converter;
           sg2d.shapepipe = converter;
-          if (sg2d.paintState > SunGraphics2D.PAINT_ALPHACOLOR
-              || sg2d.compositeState > SunGraphics2D.COMP_ISCOPY) {
-            sg2d.textpipe = colorText;
-          } else {
-            sg2d.textpipe = getTextPipe(sg2d, true /* AA==ON */);
-          }
+          sg2d.textpipe = sg2d.paintState > SunGraphics2D.PAINT_ALPHACOLOR
+              || sg2d.compositeState > SunGraphics2D.COMP_ISCOPY ? colorText
+              : getTextPipe(sg2d, true /* AA==ON */);
         }
       } else {
         if (sg2d.clipState == SunGraphics2D.CLIP_SHAPE) {
@@ -715,17 +682,9 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
       sg2d.alphafill = getMaskFill(sg2d);
       // assert(sg2d.surfaceData == this);
       if (sg2d.alphafill != null) {
-        if (sg2d.clipState == SunGraphics2D.CLIP_SHAPE) {
-          sg2d.textpipe = clipColorText;
-        } else {
-          sg2d.textpipe = colorText;
-        }
+        sg2d.textpipe = sg2d.clipState == SunGraphics2D.CLIP_SHAPE ? clipColorText : colorText;
       } else {
-        if (sg2d.clipState == SunGraphics2D.CLIP_SHAPE) {
-          sg2d.textpipe = clipPaintText;
-        } else {
-          sg2d.textpipe = paintText;
-        }
+        sg2d.textpipe = sg2d.clipState == SunGraphics2D.CLIP_SHAPE ? clipPaintText : paintText;
       }
     } else {
       PixelToShapeConverter converter;
@@ -744,11 +703,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
         sg2d.drawpipe = converter;
         sg2d.fillpipe = converter;
       } else {
-        if (sg2d.strokeState != SunGraphics2D.STROKE_THIN) {
-          sg2d.drawpipe = converter;
-        } else {
-          sg2d.drawpipe = colorPrimitives;
-        }
+        sg2d.drawpipe = sg2d.strokeState != SunGraphics2D.STROKE_THIN ? converter : colorPrimitives;
         sg2d.fillpipe = colorPrimitives;
       }
 
@@ -778,11 +733,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
          */
     switch (sg2d.textAntialiasHint) {
       case SunHints.INTVAL_TEXT_ANTIALIAS_DEFAULT:
-        if (aaHintIsOn) {
-          return aaTextRenderer;
-        } else {
-          return solidTextRenderer;
-        }
+        return aaHintIsOn ? aaTextRenderer : solidTextRenderer;
       case SunHints.INTVAL_TEXT_ANTIALIAS_OFF:
         return solidTextRenderer;
 
@@ -809,11 +760,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
                  * here in case DEFAULT is ever passed in.
                  */
           default:
-            if (aaHintIsOn) {
-              return aaTextRenderer;
-            } else {
-              return solidTextRenderer;
-            }
+            return aaHintIsOn ? aaTextRenderer : solidTextRenderer;
         }
     }
   }
@@ -875,11 +822,12 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
   }
 
   /**
-   * Returns the type of this <code>Transparency</code>.
+   * Returns the type of this {@code Transparency}.
    *
-   * @return the field type of this <code>Transparency</code>, which is
-   * either OPAQUE, BITMASK or TRANSLUCENT.
+   * @return the field type of this {@code Transparency}, which is
+   * either CHANNEL_MAX, BITMASK or TRANSLUCENT.
    */
+  @Override
   public int getTransparency() {
     return getColorModel().getTransparency();
   }
@@ -962,7 +910,7 @@ public abstract class SurfaceData implements Transparency, DisposerTarget, State
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       if (compPermission == null) {
-        compPermission = new java.awt.AWTPermission("readDisplayPixels");
+        compPermission = new AWTPermission("readDisplayPixels");
       }
       sm.checkPermission(compPermission);
     }

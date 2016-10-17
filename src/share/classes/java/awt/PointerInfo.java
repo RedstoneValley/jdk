@@ -48,7 +48,7 @@ public class PointerInfo {
   /**
    * Package-private constructor to prevent instantiation.
    */
-  PointerInfo(final GraphicsDevice device, final Point location) {
+  PointerInfo(GraphicsDevice device, Point location) {
     this.device = device;
     this.location = location;
   }

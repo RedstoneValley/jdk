@@ -32,9 +32,7 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-import test.java.awt.regtesthelpers.AbstractPolicyTest;
 
 /*
 
@@ -113,8 +111,8 @@ public class DefaultFTPTest {
 
     public void start() {
         try {
-            Class clazz = null;
-            AbstractPolicyTest test = null;
+            Class clazz;
+            AbstractPolicyTest test;
 
             for (int i = 1; i <= TESTS_NUMBER; i++) {
                 clazz = Class.forName("PolicyTest" + i);
@@ -139,13 +137,13 @@ public class DefaultFTPTest {
  */
 class PolicyTest1 extends AbstractPolicyTest {
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new GridLayout(3, 1));
 
         for (int i = 0; i < 3; i++) {
-            Container cont = (Container) registerComponent("panel" + i, new Panel());
+            Container cont = (Container) registerComponent(Panel.base + i, new Panel());
             for (int j = 0; j < 3; j++) {
-                cont.add(registerComponent("btn " + (j + i*100), new Button("button")));
+                cont.add(registerComponent("btn " + (j + i*100), new Button(Button.base)));
             }
             frame.add(cont);
         }
@@ -153,11 +151,11 @@ class PolicyTest1 extends AbstractPolicyTest {
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 0", "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 100");
@@ -170,12 +168,12 @@ class PolicyTest1 extends AbstractPolicyTest {
         order.put("panel0", "btn 0");
         order.put("panel1", "btn 100");
         order.put("panel2", "btn 200");
-        order.put("frame", "btn 0");
+        order.put(Frame.base, "btn 0");
         return order;
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 0", "btn 202");
         order.put("btn 1", "btn 0");
         order.put("btn 2", "btn 1");
@@ -188,12 +186,12 @@ class PolicyTest1 extends AbstractPolicyTest {
         order.put("panel0", "btn 202");
         order.put("panel1", "btn 2");
         order.put("panel2", "btn 102");
-        order.put("frame", "btn 202");
+        order.put(Frame.base, "btn 202");
         return order;
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame"};
+        return new String[] {Frame.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
@@ -216,39 +214,39 @@ class PolicyTest1 extends AbstractPolicyTest {
 class PolicyTest2 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn 1", new Button("button")));
+        frame.add(registerComponent("btn 1", new Button(Button.base)));
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 2", new Button("button")));
-        cont.add(registerComponent("btn 3", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
+        cont.add(registerComponent("btn 3", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusTraversalPolicyProvider(true);
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusTraversalPolicyProvider(true);
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn 1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 3");
         order.put("btn 3", "btn 4");
         order.put("btn 4", "btn 1");
-        order.put("panel", "btn 2");
+        order.put(Panel.base, "btn 2");
         return order;
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 3");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "btn 1");
@@ -257,13 +255,14 @@ class PolicyTest2 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel"};
+        return new String[] {Frame.base, Panel.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn 1";
-        } else if ("panel".equals(focusCycleRoot_id)) {
+        }
+        if (Panel.base.equals(focusCycleRoot_id)) {
             return "btn 2";
         }
         return null;
@@ -274,9 +273,10 @@ class PolicyTest2 extends AbstractPolicyTest {
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn 4";
-        } else if ("panel".equals(focusCycleRoot_id)) {
+        }
+        if (Panel.base.equals(focusCycleRoot_id)) {
             return "btn 3";
         }
         return null;
@@ -290,39 +290,39 @@ class PolicyTest2 extends AbstractPolicyTest {
 class PolicyTest3 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn 1", new Button("button")));
+        frame.add(registerComponent("btn 1", new Button(Button.base)));
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 2", new Button("button")));
-        cont.add(registerComponent("btn 3", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
+        cont.add(registerComponent("btn 3", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusCycleRoot(true);
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusCycleRoot(true);
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn 1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 3");
         order.put("btn 3", "btn 2");
         order.put("btn 4", "btn 1");
-        order.put("panel", "btn 2");
+        order.put(Panel.base, "btn 2");
         return order;
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "btn 3");
@@ -331,13 +331,14 @@ class PolicyTest3 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel"};
+        return new String[] {Frame.base, Panel.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn 1";
-        } else if ("panel".equals(focusCycleRoot_id)) {
+        }
+        if (Panel.base.equals(focusCycleRoot_id)) {
             return "btn 2";
         }
         return null;
@@ -348,9 +349,10 @@ class PolicyTest3 extends AbstractPolicyTest {
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn 4";
-        } else if ("panel".equals(focusCycleRoot_id)) {
+        }
+        if (Panel.base.equals(focusCycleRoot_id)) {
             return "btn 3";
         }
         return null;
@@ -364,28 +366,28 @@ class PolicyTest3 extends AbstractPolicyTest {
 class PolicyTest4 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 1", new Button("button")));
-        cont.add(registerComponent("btn 2", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 1", new Button(Button.base)));
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 3", new Button("button")));
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 3", new Button(Button.base)));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusTraversalPolicyProvider(true);
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusTraversalPolicyProvider(true);
         ((Button)getComponent("btn 3")).setFocusable(false);
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 2", "btn 1");
         order.put("btn 1", "btn 4");
@@ -417,28 +419,28 @@ class PolicyTest4 extends AbstractPolicyTest {
 class PolicyTest5 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 1", new Button("button")));
-        cont.add(registerComponent("btn 2", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 1", new Button(Button.base)));
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 3", new Button("button")));
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 3", new Button(Button.base)));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusCycleRoot(true);
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusCycleRoot(true);
         ((Button)getComponent("btn 3")).setFocusable(false);
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 1");
         order.put("btn 2", "btn 1");
         order.put("btn 1", "btn 2");
@@ -470,55 +472,59 @@ class PolicyTest5 extends AbstractPolicyTest {
 class PolicyTest6 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn 1", new Button("button")));
+        frame.add(registerComponent("btn 1", new Button(Button.base)));
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 2", new Button("button")));
-        cont.add(registerComponent("btn 3", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
+        cont.add(registerComponent("btn 3", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 8783378338904952106L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn 2");
                 }
             });
-        ((Container)getComponent("panel")).setFocusTraversalPolicyProvider(true);
-        ((Container)getComponent("panel")).setFocusable(true);
+        ((Container)getComponent(Panel.base)).setFocusTraversalPolicyProvider(true);
+        ((Container)getComponent(Panel.base)).setFocusable(true);
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn 1");
-        order.put("btn 1", "panel");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn 1");
+        order.put("btn 1", Panel.base);
         order.put("btn 2", "btn 3");
         order.put("btn 3", "btn 4");
         order.put("btn 4", "btn 1");
-        order.put("panel", "btn 2");
+        order.put(Panel.base, "btn 2");
         return order;
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 3");
         order.put("btn 3", "btn 2");
-        order.put("btn 2", "panel");
+        order.put("btn 2", Panel.base);
         order.put("btn 1", "btn 4");
-        order.put("panel", "btn 1");
+        order.put(Panel.base, "btn 1");
         return order;
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"panel"};
+        return new String[] {Panel.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
@@ -526,7 +532,7 @@ class PolicyTest6 extends AbstractPolicyTest {
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        return "panel";
+        return Panel.base;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
@@ -541,55 +547,59 @@ class PolicyTest6 extends AbstractPolicyTest {
 class PolicyTest7 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn 1", new Button("button")));
+        frame.add(registerComponent("btn 1", new Button(Button.base)));
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn 2", new Button("button")));
-        cont.add(registerComponent("btn 3", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn 2", new Button(Button.base)));
+        cont.add(registerComponent("btn 3", new Button(Button.base)));
         frame.add(cont);
 
-        frame.add(registerComponent("btn 4", new Button("button")));
+        frame.add(registerComponent("btn 4", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 9192513627537941787L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn 2");
                 }
             });
-        ((Container)getComponent("panel")).setFocusCycleRoot(true);
-        ((Container)getComponent("panel")).setFocusable(true);
+        ((Container)getComponent(Panel.base)).setFocusCycleRoot(true);
+        ((Container)getComponent(Panel.base)).setFocusable(true);
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn 1");
-        order.put("btn 1", "panel");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn 1");
+        order.put("btn 1", Panel.base);
         order.put("btn 2", "btn 3");
-        order.put("btn 3", "panel");
+        order.put("btn 3", Panel.base);
         order.put("btn 4", "btn 1");
-        order.put("panel", "btn 2");
+        order.put(Panel.base, "btn 2");
         return order;
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 3", "btn 2");
-        order.put("btn 2", "panel");
+        order.put("btn 2", Panel.base);
         order.put("btn 1", "btn 4");
-        order.put("panel", "btn 1");
+        order.put(Panel.base, "btn 1");
         return order;
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"panel"};
+        return new String[] {Panel.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
@@ -597,7 +607,7 @@ class PolicyTest7 extends AbstractPolicyTest {
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        return "panel";
+        return Panel.base;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
@@ -612,21 +622,21 @@ class PolicyTest7 extends AbstractPolicyTest {
 class PolicyTest8 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn-1", new Button("button")));
-        frame.add(registerComponent("btn-2", new Button("button")));
+        frame.add(registerComponent("btn-1", new Button(Button.base)));
+        frame.add(registerComponent("btn-2", new Button(Button.base)));
 
         Container cont1 = (Container)registerComponent("panel-1", new Panel());
-        cont1.add(registerComponent("btn-3", new Button("button")));
-        cont1.add(registerComponent("btn-4", new Button("button")));
-        cont1.add(registerComponent("btn-5", new Button("button")));
+        cont1.add(registerComponent("btn-3", new Button(Button.base)));
+        cont1.add(registerComponent("btn-4", new Button(Button.base)));
+        cont1.add(registerComponent("btn-5", new Button(Button.base)));
 
         Container cont2 = (Container)registerComponent("panel-2", new Panel());
-        cont2.add(registerComponent("btn-6", new Button("button")));
-        cont2.add(registerComponent("btn-7", new Button("button")));
-        cont2.add(registerComponent("btn-8", new Button("button")));
+        cont2.add(registerComponent("btn-6", new Button(Button.base)));
+        cont2.add(registerComponent("btn-7", new Button(Button.base)));
+        cont2.add(registerComponent("btn-8", new Button(Button.base)));
 
         frame.add(cont1);
         frame.add(cont2);
@@ -637,6 +647,10 @@ class PolicyTest8 extends AbstractPolicyTest {
     protected void customizeHierarchy() {
         ((Container)getComponent("panel-1")).setFocusTraversalPolicyProvider(true);
         ((Container)getComponent("panel-1")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 2549523259361369847L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn-4");
                 }
@@ -644,6 +658,10 @@ class PolicyTest8 extends AbstractPolicyTest {
 
         ((Container)getComponent("panel-2")).setFocusCycleRoot(true);
         ((Container)getComponent("panel-2")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 2186394379222209245L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn-7");
                 }
@@ -651,8 +669,8 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-4");
         order.put("btn-3", "btn-4");
@@ -667,7 +685,7 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-5");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-2");
@@ -680,37 +698,43 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-4";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-7";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-6";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-8";
         }
         return null;
@@ -724,21 +748,21 @@ class PolicyTest8 extends AbstractPolicyTest {
 class PolicyTest9 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        frame.add(registerComponent("btn-1", new Button("button")));
-        frame.add(registerComponent("btn-2", new Button("button")));
+        frame.add(registerComponent("btn-1", new Button(Button.base)));
+        frame.add(registerComponent("btn-2", new Button(Button.base)));
 
         Container cont1 = (Container)registerComponent("panel-1", new Panel());
-        cont1.add(registerComponent("btn-3", new Button("button")));
-        cont1.add(registerComponent("btn-4", new Button("button")));
-        cont1.add(registerComponent("btn-5", new Button("button")));
+        cont1.add(registerComponent("btn-3", new Button(Button.base)));
+        cont1.add(registerComponent("btn-4", new Button(Button.base)));
+        cont1.add(registerComponent("btn-5", new Button(Button.base)));
 
         Container cont2 = (Container)registerComponent("panel-2", new Panel());
-        cont2.add(registerComponent("btn-6", new Button("button")));
-        cont2.add(registerComponent("btn-7", new Button("button")));
-        cont2.add(registerComponent("btn-8", new Button("button")));
+        cont2.add(registerComponent("btn-6", new Button(Button.base)));
+        cont2.add(registerComponent("btn-7", new Button(Button.base)));
+        cont2.add(registerComponent("btn-8", new Button(Button.base)));
 
         frame.add(cont1);
         frame.add(cont2);
@@ -749,6 +773,10 @@ class PolicyTest9 extends AbstractPolicyTest {
     protected void customizeHierarchy() {
         ((Container)getComponent("panel-1")).setFocusCycleRoot(true);
         ((Container)getComponent("panel-1")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 4957784912334490748L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn-4");
                 }
@@ -756,6 +784,10 @@ class PolicyTest9 extends AbstractPolicyTest {
 
         ((Container)getComponent("panel-2")).setFocusTraversalPolicyProvider(true);
         ((Container)getComponent("panel-2")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = -6493247197386127954L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("btn-7");
                 }
@@ -763,8 +795,8 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-4");
         order.put("btn-3", "btn-4");
@@ -779,7 +811,7 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-8");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-5");
@@ -792,37 +824,43 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-4";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-7";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-6";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-8";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-8";
         }
         return null;
@@ -836,20 +874,20 @@ class PolicyTest9 extends AbstractPolicyTest {
 class PolicyTest10 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new GridLayout(2, 1));
 
         Container cont0 = new Panel();
-        cont0.add(registerComponent("btn-1", new Button("button")));
-        cont0.add(registerComponent("btn-2", new Button("button")));
+        cont0.add(registerComponent("btn-1", new Button(Button.base)));
+        cont0.add(registerComponent("btn-2", new Button(Button.base)));
 
         Container cont1 = (Container)registerComponent("panel-1", new Panel());
-        cont1.add(registerComponent("btn-3", new Button("button")));
-        cont1.add(registerComponent("btn-4", new Button("button")));
+        cont1.add(registerComponent("btn-3", new Button(Button.base)));
+        cont1.add(registerComponent("btn-4", new Button(Button.base)));
 
         Container cont2 = (Container)registerComponent("panel-2", new Panel());
-        cont2.add(registerComponent("btn-5", new Button("button")));
-        cont2.add(registerComponent("btn-6", new Button("button")));
+        cont2.add(registerComponent("btn-5", new Button(Button.base)));
+        cont2.add(registerComponent("btn-6", new Button(Button.base)));
 
         cont1.add(cont2);
         frame.add(cont0);
@@ -861,6 +899,10 @@ class PolicyTest10 extends AbstractPolicyTest {
     protected void customizeHierarchy() {
         ((Container)getComponent("panel-1")).setFocusCycleRoot(true);
         ((Container)getComponent("panel-1")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy() {
+
+            private static final long serialVersionUID = 7689153221375380392L;
+
+            @Override
                 public Component getDefaultComponent(Container aContainer) {
                     return getComponent("panel-2");
                 }
@@ -870,8 +912,8 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "panel-2");
         order.put("btn-3", "btn-4");
@@ -884,7 +926,7 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-6");
@@ -895,37 +937,37 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "panel-2";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-5";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-5";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
-            return "btn-2";
-        } else {
-            return "btn-6";
-        }
+        return Frame.base.equals(focusCycleRoot_id) ? "btn-2" : "btn-6";
     }
 }
 
@@ -936,27 +978,27 @@ class PolicyTest10 extends AbstractPolicyTest {
  */
 class PolicyTest11 extends AbstractPolicyTest {
     protected Frame createFrame() {
-        Frame frame = (Frame) registerComponent("frame", new Frame("Test Frame"));
+        Frame frame = (Frame) registerComponent(Frame.base, new Frame("Test Frame"));
         frame.setLayout(new FlowLayout());
 
-        Container cont = (Container)registerComponent("panel", new Panel());
-        cont.add(registerComponent("btn-1", new Button("button")));
-        cont.add(registerComponent("btn-2", new Button("button")));
+        Container cont = (Container)registerComponent(Panel.base, new Panel());
+        cont.add(registerComponent("btn-1", new Button(Button.base)));
+        cont.add(registerComponent("btn-2", new Button(Button.base)));
 
         frame.add(cont);
-        frame.add(registerComponent("btn-3", new Button("button")));
+        frame.add(registerComponent("btn-3", new Button(Button.base)));
 
         return frame;
     }
 
     protected void customizeHierarchy() {
-        ((Container)getComponent("frame")).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
-        ((Container)getComponent("panel")).setFocusCycleRoot(true);
+        ((Container)getComponent(Frame.base)).setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        ((Container)getComponent(Panel.base)).setFocusCycleRoot(true);
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-1");
@@ -964,16 +1006,16 @@ class PolicyTest11 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-3", "btn-1");
         order.put("btn-2", "btn-1");
         order.put("btn-1", "btn-2");
-        order.put("frame", "btn-3");
+        order.put(Frame.base, "btn-3");
         return order;
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame"};
+        return new String[] {Frame.base};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {

@@ -35,5 +35,5 @@ public interface DestSurfaceProvider {
    *
    * @return destination surface
    */
-  public Surface getDestSurface();
+  Surface getDestSurface();
 }

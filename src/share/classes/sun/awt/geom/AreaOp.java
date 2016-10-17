@@ -28,6 +28,7 @@ package sun.awt.geom;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 public abstract class AreaOp {
@@ -41,7 +42,8 @@ public abstract class AreaOp {
   /* Constants used to classify result state */
   public static final int RSTAG_INSIDE = 1;
   public static final int RSTAG_OUTSIDE = -1;
-  private static Comparator YXTopComparator = new Comparator() {
+  private static final Comparator YXTopComparator = new Comparator() {
+    @Override
     public int compare(Object o1, Object o2) {
       Curve c1 = ((Edge) o1).getCurve();
       Curve c2 = ((Edge) o2).getCurve();
@@ -57,8 +59,8 @@ public abstract class AreaOp {
       return 1;
     }
   };
-  private static CurveLink[] EmptyLinkList = new CurveLink[2];
-  private static ChainEnd[] EmptyChainList = new ChainEnd[2];
+  private static final CurveLink[] EmptyLinkList = new CurveLink[2];
+  private static final ChainEnd[] EmptyChainList = new ChainEnd[2];
 
   private AreaOp() {
   }
@@ -73,7 +75,7 @@ public abstract class AreaOp {
     }
   }
 
-  public static void finalizeSubCurves(Vector subcurves, Vector chains) {
+  public static void finalizeSubCurves(List subcurves, List chains) {
     int numchains = chains.size();
     if (numchains == 0) {
       return;
@@ -95,7 +97,7 @@ public abstract class AreaOp {
   }
 
   public static void resolveLinks(
-      Vector subcurves, Vector chains, Vector links) {
+      List subcurves, List chains, List links) {
     int numlinks = links.size();
     CurveLink[] linklist;
     if (numlinks == 0) {
@@ -130,8 +132,8 @@ public abstract class AreaOp {
              * Strategy 1:
              * Connect chains or links if they are the only things left...
              */
-      boolean connectchains = (link == null);
-      boolean connectlinks = (chain == null);
+      boolean connectchains = link == null;
+      boolean connectlinks = chain == null;
 
       if (!connectchains && !connectlinks) {
         // assert(link != null && chain != null);
@@ -139,8 +141,8 @@ public abstract class AreaOp {
                  * Strategy 2:
                  * Connect chains or links if they close off an open area...
                  */
-        connectchains = ((curchain & 1) == 0 && chain.getX() == nextchain.getX());
-        connectlinks = ((curlink & 1) == 0 && link.getX() == nextlink.getX());
+        connectchains = (curchain & 1) == 0 && chain.getX() == nextchain.getX();
+        connectlinks = (curlink & 1) == 0 && link.getX() == nextlink.getX();
 
         if (!connectchains && !connectlinks) {
                     /*
@@ -150,10 +152,10 @@ public abstract class AreaOp {
                      */
           double cx = chain.getX();
           double lx = link.getX();
-          connectchains = (nextchain != null && cx < lx &&
-                               obstructs(nextchain.getX(), lx, curchain));
-          connectlinks = (nextlink != null && lx < cx &&
-                              obstructs(nextlink.getX(), cx, curlink));
+          connectchains = nextchain != null && cx < lx &&
+              obstructs(nextchain.getX(), lx, curchain);
+          connectlinks = nextlink != null && lx < cx &&
+              obstructs(nextlink.getX(), cx, curlink);
         }
       }
       if (connectchains) {
@@ -207,7 +209,7 @@ public abstract class AreaOp {
    * Allow 8-connected continuity for "exiting from" type edges
    */
   public static boolean obstructs(double v1, double v2, int phase) {
-    return (((phase & 1) == 0) ? (v1 <= v2) : (v1 < v2));
+    return (phase & 1) == 0 ? v1 <= v2 : v1 < v2;
   }
 
   public abstract void newRow();
@@ -218,17 +220,9 @@ public abstract class AreaOp {
 
   public Vector calculate(Vector left, Vector right) {
     Vector edges = new Vector();
-    addEdges(edges, left, AreaOp.CTAG_LEFT);
-    addEdges(edges, right, AreaOp.CTAG_RIGHT);
+    addEdges(edges, left, CTAG_LEFT);
+    addEdges(edges, right, CTAG_RIGHT);
     edges = pruneEdges(edges);
-    if (false) {
-      System.out.println("result: ");
-      int numcurves = edges.size();
-      Curve[] curvelist = (Curve[]) edges.toArray(new Curve[numcurves]);
-      for (int i = 0; i < numcurves; i++) {
-        System.out.println("curvelist[" + i + "] = " + curvelist[i]);
-      }
-    }
     return edges;
   }
 
@@ -239,18 +233,12 @@ public abstract class AreaOp {
     }
     Edge[] edgelist = (Edge[]) edges.toArray(new Edge[numedges]);
     Arrays.sort(edgelist, YXTopComparator);
-    if (false) {
-      System.out.println("pruning: ");
-      for (int i = 0; i < numedges; i++) {
-        System.out.println("edgelist[" + i + "] = " + edgelist[i]);
-      }
-    }
     Edge e;
     int left = 0;
     int right = 0;
-    int cur = 0;
-    int next = 0;
-    double yrange[] = new double[2];
+    int cur;
+    int next;
+    double[] yrange = new double[2];
     Vector subcurves = new Vector();
     Vector chains = new Vector();
     Vector links = new Vector();
@@ -297,13 +285,6 @@ public abstract class AreaOp {
           yrange[1] = y;
         }
       }
-      if (false) {
-        System.out.println("current line: y = [" +
-            yrange[0] + ", " + yrange[1] + "]");
-        for (cur = left; cur < right; cur++) {
-          System.out.println("  " + edgelist[cur]);
-        }
-      }
       // Note: We could start at left+1, but we need to make
       // sure that edgelist[left] has its equivalence set to 0.
       int nexteq = 1;
@@ -325,7 +306,8 @@ public abstract class AreaOp {
               // curve segments.
               int eq = prevedge.getEquivalence();
               if (eq == 0) {
-                eq = nexteq++;
+                eq = nexteq;
+                nexteq++;
                 prevedge.setEquivalence(eq);
               }
               e.setEquivalence(eq);
@@ -335,13 +317,6 @@ public abstract class AreaOp {
           edgelist[next] = prevedge;
         }
         edgelist[next] = e;
-      }
-      if (false) {
-        System.out.println("current sorted line: y = [" +
-            yrange[0] + ", " + yrange[1] + "]");
-        for (cur = left; cur < right; cur++) {
-          System.out.println("  " + edgelist[cur]);
-        }
       }
       // Now prune the active edge list.
       // For each edge in the list, determine its classification
@@ -362,10 +337,11 @@ public abstract class AreaOp {
           // or the edge that extends the furthest downward
           // (i.e. has the most potential for continuation)
           int origstate = getState();
-          etag = (origstate == AreaOp.RSTAG_INSIDE ? AreaOp.ETAG_EXIT : AreaOp.ETAG_ENTER);
+          etag = origstate == RSTAG_INSIDE ? ETAG_EXIT : ETAG_ENTER;
           Edge activematch = null;
           Edge longestmatch = e;
           double furthesty = yend;
+          ++cur;
           do {
             // Note: classify() must be called
             // on every edge we consume here.
@@ -378,23 +354,24 @@ public abstract class AreaOp {
               longestmatch = e;
               furthesty = y;
             }
-          } while (++cur < right && (e = edgelist[cur]).getEquivalence() == eq);
+            ++cur;
+          } while (cur < right && (e = edgelist[cur]).getEquivalence() == eq);
           --cur;
           if (getState() == origstate) {
-            etag = AreaOp.ETAG_IGNORE;
+            etag = ETAG_IGNORE;
           } else {
-            e = (activematch != null ? activematch : longestmatch);
+            e = activematch != null ? activematch : longestmatch;
           }
         } else {
           etag = classify(e);
         }
-        if (etag != AreaOp.ETAG_IGNORE) {
+        if (etag != ETAG_IGNORE) {
           e.record(yend, etag);
           links.add(new CurveLink(e.getCurve(), ystart, yend, etag));
         }
       }
       // assert(getState() == AreaOp.RSTAG_OUTSIDE);
-      if (getState() != AreaOp.RSTAG_OUTSIDE) {
+      if (getState() != RSTAG_OUTSIDE) {
         System.out.println("Still inside at end of active edge list!");
         System.out.println("num curves = " + (right - left));
         System.out.println("num links = " + links.size());
@@ -411,13 +388,6 @@ public abstract class AreaOp {
           if (eq != 0) {
             System.out.println("  was equal to " + eq + "...");
           }
-        }
-      }
-      if (false) {
-        System.out.println("new links:");
-        for (int i = 0; i < links.size(); i++) {
-          CurveLink link = (CurveLink) links.elementAt(i);
-          System.out.println("  " + link.getSubCurve());
         }
       }
       resolveLinks(subcurves, chains, links);
@@ -444,11 +414,12 @@ public abstract class AreaOp {
     return ret;
   }
 
-  public static abstract class CAGOp extends AreaOp {
+  public abstract static class CAGOp extends AreaOp {
     boolean inLeft;
     boolean inRight;
     boolean inResult;
 
+    @Override
     public void newRow() {
       inLeft = false;
       inRight = false;
@@ -458,6 +429,7 @@ public abstract class AreaOp {
     public abstract boolean newClassification(
         boolean inLeft, boolean inRight);
 
+    @Override
     public int classify(Edge e) {
       if (e.getCurveTag() == CTAG_LEFT) {
         inLeft = !inLeft;
@@ -469,77 +441,88 @@ public abstract class AreaOp {
         return ETAG_IGNORE;
       }
       inResult = newClass;
-      return (newClass ? ETAG_ENTER : ETAG_EXIT);
+      return newClass ? ETAG_ENTER : ETAG_EXIT;
     }
 
+    @Override
     public int getState() {
-      return (inResult ? RSTAG_INSIDE : RSTAG_OUTSIDE);
+      return inResult ? RSTAG_INSIDE : RSTAG_OUTSIDE;
     }
   }
 
   public static class AddOp extends CAGOp {
+    @Override
     public boolean newClassification(boolean inLeft, boolean inRight) {
-      return (inLeft || inRight);
+      return inLeft || inRight;
     }
   }
 
   public static class SubOp extends CAGOp {
+    @Override
     public boolean newClassification(boolean inLeft, boolean inRight) {
-      return (inLeft && !inRight);
+      return inLeft && !inRight;
     }
   }
 
   public static class IntOp extends CAGOp {
+    @Override
     public boolean newClassification(boolean inLeft, boolean inRight) {
-      return (inLeft && inRight);
+      return inLeft && inRight;
     }
   }
 
   public static class XorOp extends CAGOp {
+    @Override
     public boolean newClassification(boolean inLeft, boolean inRight) {
-      return (inLeft != inRight);
+      return inLeft != inRight;
     }
   }
 
   public static class NZWindOp extends AreaOp {
     private int count;
 
+    @Override
     public void newRow() {
       count = 0;
     }
 
+    @Override
     public int classify(Edge e) {
       // Note: the right curves should be an empty set with this op...
       // assert(e.getCurveTag() == CTAG_LEFT);
       int newCount = count;
-      int type = (newCount == 0 ? ETAG_ENTER : ETAG_IGNORE);
+      int type = newCount == 0 ? ETAG_ENTER : ETAG_IGNORE;
       newCount += e.getCurve().getDirection();
       count = newCount;
-      return (newCount == 0 ? ETAG_EXIT : type);
+      return newCount == 0 ? ETAG_EXIT : type;
     }
 
+    @Override
     public int getState() {
-      return ((count == 0) ? RSTAG_OUTSIDE : RSTAG_INSIDE);
+      return count == 0 ? RSTAG_OUTSIDE : RSTAG_INSIDE;
     }
   }
 
   public static class EOWindOp extends AreaOp {
     private boolean inside;
 
+    @Override
     public void newRow() {
       inside = false;
     }
 
+    @Override
     public int classify(Edge e) {
       // Note: the right curves should be an empty set with this op...
       // assert(e.getCurveTag() == CTAG_LEFT);
       boolean newInside = !inside;
       inside = newInside;
-      return (newInside ? ETAG_ENTER : ETAG_EXIT);
+      return newInside ? ETAG_ENTER : ETAG_EXIT;
     }
 
+    @Override
     public int getState() {
-      return (inside ? RSTAG_INSIDE : RSTAG_OUTSIDE);
+      return inside ? RSTAG_INSIDE : RSTAG_OUTSIDE;
     }
   }
 }

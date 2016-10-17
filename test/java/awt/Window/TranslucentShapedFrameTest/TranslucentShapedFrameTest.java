@@ -33,24 +33,23 @@
  * @run main/manual/othervm -Dsun.java2d.opengl=True TranslucentShapedFrameTest
  */
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsDevice.WindowTranslucency;
-import java.awt.GraphicsEnvironment;
+import java.awt.Insets;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Ellipse2D;
 import java.util.concurrent.CountDownLatch;
-import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 public class TranslucentShapedFrameTest extends javax.swing.JFrame {
     Frame testFrame;
     static CountDownLatch done;
-    static volatile boolean failed = false;
-    GraphicsConfiguration gcToUse = null;
+    static volatile boolean failed;
+    GraphicsConfiguration gcToUse;
 
     /**
      * Creates new form TranslucentShapedFrameTest
@@ -65,6 +64,10 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
         checkEffects();
 
         SwingUtilities.updateComponentTreeUI(this);
+    }
+
+    public static void stopThreads() {
+        TSFrame.done = true;
     }
 
     /** This method is called from within the constructor to
@@ -105,18 +108,20 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
 
         shapedCb.setText("Shaped Frame");
         shapedCb.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        shapedCb.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        shapedCb.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        shapedCb.setMargin(new Insets(0, 0, 0, 0));
+        shapedCb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 shapedCbActionPerformed(evt);
             }
         });
 
         nonOpaqueChb.setText("Non Opaque Frame");
         nonOpaqueChb.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        nonOpaqueChb.setMargin(new java.awt.Insets(0, 0, 0, 0));
-        nonOpaqueChb.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        nonOpaqueChb.setMargin(new Insets(0, 0, 0, 0));
+        nonOpaqueChb.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 nonOpaqueChbActionPerformed(evt);
             }
         });
@@ -130,24 +135,27 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
 
         passedBtn.setBackground(new Color(129, 255, 100));
         passedBtn.setText("Passed");
-        passedBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        passedBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 passedBtnActionPerformed(evt);
             }
         });
 
         failedBtn.setBackground(Color.red);
         failedBtn.setText("Failed");
-        failedBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        failedBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 failedBtnActionPerformed(evt);
             }
         });
 
         createDisposeGrp.add(createFrameBtn);
         createFrameBtn.setText("Create Frame");
-        createFrameBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        createFrameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 createFrameBtnActionPerformed(evt);
             }
         });
@@ -155,15 +163,16 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
         createDisposeGrp.add(disposeFrameBtn);
         disposeFrameBtn.setSelected(true);
         disposeFrameBtn.setText("Dispose Frame");
-        disposeFrameBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        disposeFrameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
                 disposeFrameBtnActionPerformed(evt);
             }
         });
 
         useSwingCb.setText("Use JFrame");
         useSwingCb.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        useSwingCb.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        useSwingCb.setMargin(new Insets(0, 0, 0, 0));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -229,26 +238,24 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void nonOpaqueChbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nonOpaqueChbActionPerformed
+    void nonOpaqueChbActionPerformed(ActionEvent evt) {//GEN-FIRST:event_nonOpaqueChbActionPerformed
         if (testFrame != null) {
             // REMIND: this path in the test doesn't work well (test bug)
             testFrame.setBackground(new Color(0, 0, 0, nonOpaqueChb.isSelected() ? 0 : 255));
         }
     }//GEN-LAST:event_nonOpaqueChbActionPerformed
 
-    private void shapedCbActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_shapedCbActionPerformed
+    void shapedCbActionPerformed(ActionEvent evt) {//GEN-FIRST:event_shapedCbActionPerformed
         if (testFrame != null) {
             Shape s = null;
             if (shapedCb.isSelected()) {
-                s = new Ellipse2D.Double(0, 0,
-                                         testFrame.getWidth(),
-                                         testFrame.getHeight());
+                s = new Ellipse2D.Double(0, 0, testFrame.getWidth(), testFrame.getHeight());
             }
             testFrame.setShape(s);
         }
     }//GEN-LAST:event_shapedCbActionPerformed
 
-    private void transparencySldStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_transparencySldStateChanged
+    void transparencySldStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_transparencySldStateChanged
         JSlider source = (JSlider)evt.getSource();
             int transl = transparencySld.getValue();
             if (testFrame != null) {
@@ -256,31 +263,30 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
             }
     }//GEN-LAST:event_transparencySldStateChanged
 
-    private void failedBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_failedBtnActionPerformed
+    void failedBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_failedBtnActionPerformed
         disposeFrameBtnActionPerformed(evt);
         dispose();
         failed = true;
         done.countDown();
     }//GEN-LAST:event_failedBtnActionPerformed
 
-    private void disposeFrameBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disposeFrameBtnActionPerformed
-        TSFrame.stopThreads();
+    void disposeFrameBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_disposeFrameBtnActionPerformed
+        stopThreads();
         if (testFrame != null) {
             testFrame.dispose();
             testFrame = null;
         }
     }//GEN-LAST:event_disposeFrameBtnActionPerformed
 
-    private void createFrameBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createFrameBtnActionPerformed
+    void createFrameBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_createFrameBtnActionPerformed
         disposeFrameBtnActionPerformed(evt);
         int transl = transparencySld.getValue();
         testFrame = TSFrame.createGui(
-                useSwingCb.isSelected(), shapedCb.isSelected(),
-                (transl < 100), nonOpaqueChb.isSelected(),
+            useSwingCb.isSelected(), shapedCb.isSelected(), transl < 100, nonOpaqueChb.isSelected(),
                 (float)transl/100f);
     }//GEN-LAST:event_createFrameBtnActionPerformed
 
-    private void passedBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_passedBtnActionPerformed
+    void passedBtnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_passedBtnActionPerformed
         disposeFrameBtnActionPerformed(evt);
         dispose();
         done.countDown();
@@ -289,9 +295,10 @@ public class TranslucentShapedFrameTest extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         done = new CountDownLatch(1);
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TranslucentShapedFrameTest().setVisible(true);
             }

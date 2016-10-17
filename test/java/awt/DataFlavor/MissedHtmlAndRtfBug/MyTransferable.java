@@ -27,7 +27,7 @@ import java.io.IOException;
 class MyTransferable implements Transferable {
 
     public static final String TEST_DATA = "<b>Test</b>";
-    private DataFlavor[] dataFlavors;
+    private final DataFlavor[] dataFlavors;
 
     public MyTransferable() {
         dataFlavors = new DataFlavor[]{DataFlavorSearcher.getByteDataFlavorForNative(DataFlavorSearcher.HTML_NAMES),

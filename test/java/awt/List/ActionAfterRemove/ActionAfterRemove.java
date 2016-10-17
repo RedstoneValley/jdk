@@ -32,10 +32,9 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
+@SuppressWarnings("MagicNumber")
 public class ActionAfterRemove
 {
     private static volatile boolean passed = true;
@@ -46,11 +45,11 @@ public class ActionAfterRemove
         passed = false;
     }
 
-    public static final void main(String args[])
+    public static final void main(String[] args)
     {
-        final Frame frame = new Frame();
-        final List list = new List();
-        Robot robot = null;
+        Frame frame = new Frame();
+        List list = new List();
+        Robot robot;
 
         // In order to handle all uncaught exceptions in the EDT
         System.setProperty("sun.awt.exception.handler", "ActionAfterRemove");

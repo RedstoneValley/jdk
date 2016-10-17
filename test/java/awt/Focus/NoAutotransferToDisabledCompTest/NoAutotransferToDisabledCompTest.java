@@ -31,19 +31,15 @@
   @run       main NoAutotransferToDisabledCompTest
 */
 
-import java.awt.Robot;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import test.java.awt.regtesthelpers.Util;
 
 public class NoAutotransferToDisabledCompTest extends Applet {
     Robot robot;
-    JFrame frame = new JFrame("Frame");
-    JButton b0 = new JButton("b0");
-    JButton b1 = new JButton("b1");
-    JButton b2 = new JButton("b2");
+    final JFrame frame = new JFrame("Frame");
+    final JButton b0 = new JButton("b0");
+    final JButton b1 = new JButton("b1");
+    final JButton b2 = new JButton("b2");
 
     public static void main(String[] args) {
         NoAutotransferToDisabledCompTest app = new NoAutotransferToDisabledCompTest();
@@ -60,6 +56,7 @@ public class NoAutotransferToDisabledCompTest extends Applet {
         frame.pack();
 
         b1.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 b1.setEnabled(false);
                 b2.setEnabled(false);
@@ -72,7 +69,7 @@ public class NoAutotransferToDisabledCompTest extends Applet {
 
         // Request focus on b1.
         if (!Util.focusComponent(b1, 2000)) {
-            throw new TestErrorException("couldn't focus " + b1);
+            throw new TestError("couldn't focus " + b1);
         }
 
         // Activate b1.
@@ -93,6 +90,8 @@ public class NoAutotransferToDisabledCompTest extends Applet {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -102,6 +101,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

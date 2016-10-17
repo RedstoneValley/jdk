@@ -37,10 +37,10 @@
  * this sample code.
  */
 
-/**
- * I love blinking things.
- *
- * @author Arthur van Hoff
+/*
+  I love blinking things.
+
+  @author Arthur van Hoff
  * @author 04/24/96 Jim Hagen use getBackground
  * @author 02/05/98 Mike McCloskey removed use of deprecated methods
  * @author 04/23/99 Josh Bloch, use timer instead of explicit multithreading.
@@ -56,9 +56,9 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@SuppressWarnings("MagicNumber")
 public class Blink extends java.applet.Applet {
 
-  private static final long serialVersionUID = -775844794477507646L;
   private Timer timer;              // Schedules the blinking
   private String labelString;       // The label for the window
   private int delay;                // the delay time between blinks
@@ -66,12 +66,12 @@ public class Blink extends java.applet.Applet {
   @Override
   public void init() {
     String blinkFrequency = getParameter("speed");
-    delay = (blinkFrequency == null) ? 400 : (1000 / Integer.parseInt(blinkFrequency));
+    delay = blinkFrequency == null ? 400 : 1000 / Integer.parseInt(blinkFrequency);
     labelString = getParameter("lbl");
     if (labelString == null) {
       labelString = "Blink";
     }
-    Font font = new java.awt.Font("Serif", Font.PLAIN, 24);
+    Font font = new Font(Font.SERIF, Font.PLAIN, 24);
     setFont(font);
   }
 
@@ -107,7 +107,7 @@ public class Blink extends java.applet.Applet {
         y += fontSize;  //move word to next line if it doesn't fit
       }
       if (Math.random() < 0.5) {
-        g.setColor(new java.awt.Color((red + y * 30) % 256, (green + x / 3) % 256, blue));
+        g.setColor(new Color((red + y * 30) % 256, (green + x / 3) % 256, blue));
       } else {
         g.setColor(getBackground());
       }
@@ -129,8 +129,7 @@ public class Blink extends java.applet.Applet {
 
   @Override
   public String[][] getParameterInfo() {
-    String pinfo[][] = {
+    return new String[][]{
         {"speed", "string", "The blink frequency"}, {"lbl", "string", "The text to blink."},};
-    return pinfo;
   }
 }

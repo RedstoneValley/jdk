@@ -31,9 +31,9 @@
   @run main SpuriousExitEnter_3
 */
 
-/**
- * SpuriousExitEnter_3.java
- *
+/*
+  SpuriousExitEnter_3.java
+
             "There is a plain JFrame with JButton in it.",
             "Let A area is the area inside JButton.",
             "Let B area is the area inside JFrame but not inside JButton.",
@@ -50,18 +50,19 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
-import javax.swing.*;
 
-public class SpuriousExitEnter_3 {
-    static JFrame frame = new JFrame("SpuriousExitEnter_3_LW");
-    static JButton jbutton = new JButton("jbutton");
-    static Frame frame1 = new Frame("SpuriousExitEnter_3_HW");
-    static Button button1 = new Button("button");
+public final class SpuriousExitEnter_3 {
+    static final JFrame frame = new JFrame("SpuriousExitEnter_3_LW");
+    static final JButton jbutton = new JButton("jbutton");
+    static final Frame frame1 = new Frame("SpuriousExitEnter_3_HW");
+    static final Button button1 = new Button(Button.base);
 
     static EnterExitAdapter frameAdapter;
     static EnterExitAdapter buttonAdapter;
-    static Robot r = Util.createRobot();
+    static final Robot r = Util.createRobot();
+
+    private SpuriousExitEnter_3() {
+    }
 
     public static void testCase(Window w, Component comp) {
         frameAdapter = new EnterExitAdapter(w);
@@ -149,9 +150,9 @@ public class SpuriousExitEnter_3 {
 
 
 class EnterExitAdapter extends MouseAdapter {
-    private Component target;
-    private int enteredEventCount = 0;
-    private int exitedEventCount = 0;
+    private final Component target;
+    private int enteredEventCount;
+    private int exitedEventCount;
 
     public EnterExitAdapter(Component target) {
         this.target = target;
@@ -169,17 +170,19 @@ class EnterExitAdapter extends MouseAdapter {
     }
 
     public void zeroCounters(){
-        System.out.println("Zeroeing on " +target.getClass().getName());
+        System.out.println("Zeroeing on " + target.getClass().getName());
         enteredEventCount = 0;
         exitedEventCount = 0;
     }
 
+    @Override
     public void mouseEntered(MouseEvent e){
         System.out.println("Entered on " + e.getSource().getClass().getName());
-        enteredEventCount ++;
+        enteredEventCount++;
     }
+    @Override
     public void mouseExited(MouseEvent e){
         System.out.println("Exited on " + e.getSource().getClass().getName());
-        exitedEventCount ++;
+        exitedEventCount++;
     }
 }

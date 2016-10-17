@@ -54,24 +54,24 @@ import sun.java2d.SunGraphics2D;
  */
 public interface DrawImagePipe {
 
-  public boolean copyImage(
+  boolean copyImage(
       SunGraphics2D sg, Image img, int x, int y, Color bgColor, ImageObserver observer);
 
-  public boolean copyImage(
+  boolean copyImage(
       SunGraphics2D sg, Image img, int dx, int dy, int sx, int sy, int w, int h, Color bgColor,
       ImageObserver observer);
 
-  public boolean scaleImage(
+  boolean scaleImage(
       SunGraphics2D sg, Image img, int x, int y, int width, int height, Color bgColor,
       ImageObserver observer);
 
-  public boolean scaleImage(
+  boolean scaleImage(
       SunGraphics2D sg, Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2,
       int sy2, Color bgColor, ImageObserver observer);
 
-  public boolean transformImage(
+  boolean transformImage(
       SunGraphics2D sg, Image img, AffineTransform atfm, ImageObserver observer);
 
-  public void transformImage(
+  void transformImage(
       SunGraphics2D sg, BufferedImage img, BufferedImageOp op, int x, int y);
 }

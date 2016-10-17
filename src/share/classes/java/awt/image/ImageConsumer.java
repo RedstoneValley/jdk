@@ -25,7 +25,7 @@
 
 package java.awt.image;
 
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * The interface for objects expressing interest in image data through
@@ -125,7 +125,7 @@ public interface ImageConsumer {
    * @param props the list of properties to be associated with this
    *              image
    */
-  void setProperties(Hashtable<?, ?> props);
+  void setProperties(Map<?, ?> props);
 
   /**
    * Sets the ColorModel object used for the majority of
@@ -141,7 +141,7 @@ public interface ImageConsumer {
    * or whether the pixels should be modified (filtered) and passed
    * on using a ColorModel more convenient for the filtering process.
    *
-   * @param model the specified <code>ColorModel</code>
+   * @param model the specified {@code ColorModel}
    * @see ColorModel
    */
   void setColorModel(ColorModel model);
@@ -180,15 +180,15 @@ public interface ImageConsumer {
    *                 area of pixels to be set
    * @param w        the width of the area of pixels
    * @param h        the height of the area of pixels
-   * @param model    the specified <code>ColorModel</code>
+   * @param model    the specified {@code ColorModel}
    * @param pixels   the array of pixels
-   * @param off      the offset into the <code>pixels</code> array
+   * @param off      the offset into the {@code pixels} array
    * @param scansize the distance from one row of pixels to the next in
-   *                 the <code>pixels</code> array
+   *                 the {@code pixels} array
    * @see ColorModel
    */
   void setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pixels[], int off, int scansize);
+      int x, int y, int w, int h, ColorModel model, byte[] pixels, int off, int scansize);
 
   /**
    * The pixels of the image are delivered using one or more calls
@@ -207,15 +207,15 @@ public interface ImageConsumer {
    *                 area of pixels to be set
    * @param w        the width of the area of pixels
    * @param h        the height of the area of pixels
-   * @param model    the specified <code>ColorModel</code>
+   * @param model    the specified {@code ColorModel}
    * @param pixels   the array of pixels
-   * @param off      the offset into the <code>pixels</code> array
+   * @param off      the offset into the {@code pixels} array
    * @param scansize the distance from one row of pixels to the next in
-   *                 the <code>pixels</code> array
+   *                 the {@code pixels} array
    * @see ColorModel
    */
   void setPixels(
-      int x, int y, int w, int h, ColorModel model, int pixels[], int off, int scansize);
+      int x, int y, int w, int h, ColorModel model, int[] pixels, int off, int scansize);
 
   /**
    * The imageComplete method is called when the ImageProducer is

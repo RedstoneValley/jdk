@@ -37,19 +37,23 @@ import java.awt.Robot;
 import java.awt.TextField;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import test.java.awt.regtesthelpers.Util;
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 
-public class SwallowKeyEvents {
+public final class SwallowKeyEvents {
     static final int PRESS_COUNT = 10;
 
-    static int keyPressedCount = 0;
+    static int keyPressedCount;
 
-    static Frame f = new Frame("Frame");
-    static TextField t = new TextField("text");
+    static final Frame f = new Frame("Frame");
+    static final TextField t = new TextField("text");
     static Robot r;
 
+    private SwallowKeyEvents() {
+    }
+
     public static void main(String[] args) {
-        if (sun.awt.OSInfo.getOSType() == sun.awt.OSInfo.OSType.WINDOWS) {
+        if (OSInfo.getOSType() == OSType.WINDOWS) {
             System.out.println("Skipped. Test not for MS Windows.");
             return;
         }
@@ -69,6 +73,7 @@ public class SwallowKeyEvents {
         Util.waitForIdle(r);
 
         t.addKeyListener(new KeyAdapter() {
+            @Override
             public void keyPressed(KeyEvent ke) {
                 System.out.println(ke);
                 if (ke.getKeyCode() == KeyEvent.VK_M) {

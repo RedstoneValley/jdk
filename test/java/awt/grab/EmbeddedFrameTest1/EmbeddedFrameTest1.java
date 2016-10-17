@@ -31,10 +31,10 @@
   @run main EmbeddedFrameTest1
 */
 
-/**
- * EmbeddedFrameTest1.java
- *
- * summary: REGRESSION: Popup menus dont respond to selections when extend outside Applet
+/*
+  EmbeddedFrameTest1.java
+
+  summary: REGRESSION: Popup menus dont respond to selections when extend outside Applet
  */
 
 import java.awt.BorderLayout;
@@ -48,15 +48,13 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JPopupMenu;
-
 import sun.awt.SunToolkit;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class EmbeddedFrameTest1
+public final class EmbeddedFrameTest1
 {
+    private EmbeddedFrameTest1() {
+    }
+
     private static void init()
     {
         //*** Create instructions for the user here ***
@@ -73,22 +71,23 @@ public class EmbeddedFrameTest1
         SunToolkit tk = (SunToolkit) Toolkit.getDefaultToolkit();
         if ("sun.awt.motif.MToolkit".equals(tk.getClass().getName())) {
             System.out.println("We shouldn't test MToolkit.");
-            EmbeddedFrameTest1.pass();
+            pass();
             return;
         }
 
         try {
-            final Frame frame = new Frame("AWT Frame");
+            Frame frame = new Frame("AWT Frame");
             frame.pack();
             frame.setSize(200,200);
 
-            final Frame embedded_frame = Util.createEmbeddedFrame(frame);
+            Frame embedded_frame = Util.createEmbeddedFrame(frame);
             embedded_frame.setSize(200, 200);
             Sysout.println("embedded_frame = " + embedded_frame);
 
-            final JPopupMenu menu = new JPopupMenu();
+            JPopupMenu menu = new JPopupMenu();
             JButton item = new JButton("A button in popup");
             item.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         System.out.println("Button pressed");
                     }
@@ -96,13 +95,14 @@ public class EmbeddedFrameTest1
 
             menu.add(item);
 
-            final JButton btn = new JButton("Press me to see popup");
+            JButton btn = new JButton("Press me to see popup");
             btn.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         menu.show(btn, 0, btn.getHeight());
                     }
                 });
-            final Panel p = new Panel();
+            Panel p = new Panel();
             p.setLayout(new BorderLayout());
             embedded_frame.add(p,BorderLayout.CENTER);
             embedded_frame.validate();
@@ -124,9 +124,9 @@ public class EmbeddedFrameTest1
             frame.dispose();
         } catch (Throwable thr) {
             thr.printStackTrace();
-            EmbeddedFrameTest1.fail("TEST FAILED: " + thr);
+            fail("TEST FAILED: " + thr);
         }
-        EmbeddedFrameTest1.pass();
+        pass();
     }//End  init()
 
     /*****************************************************
@@ -141,11 +141,11 @@ public class EmbeddedFrameTest1
      * There is a section following this for test-
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
@@ -153,7 +153,7 @@ public class EmbeddedFrameTest1
     //  instantiated in the same VM.  Being static (and using
     //  static vars), it aint gonna work.  Not worrying about
     //  it for now.
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -182,12 +182,14 @@ public class EmbeddedFrameTest1
         {
             //The test harness may have interrupted the test.  If so, rethrow the exception
             // so that the harness gets it and deals with it.
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
 
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -247,18 +249,18 @@ public class EmbeddedFrameTest1
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
 
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -272,9 +274,12 @@ class TestPassedException extends RuntimeException
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -319,9 +324,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = -175121528743417031L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -329,10 +335,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -348,35 +354,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

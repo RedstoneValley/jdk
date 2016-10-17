@@ -34,12 +34,12 @@ one screen to another, on Windows or Linux/Solaris + Xinerama
 */
 
 import java.awt.*;
-import java.awt.event.*;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class UpdateGCTest
+public final class UpdateGCTest
 {
+    private UpdateGCTest() {
+    }
+
     public static void main(String[] args)
     {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
@@ -53,7 +53,7 @@ public class UpdateGCTest
         for (GraphicsDevice gd : gds)
         {
             GraphicsConfiguration gc = gd.getDefaultConfiguration();
-            if ((gc.getBounds().x != 0) || (gc.getBounds().y != 0))
+            if (gc.getBounds().x != 0 || gc.getBounds().y != 0)
             {
                 virtualConfig = true;
                 break;
@@ -81,7 +81,9 @@ public class UpdateGCTest
                 // test Canvas
                 f.add(new Canvas(gcOrig), BorderLayout.NORTH);
                 // test lightweight
-                Container c = new Container() {};
+                Container c = new Container() {
+                    private static final long serialVersionUID = -679936744994795633L;
+                };
                 c.setLayout(new BorderLayout());
                 // test hw inside lw
                 c.add(new Panel());
@@ -93,7 +95,9 @@ public class UpdateGCTest
                 // test nested Canvas
                 p.add(new Canvas(gcOrig), BorderLayout.NORTH);
                 // test nested lightweight
-                p.add(new Component() {}, BorderLayout.SOUTH);
+                p.add(new Component() {
+                    private static final long serialVersionUID = 5595405371636574018L;
+                }, BorderLayout.SOUTH);
                 // test nested panel
                 p.add(new Panel(), BorderLayout.CENTER);
                 f.add(p, BorderLayout.CENTER);

@@ -46,12 +46,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.imageio.stream.ImageInputStream;
 
 abstract class InputStreamTests extends InputTests {
 
   private static Group streamRoot;
-  private static Group streamTestRoot;
+  static Group streamTestRoot;
 
   protected InputStreamTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
@@ -82,19 +81,19 @@ abstract class InputStreamTests extends InputTests {
 
   private static class Context extends InputTests.Context {
     ImageInputStream inputStream;
-    int scanlineStride; // width of a scanline (in bytes)
-    int length; // length of the entire stream (in bytes)
-    byte[] byteBuf;
+    final int scanlineStride; // width of a scanline (in bytes)
+    final int length; // length of the entire stream (in bytes)
+    final byte[] byteBuf;
 
     Context(TestEnvironment env, Result result) {
       super(env, result);
 
       // 4 bytes per "pixel"
-      scanlineStride = size * 4;
+      scanlineStride = size << 2;
 
       // tack on an extra 4 bytes, so that in the 1x1 case we can
       // call readLong() or readDouble() without hitting EOF
-      length = (scanlineStride * size) + 4;
+      length = scanlineStride * size + 4;
 
       // big enough for one scanline
       byteBuf = new byte[scanlineStride];
@@ -108,6 +107,7 @@ abstract class InputStreamTests extends InputTests {
       }
     }
 
+    @Override
     void initContents(File f) throws IOException {
       FileOutputStream fos = null;
       try {
@@ -118,6 +118,7 @@ abstract class InputStreamTests extends InputTests {
       }
     }
 
+    @Override
     void initContents(OutputStream out) throws IOException {
       for (int i = 0; i < size; i++) {
         out.write(byteBuf);
@@ -126,6 +127,7 @@ abstract class InputStreamTests extends InputTests {
       out.flush();
     }
 
+    @Override
     void cleanup(TestEnvironment env) {
       super.cleanup(env);
       if (inputStream != null) {
@@ -137,9 +139,6 @@ abstract class InputStreamTests extends InputTests {
         inputStream = null;
       }
     }
-  }  public void cleanupTest(TestEnvironment env, Object ctx) {
-    Context iioctx = (Context) ctx;
-    iioctx.cleanup(env);
   }
 
   private static class IISConstruct extends InputStreamTests {
@@ -147,6 +146,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "construct", "Construct");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -154,18 +154,25 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
+      Context ictx = (Context) ctx;
       try {
+        --numReps;
         do {
           ImageInputStream iis = ictx.createImageInputStream();
           iis.close();
           ictx.closeOriginalStream();
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object ctx) {
+    Context iioctx = (Context) ctx;
+    iioctx.cleanup(env);
   }
 
   private static class IISRead extends InputStreamTests {
@@ -173,6 +180,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "read", "read()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -180,13 +188,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos >= length) {
             iis.reset();
@@ -195,7 +205,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.read();
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -212,6 +223,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readByteArray", "read(byte[]) (one \"scanline\" at a time)");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(ctx.scanlineStride);
@@ -219,15 +231,17 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final byte[] buf = ictx.byteBuf;
-      final int scanlineStride = ictx.scanlineStride;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      byte[] buf = ictx.byteBuf;
+      int scanlineStride = ictx.scanlineStride;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + scanlineStride > length) {
             iis.reset();
@@ -236,7 +250,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.read(buf);
           pos += scanlineStride;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -253,6 +268,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readFullyByteArray", "readFully(byte[]) (one \"scanline\" at a time)");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(ctx.scanlineStride);
@@ -260,15 +276,17 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final byte[] buf = ictx.byteBuf;
-      final int scanlineStride = ictx.scanlineStride;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      byte[] buf = ictx.byteBuf;
+      int scanlineStride = ictx.scanlineStride;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + scanlineStride > length) {
             iis.reset();
@@ -277,7 +295,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readFully(buf);
           pos += scanlineStride;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -294,6 +313,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readBit", "readBit()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -301,13 +321,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length * 8;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length * 8;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos >= length) {
             iis.reset();
@@ -316,7 +338,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readBit();
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -333,6 +356,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readByte", "readByte()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -340,13 +364,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos >= length) {
             iis.reset();
@@ -355,7 +381,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readByte();
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -372,6 +399,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readUnsignedByte", "readUnsignedByte()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -379,13 +407,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos >= length) {
             iis.reset();
@@ -394,7 +424,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readUnsignedByte();
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -411,6 +442,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readShort", "readShort()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(2);
@@ -418,13 +450,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 2 > length) {
             iis.reset();
@@ -433,7 +467,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readShort();
           pos += 2;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -450,6 +485,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readUnsignedShort", "readUnsignedShort()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(2);
@@ -457,13 +493,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 2 > length) {
             iis.reset();
@@ -472,7 +510,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readUnsignedShort();
           pos += 2;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -489,6 +528,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readInt", "readInt()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(4);
@@ -496,13 +536,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 4 > length) {
             iis.reset();
@@ -511,7 +553,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readInt();
           pos += 4;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -528,6 +571,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readUnsignedInt", "readUnsignedInt()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(4);
@@ -535,13 +579,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 4 > length) {
             iis.reset();
@@ -550,7 +596,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readUnsignedInt();
           pos += 4;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -567,6 +614,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readFloat", "readFloat()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(4);
@@ -574,13 +622,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 4 > length) {
             iis.reset();
@@ -589,7 +639,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readFloat();
           pos += 4;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -606,6 +657,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readLong", "readLong()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(8);
@@ -613,13 +665,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 8 > length) {
             iis.reset();
@@ -628,7 +682,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readLong();
           pos += 8;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -645,6 +700,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "readDouble", "readDouble()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(8);
@@ -652,13 +708,15 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + 8 > length) {
             iis.reset();
@@ -667,7 +725,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.readDouble();
           pos += 8;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -684,6 +743,7 @@ abstract class InputStreamTests extends InputTests {
       super(streamTestRoot, "skipBytes", "skipBytes() (one \"scanline\" at a time)");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(ctx.scanlineStride);
@@ -691,14 +751,16 @@ abstract class InputStreamTests extends InputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ImageInputStream iis = ictx.inputStream;
-      final int scanlineStride = ictx.scanlineStride;
-      final int length = ictx.length;
+      Context ictx = (Context) ctx;
+      ImageInputStream iis = ictx.inputStream;
+      int scanlineStride = ictx.scanlineStride;
+      int length = ictx.length;
       int pos = 0;
       try {
         iis.mark();
+        --numReps;
         do {
           if (pos + scanlineStride > length) {
             iis.reset();
@@ -707,7 +769,8 @@ abstract class InputStreamTests extends InputTests {
           }
           iis.skipBytes(scanlineStride);
           pos += scanlineStride;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {

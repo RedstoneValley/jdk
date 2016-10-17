@@ -33,18 +33,14 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
 
 public class ConsumeNextKeyTypedOnModalShowTest extends Applet {
     Robot robot;
-    Frame frame = new Frame("Frame");
-    Dialog dialog = new Dialog(frame, "Dialog", true);
-    TextField tf0 = new TextField();
-    TextField tf1 = new TextField();
-    Button button = new Button("Button");
+    final Frame frame = new Frame("Frame");
+    final Dialog dialog = new Dialog(frame, OwnedWindowsSerialization.DIALOG_LABEL, true);
+    final TextField tf0 = new TextField();
+    final TextField tf1 = new TextField();
+    final Button button = new Button("Button");
 
     public static void main(String[] args) {
         ConsumeNextKeyTypedOnModalShowTest app = new ConsumeNextKeyTypedOnModalShowTest();
@@ -66,6 +62,7 @@ public class ConsumeNextKeyTypedOnModalShowTest extends Applet {
         dialog.pack();
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent e) {
                 if (e.getID() == KeyEvent.KEY_PRESSED && e.getSource() == tf0) {
                     dialog.setVisible(true);
@@ -87,6 +84,7 @@ public class ConsumeNextKeyTypedOnModalShowTest extends Applet {
 
         // Dispose the dialog.
         Runnable action = new Runnable() {
+            @Override
             public void run() {
                 dialog.dispose();
             }
@@ -102,7 +100,7 @@ public class ConsumeNextKeyTypedOnModalShowTest extends Applet {
 
         Util.waitForIdle(robot);
 
-        if (tf1.getText().equals("")) {
+        if ("".equals(tf1.getText())) {
             throw new RuntimeException("Test failed: couldn't type a char!");
         }
         System.out.println("Test passed.");

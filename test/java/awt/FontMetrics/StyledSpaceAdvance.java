@@ -32,11 +32,14 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 import java.util.Locale;
 
-public class StyledSpaceAdvance {
+public final class StyledSpaceAdvance {
 
-    static String name = "Gulim";
+    static final String name = "Gulim";
 
-    public static void main(String args[]) {
+  private StyledSpaceAdvance() {
+  }
+
+  public static void main(String[] args) {
          for (int sz=9;sz<18;sz++) {
              test(sz);
          }

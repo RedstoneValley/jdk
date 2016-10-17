@@ -36,7 +36,6 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DataBufferShort;
 import java.awt.image.VolatileImage;
 
-import static java.awt.Transparency.*;
 import static java.awt.image.BufferedImage.*;
 
 /*
@@ -63,13 +62,16 @@ public final class UnmanagedDrawImagePerformance {
             AffineTransform.getScaleInstance(2, 2),
             AffineTransform.getShearInstance(7, 11)};
 
-    public static void main(final String[] args) {
-        for (final AffineTransform atfm : TRANSFORMS) {
-            for (final int viType : TRANSPARENCIES) {
-                for (final int biType : TYPES) {
-                    final BufferedImage bi = makeUnmanagedBI(biType);
-                    final VolatileImage vi = makeVI(viType);
-                    final long time = test(bi, vi, atfm) / 1000000000;
+    private UnmanagedDrawImagePerformance() {
+    }
+
+    public static void main(String[] args) {
+        for (AffineTransform atfm : TRANSFORMS) {
+            for (int viType : TRANSPARENCIES) {
+                for (int biType : TYPES) {
+                    BufferedImage bi = makeUnmanagedBI(biType);
+                    VolatileImage vi = makeVI(viType);
+                    long time = test(bi, vi, atfm) / 1000000000;
                     if (time > 1) {
                         throw new RuntimeException(String.format(
                                 "drawImage is slow: %d seconds", time));
@@ -80,7 +82,7 @@ public final class UnmanagedDrawImagePerformance {
     }
 
     private static long test(Image bi, Image vi, AffineTransform atfm) {
-        final Polygon p = new Polygon();
+        Polygon p = new Polygon();
         p.addPoint(0, 0);
         p.addPoint(SIZE, 0);
         p.addPoint(0, SIZE);
@@ -90,24 +92,24 @@ public final class UnmanagedDrawImagePerformance {
         g2d.clip(p);
         g2d.transform(atfm);
         g2d.setComposite(AlphaComposite.SrcOver);
-        final long start = System.nanoTime();
+        long start = System.nanoTime();
         g2d.drawImage(bi, 0, 0, null);
-        final long time = System.nanoTime() - start;
+        long time = System.nanoTime() - start;
         g2d.dispose();
         return time;
     }
 
-    private static VolatileImage makeVI(final int type) {
-        final GraphicsEnvironment ge = GraphicsEnvironment
+    private static VolatileImage makeVI(int type) {
+        GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
-        final GraphicsDevice gd = ge.getDefaultScreenDevice();
-        final GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
         return gc.createCompatibleVolatileImage(SIZE, SIZE, type);
     }
 
-    private static BufferedImage makeUnmanagedBI(final int type) {
-        final BufferedImage img = new BufferedImage(SIZE, SIZE, type);
-        final DataBuffer db = img.getRaster().getDataBuffer();
+    private static BufferedImage makeUnmanagedBI(int type) {
+        BufferedImage img = new BufferedImage(SIZE, SIZE, type);
+        DataBuffer db = img.getRaster().getDataBuffer();
         if (db instanceof DataBufferInt) {
             ((DataBufferInt) db).getData();
         } else if (db instanceof DataBufferShort) {
@@ -117,7 +119,7 @@ public final class UnmanagedDrawImagePerformance {
         } else {
             try {
                 img.setAccelerationPriority(0.0f);
-            } catch (final Throwable ignored) {
+            } catch (Throwable ignored) {
             }
         }
         return img;

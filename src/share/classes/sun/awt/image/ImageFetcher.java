@@ -25,6 +25,8 @@
 
 package sun.awt.image;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Vector;
 import sun.awt.AppContext;
 
@@ -53,7 +55,7 @@ class ImageFetcher extends Thread {
   /**
    * Constructor for ImageFetcher -- only called by add() below.
    */
-  private ImageFetcher(ThreadGroup threadGroup, int index) {
+  ImageFetcher(ThreadGroup threadGroup, int index) {
     super(threadGroup, "Image Fetcher " + index);
     setDaemon(true);
   }
@@ -65,7 +67,7 @@ class ImageFetcher extends Thread {
    * reports failure to caller.
    */
   public static boolean add(ImageFetchable src) {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     synchronized (info.waitList) {
       if (!info.waitList.contains(src)) {
         info.waitList.addElement(src);
@@ -95,7 +97,7 @@ class ImageFetcher extends Thread {
    * Removes an ImageFetchable from the queue of items to fetch.
    */
   public static void remove(ImageFetchable src) {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     synchronized (info.waitList) {
       if (info.waitList.contains(src)) {
         info.waitList.removeElement(src);
@@ -107,7 +109,7 @@ class ImageFetcher extends Thread {
    * Checks to see if the given thread is one of the ImageFetchers.
    */
   public static boolean isFetcher(Thread t) {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     synchronized (info.waitList) {
       for (int i = 0; i < info.fetchers.length; i++) {
         if (info.fetchers[i] == t) {
@@ -131,12 +133,12 @@ class ImageFetcher extends Thread {
    * null is returned.
    */
   private static ImageFetchable nextImage() {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     synchronized (info.waitList) {
       ImageFetchable src = null;
       long end = System.currentTimeMillis() + TIMEOUT;
       while (src == null) {
-        while (info.waitList.size() == 0) {
+        while (info.waitList.isEmpty()) {
           long now = System.currentTimeMillis();
           if (now >= end) {
             return null;
@@ -164,7 +166,7 @@ class ImageFetcher extends Thread {
    * resets the thread name to "ImageAnimator".
    */
   static void startingAnimation() {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     Thread me = Thread.currentThread();
     synchronized (info.waitList) {
       for (int i = 0; i < info.fetchers.length; i++) {
@@ -192,7 +194,7 @@ class ImageFetcher extends Thread {
    * the ImageFetchers, and this thread will die.
    */
   private static void stoppingAnimation(Thread me) {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     synchronized (info.waitList) {
       int index = -1;
       for (int i = 0; i < info.fetchers.length; i++) {
@@ -215,11 +217,11 @@ class ImageFetcher extends Thread {
   /**
    * Create and start ImageFetcher threads in the appropriate ThreadGroup.
    */
-  private static void createFetchers(final FetcherInfo info) {
+  private static void createFetchers(FetcherInfo info) {
     // We need to instantiate a new ImageFetcher thread.
     // First, figure out which ThreadGroup we'll put the
     // new ImageFetcher into
-    final AppContext appContext = AppContext.getAppContext();
+    AppContext appContext = AppContext.getAppContext();
     ThreadGroup threadGroup = appContext.getThreadGroup();
     ThreadGroup fetcherThreadGroup;
     try {
@@ -234,7 +236,7 @@ class ImageFetcher extends Thread {
         // threadGroup.getParent().getParent() == null.
         threadGroup = Thread.currentThread().getThreadGroup();
         ThreadGroup parent = threadGroup.getParent();
-        while ((parent != null) && (parent.getParent() != null)) {
+        while (parent != null && parent.getParent() != null) {
           threadGroup = parent;
           parent = threadGroup.getParent();
         }
@@ -245,9 +247,10 @@ class ImageFetcher extends Thread {
       // the AppContext's ThreadGroup
       fetcherThreadGroup = appContext.getThreadGroup();
     }
-    final ThreadGroup fetcherGroup = fetcherThreadGroup;
+    ThreadGroup fetcherGroup = fetcherThreadGroup;
 
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+    AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         for (int i = 0; i < info.fetchers.length; i++) {
           if (info.fetchers[i] == null) {
@@ -271,8 +274,9 @@ class ImageFetcher extends Thread {
    * The main run() method of an ImageFetcher Thread.  Calls fetchloop()
    * to do the work, then removes itself from the array of ImageFetchers.
    */
+  @Override
   public void run() {
-    final FetcherInfo info = FetcherInfo.getFetcherInfo();
+    FetcherInfo info = FetcherInfo.getFetcherInfo();
     try {
       fetchloop();
     } catch (Exception e) {
@@ -303,7 +307,7 @@ class ImageFetcher extends Thread {
       // the fetcher was interrupted, as we used to,
       // because there may be other images waiting
       // to be fetched (see 4789067)
-      me.interrupted();
+      interrupted();
       me.setPriority(HIGH_PRIORITY);
       ImageFetchable src = nextImage();
       if (src == null) {
@@ -329,10 +333,10 @@ class FetcherInfo {
   static final int MAX_NUM_FETCHERS_PER_APPCONTEXT = 4;
   /* The key to put()/get() the FetcherInfo into/from the AppContext. */
   private static final Object FETCHER_INFO_KEY = new StringBuffer("FetcherInfo");
-  Thread[] fetchers;
+  final Vector waitList;
+  final Thread[] fetchers;
   int numFetchers;
   int numWaiting;
-  Vector waitList;
 
   private FetcherInfo() {
     fetchers = new Thread[MAX_NUM_FETCHERS_PER_APPCONTEXT];

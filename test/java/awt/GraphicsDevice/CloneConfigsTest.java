@@ -43,7 +43,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 
-public class CloneConfigsTest {
+public final class CloneConfigsTest {
 
     public static void main(String[] args) {
         GraphicsEnvironment env =
@@ -78,7 +78,10 @@ public class CloneConfigsTest {
 
     private static class TestConfig extends GraphicsConfiguration {
 
-        @Override
+      TestConfig() {
+      }
+
+      @Override
         public GraphicsDevice getDevice() {
             throw new UnsupportedOperationException("Not supported yet.");
         }

@@ -30,16 +30,19 @@ package sun.java2d;
  * holds pointers to the native disposal method and the data to be disposed.
  */
 public class DefaultDisposerRecord implements DisposerRecord {
-  private long dataPointer;
-  private long disposerMethodPointer;
+  private final long dataPointer;
+  private final long disposerMethodPointer;
 
   public DefaultDisposerRecord(long disposerMethodPointer, long dataPointer) {
     this.disposerMethodPointer = disposerMethodPointer;
     this.dataPointer = dataPointer;
   }
 
-  public static native void invokeNativeDispose(long disposerMethodPointer, long dataPointer);
+  public static void invokeNativeDispose(long disposerMethodPointer, long dataPointer) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public void dispose() {
     invokeNativeDispose(disposerMethodPointer, dataPointer);
   }

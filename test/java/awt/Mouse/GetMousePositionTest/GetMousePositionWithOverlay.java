@@ -21,9 +21,6 @@
  * questions.
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,10 +35,13 @@ import java.util.concurrent.atomic.AtomicReference;
  * @run main/othervm GetMousePositionWithOverlay
  */
 
-public class GetMousePositionWithOverlay {
+public final class GetMousePositionWithOverlay {
 
     static Frame backFrame;
     static Frame frontFrame;
+
+    private GetMousePositionWithOverlay() {
+    }
 
     public static void main(String[] args) throws Throwable {
         try {
@@ -85,8 +85,8 @@ public class GetMousePositionWithOverlay {
         }
     }
 
-    private static Point getMousePosition(final Component component) throws Exception {
-        final AtomicReference<Point> pos = new AtomicReference<Point>();
+    private static Point getMousePosition(Component component) throws Exception {
+        AtomicReference<Point> pos = new AtomicReference<>();
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
@@ -96,7 +96,7 @@ public class GetMousePositionWithOverlay {
         return pos.get();
     }
 
-    private static void constructTestUI() {
+    static void constructTestUI() {
         backFrame = new Frame();
         backFrame.setBounds(100, 100, 100, 100);
         backFrame.setVisible(true);

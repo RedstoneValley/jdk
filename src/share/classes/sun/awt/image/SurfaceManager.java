@@ -89,11 +89,11 @@ public abstract class SurfaceManager {
    *
    * @see SurfaceData#getDefaultScale
    */
-  public static int getImageScale(final Image img) {
+  public static int getImageScale(Image img) {
     if (!(img instanceof VolatileImage)) {
       return 1;
     }
-    final SurfaceManager sm = getManager(img);
+    SurfaceManager sm = getManager(img);
     return sm.getPrimarySurfaceData().getDefaultScale();
   }
 
@@ -118,7 +118,7 @@ public abstract class SurfaceManager {
    * method is ever called.
    */
   public Object getCacheData(Object key) {
-    return (cacheMap == null) ? null : cacheMap.get(key);
+    return cacheMap == null ? null : cacheMap.get(key);
   }
 
   /**
@@ -185,7 +185,7 @@ public abstract class SurfaceManager {
    * A null GraphicsConfiguration returns a value based on whether the
    * image is currently accelerated on its default GraphicsConfiguration.
    *
-   * @see java.awt.Image#getCapabilities
+   * @see Image#getCapabilities
    * @since 1.5
    */
   public ImageCapabilities getCapabilities(GraphicsConfiguration gc) {
@@ -239,13 +239,13 @@ public abstract class SurfaceManager {
    * Implementing this interface facilitates the default
    * implementation of getImageCapabilities() above.
    */
-  public static interface ProxiedGraphicsConfig {
+  public interface ProxiedGraphicsConfig {
     /**
      * Return the key that destination surfaces created on the
      * given GraphicsConfiguration use to store SurfaceDataProxy
      * objects for their cached copies.
      */
-    public Object getProxyKey();
+    Object getProxyKey();
   }
 
   /**
@@ -253,7 +253,7 @@ public abstract class SurfaceManager {
    * to implement if they have data that should be flushed when
    * the Image is flushed.
    */
-  public static interface FlushableCacheData {
+  public interface FlushableCacheData {
     /**
      * Flush all cached resources.
      * The deaccelerated parameter indicates if the flush is
@@ -263,23 +263,24 @@ public abstract class SurfaceManager {
      * Returns a boolean that indicates if the cached object is
      * no longer needed and should be removed from the cache.
      */
-    public boolean flush(boolean deaccelerated);
+    boolean flush(boolean deaccelerated);
   }
 
-  public static abstract class ImageAccessor {
-    public abstract SurfaceManager getSurfaceManager(Image img);
+  public interface ImageAccessor {
+    SurfaceManager getSurfaceManager(Image img);
 
-    public abstract void setSurfaceManager(Image img, SurfaceManager mgr);
+    void setSurfaceManager(Image img, SurfaceManager mgr);
   }
 
   class ImageCapabilitiesGc extends ImageCapabilities {
-    GraphicsConfiguration gc;
+    final GraphicsConfiguration gc;
 
     public ImageCapabilitiesGc(GraphicsConfiguration gc) {
       super(false);
       this.gc = gc;
     }
 
+    @Override
     public boolean isAccelerated() {
       // Note that when img.getAccelerationPriority() gets set to 0
       // we remove SurfaceDataProxy objects from the cache and the
@@ -293,7 +294,7 @@ public abstract class SurfaceManager {
         Object proxyKey = ((ProxiedGraphicsConfig) tmpGc).getProxyKey();
         if (proxyKey != null) {
           SurfaceDataProxy sdp = (SurfaceDataProxy) getCacheData(proxyKey);
-          return (sdp != null && sdp.isAccelerated());
+          return sdp != null && sdp.isAccelerated();
         }
       }
       return false;

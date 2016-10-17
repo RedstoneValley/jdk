@@ -41,7 +41,7 @@ package j2dbench.tests;
 
 import j2dbench.Destinations;
 import j2dbench.Group;
-import j2dbench.Modifier;
+import j2dbench.Group.EnableSet;
 import j2dbench.Option;
 import j2dbench.TestEnvironment;
 import java.awt.AlphaComposite;
@@ -69,17 +69,15 @@ import java.awt.image.Raster;
 import java.awt.image.RasterOp;
 import java.awt.image.RescaleOp;
 import java.awt.image.ShortLookupTable;
-import java.awt.image.VolatileImage;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import javax.swing.JComponent;
 
 public abstract class ImageTests extends GraphicsTests {
-  public static boolean hasVolatileImage;
-  public static boolean hasCompatImage;
+  public static final boolean hasVolatileImage;
+  public static final boolean hasCompatImage;
   static Group imageroot;
-  static Group.EnableSet imgsrcroot;
-  static Group.EnableSet bufimgsrcroot;
+  static EnableSet imgsrcroot;
+  static EnableSet bufimgsrcroot;
   static Group imgtestroot;
   static Group imgoptionsroot;
   static Group imageOpRoot;
@@ -90,14 +88,14 @@ public abstract class ImageTests extends GraphicsTests {
   static Group rasterOpTestRoot;
   static Option opList;
   static Option doTouchSrc;
-  static String transNodeNames[] = {
+  static final String[] transNodeNames = {
       null, "opaque", "bitmask", "translucent",};
-  static String transDescriptions[] = {
+  static final String[] transDescriptions = {
       null, "Opaque", "Bitmask", "Translucent",};
 
   static {
     try {
-      hasVolatileImage = (VolatileImage.class != null);
+      hasVolatileImage = true;
     } catch (NoClassDefFoundError e) {
     }
     try {
@@ -111,7 +109,7 @@ public abstract class ImageTests extends GraphicsTests {
     this(parent, nodeName, description, null);
   }
 
-  public ImageTests(Group parent, String nodeName, String description, Modifier.Filter srcFilter) {
+  public ImageTests(Group parent, String nodeName, String description, Filter srcFilter) {
     super(parent, nodeName, description);
     addDependency(imgsrcroot, srcFilter);
     addDependency(doTouchSrc);
@@ -121,15 +119,15 @@ public abstract class ImageTests extends GraphicsTests {
     imageroot = new Group(graphicsroot, "imaging", "Imaging Benchmarks");
     imageroot.setTabbed();
 
-    imgsrcroot = new Group.EnableSet(imageroot, "src", "Image Rendering Sources");
+    imgsrcroot = new EnableSet(imageroot, "src", "Image Rendering Sources");
     imgsrcroot.setBordered(true);
 
     imgoptionsroot = new Group(imgsrcroot, "options", "Image Source Options");
     imgoptionsroot.setBordered(true);
-    doTouchSrc = new Option.Toggle(imgoptionsroot,
+    doTouchSrc = new Toggle(imgoptionsroot,
         "touchsrc",
         "Touch src image before every operation",
-        Option.Toggle.Off);
+        Toggle.Off);
 
     imgtestroot = new Group(imageroot, "tests", "Image Rendering Tests");
     imgtestroot.setBordered(true);
@@ -147,7 +145,7 @@ public abstract class ImageTests extends GraphicsTests {
         new VolatileImg();
       }
 
-      bufimgsrcroot = new Group.EnableSet(imgsrcroot, "bufimg", "BufferedImage Rendering Sources");
+      bufimgsrcroot = new EnableSet(imgsrcroot, "bufimg", "BufferedImage Rendering Sources");
       new BufImg(BufferedImage.TYPE_INT_RGB);
       new BufImg(BufferedImage.TYPE_INT_ARGB);
       new BufImg(BufferedImage.TYPE_BYTE_GRAY);
@@ -190,7 +188,7 @@ public abstract class ImageTests extends GraphicsTests {
       opStrArr = (String[]) opStrs.toArray(opStrArr);
       String[] opDescArr = new String[opDescs.size()];
       opDescArr = (String[]) opDescs.toArray(opDescArr);
-      opList = new Option.ObjectList(imageOpOptRoot,
+      opList = new ObjectList(imageOpOptRoot,
           "op",
           "Operation",
           opStrArr,
@@ -198,7 +196,7 @@ public abstract class ImageTests extends GraphicsTests {
           opStrArr,
           opDescArr,
           0x1);
-      ((Option.ObjectList) opList).setNumRows(4);
+      ((ObjectList) opList).setNumRows(4);
 
       new DrawImageOp();
       new BufImgOpFilter(false);
@@ -214,8 +212,9 @@ public abstract class ImageTests extends GraphicsTests {
     new DrawImageTransform();
   }
 
+  @Override
   public GraphicsTests.Context createContext() {
-    return new ImageTests.Context();
+    return new Context();
   }
 
   public static class Context extends GraphicsTests.Context {
@@ -231,8 +230,8 @@ public abstract class ImageTests extends GraphicsTests {
       super(parent, nodename, desc);
       setHorizontal();
       new DrawableImage(this, Transparency.OPAQUE, true);
-      new DrawableImage(this, Transparency.BITMASK, (transparency != Transparency.OPAQUE));
-      new DrawableImage(this, Transparency.TRANSLUCENT, (transparency == Transparency.TRANSLUCENT));
+      new DrawableImage(this, Transparency.BITMASK, transparency != Transparency.OPAQUE);
+      new DrawableImage(this, Transparency.TRANSLUCENT, transparency == Transparency.TRANSLUCENT);
     }
 
     public Image getImage(TestEnvironment env, int w, int h) {
@@ -245,12 +244,6 @@ public abstract class ImageTests extends GraphicsTests {
     }
 
     public abstract Image makeImage(TestEnvironment env, int w, int h);
-  }  public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
-    super.initContext(env, ctx);
-    ImageTests.Context ictx = (ImageTests.Context) ctx;
-
-    ictx.src = env.getSrcImage();
-    ictx.touchSrc = env.isEnabled(doTouchSrc);
   }
 
   public static class OffScreen extends TriStateImageType {
@@ -258,10 +251,18 @@ public abstract class ImageTests extends GraphicsTests {
       super(imgsrcroot, "offscr", "Offscreen Image", Transparency.OPAQUE);
     }
 
+    @Override
     public Image makeImage(TestEnvironment env, int w, int h) {
       Canvas c = env.getCanvas();
       return c.createImage(w, h);
     }
+  }  @Override
+  public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
+    super.initContext(env, ctx);
+    Context ictx = (Context) ctx;
+
+    ictx.src = env.getSrcImage();
+    ictx.touchSrc = env.isEnabled(doTouchSrc);
   }
 
   public static class VolatileImg extends TriStateImageType {
@@ -269,6 +270,7 @@ public abstract class ImageTests extends GraphicsTests {
       super(imgsrcroot, "volimg", "Volatile Image", Transparency.OPAQUE);
     }
 
+    @Override
     public Image makeImage(TestEnvironment env, int w, int h) {
       Canvas c = env.getCanvas();
       return c.createVolatileImage(w, h);
@@ -276,7 +278,7 @@ public abstract class ImageTests extends GraphicsTests {
   }
 
   public static class CompatImg extends TriStateImageType {
-    int transparency;
+    final int transparency;
 
     public CompatImg(int transparency) {
       super(imgsrcroot,
@@ -286,6 +288,7 @@ public abstract class ImageTests extends GraphicsTests {
       this.transparency = transparency;
     }
 
+    @Override
     public Image makeImage(TestEnvironment env, int w, int h) {
       Canvas c = env.getCanvas();
       GraphicsConfiguration gc = c.getGraphicsConfiguration();
@@ -294,7 +297,7 @@ public abstract class ImageTests extends GraphicsTests {
   }
 
   public static class BufImg extends TriStateImageType {
-    static int Transparencies[] = {
+    static final int[] Transparencies = {
         Transparency.TRANSLUCENT, // "custom",
         Transparency.OPAQUE,      // "IntXrgb",
         Transparency.TRANSLUCENT, // "IntArgb",
@@ -310,8 +313,8 @@ public abstract class ImageTests extends GraphicsTests {
         Transparency.OPAQUE,      // "ByteBinary",
         Transparency.OPAQUE,      // "ByteIndexed",
     };
-    int type;
-    boolean unmanaged;
+    final int type;
+    final boolean unmanaged;
 
     public BufImg(int type) {
       this(type, false);
@@ -326,6 +329,7 @@ public abstract class ImageTests extends GraphicsTests {
       this.unmanaged = unmanaged;
     }
 
+    @Override
     public Image makeImage(TestEnvironment env, int w, int h) {
       BufferedImage img = new BufferedImage(w, h, type);
       if (unmanaged) {
@@ -357,9 +361,10 @@ public abstract class ImageTests extends GraphicsTests {
           Transparency.BITMASK);
     }
 
+    @Override
     public Image makeImage(TestEnvironment env, int w, int h) {
       if (icm == null) {
-        int cmap[] = new int[256];
+        int[] cmap = new int[256];
         // Workaround for transparency rendering bug in earlier VMs
         // Can only render transparency if first cmap entry is 0x0
         // This bug is fixed in 1.4.2 (Mantis)
@@ -367,7 +372,8 @@ public abstract class ImageTests extends GraphicsTests {
         for (int r = 0; r < 256; r += 51) {
           for (int g = 0; g < 256; g += 51) {
             for (int b = 0; b < 256; b += 51) {
-              cmap[i++] = (0xff << 24) | (r << 16) | (g << 8) | b;
+              cmap[i] = 0xff << 24 | r << 16 | g << 8 | b;
+              i++;
             }
           }
         }
@@ -380,25 +386,25 @@ public abstract class ImageTests extends GraphicsTests {
     }
   }
 
-  public static class DrawableImage extends Option.Enable {
-    static Color transparentBlack = makeAlphaColor(Color.black, 0);
-    static Color translucentRed = makeAlphaColor(Color.red, 192);
-    static Color translucentGreen = makeAlphaColor(Color.green, 128);
-    static Color translucentYellow = makeAlphaColor(Color.yellow, 64);
+  public static class DrawableImage extends Enable {
+    static final Color transparentBlack = makeAlphaColor(Color.black, 0);
+    static final Color translucentRed = makeAlphaColor(Color.red, 192);
+    static final Color translucentGreen = makeAlphaColor(Color.green, 128);
+    static final Color translucentYellow = makeAlphaColor(Color.yellow, 64);
 
-    static Color colorsets[][] = new Color[][]{
+    static final Color[][] colorsets = {
         null, {
         Color.blue, Color.red, Color.green, Color.yellow, Color.blue,}, {
         transparentBlack, Color.red, Color.green, transparentBlack, transparentBlack,}, {
         Color.blue, translucentRed, translucentGreen, translucentYellow, translucentRed,},};
 
-    TriStateImageType tsit;
-    int transparency;
-    boolean possible;
+    final TriStateImageType tsit;
+    final int transparency;
+    final boolean possible;
 
     public DrawableImage(TriStateImageType parent, int transparency, boolean possible) {
       super(parent, transNodeNames[transparency], transDescriptions[transparency], false);
-      this.tsit = parent;
+      tsit = parent;
       this.transparency = transparency;
       this.possible = possible;
     }
@@ -407,6 +413,7 @@ public abstract class ImageTests extends GraphicsTests {
       return transparency;
     }
 
+    @Override
     public void modifyTest(TestEnvironment env) {
       int size = env.getIntValue(sizeList);
       Image src = tsit.getImage(env, size, size);
@@ -432,27 +439,32 @@ public abstract class ImageTests extends GraphicsTests {
       env.setSrcImage(src);
     }
 
+    @Override
     public void restoreTest(TestEnvironment env) {
       env.setSrcImage(null);
     }
 
+    @Override
     public JComponent getJComponent() {
       JComponent comp = super.getJComponent();
       comp.setEnabled(possible);
       return comp;
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return "from " + getModifierValueName(value);
     }
 
+    @Override
     public String setValueFromString(String value) {
-      if (!possible && !value.equalsIgnoreCase("disabled")) {
+      if (!possible && !"disabled".equalsIgnoreCase(value)) {
         return "Bad Value";
       }
       return super.setValueFromString(value);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return getParent().getNodeName() + " " + getNodeName();
     }
@@ -463,8 +475,9 @@ public abstract class ImageTests extends GraphicsTests {
       super(imgtestroot, "drawimage", "drawImage(img, x, y, obs);");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageTests.Context ictx = (ImageTests.Context) ctx;
+      Context ictx = (Context) ctx;
       int x = ictx.initX;
       int y = ictx.initY;
       Graphics g = ictx.graphics;
@@ -473,6 +486,7 @@ public abstract class ImageTests extends GraphicsTests {
       if (ictx.animate) {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, null);
@@ -482,8 +496,10 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, null);
             if ((x -= 3) < 0) {
@@ -492,19 +508,24 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       } else {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       }
       g.translate(-ictx.orgX, -ictx.orgY);
@@ -513,16 +534,18 @@ public abstract class ImageTests extends GraphicsTests {
 
   public static class DrawImageBg extends ImageTests {
     public DrawImageBg() {
-      super(imgtestroot, "drawimagebg", "drawImage(img, x, y, bg, obs);", new Modifier.Filter() {
+      super(imgtestroot, "drawimagebg", "drawImage(img, x, y, bg, obs);", new Filter() {
+        @Override
         public boolean isCompatible(Object val) {
           DrawableImage di = (DrawableImage) val;
-          return (di.getTransparency() != Transparency.OPAQUE);
+          return di.getTransparency() != Transparency.OPAQUE;
         }
       });
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageTests.Context ictx = (ImageTests.Context) ctx;
+      Context ictx = (Context) ctx;
       int x = ictx.initX;
       int y = ictx.initY;
       Graphics g = ictx.graphics;
@@ -532,6 +555,7 @@ public abstract class ImageTests extends GraphicsTests {
       if (ictx.animate) {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, bg, null);
@@ -541,8 +565,10 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, bg, null);
             if ((x -= 3) < 0) {
@@ -551,19 +577,24 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       } else {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, bg, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, bg, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       }
       g.translate(-ictx.orgX, -ictx.orgY);
@@ -571,7 +602,7 @@ public abstract class ImageTests extends GraphicsTests {
   }
 
   public static class DrawImageScale extends ImageTests {
-    float scale;
+    final float scale;
 
     public DrawImageScale(String dir, float scale) {
       super(imgtestroot,
@@ -580,6 +611,7 @@ public abstract class ImageTests extends GraphicsTests {
       this.scale = scale;
     }
 
+    @Override
     public Dimension getOutputSize(int w, int h) {
       int neww = (int) (w * scale);
       int newh = (int) (h * scale);
@@ -592,8 +624,9 @@ public abstract class ImageTests extends GraphicsTests {
       return new Dimension(neww, newh);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageTests.Context ictx = (ImageTests.Context) ctx;
+      Context ictx = (Context) ctx;
       int x = ictx.initX;
       int y = ictx.initY;
       int w = ictx.outdim.width;
@@ -604,6 +637,7 @@ public abstract class ImageTests extends GraphicsTests {
       if (ictx.animate) {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, w, h, null);
@@ -613,8 +647,10 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, w, h, null);
             if ((x -= 3) < 0) {
@@ -623,19 +659,24 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       } else {
         Graphics srcG = src.getGraphics();
         if (ictx.touchSrc) {
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, x, y, w, h, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, x, y, w, h, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       }
       g.translate(-ictx.orgX, -ictx.orgY);
@@ -647,21 +688,24 @@ public abstract class ImageTests extends GraphicsTests {
       super(imgtestroot, "drawimagetxform", "drawImage(img, tx, obs);");
     }
 
+    @Override
     public Dimension getOutputSize(int w, int h) {
       int neww = (int) Math.ceil(w * 1.1);
       int newh = (int) Math.ceil(h * 1.1);
       return new Dimension(neww, newh);
     }
 
+    @Override
     public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
       super.initContext(env, ctx);
-      ImageTests.Context ictx = (ImageTests.Context) ctx;
+      Context ictx = (Context) ctx;
 
       ictx.tx = new AffineTransform();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageTests.Context ictx = (ImageTests.Context) ctx;
+      Context ictx = (Context) ctx;
       int x = ictx.initX;
       int y = ictx.initY;
       Graphics2D g = (Graphics2D) ictx.graphics;
@@ -671,6 +715,7 @@ public abstract class ImageTests extends GraphicsTests {
       if (ictx.animate) {
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             tx.setTransform(1.0, 0.1, 0.1, 1.0, x, y);
             srcG.fillRect(0, 0, 1, 1);
@@ -681,8 +726,10 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             tx.setTransform(1.0, 0.1, 0.1, 1.0, x, y);
             g.drawImage(src, tx, null);
@@ -692,29 +739,35 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       } else {
         tx.setTransform(1.0, 0.1, 0.1, 1.0, x, y);
         if (ictx.touchSrc) {
           Graphics srcG = src.getGraphics();
+          --numReps;
           do {
             srcG.fillRect(0, 0, 1, 1);
             g.drawImage(src, tx, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g.drawImage(src, tx, null);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       }
       g.translate(-ictx.orgX, -ictx.orgY);
     }
   }
 
-  private static abstract class ImageOpTests extends ImageTests {
+  private abstract static class ImageOpTests extends ImageTests {
     ImageOpTests(Group parent, String nodeName, String desc) {
-      super(parent, nodeName, desc, new Modifier.Filter() {
+      super(parent, nodeName, desc, new Filter() {
+        @Override
         public boolean isCompatible(Object val) {
           // Filter out all non-BufferedImage sources
           DrawableImage di = (DrawableImage) val;
@@ -725,8 +778,9 @@ public abstract class ImageTests extends GraphicsTests {
       addDependencies(imageOpOptRoot, true);
     }
 
+    @Override
     public GraphicsTests.Context createContext() {
-      return new ImageOpTests.Context();
+      return new Context();
     }
 
     private static class Context extends ImageTests.Context {
@@ -737,11 +791,15 @@ public abstract class ImageTests extends GraphicsTests {
       RasterOp rasterOp;
       Raster rasSrc;
       WritableRaster rasDst;
+
+      Context() {
+      }
     }
 
+    @Override
     public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
       super.initContext(env, ctx);
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
+      Context ictx = (Context) ctx;
 
       // Note: We filter out all non-BufferedImage sources in the
       // ImageOpTests constructor above, so the following is safe...
@@ -767,35 +825,35 @@ public abstract class ImageTests extends GraphicsTests {
         ictx.bufImgOp = new ConvolveOp(kernel, edge, null);
       } else if (op.startsWith("lookup")) {
         if (op.endsWith("byte")) {
-          byte invert[] = new byte[256];
-          byte ordered[] = new byte[256];
+          byte[] invert = new byte[256];
+          byte[] ordered = new byte[256];
           for (int j = 0; j < 256; j++) {
             invert[j] = (byte) (255 - j);
             ordered[j] = (byte) j;
           }
-          if (op.equals("lookup1byte")) {
+          if ("lookup1byte".equals(op)) {
             ictx.bufImgOp = new LookupOp(new ByteLookupTable(0, invert), null);
           } else { // (op.equals("lookup3byte"))
-            byte[][] yellowInvert = new byte[][]{invert, invert, ordered};
+            byte[][] yellowInvert = {invert, invert, ordered};
             ictx.bufImgOp = new LookupOp(new ByteLookupTable(0, yellowInvert), null);
           }
         } else { // (op.endsWith("short"))
-          short invert[] = new short[256];
-          short ordered[] = new short[256];
+          short[] invert = new short[256];
+          short[] ordered = new short[256];
           for (int j = 0; j < 256; j++) {
             invert[j] = (short) ((255 - j) * 255);
             ordered[j] = (short) (j * 255);
           }
-          if (op.equals("lookup1short")) {
+          if ("lookup1short".equals(op)) {
             ictx.bufImgOp = new LookupOp(new ShortLookupTable(0, invert), null);
           } else { // (op.equals("lookup3short"))
-            short[][] yellowInvert = new short[][]{invert, invert, ordered};
+            short[][] yellowInvert = {invert, invert, ordered};
             ictx.bufImgOp = new LookupOp(new ShortLookupTable(0, yellowInvert), null);
           }
         }
-      } else if (op.equals("rescale1band")) {
+      } else if ("rescale1band".equals(op)) {
         ictx.bufImgOp = new RescaleOp(0.5f, 10.0f, null);
-      } else if (op.equals("rescale3band")) {
+      } else if ("rescale3band".equals(op)) {
         float[] scaleFactors = {0.5f, 0.3f, 0.8f};
         float[] offsets = {5.0f, -7.5f, 1.0f};
         ictx.bufImgOp = new RescaleOp(scaleFactors, offsets, null);
@@ -812,8 +870,9 @@ public abstract class ImageTests extends GraphicsTests {
       super(graphicsTestRoot, "drawimageop", "drawImage(srcBufImg, op, x, y);");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
+      Context ictx = (Context) ctx;
       int x = ictx.initX;
       int y = ictx.initY;
       BufferedImageOp op = ictx.bufImgOp;
@@ -823,6 +882,7 @@ public abstract class ImageTests extends GraphicsTests {
       if (ictx.animate) {
         if (ictx.touchSrc) {
           Graphics gSrc = src.getGraphics();
+          --numReps;
           do {
             gSrc.fillRect(0, 0, 1, 1);
             g2.drawImage(src, op, x, y);
@@ -832,8 +892,10 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g2.drawImage(src, op, x, y);
             if ((x -= 3) < 0) {
@@ -842,19 +904,24 @@ public abstract class ImageTests extends GraphicsTests {
             if ((y -= 1) < 0) {
               y += ictx.maxY;
             }
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       } else {
         if (ictx.touchSrc) {
           Graphics gSrc = src.getGraphics();
+          --numReps;
           do {
             gSrc.fillRect(0, 0, 1, 1);
             g2.drawImage(src, op, x, y);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         } else {
+          --numReps;
           do {
             g2.drawImage(src, op, x, y);
-          } while (--numReps > 0);
+            --numReps;
+          } while (numReps > 0);
         }
       }
       g2.translate(-ictx.orgX, -ictx.orgY);
@@ -862,7 +929,7 @@ public abstract class ImageTests extends GraphicsTests {
   }
 
   private static class BufImgOpFilter extends ImageOpTests {
-    private boolean cached;
+    private final boolean cached;
 
     BufImgOpFilter(boolean cached) {
       super(bufImgOpTestRoot, "filter" + (cached ? "cached" : "null"), "op.filter(srcBufImg, " +
@@ -870,36 +937,41 @@ public abstract class ImageTests extends GraphicsTests {
       this.cached = cached;
     }
 
+    @Override
     public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
       super.initContext(env, ctx);
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
 
       if (cached) {
-        ictx.bufDst = ictx.bufImgOp.createCompatibleDestImage(ictx.bufSrc, null);
+        ctx.bufDst = ctx.bufImgOp.createCompatibleDestImage(ctx.bufSrc, null);
       }
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
+      Context ictx = (Context) ctx;
       BufferedImageOp op = ictx.bufImgOp;
       BufferedImage src = ictx.bufSrc;
       BufferedImage dst = ictx.bufDst;
       if (ictx.touchSrc) {
         Graphics gSrc = src.getGraphics();
+        --numReps;
         do {
           gSrc.fillRect(0, 0, 1, 1);
           op.filter(src, dst);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           op.filter(src, dst);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
     }
   }
 
   private static class RasterOpFilter extends ImageOpTests {
-    private boolean cached;
+    private final boolean cached;
 
     RasterOpFilter(boolean cached) {
       super(rasterOpTestRoot, "filter" + (cached ? "cached" : "null"), "op.filter(srcRaster, " +
@@ -907,32 +979,37 @@ public abstract class ImageTests extends GraphicsTests {
       this.cached = cached;
     }
 
+    @Override
     public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
       super.initContext(env, ctx);
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
 
-      ictx.rasSrc = ictx.bufSrc.getRaster();
+      ctx.rasSrc = ctx.bufSrc.getRaster();
       if (cached) {
-        ictx.bufDst = ictx.bufImgOp.createCompatibleDestImage(ictx.bufSrc, null);
-        ictx.rasDst = ictx.bufDst.getRaster();
+        ctx.bufDst = ctx.bufImgOp.createCompatibleDestImage(ctx.bufSrc, null);
+        ctx.rasDst = ctx.bufDst.getRaster();
       }
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      ImageOpTests.Context ictx = (ImageOpTests.Context) ctx;
+      Context ictx = (Context) ctx;
       RasterOp op = ictx.rasterOp;
       Raster src = ictx.rasSrc;
       WritableRaster dst = ictx.rasDst;
       if (ictx.touchSrc) {
         Graphics gSrc = ictx.bufSrc.getGraphics();
+        --numReps;
         do {
           gSrc.fillRect(0, 0, 1, 1);
           op.filter(src, dst);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           op.filter(src, dst);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
     }
   }

@@ -39,8 +39,6 @@
 
 package com.sun.demo.scripting.jconsole;
 
-import javax.swing.text.*;
-
 /**
  * This class implements a special type of document in which edits
  * can only be performed at the end, from "mark" to the end of the
@@ -48,7 +46,6 @@ import javax.swing.text.*;
  */
 public class EditableAtEndDocument extends PlainDocument {
 
-  private static final long serialVersionUID = 5358116444851502167L;
   private int mark;
 
   @Override
@@ -59,19 +56,18 @@ public class EditableAtEndDocument extends PlainDocument {
 
   @Override
   public void remove(int offs, int len) throws BadLocationException {
-    int start = offs;
     int end = offs + len;
 
     int markStart = mark;
     int markEnd = getLength();
 
-    if ((end < markStart) || (start > markEnd)) {
+    if (end < markStart || offs > markEnd) {
       // no overlap
       return;
     }
 
     // Determine interval intersection
-    int cutStart = Math.max(start, markStart);
+    int cutStart = Math.max(offs, markStart);
     int cutEnd = Math.min(end, markEnd);
     super.remove(cutStart, cutEnd - cutStart);
   }

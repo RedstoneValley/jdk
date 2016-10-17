@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
@@ -50,18 +49,16 @@ import java.awt.Label;
 import java.awt.Panel;
 import java.awt.Polygon;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.EventListener;
 
 @SuppressWarnings("serial")
 class GraphicsPanel extends Panel {
 
-  public GraphicsCards cards;
-  ActionListener al;
-  ItemListener il;
+  public final GraphicsCards cards;
+  final ActionListener al;
+  final ItemListener il;
 
   GraphicsPanel(EventListener listener) {
     al = (ActionListener) listener;
@@ -69,7 +66,7 @@ class GraphicsPanel extends Panel {
 
     setLayout(new BorderLayout());
 
-    add("Center", cards = new GraphicsCards());
+    add(BorderLayout.CENTER, cards = new GraphicsCards());
 
     Panel p = new Panel();
     //p.setLayout(new BorderLayout());
@@ -94,7 +91,7 @@ class GraphicsPanel extends Panel {
     c.addItem("Rect");
     c.addItem("RoundRect");
 
-    add("North", p);
+    add(BorderLayout.NORTH, p);
 
     setSize(400, 400);
   }
@@ -104,48 +101,6 @@ class GraphicsPanel extends Panel {
     return new Dimension(200, 100);
   }
 }
-
-@SuppressWarnings("serial")
-public class GraphicsTest extends Applet implements ActionListener, ItemListener {
-
-  GraphicsPanel mainPanel;
-
-  public static void main(String args[]) {
-    AppletFrame.startApplet("GraphicsTest", "Graphics Test", args);
-  }
-
-  @Override
-  public void init() {
-    setLayout(new BorderLayout());
-    add("Center", mainPanel = new GraphicsPanel(this));
-  }
-
-  @Override
-  public void destroy() {
-    remove(mainPanel);
-  }
-
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    String arg = e.getActionCommand();
-
-    if ("next".equals(arg)) {
-      ((CardLayout) mainPanel.cards.getLayout()).next(mainPanel.cards);
-    } else if ("previous".equals(arg)) {
-      ((CardLayout) mainPanel.cards.getLayout()).previous(mainPanel.cards);
-    }
-  }
-
-  @Override
-  public void itemStateChanged(ItemEvent e) {
-    ((CardLayout) mainPanel.cards.getLayout()).show(mainPanel.cards, (String) e.getItem());
-  }
-
-  @Override
-  public String getAppletInfo() {
-    return "An interactive demonstration of some graphics.";
-  }
-}   // end class GraphicsTest
 
 @SuppressWarnings("serial")
 class GraphicsCards extends Panel {
@@ -175,7 +130,7 @@ class ArcCard extends Panel {
 @SuppressWarnings("serial")
 class ArcDegreePanel extends Panel {
 
-  boolean filled;
+  final boolean filled;
 
   public ArcDegreePanel(boolean filled) {
     this.filled = filled;
@@ -186,7 +141,7 @@ class ArcDegreePanel extends Panel {
     int a2 = step;
     int progress = 0;
     g.setColor(c1);
-    for (; (a1 + a2) <= 360; a1 = a1 + a2, a2 += 1) {
+    for (; a1 + a2 <= 360; a1 += a2, a2 += 1) {
       if (g.getColor() == c1) {
         g.setColor(c2);
       } else {
@@ -221,8 +176,8 @@ class ArcDegreePanel extends Panel {
 
     arcSteps(g,
         1,
-        (r.width * 3) / 8,
-        (r.height * 3) / 8,
+        r.width * 3 / 8,
+        r.height * 3 / 8,
         r.width / 4,
         r.height / 4,
         Color.magenta,
@@ -233,7 +188,7 @@ class ArcDegreePanel extends Panel {
 @SuppressWarnings("serial")
 class ArcPanel extends Panel {
 
-  boolean filled;
+  final boolean filled;
 
   public ArcPanel(boolean filled) {
     this.filled = filled;
@@ -352,7 +307,7 @@ class PolygonShape extends Shape {
   // class variables
 
   Polygon p;
-  Polygon pBase;
+  final Polygon pBase;
 
   public PolygonShape() {
     pBase = new Polygon();
@@ -377,7 +332,7 @@ class PolygonShape extends Shape {
     Graphics ng = g.create();
     try {
       ng.translate(x, y);
-      scalePolygon(((float) w / 10f), ((float) h / 20f));
+      scalePolygon((float) w / 10f, (float) h / 20f);
       ng.drawPolygon(p);
     } finally {
       ng.dispose();
@@ -389,7 +344,7 @@ class PolygonShape extends Shape {
     Graphics ng = g.create();
     try {
       ng.translate(x, y);
-      scalePolygon(((float) w / 10f), ((float) h / 20f));
+      scalePolygon((float) w / 10f, (float) h / 20f);
       ng.fillPolygon(p);
     } finally {
       ng.dispose();
@@ -400,8 +355,8 @@ class PolygonShape extends Shape {
 @SuppressWarnings("serial")
 class ShapeTest extends Panel {
 
-  Shape shape;
-  int step;
+  final Shape shape;
+  final int step;
 
   public ShapeTest(Shape shape, int step) {
     this.shape = shape;
@@ -410,6 +365,12 @@ class ShapeTest extends Panel {
 
   public ShapeTest(Shape shape) {
     this(shape, 10);
+  }
+
+  static Color darker(Color c, double factor) {
+    return new Color(Math.max((int) (c.getRed() * factor), 0),
+        Math.max((int) (c.getGreen() * factor), 0),
+        Math.max((int) (c.getBlue() * factor), 0));
   }
 
   @Override
@@ -422,15 +383,14 @@ class ShapeTest extends Panel {
 
     for (color = Color.red, cx = bounds.x, cy = bounds.y, cw = bounds.width / 2, ch = bounds.height;
         cw > 0 && ch > 0;
-        cx += step, cy += step, cw -= (step * 2), ch -= (step * 2), color = ColorUtils.darker(
-            color,
+        cx += step, cy += step, cw -= step << 1, ch -= step << 1, color = darker(color,
             0.9)) {
       g.setColor(color);
       shape.draw(g, cx, cy, cw, ch);
     }
 
     for (cx = bounds.x + bounds.width / 2, cy = bounds.y, cw = bounds.width / 2, ch = bounds.height;
-        cw > 0 && ch > 0; cx += step, cy += step, cw -= (step * 2), ch -= (step * 2)) {
+        cw > 0 && ch > 0; cx += step, cy += step, cw -= step << 1, ch -= step << 1) {
       if (g.getColor() == Color.red) {
         g.setColor(Color.blue);
       } else {
@@ -442,17 +402,14 @@ class ShapeTest extends Panel {
   }  // end paint()
 }   // end class ShapeTest
 
-class ColorUtils {
+final class ColorUtils {
+
+  private ColorUtils() {
+  }
 
   static Color brighter(Color c, double factor) {
     return new Color(Math.min((int) (c.getRed() * (1 / factor)), 255),
         Math.min((int) (c.getGreen() * (1 / factor)), 255),
         Math.min((int) (c.getBlue() * (1 / factor)), 255));
-  }
-
-  static Color darker(Color c, double factor) {
-    return new Color(Math.max((int) (c.getRed() * factor), 0),
-        Math.max((int) (c.getGreen() * factor), 0),
-        Math.max((int) (c.getBlue() * factor), 0));
   }
 }

@@ -29,6 +29,7 @@ import static sun.java2d.pipe.BufferedOpCodes.BEGIN_SHAPE_CLIP;
 import static sun.java2d.pipe.BufferedOpCodes.END_SHAPE_CLIP;
 import static sun.java2d.pipe.BufferedOpCodes.RESET_CLIP;
 import static sun.java2d.pipe.BufferedOpCodes.RESET_COMPOSITE;
+import static sun.java2d.pipe.BufferedOpCodes.RESET_PAINT;
 import static sun.java2d.pipe.BufferedOpCodes.RESET_TRANSFORM;
 import static sun.java2d.pipe.BufferedOpCodes.SET_ALPHA_COMPOSITE;
 import static sun.java2d.pipe.BufferedOpCodes.SET_RECT_CLIP;
@@ -43,7 +44,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Paint;
 import java.awt.geom.AffineTransform;
-import java.lang.annotation.Native;
 import sun.java2d.InvalidPipeException;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.loops.XORComposite;
@@ -71,19 +71,31 @@ public abstract class BufferedContext {
   /**
    * Indicates that no flags are needed; take all default code paths.
    */
-  @Native public static final int NO_CONTEXT_FLAGS = (0 << 0);
+  @Native public static final int NO_CONTEXT_FLAGS = 0;
   /**
    * Indicates that the source surface (or color value, if it is a simple
    * rendering operation) is opaque (has an alpha value of 1.0).  If this
    * flag is present, it allows us to disable blending in certain
    * situations in order to improve performance.
    */
-  @Native public static final int SRC_IS_OPAQUE = (1 << 0);
+  @Native public static final int SRC_IS_OPAQUE = 1;
   /**
    * Indicates that the operation uses an alpha mask, which may determine
    * the code path that is used when setting up the current paint state.
    */
-  @Native public static final int USE_MASK = (1 << 1);
+  @Native public static final int USE_MASK = 1 << 1;
+
+  protected static final int OPSIZE_SET_RECT_CLIP = 20;
+  protected static final int OPSIZE_SET_NONRECT_CLIP = 28;
+  protected static final int OPSIZE_SET_ALPHA_COMPOSITE = 16;
+  protected static final int OPSIZE_SET_SURFACES = 20;
+  protected static final int OPSIZE_SET_XOR_COMPOSITE = 8;
+  protected static final int OPSIZE_RESET_TRANSFORM = 4;
+  protected static final int OPSIZE_SET_TRANSFORM = 52;
+  protected static final int OPALIGN_SET_TRANSFORM = 4;
+  protected static final int OPALIGN_SET_SURFACES = 4;
+  protected static final int OPSIZE_RESET_PAINT = 4;
+
   /**
    * This is a reference to the most recently validated BufferedContext.  If
    * this value is null, it means that there is no current context.  It is
@@ -92,8 +104,8 @@ public abstract class BufferedContext {
    * as the one we've cached here.
    */
   protected static BufferedContext currentContext;
-  protected RenderQueue rq;
-  protected RenderBuffer buf;
+  protected final RenderQueue rq;
+  protected final RenderBuffer buf;
   private AccelSurface validatedSrcData;
   private AccelSurface validatedDstData;
   private Region validatedClip;
@@ -108,7 +120,7 @@ public abstract class BufferedContext {
 
   protected BufferedContext(RenderQueue rq) {
     this.rq = rq;
-    this.buf = rq.getBuffer();
+    buf = rq.getBuffer();
   }
 
   /**
@@ -150,6 +162,13 @@ public abstract class BufferedContext {
   public static void validateContext(AccelSurface surface) {
     // assert rt.lock.isHeldByCurrentThread();
     validateContext(surface, surface, null, null, null, null, null, NO_CONTEXT_FLAGS);
+  }
+
+  protected static void resetPaint(RenderQueue rq) {
+    // assert rq.lock.isHeldByCurrentThread();
+    rq.ensureCapacity(OPSIZE_RESET_PAINT);
+    RenderBuffer buf = rq.getBuffer();
+    buf.putInt(RESET_PAINT);
   }
 
   /**
@@ -205,9 +224,9 @@ public abstract class BufferedContext {
       isValidatedPaintJustAColor = false;
     }
 
-    if ((currentContext != this) ||
-        (srcData != validatedSrcData) ||
-        (dstData != validatedDstData)) {
+    if (currentContext != this ||
+        srcData != validatedSrcData ||
+        dstData != validatedDstData) {
       if (dstData != validatedDstData) {
         // the clip is dependent on the destination surface, so we
         // need to update it if we have a new destination surface
@@ -230,15 +249,15 @@ public abstract class BufferedContext {
     }
 
     // validate clip
-    if ((clip != validatedClip) || updateClip) {
+    if (clip != validatedClip || updateClip) {
       if (clip != null) {
         if (updateClip ||
             validatedClip == null ||
             !(validatedClip.isRectangular() && clip.isRectangular()) ||
-            ((clip.getLoX() != validatedClip.getLoX() ||
-                  clip.getLoY() != validatedClip.getLoY() ||
-                  clip.getHiX() != validatedClip.getHiX() ||
-                  clip.getHiY() != validatedClip.getHiY()))) {
+            clip.getLoX() != validatedClip.getLoX() ||
+            clip.getLoY() != validatedClip.getLoY() ||
+            clip.getHiX() != validatedClip.getHiX() ||
+            clip.getHiY() != validatedClip.getHiY()) {
           setClip(clip);
         }
       } else {
@@ -250,7 +269,7 @@ public abstract class BufferedContext {
     // validate composite (note that a change in the context flags
     // may require us to update the composite state, even if the
     // composite has not changed)
-    if ((comp != validatedComp) || (flags != validatedFlags)) {
+    if (comp != validatedComp || flags != validatedFlags) {
       if (comp != null) {
         setComposite(comp, flags);
       } else {
@@ -291,7 +310,7 @@ public abstract class BufferedContext {
       if (paint != null) {
         BufferedPaints.setPaint(rq, sg2d, paint, flags);
       } else {
-        BufferedPaints.resetPaint(rq);
+        resetPaint(rq);
       }
       validatedPaint = paint;
     }
@@ -318,7 +337,7 @@ public abstract class BufferedContext {
 
   private void setSurfaces(AccelSurface srcData, AccelSurface dstData) {
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacityAndAlignment(20, 4);
+    rq.ensureCapacityAndAlignment(OPSIZE_SET_SURFACES, OPALIGN_SET_SURFACES);
     buf.putInt(SET_SURFACES);
     buf.putLong(srcData.getNativeOps());
     buf.putLong(dstData.getNativeOps());
@@ -333,12 +352,12 @@ public abstract class BufferedContext {
   private void setClip(Region clip) {
     // assert rq.lock.isHeldByCurrentThread();
     if (clip.isRectangular()) {
-      rq.ensureCapacity(20);
+      rq.ensureCapacity(OPSIZE_SET_RECT_CLIP);
       buf.putInt(SET_RECT_CLIP);
       buf.putInt(clip.getLoX()).putInt(clip.getLoY());
       buf.putInt(clip.getHiX()).putInt(clip.getHiY());
     } else {
-      rq.ensureCapacity(28); // so that we have room for at least a span
+      rq.ensureCapacity(OPSIZE_SET_NONRECT_CLIP); // so that we have room for at least a span
       buf.putInt(BEGIN_SHAPE_CLIP);
       buf.putInt(SET_SHAPE_CLIP_SPANS);
       // include a placeholder for the span count
@@ -346,7 +365,7 @@ public abstract class BufferedContext {
       buf.putInt(0);
       int spanCount = 0;
       int remainingSpans = buf.remaining() / BYTES_PER_SPAN;
-      int span[] = new int[4];
+      int[] span = new int[4];
       SpanIterator si = clip.getSpanIterator();
       while (si.nextSpan(span)) {
         if (remainingSpans == 0) {
@@ -381,14 +400,14 @@ public abstract class BufferedContext {
     // assert rq.lock.isHeldByCurrentThread();
     if (comp instanceof AlphaComposite) {
       AlphaComposite ac = (AlphaComposite) comp;
-      rq.ensureCapacity(16);
+      rq.ensureCapacity(OPSIZE_SET_ALPHA_COMPOSITE);
       buf.putInt(SET_ALPHA_COMPOSITE);
       buf.putInt(ac.getRule());
       buf.putFloat(ac.getAlpha());
       buf.putInt(flags);
     } else if (comp instanceof XORComposite) {
       int xorPixel = ((XORComposite) comp).getXorPixel();
-      rq.ensureCapacity(8);
+      rq.ensureCapacity(OPSIZE_SET_XOR_COMPOSITE);
       buf.putInt(SET_XOR_COMPOSITE);
       buf.putInt(xorPixel);
     } else {
@@ -398,13 +417,13 @@ public abstract class BufferedContext {
 
   private void resetTransform() {
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacity(4);
+    rq.ensureCapacity(OPSIZE_RESET_TRANSFORM);
     buf.putInt(RESET_TRANSFORM);
   }
 
   private void setTransform(AffineTransform xform) {
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacityAndAlignment(52, 4);
+    rq.ensureCapacityAndAlignment(OPSIZE_SET_TRANSFORM, OPALIGN_SET_TRANSFORM);
     buf.putInt(SET_TRANSFORM);
     buf.putDouble(xform.getScaleX());
     buf.putDouble(xform.getShearY());
@@ -426,7 +445,7 @@ public abstract class BufferedContext {
     resetTransform();
     resetComposite();
     resetClip();
-    BufferedPaints.resetPaint(rq);
+    resetPaint(rq);
     invalidateSurfaces();
     validatedComp = null;
     validatedClip = null;

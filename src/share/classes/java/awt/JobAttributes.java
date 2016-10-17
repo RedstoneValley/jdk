@@ -75,16 +75,16 @@ public final class JobAttributes implements Cloneable {
   private int toPage;
 
   /**
-   * Constructs a <code>JobAttributes</code> instance with default
+   * Constructs a {@code JobAttributes} instance with default
    * values for every attribute.  The dialog defaults to
-   * <code>DialogType.NATIVE</code>.  Min page defaults to
-   * <code>1</code>.  Max page defaults to <code>Integer.MAX_VALUE</code>.
-   * Destination defaults to <code>DestinationType.PRINTER</code>.
-   * Selection defaults to <code>DefaultSelectionType.ALL</code>.
-   * Number of copies defaults to <code>1</code>. Multiple document handling defaults
-   * to <code>MultipleDocumentHandlingType.SEPARATE_DOCUMENTS_UNCOLLATED_COPIES</code>.
-   * Sides defaults to <code>SidesType.ONE_SIDED</code>. File name defaults
-   * to <code>null</code>.
+   * {@code DialogType.NATIVE}.  Min page defaults to
+   * {@code 1}.  Max page defaults to {@code Integer.MAX_VALUE}.
+   * Destination defaults to {@code DestinationType.PRINTER}.
+   * Selection defaults to {@code DefaultSelectionType.ALL}.
+   * Number of copies defaults to {@code 1}. Multiple document handling defaults
+   * to {@code MultipleDocumentHandlingType.SEPARATE_DOCUMENTS_UNCOLLATED_COPIES}.
+   * Sides defaults to {@code SidesType.ONE_SIDED}. File name defaults
+   * to {@code null}.
    */
   public JobAttributes() {
     setCopiesToDefault();
@@ -98,37 +98,37 @@ public final class JobAttributes implements Cloneable {
   }
 
   /**
-   * Constructs a <code>JobAttributes</code> instance which is a copy
-   * of the supplied <code>JobAttributes</code>.
+   * Constructs a {@code JobAttributes} instance which is a copy
+   * of the supplied {@code JobAttributes}.
    *
-   * @param obj the <code>JobAttributes</code> to copy
+   * @param obj the {@code JobAttributes} to copy
    */
   public JobAttributes(JobAttributes obj) {
     set(obj);
   }
 
   /**
-   * Constructs a <code>JobAttributes</code> instance with the
+   * Constructs a {@code JobAttributes} instance with the
    * specified values for every attribute.
    *
    * @param copies                   an integer greater than 0
-   * @param defaultSelection         <code>DefaultSelectionType.ALL</code>,
-   *                                 <code>DefaultSelectionType.RANGE</code>, or
-   *                                 <code>DefaultSelectionType.SELECTION</code>
-   * @param destination              <code>DesintationType.FILE</code> or
-   *                                 <code>DesintationType.PRINTER</code>
-   * @param dialog                   <code>DialogType.COMMON</code>,
-   *                                 <code>DialogType.NATIVE</code>, or
-   *                                 <code>DialogType.NONE</code>
-   * @param fileName                 the possibly <code>null</code> file name
+   * @param defaultSelection         {@code DefaultSelectionType.ALL},
+   *                                 {@code DefaultSelectionType.RANGE}, or
+   *                                 {@code DefaultSelectionType.SELECTION}
+   * @param destination              {@code DesintationType.FILE} or
+   *                                 {@code DesintationType.PRINTER}
+   * @param dialog                   {@code DialogType.COMMON},
+   *                                 {@code DialogType.NATIVE}, or
+   *                                 {@code DialogType.NONE}
+   * @param fileName                 the possibly {@code null} file name
    * @param maxPage                  an integer greater than zero and greater than or equal
    *                                 to <i>minPage</i>
    * @param minPage                  an integer greater than zero and less than or equal
    *                                 to <i>maxPage</i>
-   * @param multipleDocumentHandling <code>MultipleDocumentHandlingType
-   *                                 .SEPARATE_DOCUMENTS_COLLATED_COPIES</code> or
-   *                                 <code>MultipleDocumentHandlingType
-   *                                 .SEPARATE_DOCUMENTS_UNCOLLATED_COPIES</code>
+   * @param multipleDocumentHandling {@code MultipleDocumentHandlingType
+   *                                 .SEPARATE_DOCUMENTS_COLLATED_COPIES} or
+   *                                 {@code MultipleDocumentHandlingType
+   *                                 .SEPARATE_DOCUMENTS_UNCOLLATED_COPIES}
    * @param pageRanges               an array of integer arrays of two elements; an array
    *                                 is interpreted as a range spanning all pages including and
    *                                 between the specified pages; ranges must be in ascending
@@ -136,22 +136,29 @@ public final class JobAttributes implements Cloneable {
    *                                 less than <i>minPage</i> nor greater than <i>maxPage</i>;
    *                                 for example:
    *                                 <pre>
-   *                                                                          (new int[][] { new
-   *                                                                          int[] { 1, 3 }, new
-   *                                                                          int[] { 5,
-   *                                                                          5 },
-   *                                                                                         new
-   *                                                                                         int[] { 15, 19 } }),
-   *                                                                          </pre>
+   *
+   *                                                                                             (new int[][] { new
+   *
+   *                                                                                             int[] { 1, 3 }, new
+   *
+   *                                                                                             int[] { 5,
+   *
+   *                                                                                             5 },
+   *
+   *                                                                                             new
+   *
+   *                                                                                             int[] { 15, 19 } }),
+   *
+   *                                                                                             </pre>
    *                                 specifies pages 1, 2, 3, 5, 15, 16, 17, 18, and 19. Note that
-   *                                 (<code>new int[][] { new int[] { 1, 1 }, new int[] { 1, 2
-   *                                 } }</code>),
+   *                                 ({@code new int[][] { new int[] { 1, 1 }, new int[] { 1, 2
+   *                                 } }}),
    *                                 is an invalid set of page ranges because the two ranges
    *                                 overlap
-   * @param printer                  the possibly <code>null</code> printer name
-   * @param sides                    <code>SidesType.ONE_SIDED</code>,
-   *                                 <code>SidesType.TWO_SIDED_LONG_EDGE</code>, or
-   *                                 <code>SidesType.TWO_SIDED_SHORT_EDGE</code>
+   * @param printer                  the possibly {@code null} printer name
+   * @param sides                    {@code SidesType.ONE_SIDED},
+   *                                 {@code SidesType.TWO_SIDED_LONG_EDGE}, or
+   *                                 {@code SidesType.TWO_SIDED_SHORT_EDGE}
    * @throws IllegalArgumentException if one or more of the above
    *                                  conditions is violated
    */
@@ -174,10 +181,10 @@ public final class JobAttributes implements Cloneable {
   }
 
   /**
-   * Sets all of the attributes of this <code>JobAttributes</code> to
+   * Sets all of the attributes of this {@code JobAttributes} to
    * the same values as the attributes of obj.
    *
-   * @param obj the <code>JobAttributes</code> to copy
+   * @param obj the {@code JobAttributes} to copy
    */
   public void set(JobAttributes obj) {
     copies = obj.copies;
@@ -212,10 +219,10 @@ public final class JobAttributes implements Cloneable {
   /**
    * Specifies the number of copies the application should render for jobs
    * using these attributes. Not specifying this attribute is equivalent to
-   * specifying <code>1</code>.
+   * specifying {@code 1}.
    *
    * @param copies an integer greater than 0
-   * @throws IllegalArgumentException if <code>copies</code> is less than
+   * @throws IllegalArgumentException if {@code copies} is less than
    *                                  or equal to 0
    */
   public void setCopies(int copies) {
@@ -236,7 +243,7 @@ public final class JobAttributes implements Cloneable {
   /**
    * Specifies whether, for jobs using these attributes, the application
    * should print all pages, the range specified by the return value of
-   * <code>getPageRanges</code>, or the current selection. This attribute
+   * {@code getPageRanges}, or the current selection. This attribute
    * is updated to the value chosen by the user.
    *
    * @return DefaultSelectionType.ALL, DefaultSelectionType.RANGE, or
@@ -249,12 +256,12 @@ public final class JobAttributes implements Cloneable {
   /**
    * Specifies whether, for jobs using these attributes, the application
    * should print all pages, the range specified by the return value of
-   * <code>getPageRanges</code>, or the current selection. Not specifying
+   * {@code getPageRanges}, or the current selection. Not specifying
    * this attribute is equivalent to specifying DefaultSelectionType.ALL.
    *
    * @param defaultSelection DefaultSelectionType.ALL,
    *                         DefaultSelectionType.RANGE, or DefaultSelectionType.SELECTION.
-   * @throws IllegalArgumentException if defaultSelection is <code>null</code>
+   * @throws IllegalArgumentException if defaultSelection is {@code null}
    */
   public void setDefaultSelection(DefaultSelectionType defaultSelection) {
     if (defaultSelection == null) {
@@ -300,8 +307,8 @@ public final class JobAttributes implements Cloneable {
    * This attribute cannot be modified by, and is not subject to any
    * limitations of, the implementation or the target printer.
    *
-   * @return <code>DialogType.COMMON</code>, <code>DialogType.NATIVE</code>, or
-   * <code>DialogType.NONE</code>
+   * @return {@code DialogType.COMMON}, {@code DialogType.NATIVE}, or
+   * {@code DialogType.NONE}
    */
   public DialogType getDialog() {
     return dialog;
@@ -324,7 +331,7 @@ public final class JobAttributes implements Cloneable {
    */
   public void setDialog(DialogType dialog) {
     if (dialog == null) {
-      throw new IllegalArgumentException("Invalid value for attribute " + "dialog");
+      throw new IllegalArgumentException("Invalid value for attribute " + Dialog.base);
     }
     this.dialog = dialog;
   }
@@ -333,7 +340,7 @@ public final class JobAttributes implements Cloneable {
    * Specifies the file name for the output file for jobs using these
    * attributes. This attribute is updated to the value chosen by the user.
    *
-   * @return the possibly <code>null</code> file name
+   * @return the possibly {@code null} file name
    */
   public String getFileName() {
     return fileName;
@@ -353,9 +360,9 @@ public final class JobAttributes implements Cloneable {
    * Returns, for jobs using these attributes, the first page to be
    * printed, if a range of pages is to be printed. This attribute is
    * updated to the value chosen by the user. An application should ignore
-   * this attribute on output, unless the return value of the <code>
-   * getDefaultSelection</code> method is DefaultSelectionType.RANGE. An
-   * application should honor the return value of <code>getPageRanges</code>
+   * this attribute on output, unless the return value of the {@code
+   * getDefaultSelection} method is DefaultSelectionType.RANGE. An
+   * application should honor the return value of {@code getPageRanges}
    * over the return value of this method, if possible.
    *
    * @return an integer greater than zero and less than or equal to
@@ -391,7 +398,7 @@ public final class JobAttributes implements Cloneable {
    */
   public void setFromPage(int fromPage) {
     if (fromPage <= 0 ||
-        (toPage != 0 && fromPage > toPage) ||
+        toPage != 0 && fromPage > toPage ||
         fromPage < minPage ||
         fromPage > maxPage) {
       throw new IllegalArgumentException("Invalid value for attribute " + "fromPage");
@@ -415,7 +422,7 @@ public final class JobAttributes implements Cloneable {
   /**
    * Specifies the maximum value the user can specify as the last page to
    * be printed for jobs using these attributes. Not specifying this
-   * attribute is equivalent to specifying <code>Integer.MAX_VALUE</code>.
+   * attribute is equivalent to specifying {@code Integer.MAX_VALUE}.
    *
    * @param maxPage an integer greater than zero and greater than or equal
    *                to <i>minPage</i>
@@ -445,7 +452,7 @@ public final class JobAttributes implements Cloneable {
   /**
    * Specifies the minimum value the user can specify as the first page to
    * be printed for jobs using these attributes. Not specifying this
-   * attribute is equivalent to specifying <code>1</code>.
+   * attribute is equivalent to specifying {@code 1}.
    *
    * @param minPage an integer greater than zero and less than or equal
    *                to <i>maxPage</i>.
@@ -506,7 +513,7 @@ public final class JobAttributes implements Cloneable {
    * printed, if a range of pages is to be printed. All range numbers are
    * inclusive. This attribute is updated to the value chosen by the user.
    * An application should ignore this attribute on output, unless the
-   * return value of the <code>getDefaultSelection</code> method is
+   * return value of the {@code getDefaultSelection} method is
    * DefaultSelectionType.RANGE.
    *
    * @return an array of integer arrays of 2 elements. An array
@@ -574,16 +581,16 @@ public final class JobAttributes implements Cloneable {
       throw new IllegalArgumentException(xcp);
     }
 
-    for (int i = 0; i < pageRanges.length; i++) {
-      if (pageRanges[i] == null ||
-          pageRanges[i].length != 2 ||
-          pageRanges[i][0] <= last ||
-          pageRanges[i][1] < pageRanges[i][0]) {
+    for (int[] pageRange : pageRanges) {
+      if (pageRange == null ||
+          pageRange.length != 2 ||
+          pageRange[0] <= last ||
+          pageRange[1] < pageRange[0]) {
         throw new IllegalArgumentException(xcp);
       }
-      last = pageRanges[i][1];
+      last = pageRange[1];
       if (first == 0) {
-        first = pageRanges[i][0];
+        first = pageRange[0];
       }
     }
 
@@ -600,8 +607,8 @@ public final class JobAttributes implements Cloneable {
       copy[i][1] = pageRanges[i][1];
     }
     this.pageRanges = copy;
-    this.prFirst = first;
-    this.prLast = last;
+    prFirst = first;
+    prLast = last;
   }
 
   /**
@@ -687,9 +694,9 @@ public final class JobAttributes implements Cloneable {
    * Returns, for jobs using these attributes, the last page (inclusive)
    * to be printed, if a range of pages is to be printed. This attribute is
    * updated to the value chosen by the user. An application should ignore
-   * this attribute on output, unless the return value of the <code>
-   * getDefaultSelection</code> method is DefaultSelectionType.RANGE. An
-   * application should honor the return value of <code>getPageRanges</code>
+   * this attribute on output, unless the return value of the {@code
+   * getDefaultSelection} method is DefaultSelectionType.RANGE. An
+   * application should honor the return value of {@code getPageRanges}
    * over the return value of this method, if possible.
    *
    * @return an integer greater than zero and greater than or equal
@@ -725,7 +732,7 @@ public final class JobAttributes implements Cloneable {
    */
   public void setToPage(int toPage) {
     if (toPage <= 0 ||
-        (fromPage != 0 && toPage < fromPage) ||
+        fromPage != 0 && toPage < fromPage ||
         toPage < minPage ||
         toPage > maxPage) {
       throw new IllegalArgumentException("Invalid value for attribute " + "toPage");
@@ -738,15 +745,17 @@ public final class JobAttributes implements Cloneable {
    *
    * @return the hash code.
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
-    int rest = ((copies + fromPage + maxPage + minPage + prFirst + prLast +
-                     toPage) * 31) << 21;
+    int rest = (copies + fromPage + maxPage + minPage + prFirst + prLast +
+
+                    toPage) * 31 << 21;
     if (pageRanges != null) {
       int sum = 0;
-      for (int i = 0; i < pageRanges.length; i++) {
-        sum += pageRanges[i][0] + pageRanges[i][1];
+      for (int[] pageRange : pageRanges) {
+        sum += pageRange[0] + pageRange[1];
       }
-      rest ^= (sum * 31) << 11;
+      rest ^= sum * 31 << 11;
     }
     if (fileName != null) {
       rest ^= fileName.hashCode();
@@ -754,12 +763,12 @@ public final class JobAttributes implements Cloneable {
     if (printer != null) {
       rest ^= printer.hashCode();
     }
-    return (defaultSelection.hashCode() << 6 ^
-                destination.hashCode() << 5 ^
-                dialog.hashCode() << 3 ^
-                multipleDocumentHandling.hashCode() << 2 ^
-                sides.hashCode() ^
-                rest);
+    return defaultSelection.hashCode() << 6 ^
+        destination.hashCode() << 5 ^
+        dialog.hashCode() << 3 ^
+        multipleDocumentHandling.hashCode() << 2 ^
+        sides.hashCode() ^
+        rest;
   }
 
   /**
@@ -775,6 +784,7 @@ public final class JobAttributes implements Cloneable {
    * @return whether obj is equal to this JobAttribute according to the
    * above criteria.
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object obj) {
     if (!(obj instanceof JobAttributes)) {
       return false;
@@ -816,26 +826,27 @@ public final class JobAttributes implements Cloneable {
       }
     }
 
-    return (copies == rhs.copies &&
-                defaultSelection == rhs.defaultSelection &&
-                destination == rhs.destination &&
-                dialog == rhs.dialog &&
-                fromPage == rhs.fromPage &&
-                maxPage == rhs.maxPage &&
-                minPage == rhs.minPage &&
-                multipleDocumentHandling == rhs.multipleDocumentHandling &&
-                prFirst == rhs.prFirst &&
-                prLast == rhs.prLast &&
-                sides == rhs.sides &&
-                toPage == rhs.toPage);
+    return copies == rhs.copies &&
+        defaultSelection == rhs.defaultSelection &&
+        destination == rhs.destination &&
+        dialog == rhs.dialog &&
+        fromPage == rhs.fromPage &&
+        maxPage == rhs.maxPage &&
+        minPage == rhs.minPage &&
+        multipleDocumentHandling == rhs.multipleDocumentHandling &&
+        prFirst == rhs.prFirst &&
+        prLast == rhs.prLast &&
+        sides == rhs.sides &&
+        toPage == rhs.toPage;
   }
 
   /**
-   * Creates and returns a copy of this <code>JobAttributes</code>.
+   * Creates and returns a copy of this {@code JobAttributes}.
    *
    * @return the newly created copy; it is safe to cast this Object into
-   * a <code>JobAttributes</code>
+   * a {@code JobAttributes}
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();
@@ -854,13 +865,13 @@ public final class JobAttributes implements Cloneable {
     int[][] pageRanges = getPageRanges();
     String prStr = "[";
     boolean first = true;
-    for (int i = 0; i < pageRanges.length; i++) {
+    for (int[] pageRange : pageRanges) {
       if (first) {
         first = false;
       } else {
         prStr += ",";
       }
-      prStr += pageRanges[i][0] + ":" + pageRanges[i][1];
+      prStr += pageRange[0] + ":" + pageRange[1];
     }
     prStr += "]";
 
@@ -882,23 +893,23 @@ public final class JobAttributes implements Cloneable {
   public static final class DefaultSelectionType extends AttributeValue {
     private static final int I_ALL = 0;
     /**
-     * The <code>DefaultSelectionType</code> instance to use for
+     * The {@code DefaultSelectionType} instance to use for
      * specifying that all pages of the job should be printed.
      */
     public static final DefaultSelectionType ALL = new DefaultSelectionType(I_ALL);
     private static final int I_RANGE = 1;
     /**
-     * The <code>DefaultSelectionType</code> instance to use for
+     * The {@code DefaultSelectionType} instance to use for
      * specifying that a range of pages of the job should be printed.
      */
     public static final DefaultSelectionType RANGE = new DefaultSelectionType(I_RANGE);
     private static final int I_SELECTION = 2;
     /**
-     * The <code>DefaultSelectionType</code> instance to use for
+     * The {@code DefaultSelectionType} instance to use for
      * specifying that the current selection should be printed.
      */
     public static final DefaultSelectionType SELECTION = new DefaultSelectionType(I_SELECTION);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "all", "range", "selection"};
 
     private DefaultSelectionType(int type) {
@@ -914,17 +925,17 @@ public final class JobAttributes implements Cloneable {
   public static final class DestinationType extends AttributeValue {
     private static final int I_FILE = 0;
     /**
-     * The <code>DestinationType</code> instance to use for
+     * The {@code DestinationType} instance to use for
      * specifying print to file.
      */
     public static final DestinationType FILE = new DestinationType(I_FILE);
     private static final int I_PRINTER = 1;
     /**
-     * The <code>DestinationType</code> instance to use for
+     * The {@code DestinationType} instance to use for
      * specifying print to printer.
      */
     public static final DestinationType PRINTER = new DestinationType(I_PRINTER);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "file", "printer"};
 
     private DestinationType(int type) {
@@ -940,23 +951,23 @@ public final class JobAttributes implements Cloneable {
   public static final class DialogType extends AttributeValue {
     private static final int I_COMMON = 0;
     /**
-     * The <code>DialogType</code> instance to use for
+     * The {@code DialogType} instance to use for
      * specifying the cross-platform, pure Java print dialog.
      */
     public static final DialogType COMMON = new DialogType(I_COMMON);
     private static final int I_NATIVE = 1;
     /**
-     * The <code>DialogType</code> instance to use for
+     * The {@code DialogType} instance to use for
      * specifying the platform's native print dialog.
      */
     public static final DialogType NATIVE = new DialogType(I_NATIVE);
     private static final int I_NONE = 2;
     /**
-     * The <code>DialogType</code> instance to use for
+     * The {@code DialogType} instance to use for
      * specifying no print dialog.
      */
     public static final DialogType NONE = new DialogType(I_NONE);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "common", "native", "none"};
 
     private DialogType(int type) {
@@ -974,19 +985,19 @@ public final class JobAttributes implements Cloneable {
   public static final class MultipleDocumentHandlingType extends AttributeValue {
     private static final int I_SEPARATE_DOCUMENTS_COLLATED_COPIES = 0;
     /**
-     * The <code>MultipleDocumentHandlingType</code> instance to use for specifying
+     * The {@code MultipleDocumentHandlingType} instance to use for specifying
      * that the job should be divided into separate, collated copies.
      */
     public static final MultipleDocumentHandlingType SEPARATE_DOCUMENTS_COLLATED_COPIES
         = new MultipleDocumentHandlingType(I_SEPARATE_DOCUMENTS_COLLATED_COPIES);
     private static final int I_SEPARATE_DOCUMENTS_UNCOLLATED_COPIES = 1;
     /**
-     * The <code>MultipleDocumentHandlingType</code> instance to use for specifying
+     * The {@code MultipleDocumentHandlingType} instance to use for specifying
      * that the job should be divided into separate, uncollated copies.
      */
     public static final MultipleDocumentHandlingType SEPARATE_DOCUMENTS_UNCOLLATED_COPIES
         = new MultipleDocumentHandlingType(I_SEPARATE_DOCUMENTS_UNCOLLATED_COPIES);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "separate-documents-collated-copies", "separate-documents-uncollated-copies"};
 
     private MultipleDocumentHandlingType(int type) {
@@ -1003,14 +1014,14 @@ public final class JobAttributes implements Cloneable {
   public static final class SidesType extends AttributeValue {
     private static final int I_ONE_SIDED = 0;
     /**
-     * The <code>SidesType</code> instance to use for specifying that
+     * The {@code SidesType} instance to use for specifying that
      * consecutive job pages should be printed upon the same side of
      * consecutive media sheets.
      */
     public static final SidesType ONE_SIDED = new SidesType(I_ONE_SIDED);
     private static final int I_TWO_SIDED_LONG_EDGE = 1;
     /**
-     * The <code>SidesType</code> instance to use for specifying that
+     * The {@code SidesType} instance to use for specifying that
      * consecutive job pages should be printed upon front and back sides
      * of consecutive media sheets, such that the orientation of each pair
      * of pages on the medium would be correct for the reader as if for
@@ -1019,14 +1030,14 @@ public final class JobAttributes implements Cloneable {
     public static final SidesType TWO_SIDED_LONG_EDGE = new SidesType(I_TWO_SIDED_LONG_EDGE);
     private static final int I_TWO_SIDED_SHORT_EDGE = 2;
     /**
-     * The <code>SidesType</code> instance to use for specifying that
+     * The {@code SidesType} instance to use for specifying that
      * consecutive job pages should be printed upon front and back sides
      * of consecutive media sheets, such that the orientation of each pair
      * of pages on the medium would be correct for the reader as if for
      * binding on the short edge.
      */
     public static final SidesType TWO_SIDED_SHORT_EDGE = new SidesType(I_TWO_SIDED_SHORT_EDGE);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "one-sided", "two-sided-long-edge", "two-sided-short-edge"};
 
     private SidesType(int type) {

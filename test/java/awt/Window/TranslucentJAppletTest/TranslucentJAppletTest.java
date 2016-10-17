@@ -31,17 +31,21 @@
  */
 
 import java.awt.*;
+import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.image.*;
 
-import javax.swing.*;
+import sun.awt.SunToolkit;
 
-public class TranslucentJAppletTest {
+public final class TranslucentJAppletTest {
 
-    private static volatile GraphicsConfiguration graphicsConfig = null;
+    private static volatile GraphicsConfiguration graphicsConfig;
     private static JFrame frame;
-    private static volatile boolean paintComponentCalled = false;
+    static volatile boolean paintComponentCalled;
 
-    private static void initAndShowGUI() {
+    private TranslucentJAppletTest() {
+    }
+
+    static void initAndShowGUI() {
         frame = new JFrame(graphicsConfig);
         JApplet applet = new JApplet();
         applet.setBackground(new Color(0, 0, 0, 0));
@@ -65,12 +69,12 @@ public class TranslucentJAppletTest {
     public static void main(String[] args)
         throws Exception
     {
-        sun.awt.SunToolkit tk = (sun.awt.SunToolkit)Toolkit.getDefaultToolkit();
+        SunToolkit tk = (SunToolkit)Toolkit.getDefaultToolkit();
 
-        final GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         for (GraphicsDevice gd : ge.getScreenDevices()) {
             if (gd.isWindowTranslucencySupported(
-                        GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSLUCENT))
+                        WindowTranslucency.PERPIXEL_TRANSLUCENT))
             {
                 for (GraphicsConfiguration gc : gd.getConfigurations()) {
                     if (gc.isTranslucencyCapable()) {
@@ -92,6 +96,7 @@ public class TranslucentJAppletTest {
         Color color1 = r.getPixelColor(100, 100); // (0, 0) in frame coordinates
 
         SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 initAndShowGUI();
             }

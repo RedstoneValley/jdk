@@ -35,14 +35,14 @@ import sun.java2d.SurfaceData;
 import sun.java2d.pipe.SpanIterator;
 
 /**
- * FillSpans
+ * doFillSpans
  * 1) draw solid color onto destination surface
  * 2) rectangular areas to fill come from SpanIterator
  */
 public class FillSpans extends GraphicsPrimitive {
-  public final static String methodSignature = "FillSpans(...)".toString();
+  public static final String methodSignature = "doFillSpans(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected FillSpans(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -57,40 +57,46 @@ public class FillSpans extends GraphicsPrimitive {
     return (FillSpans) GraphicsPrimitiveMgr.locate(primTypeID, srctype, comptype, dsttype);
   }
 
-  private native void FillSpans(
-      SunGraphics2D sg2d, SurfaceData dest, int pixel, long pIterator, SpanIterator si);
+  private void doFillSpans(
+      SunGraphics2D sg2d, SurfaceData dest, int pixel, long pIterator, SpanIterator si) {
+    // TODO: This is native in OpenJDK AWT (where it's called FillSpans)
+  }
 
   /**
    * All FillSpan implementors must have this invoker method
    */
   public void FillSpans(SunGraphics2D sg2d, SurfaceData dest, SpanIterator si) {
-    FillSpans(sg2d, dest, sg2d.pixel, si.getNativeIterator(), si);
+    doFillSpans(sg2d, dest, sg2d.pixel, si.getNativeIterator(), si);
   }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: iterate with a FillRect primitive?
-    throw new InternalError("FillSpans not implemented for " +
+    throw new InternalError("doFillSpans not implemented for " +
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceFillSpans(this);
   }
 
   private static class TraceFillSpans extends FillSpans {
-    FillSpans target;
+    final FillSpans target;
 
     public TraceFillSpans(FillSpans target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void FillSpans(SunGraphics2D sg2d, SurfaceData dest, SpanIterator si) {
       tracePrimitive(target);
       target.FillSpans(sg2d, dest, si);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

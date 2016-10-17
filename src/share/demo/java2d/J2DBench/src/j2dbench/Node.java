@@ -40,8 +40,6 @@
 package j2dbench;
 
 import java.io.PrintWriter;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 public abstract class Node {
   private String nodeName;
@@ -83,7 +81,7 @@ public abstract class Node {
   }
 
   public JComponent getJComponent() {
-    return (nodeName != null) ? new JLabel(description) : null;
+    return nodeName != null ? new JLabel(description) : null;
   }
 
   public Node getNext() {
@@ -91,7 +89,7 @@ public abstract class Node {
   }
 
   public void setNext(Node node) {
-    this.next = node;
+    next = node;
   }
 
   public void traverse(Visitor v) {
@@ -104,13 +102,13 @@ public abstract class Node {
 
   public abstract String setOption(String key, String value);
 
-  public static interface Visitor {
-    public void visit(Node node);
+  public interface Visitor {
+    void visit(Node node);
   }
 
-  public static interface Iterator {
-    public boolean hasNext();
+  public interface Iterator {
+    boolean hasNext();
 
-    public Node next();
+    Node next();
   }
 }

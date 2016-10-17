@@ -26,9 +26,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 /**
  * @test
@@ -41,7 +38,10 @@ public final class DrawRotatedString {
 
     private static final int SIZE = 500;
 
-    public static void main(final String[] args) throws IOException {
+  private DrawRotatedString() {
+  }
+
+  public static void main(String[] args) {
         BufferedImage bi = createBufferedImage(true);
         verify(bi);
         bi = createBufferedImage(false);
@@ -49,22 +49,22 @@ public final class DrawRotatedString {
         System.out.println("Passed");
     }
 
-    private static void verify(BufferedImage bi) throws IOException {
+    private static void verify(BufferedImage bi) {
         for (int i = 0; i < SIZE; ++i) {
             for (int j = 0; j < 99; ++j) {
                 //Text should not appear before 100
                 if (bi.getRGB(i, j) != Color.RED.getRGB()) {
-                    ImageIO.write(bi, "png", new File("image.png"));
+                    ImageIO.write(bi, "png", new File(MultiResolutionImageTest.IMAGE_NAME_1X));
                     throw new RuntimeException("Failed: wrong text location");
                 }
             }
         }
     }
 
-    private static BufferedImage createBufferedImage(final boolean  aa) {
-        final BufferedImage bi = new BufferedImage(SIZE, SIZE,
+    private static BufferedImage createBufferedImage(boolean  aa) {
+        BufferedImage bi = new BufferedImage(SIZE, SIZE,
                                                    BufferedImage.TYPE_INT_RGB);
-        final Graphics2D bg = bi.createGraphics();
+        Graphics2D bg = bi.createGraphics();
         bg.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                             aa ? RenderingHints.VALUE_ANTIALIAS_ON
                                : RenderingHints.VALUE_ANTIALIAS_OFF);

@@ -29,9 +29,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 /**
  * @test
@@ -45,7 +42,10 @@ public final class IncorrectDestinationOffset {
     private static final int SIZE = 128;
     private static final double[] SCALES = {0.25, 0.5, 1, 1.5, 2.0, 4};
 
-    public static void main(final String[] args) throws IOException {
+    private IncorrectDestinationOffset() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -101,37 +101,39 @@ public final class IncorrectDestinationOffset {
     }
 
     private static void validate(BufferedImage bi, int point2draw,
-                                 int size2draw)
-            throws IOException {
+                                 int size2draw) {
         for (int x = 0; x < SIZE; ++x) {
             for (int y = 0; y < SIZE; ++y) {
                 if (isInsideGreenArea(point2draw, size2draw, x, y)) {
                     if (bi.getRGB(x, y) != Color.green.getRGB()) {
-                        ImageIO.write(bi, "png", new File("image.png"));
+                        ImageIO.write(bi, "png", new File(MultiResolutionImageObserverTest
+                            .IMAGE_NAME_1X));
                         throw new RuntimeException("Test failed.");
                     }
                 } else {
                     if (isRedArea(x, y)) {
                         if (bi.getRGB(x, y) != Color.red.getRGB()) {
-                            ImageIO.write(bi, "png", new File("image.png"));
+                            ImageIO.write(bi, "png", new File(MultiResolutionImageObserverTest
+                                .IMAGE_NAME_1X));
                             throw new RuntimeException("Test failed.");
                         }
                     }
                     if (isBlueArea(x, y)) {
                         if (bi.getRGB(x, y) != Color.blue.getRGB()) {
-                            ImageIO.write(bi, "png", new File("image.png"));
+                            ImageIO.write(bi, "png", new File(MultiResolutionImageObserverTest
+                                .IMAGE_NAME_1X));
                             throw new RuntimeException("Test failed.");
                         }
                     }
                     if (isOrangeArea(x, y)) {
                         if (bi.getRGB(x, y) != Color.orange.getRGB()) {
-                            ImageIO.write(bi, "png", new File("image.png"));
+                            ImageIO.write(bi, "png", new File(MultiResolutionImageTest.IMAGE_NAME_1X));
                             throw new RuntimeException("Test failed.");
                         }
                     }
                     if (isMagentaArea(x, y)) {
                         if (bi.getRGB(x, y) != Color.magenta.getRGB()) {
-                            ImageIO.write(bi, "png", new File("image.png"));
+                            ImageIO.write(bi, "png", new File(MultiResolutionImageTest.IMAGE_NAME_1X));
                             throw new RuntimeException("Test failed.");
                         }
                     }

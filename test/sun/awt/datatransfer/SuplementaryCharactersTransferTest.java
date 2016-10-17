@@ -36,9 +36,12 @@ import java.awt.datatransfer.*;
 import sun.awt.datatransfer.*;
 import sun.awt.datatransfer.DataTransferer.ReencodingInputStream;
 
-public class SuplementaryCharactersTransferTest {
+public final class SuplementaryCharactersTransferTest {
 
     public static final long TEXT_FORMAT = 13;
+
+    private SuplementaryCharactersTransferTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -73,10 +76,12 @@ public class SuplementaryCharactersTransferTest {
             return dataFlavor;
         }
 
+        @Override
         public DataFlavor[] getTransferDataFlavors() {
             return new DataFlavor[]{dataFlavor};
         }
 
+        @Override
         public boolean isDataFlavorSupported(DataFlavor flavor) {
             return flavor.equals(dataFlavor);
         }
@@ -89,6 +94,7 @@ public class SuplementaryCharactersTransferTest {
             return new ByteArrayInputStream(getBytes());
         }
 
+        @Override
         public Object getTransferData(DataFlavor flavor)
                 throws UnsupportedFlavorException, IOException {
             if (flavor.equals(dataFlavor)) {
@@ -98,6 +104,7 @@ public class SuplementaryCharactersTransferTest {
             }
         }
 
+        @Override
         public void lostOwnership(Clipboard clipboard, Transferable contents) {
         }
     }

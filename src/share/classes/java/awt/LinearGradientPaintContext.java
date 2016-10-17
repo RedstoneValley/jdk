@@ -37,9 +37,9 @@ import java.awt.image.ColorModel;
  * This is where the pixel processing is done.
  *
  * @author Nicholas Talian, Vincent Hardy, Jim Graham, Jerry Evans
- * @see java.awt.LinearGradientPaint
- * @see java.awt.PaintContext
- * @see java.awt.Paint
+ * @see LinearGradientPaint
+ * @see PaintContext
+ * @see Paint
  */
 final class LinearGradientPaintContext extends MultipleGradientPaintContext {
 
@@ -48,7 +48,9 @@ final class LinearGradientPaintContext extends MultipleGradientPaintContext {
    * a device space coordinate, (X, Y):
    * g(X, Y) = dgdX*X + dgdY*Y + gc
    */
-  private float dgdX, dgdY, gc;
+  private final float dgdX;
+  private final float dgdY;
+  private final float gc;
 
   /**
    * Constructor for LinearGradientPaintContext.
@@ -56,7 +58,7 @@ final class LinearGradientPaintContext extends MultipleGradientPaintContext {
    * @param paint        the {@code LinearGradientPaint} from which this context
    *                     is created
    * @param cm           {@code ColorModel} that receives
-   *                     the <code>Paint</code> data. This is used only as a hint.
+   *                     the {@code Paint} data. This is used only as a hint.
    * @param deviceBounds the device space bounding box of the
    *                     graphics primitive being rendered
    * @param userBounds   the user space bounding box of the
@@ -129,15 +131,16 @@ final class LinearGradientPaintContext extends MultipleGradientPaintContext {
    * @param x,y,w,h the area in device space for which colors are
    *                generated.
    */
+  @Override
   protected void fillRaster(int[] pixels, int off, int adjust, int x, int y, int w, int h) {
     // current value for row gradients
-    float g = 0;
+    float g;
 
     // used to end iteration on rows
     int rowLimit = off + w;
 
     // constant which can be pulled out of the inner loop
-    float initConst = (dgdX * x) + gc;
+    float initConst = dgdX * x + gc;
 
     for (int i = 0; i < h; i++) { // for every row
 
@@ -146,7 +149,8 @@ final class LinearGradientPaintContext extends MultipleGradientPaintContext {
 
       while (off < rowLimit) { // for every pixel in this row
         // get the color
-        pixels[off++] = indexIntoGradientsArrays(g);
+        pixels[off] = indexIntoGradientsArrays(g);
+        off++;
 
         // incremental change in g
         g += dgdX;

@@ -31,8 +31,12 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import sun.awt.image.SunWritableRaster;
 
 /**
@@ -51,7 +55,7 @@ import sun.awt.image.SunWritableRaster;
  * Place the image in the jar archive and specify the path in the option.
  * The path should not have a leading slash.
  * <BR>
- * For example, in the <code>manifest.mf</code> file:
+ * For example, in the {@code manifest.mf} file:
  * <PRE>
  * Manifest-Version: 1.0
  * Main-Class: Test
@@ -92,7 +96,7 @@ import sun.awt.image.SunWritableRaster;
  * can exist, and it may be obtained by using the {@link #getSplashScreen()}
  * static method. In case the splash screen has not been created at
  * application startup via the command line or manifest file option,
- * the <code>getSplashScreen</code> method returns <code>null</code>.
+ * the {@code getSplashScreen} method returns {@code null}.
  *
  * @author Oleg Semenov
  * @since 1.6
@@ -100,15 +104,15 @@ import sun.awt.image.SunWritableRaster;
 public final class SplashScreen {
 
   private static final String TAG = "java.awt.SplashScreen";
-  private static boolean wasClosed = false;
+  private static boolean wasClosed;
   /**
    * The instance reference for the singleton.
-   * (<code>null</code> if no instance exists yet.)
+   * ({@code null} if no instance exists yet.)
    *
    * @see #getSplashScreen
    * @see #close
    */
-  private static SplashScreen theInstance = null;
+  private static SplashScreen theInstance;
   private final long splashPtr; // pointer to native Splash structure
   private BufferedImage image; // overlay image
   private URL imageURL;
@@ -121,60 +125,78 @@ public final class SplashScreen {
    * Returns the {@code SplashScreen} object used for
    * Java startup splash screen control on systems that support display.
    *
-   * @return the {@link SplashScreen} instance, or <code>null</code> if there is
+   * @return the  instance, or {@code null} if there is
    * none or it has already been closed
    * @throws UnsupportedOperationException if the splash screen feature is not
    *                                       supported by the current toolkit
    * @throws HeadlessException             if {@code GraphicsEnvironment.isHeadless()}
    *                                       returns true
    */
-  public static SplashScreen getSplashScreen() {
-    synchronized (SplashScreen.class) {
-      if (GraphicsEnvironment.isHeadless()) {
-        throw new HeadlessException();
-      }
-      // SplashScreen class is now a singleton
-      if (!wasClosed && theInstance == null) {
-        java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
-          public Void run() {
-            System.loadLibrary("splashscreen");
-            return null;
-          }
-        });
-        long ptr = _getInstance();
-        if (ptr != 0 && _isVisible(ptr)) {
-          theInstance = new SplashScreen(ptr);
+  public static synchronized SplashScreen getSplashScreen() {
+    if (!wasClosed && theInstance == null) {
+      AccessController.doPrivileged(new PrivilegedAction<Void>() {
+        @Override
+        public Void run() {
+          System.loadLibrary("splashscreen");
+          return null;
         }
+      });
+      long ptr = _getInstance();
+      if (ptr != 0 && _isVisible(ptr)) {
+        theInstance = new SplashScreen(ptr);
       }
-      return theInstance;
     }
+    return theInstance;
   }
 
-  static void markClosed() {
-    synchronized (SplashScreen.class) {
-      wasClosed = true;
-      theInstance = null;
-    }
+  static synchronized void markClosed() {
+    wasClosed = true;
+    theInstance = null;
   }
 
-  private native static void _update(
-      long splashPtr, int[] data, int x, int y, int width, int height, int scanlineStride);
+  private static void _update(
+      long splashPtr, int[] data, int x, int y, int width, int height, int scanlineStride) {
+    // TODO: Native in OpenJDK AWT
+  }
 
-  private native static boolean _isVisible(long splashPtr);
+  private static boolean _isVisible(long splashPtr) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
 
-  private native static Rectangle _getBounds(long splashPtr);
+  private static Rectangle _getBounds(long splashPtr) {
+    // TODO: Native in OpenJDK AWT
+    return null;
+  }
 
-  private native static long _getInstance();
+  private static long _getInstance() {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  private native static void _close(long splashPtr);
+  private static void _close(long splashPtr) {
+    // TODO: Native in OpenJDK AWT
+  }
 
-  private native static String _getImageFileName(long splashPtr);
+  private static String _getImageFileName(long splashPtr) {
+    // TODO: Native in OpenJDK AWT
+    return null;
+  }
 
-  private native static String _getImageJarName(long SplashPtr);
+  private static String _getImageJarName(long SplashPtr) {
+    // TODO: Native in OpenJDK AWT
+    return null;
+  }
 
-  private native static boolean _setImageData(long SplashPtr, byte[] data);
+  private static boolean _setImageData(long SplashPtr, byte[] data) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
 
-  private native static float _getScaleFactor(long SplashPtr);
+  private static float _getScaleFactor(long SplashPtr) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
   private void checkVisible() {
     if (!isVisible()) {
@@ -196,13 +218,10 @@ public final class SplashScreen {
           String fileName = _getImageFileName(splashPtr);
           String jarName = _getImageJarName(splashPtr);
           if (fileName != null) {
-            if (jarName != null) {
-              imageURL = new URL("jar:" + (new File(jarName).toURL().toString()) + "!/" + fileName);
-            } else {
-              imageURL = new File(fileName).toURL();
-            }
+            imageURL = jarName != null ? new URL(
+                "jar:" + new File(jarName).toURL() + "!/" + fileName) : new File(fileName).toURL();
           }
-        } catch (java.net.MalformedURLException e) {
+        } catch (MalformedURLException e) {
           Log.d(TAG, "MalformedURLException caught in the getImageURL() method", e);
         }
       }
@@ -218,9 +237,9 @@ public final class SplashScreen {
    * The splash screen window is resized according to the size of
    * the image and is centered on the screen.
    *
-   * @param imageURL the non-<code>null</code> URL for the new
+   * @param imageURL the non-{@code null} URL for the new
    *                 splash screen image
-   * @throws NullPointerException  if {@code imageURL} is <code>null</code>
+   * @throws NullPointerException  if {@code imageURL} is {@code null}
    * @throws IOException           if there was an error while loading the image
    * @throws IllegalStateException if the splash screen has already been
    *                               closed
@@ -231,7 +250,7 @@ public final class SplashScreen {
     URLConnection connection = imageURL.openConnection();
     connection.connect();
     int length = connection.getContentLength();
-    java.io.InputStream stream = connection.getInputStream();
+    InputStream stream = connection.getInputStream();
     byte[] buf = new byte[length];
     int off = 0;
     while (true) {
@@ -245,7 +264,7 @@ public final class SplashScreen {
       // check for enough room in buffer, realloc if needed
       // the buffer always grows in size 2x minimum
       if (off + available > length) {
-        length = off * 2;
+        length = off << 1;
         if (off + available > length) {
           length = available + off;
         }
@@ -321,7 +340,7 @@ public final class SplashScreen {
    * displayed over the main image using alpha blending. Also note that drawing
    * on the overlay image does not necessarily update the contents of splash
    * screen window. You should call {@code update()} on the
-   * <code>SplashScreen</code> when you want the splash screen to be
+   * {@code SplashScreen} when you want the splash screen to be
    * updated immediately.
    * <p>
    * The pixel (0, 0) in the coordinate space of the graphics context
@@ -341,7 +360,7 @@ public final class SplashScreen {
       }
       float scale = _getScaleFactor(splashPtr);
       Graphics2D g = image.createGraphics();
-      assert (scale > 0);
+      assert scale > 0;
       if (scale <= 0) {
         scale = 1;
       }
@@ -405,7 +424,7 @@ public final class SplashScreen {
       checkVisible();
       _close(splashPtr);
       image = null;
-      SplashScreen.markClosed();
+      markClosed();
     }
   }
 

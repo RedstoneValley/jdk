@@ -32,15 +32,13 @@
 */
 
 import java.awt.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class OwnedWindowFocusIMECrashTest {
     Robot robot;
-    JFrame owner = new JFrame("Owner Frame");
-    JFrame frame = new JFrame("Other Frame");
-    JWindow window = new JWindow(owner);
-    JButton button = new JButton("Button");
+    final JFrame owner = new JFrame("Owner Frame");
+    final JFrame frame = new JFrame("Other Frame");
+    final JWindow window = new JWindow(owner);
+    final JButton button = new JButton("Button");
 
     public static void main(String[] args) {
         OwnedWindowFocusIMECrashTest app = new OwnedWindowFocusIMECrashTest();
@@ -72,7 +70,7 @@ public class OwnedWindowFocusIMECrashTest {
     void test() {
         Util.clickOnComp(button, robot);
         if (!button.hasFocus()) {
-            throw new TestErrorException("the button couldn't be focused by click");
+            throw new TestError("the button couldn't be focused by click");
         }
         Util.clickOnTitle(frame, robot); // here there was a crash
     }
@@ -82,6 +80,8 @@ public class OwnedWindowFocusIMECrashTest {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

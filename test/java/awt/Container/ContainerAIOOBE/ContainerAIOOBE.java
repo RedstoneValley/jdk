@@ -36,9 +36,9 @@ import java.io.ObjectOutputStream;
  * @author Alexey Ivanov
  * @run main ContainerAIOOBE
  */
-public class ContainerAIOOBE {
+public final class ContainerAIOOBE {
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         ZContainer z = new ZContainer();
         z.add(new Button());
 
@@ -67,6 +67,9 @@ public class ContainerAIOOBE {
     }
 
     static class ZContainer extends Container {
+        private static final long serialVersionUID = -3372102331420336551L;
+
+        @Override
         public Component[] getComponents() {
             return new Component[0];
         }

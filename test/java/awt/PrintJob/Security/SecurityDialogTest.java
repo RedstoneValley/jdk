@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6195901 6195923 6195928 6195933 6491273 6888734
  * @summary No SecurityException should be thrown when printing to a file
             using the given policy.
@@ -30,15 +30,16 @@
  * @run main/othervm/policy=policy SecurityDialogTest
  */
 import java.awt.*;
+import java.awt.JobAttributes.DestinationType;
+import java.awt.JobAttributes.DialogType;
 import java.awt.event.*;
-import java.util.*;
-import java.io.*;
-
 
 public class SecurityDialogTest extends Frame implements ActionListener {
+    private static final long serialVersionUID = -6646683451453040834L;
     // Declare things used in the test, like buttons and labels here
 
-    Button nativeDlg, setSecurity;
+    final Button nativeDlg;
+    final Button setSecurity;
         boolean isNative = true;
 
     public SecurityDialogTest() {
@@ -47,17 +48,18 @@ public class SecurityDialogTest extends Frame implements ActionListener {
         nativeDlg.addActionListener(this);
         setSecurity = new Button("Toggle Dialog");
         setSecurity.addActionListener(this);
-        add("South", nativeDlg);
-        add("North", setSecurity);
+        add(BorderLayout.SOUTH, nativeDlg);
+        add(BorderLayout.NORTH, setSecurity);
         setSize(300, 300);
         setVisible(true);
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         System.out.println("Native dialog is the default");
         SecurityDialogTest test = new SecurityDialogTest();
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
         if (e.getSource() == setSecurity) {
@@ -76,11 +78,11 @@ public class SecurityDialogTest extends Frame implements ActionListener {
         PageAttributes pa = new PageAttributes();
 
         if (isNative) {
-            ja.setDialog(JobAttributes.DialogType.NATIVE);
+            ja.setDialog(DialogType.NATIVE);
         } else {
-            ja.setDialog(JobAttributes.DialogType.COMMON);
+            ja.setDialog(DialogType.COMMON);
         }
-        ja.setDestination(JobAttributes.DestinationType.FILE);
+        ja.setDestination(DestinationType.FILE);
         ja.setFileName("mohan.ps");
 
 
@@ -91,7 +93,7 @@ public class SecurityDialogTest extends Frame implements ActionListener {
             System.out.println("PJOB: " + pjob);
             if (pg != null) {
                 System.out.println("Printer Graphics: " + pg);
-                this.printAll(pg);
+                printAll(pg);
                 pg.dispose();
             } else {
                 System.out.println("Printer Graphics is null");

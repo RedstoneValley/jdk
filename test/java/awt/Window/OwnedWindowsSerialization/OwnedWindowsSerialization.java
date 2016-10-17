@@ -23,7 +23,6 @@
 
 import sun.awt.SunToolkit;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,15 +35,18 @@ import java.io.ObjectOutputStream;
  * @author Petr Pchelko
  * @run main OwnedWindowsSerialization
  */
-public class OwnedWindowsSerialization {
+public final class OwnedWindowsSerialization {
 
     private static final String TOP_FRAME_LABEL = "Top Frame";
-    private static final String DIALOG_LABEL = "Dialog";
+    private static final String DIALOG_LABEL = Font.DIALOG;
     private static final String SUBDIALOG_LABEL = "Subdialog";
 
     private static volatile Frame topFrame;
     private static volatile Dialog dialog;
     private static volatile Dialog subDialog;
+
+    private OwnedWindowsSerialization() {
+    }
 
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(() -> {

@@ -28,49 +28,45 @@ package sun.java2d.pisces;
 import sun.awt.geom.PathConsumer2D;
 
 /**
- * The <code>Dasher</code> class takes a series of linear commands
- * (<code>moveTo</code>, <code>lineTo</code>, <code>close</code> and
- * <code>end</code>) and breaks them into smaller segments according to a
+ * The {@code Dasher} class takes a series of linear commands
+ * ({@code moveTo}, {@code lineTo}, {@code close} and
+ * {@code end}) and breaks them into smaller segments according to a
  * dash pattern array and a starting dash phase.
  * <p>
  * <p> Issues: in J2Se, a zero length dash segment as drawn as a very
  * short dash, whereas Pisces does not draw anything.  The PostScript
  * semantics are unclear.
  */
-final class Dasher implements sun.awt.geom.PathConsumer2D {
+final class Dasher implements PathConsumer2D {
 
   private final PathConsumer2D out;
   private final float[] dash;
   private final float startPhase;
   private final boolean startDashOn;
   private final int startIdx;
-
+  // temporary storage for the current curve
+  private final float[] curCurvepts;
   private boolean starting;
   private boolean needsMoveTo;
-
   private int idx;
   private boolean dashOn;
   private float phase;
-
   private float sx, sy;
   private float x0, y0;
-
-  // temporary storage for the current curve
-  private float[] curCurvepts;
   // We don't emit the first dash right away. If we did, caps would be
   // drawn on it, but we need joins to be drawn if there's a closePath()
   // So, we store the path elements that make up the first dash in the
   // buffer below.
   private float[] firstSegmentsBuffer = new float[7];
-  private int firstSegidx = 0;
-  private LengthIterator li = null;
+  private int firstSegidx;
+  private LengthIterator li;
 
   /**
-   * Constructs a <code>Dasher</code>.
+   * Constructs a {@code Dasher}.
    *
-   * @param out   an output <code>PathConsumer2D</code>.
-   * @param dash  an array of <code>float</code>s containing the dash pattern
-   * @param phase a <code>float</code> containing the dash phase
+   * @param out   an output {@code PathConsumer2D}.
+   * @param dash  an array of {@code float}s containing the dash pattern
+   * @param phase a {@code float} containing the dash phase
    */
   public Dasher(PathConsumer2D out, float[] dash, float phase) {
     if (phase < 0) {
@@ -90,14 +86,14 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
     }
 
     this.dash = dash;
-    this.startPhase = this.phase = phase;
-    this.startDashOn = dashOn;
-    this.startIdx = idx;
-    this.starting = true;
+    startPhase = this.phase = phase;
+    startDashOn = dashOn;
+    startIdx = idx;
+    starting = true;
 
     // we need curCurvepts to be able to contain 2 curves because when
     // dashing curves, we need to subdivide it
-    curCurvepts = new float[8 * 2];
+    curCurvepts = new float[(8 << 1)];
   }
 
   private static boolean pointCurve(float[] curve, int type) {
@@ -109,20 +105,22 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
     return true;
   }
 
+  @Override
   public void moveTo(float x0, float y0) {
     if (firstSegidx > 0) {
       out.moveTo(sx, sy);
       emitFirstSegments();
     }
     needsMoveTo = true;
-    this.idx = startIdx;
-    this.dashOn = this.startDashOn;
-    this.phase = this.startPhase;
-    this.sx = this.x0 = x0;
-    this.sy = this.y0 = y0;
-    this.starting = true;
+    idx = startIdx;
+    dashOn = startDashOn;
+    phase = startPhase;
+    sx = this.x0 = x0;
+    sy = this.y0 = y0;
+    starting = true;
   }
 
+  @Override
   public void lineTo(float x1, float y1) {
     float dx = x1 - x0;
     float dy = y1 - y0;
@@ -199,6 +197,7 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
     somethingTo(8);
   }
 
+  @Override
   public void closePath() {
     lineTo(sx, sy);
     if (firstSegidx > 0) {
@@ -210,6 +209,7 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
     moveTo(sx, sy);
   }
 
+  @Override
   public void pathDone() {
     if (firstSegidx > 0) {
       out.moveTo(sx, sy);
@@ -226,15 +226,10 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
   private void emitSeg(float[] buf, int off, int type) {
     switch (type) {
       case 8:
-        out.curveTo(buf[off + 0],
-            buf[off + 1],
-            buf[off + 2],
-            buf[off + 3],
-            buf[off + 4],
-            buf[off + 5]);
+        out.curveTo(buf[off], buf[off + 1], buf[off + 2], buf[off + 3], buf[off + 4], buf[off + 5]);
         break;
       case 6:
-        out.quadTo(buf[off + 0], buf[off + 1], buf[off + 2], buf[off + 3]);
+        out.quadTo(buf[off], buf[off + 1], buf[off + 2], buf[off + 3]);
         break;
       case 4:
         out.lineTo(buf[off], buf[off + 1]);
@@ -242,22 +237,24 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
   }
 
   private void emitFirstSegments() {
-    for (int i = 0; i < firstSegidx; ) {
+    int i = 0;
+    while (i < firstSegidx) {
       emitSeg(firstSegmentsBuffer, i + 1, (int) firstSegmentsBuffer[i]);
-      i += (((int) firstSegmentsBuffer[i]) - 1);
+      i += (int) firstSegmentsBuffer[i] - 1;
     }
     firstSegidx = 0;
   }
 
   // precondition: pts must be in relative coordinates (relative to x0,y0)
   // fullCurve is true iff the curve in pts has not been split.
-  private void goTo(float[] pts, int off, final int type) {
+  private void goTo(float[] pts, int off, int type) {
     float x = pts[off + type - 4];
     float y = pts[off + type - 3];
     if (dashOn) {
       if (starting) {
         firstSegmentsBuffer = Helpers.widenArray(firstSegmentsBuffer, firstSegidx, type - 2);
-        firstSegmentsBuffer[firstSegidx++] = type;
+        firstSegmentsBuffer[firstSegidx] = type;
+        firstSegidx++;
         System.arraycopy(pts, off, firstSegmentsBuffer, firstSegidx, type - 2);
         firstSegidx += type - 2;
       } else {
@@ -271,8 +268,8 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
       starting = false;
       needsMoveTo = true;
     }
-    this.x0 = x;
-    this.y0 = y;
+    x0 = x;
+    y0 = y;
   }
 
   // preconditions: curCurvepts must be an array of length at least 2 * type,
@@ -288,7 +285,7 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
 
     int curCurveoff = 0; // initially the current curve is at curCurvepts[0...type]
     float lastSplitT = 0;
-    float t = 0;
+    float t;
     float leftInThisDashSegment = dash[idx] - phase;
     while ((t = li.next(leftInThisDashSegment)) < 1) {
       if (t != 0) {
@@ -335,17 +332,28 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
   private static class LengthIterator {
     private final int limit;
 
-    ;
     private final float ERR;
     private final float minTincrement;
     // Holds the curves at various levels of the recursion. The root
     // (i.e. the original curve) is at recCurveStack[0] (but then it
     // gets subdivided, the left half is put at 1, so most of the time
     // only the right half of the original curve is at 0)
-    private float[][] recCurveStack;
+    private final float[][] recCurveStack;
     // sides[i] indicates whether the node at level i+1 in the path from
     // the root to the current leaf is a left or right child of its parent.
-    private Side[] sides;
+    private final Side[] sides;
+    // the lengths of the lines of the control polygon. Only its first
+    // curveType/2 - 1 elements are valid. This is an optimization. See
+    // next(float) for more detail.
+    private final float[] curLeafCtrlPolyLengths = new float[3];
+    // we want to avoid allocations/gc so we keep this array so we
+    // can put roots in it,
+    private final float[] nextRoots = new float[4];
+    // caches the coefficients of the current leaf in its flattened
+    // form (see inside next() for what that means). The cache is
+    // invalid when it's third element is negative, since in any
+    // valid flattened curve, this would be >= 0.
+    private final float[] flatLeafCoefCache = {0, 0, -1, 0};
     private int curveType;
     // lastT and nextT delimit the current leaf.
     private float nextT;
@@ -358,62 +366,177 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
     // is the deepest possible leaf.
     private int recLevel;
     private boolean done;
-    // the lengths of the lines of the control polygon. Only its first
-    // curveType/2 - 1 elements are valid. This is an optimization. See
-    // next(float) for more detail.
-    private float[] curLeafCtrlPolyLengths = new float[3];
     // 0 == false, 1 == true, -1 == invalid cached value.
     private int cachedHaveLowAcceleration = -1;
-    // we want to avoid allocations/gc so we keep this array so we
-    // can put roots in it,
-    private float[] nextRoots = new float[4];
-    // caches the coefficients of the current leaf in its flattened
-    // form (see inside next() for what that means). The cache is
-    // invalid when it's third element is negative, since in any
-    // valid flattened curve, this would be >= 0.
-    private float[] flatLeafCoefCache = new float[]{0, 0, -1, 0};
 
     public LengthIterator(int reclimit, float err) {
-      this.limit = reclimit;
-      this.minTincrement = 1f / (1 << limit);
-      this.ERR = err;
-      this.recCurveStack = new float[reclimit + 1][8];
-      this.sides = new Side[reclimit];
+      limit = reclimit;
+      minTincrement = 1f / (1 << limit);
+      ERR = err;
+      recCurveStack = new float[reclimit + 1][8];
+      sides = new Side[reclimit];
       // if any methods are called without first initializing this object on
       // a curve, we want it to fail ASAP.
-      this.nextT = Float.MAX_VALUE;
-      this.lenAtNextT = Float.MAX_VALUE;
-      this.lenAtLastSplit = Float.MIN_VALUE;
-      this.recLevel = Integer.MIN_VALUE;
-      this.lastSegLen = Float.MAX_VALUE;
-      this.done = true;
+      nextT = Float.MAX_VALUE;
+      lenAtNextT = Float.MAX_VALUE;
+      lenAtLastSplit = Float.MIN_VALUE;
+      recLevel = Integer.MIN_VALUE;
+      lastSegLen = Float.MAX_VALUE;
+      done = true;
+    }
+
+    static void subdivide(
+        float[] src, int srcoff, float[] left, int leftoff, float[] right, int rightoff, int type) {
+      switch (type) {
+        case 6:
+          subdivideQuad(src, srcoff, left, leftoff, right, rightoff);
+          break;
+        case 8:
+          subdivideCubic(src, srcoff, left, leftoff, right, rightoff);
+          break;
+        default:
+          throw new InternalError("Unsupported curve type");
+      }
+    }
+
+    static void subdivideQuad(
+        float[] src, int srcoff, float[] left, int leftoff, float[] right, int rightoff) {
+      float x1 = src[srcoff];
+      float y1 = src[srcoff + 1];
+      float ctrlx = src[srcoff + 2];
+      float ctrly = src[srcoff + 3];
+      float x2 = src[srcoff + 4];
+      float y2 = src[srcoff + 5];
+      if (left != null) {
+        left[leftoff] = x1;
+        left[leftoff + 1] = y1;
+      }
+      if (right != null) {
+        right[rightoff + 4] = x2;
+        right[rightoff + 5] = y2;
+      }
+      x1 = (x1 + ctrlx) / 2.0f;
+      y1 = (y1 + ctrly) / 2.0f;
+      x2 = (x2 + ctrlx) / 2.0f;
+      y2 = (y2 + ctrly) / 2.0f;
+      ctrlx = (x1 + x2) / 2.0f;
+      ctrly = (y1 + y2) / 2.0f;
+      if (left != null) {
+        left[leftoff + 2] = x1;
+        left[leftoff + 3] = y1;
+        left[leftoff + 4] = ctrlx;
+        left[leftoff + 5] = ctrly;
+      }
+      if (right != null) {
+        right[rightoff] = ctrlx;
+        right[rightoff + 1] = ctrly;
+        right[rightoff + 2] = x2;
+        right[rightoff + 3] = y2;
+      }
+    }
+
+    /**
+     * Subdivides the cubic curve specified by the coordinates
+     * stored in the {@code src} array at indices {@code srcoff}
+     * through ({@code srcoff}&nbsp;+&nbsp;7) and stores the
+     * resulting two subdivided curves into the two result arrays at the
+     * corresponding indices.
+     * Either or both of the {@code left} and {@code right}
+     * arrays may be {@code null} or a reference to the same array
+     * as the {@code src} array.
+     * Note that the last point in the first subdivided curve is the
+     * same as the first point in the second subdivided curve. Thus,
+     * it is possible to pass the same array for {@code left}
+     * and {@code right} and to use offsets, such as {@code rightoff}
+     * equals ({@code leftoff} + 6), in order
+     * to avoid allocating extra storage for this common point.
+     *
+     * @param src      the array holding the coordinates for the source curve
+     * @param srcoff   the offset into the array of the beginning of the
+     *                 the 6 source coordinates
+     * @param left     the array for storing the coordinates for the first
+     *                 half of the subdivided curve
+     * @param leftoff  the offset into the array of the beginning of the
+     *                 the 6 left coordinates
+     * @param right    the array for storing the coordinates for the second
+     *                 half of the subdivided curve
+     * @param rightoff the offset into the array of the beginning of the
+     *                 the 6 right coordinates
+     * @since 1.7
+     */
+    static void subdivideCubic(
+        float[] src, int srcoff, float[] left, int leftoff, float[] right, int rightoff) {
+      float x1 = src[srcoff];
+      float y1 = src[srcoff + 1];
+      float ctrlx1 = src[srcoff + 2];
+      float ctrly1 = src[srcoff + 3];
+      float ctrlx2 = src[srcoff + 4];
+      float ctrly2 = src[srcoff + 5];
+      float x2 = src[srcoff + 6];
+      float y2 = src[srcoff + 7];
+      if (left != null) {
+        left[leftoff] = x1;
+        left[leftoff + 1] = y1;
+      }
+      if (right != null) {
+        right[rightoff + 6] = x2;
+        right[rightoff + 7] = y2;
+      }
+      x1 = (x1 + ctrlx1) / 2.0f;
+      y1 = (y1 + ctrly1) / 2.0f;
+      x2 = (x2 + ctrlx2) / 2.0f;
+      y2 = (y2 + ctrly2) / 2.0f;
+      float centerx = (ctrlx1 + ctrlx2) / 2.0f;
+      float centery = (ctrly1 + ctrly2) / 2.0f;
+      ctrlx1 = (x1 + centerx) / 2.0f;
+      ctrly1 = (y1 + centery) / 2.0f;
+      ctrlx2 = (x2 + centerx) / 2.0f;
+      ctrly2 = (y2 + centery) / 2.0f;
+      centerx = (ctrlx1 + ctrlx2) / 2.0f;
+      centery = (ctrly1 + ctrly2) / 2.0f;
+      if (left != null) {
+        left[leftoff + 2] = x1;
+        left[leftoff + 3] = y1;
+        left[leftoff + 4] = ctrlx1;
+        left[leftoff + 5] = ctrly1;
+        left[leftoff + 6] = centerx;
+        left[leftoff + 7] = centery;
+      }
+      if (right != null) {
+        right[rightoff] = centerx;
+        right[rightoff + 1] = centery;
+        right[rightoff + 2] = ctrlx2;
+        right[rightoff + 3] = ctrly2;
+        right[rightoff + 4] = x2;
+        right[rightoff + 5] = y2;
+      }
     }
 
     public void initializeIterationOnCurve(float[] pts, int type) {
       System.arraycopy(pts, 0, recCurveStack[0], 0, type);
-      this.curveType = type;
-      this.recLevel = 0;
-      this.lastT = 0;
-      this.lenAtLastT = 0;
-      this.nextT = 0;
-      this.lenAtNextT = 0;
+      curveType = type;
+      recLevel = 0;
+      lastT = 0;
+      lenAtLastT = 0;
+      nextT = 0;
+      lenAtNextT = 0;
       goLeft(); // initializes nextT and lenAtNextT properly
-      this.lenAtLastSplit = 0;
+      lenAtLastSplit = 0;
       if (recLevel > 0) {
-        this.sides[0] = Side.LEFT;
-        this.done = false;
+        sides[0] = Side.LEFT;
+        done = false;
       } else {
         // the root of the tree is a leaf so we're done.
-        this.sides[0] = Side.RIGHT;
-        this.done = true;
+        sides[0] = Side.RIGHT;
+        done = true;
       }
-      this.lastSegLen = 0;
+      lastSegLen = 0;
     }
 
     private boolean haveLowAcceleration(float err) {
       if (cachedHaveLowAcceleration == -1) {
-        final float len1 = curLeafCtrlPolyLengths[0];
-        final float len2 = curLeafCtrlPolyLengths[1];
+        float len1 = curLeafCtrlPolyLengths[0];
+        float len2 = curLeafCtrlPolyLengths[1];
         // the test below is equivalent to !within(len1/len2, 1, err).
         // It is using a multiplication instead of a division, so it
         // should be a bit faster.
@@ -422,7 +545,7 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
           return false;
         }
         if (curveType == 8) {
-          final float len3 = curLeafCtrlPolyLengths[2];
+          float len3 = curLeafCtrlPolyLengths[2];
           // if len1 is close to 2 and 2 is close to 3, that probably
           // means 1 is close to 3 so the second part of this test might
           // not be needed, but it doesn't hurt to include it.
@@ -435,14 +558,14 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
         return true;
       }
 
-      return (cachedHaveLowAcceleration == 1);
+      return cachedHaveLowAcceleration == 1;
     }
 
     // returns the t value where the remaining curve should be split in
     // order for the left subdivided curve to have length len. If len
     // is >= than the length of the uniterated curve, it returns 1.
-    public float next(final float len) {
-      final float targetLength = lenAtLastSplit + len;
+    public float next(float len) {
+      float targetLength = lenAtLastSplit + len;
       while (lenAtNextT < targetLength) {
         if (done) {
           lastSegLen = lenAtNextT - lenAtLastSplit;
@@ -451,7 +574,7 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
         goToNextLeaf();
       }
       lenAtLastSplit = targetLength;
-      final float leaflen = lenAtNextT - lenAtLastT;
+      float leaflen = lenAtNextT - lenAtLastT;
       float t = (targetLength - lenAtLastT) / leaflen;
 
       // cubicRootsInAB is a fairly expensive call, so we just don't do it
@@ -526,7 +649,9 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
       }
 
       sides[recLevel] = Side.RIGHT;
-      System.arraycopy(recCurveStack[recLevel], 0, recCurveStack[recLevel + 1], 0, curveType);
+      System.arraycopy(recCurveStack[recLevel], 0, recCurveStack[recLevel + 1], 0,
+
+          curveType);
       recLevel++;
       goLeft();
     }
@@ -537,13 +662,13 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
       if (len >= 0) {
         lastT = nextT;
         lenAtLastT = lenAtNextT;
-        nextT += (1 << (limit - recLevel)) * minTincrement;
+        nextT += (1 << limit - recLevel) * minTincrement;
         lenAtNextT += len;
         // invalidate caches
         flatLeafCoefCache[2] = -1;
         cachedHaveLowAcceleration = -1;
       } else {
-        Helpers.subdivide(recCurveStack[recLevel],
+        subdivide(recCurveStack[recLevel],
             0,
             recCurveStack[recLevel + 1],
             0,
@@ -564,15 +689,15 @@ final class Dasher implements sun.awt.geom.PathConsumer2D {
 
       float x0 = curve[0], y0 = curve[1];
       for (int i = 2; i < curveType; i += 2) {
-        final float x1 = curve[i], y1 = curve[i + 1];
-        final float len = Helpers.linelen(x0, y0, x1, y1);
+        float x1 = curve[i], y1 = curve[i + 1];
+        float len = Helpers.linelen(x0, y0, x1, y1);
         polyLen += len;
         curLeafCtrlPolyLengths[i / 2 - 1] = len;
         x0 = x1;
         y0 = y1;
       }
 
-      final float lineLen = Helpers.linelen(curve[0],
+      float lineLen = Helpers.linelen(curve[0],
           curve[1],
           curve[curveType - 2],
           curve[curveType - 1]);

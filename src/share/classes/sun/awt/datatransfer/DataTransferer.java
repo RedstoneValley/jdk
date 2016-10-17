@@ -33,6 +33,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.FlavorTable;
+import java.awt.datatransfer.SystemFlavorMap;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.image.BufferedImage;
@@ -52,6 +53,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.io.SequenceInputStream;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -86,14 +88,6 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.ImageWriter;
-import javax.imageio.spi.ImageWriterSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 import sun.awt.AppContext;
 import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
@@ -123,7 +117,7 @@ import sun.awt.image.ToolkitImage;
 public abstract class DataTransferer {
 
   /**
-   * The <code>DataFlavor</code> representing plain text with Unicode
+   * The {@code DataFlavor} representing plain text with Unicode
    * encoding, where:
    * <pre>
    *     representationClass = java.lang.String
@@ -133,7 +127,7 @@ public abstract class DataTransferer {
   public static final DataFlavor plainTextStringFlavor;
 
   /**
-   * The <code>DataFlavor</code> representing a Java text encoding String
+   * The {@code DataFlavor} representing a Java text encoding String
    * encoded in UTF-8, where
    * <pre>
    *     representationClass = [B
@@ -160,20 +154,20 @@ public abstract class DataTransferer {
   /**
    * The end-of-line markers for the Set of textNatives.
    */
-  private static final Map nativeEOLNs = Collections.synchronizedMap(new HashMap());
+  static final Map nativeEOLNs = Collections.synchronizedMap(new HashMap());
   /**
    * The number of terminating NUL bytes for the Set of textNatives.
    */
-  private static final Map nativeTerminators = Collections.synchronizedMap(new HashMap());
+  static final Map nativeTerminators = Collections.synchronizedMap(new HashMap());
   /**
    * The key used to store pending data conversion requests for an AppContext.
    */
   private static final String DATA_CONVERTER_KEY = "DATA_CONVERTER_KEY";
   private static final String TAG = "AWT DataTransfer";
-  private final static String[] DEPLOYMENT_CACHE_PROPERTIES = {
+  private static final String[] DEPLOYMENT_CACHE_PROPERTIES = {
       "deployment.system.cachedir", "deployment.user.cachedir", "deployment.javaws.cachedir",
       "deployment.javapi.cachedir"};
-  private final static ArrayList<File> deploymentCacheDirectoryList = new ArrayList<File>();
+  private static final ArrayList<File> deploymentCacheDirectoryList = new ArrayList<>();
   /**
    * Cache of the platform default encoding as specified in the
    * "file.encoding" system property.
@@ -258,7 +252,7 @@ public abstract class DataTransferer {
 
     String encoding = flavor.getParameter("charset");
 
-    return (encoding != null) ? encoding : getDefaultTextCharset();
+    return encoding != null ? encoding : getDefaultTextCharset();
   }
 
   /**
@@ -277,10 +271,8 @@ public abstract class DataTransferer {
    * "text".
    */
   public static boolean doesSubtypeSupportCharset(DataFlavor flavor) {
-    if (true) {
-      if (!"text".equals(flavor.getPrimaryType())) {
-        Log.d(TAG, "Assertion (\"text\".equals(flavor.getPrimaryType())) failed");
-      }
+    if (!"text".equals(flavor.getPrimaryType())) {
+      Log.d(TAG, "Assertion (\"text\".equals(flavor.getPrimaryType())) failed");
     }
 
     String subType = flavor.getSubType();
@@ -291,11 +283,11 @@ public abstract class DataTransferer {
     Object support = textMIMESubtypeCharsetSupport.get(subType);
 
     if (support != null) {
-      return (support == Boolean.TRUE);
+      return support == Boolean.TRUE;
     }
 
-    boolean ret_val = (flavor.getParameter("charset") != null);
-    textMIMESubtypeCharsetSupport.put(subType, (ret_val) ? Boolean.TRUE : Boolean.FALSE);
+    boolean ret_val = flavor.getParameter("charset") != null;
+    textMIMESubtypeCharsetSupport.put(subType, ret_val ? Boolean.TRUE : Boolean.FALSE);
     return ret_val;
   }
 
@@ -303,11 +295,11 @@ public abstract class DataTransferer {
     Object support = textMIMESubtypeCharsetSupport.get(subType);
 
     if (support != null) {
-      return (support == Boolean.TRUE);
+      return support == Boolean.TRUE;
     }
 
-    boolean ret_val = (charset != null);
-    textMIMESubtypeCharsetSupport.put(subType, (ret_val) ? Boolean.TRUE : Boolean.FALSE);
+    boolean ret_val = charset != null;
+    textMIMESubtypeCharsetSupport.put(subType, ret_val ? Boolean.TRUE : Boolean.FALSE);
     return ret_val;
   }
 
@@ -345,8 +337,8 @@ public abstract class DataTransferer {
 
     String charset = flavor.getParameter("charset");
 
-    return (charset != null) ? DataTransferer.isEncodingSupported(charset)
-        : true; // null equals default encoding which is always supported
+    return charset == null
+        || isEncodingSupported(charset); // null equals default encoding which is always supported
   }
 
   /**
@@ -358,9 +350,9 @@ public abstract class DataTransferer {
       return false;
     }
 
-    return (flavor.isRepresentationClassInputStream() ||
-                flavor.isRepresentationClassByteBuffer() ||
-                byte[].class.equals(flavor.getRepresentationClass()));
+    return flavor.isRepresentationClassInputStream() ||
+        flavor.isRepresentationClassByteBuffer() ||
+        byte[].class.equals(flavor.getRepresentationClass());
   }
 
   /**
@@ -399,20 +391,23 @@ public abstract class DataTransferer {
   /**
    * Converts a FlavorMap to a FlavorTable.
    */
-  public static FlavorTable adaptFlavorMap(final FlavorMap map) {
+  public static FlavorTable adaptFlavorMap(FlavorMap map) {
     if (map instanceof FlavorTable) {
       return (FlavorTable) map;
     }
 
     return new FlavorTable() {
+      @Override
       public Map getNativesForFlavors(DataFlavor[] flavors) {
         return map.getNativesForFlavors(flavors);
       }
 
+      @Override
       public Map getFlavorsForNatives(String[] natives) {
         return map.getFlavorsForNatives(natives);
       }
 
+      @Override
       public List getNativesForFlavor(DataFlavor flav) {
         Map natives = getNativesForFlavors(new DataFlavor[]{flav});
         String nat = (String) natives.get(flav);
@@ -425,6 +420,7 @@ public abstract class DataTransferer {
         }
       }
 
+      @Override
       public List getFlavorsForNative(String nat) {
         Map flavors = getFlavorsForNatives(new String[]{nat});
         DataFlavor flavor = (DataFlavor) flavors.get(nat);
@@ -452,9 +448,10 @@ public abstract class DataTransferer {
   private static Object createMapping(Object key, Object value) {
     // NOTE: Should be updated to use AbstractMap.SimpleEntry as
     // soon as it is made public.
-    return Arrays.asList(new Object[]{key, value});
+    return Arrays.asList(key, value);
   }
 
+  @SuppressWarnings("NonSerializableObjectPassedToObjectStream")
   private static byte[] convertObjectToBytes(Object object) throws IOException {
     try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -467,17 +464,15 @@ public abstract class DataTransferer {
     return contents.getClass().getProtectionDomain();
   }
 
-  private static boolean isFileInWebstartedCache(File f) {
+  static boolean isFileInWebstartedCache(File f) {
 
     if (deploymentCacheDirectoryList.isEmpty()) {
       for (String cacheDirectoryProperty : DEPLOYMENT_CACHE_PROPERTIES) {
         String cacheDirectoryPath = System.getProperty(cacheDirectoryProperty);
         if (cacheDirectoryPath != null) {
           try {
-            File cacheDirectory = (new File(cacheDirectoryPath)).getCanonicalFile();
-            if (cacheDirectory != null) {
-              deploymentCacheDirectoryList.add(cacheDirectory);
-            }
+            File cacheDirectory = new File(cacheDirectoryPath).getCanonicalFile();
+            deploymentCacheDirectoryList.add(cacheDirectory);
           } catch (IOException ioe) {
           }
         }
@@ -496,29 +491,13 @@ public abstract class DataTransferer {
   }
 
   /**
-   * Helper function to reduce a Map with Long keys to a long array.
-   * <p>
-   * The map keys are sorted according to the native formats preference
-   * order.
-   */
-  public static long[] keysToLongArray(SortedMap map) {
-    Set keySet = map.keySet();
-    long[] retval = new long[keySet.size()];
-    int i = 0;
-    for (Iterator iter = keySet.iterator(); iter.hasNext(); i++) {
-      retval[i] = ((Long) iter.next()).longValue();
-    }
-    return retval;
-  }
-
-  /**
    * Helper function to convert a Set of DataFlavors to a sorted array.
-   * The array will be sorted according to <code>DataFlavorComparator</code>.
+   * The array will be sorted according to {@code DataFlavorComparator}.
    */
   public static DataFlavor[] setToSortedDataFlavorArray(Set flavorsSet) {
     DataFlavor[] flavors = new DataFlavor[flavorsSet.size()];
     flavorsSet.toArray(flavors);
-    final Comparator comparator = new DataFlavorComparator(IndexedComparator.SELECT_WORST);
+    Comparator comparator = new DataFlavorComparator(IndexedComparator.SELECT_WORST);
     Arrays.sort(flavors, comparator);
     return flavors;
   }
@@ -528,7 +507,7 @@ public abstract class DataTransferer {
    */
   protected static byte[] inputStreamToByteArray(InputStream str) throws IOException {
     try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      int len = 0;
+      int len;
       byte[] buf = new byte[8192];
 
       while ((len = str.read(buf)) != -1) {
@@ -536,6 +515,44 @@ public abstract class DataTransferer {
       }
 
       return baos.toByteArray();
+    }
+  }
+
+  /**
+   * Returns a new copy of the contained marshalled object.
+   */
+  static Object getMarshalledObject(Object obj) throws IOException, ClassNotFoundException {
+    try {
+      return RMI.marshallGet.invoke(obj);
+    } catch (IllegalAccessException x) {
+      throw new AssertionError(x);
+    } catch (InvocationTargetException x) {
+      Throwable cause = x.getCause();
+      if (cause instanceof IOException) {
+        throw (IOException) cause;
+      }
+      if (cause instanceof ClassNotFoundException) {
+        throw (ClassNotFoundException) cause;
+      }
+      throw new AssertionError(x);
+    }
+  }
+
+  /**
+   * Returns a new MarshalledObject containing the serialized representation
+   * of the given object.
+   */
+  static Object newMarshalledObject(Object obj) throws IOException {
+    try {
+      return RMI.marshallCtor.newInstance(obj);
+    } catch (InstantiationException | IllegalAccessException x) {
+      throw new AssertionError(x);
+    } catch (InvocationTargetException x) {
+      Throwable cause = x.getCause();
+      if (cause instanceof IOException) {
+        throw (IOException) cause;
+      }
+      throw new AssertionError(x);
     }
   }
 
@@ -558,13 +575,13 @@ public abstract class DataTransferer {
 
     textNatives.add(format);
     nativeCharsets.put(format,
-        (charset != null && charset.length() != 0) ? charset : getDefaultTextCharset());
-    if (eoln != null && eoln.length() != 0 && !eoln.equals("\n")) {
+        charset != null && !charset.isEmpty() ? charset : getDefaultTextCharset());
+    if (eoln != null && !eoln.isEmpty() && !"\n".equals(eoln)) {
       nativeEOLNs.put(format, eoln);
     }
-    if (terminators != null && terminators.length() != 0) {
+    if (terminators != null && !terminators.isEmpty()) {
       Integer iTerminators = Integer.valueOf(terminators);
-      if (iTerminators.intValue() > 0) {
+      if (iTerminators > 0) {
         nativeTerminators.put(format, iTerminators);
       }
     }
@@ -575,7 +592,7 @@ public abstract class DataTransferer {
    * was listed in the flavormap.properties file.
    */
   protected boolean isTextFormat(long format) {
-    return textNatives.contains(Long.valueOf(format));
+    return textNatives.contains(format);
   }
 
   protected String getCharsetForTextFormat(Long lFormat) {
@@ -630,19 +647,6 @@ public abstract class DataTransferer {
 
   /**
    * Returns a Map whose keys are all of the possible formats into which data
-   * in the specified DataFlavor can be translated. The value of each key
-   * is the DataFlavor in which a Transferable's data should be requested
-   * when converting to the format.
-   * <p>
-   * The map keys are sorted according to the native formats preference
-   * order.
-   */
-  public SortedMap getFormatsForFlavor(DataFlavor flavor, FlavorTable map) {
-    return getFormatsForFlavors(new DataFlavor[]{flavor}, map);
-  }
-
-  /**
-   * Returns a Map whose keys are all of the possible formats into which data
    * in the specified DataFlavors can be translated. The value of each key
    * is the DataFlavor in which the Transferable's data should be requested
    * when converting to the format.
@@ -653,7 +657,7 @@ public abstract class DataTransferer {
    * @param flavors the data flavors
    * @param map     the FlavorTable which contains mappings between
    *                DataFlavors and data formats
-   * @throws NullPointerException if flavors or map is <code>null</code>
+   * @throws NullPointerException if flavors or map is {@code null}
    */
   public SortedMap<Long, DataFlavor> getFormatsForFlavors(
       DataFlavor[] flavors, FlavorTable map) {
@@ -688,9 +692,10 @@ public abstract class DataTransferer {
 
         currentIndex += natives.size();
 
-        for (Iterator iter = natives.iterator(); iter.hasNext(); ) {
-          Long lFormat = getFormatForNativeAsLong((String) iter.next());
-          Integer index = Integer.valueOf(currentIndex--);
+        for (Object aNative : natives) {
+          Long lFormat = getFormatForNativeAsLong((String) aNative);
+          Integer index = currentIndex;
+          currentIndex--;
 
           formatMap.put(lFormat, flavor);
           indexMap.put(lFormat, index);
@@ -699,7 +704,7 @@ public abstract class DataTransferer {
           // text/plain natives for all text/*. While this is good
           // for a single text/* flavor, we would prefer that
           // text/plain native data come from a text/plain flavor.
-          if (("text".equals(flavor.getPrimaryType()) && "plain".equals(flavor.getSubType()))
+          if ("text".equals(flavor.getPrimaryType()) && "plain".equals(flavor.getSubType())
               || flavor.equals(DataFlavor.stringFlavor)) {
             textPlainMap.put(lFormat, flavor);
             textPlainIndexMap.put(lFormat, index);
@@ -722,32 +727,6 @@ public abstract class DataTransferer {
   }
 
   /**
-   * Reduces the Map output for the root function to an array of the
-   * Map's keys.
-   */
-  public long[] getFormatsForTransferableAsArray(Transferable contents, FlavorTable map) {
-    return keysToLongArray(getFormatsForTransferable(contents, map));
-  }
-
-  public long[] getFormatsForFlavorAsArray(DataFlavor flavor, FlavorTable map) {
-    return keysToLongArray(getFormatsForFlavor(flavor, map));
-  }
-
-  public long[] getFormatsForFlavorsAsArray(DataFlavor[] flavors, FlavorTable map) {
-    return keysToLongArray(getFormatsForFlavors(flavors, map));
-  }
-
-  /**
-   * Returns a Map whose keys are all of the possible DataFlavors into which
-   * data in the specified format can be translated. The value of each key
-   * is the format in which the Clipboard or dropped data should be requested
-   * when converting to the DataFlavor.
-   */
-  public Map getFlavorsForFormat(long format, FlavorTable map) {
-    return getFlavorsForFormats(new long[]{format}, map);
-  }
-
-  /**
    * Returns a Map whose keys are all of the possible DataFlavors into which
    * data in the specified formats can be translated. The value of each key
    * is the format in which the Clipboard or dropped data should be requested
@@ -765,13 +744,12 @@ public abstract class DataTransferer {
     //              into any DataFlavor;
     // flavorMap  - after this step, this map maps each of the DataFlavors
     //              from flavorSet to any of the specified formats.
-    for (int i = 0; i < formats.length; i++) {
-      long format = formats[i];
+    for (long format : formats) {
       String nat = getNativeForFormat(format);
       List flavors = map.getFlavorsForNative(nat);
 
-      for (Iterator iter = flavors.iterator(); iter.hasNext(); ) {
-        DataFlavor flavor = (DataFlavor) iter.next();
+      for (Object flavor1 : flavors) {
+        DataFlavor flavor = (DataFlavor) flavor1;
 
         // Don't explicitly test for String, since it is just a special
         // case of Serializable
@@ -781,8 +759,8 @@ public abstract class DataTransferer {
             flavor.isRepresentationClassSerializable() ||
             flavor.isRepresentationClassInputStream() ||
             flavor.isRepresentationClassRemote()) {
-          Long lFormat = Long.valueOf(format);
-          Object mapping = DataTransferer.createMapping(lFormat, flavor);
+          Long lFormat = format;
+          Object mapping = createMapping(lFormat, flavor);
           flavorMap.put(flavor, lFormat);
           mappingSet.add(mapping);
           flavorSet.add(flavor);
@@ -803,14 +781,14 @@ public abstract class DataTransferer {
     // a mappingSet of all format-to-flavor mappings for the specified formats
     // and check if the format-to-flavor mapping exists for the
     // (flavor,format) pair being added.
-    for (Iterator flavorIter = flavorSet.iterator(); flavorIter.hasNext(); ) {
-      DataFlavor flavor = (DataFlavor) flavorIter.next();
+    for (Object aFlavorSet : flavorSet) {
+      DataFlavor flavor = (DataFlavor) aFlavorSet;
 
       List natives = map.getNativesForFlavor(flavor);
 
-      for (Iterator nativeIter = natives.iterator(); nativeIter.hasNext(); ) {
-        Long lFormat = getFormatForNativeAsLong((String) nativeIter.next());
-        Object mapping = DataTransferer.createMapping(lFormat, flavor);
+      for (Object aNative : natives) {
+        Long lFormat = getFormatForNativeAsLong((String) aNative);
+        Object mapping = createMapping(lFormat, flavor);
 
         if (mappingSet.contains(mapping)) {
           flavorMap.put(flavor, lFormat);
@@ -832,17 +810,17 @@ public abstract class DataTransferer {
    * @param formats the data formats
    * @param map     the FlavorTable which contains mappings between
    *                DataFlavors and data formats
-   * @throws NullPointerException if formats or map is <code>null</code>
+   * @throws NullPointerException if formats or map is {@code null}
    */
   public Set getFlavorsForFormatsAsSet(long[] formats, FlavorTable map) {
     Set flavorSet = new HashSet(formats.length);
 
-    for (int i = 0; i < formats.length; i++) {
-      String nat = getNativeForFormat(formats[i]);
+    for (long format : formats) {
+      String nat = getNativeForFormat(format);
       List flavors = map.getFlavorsForNative(nat);
 
-      for (Iterator iter = flavors.iterator(); iter.hasNext(); ) {
-        DataFlavor flavor = (DataFlavor) iter.next();
+      for (Object flavor1 : flavors) {
+        DataFlavor flavor = (DataFlavor) flavor1;
 
         // Don't explicitly test for String, since it is just a special
         // case of Serializable
@@ -866,13 +844,13 @@ public abstract class DataTransferer {
    * 2) the data translation for this mapping can be performed by the data
    * transfer subsystem.
    * The array will be sorted according to a
-   * <code>DataFlavorComparator</code> created with the specified
+   * {@code DataFlavorComparator} created with the specified
    * map as an argument.
    *
    * @param format the data format
    * @param map    the FlavorTable which contains mappings between
    *               DataFlavors and data formats
-   * @throws NullPointerException if map is <code>null</code>
+   * @throws NullPointerException if map is {@code null}
    */
   public DataFlavor[] getFlavorsForFormatAsArray(long format, FlavorTable map) {
     return getFlavorsForFormatsAsArray(new long[]{format}, map);
@@ -885,13 +863,13 @@ public abstract class DataTransferer {
    * 2) the data translation for this mapping can be performed by the data
    * transfer subsystem.
    * The array will be sorted according to a
-   * <code>DataFlavorComparator</code> created with the specified
+   * {@code DataFlavorComparator} created with the specified
    * map as an argument.
    *
    * @param formats the data formats
    * @param map     the FlavorTable which contains mappings between
    *                DataFlavors and data formats
-   * @throws NullPointerException if formats or map is <code>null</code>
+   * @throws NullPointerException if formats or map is {@code null}
    */
   public DataFlavor[] getFlavorsForFormatsAsArray(long[] formats, FlavorTable map) {
     // getFlavorsForFormatsAsSet() is less expensive than
@@ -943,8 +921,9 @@ public abstract class DataTransferer {
    * <p>
    * Java to Native string conversion
    */
+  @SuppressWarnings("AssignmentToForLoopParameter")
   private byte[] translateTransferableString(String str, long format) throws IOException {
-    Long lFormat = Long.valueOf(format);
+    Long lFormat = format;
     String charset = getBestCharsetForTextFormat(lFormat, null);
     // Search and replace EOLN. Note that if EOLN is "\n", then we
     // never added an entry to nativeEOLNs anyway, so we'll skip this
@@ -953,7 +932,7 @@ public abstract class DataTransferer {
     String eoln = (String) nativeEOLNs.get(lFormat);
     if (eoln != null) {
       int length = str.length();
-      StringBuffer buffer = new StringBuffer(length * 2); // 2 is a heuristic
+      StringBuilder buffer = new StringBuilder(length << 1); // 2 is a heuristic
       for (int i = 0; i < length; i++) {
         // Fix for 4914613 - skip native EOLN
         if (str.startsWith(eoln, i)) {
@@ -980,7 +959,7 @@ public abstract class DataTransferer {
     // "abcde" -> "abcde\0"
     Integer terminators = (Integer) nativeTerminators.get(lFormat);
     if (terminators != null) {
-      int numTerminators = terminators.intValue();
+      int numTerminators = terminators;
       byte[] terminatedBytes = new byte[bytes.length + numTerminators];
       System.arraycopy(bytes, 0, terminatedBytes, 0, bytes.length);
       for (int i = bytes.length; i < terminatedBytes.length; i++) {
@@ -997,10 +976,11 @@ public abstract class DataTransferer {
    * <p>
    * Native to Java string conversion
    */
+  @SuppressWarnings("AssignmentToForLoopParameter")
   private String translateBytesToString(byte[] bytes, long format, Transferable localeTransferable)
       throws IOException {
 
-    Long lFormat = Long.valueOf(format);
+    Long lFormat = format;
     String charset = getBestCharsetForTextFormat(lFormat, localeTransferable);
 
     // Locate terminating NUL bytes. Note that if terminators is 0,
@@ -1017,9 +997,9 @@ public abstract class DataTransferer {
     Integer terminators = (Integer) nativeTerminators.get(lFormat);
     int count;
     if (terminators != null) {
-      int numTerminators = terminators.intValue();
+      int numTerminators = terminators;
       search:
-      for (count = 0; count < (bytes.length - numTerminators + 1); count += numTerminators) {
+      for (count = 0; count < bytes.length - numTerminators + 1; count += numTerminators) {
         for (int i = count; i < count + numTerminators; i++) {
           if (bytes[i] != 0x0) {
             continue search;
@@ -1050,14 +1030,15 @@ public abstract class DataTransferer {
 
       char[] buf = converted.toCharArray();
       char[] eoln_arr = eoln.toCharArray();
-      converted = null;
       int j = 0;
       boolean match;
 
       for (int i = 0; i < buf.length; ) {
         // Catch last few bytes
         if (i + eoln_arr.length > buf.length) {
-          buf[j++] = buf[i++];
+          buf[j] = buf[i];
+          j++;
+          i++;
           continue;
         }
 
@@ -1069,10 +1050,13 @@ public abstract class DataTransferer {
           }
         }
         if (match) {
-          buf[j++] = '\n';
+          buf[j] = '\n';
+          j++;
           i += eoln_arr.length;
         } else {
-          buf[j++] = buf[i++];
+          buf[j] = buf[i];
+          j++;
+          i++;
         }
       }
       converted = new String(buf, 0, j);
@@ -1118,8 +1102,8 @@ public abstract class DataTransferer {
 
     // Source data is a String. Search-and-replace EOLN. Encode into the
     // target format. Append terminating NUL bytes.
-    if (stringSelectionHack || (String.class.equals(flavor.getRepresentationClass()) &&
-                                    isFlavorCharsetTextType(flavor) && isTextFormat(format))) {
+    if (stringSelectionHack || String.class.equals(flavor.getRepresentationClass()) &&
+        isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
 
       String str = removeSuspectedData(flavor, contents, (String) obj);
 
@@ -1127,12 +1111,13 @@ public abstract class DataTransferer {
 
       // Source data is a Reader. Convert to a String and recur. In the
       // future, we may want to rewrite this so that we encode on demand.
-    } else if (flavor.isRepresentationClassReader()) {
+    }
+    if (flavor.isRepresentationClassReader()) {
       if (!(isFlavorCharsetTextType(flavor) && isTextFormat(format))) {
         throw new IOException("cannot transfer non-text data as Reader");
       }
 
-      StringBuffer buf = new StringBuffer();
+      StringBuilder buf = new StringBuilder();
       try (Reader r = (Reader) obj) {
         int c;
         while ((c = r.read()) != -1) {
@@ -1143,7 +1128,8 @@ public abstract class DataTransferer {
       return translateTransferableString(buf.toString(), format);
 
       // Source data is a CharBuffer. Convert to a String and recur.
-    } else if (flavor.isRepresentationClassCharBuffer()) {
+    }
+    if (flavor.isRepresentationClassCharBuffer()) {
       if (!(isFlavorCharsetTextType(flavor) && isTextFormat(format))) {
         throw new IOException("cannot transfer non-text data as CharBuffer");
       }
@@ -1156,7 +1142,8 @@ public abstract class DataTransferer {
       return translateTransferableString(new String(chars), format);
 
       // Source data is a char array. Convert to a String and recur.
-    } else if (char[].class.equals(flavor.getRepresentationClass())) {
+    }
+    if (char[].class.equals(flavor.getRepresentationClass())) {
       if (!(isFlavorCharsetTextType(flavor) && isTextFormat(format))) {
         throw new IOException("cannot transfer non-text data as char array");
       }
@@ -1166,14 +1153,15 @@ public abstract class DataTransferer {
       // Source data is a ByteBuffer. For arbitrary flavors, simply return
       // the array. For text flavors, decode back to a String and recur to
       // reencode according to the requested format.
-    } else if (flavor.isRepresentationClassByteBuffer()) {
+    }
+    if (flavor.isRepresentationClassByteBuffer()) {
       ByteBuffer buffer = (ByteBuffer) obj;
       int size = buffer.remaining();
       byte[] bytes = new byte[size];
       buffer.get(bytes, 0, size);
 
       if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-        String sourceEncoding = DataTransferer.getTextCharset(flavor);
+        String sourceEncoding = getTextCharset(flavor);
         return translateTransferableString(new String(bytes, sourceEncoding), format);
       } else {
         return bytes;
@@ -1182,17 +1170,19 @@ public abstract class DataTransferer {
       // Source data is a byte array. For arbitrary flavors, simply return
       // the array. For text flavors, decode back to a String and recur to
       // reencode according to the requested format.
-    } else if (byte[].class.equals(flavor.getRepresentationClass())) {
+    }
+    if (byte[].class.equals(flavor.getRepresentationClass())) {
       byte[] bytes = (byte[]) obj;
 
       if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-        String sourceEncoding = DataTransferer.getTextCharset(flavor);
+        String sourceEncoding = getTextCharset(flavor);
         return translateTransferableString(new String(bytes, sourceEncoding), format);
       } else {
         return bytes;
       }
       // Source data is Image
-    } else if (DataFlavor.imageFlavor.equals(flavor)) {
+    }
+    if (DataFlavor.imageFlavor.equals(flavor)) {
       if (!isImageFormat(format)) {
         throw new IOException("Data translation failed: " + "not an image format");
       }
@@ -1207,7 +1197,7 @@ public abstract class DataTransferer {
       return bytes;
     }
 
-    byte[] theByteArray = null;
+    byte[] theByteArray;
 
     // Target data is a file list. Source data must be a
     // java.util.List which contains java.io.File or String instances.
@@ -1216,11 +1206,11 @@ public abstract class DataTransferer {
         throw new IOException("data translation failed");
       }
 
-      final List list = (List) obj;
+      List list = (List) obj;
 
-      final ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
+      ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
 
-      final ArrayList<String> fileList = castToFiles(list, userProtectionDomain);
+      ArrayList<String> fileList = castToFiles(list, userProtectionDomain);
 
       try (ByteArrayOutputStream bos = convertFileListToBytes(fileList)) {
         theByteArray = bos.toByteArray();
@@ -1244,12 +1234,12 @@ public abstract class DataTransferer {
       if (targetCharset == null) {
         targetCharset = "UTF-8";
       }
-      final List list = (List) obj;
-      final ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
-      final ArrayList<String> fileList = castToFiles(list, userProtectionDomain);
-      final ArrayList<String> uriList = new ArrayList<String>(fileList.size());
+      List list = (List) obj;
+      ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
+      ArrayList<String> fileList = castToFiles(list, userProtectionDomain);
+      ArrayList<String> uriList = new ArrayList<>(fileList.size());
       for (String fileObject : fileList) {
-        final URI uri = new File(fileObject).toURI();
+        URI uri = new File(fileObject).toURI();
         // Some implementations are fussy about the number of slashes (file:///path/to/file is best)
         try {
           uriList.add(new URI(uri.getScheme(), "", uri.getPath(), uri.getFragment()).toString());
@@ -1284,7 +1274,7 @@ public abstract class DataTransferer {
 
       try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
         try (InputStream is = (InputStream) obj) {
-          boolean eof = false;
+          boolean eof;
           int avail = is.available();
           byte[] tmp = new byte[avail > 8192 ? avail : 8192];
           do {
@@ -1297,7 +1287,7 @@ public abstract class DataTransferer {
 
         if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
           byte[] bytes = bos.toByteArray();
-          String sourceEncoding = DataTransferer.getTextCharset(flavor);
+          String sourceEncoding = getTextCharset(flavor);
           return translateTransferableString(new String(bytes, sourceEncoding), format);
         }
         theByteArray = bos.toByteArray();
@@ -1306,7 +1296,7 @@ public abstract class DataTransferer {
       // Source data is an RMI object
     } else if (flavor.isRepresentationClassRemote()) {
 
-      Object mo = RMI.newMarshalledObject(obj);
+      Object mo = newMarshalledObject(obj);
       theByteArray = convertObjectToBytes(mo);
 
       // Source data is Serializable
@@ -1324,19 +1314,20 @@ public abstract class DataTransferer {
       throws IOException;
 
   private String removeSuspectedData(
-      DataFlavor flavor, final Transferable contents, final String str) throws IOException {
+      DataFlavor flavor, Transferable contents, String str) throws IOException {
     if (null == System.getSecurityManager() || !flavor.isMimeTypeEqual("text/uri-list")) {
       return str;
     }
 
-    String ret_val = "";
-    final ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
+    String ret_val;
+    ProtectionDomain userProtectionDomain = getUserProtectionDomain(contents);
 
     try {
       ret_val = (String) AccessController.doPrivileged(new PrivilegedExceptionAction() {
+        @Override
         public Object run() {
 
-          StringBuffer allowedFiles = new StringBuffer(str.length());
+          StringBuilder allowedFiles = new StringBuilder(str.length());
           String[] uriArray = str.split("(\\s)+");
 
           for (String fileName : uriArray) {
@@ -1362,7 +1353,7 @@ public abstract class DataTransferer {
     return ret_val;
   }
 
-  private boolean isForbiddenToRead(File file, ProtectionDomain protectionDomain) {
+  boolean isForbiddenToRead(File file, ProtectionDomain protectionDomain) {
     if (null == protectionDomain) {
       return false;
     }
@@ -1378,10 +1369,11 @@ public abstract class DataTransferer {
   }
 
   private ArrayList<String> castToFiles(
-      final List files, final ProtectionDomain userProtectionDomain) throws IOException {
-    final ArrayList<String> fileList = new ArrayList<String>();
+      List files, ProtectionDomain userProtectionDomain) throws IOException {
+    ArrayList<String> fileList = new ArrayList<>();
     try {
       AccessController.doPrivileged(new PrivilegedExceptionAction() {
+        @Override
         public Object run() throws IOException {
           for (Object fileObject : files) {
             File file = castToFile(fileObject);
@@ -1401,8 +1393,8 @@ public abstract class DataTransferer {
 
   // It is important do not use user's successors
   // of File class.
-  private File castToFile(Object fileObject) throws IOException {
-    String filePath = null;
+  File castToFile(Object fileObject) throws IOException {
+    String filePath;
     if (fileObject instanceof File) {
       filePath = ((File) fileObject).getCanonicalPath();
     } else if (fileObject instanceof String) {
@@ -1446,7 +1438,7 @@ public abstract class DataTransferer {
 
       try (ByteArrayInputStream str = new ByteArrayInputStream(bytes)) {
 
-        URI uris[] = dragQueryURIs(str, format, localeTransferable);
+        URI[] uris = dragQueryURIs(str, format, localeTransferable);
         if (uris == null) {
           return null;
         }
@@ -1504,9 +1496,8 @@ public abstract class DataTransferer {
       // the requested flavor.
     } else if (flavor.isRepresentationClassByteBuffer()) {
       if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-        bytes = translateBytesToString(bytes,
-            format,
-            localeTransferable).getBytes(DataTransferer.getTextCharset(flavor));
+        bytes = translateBytesToString(bytes, format, localeTransferable).getBytes(getTextCharset(
+            flavor));
       }
 
       ByteBuffer buffer = ByteBuffer.wrap(bytes);
@@ -1517,12 +1508,10 @@ public abstract class DataTransferer {
       // terminators and search-and-replace EOLN, then reencode according to
       // the requested flavor.
     } else if (byte[].class.equals(flavor.getRepresentationClass())) {
-      if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-        theObject = translateBytesToString(bytes, format, localeTransferable).getBytes(
-            DataTransferer.getTextCharset(flavor));
-      } else {
-        theObject = bytes;
-      }
+      theObject = isFlavorCharsetTextType(flavor) && isTextFormat(format) ?
+          translateBytesToString(bytes,
+          format,
+          localeTransferable).getBytes(getTextCharset(flavor)) : bytes;
 
       // Target data is an InputStream. For arbitrary flavors, just return
       // the raw bytes. For text flavors, decode to strip terminators and
@@ -1536,7 +1525,7 @@ public abstract class DataTransferer {
     } else if (flavor.isRepresentationClassRemote()) {
       try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
           ObjectInputStream ois = new ObjectInputStream(bais)) {
-        theObject = RMI.getMarshalledObject(ois.readObject());
+        theObject = getMarshalledObject(ois.readObject());
       } catch (Exception e) {
         throw new IOException(e.getMessage());
       }
@@ -1578,7 +1567,7 @@ public abstract class DataTransferer {
     // where possible.
     if (isURIListFormat(format) && DataFlavor.javaFileListFlavor.equals(flavor)) {
 
-      URI uris[] = dragQueryURIs(str, format, localeTransferable);
+      URI[] uris = dragQueryURIs(str, format, localeTransferable);
       if (uris == null) {
         return null;
       }
@@ -1629,25 +1618,22 @@ public abstract class DataTransferer {
           format,
           localeTransferable);
 
-      String unicode = DataTransferer.getTextCharset(DataFlavor.plainTextFlavor);
+      String unicode = getTextCharset(DataFlavor.plainTextFlavor);
 
       Reader reader = new InputStreamReader(is, unicode);
 
       theObject = constructFlavoredObject(reader, flavor, Reader.class);
       // Target data is a byte array
     } else if (byte[].class.equals(flavor.getRepresentationClass())) {
-      if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-        theObject = translateBytesToString(inputStreamToByteArray(str),
-            format,
-            localeTransferable).getBytes(DataTransferer.getTextCharset(flavor));
-      } else {
-        theObject = inputStreamToByteArray(str);
-      }
+      theObject = isFlavorCharsetTextType(flavor) && isTextFormat(format) ?
+          translateBytesToString(inputStreamToByteArray(str),
+          format,
+          localeTransferable).getBytes(getTextCharset(flavor)) : inputStreamToByteArray(str);
       // Target data is an RMI object
     } else if (flavor.isRepresentationClassRemote()) {
 
       try (ObjectInputStream ois = new ObjectInputStream(str)) {
-        theObject = RMI.getMarshalledObject(ois.readObject());
+        theObject = getMarshalledObject(ois.readObject());
       } catch (Exception e) {
         throw new IOException(e.getMessage());
       }
@@ -1683,10 +1669,7 @@ public abstract class DataTransferer {
       InputStream str, DataFlavor flavor, long format, Transferable localeTransferable)
       throws IOException {
     if (isFlavorCharsetTextType(flavor) && isTextFormat(format)) {
-      str = new ReencodingInputStream(str,
-          format,
-          DataTransferer.getTextCharset(flavor),
-          localeTransferable);
+      str = new ReencodingInputStream(str, format, getTextCharset(flavor), localeTransferable);
     }
 
     return constructFlavoredObject(str, flavor, InputStream.class);
@@ -1699,15 +1682,16 @@ public abstract class DataTransferer {
    */
   private Object constructFlavoredObject(Object arg, DataFlavor flavor, Class clazz)
       throws IOException {
-    final Class dfrc = flavor.getRepresentationClass();
+    Class dfrc = flavor.getRepresentationClass();
 
     if (clazz.equals(dfrc)) {
       return arg; // simple case
     } else {
-      Constructor[] constructors = null;
+      Constructor[] constructors;
 
       try {
         constructors = (Constructor[]) AccessController.doPrivileged(new PrivilegedAction() {
+          @Override
           public Object run() {
             return dfrc.getConstructors();
           }
@@ -1718,16 +1702,16 @@ public abstract class DataTransferer {
 
       Constructor constructor = null;
 
-      for (int j = 0; j < constructors.length; j++) {
-        if (!Modifier.isPublic(constructors[j].getModifiers())) {
+      for (Constructor constructor1 : constructors) {
+        if (!Modifier.isPublic(constructor1.getModifiers())) {
           continue;
         }
 
-        Class[] ptypes = constructors[j].getParameterTypes();
+        Class[] ptypes = constructor1.getParameterTypes();
 
         if (ptypes != null && ptypes.length == 1 &&
             clazz.equals(ptypes[0])) {
-          constructor = constructors[j];
+          constructor = constructor1;
           break;
         }
       }
@@ -1738,7 +1722,7 @@ public abstract class DataTransferer {
       }
 
       try {
-        return constructor.newInstance(new Object[]{arg});
+        return constructor.newInstance(arg);
       } catch (Exception e) {
         throw new IOException(e.getMessage());
       }
@@ -1846,8 +1830,8 @@ public abstract class DataTransferer {
     }
 
     // Retry with a BufferedImage.
-    int width = 0;
-    int height = 0;
+    int width;
+    int height;
     if (image instanceof ToolkitImage) {
       ImageRepresentation ir = ((ToolkitImage) image).getImageRep();
       ir.reconstruct(ImageObserver.ALLBITS);
@@ -1935,25 +1919,25 @@ public abstract class DataTransferer {
 
   /**
    * Concatenates the data represented by two objects. Objects can be either
-   * byte arrays or instances of <code>InputStream</code>. If both arguments
+   * byte arrays or instances of {@code InputStream}. If both arguments
    * are byte arrays byte array will be returned. Otherwise an
-   * <code>InputStream</code> will be returned.
+   * {@code InputStream} will be returned.
    * <p>
    * Currently is only called from native code to prepend palette data to
    * platform-specific image data during image transfer on Win32.
    *
    * @param obj1 the first object to be concatenated.
    * @param obj2 the second object to be concatenated.
-   * @return a byte array or an <code>InputStream</code> which represents
+   * @return a byte array or an {@code InputStream} which represents
    * a logical concatenation of the two arguments.
    * @throws NullPointerException is either of the arguments is
-   *                              <code>null</code>
+   *                              {@code null}
    * @throws ClassCastException   is either of the arguments is
-   *                              neither byte array nor an instance of <code>InputStream</code>.
+   *                              neither byte array nor an instance of {@code InputStream}.
    */
   private Object concatData(Object obj1, Object obj2) {
-    InputStream str1 = null;
-    InputStream str2 = null;
+    InputStream str1;
+    InputStream str2;
 
     if (obj1 instanceof byte[]) {
       byte[] arr1 = (byte[]) obj1;
@@ -1969,19 +1953,15 @@ public abstract class DataTransferer {
       }
     } else {
       str1 = (InputStream) obj1;
-      if (obj2 instanceof byte[]) {
-        str2 = new ByteArrayInputStream((byte[]) obj2);
-      } else {
-        str2 = (InputStream) obj2;
-      }
+      str2 = obj2 instanceof byte[] ? new ByteArrayInputStream((byte[]) obj2) : (InputStream) obj2;
     }
 
     return new SequenceInputStream(str1, str2);
   }
 
   public byte[] convertData(
-      final Object source, final Transferable contents, final long format, final Map formatMap,
-      final boolean isToolkitThread) throws IOException {
+      Object source, Transferable contents, long format, Map formatMap, boolean isToolkitThread)
+      throws IOException {
     byte[] ret = null;
 
         /*
@@ -1992,18 +1972,19 @@ public abstract class DataTransferer {
          */
     if (isToolkitThread) {
       try {
-        final Stack stack = new Stack();
-        final Runnable dataConverter = new Runnable() {
+        Stack stack = new Stack();
+        Runnable dataConverter = new Runnable() {
           // Guard against multiple executions.
-          private boolean done = false;
+          private boolean done;
 
+          @Override
           public void run() {
             if (done) {
               return;
             }
             byte[] data = null;
             try {
-              DataFlavor flavor = (DataFlavor) formatMap.get(Long.valueOf(format));
+              DataFlavor flavor = (DataFlavor) formatMap.get(format);
               if (flavor != null) {
                 data = translateTransferable(contents, flavor, format);
               }
@@ -2022,7 +2003,7 @@ public abstract class DataTransferer {
           }
         };
 
-        final AppContext appContext = SunToolkit.targetToAppContext(source);
+        AppContext appContext = SunToolkit.targetToAppContext(source);
 
         getToolkitThreadBlockedHandler().lock();
 
@@ -2045,7 +2026,7 @@ public abstract class DataTransferer {
         getToolkitThreadBlockedHandler().unlock();
       }
     } else {
-      DataFlavor flavor = (DataFlavor) formatMap.get(Long.valueOf(format));
+      DataFlavor flavor = (DataFlavor) formatMap.get(format);
       if (flavor != null) {
         ret = translateTransferable(contents, flavor, format);
       }
@@ -2075,7 +2056,7 @@ public abstract class DataTransferer {
   /**
    * Returns platform-specific mappings for the specified native.
    * If there are no platform-specific mappings for this native, the method
-   * returns an empty <code>List</code>.
+   * returns an empty {@code List}.
    */
   public LinkedHashSet<DataFlavor> getPlatformMappingsForNative(String nat) {
     return new LinkedHashSet<>();
@@ -2084,7 +2065,7 @@ public abstract class DataTransferer {
   /**
    * Returns platform-specific mappings for the specified flavor.
    * If there are no platform-specific mappings for this flavor, the method
-   * returns an empty <code>List</code>.
+   * returns an empty {@code List}.
    */
   public LinkedHashSet<String> getPlatformMappingsForFlavor(DataFlavor df) {
     return new LinkedHashSet<>();
@@ -2093,12 +2074,12 @@ public abstract class DataTransferer {
   /**
    * Lazy initialization of Standard Encodings.
    */
-  private static class StandardEncodingsHolder {
-    private static final SortedSet<String> standardEncodings = load();
+  private static final class StandardEncodingsHolder {
+    static final SortedSet<String> standardEncodings = load();
 
     private static SortedSet<String> load() {
-      final Comparator comparator = new CharsetComparator(IndexedComparator.SELECT_WORST);
-      final SortedSet<String> tempSet = new TreeSet<String>(comparator);
+      Comparator comparator = new CharsetComparator(IndexedComparator.SELECT_WORST);
+      SortedSet<String> tempSet = new TreeSet<>(comparator);
       tempSet.add("US-ASCII");
       tempSet.add("ISO-8859-1");
       tempSet.add("UTF-8");
@@ -2114,7 +2095,7 @@ public abstract class DataTransferer {
    * A Comparator which includes a helper function for comparing two Objects
    * which are likely to be keys in the specified Map.
    */
-  public abstract static class IndexedComparator implements Comparator {
+  public abstract static class IndexedComparator implements Comparator, Serializable {
 
     /**
      * The best Object (e.g., DataFlavor) will be the last in sequence.
@@ -2125,6 +2106,7 @@ public abstract class DataTransferer {
      * The best Object (e.g., DataFlavor) will be the first in sequence.
      */
     public static final boolean SELECT_WORST = false;
+    private static final long serialVersionUID = 81689337367964003L;
 
     protected final boolean order;
 
@@ -2199,28 +2181,29 @@ public abstract class DataTransferer {
    * in alphabetical order, charsets are not automatically converted to their
    * canonical forms.
    */
-  public static class CharsetComparator extends IndexedComparator {
+  public static class CharsetComparator extends IndexedComparator implements Serializable {
     private static final Map charsets;
-    private static final Integer DEFAULT_CHARSET_INDEX = Integer.valueOf(2);
-    private static final Integer OTHER_CHARSET_INDEX = Integer.valueOf(1);
-    private static final Integer WORST_CHARSET_INDEX = Integer.valueOf(0);
-    private static final Integer UNSUPPORTED_CHARSET_INDEX = Integer.valueOf(Integer.MIN_VALUE);
+    private static final Integer DEFAULT_CHARSET_INDEX = 2;
+    private static final Integer OTHER_CHARSET_INDEX = 1;
+    private static final Integer WORST_CHARSET_INDEX = 0;
+    private static final Integer UNSUPPORTED_CHARSET_INDEX = Integer.MIN_VALUE;
     private static final String UNSUPPORTED_CHARSET = "UNSUPPORTED";
+    private static final long serialVersionUID = -11291056541271784L;
     private static String defaultEncoding;
 
     static {
       HashMap charsetsMap = new HashMap(8, 1.0f);
 
       // we prefer Unicode charsets
-      charsetsMap.put(canonicalName("UTF-16LE"), Integer.valueOf(4));
-      charsetsMap.put(canonicalName("UTF-16BE"), Integer.valueOf(5));
-      charsetsMap.put(canonicalName("UTF-8"), Integer.valueOf(6));
-      charsetsMap.put(canonicalName("UTF-16"), Integer.valueOf(7));
+      charsetsMap.put(canonicalName("UTF-16LE"), 4);
+      charsetsMap.put(canonicalName("UTF-16BE"), 5);
+      charsetsMap.put(canonicalName("UTF-8"), 6);
+      charsetsMap.put(canonicalName("UTF-16"), 7);
 
       // US-ASCII is the worst charset supported
       charsetsMap.put(canonicalName("US-ASCII"), WORST_CHARSET_INDEX);
 
-      String defEncoding = DataTransferer.canonicalName(DataTransferer.getDefaultTextCharset());
+      String defEncoding = canonicalName(getDefaultTextCharset());
 
       if (charsetsMap.get(defaultEncoding) == null) {
         charsetsMap.put(defaultEncoding, DEFAULT_CHARSET_INDEX);
@@ -2242,10 +2225,10 @@ public abstract class DataTransferer {
      * Returns encoding for the specified charset according to the
      * following rules:
      * <ul>
-     * <li>If the charset is <code>null</code>, then <code>null</code> will
+     * <li>If the charset is {@code null}, then {@code null} will
      * be returned.
      * <li>Iff the charset specifies an encoding unsupported by this JRE,
-     * <code>UNSUPPORTED_CHARSET</code> will be returned.
+     * {@code UNSUPPORTED_CHARSET} will be returned.
      * <li>If the charset specifies an alias name, the corresponding
      * canonical name will be returned iff the charset is a known
      * Unicode, ASCII, or default charset.
@@ -2257,15 +2240,15 @@ public abstract class DataTransferer {
     protected static String getEncoding(String charset) {
       if (charset == null) {
         return null;
-      } else if (!DataTransferer.isEncodingSupported(charset)) {
+      } else if (!isEncodingSupported(charset)) {
         return UNSUPPORTED_CHARSET;
       } else {
         // Only convert to canonical form if the charset is one
         // of the charsets explicitly listed in the known charsets
         // map. This will happen only for Unicode, ASCII, or default
         // charsets.
-        String canonicalName = DataTransferer.canonicalName(charset);
-        return (charsets.containsKey(canonicalName)) ? canonicalName : charset;
+        String canonicalName = canonicalName(charset);
+        return charsets.containsKey(canonicalName) ? canonicalName : charset;
       }
     }
 
@@ -2282,11 +2265,12 @@ public abstract class DataTransferer {
      * @throws ClassCastException   if either of the arguments is not
      *                              instance of String
      * @throws NullPointerException if either of the arguments is
-     *                              <code>null</code>.
+     *                              {@code null}.
      */
+    @Override
     public int compare(Object obj1, Object obj2) {
-      String charset1 = null;
-      String charset2 = null;
+      String charset1;
+      String charset2;
       if (order == SELECT_BEST) {
         charset1 = (String) obj1;
         charset2 = (String) obj2;
@@ -2345,7 +2329,7 @@ public abstract class DataTransferer {
    * most descriptive one. For flavors which are otherwise equal, the
    * flavors' string representation are compared in the alphabetical order.
    */
-  public static class DataFlavorComparator extends IndexedComparator {
+  public static class DataFlavorComparator extends IndexedComparator implements Serializable {
 
     private static final Map exactTypes;
     private static final Map primaryTypes;
@@ -2353,98 +2337,87 @@ public abstract class DataTransferer {
     private static final Map textTypes;
     private static final Map decodedTextRepresentations;
     private static final Map encodedTextRepresentations;
-    private static final Integer UNKNOWN_OBJECT_LOSES = Integer.valueOf(Integer.MIN_VALUE);
-    private static final Integer UNKNOWN_OBJECT_WINS = Integer.valueOf(Integer.MAX_VALUE);
-    private static final Long UNKNOWN_OBJECT_LOSES_L = Long.valueOf(Long.MIN_VALUE);
-    private static final Long UNKNOWN_OBJECT_WINS_L = Long.valueOf(Long.MAX_VALUE);
+    private static final Integer UNKNOWN_OBJECT_LOSES = Integer.MIN_VALUE;
+    private static final Integer UNKNOWN_OBJECT_WINS = Integer.MAX_VALUE;
+    private static final Long UNKNOWN_OBJECT_LOSES_L = Long.MIN_VALUE;
+    private static final Long UNKNOWN_OBJECT_WINS_L = Long.MAX_VALUE;
+    private static final long serialVersionUID = 1064616167465172951L;
 
     static {
-      {
-        HashMap exactTypesMap = new HashMap(4, 1.0f);
+      HashMap exactTypesMap = new HashMap(4, 1.0f);
 
-        // application/x-java-* MIME types
-        exactTypesMap.put("application/x-java-file-list", Integer.valueOf(0));
-        exactTypesMap.put("application/x-java-serialized-object", Integer.valueOf(1));
-        exactTypesMap.put("application/x-java-jvm-local-objectref", Integer.valueOf(2));
-        exactTypesMap.put("application/x-java-remote-object", Integer.valueOf(3));
+      // application/x-java-* MIME types
+      exactTypesMap.put("application/x-java-file-list", 0);
+      exactTypesMap.put(DataFlavor.javaSerializedObjectMimeType, 1);
+      exactTypesMap.put(DataFlavor.javaJVMLocalObjectMimeType, 2);
+      exactTypesMap.put(DataFlavor.javaRemoteObjectMimeType, 3);
 
-        exactTypes = Collections.unmodifiableMap(exactTypesMap);
+      exactTypes = Collections.unmodifiableMap(exactTypesMap);
+
+      HashMap primaryTypesMap = new HashMap(1, 1.0f);
+
+      primaryTypesMap.put("application", 0);
+
+      primaryTypes = Collections.unmodifiableMap(primaryTypesMap);
+
+      HashMap nonTextRepresentationsMap = new HashMap(3, 1.0f);
+
+      nonTextRepresentationsMap.put(InputStream.class, 0);
+      nonTextRepresentationsMap.put(Serializable.class, 1);
+
+      Class<?> remoteClass = remoteClass();
+      if (remoteClass != null) {
+        nonTextRepresentationsMap.put(remoteClass, 2);
       }
 
-      {
-        HashMap primaryTypesMap = new HashMap(1, 1.0f);
+      nonTextRepresentations = Collections.unmodifiableMap(nonTextRepresentationsMap);
 
-        primaryTypesMap.put("application", Integer.valueOf(0));
+      HashMap textTypesMap = new HashMap(16, 1.0f);
 
-        primaryTypes = Collections.unmodifiableMap(primaryTypesMap);
-      }
+      // plain text
+      textTypesMap.put(SystemFlavorMap.TEXT_PLAIN_BASE_TYPE, 0);
 
-      {
-        HashMap nonTextRepresentationsMap = new HashMap(3, 1.0f);
+      // stringFlavor
+      textTypesMap.put(DataFlavor.javaSerializedObjectMimeType, 1);
 
-        nonTextRepresentationsMap.put(java.io.InputStream.class, Integer.valueOf(0));
-        nonTextRepresentationsMap.put(java.io.Serializable.class, Integer.valueOf(1));
+      // misc
+      textTypesMap.put("text/calendar", 2);
+      textTypesMap.put("text/css", 3);
+      textTypesMap.put("text/directory", 4);
+      textTypesMap.put("text/parityfec", 5);
+      textTypesMap.put("text/rfc822-headers", 6);
+      textTypesMap.put("text/t140", 7);
+      textTypesMap.put("text/tab-separated-values", 8);
+      textTypesMap.put("text/uri-list", 9);
 
-        Class<?> remoteClass = RMI.remoteClass();
-        if (remoteClass != null) {
-          nonTextRepresentationsMap.put(remoteClass, Integer.valueOf(2));
-        }
+      // enriched
+      textTypesMap.put("text/richtext", 10);
+      textTypesMap.put("text/enriched", 11);
+      textTypesMap.put("text/rtf", 12);
 
-        nonTextRepresentations = Collections.unmodifiableMap(nonTextRepresentationsMap);
-      }
+      // markup
+      textTypesMap.put("text/html", 13);
+      textTypesMap.put("text/xml", 14);
+      textTypesMap.put("text/sgml", 15);
 
-      {
-        HashMap textTypesMap = new HashMap(16, 1.0f);
+      textTypes = Collections.unmodifiableMap(textTypesMap);
 
-        // plain text
-        textTypesMap.put("text/plain", Integer.valueOf(0));
+      HashMap decodedTextRepresentationsMap = new HashMap(4, 1.0f);
 
-        // stringFlavor
-        textTypesMap.put("application/x-java-serialized-object", Integer.valueOf(1));
+      decodedTextRepresentationsMap.put(char[].class, 0);
+      decodedTextRepresentationsMap.put(CharBuffer.class, 1);
+      decodedTextRepresentationsMap.put(String.class, 2);
+      decodedTextRepresentationsMap.put(Reader.class, 3);
 
-        // misc
-        textTypesMap.put("text/calendar", Integer.valueOf(2));
-        textTypesMap.put("text/css", Integer.valueOf(3));
-        textTypesMap.put("text/directory", Integer.valueOf(4));
-        textTypesMap.put("text/parityfec", Integer.valueOf(5));
-        textTypesMap.put("text/rfc822-headers", Integer.valueOf(6));
-        textTypesMap.put("text/t140", Integer.valueOf(7));
-        textTypesMap.put("text/tab-separated-values", Integer.valueOf(8));
-        textTypesMap.put("text/uri-list", Integer.valueOf(9));
+      decodedTextRepresentations = Collections.unmodifiableMap(decodedTextRepresentationsMap);
 
-        // enriched
-        textTypesMap.put("text/richtext", Integer.valueOf(10));
-        textTypesMap.put("text/enriched", Integer.valueOf(11));
-        textTypesMap.put("text/rtf", Integer.valueOf(12));
+      HashMap encodedTextRepresentationsMap = new HashMap(3, 1.0f);
 
-        // markup
-        textTypesMap.put("text/html", Integer.valueOf(13));
-        textTypesMap.put("text/xml", Integer.valueOf(14));
-        textTypesMap.put("text/sgml", Integer.valueOf(15));
+      encodedTextRepresentationsMap.put(byte[].class, 0);
+      encodedTextRepresentationsMap.put(ByteBuffer.class, 1);
+      encodedTextRepresentationsMap.put(InputStream.class, 2);
 
-        textTypes = Collections.unmodifiableMap(textTypesMap);
-      }
-
-      {
-        HashMap decodedTextRepresentationsMap = new HashMap(4, 1.0f);
-
-        decodedTextRepresentationsMap.put(char[].class, Integer.valueOf(0));
-        decodedTextRepresentationsMap.put(java.nio.CharBuffer.class, Integer.valueOf(1));
-        decodedTextRepresentationsMap.put(java.lang.String.class, Integer.valueOf(2));
-        decodedTextRepresentationsMap.put(java.io.Reader.class, Integer.valueOf(3));
-
-        decodedTextRepresentations = Collections.unmodifiableMap(decodedTextRepresentationsMap);
-      }
-
-      {
-        HashMap encodedTextRepresentationsMap = new HashMap(3, 1.0f);
-
-        encodedTextRepresentationsMap.put(byte[].class, Integer.valueOf(0));
-        encodedTextRepresentationsMap.put(java.nio.ByteBuffer.class, Integer.valueOf(1));
-        encodedTextRepresentationsMap.put(java.io.InputStream.class, Integer.valueOf(2));
-
-        encodedTextRepresentations = Collections.unmodifiableMap(encodedTextRepresentationsMap);
-      }
+      encodedTextRepresentations = Collections.unmodifiableMap(encodedTextRepresentationsMap);
     }
 
     private final CharsetComparator charsetComparator;
@@ -2459,9 +2432,17 @@ public abstract class DataTransferer {
       charsetComparator = new CharsetComparator(order);
     }
 
+    /**
+     * Returns java.rmi.Remote.class if RMI is present; otherwise {@code null}.
+     */
+    static Class<?> remoteClass() {
+      return RMI.remoteClass;
+    }
+
+    @Override
     public int compare(Object obj1, Object obj2) {
-      DataFlavor flavor1 = null;
-      DataFlavor flavor2 = null;
+      DataFlavor flavor1;
+      DataFlavor flavor2;
       if (order == SELECT_BEST) {
         flavor1 = (DataFlavor) obj1;
         flavor2 = (DataFlavor) obj2;
@@ -2474,7 +2455,7 @@ public abstract class DataTransferer {
         return 0;
       }
 
-      int comp = 0;
+      int comp;
 
       String primaryType1 = flavor1.getPrimaryType();
       String subType1 = flavor1.getSubType();
@@ -2509,8 +2490,8 @@ public abstract class DataTransferer {
           }
 
           // Next, compare charsets
-          comp = charsetComparator.compareCharsets(DataTransferer.getTextCharset(flavor1),
-              DataTransferer.getTextCharset(flavor2));
+          comp = charsetComparator.compareCharsets(getTextCharset(flavor1),
+              getTextCharset(flavor2));
           if (comp != 0) {
             return comp;
           }
@@ -2572,8 +2553,9 @@ public abstract class DataTransferer {
    * reverse index-based order: an object A is greater than an object B if and
    * only if A is less than B with the direct index-based order.
    */
-  public static class IndexOrderComparator extends IndexedComparator {
-    private static final Integer FALLBACK_INDEX = Integer.valueOf(Integer.MIN_VALUE);
+  public static class IndexOrderComparator extends IndexedComparator implements Serializable {
+    private static final Integer FALLBACK_INDEX = Integer.MIN_VALUE;
+    private static final long serialVersionUID = -4855480188670929103L;
     private final Map indexMap;
 
     public IndexOrderComparator(Map indexMap) {
@@ -2586,12 +2568,10 @@ public abstract class DataTransferer {
       this.indexMap = indexMap;
     }
 
+    @Override
     public int compare(Object obj1, Object obj2) {
-      if (order == SELECT_WORST) {
-        return -compareIndices(indexMap, obj1, obj2, FALLBACK_INDEX);
-      } else {
-        return compareIndices(indexMap, obj1, obj2, FALLBACK_INDEX);
-      }
+      return order == SELECT_WORST ? -compareIndices(indexMap, obj1, obj2, FALLBACK_INDEX)
+          : compareIndices(indexMap, obj1, obj2, FALLBACK_INDEX);
     }
   }
 
@@ -2599,12 +2579,12 @@ public abstract class DataTransferer {
    * A class that provides access to java.rmi.Remote and java.rmi.MarshalledObject
    * without creating a static dependency.
    */
-  private static class RMI {
+  private static final class RMI {
     private static final Class<?> remoteClass = getClass("java.rmi.Remote");
     private static final Class<?> marshallObjectClass = getClass("java.rmi.MarshalledObject");
-    private static final Constructor<?> marshallCtor = getConstructor(marshallObjectClass,
+    static final Constructor<?> marshallCtor = getConstructor(marshallObjectClass,
         Object.class);
-    private static final Method marshallGet = getMethod(marshallObjectClass, "get");
+    static final Method marshallGet = getMethod(marshallObjectClass, "get");
 
     private static Class<?> getClass(String name) {
       try {
@@ -2616,7 +2596,7 @@ public abstract class DataTransferer {
 
     private static Constructor<?> getConstructor(Class<?> c, Class<?>... types) {
       try {
-        return (c == null) ? null : c.getDeclaredConstructor(types);
+        return c == null ? null : c.getDeclaredConstructor(types);
       } catch (NoSuchMethodException x) {
         throw new AssertionError(x);
       }
@@ -2624,7 +2604,7 @@ public abstract class DataTransferer {
 
     private static Method getMethod(Class<?> c, String name, Class<?>... types) {
       try {
-        return (c == null) ? null : c.getMethod(name, types);
+        return c == null ? null : c.getMethod(name, types);
       } catch (NoSuchMethodException e) {
         throw new AssertionError(e);
       }
@@ -2634,54 +2614,7 @@ public abstract class DataTransferer {
      * Returns {@code true} if the given class is java.rmi.Remote.
      */
     static boolean isRemote(Class<?> c) {
-      return (remoteClass == null) ? null : remoteClass.isAssignableFrom(c);
-    }
-
-    /**
-     * Returns java.rmi.Remote.class if RMI is present; otherwise {@code null}.
-     */
-    static Class<?> remoteClass() {
-      return remoteClass;
-    }
-
-    /**
-     * Returns a new MarshalledObject containing the serialized representation
-     * of the given object.
-     */
-    static Object newMarshalledObject(Object obj) throws IOException {
-      try {
-        return marshallCtor.newInstance(obj);
-      } catch (InstantiationException x) {
-        throw new AssertionError(x);
-      } catch (IllegalAccessException x) {
-        throw new AssertionError(x);
-      } catch (InvocationTargetException x) {
-        Throwable cause = x.getCause();
-        if (cause instanceof IOException) {
-          throw (IOException) cause;
-        }
-        throw new AssertionError(x);
-      }
-    }
-
-    /**
-     * Returns a new copy of the contained marshalled object.
-     */
-    static Object getMarshalledObject(Object obj) throws IOException, ClassNotFoundException {
-      try {
-        return marshallGet.invoke(obj);
-      } catch (IllegalAccessException x) {
-        throw new AssertionError(x);
-      } catch (InvocationTargetException x) {
-        Throwable cause = x.getCause();
-        if (cause instanceof IOException) {
-          throw (IOException) cause;
-        }
-        if (cause instanceof ClassNotFoundException) {
-          throw (ClassNotFoundException) cause;
-        }
-        throw new AssertionError(x);
-      }
+      return remoteClass == null ? null : remoteClass.isAssignableFrom(c);
     }
   }
 
@@ -2707,7 +2640,7 @@ public abstract class DataTransferer {
     public ReencodingInputStream(
         InputStream bytestream, long format, String targetEncoding, Transferable localeTransferable)
         throws IOException {
-      Long lFormat = Long.valueOf(format);
+      Long lFormat = format;
 
       String sourceEncoding = null;
       if (isLocaleDependentTextFormat(format) &&
@@ -2742,11 +2675,7 @@ public abstract class DataTransferer {
         out = new byte[(int) (encoder.maxBytesPerChar() * 2 + 0.5)];
         inBuf = CharBuffer.wrap(in);
         outBuf = ByteBuffer.wrap(out);
-      } catch (IllegalCharsetNameException e) {
-        throw new IOException(e.toString());
-      } catch (UnsupportedCharsetException e) {
-        throw new IOException(e.toString());
-      } catch (UnsupportedOperationException e) {
+      } catch (IllegalCharsetNameException | UnsupportedOperationException | UnsupportedCharsetException e) {
         throw new IOException(e.toString());
       }
 
@@ -2759,7 +2688,7 @@ public abstract class DataTransferer {
       // definitely work on Win32.
       Integer terminators = (Integer) nativeTerminators.get(lFormat);
       if (terminators != null) {
-        numTerminators = terminators.intValue();
+        numTerminators = terminators;
       }
     }
 
@@ -2775,13 +2704,15 @@ public abstract class DataTransferer {
       if (numTerminators > 0 && c == 0) {
         eos = true;
         return -1;
-      } else if (eoln != null && matchCharArray(eoln, c)) {
+      }
+      if (eoln != null && matchCharArray(eoln, c)) {
         c = '\n' & 0xFFFF;
       }
 
       return c;
     }
 
+    @Override
     public int read() throws IOException {
       if (eos) {
         return -1;
@@ -2815,14 +2746,18 @@ public abstract class DataTransferer {
 
         return read();
       } else {
-        return out[index++] & 0xFF;
+        int result = out[index] & 0xFF;
+        index++;
+        return result;
       }
     }
 
+    @Override
     public int available() throws IOException {
-      return ((eos) ? 0 : (limit - index));
+      return eos ? 0 : limit - index;
     }
 
+    @Override
     public void close() throws IOException {
       wrapped.close();
     }
@@ -2841,7 +2776,7 @@ public abstract class DataTransferer {
       if ((char) c == array[0]) {
         for (count = 1; count < array.length; count++) {
           c = wrapped.read();
-          if (c == -1 || ((char) c) != array[count]) {
+          if (c == -1 || (char) c != array[count]) {
             break;
           }
         }

@@ -45,15 +45,10 @@
  * @author Mandy Chung
  */
 
-import com.sun.tools.jconsole.JConsoleContext;
-import com.sun.tools.jconsole.JConsoleContext.ConnectionState;
-import com.sun.tools.jconsole.JConsolePlugin;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.swing.JPanel;
-import javax.swing.SwingWorker;
 
 /**
  * JTopPlugin is a subclass to com.sun.tools.jconsole.JConsolePlugin
@@ -65,8 +60,8 @@ import javax.swing.SwingWorker;
  * displaying the thread and its CPU usage information.
  */
 public class JTopPlugin extends JConsolePlugin implements PropertyChangeListener {
-  private JTop jtop = null;
-  private Map<String, JPanel> tabs = null;
+  private JTop jtop;
+  private Map<String, JPanel> tabs;
 
   public JTopPlugin() {
     // register itself as a listener

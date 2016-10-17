@@ -103,7 +103,7 @@ public final class PageAttributes implements Cloneable {
    * @param printerResolution    an integer array of 3 elements. The first
    *                             element must be greater than 0. The second element must be
    *                             must be greater than 0. The third element must be either
-   *                             <code>3</code> or <code>4</code>.
+   *                             {@code 3} or {@code 4}.
    * @throws IllegalArgumentException if one or more of the above
    *                                  conditions is violated.
    */
@@ -218,32 +218,15 @@ public final class PageAttributes implements Cloneable {
   }
 
   /**
-   * Specifies the print orientation for pages using these attributes. Not
-   * specifying the property is equivalent to specifying
-   * OrientationRequestedType.PORTRAIT.
-   *
-   * @param orientationRequested OrientationRequestedType.PORTRAIT or
-   *                             OrientationRequestedType.LANDSCAPE.
-   * @throws IllegalArgumentException if orientationRequested is null.
-   */
-  public void setOrientationRequested(
-      OrientationRequestedType orientationRequested) {
-    if (orientationRequested == null) {
-      throw new IllegalArgumentException("Invalid value for attribute " + "orientationRequested");
-    }
-    this.orientationRequested = orientationRequested;
-  }
-
-  /**
    * Specifies the print orientation for pages using these attributes.
-   * Specifying <code>3</code> denotes portrait. Specifying <code>4</code>
+   * Specifying {@code 3} denotes portrait. Specifying {@code 4}
    * denotes landscape. Specifying any other value will generate an
    * IllegalArgumentException. Not specifying the property is equivalent
    * to calling setOrientationRequested(OrientationRequestedType.PORTRAIT).
    *
-   * @param orientationRequested <code>3</code> or <code>4</code>
+   * @param orientationRequested {@code 3} or {@code 4}
    * @throws IllegalArgumentException if orientationRequested is not
-   *                                  <code>3</code> or <code>4</code>
+   *                                  {@code 3} or {@code 4}
    */
   public void setOrientationRequested(int orientationRequested) {
     switch (orientationRequested) {
@@ -258,6 +241,23 @@ public final class PageAttributes implements Cloneable {
         setOrientationRequested(null);
         break;
     }
+  }
+
+  /**
+   * Specifies the print orientation for pages using these attributes. Not
+   * specifying the property is equivalent to specifying
+   * OrientationRequestedType.PORTRAIT.
+   *
+   * @param orientationRequested OrientationRequestedType.PORTRAIT or
+   *                             OrientationRequestedType.LANDSCAPE.
+   * @throws IllegalArgumentException if orientationRequested is null.
+   */
+  public void setOrientationRequested(
+      OrientationRequestedType orientationRequested) {
+    if (orientationRequested == null) {
+      throw new IllegalArgumentException("Invalid value for attribute " + "orientationRequested");
+    }
+    this.orientationRequested = orientationRequested;
   }
 
   /**
@@ -311,32 +311,16 @@ public final class PageAttributes implements Cloneable {
   }
 
   /**
-   * Specifies the print quality for pages using these attributes. Not
-   * specifying the property is equivalent to specifying
-   * PrintQualityType.NORMAL.
-   *
-   * @param printQuality PrintQualityType.DRAFT, PrintQualityType.NORMAL,
-   *                     or PrintQualityType.HIGH
-   * @throws IllegalArgumentException if printQuality is null.
-   */
-  public void setPrintQuality(PrintQualityType printQuality) {
-    if (printQuality == null) {
-      throw new IllegalArgumentException("Invalid value for attribute " + "printQuality");
-    }
-    this.printQuality = printQuality;
-  }
-
-  /**
    * Specifies the print quality for pages using these attributes.
-   * Specifying <code>3</code> denotes draft. Specifying <code>4</code>
-   * denotes normal. Specifying <code>5</code> denotes high. Specifying
+   * Specifying {@code 3} denotes draft. Specifying {@code 4}
+   * denotes normal. Specifying {@code 5} denotes high. Specifying
    * any other value will generate an IllegalArgumentException. Not
    * specifying the property is equivalent to calling
    * setPrintQuality(PrintQualityType.NORMAL).
    *
-   * @param printQuality <code>3</code>, <code>4</code>, or <code>5</code>
-   * @throws IllegalArgumentException if printQuality is not <code>3
-   *                                  </code>, <code>4</code>, or <code>5</code>
+   * @param printQuality {@code 3}, {@code 4}, or {@code 5}
+   * @throws IllegalArgumentException if printQuality is not {@code 3
+   *                                  }, {@code 4}, or {@code 5}
    */
   public void setPrintQuality(int printQuality) {
     switch (printQuality) {
@@ -357,6 +341,22 @@ public final class PageAttributes implements Cloneable {
   }
 
   /**
+   * Specifies the print quality for pages using these attributes. Not
+   * specifying the property is equivalent to specifying
+   * PrintQualityType.NORMAL.
+   *
+   * @param printQuality PrintQualityType.DRAFT, PrintQualityType.NORMAL,
+   *                     or PrintQualityType.HIGH
+   * @throws IllegalArgumentException if printQuality is null.
+   */
+  public void setPrintQuality(PrintQualityType printQuality) {
+    if (printQuality == null) {
+      throw new IllegalArgumentException("Invalid value for attribute " + "printQuality");
+    }
+    this.printQuality = printQuality;
+  }
+
+  /**
    * Sets the print quality for pages using these attributes to the default.
    * The default print quality is normal.
    */
@@ -370,13 +370,13 @@ public final class PageAttributes implements Cloneable {
    * (typically the horizontal resolution). Index 1 of the array specifies
    * the feed direction resolution (typically the vertical resolution).
    * Index 2 of the array specifies whether the resolutions are in dots per
-   * inch or dots per centimeter. <code>3</code> denotes dots per inch.
-   * <code>4</code> denotes dots per centimeter.
+   * inch or dots per centimeter. {@code 3} denotes dots per inch.
+   * {@code 4} denotes dots per centimeter.
    *
    * @return an integer array of 3 elements. The first
    * element must be greater than 0. The second element must be
    * must be greater than 0. The third element must be either
-   * <code>3</code> or <code>4</code>.
+   * {@code 3} or {@code 4}.
    */
   public int[] getPrinterResolution() {
     // Return a copy because otherwise client code could circumvent the
@@ -390,6 +390,22 @@ public final class PageAttributes implements Cloneable {
   }
 
   /**
+   * Specifies the desired cross feed and feed print resolutions in dots per
+   * inch for pages using these attributes. The same value is used for both
+   * resolutions. The actual resolutions will be determined by the
+   * limitations of the implementation and the target printer. Not
+   * specifying the property is equivalent to specifying {@code 72}.
+   *
+   * @param printerResolution an integer greater than 0.
+   * @throws IllegalArgumentException if printerResolution is less than or
+   *                                  equal to 0.
+   */
+  public void setPrinterResolution(int printerResolution) {
+    setPrinterResolution(new int[]{
+        printerResolution, printerResolution, 3});
+  }
+
+  /**
    * Specifies the desired print resolution for pages using these attributes.
    * The actual resolution will be determined by the limitations of the
    * implementation and the target printer. Index 0 of the array specifies
@@ -397,7 +413,7 @@ public final class PageAttributes implements Cloneable {
    * resolution). Index 1 of the array specifies the feed direction
    * resolution (typically the vertical resolution). Index 2 of the array
    * specifies whether the resolutions are in dots per inch or dots per
-   * centimeter. <code>3</code> denotes dots per inch. <code>4</code>
+   * centimeter. {@code 3} denotes dots per inch. {@code 4}
    * denotes dots per centimeter. Note that the 1.1 printing implementation
    * (Toolkit.getPrintJob) requires that the feed and cross feed resolutions
    * be the same. Not specifying the property is equivalent to calling
@@ -406,7 +422,7 @@ public final class PageAttributes implements Cloneable {
    * @param printerResolution an integer array of 3 elements. The first
    *                          element must be greater than 0. The second element must be
    *                          must be greater than 0. The third element must be either
-   *                          <code>3</code> or <code>4</code>.
+   *                          {@code 3} or {@code 4}.
    * @throws IllegalArgumentException if one or more of the above
    *                                  conditions is violated.
    */
@@ -415,7 +431,7 @@ public final class PageAttributes implements Cloneable {
         printerResolution.length != 3 ||
         printerResolution[0] <= 0 ||
         printerResolution[1] <= 0 ||
-        (printerResolution[2] != 3 && printerResolution[2] != 4)) {
+        printerResolution[2] != 3 && printerResolution[2] != 4) {
       throw new IllegalArgumentException("Invalid value for attribute " + "printerResolution");
     }
     // Store a copy because otherwise client code could circumvent the
@@ -426,22 +442,6 @@ public final class PageAttributes implements Cloneable {
     copy[1] = printerResolution[1];
     copy[2] = printerResolution[2];
     this.printerResolution = copy;
-  }
-
-  /**
-   * Specifies the desired cross feed and feed print resolutions in dots per
-   * inch for pages using these attributes. The same value is used for both
-   * resolutions. The actual resolutions will be determined by the
-   * limitations of the implementation and the target printer. Not
-   * specifying the property is equivalent to specifying <code>72</code>.
-   *
-   * @param printerResolution an integer greater than 0.
-   * @throws IllegalArgumentException if printerResolution is less than or
-   *                                  equal to 0.
-   */
-  public void setPrinterResolution(int printerResolution) {
-    setPrinterResolution(new int[]{
-        printerResolution, printerResolution, 3});
   }
 
   /**
@@ -458,15 +458,16 @@ public final class PageAttributes implements Cloneable {
    *
    * @return the hash code.
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
-    return (color.hashCode() << 31 ^
-                media.hashCode() << 24 ^
-                orientationRequested.hashCode() << 23 ^
-                origin.hashCode() << 22 ^
-                printQuality.hashCode() << 20 ^
-                printerResolution[2] >> 2 << 19 ^
-                printerResolution[1] << 10 ^
-                printerResolution[0]);
+    return color.hashCode() << 31 ^
+        media.hashCode() << 24 ^
+        orientationRequested.hashCode() << 23 ^
+        origin.hashCode() << 22 ^
+        printQuality.hashCode() << 20 ^
+        printerResolution[2] >> 2 << 19 ^
+        printerResolution[1] << 10 ^
+        printerResolution[0];
   }
 
   /**
@@ -483,6 +484,7 @@ public final class PageAttributes implements Cloneable {
    * @return whether obj is equal to this PageAttribute according to the
    * above criteria.
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object obj) {
     if (!(obj instanceof PageAttributes)) {
       return false;
@@ -490,14 +492,14 @@ public final class PageAttributes implements Cloneable {
 
     PageAttributes rhs = (PageAttributes) obj;
 
-    return (color == rhs.color &&
-                media == rhs.media &&
-                orientationRequested == rhs.orientationRequested &&
-                origin == rhs.origin &&
-                printQuality == rhs.printQuality &&
-                printerResolution[0] == rhs.printerResolution[0] &&
-                printerResolution[1] == rhs.printerResolution[1] &&
-                printerResolution[2] == rhs.printerResolution[2]);
+    return color == rhs.color &&
+        media == rhs.media &&
+        orientationRequested == rhs.orientationRequested &&
+        origin == rhs.origin &&
+        printQuality == rhs.printQuality &&
+        printerResolution[0] == rhs.printerResolution[0] &&
+        printerResolution[1] == rhs.printerResolution[1] &&
+        printerResolution[2] == rhs.printerResolution[2];
   }
 
   /**
@@ -506,6 +508,7 @@ public final class PageAttributes implements Cloneable {
    * @return the newly created copy. It is safe to cast this Object into
    * a PageAttributes.
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();
@@ -545,7 +548,7 @@ public final class PageAttributes implements Cloneable {
      * The ColorType instance to use for specifying monochrome printing.
      */
     public static final ColorType MONOCHROME = new ColorType(I_MONOCHROME);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "color", "monochrome"};
 
     private ColorType(int type) {
@@ -560,6 +563,294 @@ public final class PageAttributes implements Cloneable {
    * @since 1.3
    */
   public static final class MediaType extends AttributeValue {
+    /**
+     * An alias for ISO_A0.
+     */
+    public static final MediaType A0 = ISO_A0;
+    /**
+     * An alias for ISO_A1.
+     */
+    public static final MediaType A1 = ISO_A1;
+    /**
+     * An alias for ISO_A2.
+     */
+    public static final MediaType A2 = ISO_A2;
+    /**
+     * An alias for ISO_A3.
+     */
+    public static final MediaType A3 = ISO_A3;
+    /**
+     * An alias for ISO_A4.
+     */
+    public static final MediaType A4 = ISO_A4;
+    /**
+     * An alias for ISO_A5.
+     */
+    public static final MediaType A5 = ISO_A5;
+    /**
+     * An alias for ISO_A6.
+     */
+    public static final MediaType A6 = ISO_A6;
+    /**
+     * An alias for ISO_A7.
+     */
+    public static final MediaType A7 = ISO_A7;
+    /**
+     * An alias for ISO_A8.
+     */
+    public static final MediaType A8 = ISO_A8;
+    /**
+     * An alias for ISO_A9.
+     */
+    public static final MediaType A9 = ISO_A9;
+    /**
+     * An alias for ISO_A10.
+     */
+    public static final MediaType A10 = ISO_A10;
+    /**
+     * An alias for ISO_B0.
+     */
+    public static final MediaType B0 = ISO_B0;
+    /**
+     * An alias for ISO_B1.
+     */
+    public static final MediaType B1 = ISO_B1;
+    /**
+     * An alias for ISO_B2.
+     */
+    public static final MediaType B2 = ISO_B2;
+    /**
+     * An alias for ISO_B3.
+     */
+    public static final MediaType B3 = ISO_B3;
+    /**
+     * An alias for ISO_B4.
+     */
+    public static final MediaType B4 = ISO_B4;
+    /**
+     * An alias for ISO_B4.
+     */
+    public static final MediaType ISO_B4_ENVELOPE = ISO_B4;
+    /**
+     * An alias for ISO_B5.
+     */
+    public static final MediaType B5 = ISO_B5;
+    /**
+     * An alias for ISO_B5.
+     */
+    public static final MediaType ISO_B5_ENVELOPE = ISO_B5;
+    /**
+     * An alias for ISO_B6.
+     */
+    public static final MediaType B6 = ISO_B6;
+    /**
+     * An alias for ISO_B7.
+     */
+    public static final MediaType B7 = ISO_B7;
+    /**
+     * An alias for ISO_B8.
+     */
+    public static final MediaType B8 = ISO_B8;
+    /**
+     * An alias for ISO_B9.
+     */
+    public static final MediaType B9 = ISO_B9;
+    /**
+     * An alias for ISO_B10.
+     */
+    public static final MediaType B10 = ISO_B10;
+    /**
+     * An alias for ISO_C0.
+     */
+    public static final MediaType C0 = ISO_C0;
+    /**
+     * An alias for ISO_C0.
+     */
+    public static final MediaType ISO_C0_ENVELOPE = ISO_C0;
+    /**
+     * An alias for ISO_C1.
+     */
+    public static final MediaType C1 = ISO_C1;
+    /**
+     * An alias for ISO_C1.
+     */
+    public static final MediaType ISO_C1_ENVELOPE = ISO_C1;
+    /**
+     * An alias for ISO_C2.
+     */
+    public static final MediaType C2 = ISO_C2;
+    /**
+     * An alias for ISO_C2.
+     */
+    public static final MediaType ISO_C2_ENVELOPE = ISO_C2;
+    /**
+     * An alias for ISO_C3.
+     */
+    public static final MediaType C3 = ISO_C3;
+    /**
+     * An alias for ISO_C3.
+     */
+    public static final MediaType ISO_C3_ENVELOPE = ISO_C3;
+    /**
+     * An alias for ISO_C4.
+     */
+    public static final MediaType C4 = ISO_C4;
+    /**
+     * An alias for ISO_C4.
+     */
+    public static final MediaType ISO_C4_ENVELOPE = ISO_C4;
+    /**
+     * An alias for ISO_C5.
+     */
+    public static final MediaType C5 = ISO_C5;
+    /**
+     * An alias for ISO_C5.
+     */
+    public static final MediaType ISO_C5_ENVELOPE = ISO_C5;
+    /**
+     * An alias for ISO_C6.
+     */
+    public static final MediaType C6 = ISO_C6;
+    /**
+     * An alias for ISO_C6.
+     */
+    public static final MediaType ISO_C6_ENVELOPE = ISO_C6;
+    /**
+     * An alias for ISO_C7.
+     */
+    public static final MediaType C7 = ISO_C7;
+    /**
+     * An alias for ISO_C7.
+     */
+    public static final MediaType ISO_C7_ENVELOPE = ISO_C7;
+    /**
+     * An alias for ISO_C8.
+     */
+    public static final MediaType C8 = ISO_C8;
+    /**
+     * An alias for ISO_C8.
+     */
+    public static final MediaType ISO_C8_ENVELOPE = ISO_C8;
+    /**
+     * An alias for ISO_C9.
+     */
+    public static final MediaType C9 = ISO_C9;
+    /**
+     * An alias for ISO_C9.
+     */
+    public static final MediaType ISO_C9_ENVELOPE = ISO_C9;
+    /**
+     * An alias for ISO_C10.
+     */
+    public static final MediaType C10 = ISO_C10;
+    /**
+     * An alias for ISO_C10.
+     */
+    public static final MediaType ISO_C10_ENVELOPE = ISO_C10;
+    /**
+     * An alias for ISO_DESIGNATED_LONG.
+     */
+    public static final MediaType ISO_DESIGNATED_LONG_ENVELOPE = ISO_DESIGNATED_LONG;
+    /**
+     * An alias for INVOICE.
+     */
+    public static final MediaType STATEMENT = INVOICE;
+    /**
+     * An alias for LEDGER.
+     */
+    public static final MediaType TABLOID = LEDGER;
+    /**
+     * An alias for NA_LETTER.
+     */
+    public static final MediaType LETTER = NA_LETTER;
+    /**
+     * An alias for NA_LETTER.
+     */
+    public static final MediaType NOTE = NA_LETTER;
+    /**
+     * An alias for NA_LEGAL.
+     */
+    public static final MediaType LEGAL = NA_LEGAL;
+    /**
+     * An alias for NA_10X15_ENVELOPE.
+     */
+    public static final MediaType ENV_10X15 = NA_10X15_ENVELOPE;
+    /**
+     * An alias for NA_10X14_ENVELOPE.
+     */
+    public static final MediaType ENV_10X14 = NA_10X14_ENVELOPE;
+    /**
+     * An alias for NA_10X13_ENVELOPE.
+     */
+    public static final MediaType ENV_10X13 = NA_10X13_ENVELOPE;
+    /**
+     * An alias for NA_9X12_ENVELOPE.
+     */
+    public static final MediaType ENV_9X12 = NA_9X12_ENVELOPE;
+    /**
+     * An alias for NA_9X11_ENVELOPE.
+     */
+    public static final MediaType ENV_9X11 = NA_9X11_ENVELOPE;
+    /**
+     * An alias for NA_7X9_ENVELOPE.
+     */
+    public static final MediaType ENV_7X9 = NA_7X9_ENVELOPE;
+    /**
+     * An alias for NA_6X9_ENVELOPE.
+     */
+    public static final MediaType ENV_6X9 = NA_6X9_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_9_ENVELOPE.
+     */
+    public static final MediaType ENV_9 = NA_NUMBER_9_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_10_ENVELOPE.
+     */
+    public static final MediaType ENV_10 = NA_NUMBER_10_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_11_ENVELOPE.
+     */
+    public static final MediaType ENV_11 = NA_NUMBER_11_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_12_ENVELOPE.
+     */
+    public static final MediaType ENV_12 = NA_NUMBER_12_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_14_ENVELOPE.
+     */
+    public static final MediaType ENV_14 = NA_NUMBER_14_ENVELOPE;
+    /**
+     * An alias for INVITE_ENVELOPE.
+     */
+    public static final MediaType ENV_INVITE = INVITE_ENVELOPE;
+    /**
+     * An alias for INVITE_ENVELOPE.
+     */
+    public static final MediaType INVITE = INVITE_ENVELOPE;
+    /**
+     * An alias for ITALY_ENVELOPE.
+     */
+    public static final MediaType ENV_ITALY = ITALY_ENVELOPE;
+    /**
+     * An alias for ITALY_ENVELOPE.
+     */
+    public static final MediaType ITALY = ITALY_ENVELOPE;
+    /**
+     * An alias for MONARCH_ENVELOPE.
+     */
+    public static final MediaType ENV_MONARCH = MONARCH_ENVELOPE;
+    /**
+     * An alias for MONARCH_ENVELOPE.
+     */
+    public static final MediaType MONARCH = MONARCH_ENVELOPE;
+    /**
+     * An alias for PERSONAL_ENVELOPE.
+     */
+    public static final MediaType ENV_PERSONAL = PERSONAL_ENVELOPE;
+    /**
+     * An alias for PERSONAL_ENVELOPE.
+     */
+    public static final MediaType PERSONAL = PERSONAL_ENVELOPE;
     private static final int I_ISO_4A0 = 0;
     /**
      * The MediaType instance for ISO/DIN and JIS 4A0, 1682 x 2378 mm.
@@ -575,207 +866,111 @@ public final class PageAttributes implements Cloneable {
      * The MediaType instance for ISO/DIN and JIS A0, 841 x 1189 mm.
      */
     public static final MediaType ISO_A0 = new MediaType(I_ISO_A0);
-    /**
-     * An alias for ISO_A0.
-     */
-    public static final MediaType A0 = ISO_A0;
     private static final int I_ISO_A1 = 3;
     /**
      * The MediaType instance for ISO/DIN and JIS A1, 594 x 841 mm.
      */
     public static final MediaType ISO_A1 = new MediaType(I_ISO_A1);
-    /**
-     * An alias for ISO_A1.
-     */
-    public static final MediaType A1 = ISO_A1;
     private static final int I_ISO_A2 = 4;
     /**
      * The MediaType instance for ISO/DIN and JIS A2, 420 x 594 mm.
      */
     public static final MediaType ISO_A2 = new MediaType(I_ISO_A2);
-    /**
-     * An alias for ISO_A2.
-     */
-    public static final MediaType A2 = ISO_A2;
     private static final int I_ISO_A3 = 5;
     /**
      * The MediaType instance for ISO/DIN and JIS A3, 297 x 420 mm.
      */
     public static final MediaType ISO_A3 = new MediaType(I_ISO_A3);
-    /**
-     * An alias for ISO_A3.
-     */
-    public static final MediaType A3 = ISO_A3;
     private static final int I_ISO_A4 = 6;
     /**
      * The MediaType instance for ISO/DIN and JIS A4, 210 x 297 mm.
      */
     public static final MediaType ISO_A4 = new MediaType(I_ISO_A4);
-    /**
-     * An alias for ISO_A4.
-     */
-    public static final MediaType A4 = ISO_A4;
     private static final int I_ISO_A5 = 7;
     /**
      * The MediaType instance for ISO/DIN and JIS A5, 148 x 210 mm.
      */
     public static final MediaType ISO_A5 = new MediaType(I_ISO_A5);
-    /**
-     * An alias for ISO_A5.
-     */
-    public static final MediaType A5 = ISO_A5;
     private static final int I_ISO_A6 = 8;
     /**
      * The MediaType instance for ISO/DIN and JIS A6, 105 x 148 mm.
      */
     public static final MediaType ISO_A6 = new MediaType(I_ISO_A6);
-    /**
-     * An alias for ISO_A6.
-     */
-    public static final MediaType A6 = ISO_A6;
     private static final int I_ISO_A7 = 9;
     /**
      * The MediaType instance for ISO/DIN and JIS A7, 74 x 105 mm.
      */
     public static final MediaType ISO_A7 = new MediaType(I_ISO_A7);
-    /**
-     * An alias for ISO_A7.
-     */
-    public static final MediaType A7 = ISO_A7;
     private static final int I_ISO_A8 = 10;
     /**
      * The MediaType instance for ISO/DIN and JIS A8, 52 x 74 mm.
      */
     public static final MediaType ISO_A8 = new MediaType(I_ISO_A8);
-    /**
-     * An alias for ISO_A8.
-     */
-    public static final MediaType A8 = ISO_A8;
     private static final int I_ISO_A9 = 11;
     /**
      * The MediaType instance for ISO/DIN and JIS A9, 37 x 52 mm.
      */
     public static final MediaType ISO_A9 = new MediaType(I_ISO_A9);
-    /**
-     * An alias for ISO_A9.
-     */
-    public static final MediaType A9 = ISO_A9;
     private static final int I_ISO_A10 = 12;
     /**
      * The MediaType instance for ISO/DIN and JIS A10, 26 x 37 mm.
      */
     public static final MediaType ISO_A10 = new MediaType(I_ISO_A10);
-    /**
-     * An alias for ISO_A10.
-     */
-    public static final MediaType A10 = ISO_A10;
     private static final int I_ISO_B0 = 13;
     /**
      * The MediaType instance for ISO/DIN B0, 1000 x 1414 mm.
      */
     public static final MediaType ISO_B0 = new MediaType(I_ISO_B0);
-    /**
-     * An alias for ISO_B0.
-     */
-    public static final MediaType B0 = ISO_B0;
     private static final int I_ISO_B1 = 14;
     /**
      * The MediaType instance for ISO/DIN B1, 707 x 1000 mm.
      */
     public static final MediaType ISO_B1 = new MediaType(I_ISO_B1);
-    /**
-     * An alias for ISO_B1.
-     */
-    public static final MediaType B1 = ISO_B1;
     private static final int I_ISO_B2 = 15;
     /**
      * The MediaType instance for ISO/DIN B2, 500 x 707 mm.
      */
     public static final MediaType ISO_B2 = new MediaType(I_ISO_B2);
-    /**
-     * An alias for ISO_B2.
-     */
-    public static final MediaType B2 = ISO_B2;
     private static final int I_ISO_B3 = 16;
     /**
      * The MediaType instance for ISO/DIN B3, 353 x 500 mm.
      */
     public static final MediaType ISO_B3 = new MediaType(I_ISO_B3);
-    /**
-     * An alias for ISO_B3.
-     */
-    public static final MediaType B3 = ISO_B3;
     private static final int I_ISO_B4 = 17;
     /**
      * The MediaType instance for ISO/DIN B4, 250 x 353 mm.
      */
     public static final MediaType ISO_B4 = new MediaType(I_ISO_B4);
-    /**
-     * An alias for ISO_B4.
-     */
-    public static final MediaType B4 = ISO_B4;
-    /**
-     * An alias for ISO_B4.
-     */
-    public static final MediaType ISO_B4_ENVELOPE = ISO_B4;
     private static final int I_ISO_B5 = 18;
     /**
      * The MediaType instance for ISO/DIN B5, 176 x 250 mm.
      */
     public static final MediaType ISO_B5 = new MediaType(I_ISO_B5);
-    /**
-     * An alias for ISO_B5.
-     */
-    public static final MediaType B5 = ISO_B5;
-    /**
-     * An alias for ISO_B5.
-     */
-    public static final MediaType ISO_B5_ENVELOPE = ISO_B5;
     private static final int I_ISO_B6 = 19;
     /**
      * The MediaType instance for ISO/DIN B6, 125 x 176 mm.
      */
     public static final MediaType ISO_B6 = new MediaType(I_ISO_B6);
-    /**
-     * An alias for ISO_B6.
-     */
-    public static final MediaType B6 = ISO_B6;
     private static final int I_ISO_B7 = 20;
     /**
      * The MediaType instance for ISO/DIN B7, 88 x 125 mm.
      */
     public static final MediaType ISO_B7 = new MediaType(I_ISO_B7);
-    /**
-     * An alias for ISO_B7.
-     */
-    public static final MediaType B7 = ISO_B7;
     private static final int I_ISO_B8 = 21;
     /**
      * The MediaType instance for ISO/DIN B8, 62 x 88 mm.
      */
     public static final MediaType ISO_B8 = new MediaType(I_ISO_B8);
-    /**
-     * An alias for ISO_B8.
-     */
-    public static final MediaType B8 = ISO_B8;
     private static final int I_ISO_B9 = 22;
     /**
      * The MediaType instance for ISO/DIN B9, 44 x 62 mm.
      */
     public static final MediaType ISO_B9 = new MediaType(I_ISO_B9);
-    /**
-     * An alias for ISO_B9.
-     */
-    public static final MediaType B9 = ISO_B9;
     private static final int I_ISO_B10 = 23;
     /**
      * The MediaType instance for ISO/DIN B10, 31 x 44 mm.
      */
     public static final MediaType ISO_B10 = new MediaType(I_ISO_B10);
-    /**
-     * An alias for ISO_B10.
-     */
-    public static final MediaType B10 = ISO_B10;
     private static final int I_JIS_B0 = 24;
     /**
      * The MediaType instance for JIS B0, 1030 x 1456 mm.
@@ -836,153 +1031,61 @@ public final class PageAttributes implements Cloneable {
      * The MediaType instance for ISO/DIN C0, 917 x 1297 mm.
      */
     public static final MediaType ISO_C0 = new MediaType(I_ISO_C0);
-    /**
-     * An alias for ISO_C0.
-     */
-    public static final MediaType C0 = ISO_C0;
-    /**
-     * An alias for ISO_C0.
-     */
-    public static final MediaType ISO_C0_ENVELOPE = ISO_C0;
     private static final int I_ISO_C1 = 36;
     /**
      * The MediaType instance for ISO/DIN C1, 648 x 917 mm.
      */
     public static final MediaType ISO_C1 = new MediaType(I_ISO_C1);
-    /**
-     * An alias for ISO_C1.
-     */
-    public static final MediaType C1 = ISO_C1;
-    /**
-     * An alias for ISO_C1.
-     */
-    public static final MediaType ISO_C1_ENVELOPE = ISO_C1;
     private static final int I_ISO_C2 = 37;
     /**
      * The MediaType instance for ISO/DIN C2, 458 x 648 mm.
      */
     public static final MediaType ISO_C2 = new MediaType(I_ISO_C2);
-    /**
-     * An alias for ISO_C2.
-     */
-    public static final MediaType C2 = ISO_C2;
-    /**
-     * An alias for ISO_C2.
-     */
-    public static final MediaType ISO_C2_ENVELOPE = ISO_C2;
     private static final int I_ISO_C3 = 38;
     /**
      * The MediaType instance for ISO/DIN C3, 324 x 458 mm.
      */
     public static final MediaType ISO_C3 = new MediaType(I_ISO_C3);
-    /**
-     * An alias for ISO_C3.
-     */
-    public static final MediaType C3 = ISO_C3;
-    /**
-     * An alias for ISO_C3.
-     */
-    public static final MediaType ISO_C3_ENVELOPE = ISO_C3;
     private static final int I_ISO_C4 = 39;
     /**
      * The MediaType instance for ISO/DIN C4, 229 x 324 mm.
      */
     public static final MediaType ISO_C4 = new MediaType(I_ISO_C4);
-    /**
-     * An alias for ISO_C4.
-     */
-    public static final MediaType C4 = ISO_C4;
-    /**
-     * An alias for ISO_C4.
-     */
-    public static final MediaType ISO_C4_ENVELOPE = ISO_C4;
     private static final int I_ISO_C5 = 40;
     /**
      * The MediaType instance for ISO/DIN C5, 162 x 229 mm.
      */
     public static final MediaType ISO_C5 = new MediaType(I_ISO_C5);
-    /**
-     * An alias for ISO_C5.
-     */
-    public static final MediaType C5 = ISO_C5;
-    /**
-     * An alias for ISO_C5.
-     */
-    public static final MediaType ISO_C5_ENVELOPE = ISO_C5;
     private static final int I_ISO_C6 = 41;
     /**
      * The MediaType instance for ISO/DIN C6, 114 x 162 mm.
      */
     public static final MediaType ISO_C6 = new MediaType(I_ISO_C6);
-    /**
-     * An alias for ISO_C6.
-     */
-    public static final MediaType C6 = ISO_C6;
-    /**
-     * An alias for ISO_C6.
-     */
-    public static final MediaType ISO_C6_ENVELOPE = ISO_C6;
     private static final int I_ISO_C7 = 42;
     /**
      * The MediaType instance for ISO/DIN C7, 81 x 114 mm.
      */
     public static final MediaType ISO_C7 = new MediaType(I_ISO_C7);
-    /**
-     * An alias for ISO_C7.
-     */
-    public static final MediaType C7 = ISO_C7;
-    /**
-     * An alias for ISO_C7.
-     */
-    public static final MediaType ISO_C7_ENVELOPE = ISO_C7;
     private static final int I_ISO_C8 = 43;
     /**
      * The MediaType instance for ISO/DIN C8, 57 x 81 mm.
      */
     public static final MediaType ISO_C8 = new MediaType(I_ISO_C8);
-    /**
-     * An alias for ISO_C8.
-     */
-    public static final MediaType C8 = ISO_C8;
-    /**
-     * An alias for ISO_C8.
-     */
-    public static final MediaType ISO_C8_ENVELOPE = ISO_C8;
     private static final int I_ISO_C9 = 44;
     /**
      * The MediaType instance for ISO/DIN C9, 40 x 57 mm.
      */
     public static final MediaType ISO_C9 = new MediaType(I_ISO_C9);
-    /**
-     * An alias for ISO_C9.
-     */
-    public static final MediaType C9 = ISO_C9;
-    /**
-     * An alias for ISO_C9.
-     */
-    public static final MediaType ISO_C9_ENVELOPE = ISO_C9;
     private static final int I_ISO_C10 = 45;
     /**
      * The MediaType instance for ISO/DIN C10, 28 x 40 mm.
      */
     public static final MediaType ISO_C10 = new MediaType(I_ISO_C10);
-    /**
-     * An alias for ISO_C10.
-     */
-    public static final MediaType C10 = ISO_C10;
-    /**
-     * An alias for ISO_C10.
-     */
-    public static final MediaType ISO_C10_ENVELOPE = ISO_C10;
     private static final int I_ISO_DESIGNATED_LONG = 46;
     /**
      * The MediaType instance for ISO Designated Long, 110 x 220 mm.
      */
     public static final MediaType ISO_DESIGNATED_LONG = new MediaType(I_ISO_DESIGNATED_LONG);
-    /**
-     * An alias for ISO_DESIGNATED_LONG.
-     */
-    public static final MediaType ISO_DESIGNATED_LONG_ENVELOPE = ISO_DESIGNATED_LONG;
     private static final int I_EXECUTIVE = 47;
     /**
      * The MediaType instance for Executive, 7 1/4 x 10 1/2 in.
@@ -998,41 +1101,21 @@ public final class PageAttributes implements Cloneable {
      * The MediaType instance for Invoice, 5 1/2 x 8 1/2 in.
      */
     public static final MediaType INVOICE = new MediaType(I_INVOICE);
-    /**
-     * An alias for INVOICE.
-     */
-    public static final MediaType STATEMENT = INVOICE;
     private static final int I_LEDGER = 50;
     /**
      * The MediaType instance for Ledger, 11 x 17 in.
      */
     public static final MediaType LEDGER = new MediaType(I_LEDGER);
-    /**
-     * An alias for LEDGER.
-     */
-    public static final MediaType TABLOID = LEDGER;
     private static final int I_NA_LETTER = 51;
     /**
      * The MediaType instance for North American Letter, 8 1/2 x 11 in.
      */
     public static final MediaType NA_LETTER = new MediaType(I_NA_LETTER);
-    /**
-     * An alias for NA_LETTER.
-     */
-    public static final MediaType LETTER = NA_LETTER;
-    /**
-     * An alias for NA_LETTER.
-     */
-    public static final MediaType NOTE = NA_LETTER;
     private static final int I_NA_LEGAL = 52;
     /**
      * The MediaType instance for North American Legal, 8 1/2 x 14 in.
      */
     public static final MediaType NA_LEGAL = new MediaType(I_NA_LEGAL);
-    /**
-     * An alias for NA_LEGAL.
-     */
-    public static final MediaType LEGAL = NA_LEGAL;
     private static final int I_QUARTO = 53;
     /**
      * The MediaType instance for Quarto, 215 x 275 mm.
@@ -1068,167 +1151,87 @@ public final class PageAttributes implements Cloneable {
      * The MediaType instance for North American 10 x 15 in.
      */
     public static final MediaType NA_10X15_ENVELOPE = new MediaType(I_NA_10X15_ENVELOPE);
-    /**
-     * An alias for NA_10X15_ENVELOPE.
-     */
-    public static final MediaType ENV_10X15 = NA_10X15_ENVELOPE;
     private static final int I_NA_10X14_ENVELOPE = 60;
     /**
      * The MediaType instance for North American 10 x 14 in.
      */
     public static final MediaType NA_10X14_ENVELOPE = new MediaType(I_NA_10X14_ENVELOPE);
-    /**
-     * An alias for NA_10X14_ENVELOPE.
-     */
-    public static final MediaType ENV_10X14 = NA_10X14_ENVELOPE;
     private static final int I_NA_10X13_ENVELOPE = 61;
     /**
      * The MediaType instance for North American 10 x 13 in.
      */
     public static final MediaType NA_10X13_ENVELOPE = new MediaType(I_NA_10X13_ENVELOPE);
-    /**
-     * An alias for NA_10X13_ENVELOPE.
-     */
-    public static final MediaType ENV_10X13 = NA_10X13_ENVELOPE;
     private static final int I_NA_9X12_ENVELOPE = 62;
     /**
      * The MediaType instance for North American 9 x 12 in.
      */
     public static final MediaType NA_9X12_ENVELOPE = new MediaType(I_NA_9X12_ENVELOPE);
-    /**
-     * An alias for NA_9X12_ENVELOPE.
-     */
-    public static final MediaType ENV_9X12 = NA_9X12_ENVELOPE;
     private static final int I_NA_9X11_ENVELOPE = 63;
     /**
      * The MediaType instance for North American 9 x 11 in.
      */
     public static final MediaType NA_9X11_ENVELOPE = new MediaType(I_NA_9X11_ENVELOPE);
-    /**
-     * An alias for NA_9X11_ENVELOPE.
-     */
-    public static final MediaType ENV_9X11 = NA_9X11_ENVELOPE;
     private static final int I_NA_7X9_ENVELOPE = 64;
     /**
      * The MediaType instance for North American 7 x 9 in.
      */
     public static final MediaType NA_7X9_ENVELOPE = new MediaType(I_NA_7X9_ENVELOPE);
-    /**
-     * An alias for NA_7X9_ENVELOPE.
-     */
-    public static final MediaType ENV_7X9 = NA_7X9_ENVELOPE;
     private static final int I_NA_6X9_ENVELOPE = 65;
     /**
      * The MediaType instance for North American 6 x 9 in.
      */
     public static final MediaType NA_6X9_ENVELOPE = new MediaType(I_NA_6X9_ENVELOPE);
-    /**
-     * An alias for NA_6X9_ENVELOPE.
-     */
-    public static final MediaType ENV_6X9 = NA_6X9_ENVELOPE;
     private static final int I_NA_NUMBER_9_ENVELOPE = 66;
     /**
      * The MediaType instance for North American #9 Business Envelope,
      * 3 7/8 x 8 7/8 in.
      */
     public static final MediaType NA_NUMBER_9_ENVELOPE = new MediaType(I_NA_NUMBER_9_ENVELOPE);
-    /**
-     * An alias for NA_NUMBER_9_ENVELOPE.
-     */
-    public static final MediaType ENV_9 = NA_NUMBER_9_ENVELOPE;
     private static final int I_NA_NUMBER_10_ENVELOPE = 67;
     /**
      * The MediaType instance for North American #10 Business Envelope,
      * 4 1/8 x 9 1/2 in.
      */
     public static final MediaType NA_NUMBER_10_ENVELOPE = new MediaType(I_NA_NUMBER_10_ENVELOPE);
-    /**
-     * An alias for NA_NUMBER_10_ENVELOPE.
-     */
-    public static final MediaType ENV_10 = NA_NUMBER_10_ENVELOPE;
     private static final int I_NA_NUMBER_11_ENVELOPE = 68;
     /**
      * The MediaType instance for North American #11 Business Envelope,
      * 4 1/2 x 10 3/8 in.
      */
     public static final MediaType NA_NUMBER_11_ENVELOPE = new MediaType(I_NA_NUMBER_11_ENVELOPE);
-    /**
-     * An alias for NA_NUMBER_11_ENVELOPE.
-     */
-    public static final MediaType ENV_11 = NA_NUMBER_11_ENVELOPE;
     private static final int I_NA_NUMBER_12_ENVELOPE = 69;
     /**
      * The MediaType instance for North American #12 Business Envelope,
      * 4 3/4 x 11 in.
      */
     public static final MediaType NA_NUMBER_12_ENVELOPE = new MediaType(I_NA_NUMBER_12_ENVELOPE);
-    /**
-     * An alias for NA_NUMBER_12_ENVELOPE.
-     */
-    public static final MediaType ENV_12 = NA_NUMBER_12_ENVELOPE;
     private static final int I_NA_NUMBER_14_ENVELOPE = 70;
     /**
      * The MediaType instance for North American #14 Business Envelope,
      * 5 x 11 1/2 in.
      */
     public static final MediaType NA_NUMBER_14_ENVELOPE = new MediaType(I_NA_NUMBER_14_ENVELOPE);
-    /**
-     * An alias for NA_NUMBER_14_ENVELOPE.
-     */
-    public static final MediaType ENV_14 = NA_NUMBER_14_ENVELOPE;
     private static final int I_INVITE_ENVELOPE = 71;
     /**
      * The MediaType instance for Invitation Envelope, 220 x 220 mm.
      */
     public static final MediaType INVITE_ENVELOPE = new MediaType(I_INVITE_ENVELOPE);
-    /**
-     * An alias for INVITE_ENVELOPE.
-     */
-    public static final MediaType ENV_INVITE = INVITE_ENVELOPE;
-    /**
-     * An alias for INVITE_ENVELOPE.
-     */
-    public static final MediaType INVITE = INVITE_ENVELOPE;
     private static final int I_ITALY_ENVELOPE = 72;
     /**
      * The MediaType instance for Italy Envelope, 110 x 230 mm.
      */
     public static final MediaType ITALY_ENVELOPE = new MediaType(I_ITALY_ENVELOPE);
-    /**
-     * An alias for ITALY_ENVELOPE.
-     */
-    public static final MediaType ENV_ITALY = ITALY_ENVELOPE;
-    /**
-     * An alias for ITALY_ENVELOPE.
-     */
-    public static final MediaType ITALY = ITALY_ENVELOPE;
     private static final int I_MONARCH_ENVELOPE = 73;
     /**
      * The MediaType instance for Monarch Envelope, 3 7/8 x 7 1/2 in.
      */
     public static final MediaType MONARCH_ENVELOPE = new MediaType(I_MONARCH_ENVELOPE);
-    /**
-     * An alias for MONARCH_ENVELOPE.
-     */
-    public static final MediaType ENV_MONARCH = MONARCH_ENVELOPE;
-    /**
-     * An alias for MONARCH_ENVELOPE.
-     */
-    public static final MediaType MONARCH = MONARCH_ENVELOPE;
     private static final int I_PERSONAL_ENVELOPE = 74;
     /**
      * The MediaType instance for 6 3/4 envelope, 3 5/8 x 6 1/2 in.
      */
     public static final MediaType PERSONAL_ENVELOPE = new MediaType(I_PERSONAL_ENVELOPE);
-    /**
-     * An alias for PERSONAL_ENVELOPE.
-     */
-    public static final MediaType ENV_PERSONAL = PERSONAL_ENVELOPE;
-    /**
-     * An alias for PERSONAL_ENVELOPE.
-     */
-    public static final MediaType PERSONAL = PERSONAL_ENVELOPE;
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "iso-4a0", "iso-2a0", "iso-a0", "iso-a1", "iso-a2", "iso-a3", "iso-a4", "iso-a5", "iso-a6",
         "iso-a7", "iso-a8", "iso-a9", "iso-a10", "iso-b0", "iso-b1", "iso-b2", "iso-b3", "iso-b4",
         "iso-b5", "iso-b6", "iso-b7", "iso-b8", "iso-b9", "iso-b10", "jis-b0", "jis-b1", "jis-b2",
@@ -1267,7 +1270,7 @@ public final class PageAttributes implements Cloneable {
      */
     public static final OrientationRequestedType LANDSCAPE = new OrientationRequestedType(
         I_LANDSCAPE);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "portrait", "landscape"};
 
     private OrientationRequestedType(int type) {
@@ -1291,7 +1294,7 @@ public final class PageAttributes implements Cloneable {
      * The OriginType instance to use for specifying a printable origin.
      */
     public static final OriginType PRINTABLE = new OriginType(I_PRINTABLE);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "physical", "printable"};
 
     private OriginType(int type) {
@@ -1324,7 +1327,7 @@ public final class PageAttributes implements Cloneable {
      * quality.
      */
     public static final PrintQualityType DRAFT = new PrintQualityType(I_DRAFT);
-    private static final String NAMES[] = {
+    private static final String[] NAMES = {
         "high", "normal", "draft"};
 
     private PrintQualityType(int type) {

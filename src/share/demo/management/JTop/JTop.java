@@ -59,31 +59,24 @@
  * @author Mandy Chung
  */
 
-import static java.lang.management.ManagementFactory.*;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.io.IOException;
-import java.lang.management.*;
 import java.net.MalformedURLException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
-import javax.management.*;
-import javax.management.remote.*;
-import javax.swing.border.*;
-import javax.swing.table.*;
 
 /**
  * JTop is a JPanel to display thread's name, CPU time, and its state
@@ -91,11 +84,11 @@ import javax.swing.table.*;
  */
 public class JTop extends JPanel {
 
-  private static final long serialVersionUID = -1499762160973870696L;
   private final StatusBar statusBar;
+  private final MyTableModel tmodel;
   private MBeanServerConnection server;
   private ThreadMXBean tmbean;
-  private MyTableModel tmodel;
+
   public JTop() {
     super(new GridBagLayout());
 
@@ -153,7 +146,7 @@ public class JTop extends JPanel {
     }
 
     // Create the JTop Panel
-    final JTop jtop = new JTop();
+    JTop jtop = new JTop();
     // Set up the MBeanServerConnection to the target VM
     MBeanServerConnection server = connect(hostname, port);
     jtop.setMBeanServerConnection(server);
@@ -192,7 +185,7 @@ public class JTop extends JPanel {
     // Create an RMI connector client and connect it to
     // the RMI connector server
     String urlPath = "/jndi/rmi://" + hostname + ":" + port + "/jmxrmi";
-    MBeanServerConnection server = null;
+    MBeanServerConnection server;
     try {
       JMXServiceURL url = new JMXServiceURL("rmi", "", 0, urlPath);
       JMXConnector jmxc = JMXConnectorFactory.connect(url);
@@ -216,7 +209,7 @@ public class JTop extends JPanel {
    * this method should be invoked from the
    * event-dispatching thread.
    */
-  private static void createAndShowGUI(JPanel jtop) {
+  static void createAndShowGUI(JPanel jtop) {
     // Create and set up the window.
     JFrame frame = new JFrame("JTop");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -236,9 +229,9 @@ public class JTop extends JPanel {
   // Set the MBeanServerConnection object for communicating
   // with the target VM
   public void setMBeanServerConnection(MBeanServerConnection mbs) {
-    this.server = mbs;
+    server = mbs;
     try {
-      this.tmbean = newPlatformMXBeanProxy(server, THREAD_MXBEAN_NAME, ThreadMXBean.class);
+      tmbean = newPlatformMXBeanProxy(server, THREAD_MXBEAN_NAME, ThreadMXBean.class);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -258,7 +251,7 @@ public class JTop extends JPanel {
    * Get the thread list with CPU consumption and the ThreadInfo
    * for each thread sorted by the CPU time.
    */
-  private List<Map.Entry<Long, ThreadInfo>> getThreadList() {
+  List<Entry<Long, ThreadInfo>> getThreadList() {
     // Get all threads and their ThreadInfo objects
     // with no stack trace
     long[] tids = tmbean.getAllThreadIds();
@@ -270,14 +263,14 @@ public class JTop extends JPanel {
       long cpuTime = tmbean.getThreadCpuTime(tids[i]);
       // filter out threads that have been terminated
       if (cpuTime != -1 && tinfos[i] != null) {
-        map.put(new Long(cpuTime), tinfos[i]);
+        map.put(cpuTime, tinfos[i]);
       }
     }
 
     // build the thread list and sort it with CPU time
     // in decreasing order
-    Set<Map.Entry<Long, ThreadInfo>> set = map.entrySet();
-    List<Map.Entry<Long, ThreadInfo>> list = new ArrayList<Map.Entry<Long, ThreadInfo>>(set);
+    Set<Entry<Long, ThreadInfo>> set = map.entrySet();
+    List<Entry<Long, ThreadInfo>> list = new ArrayList<>(set);
     Collections.reverse(list);
     return list;
   }
@@ -288,7 +281,6 @@ public class JTop extends JPanel {
   }
 
   private static class StatusBar extends JPanel {
-    private static final long serialVersionUID = -6483392381797633018L;
     private final JLabel statusText;
 
     public StatusBar(boolean defaultVisible) {
@@ -312,11 +304,10 @@ public class JTop extends JPanel {
   }
 
   class MyTableModel extends AbstractTableModel {
-    private static final long serialVersionUID = -7877310288576779514L;
-    private String[] columnNames = {"ThreadName", "CPU(sec)", "State"};
+    private final String[] columnNames = {"ThreadName", "CPU(sec)", "State"};
     // List of all threads. The key of each entry is the CPU time
     // and its value is the ThreadInfo object with no stack trace.
-    private List<Map.Entry<Long, ThreadInfo>> threadList = Collections.emptyList();
+    private List<Entry<Long, ThreadInfo>> threadList = Collections.emptyList();
 
     public MyTableModel() {
     }
@@ -338,16 +329,16 @@ public class JTop extends JPanel {
 
     @Override
     public Object getValueAt(int row, int col) {
-      Map.Entry<Long, ThreadInfo> me = threadList.get(row);
+      Entry<Long, ThreadInfo> me = threadList.get(row);
       switch (col) {
         case 0:
           // Column 0 shows the thread name
           return me.getValue().getThreadName();
         case 1:
           // Column 1 shows the CPU usage
-          long ns = me.getKey().longValue();
+          long ns = me.getKey();
           double sec = ns / 1000000000;
-          return new Double(sec);
+          return sec;
         case 2:
           // Column 2 shows the thread state
           return me.getValue().getThreadState();
@@ -361,7 +352,7 @@ public class JTop extends JPanel {
       return getValueAt(0, c).getClass();
     }
 
-    void setThreadList(List<Map.Entry<Long, ThreadInfo>> list) {
+    void setThreadList(List<Entry<Long, ThreadInfo>> list) {
       threadList = list;
     }
   }
@@ -370,11 +361,9 @@ public class JTop extends JPanel {
    * Format Double with 4 fraction digits
    */
   class DoubleRenderer extends DefaultTableCellRenderer {
-    private static final long serialVersionUID = 1704639497162584382L;
     NumberFormat formatter;
 
     public DoubleRenderer() {
-      super();
       setHorizontalAlignment(JLabel.RIGHT);
     }
 
@@ -384,7 +373,7 @@ public class JTop extends JPanel {
         formatter = NumberFormat.getInstance();
         formatter.setMinimumFractionDigits(4);
       }
-      setText((value == null) ? "" : formatter.format(value));
+      setText(value == null ? "" : formatter.format(value));
     }
   }
 
@@ -397,8 +386,8 @@ public class JTop extends JPanel {
   // When the worker thread finishes, the event dispatcher
   // thread will invoke the done() method which will update
   // the UI.
-  class Worker extends SwingWorker<List<Map.Entry<Long, ThreadInfo>>, Object> {
-    private MyTableModel tmodel;
+  class Worker extends SwingWorker<List<Entry<Long, ThreadInfo>>, Object> {
+    private final MyTableModel tmodel;
 
     Worker(MyTableModel tmodel) {
       this.tmodel = tmodel;
@@ -406,7 +395,7 @@ public class JTop extends JPanel {
 
     // Get the current thread info and CPU time
     @Override
-    public List<Map.Entry<Long, ThreadInfo>> doInBackground() {
+    public List<Entry<Long, ThreadInfo>> doInBackground() {
       return getThreadList();
     }
 
@@ -419,8 +408,7 @@ public class JTop extends JPanel {
         tmodel.setThreadList(get());
         // refresh the table model
         tmodel.fireTableDataChanged();
-      } catch (InterruptedException e) {
-      } catch (ExecutionException e) {
+      } catch (InterruptedException | ExecutionException e) {
       }
     }
   }

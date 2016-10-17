@@ -21,11 +21,9 @@
  * questions.
  */
 
+import android.util.Log;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import java.io.*;
-import java.util.logging.*;
 import sun.awt.WindowIDProvider;
 import java.awt.dnd.*;
 import java.awt.datatransfer.*;
@@ -34,12 +32,12 @@ public abstract class TestXEmbedServer {
     // vertical position of server AND client windows
     private static final int VERTICAL_POSITION = 200;
 
-    private static final Logger log = Logger.getLogger("test.xembed");
+    private static final String TAG = "test.xembed";
     Frame f;
     Canvas client;
-    Button toFocus;
-    Button b_modal;
-    JButton b_close;
+    final Button toFocus;
+    final Button b_modal;
+    final JButton b_close;
     JDialog modal_d;
     JFrame dummy;
     Container clientCont;
@@ -56,6 +54,7 @@ public abstract class TestXEmbedServer {
 
         f = new Frame("Main frame");
         f.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     synchronized(TestXEmbedServer.this) {
                         TestXEmbedServer.this.notifyAll();
@@ -70,39 +69,44 @@ public abstract class TestXEmbedServer {
         Container bcont = new Container();
 
         toFocus = new Button("Click to focus server");
-        final TextField tf = new TextField(20);
+        TextField tf = new TextField(20);
         tf.setName("0");
         DragSource ds = new DragSource();
-        final DragSourceListener dsl = new DragSourceAdapter() {
+        DragSourceListener dsl = new DragSourceAdapter() {
+                @Override
                 public void dragDropEnd(DragSourceDropEvent dsde) {
                 }
             };
-        final DragGestureListener dgl = new DragGestureListener() {
+        DragGestureListener dgl = new DragGestureListener() {
+                @Override
                 public void dragGestureRecognized(DragGestureEvent dge) {
                     dge.startDrag(null, new StringSelection(tf.getText()), dsl);
                 }
             };
         ds.createDefaultDragGestureRecognizer(tf, DnDConstants.ACTION_COPY, dgl);
 
-        final DropTargetListener dtl = new DropTargetAdapter() {
+        DropTargetListener dtl = new DropTargetAdapter() {
+                @Override
                 public void drop(DropTargetDropEvent dtde) {
                     dtde.acceptDrop(DnDConstants.ACTION_COPY);
                     try {
-                        tf.setText(tf.getText() + (String)dtde.getTransferable().getTransferData(DataFlavor.stringFlavor));
+                        tf.setText(tf.getText() + dtde.getTransferable().getTransferData(DataFlavor.stringFlavor));
                     } catch (Exception e) {
                     }
                 }
             };
-        final DropTarget dt = new DropTarget(tf, dtl);
+        DropTarget dt = new DropTarget(tf, dtl);
 
         Button b_add = new Button("Add client");
         b_add.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     addClient();
                 }
             });
         Button b_remove = new Button("Remove client");
         b_remove.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (clientCont.getComponentCount() != 0) {
                         clientCont.remove(clientCont.getComponentCount()-1);
@@ -111,12 +115,14 @@ public abstract class TestXEmbedServer {
             });
         b_close = new JButton("Close modal dialog");
         b_close.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     modal_d.dispose();
                 }
             });
         b_modal = new Button("Show modal dialog");
         b_modal.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     modal_d = new JDialog(f, "Modal dialog", true);
                     modal_d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -135,6 +141,7 @@ public abstract class TestXEmbedServer {
         if (manual) {
             Button pass = new Button("Pass");
             pass.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         passed = true;
                         synchronized(TestXEmbedServer.this) {
@@ -145,6 +152,7 @@ public abstract class TestXEmbedServer {
             bcont.add(pass);
             Button fail = new Button("Fail");
             fail.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent e) {
                         passed = false;
                         synchronized(TestXEmbedServer.this) {
@@ -171,10 +179,13 @@ public abstract class TestXEmbedServer {
         f.setVisible(true);
     }
 
-    public abstract Process startClient(Rectangle bounds[], long window);
+    public abstract Process startClient(Rectangle[] bounds, long window);
 
     public void addClient() {
         client = new Canvas() {
+            private static final long serialVersionUID = 717998467350770071L;
+
+            @Override
                 public void paint(Graphics g) {
                     super.paint(g);
                 }
@@ -182,8 +193,8 @@ public abstract class TestXEmbedServer {
         client.setBackground(new Color(30, 220, 40));
         clientCont.add(client);
         clientCont.validate();
-        WindowIDProvider pid = (WindowIDProvider)client.getPeer();
-        log.fine("Added XEmbed server(Canvas) with X window ID " + pid.getWindow());
+        WindowIDProvider pid = (WindowIDProvider) client.getPeer();
+        Log.d(TAG, "Added XEmbed server(Canvas) with X window ID " + pid.getWindow());
         Rectangle toFocusBounds = toFocus.getBounds();
         toFocusBounds.setLocation(toFocus.getLocationOnScreen());
         f.validate();
@@ -212,15 +223,16 @@ public abstract class TestXEmbedServer {
 }
 
 class ClientWatcher extends Thread {
-    private Process clientProcess;
-    private Canvas client;
-    private Container parent;
+    private final Process clientProcess;
+    private final Canvas client;
+    private final Container parent;
     public ClientWatcher(Canvas client, Process proc, Container parent) {
         this.client = client;
-        this.clientProcess = proc;
+        clientProcess = proc;
         this.parent = parent;
     }
 
+    @Override
     public void run() {
         try {
             clientProcess.waitFor();

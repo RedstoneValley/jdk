@@ -39,9 +39,9 @@ import sun.java2d.SurfaceData;
  * from within the surface description data for clip rect
  */
 public class DrawRect extends GraphicsPrimitive {
-  public final static String methodSignature = "DrawRect(...)".toString();
+  public static final String methodSignature = "DrawRect(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected DrawRect(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -59,8 +59,11 @@ public class DrawRect extends GraphicsPrimitive {
   /**
    * All DrawRect implementors must have this invoker method
    */
-  public native void DrawRect(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int w, int h);
+  public void DrawRect(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int w, int h) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: use FillSpans or converter object?
@@ -68,23 +71,26 @@ public class DrawRect extends GraphicsPrimitive {
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawRect(this);
   }
 
   private static class TraceDrawRect extends DrawRect {
-    DrawRect target;
+    final DrawRect target;
 
     public TraceDrawRect(DrawRect target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawRect(SunGraphics2D sg2d, SurfaceData dest, int x1, int y1, int w, int h) {
       tracePrimitive(target);
       target.DrawRect(sg2d, dest, x1, y1, w, h);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

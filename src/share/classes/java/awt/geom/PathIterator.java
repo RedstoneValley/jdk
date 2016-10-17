@@ -25,10 +25,8 @@
 
 package java.awt.geom;
 
-import java.lang.annotation.Native;
-
 /**
- * The <code>PathIterator</code> interface provides the mechanism
+ * The {@code PathIterator} interface provides the mechanism
  * for objects that implement the {@link java.awt.Shape Shape}
  * interface to return the geometry of their boundary by allowing
  * a caller to retrieve the path of that boundary a segment at a
@@ -66,7 +64,7 @@ public interface PathIterator {
    * path if a ray drawn in any direction from that point to
    * infinity is crossed by path segments an odd number of times.
    */
-  @Native public static final int WIND_EVEN_ODD = 0;
+  @Native int WIND_EVEN_ODD = 0;
 
   /**
    * The winding rule constant for specifying a non-zero rule
@@ -77,27 +75,27 @@ public interface PathIterator {
    * of times in the counter-clockwise direction than the
    * clockwise direction.
    */
-  @Native public static final int WIND_NON_ZERO = 1;
+  @Native int WIND_NON_ZERO = 1;
 
   /**
    * The segment type constant for a point that specifies the
    * starting location for a new subpath.
    */
-  @Native public static final int SEG_MOVETO = 0;
+  @Native int SEG_MOVETO = 0;
 
   /**
    * The segment type constant for a point that specifies the
    * end point of a line to be drawn from the most recently
    * specified point.
    */
-  @Native public static final int SEG_LINETO = 1;
+  @Native int SEG_LINETO = 1;
 
   /**
    * The segment type constant for the pair of points that specify
    * a quadratic parametric curve to be drawn from the most recently
    * specified point.
    * The curve is interpolated by solving the parametric control
-   * equation in the range <code>(t=[0..1])</code> using
+   * equation in the range {@code (t=[0..1])} using
    * the most recently specified (current) point (CP),
    * the first control point (P1),
    * and the final interpolated control point (P2).
@@ -112,14 +110,14 @@ public interface PathIterator {
    *               = n! / (m! * (n-m)!)
    * </pre>
    */
-  @Native public static final int SEG_QUADTO = 2;
+  @Native int SEG_QUADTO = 2;
 
   /**
    * The segment type constant for the set of 3 points that specify
    * a cubic parametric curve to be drawn from the most recently
    * specified point.
    * The curve is interpolated by solving the parametric control
-   * equation in the range <code>(t=[0..1])</code> using
+   * equation in the range {@code (t=[0..1])} using
    * the most recently specified (current) point (CP),
    * the first control point (P1),
    * the second control point (P2),
@@ -136,14 +134,14 @@ public interface PathIterator {
    * </pre>
    * This form of curve is commonly known as a B&eacute;zier curve.
    */
-  @Native public static final int SEG_CUBICTO = 3;
+  @Native int SEG_CUBICTO = 3;
 
   /**
    * The segment type constant that specifies that
    * the preceding subpath should be closed by appending a line segment
    * back to the point corresponding to the most recent SEG_MOVETO.
    */
-  @Native public static final int SEG_CLOSE = 4;
+  @Native int SEG_CLOSE = 4;
 
   /**
    * Returns the winding rule for determining the interior of the
@@ -153,22 +151,22 @@ public interface PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
-  public int getWindingRule();
+  int getWindingRule();
 
   /**
    * Tests if the iteration is complete.
    *
-   * @return <code>true</code> if all the segments have
-   * been read; <code>false</code> otherwise.
+   * @return {@code true} if all the segments have
+   * been read; {@code false} otherwise.
    */
-  public boolean isDone();
+  boolean isDone();
 
   /**
    * Moves the iterator to the next segment of the path forwards
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
-  public void next();
+  void next();
 
   /**
    * Returns the coordinates and type of the current path segment in
@@ -192,7 +190,7 @@ public interface PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
-  public int currentSegment(float[] coords);
+  int currentSegment(float[] coords);
 
   /**
    * Returns the coordinates and type of the current path segment in
@@ -216,5 +214,5 @@ public interface PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
-  public int currentSegment(double[] coords);
+  int currentSegment(double[] coords);
 }

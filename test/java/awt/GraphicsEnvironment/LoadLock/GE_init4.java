@@ -30,8 +30,11 @@
 
 import java.awt.Toolkit;
 
-public class GE_init4 {
-    public static void main(String[] args) {
+public final class GE_init4 {
+  private GE_init4() {
+  }
+
+  public static void main(String[] args) {
         Toolkit.getDefaultToolkit();
     }
 }

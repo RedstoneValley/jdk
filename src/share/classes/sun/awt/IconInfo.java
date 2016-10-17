@@ -78,23 +78,22 @@ public class IconInfo {
   private int rawLength;
 
   public IconInfo(int[] intIconData) {
-    this.intIconData = (null == intIconData) ? null
-        : Arrays.copyOf(intIconData, intIconData.length);
-    this.width = intIconData[0];
-    this.height = intIconData[1];
-    this.scaledWidth = width;
-    this.scaledHeight = height;
-    this.rawLength = width * height + 2;
+    this.intIconData = null == intIconData ? null : Arrays.copyOf(intIconData, intIconData.length);
+    width = intIconData[0];
+    height = intIconData[1];
+    scaledWidth = width;
+    scaledHeight = height;
+    rawLength = width * height + 2;
   }
 
   public IconInfo(long[] longIconData) {
-    this.longIconData = (null == longIconData) ? null
+    this.longIconData = null == longIconData ? null
         : Arrays.copyOf(longIconData, longIconData.length);
-    this.width = (int) longIconData[0];
-    this.height = (int) longIconData[1];
-    this.scaledWidth = width;
-    this.scaledHeight = height;
-    this.rawLength = width * height + 2;
+    width = (int) longIconData[0];
+    height = (int) longIconData[1];
+    scaledWidth = width;
+    scaledHeight = height;
+    rawLength = width * height + 2;
   }
 
   public IconInfo(Image image) {
@@ -102,15 +101,15 @@ public class IconInfo {
     if (image instanceof ToolkitImage) {
       ImageRepresentation ir = ((ToolkitImage) image).getImageRep();
       ir.reconstruct(ImageObserver.ALLBITS);
-      this.width = ir.getWidth();
-      this.height = ir.getHeight();
+      width = ir.getWidth();
+      height = ir.getHeight();
     } else {
-      this.width = image.getWidth(null);
-      this.height = image.getHeight(null);
+      width = image.getWidth(null);
+      height = image.getHeight(null);
     }
-    this.scaledWidth = width;
-    this.scaledHeight = height;
-    this.rawLength = width * height + 2;
+    scaledWidth = width;
+    scaledHeight = height;
+    rawLength = width * height + 2;
   }
 
   private static int[] longArrayToIntArray(long[] longData) {
@@ -127,7 +126,7 @@ public class IconInfo {
   private static long[] intArrayToLongArray(int[] intData) {
     long[] longData = new long[intData.length];
     for (int i = 0; i < intData.length; i++) {
-      longData[i] = (int) intData[i];
+      longData[i] = intData[i];
     }
     return longData;
   }
@@ -150,8 +149,7 @@ public class IconInfo {
         raw[0],
         new int[]{0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000},
         null);
-    BufferedImage im = new BufferedImage(cm, raster, false, null);
-    return im;
+    return new BufferedImage(cm, raster, false, null);
   }
 
   /*
@@ -195,13 +193,13 @@ public class IconInfo {
    * It sets size of scaled icon.
    */
   public void setScaledSize(int width, int height) {
-    this.scaledWidth = width;
-    this.scaledHeight = height;
-    this.rawLength = width * height + 2;
+    scaledWidth = width;
+    scaledHeight = height;
+    rawLength = width * height + 2;
   }
 
   public boolean isValid() {
-    return (width > 0 && height > 0);
+    return width > 0 && height > 0;
   }
 
   public int getWidth() {
@@ -222,37 +220,37 @@ public class IconInfo {
   }
 
   public int[] getIntData() {
-    if (this.intIconData == null) {
-      if (this.longIconData != null) {
-        this.intIconData = longArrayToIntArray(longIconData);
-      } else if (this.image != null) {
-        this.intIconData = imageToIntArray(this.image, scaledWidth, scaledHeight);
+    if (intIconData == null) {
+      if (longIconData != null) {
+        intIconData = longArrayToIntArray(longIconData);
+      } else if (image != null) {
+        intIconData = imageToIntArray(image, scaledWidth, scaledHeight);
       }
     }
-    return this.intIconData;
+    return intIconData;
   }
 
   public long[] getLongData() {
-    if (this.longIconData == null) {
-      if (this.intIconData != null) {
-        this.longIconData = intArrayToLongArray(this.intIconData);
-      } else if (this.image != null) {
-        int[] intIconData = imageToIntArray(this.image, scaledWidth, scaledHeight);
-        this.longIconData = intArrayToLongArray(intIconData);
+    if (longIconData == null) {
+      if (intIconData != null) {
+        longIconData = intArrayToLongArray(intIconData);
+      } else if (image != null) {
+        int[] intIconData = imageToIntArray(image, scaledWidth, scaledHeight);
+        longIconData = intArrayToLongArray(intIconData);
       }
     }
-    return this.longIconData;
+    return longIconData;
   }
 
   public Image getImage() {
-    if (this.image == null) {
-      if (this.intIconData != null) {
-        this.image = intArrayToImage(this.intIconData);
-      } else if (this.longIconData != null) {
-        int[] intIconData = longArrayToIntArray(this.longIconData);
-        this.image = intArrayToImage(intIconData);
+    if (image == null) {
+      if (intIconData != null) {
+        image = intArrayToImage(intIconData);
+      } else if (longIconData != null) {
+        int[] intIconData = longArrayToIntArray(longIconData);
+        image = intArrayToImage(intIconData);
       }
     }
-    return this.image;
+    return image;
   }
 }

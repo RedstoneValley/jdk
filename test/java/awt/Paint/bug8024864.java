@@ -30,12 +30,9 @@
  * @run main bug8024864
  */
 
-import javax.swing.*;
 import java.awt.*;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class bug8024864
+public final class bug8024864
 {
     private static final int REPEATS = 30;
 

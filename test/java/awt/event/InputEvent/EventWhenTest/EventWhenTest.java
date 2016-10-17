@@ -36,22 +36,22 @@ import java.awt.event.MouseEvent;
  * @author Anton Nashatyrev
  * @run main EventWhenTest
  */
-public class EventWhenTest {
+public final class EventWhenTest {
 
-    private static volatile int eventsCount = 0;
-    private static volatile boolean failed = false;
+    static volatile int eventsCount;
+    static volatile boolean failed;
 
     static {
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-            long lastWhen = 0;
+            long lastWhen;
 
             @Override
             public void eventDispatched(AWTEvent event) {
                 long curWhen;
                 if (event instanceof KeyEvent) {
-                    curWhen = ((KeyEvent) event).getWhen();
+                    curWhen = ((InputEvent) event).getWhen();
                 } else if (event instanceof MouseEvent) {
-                    curWhen = ((MouseEvent) event).getWhen();
+                    curWhen = ((InputEvent) event).getWhen();
                 } else {
                     return;
                 }
@@ -67,6 +67,9 @@ public class EventWhenTest {
                 }
             }
         }, AWTEvent.KEY_EVENT_MASK | AWTEvent.MOUSE_EVENT_MASK);
+    }
+
+    private EventWhenTest() {
     }
 
     public static void main(String[] args) throws Exception {

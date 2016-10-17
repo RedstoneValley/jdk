@@ -49,47 +49,32 @@ public class MTGraphicsAccessTest {
     volatile int stillRunning;
     volatile int numexceptions;
 
-    Graphics2D sharedGraphics;
-    BufferedImage sharedBI =
+    final Graphics2D sharedGraphics;
+    final BufferedImage sharedBI =
             new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
 
-    static final Paint colors[] = {
-        Color.red,
-        new Color(0x7f, 0xff, 0x00, 0x7f),
-        new GradientPaint(0,  0, Color.red,
-                          50, 50, new Color(0x7f, 0xff, 0x00, 0x7f)),
-    };
-    static final Font fonts[] = {
-        new Font("Dialog", Font.PLAIN, 12),
-        new Font("Dialog", Font.BOLD, 16),
-        new Font("Dialog", Font.ITALIC, 18),
-    };
-    static final AlphaComposite comps[] = {
-        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f),
-        AlphaComposite.Src,
-        AlphaComposite.Xor,
-        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f),
-        null,
-    };
-    static final Stroke strokes[] = {
-        new BasicStroke(),
-        new BasicStroke(0.0f),
-        new BasicStroke(2.0f),
-        new BasicStroke(2.0f, BasicStroke.CAP_ROUND,
-                        BasicStroke.JOIN_BEVEL),
-        new BasicStroke(5.0f, BasicStroke.CAP_SQUARE,
-                        BasicStroke.JOIN_ROUND),
-        new BasicStroke(0.0f, BasicStroke.CAP_ROUND,
-                        BasicStroke.JOIN_ROUND, 0,
-                        new float[]{0,6,0,6}, 0),
-    };
-    static final AffineTransform transforms[] = {
-        new AffineTransform(),
-        AffineTransform.getRotateInstance(10.0),
-        AffineTransform.getShearInstance(10.0, 4.0),
-        AffineTransform.getScaleInstance(1.1, 1.2),
-        AffineTransform.getScaleInstance(3.0, 2.0),
-    };
+    static final Paint[] colors = {
+        Color.red, new Color(0x7f, 0xff, 0x00, 0x7f),
+        new GradientPaint(0, 0, Color.red, 50, 50, new Color(0x7f, 0xff, 0x00, 0x7f)),};
+    static final Font[] fonts = {
+        new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12), new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 16),
+        new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.ITALIC, 18),};
+    static final AlphaComposite[] comps = {
+        AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f), AlphaComposite.Src,
+        AlphaComposite.Xor, AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f), null,};
+    static final Stroke[] strokes = {
+        new BasicStroke(), new BasicStroke(0.0f), new BasicStroke(2.0f),
+        new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL),
+        new BasicStroke(5.0f, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND), new BasicStroke(0.0f,
+        BasicStroke.CAP_ROUND,
+        BasicStroke.JOIN_ROUND,
+        0,
+        new float[]{0, 6, 0, 6},
+        0),};
+    static final AffineTransform[] transforms = {
+        new AffineTransform(), AffineTransform.getRotateInstance(10.0),
+        AffineTransform.getShearInstance(10.0, 4.0), AffineTransform.getScaleInstance(1.1, 1.2),
+        AffineTransform.getScaleInstance(3.0, 2.0),};
 
     public MTGraphicsAccessTest() {
         BufferedImage bi =
@@ -100,32 +85,33 @@ public class MTGraphicsAccessTest {
         numexceptions = 0;
 
         for (int i = 0; i < (standaloneMode ? stateChangers.length : 3); i++) {
-            (new TesterThread(stateChangers[i])).start();
+            new TesterThread(stateChangers[i]).start();
         }
         for (int i = 0; i < (standaloneMode ? renderTests.length : 5); i++) {
-            (new TesterThread(renderTests[i])).start();
+            new TesterThread(renderTests[i]).start();
         }
 
         mysleep(testRunTime);
         done = true;
-        while (stillRunning > 0) { mysleep(500); }
+        while (stillRunning > 0) {
+            mysleep(500); }
 
         if (numexceptions == 0) {
             System.err.println("Test passed");
         } else if (!allowExceptions) {
             throw new RuntimeException("Test failed with "+
-                                       numexceptions+" exceptions");
+                numexceptions +" exceptions");
         } else {
             System.err.println("Test finished with "+
-                               numexceptions+" exceptions");
+                numexceptions +" exceptions");
         }
     }
 
-    private void mysleep(long time) {
+    void mysleep(long time) {
         try {
             // add +/-5ms variance to increase randomness
             Thread.sleep(time + (long)(5 - Math.random()*10));
-        } catch (InterruptedException e) {};
+        } catch (InterruptedException e) {}
     }
 
     public static void usage(String message) {
@@ -153,12 +139,10 @@ public class MTGraphicsAccessTest {
                 allowExceptions = false;
             } else if ("-time".equals(args[i])) {
                 try {
-                    String time = args[++i];
-                    if ("forever".equals(time)) {
-                        testRunTime = (Long.MAX_VALUE - 20)/1000;
-                    } else {
-                        testRunTime = 1000*Integer.parseInt(time);
-                    }
+                    ++i;
+                    String time = args[i];
+                    testRunTime = "forever".equals(time) ? (Long.MAX_VALUE - 20) / 1000
+                        : 1000 * Integer.parseInt(time);
                     testRunSet = true;
                 } catch (NumberFormatException e) {
                     usage("Can't parse number of seconds: " + args[i]);
@@ -184,13 +168,14 @@ public class MTGraphicsAccessTest {
     }
 
     class TesterThread extends Thread {
-        Runnable testRunnable;
+        final Runnable testRunnable;
 
         public TesterThread(Runnable testRunnable) {
             stillRunning++;
             this.testRunnable = testRunnable;
         }
 
+        @Override
         public void run() {
             try {
                 while (!done) {
@@ -208,119 +193,127 @@ public class MTGraphicsAccessTest {
         }
     }
 
-    final Runnable stateChangers[] = {
+    final Runnable[] stateChangers = {
         new Runnable() {
+            @Override
             public void run() {
                 sharedGraphics.setClip(10, 10, 30, 30);
                 mysleep(10);
             }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.setClip(10, 10, 30, 30);
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            int c = 0;
-            public void run() {
-                sharedGraphics.setPaint(colors[c++ % colors.length]);
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            boolean AA = false;
-            public void run() {
-                if (AA) {
-                    sharedGraphics.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_ON);
-                } else {
-                    sharedGraphics.setRenderingHint(
-                        RenderingHints.KEY_ANTIALIASING,
-                        RenderingHints.VALUE_ANTIALIAS_OFF);
-                }
-                AA = !AA;
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            int t = 0;
-            public void run() {
-                sharedGraphics.setTransform(
-                    transforms[t++ % transforms.length]);
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            int c = 0;
-            public void run() {
-                AlphaComposite comp = comps[c++ % comps.length];
-                if (comp == null) {
-                    sharedGraphics.setXORMode(Color.green);
-                } else {
-                    sharedGraphics.setComposite(comp);
-                }
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            int s = 0;
-            public void run() {
-                sharedGraphics.setStroke(strokes[s++ % strokes.length]);
-                mysleep(10);
-            }
-        },
-        new Runnable() {
-            int f = 0;
-            public void run() {
-                sharedGraphics.setFont(fonts[f++ % fonts.length]);
-                mysleep(10);
-            }
-        },
-    };
+        }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.setClip(10, 10, 30, 30);
+            mysleep(10);
+        }
+    }, new Runnable() {
+        int c;
 
-    final Runnable renderTests[] = {
+        @Override
+        public void run() {
+            sharedGraphics.setPaint(colors[c % colors.length]);
+            c++;
+            mysleep(10);
+        }
+    }, new Runnable() {
+        boolean AA;
+
+        @Override
+        public void run() {
+            if (AA) {
+                sharedGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints
+                    .VALUE_ANTIALIAS_ON);
+            } else {
+                sharedGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            }
+            AA = !AA;
+            mysleep(10);
+        }
+    }, new Runnable() {
+        int t;
+
+        @Override
+        public void run() {
+            sharedGraphics.setTransform(transforms[t % transforms.length]);
+            t++;
+            mysleep(10);
+        }
+    }, new Runnable() {
+        int c;
+
+        @Override
+        public void run() {
+            AlphaComposite comp = comps[c % comps.length];
+            c++;
+            if (comp == null) {
+                sharedGraphics.setXORMode(Color.green);
+            } else {
+                sharedGraphics.setComposite(comp);
+            }
+            mysleep(10);
+        }
+    }, new Runnable() {
+        int s;
+
+        @Override
+        public void run() {
+            sharedGraphics.setStroke(strokes[s % strokes.length]);
+            s++;
+            mysleep(10);
+        }
+    }, new Runnable() {
+        int f;
+
+        @Override
+        public void run() {
+            sharedGraphics.setFont(fonts[f % fonts.length]);
+            f++;
+            mysleep(10);
+        }
+    },};
+
+    final Runnable[] renderTests = {
         new Runnable() {
+            @Override
             public void run() {
                 sharedGraphics.drawLine(10, 10, 30, 30);
             }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawLine(10, 10, 30, 30);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawRect(10, 10, 30, 30);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.fillRect(10, 10, 30, 30);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawString("Stuff", 10, 10);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.draw3DRect(10, 10, 30, 30, true);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawImage(sharedBI, 10, 10, null);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.fill3DRect(10, 10, 30, 30, false);
-            }
-        },
+        }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawLine(10, 10, 30, 30);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawRect(10, 10, 30, 30);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.fillRect(10, 10, 30, 30);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawString("Stuff", 10, 10);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.draw3DRect(10, 10, 30, 30, true);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawImage(sharedBI, 10, 10, null);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.fill3DRect(10, 10, 30, 30, false);
+        }
+    },
         // REMIND: copyArea doesn't work when transform is set..
         //          new Runnable() {
         //              public void run() {
@@ -328,34 +321,34 @@ public class MTGraphicsAccessTest {
         //              }
         //          },
         new Runnable() {
+            @Override
             public void run() {
                 sharedGraphics.drawRoundRect(10, 10, 30, 30, 20, 20);
             }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.fillRoundRect(10, 10, 30, 30, 20, 20);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawArc(10, 10, 30, 30, 0, 90);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.fillArc(10, 10, 30, 30, 0, 90);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.drawOval(10, 10, 30, 30);
-            }
-        },
-        new Runnable() {
-            public void run() {
-                sharedGraphics.fillOval(10, 10, 30, 30);
-            }
+        }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.fillRoundRect(10, 10, 30, 30, 20, 20);
         }
-    };
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawArc(10, 10, 30, 30, 0, 90);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.fillArc(10, 10, 30, 30, 0, 90);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.drawOval(10, 10, 30, 30);
+        }
+    }, new Runnable() {
+        @Override
+        public void run() {
+            sharedGraphics.fillOval(10, 10, 30, 30);
+        }
+    }};
 }

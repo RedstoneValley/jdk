@@ -32,11 +32,6 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
-import java.applet.Applet;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
 
 public class CloseDialogActivateOwnerTest extends Applet {
     Robot robot;
@@ -52,36 +47,39 @@ public class CloseDialogActivateOwnerTest extends Applet {
     }
 
     public void start() {
-        final Frame frame = new Frame("Owner Frame");
-        final Dialog dialog = new Dialog(frame, "Owned Dialog");
+        Frame frame = new Frame("Owner Frame");
+        Dialog dialog = new Dialog(frame, "Owned Dialog");
 
         frame.setSize(100, 100);
         dialog.setSize(100, 100);
 
         // Show the owner. Check that it's focused.
         if (!Util.trackWindowGainedFocus(frame, new Runnable() {
+                @Override
                 public void run() {
                     frame.setVisible(true);
                 }
             }, 2000, false))
         {
-            throw new TestErrorException("the owner frame hasn't been activated on show");
+            throw new TestError("the owner frame hasn't been activated on show");
         }
 
         // Show the owned dialog. Check that it's focused.
         if (!Util.trackWindowGainedFocus(dialog, new Runnable() {
+                @Override
                 public void run() {
                     dialog.setVisible(true);
                 }
             }, 2000, true))
         {
-            throw new TestErrorException("the owned dialog hasn't been activated on show");
+            throw new TestError("the owned dialog hasn't been activated on show");
         }
 
         robot.delay(2000); // wait for the warning icon is shown
 
         // Close the dialog. Check that the owner is activated.
         if (!Util.trackWindowGainedFocus(frame, new Runnable() {
+                @Override
                 public void run() {
                     dialog.dispose();
                 }
@@ -98,6 +96,8 @@ public class CloseDialogActivateOwnerTest extends Applet {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -106,8 +106,10 @@ class TestFailedException extends RuntimeException {
 /**
  * Thrown when an error not related to the behavior being verified is encountered.
  */
-class TestErrorException extends Error {
-    TestErrorException(String msg) {
+class TestError extends Error {
+    private static final long serialVersionUID = 1468298762082514728L;
+
+    TestError(String msg) {
         super("Unexpected error: " + msg);
     }
 }

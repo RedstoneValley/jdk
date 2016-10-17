@@ -30,15 +30,15 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
 import java.io.*;
-
+import java.util.List;
 
 class DnDTarget extends Panel implements DropTargetListener {
+    private static final long serialVersionUID = -2436032913676671900L;
     //private int dragOperation = DnDConstants.ACTION_COPY | DnDConstants.ACTION_MOVE;
-    Color bgColor;
-    Color htColor;
+    final Color bgColor;
+    final Color htColor;
 
     DnDTarget(Color bgColor, Color htColor) {
-        super();
         setLayout(new FlowLayout());
         this.bgColor = bgColor;
         this.htColor = htColor;
@@ -56,6 +56,7 @@ class DnDTarget extends Panel implements DropTargetListener {
         return false;
     }
 
+    @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         if(check(dtde)){
             setBackground(htColor);
@@ -63,14 +64,17 @@ class DnDTarget extends Panel implements DropTargetListener {
         }
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent dtde) {
         check(dtde);
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         check(dtde);
     }
 
+    @Override
     public void dragExit(DropTargetEvent e) {
         setBackground(bgColor);
         repaint();
@@ -80,6 +84,7 @@ class DnDTarget extends Panel implements DropTargetListener {
         System.out.println("[Target] dragScroll");
     }
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
         System.out.println("[Target] drop");
         boolean success = false;
@@ -88,7 +93,7 @@ class DnDTarget extends Panel implements DropTargetListener {
             System.out.println("[Target] DROP OK!");
             try {
                 Transferable transfer = dtde.getTransferable();
-                java.util.List<File> fl = (java.util.List<File>)transfer.getTransferData(DataFlavor.javaFileListFlavor);
+                List<File> fl = (List<File>)transfer.getTransferData(DataFlavor.javaFileListFlavor);
                 for(File f : fl){
                     add(new Button(f.getCanonicalPath()));
                     System.out.println("[Target] drop file:" + f.getCanonicalPath());

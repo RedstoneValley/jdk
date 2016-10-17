@@ -31,12 +31,12 @@ import java.awt.geom.Rectangle2D;
 
 /**
  * This interface describes single-input/single-output
- * operations performed on <CODE>BufferedImage</CODE> objects.
- * It is implemented by <CODE>AffineTransformOp</CODE>,
- * <CODE>ConvolveOp</CODE>, <CODE>ColorConvertOp</CODE>, <CODE>RescaleOp</CODE>,
- * and <CODE>LookupOp</CODE>.  These objects can be passed into
- * a <CODE>BufferedImageFilter</CODE> to operate on a
- * <CODE>BufferedImage</CODE> in the
+ * operations performed on {@code BufferedImage} objects.
+ * It is implemented by {@code AffineTransformOp},
+ * {@code ConvolveOp}, {@code ColorConvertOp}, {@code RescaleOp},
+ * and {@code LookupOp}.  These objects can be passed into
+ * a {@code BufferedImageFilter} to operate on a
+ * {@code BufferedImage} in the
  * ImageProducer-ImageFilter-ImageConsumer paradigm.
  * <p>
  * Classes that implement this
@@ -61,73 +61,73 @@ import java.awt.geom.Rectangle2D;
 public interface BufferedImageOp {
   /**
    * Performs a single-input/single-output operation on a
-   * <CODE>BufferedImage</CODE>.
+   * {@code BufferedImage}.
    * If the color models for the two images do not match, a color
    * conversion into the destination color model is performed.
    * If the destination image is null,
-   * a <CODE>BufferedImage</CODE> with an appropriate <CODE>ColorModel</CODE>
+   * a {@code BufferedImage} with an appropriate {@code ColorModel}
    * is created.
    * <p>
-   * An <CODE>IllegalArgumentException</CODE> may be thrown if the source
+   * An {@code IllegalArgumentException} may be thrown if the source
    * and/or destination image is incompatible with the types of images       $
    * allowed by the class implementing this filter.
    *
-   * @param src  The <CODE>BufferedImage</CODE> to be filtered
-   * @param dest The <CODE>BufferedImage</CODE> in which to store the results$
-   * @return The filtered <CODE>BufferedImage</CODE>.
+   * @param src  The {@code BufferedImage} to be filtered
+   * @param dest The {@code BufferedImage} in which to store the results$
+   * @return The filtered {@code BufferedImage}.
    * @throws IllegalArgumentException If the source and/or destination
    *                                  image is not compatible with the types of images allowed
    *                                  by the class
    *                                  implementing this filter.
    */
-  public BufferedImage filter(BufferedImage src, BufferedImage dest);
+  BufferedImage filter(BufferedImage src, BufferedImage dest);
 
   /**
    * Returns the bounding box of the filtered destination image.
-   * An <CODE>IllegalArgumentException</CODE> may be thrown if the source
+   * An {@code IllegalArgumentException} may be thrown if the source
    * image is incompatible with the types of images allowed
    * by the class implementing this filter.
    *
-   * @param src The <CODE>BufferedImage</CODE> to be filtered
-   * @return The <CODE>Rectangle2D</CODE> representing the destination
+   * @param src The {@code BufferedImage} to be filtered
+   * @return The {@code Rectangle2D} representing the destination
    * image's bounding box.
    */
-  public Rectangle2D getBounds2D(BufferedImage src);
+  Rectangle2D getBounds2D(BufferedImage src);
 
   /**
    * Creates a zeroed destination image with the correct size and number of
    * bands.
-   * An <CODE>IllegalArgumentException</CODE> may be thrown if the source
+   * An {@code IllegalArgumentException} may be thrown if the source
    * image is incompatible with the types of images allowed
    * by the class implementing this filter.
    *
-   * @param src    The <CODE>BufferedImage</CODE> to be filtered
-   * @param destCM <CODE>ColorModel</CODE> of the destination.  If null,
-   *               the <CODE>ColorModel</CODE> of the source is used.
+   * @param src    The {@code BufferedImage} to be filtered
+   * @param destCM {@code ColorModel} of the destination.  If null,
+   *               the {@code ColorModel} of the source is used.
    * @return The zeroed destination image.
    */
-  public BufferedImage createCompatibleDestImage(
+  BufferedImage createCompatibleDestImage(
       BufferedImage src, ColorModel destCM);
 
   /**
    * Returns the location of the corresponding destination point given a
-   * point in the source image.  If <CODE>dstPt</CODE> is specified, it
+   * point in the source image.  If {@code dstPt} is specified, it
    * is used to hold the return value.
    *
-   * @param srcPt the <code>Point2D</code> that represents the point in
+   * @param srcPt the {@code Point2D} that represents the point in
    *              the source image
-   * @param dstPt The <CODE>Point2D</CODE> in which to store the result
-   * @return The <CODE>Point2D</CODE> in the destination image that
+   * @param dstPt The {@code Point2D} in which to store the result
+   * @return The {@code Point2D} in the destination image that
    * corresponds to the specified point in the source image.
    */
-  public Point2D getPoint2D(Point2D srcPt, Point2D dstPt);
+  Point2D getPoint2D(Point2D srcPt, Point2D dstPt);
 
   /**
    * Returns the rendering hints for this operation.
    *
-   * @return The <CODE>RenderingHints</CODE> object for this
-   * <CODE>BufferedImageOp</CODE>.  Returns
+   * @return The {@code RenderingHints} object for this
+   * {@code BufferedImageOp}.  Returns
    * null if no hints have been set.
    */
-  public RenderingHints getRenderingHints();
+  RenderingHints getRenderingHints();
 }

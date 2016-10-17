@@ -30,9 +30,12 @@
 
 import java.awt.*;
 
-public class NullMenuLabelTest {
+public final class NullMenuLabelTest {
 
-    public static void main(String[] args) {
+  private NullMenuLabelTest() {
+  }
+
+  public static void main(String[] args) {
         Frame frame = new Frame("Test Frame");
         frame.pack();
         frame.setVisible(true);

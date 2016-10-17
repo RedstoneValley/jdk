@@ -42,7 +42,6 @@ public class IllegalComponentStateException extends IllegalStateException {
    * A detail message is a String that describes this particular exception.
    */
   public IllegalComponentStateException() {
-    super();
   }
 
   /**

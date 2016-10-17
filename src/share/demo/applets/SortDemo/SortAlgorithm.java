@@ -48,7 +48,7 @@ class SortAlgorithm {
   /**
    * When true stop sorting.
    */
-  protected boolean stopRequested = false;
+  protected boolean stopRequested;
   /**
    * The sort item.
    */
@@ -109,6 +109,6 @@ class SortAlgorithm {
    * This method will be called to
    * sort an array of integers.
    */
-  void sort(int a[]) throws Exception {
+  void sort(int[] a) throws Exception {
   }
 }

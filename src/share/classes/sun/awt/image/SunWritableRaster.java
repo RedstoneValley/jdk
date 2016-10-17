@@ -48,7 +48,7 @@ import sun.java2d.SurfaceData;
  */
 public class SunWritableRaster extends WritableRaster {
   private static DataStealer stealer;
-  private StateTrackableDelegate theTrackable;
+  private final StateTrackableDelegate theTrackable;
 
   public SunWritableRaster(SampleModel sampleModel, Point origin) {
     super(sampleModel, origin);
@@ -122,15 +122,15 @@ public class SunWritableRaster extends WritableRaster {
     theTrackable.markDirty();
   }
 
-  public static interface DataStealer {
-    public byte[] getData(DataBufferByte dbb, int bank);
+  public interface DataStealer {
+    byte[] getData(DataBufferByte dbb, int bank);
 
-    public short[] getData(DataBufferUShort dbus, int bank);
+    short[] getData(DataBufferUShort dbus, int bank);
 
-    public int[] getData(DataBufferInt dbi, int bank);
+    int[] getData(DataBufferInt dbi, int bank);
 
-    public StateTrackableDelegate getTrackable(DataBuffer db);
+    StateTrackableDelegate getTrackable(DataBuffer db);
 
-    public void setTrackable(DataBuffer db, StateTrackableDelegate trackable);
+    void setTrackable(DataBuffer db, StateTrackableDelegate trackable);
   }
 }

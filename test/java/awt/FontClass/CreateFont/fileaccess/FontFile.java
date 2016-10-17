@@ -30,17 +30,20 @@
 import java.awt.*;
 import java.io.*;
 
-public class FontFile {
-    public static void main(String[] args) throws Exception {
+public final class FontFile {
+  private FontFile() {
+  }
+
+  public static void main(String[] args) throws Exception {
         String sep = System.getProperty("file.separator");
         String fname = ".." + sep + "A.ttf";
         String dir = System.getProperty("test.src");
         if (dir != null) {
             fname = dir + sep + fname;
         }
-        final String name = fname;
+        String name = fname;
         System.out.println("Will try to access " + name);
-        if (!(new File(name)).canRead()) {
+        if (!new File(name).canRead()) {
            System.out.println("File not available : can't run test");
            return;
         }
@@ -60,12 +63,13 @@ public class FontFile {
         try {
             Font font = Font.createFont(Font.TRUETYPE_FONT,
             new File("nosuchfile") {
-                    private boolean read;
+              private static final long serialVersionUID = -5697741294633276306L;
+              private boolean read;
                     @Override public String getPath() {
                         if (read) {
                             return name;
                         } else {
-                            read = true;
+                          read = true;
                             return "somefile";
                         }
                     }

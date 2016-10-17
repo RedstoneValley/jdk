@@ -24,7 +24,6 @@
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.io.*;
-import javax.swing.*;
 import sun.awt.SunToolkit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @summary Can't exit color chooser dialog when running as an applet
  * @run main CloseDialogTest
  */
-public class CloseDialogTest {
+public final class CloseDialogTest {
 
     private static volatile Frame frame;
     private static volatile Dialog dialog;
@@ -86,7 +85,7 @@ public class CloseDialogTest {
             Thread.sleep(500);
 
             // read System err
-            final char[] buffer = new char[2048];
+            char[] buffer = new char[2048];
             System.err.print("END");
             System.setErr(systemErrStream);
             try (Reader in = new InputStreamReader(testErrorStream, "UTF-8")) {

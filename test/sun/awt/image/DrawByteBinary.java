@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug     6800846
  *
  * @summary Test verifes that images with short palette are rendered
@@ -33,14 +33,16 @@
 
 
 import java.awt.*;
-import java.awt.color.*;
 import java.awt.image.*;
 import static java.awt.image.BufferedImage.*;
 
 
-public class DrawByteBinary {
+public final class DrawByteBinary {
 
-    public static void main(String args[]) {
+      private DrawByteBinary() {
+      }
+
+      public static void main(String[] args) {
         int w = 100, h = 30;
         int x = 10;
         byte[] arr = {(byte)0xff, (byte)0x0, (byte)0x00};

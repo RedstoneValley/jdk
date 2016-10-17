@@ -31,16 +31,18 @@
   @run main FrameMinimizeTest
 */
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Frame;
 
-import test.java.awt.regtesthelpers.Util;
+public final class FrameMinimizeTest {
+  private FrameMinimizeTest() {
+  }
 
-public class FrameMinimizeTest {
-    public static void main(String args[]) throws Exception {
+  public static void main(String[] args) throws Exception {
         Frame frame = new Frame("Frame Minimize Test");
         Button b = new Button("Focus ownder");
-        frame.add("South", b);
+        frame.add(BorderLayout.SOUTH, b);
         frame.pack();
         frame.setVisible(true);
         Util.waitForIdle(null);

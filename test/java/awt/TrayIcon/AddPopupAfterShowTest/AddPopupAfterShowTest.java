@@ -22,57 +22,19 @@
  */
 
 
-import test.java.awt.regtesthelpers.Sysout;
-
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+@SuppressWarnings("MagicNumber")
 public class AddPopupAfterShowTest extends Applet {
-    @Override
-    public void init() {
-        if (!SystemTray.isSupported()) {
-            Sysout.createDialogWithInstructions(new String[]{
-                    "Press PASS, the System Tray is not supported"});
-            return;
-        }
-
-
-        String[] instructions = {
-                "1) The red circle icon was added to the system tray.",
-                "2) Check that a popup menu is opened when the icon is clicked.",
-                "3) If true the test is passed, otherwise failed."};
-        Sysout.createDialogWithInstructions(instructions);
-    }
-
-    @Override
-    public void start() {
-        setSize(200, 200);
-        show();
-
-        createSystemTrayIcon();
-    }
-
-    private static void createSystemTrayIcon() {
-        final TrayIcon trayIcon = new TrayIcon(createTrayIconImage());
-        trayIcon.setImageAutoSize(true);
-
-        try {
-            // Add tray icon to system tray *before* adding popup menu to demonstrate buggy behaviour
-            SystemTray.getSystemTray().add(trayIcon);
-            trayIcon.setPopupMenu(createTrayIconPopupMenu());
-        } catch (final AWTException awte) {
-            awte.printStackTrace();
-        }
-    }
 
     private static Image createTrayIconImage() {
-        /**
-         * Create a small image of a red circle to use as the icon for the tray icon
+        /*
+          Create a small image of a red circle to use as the icon for the tray icon
          */
         int trayIconImageSize = 32;
-        final BufferedImage trayImage = new BufferedImage(trayIconImageSize, trayIconImageSize, BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D trayImageGraphics = (Graphics2D) trayImage.getGraphics();
+        BufferedImage trayImage = new BufferedImage(trayIconImageSize, trayIconImageSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D trayImageGraphics = (Graphics2D) trayImage.getGraphics();
 
         trayImageGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -98,8 +60,8 @@ public class AddPopupAfterShowTest extends Applet {
     }
 
     private static PopupMenu createTrayIconPopupMenu() {
-        final PopupMenu trayIconPopupMenu = new PopupMenu();
-        final MenuItem popupMenuItem = new MenuItem("TEST PASSED!");
+        PopupMenu trayIconPopupMenu = new PopupMenu();
+        MenuItem popupMenuItem = new MenuItem("TEST PASSED!");
         trayIconPopupMenu.add(popupMenuItem);
         return trayIconPopupMenu;
     }

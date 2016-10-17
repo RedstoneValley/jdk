@@ -8,7 +8,7 @@ import java.awt.font.LineMetrics;
  */
 public class FontLineMetrics extends LineMetrics implements Cloneable {
   public int numchars;
-  public FontRenderContext frc;
+  public final FontRenderContext frc;
 
   public FontLineMetrics(int numchars, CoreMetrics cm, FontRenderContext frc) {
     super(cm);
@@ -24,7 +24,7 @@ public class FontLineMetrics extends LineMetrics implements Cloneable {
   @Override
   public FontLineMetrics clone() {
     try {
-      return (FontLineMetrics) (super.clone());
+      return (FontLineMetrics) super.clone();
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }

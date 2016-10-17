@@ -30,9 +30,12 @@ import java.awt.print.PrinterJob;
  * @summary tests setPrintService() with a custom implementation
  * @author reinhapa
  */
-public class SetPrintServiceTest {
+public final class SetPrintServiceTest {
 
-    public static void main(String[] args) {
+  private SetPrintServiceTest() {
+  }
+
+  public static void main(String[] args) {
         PrintServiceStub service = new PrintServiceStub("CustomPrintService");
         PrinterJob printerJob = PrinterJob.getPrinterJob();
         try {

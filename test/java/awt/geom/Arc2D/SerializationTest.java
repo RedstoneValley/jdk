@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 7040717 6522514
  * @summary Verifies that subclasses of Arc2D can be serialized.
  * @run main SerializationTest
@@ -37,13 +37,19 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class SerializationTest {
+public final class SerializationTest {
     static boolean failed;
-    public static void main(String args[]) {
+
+    private SerializationTest() {
+    }
+
+    public static void main(String[] args) {
         test(new Arc());
         test(new ArcF());
         test(new ArcD());
-        if (failed) throw new RuntimeException("some tests failed");
+        if (failed) {
+            throw new RuntimeException("some tests failed");
+        }
     }
 
     public static void test(Object a) {
@@ -65,35 +71,53 @@ public class SerializationTest {
     }
 
     static class Arc extends Arc2D implements Serializable {
+        private static final long serialVersionUID = -5462432991127358349L;
+
         public Arc() {
             super(Arc2D.OPEN);
         }
 
+        @Override
         public Rectangle2D makeBounds(double x, double y, double w, double h) {
             return new Rectangle2D.Double(x, y, w, h);
         }
+        @Override
         public double getX() { return 0; }
+        @Override
         public double getY() { return 0; }
+        @Override
         public double getWidth() { return 0; }
+        @Override
         public double getHeight() { return 0; }
+        @Override
         public double getAngleExtent() { return 0; }
+        @Override
         public double getAngleStart() { return 0; }
+        @Override
         public void setAngleExtent(double angExt) { }
+        @Override
         public void setAngleStart(double angExt) { }
+        @Override
         public void setFrame(double x, double y, double w, double h) {}
+        @Override
         public void setArc(double x, double y, double w, double h,
                            double s, double e, int c)
         {
         }
-        public boolean isEmpty() { return false; };
+        @Override
+        public boolean isEmpty() { return false; }
     }
 
-    static class ArcF extends Arc2D.Float implements Serializable {
+    static class ArcF extends Arc2D.Float {
+        private static final long serialVersionUID = 5002010792243883993L;
+
         public ArcF() {
         }
     }
 
-    static class ArcD extends Arc2D.Double implements Serializable {
+    static class ArcD extends Arc2D.Double {
+        private static final long serialVersionUID = 8178836866693657345L;
+
         public ArcD() {
         }
     }

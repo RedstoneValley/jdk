@@ -40,6 +40,7 @@
 package j2dbench.tests.iio;
 
 import j2dbench.Group;
+import j2dbench.Group.EnableSet;
 import j2dbench.Option;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
@@ -49,13 +50,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.imageio.ImageIO;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageOutputStreamSpi;
-import javax.imageio.stream.FileCacheImageOutputStream;
-import javax.imageio.stream.FileImageOutputStream;
-import javax.imageio.stream.ImageOutputStream;
-import javax.imageio.stream.MemoryCacheImageOutputStream;
+import java.nio.channels.FileChannel;
 
 abstract class OutputTests extends IIOTests {
 
@@ -63,11 +58,11 @@ abstract class OutputTests extends IIOTests {
   protected static final int OUTPUT_ARRAY = 2;
   protected static final int OUTPUT_FILECHANNEL = 3;
 
-  protected static ImageOutputStreamSpi fileChannelIOSSpi;
+  protected static final ImageOutputStreamSpi fileChannelIOSSpi;
   protected static Group outputRoot;
   protected static Group outputOptRoot;
   protected static Group generalOptRoot;
-  protected static Group.EnableSet generalDestRoot;
+  protected static EnableSet generalDestRoot;
   protected static Option destFileOpt;
   protected static Option destByteArrayOpt;
   protected static Group imageioGeneralOptRoot;
@@ -103,7 +98,7 @@ abstract class OutputTests extends IIOTests {
 
     // General Options
     generalOptRoot = new Group(outputOptRoot, "general", "General Options");
-    generalDestRoot = new Group.EnableSet(generalOptRoot, "dest", "Destintations");
+    generalDestRoot = new EnableSet(generalOptRoot, "dest", "Destintations");
     destFileOpt = new OutputType("file", "File", OUTPUT_FILE);
     destByteArrayOpt = new OutputType("byteArray", "byte[]", OUTPUT_ARRAY);
 
@@ -113,10 +108,10 @@ abstract class OutputTests extends IIOTests {
       if (fileChannelIOSSpi != null) {
         destFileChannelOpt = new OutputType("fileChannel", "FileChannel", OUTPUT_FILECHANNEL);
       }
-      useCacheTog = new Option.Toggle(imageioGeneralOptRoot,
+      useCacheTog = new Toggle(imageioGeneralOptRoot,
           "useCache",
           "ImageIO.setUseCache()",
-          Option.Toggle.Off);
+          Toggle.Off);
     }
 
     OutputImageTests.init();
@@ -125,8 +120,8 @@ abstract class OutputTests extends IIOTests {
     }
   }
 
-  protected static class OutputType extends Option.Enable {
-    private int type;
+  protected static class OutputType extends Enable {
+    private final int type;
 
     public OutputType(String nodeName, String description, int type) {
       super(generalDestRoot, nodeName, description, false);
@@ -137,19 +132,21 @@ abstract class OutputTests extends IIOTests {
       return type;
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return getModifierValueName(value);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return getNodeName();
     }
   }
 
-  protected static abstract class Context {
-    int size;
+  protected abstract static class Context {
+    final int size;
     Object output;
-    int outputType;
+    final int outputType;
     OutputStream origStream;
 
     Context(TestEnvironment env, Result result) {
@@ -165,7 +162,7 @@ abstract class OutputTests extends IIOTests {
     }
 
     void initOutput() {
-      if ((outputType == OUTPUT_FILE) || (outputType == OUTPUT_FILECHANNEL)) {
+      if (outputType == OUTPUT_FILE || outputType == OUTPUT_FILECHANNEL) {
         try {
           File outputfile = File.createTempFile("iio", ".tmp");
           outputfile.deleteOnExit();
@@ -186,16 +183,13 @@ abstract class OutputTests extends IIOTests {
         case OUTPUT_ARRAY:
           ByteArrayOutputStream baos = new ByteArrayOutputStream();
           BufferedOutputStream bos = new BufferedOutputStream(baos);
-          if (ImageIO.getUseCache()) {
-            ios = new FileCacheImageOutputStream(bos, null);
-          } else {
-            ios = new MemoryCacheImageOutputStream(bos);
-          }
+          ios = ImageIO.getUseCache() ? new FileCacheImageOutputStream(bos, null)
+              : new MemoryCacheImageOutputStream(bos);
           break;
         case OUTPUT_FILECHANNEL:
           FileOutputStream fos = new FileOutputStream((File) output);
           origStream = fos;
-          java.nio.channels.FileChannel fc = fos.getChannel();
+          FileChannel fc = fos.getChannel();
           ios = fileChannelIOSSpi.createOutputStreamInstance(fc, false, null);
           break;
         default:

@@ -596,18 +596,18 @@ public class ICC_Profile implements Serializable {
   private static ICC_Profile PYCCprofile;
   private static ICC_Profile GRAYprofile;
   private static ICC_Profile LINEAR_RGBprofile;
-  private transient Profile cmmProfile;
-  private transient ProfileDeferralInfo deferralInfo;
-  private transient ProfileActivator profileActivator;
   /**
    * Version of the format of additional serialized data in the
-   * stream.  Version&nbsp;<code>1</code> corresponds to Java&nbsp;2
+   * stream.  Version&nbsp;{@code 1} corresponds to Java&nbsp;2
    * Platform,&nbsp;v1.3.
    *
    * @serial
    * @since 1.3
    */
-  private int iccProfileSerializedDataVersion = 1;
+  private final int iccProfileSerializedDataVersion = 1;
+  private transient Profile cmmProfile;
+  private transient ProfileDeferralInfo deferralInfo;
+  private transient ProfileActivator profileActivator;
   // Temporary storage used by readObject to store resolved profile
   // (obtained with getInstance) for readResolve to return.
   private transient ICC_Profile resolvedDeserializedProfile;
@@ -616,7 +616,7 @@ public class ICC_Profile implements Serializable {
    * Constructs an ICC_Profile object with a given ID.
    */
   ICC_Profile(Profile p) {
-    this.cmmProfile = p;
+    cmmProfile = p;
   }
 
   /**
@@ -624,13 +624,14 @@ public class ICC_Profile implements Serializable {
    * The ID will be 0 until the profile is loaded.
    */
   ICC_Profile(ProfileDeferralInfo pdi) {
-    this.deferralInfo = pdi;
-    this.profileActivator = new ProfileActivator() {
+    deferralInfo = pdi;
+    profileActivator = new ProfileActivator() {
+      @Override
       public void activate() throws ProfileDataException {
         activateDeferredProfile();
       }
     };
-    ProfileDeferralMgr.registerDeferral(this.profileActivator);
+    ProfileDeferralMgr.registerDeferral(profileActivator);
   }
 
   /**
@@ -639,13 +640,13 @@ public class ICC_Profile implements Serializable {
    * does not correspond to a valid ICC Profile.
    *
    * @param data the specified ICC Profile data
-   * @return an <code>ICC_Profile</code> object corresponding to
-   * the data in the specified <code>data</code> array.
+   * @return an {@code ICC_Profile} object corresponding to
+   * the data in the specified {@code data} array.
    */
   public static ICC_Profile getInstance(byte[] data) {
     ICC_Profile thisProfile;
 
-    Profile p = null;
+    Profile p;
 
     if (ProfileDeferralMgr.deferring) {
       ProfileDeferralMgr.activateProfiles();
@@ -660,18 +661,18 @@ public class ICC_Profile implements Serializable {
     }
 
     try {
-      if ((getColorSpaceType(p) == ColorSpace.TYPE_GRAY) &&
-          (getData(p, icSigMediaWhitePointTag) != null) &&
-          (getData(p, icSigGrayTRCTag) != null)) {
+      if (getColorSpaceType(p) == ColorSpace.TYPE_GRAY &&
+          getData(p, icSigMediaWhitePointTag) != null &&
+          getData(p, icSigGrayTRCTag) != null) {
         thisProfile = new ICC_ProfileGray(p);
-      } else if ((getColorSpaceType(p) == ColorSpace.TYPE_RGB) &&
-          (getData(p, icSigMediaWhitePointTag) != null) &&
-          (getData(p, icSigRedColorantTag) != null) &&
-          (getData(p, icSigGreenColorantTag) != null) &&
-          (getData(p, icSigBlueColorantTag) != null) &&
-          (getData(p, icSigRedTRCTag) != null) &&
-          (getData(p, icSigGreenTRCTag) != null) &&
-          (getData(p, icSigBlueTRCTag) != null)) {
+      } else if (getColorSpaceType(p) == ColorSpace.TYPE_RGB &&
+          getData(p, icSigMediaWhitePointTag) != null &&
+          getData(p, icSigRedColorantTag) != null &&
+          getData(p, icSigGreenColorantTag) != null &&
+          getData(p, icSigBlueColorantTag) != null &&
+          getData(p, icSigRedTRCTag) != null &&
+          getData(p, icSigGreenTRCTag) != null &&
+          getData(p, icSigBlueTRCTag) != null) {
         thisProfile = new ICC_ProfileRGB(p);
       } else {
         thisProfile = new ICC_Profile(p);
@@ -690,14 +691,14 @@ public class ICC_Profile implements Serializable {
    *
    * @param cspace the type of color space to create a profile for.
    *               The specified type is one of the color
-   *               space constants defined in the  <CODE>ColorSpace</CODE> class.
-   * @return an <code>ICC_Profile</code> object corresponding to
-   * the specified <code>ColorSpace</code> type.
-   * @throws IllegalArgumentException If <CODE>cspace</CODE> is not
+   *               space constants defined in the  {@code ColorSpace} class.
+   * @return an {@code ICC_Profile} object corresponding to
+   * the specified {@code ColorSpace} type.
+   * @throws IllegalArgumentException If {@code cspace} is not
    *                                  one of the predefined color space types.
    */
   public static ICC_Profile getInstance(int cspace) {
-    ICC_Profile thisProfile = null;
+    ICC_Profile thisProfile;
     String fileName;
 
     switch (cspace) {
@@ -790,11 +791,12 @@ public class ICC_Profile implements Serializable {
   /* This asserts system privileges, so is used only for the
    * standard profiles.
    */
-  private static ICC_Profile getStandardProfile(final String name) {
+  private static ICC_Profile getStandardProfile(String name) {
 
     return AccessController.doPrivileged(new PrivilegedAction<ICC_Profile>() {
+      @Override
       public ICC_Profile run() {
-        ICC_Profile p = null;
+        ICC_Profile p;
         try {
           p = getInstance(name);
         } catch (IOException ex) {
@@ -820,7 +822,7 @@ public class ICC_Profile implements Serializable {
    * Profile data.
    *
    * @param fileName The file that contains the data for the profile.
-   * @return an <code>ICC_Profile</code> object corresponding to
+   * @return an {@code ICC_Profile} object corresponding to
    * the data in the specified file.
    * @throws IOException              If the specified file cannot be opened or
    *                                  an I/O error occurs while reading the file.
@@ -855,14 +857,14 @@ public class ICC_Profile implements Serializable {
    * error occurs while reading the stream.
    *
    * @param s The input stream from which to read the profile data.
-   * @return an <CODE>ICC_Profile</CODE> object corresponding to the
-   * data in the specified <code>InputStream</code>.
+   * @return an {@code ICC_Profile} object corresponding to the
+   * data in the specified {@code InputStream}.
    * @throws IOException              If an I/O error occurs while reading the stream.
    * @throws IllegalArgumentException If the stream does not
    *                                  contain valid ICC Profile data.
    */
   public static ICC_Profile getInstance(InputStream s) throws IOException {
-    byte profileData[];
+    byte[] profileData;
 
     if (s instanceof ProfileDeferralInfo) {
             /* hack to detect profiles whose loading can be deferred */
@@ -877,10 +879,10 @@ public class ICC_Profile implements Serializable {
   }
 
   static byte[] getProfileDataFromStream(InputStream s) throws IOException {
-    byte profileData[];
+    byte[] profileData;
     int profileSize;
 
-    byte header[] = new byte[128];
+    byte[] header = new byte[128];
     int bytestoread = 128;
     int bytesread = 0;
     int n;
@@ -896,10 +898,10 @@ public class ICC_Profile implements Serializable {
         header[38] != 0x73 || header[39] != 0x70) {
       return null;   /* not a valid profile */
     }
-    profileSize = ((header[0] & 0xff) << 24) |
-        ((header[1] & 0xff) << 16) |
-        ((header[2] & 0xff) << 8) |
-        (header[3] & 0xff);
+    profileSize = (header[0] & 0xff) << 24 |
+        (header[1] & 0xff) << 16 |
+        (header[2] & 0xff) << 8 |
+        header[3] & 0xff;
     profileData = new byte[profileSize];
     System.arraycopy(header, 0, profileData, 0, 128);
     bytestoread = profileSize - 128;
@@ -1095,26 +1097,26 @@ public class ICC_Profile implements Serializable {
   }
 
   static int intFromBigEndian(byte[] array, int index) {
-    return (((array[index] & 0xff) << 24) |
-                ((array[index + 1] & 0xff) << 16) |
-                ((array[index + 2] & 0xff) << 8) |
-                (array[index + 3] & 0xff));
+    return (array[index] & 0xff) << 24 |
+        (array[index + 1] & 0xff) << 16 |
+        (array[index + 2] & 0xff) << 8 |
+        array[index + 3] & 0xff;
   }
 
   static void intToBigEndian(int value, byte[] array, int index) {
     array[index] = (byte) (value >> 24);
     array[index + 1] = (byte) (value >> 16);
     array[index + 2] = (byte) (value >> 8);
-    array[index + 3] = (byte) (value);
+    array[index + 3] = (byte) value;
   }
 
   static short shortFromBigEndian(byte[] array, int index) {
-    return (short) (((array[index] & 0xff) << 8) | (array[index + 1] & 0xff));
+    return (short) ((array[index] & 0xff) << 8 | array[index + 1] & 0xff);
   }
 
   static void shortToBigEndian(short value, byte[] array, int index) {
     array[index] = (byte) (value >> 8);
-    array[index + 1] = (byte) (value);
+    array[index + 1] = (byte) value;
   }
 
   /*
@@ -1135,10 +1137,10 @@ public class ICC_Profile implements Serializable {
                so return here. */
       return f.isFile() ? f : null;
     }
-    if ((!f.isFile()) && ((path = System.getProperty("java.iccprofile.path")) != null)) {
+    if (!f.isFile() && (path = System.getProperty("java.iccprofile.path")) != null) {
                                     /* try relative to java.iccprofile.path */
       StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
-      while (st.hasMoreTokens() && ((f == null) || (!f.isFile()))) {
+      while (st.hasMoreTokens() && (f == null || !f.isFile())) {
         dir = st.nextToken();
         fullPath = dir + File.separatorChar + fileName;
         f = new File(fullPath);
@@ -1148,18 +1150,17 @@ public class ICC_Profile implements Serializable {
       }
     }
 
-    if (((f == null) || (!f.isFile())) && ((path = System.getProperty("java.class.path"))
-                                               != null)) {
+    if ((f == null || !f.isFile()) && (path = System.getProperty("java.class.path")) != null) {
                                     /* try relative to java.class.path */
       StringTokenizer st = new StringTokenizer(path, File.pathSeparator);
-      while (st.hasMoreTokens() && ((f == null) || (!f.isFile()))) {
+      while (st.hasMoreTokens() && (f == null || !f.isFile())) {
         dir = st.nextToken();
         fullPath = dir + File.separatorChar + fileName;
         f = new File(fullPath);
       }
     }
 
-    if ((f == null) || (!f.isFile())) {
+    if (f == null || !f.isFile()) {
             /* try the directory of built-in profiles */
       f = getStandardProfileFile(fileName);
     }
@@ -1175,12 +1176,12 @@ public class ICC_Profile implements Serializable {
    * If there is no built-in profile with such name, then the method
    * returns null.
    */
-  private static File getStandardProfileFile(String fileName) {
+  static File getStandardProfileFile(String fileName) {
     String dir = System.getProperty("java.home") +
         File.separatorChar + "lib" + File.separatorChar + "cmm";
     String fullPath = dir + File.separatorChar + fileName;
     File f = new File(fullPath);
-    return (f.isFile() && isChildOf(f, dir)) ? f : null;
+    return f.isFile() && isChildOf(f, dir) ? f : null;
   }
 
   /**
@@ -1206,8 +1207,9 @@ public class ICC_Profile implements Serializable {
   /**
    * Checks whether built-in profile specified by fileName exists.
    */
-  private static boolean standardProfileExists(final String fileName) {
+  private static boolean standardProfileExists(String fileName) {
     return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+      @Override
       public Boolean run() {
         return getStandardProfileFile(fileName) != null;
       }
@@ -1217,6 +1219,7 @@ public class ICC_Profile implements Serializable {
   /**
    * Frees the resources associated with an ICC_Profile object.
    */
+  @Override
   protected void finalize() {
     if (cmmProfile != null) {
       CMSManager.getModule().freeProfile(cmmProfile);
@@ -1226,13 +1229,14 @@ public class ICC_Profile implements Serializable {
   }
 
   void activateDeferredProfile() throws ProfileDataException {
-    byte profileData[];
+    byte[] profileData;
     FileInputStream fis;
-    final String fileName = deferralInfo.filename;
+    String fileName = deferralInfo.filename;
 
     profileActivator = null;
     deferralInfo = null;
     PrivilegedAction<FileInputStream> pa = new PrivilegedAction<FileInputStream>() {
+      @Override
       public FileInputStream run() {
         File f = getStandardProfileFile(fileName);
         if (f != null) {
@@ -1362,7 +1366,7 @@ public class ICC_Profile implements Serializable {
    * primaries.
    *
    * @return One of the color space type constants defined in the
-   * <CODE>ColorSpace</CODE> class.
+   * {@code ColorSpace} class.
    */
   public int getColorSpaceType() {
     if (deferralInfo != null) {
@@ -1385,7 +1389,7 @@ public class ICC_Profile implements Serializable {
    * link profile, this could be any of the color space type constants.
    *
    * @return One of the color space type constants defined in the
-   * <CODE>ColorSpace</CODE> class.
+   * {@code ColorSpace} class.
    */
   public int getPCSType() {
     if (ProfileDeferralMgr.deferring) {
@@ -1403,7 +1407,7 @@ public class ICC_Profile implements Serializable {
    */
   public void write(String fileName) throws IOException {
     FileOutputStream outputFile;
-    byte profileData[];
+    byte[] profileData;
 
     profileData = getData(); /* this will activate deferred
                                     profiles if necessary */
@@ -1420,7 +1424,7 @@ public class ICC_Profile implements Serializable {
    *                     stream.
    */
   public void write(OutputStream s) throws IOException {
-    byte profileData[];
+    byte[] profileData;
 
     profileData = getData(); /* this will activate deferred
                                     profiles if necessary */
@@ -1465,7 +1469,7 @@ public class ICC_Profile implements Serializable {
    * @param tagSignature The ICC tag signature for the data element you
    *                     want to get.
    * @return A byte array that contains the tagged data element. Returns
-   * <code>null</code> if the specified tag doesn't exist.
+   * {@code null} if the specified tag doesn't exist.
    * @see #setData(int, byte[])
    */
   public byte[] getData(int tagSignature) {
@@ -1523,7 +1527,7 @@ public class ICC_Profile implements Serializable {
          *
          *  See http://www.color.org/ICC1v42_2006-05.pdf, section 7.2.15.
          */
-    return (0xffff & renderingIntent);
+    return 0xffff & renderingIntent;
   }
 
   /**
@@ -1668,7 +1672,7 @@ public class ICC_Profile implements Serializable {
         /* convert s15Fixed16Number to float */
     for (i1 = 0, i2 = icXYZNumberX; i1 < 3; i1++, i2 += 4) {
       theS15Fixed16 = intFromBigEndian(theData, i2);
-      theXYZNumber[i1] = ((float) theS15Fixed16) / 65536.0f;
+      theXYZNumber[i1] = (float) theS15Fixed16 / 65536.0f;
     }
     return theXYZNumber;
   }
@@ -1727,9 +1731,9 @@ public class ICC_Profile implements Serializable {
     }
 
         /* convert u8Fixed8 to float */
-    theU8Fixed8 = (shortFromBigEndian(theTRCData, icCurveData)) & 0xffff;
+    theU8Fixed8 = shortFromBigEndian(theTRCData, icCurveData) & 0xffff;
 
-    theGamma = ((float) theU8Fixed8) / 256.0f;
+    theGamma = (float) theU8Fixed8 / 256.0f;
 
     return theGamma;
   }
@@ -1785,16 +1789,16 @@ public class ICC_Profile implements Serializable {
    * string and an array of bytes to the stream as additional data.
    *
    * @param s stream used for serialization.
-   * @throws IOException thrown by <code>ObjectInputStream</code>.
-   * @serialData The <code>String</code> is the name of one of
+   * @throws IOException thrown by {@code ObjectInputStream}.
+   * @serialData The {@code String} is the name of one of
    * <code>CS_<var>*</var></code> constants defined in the
    * {@link ColorSpace} class if the profile object is a profile
    * for a predefined color space (for example
-   * <code>"CS_sRGB"</code>).  The string is <code>null</code>
+   * {@code "CS_sRGB"}).  The string is {@code null}
    * otherwise.
    * <p>
-   * The <code>byte[]</code> array is the profile data for the
-   * profile.  For predefined color spaces <code>null</code> is
+   * The {@code byte[]} array is the profile data for the
+   * profile.  For predefined color spaces {@code null} is
    * written instead of the profile data.  If in the future
    * versions of Java API new predefined color spaces will be
    * added, future versions of this class may choose to write
@@ -1837,26 +1841,26 @@ public class ICC_Profile implements Serializable {
    * the stream a string and an array of bytes as additional data.
    *
    * @param s stream used for deserialization.
-   * @throws IOException            thrown by <code>ObjectInputStream</code>.
-   * @throws ClassNotFoundException thrown by <code>ObjectInputStream</code>.
-   * @serialData The <code>String</code> is the name of one of
+   * @throws IOException            thrown by {@code ObjectInputStream}.
+   * @throws ClassNotFoundException thrown by {@code ObjectInputStream}.
+   * @serialData The {@code String} is the name of one of
    * <code>CS_<var>*</var></code> constants defined in the
    * {@link ColorSpace} class if the profile object is a profile
    * for a predefined color space (for example
-   * <code>"CS_sRGB"</code>).  The string is <code>null</code>
+   * {@code "CS_sRGB"}).  The string is {@code null}
    * otherwise.
    * <p>
-   * The <code>byte[]</code> array is the profile data for the
-   * profile.  It will usually be <code>null</code> for the
+   * The {@code byte[]} array is the profile data for the
+   * profile.  It will usually be {@code null} for the
    * predefined profiles.
    * <p>
    * If the string is recognized as a constant name for
    * predefined color space the object will be resolved into
    * profile obtained with
-   * <code>getInstance(int&nbsp;cspace)</code> and the profile
+   * {@code getInstance(int&nbsp;cspace)} and the profile
    * data are ignored.  Otherwise the object will be resolved
    * into profile obtained with
-   * <code>getInstance(byte[]&nbsp;data)</code>.
+   * {@code getInstance(byte[]&nbsp;data)}.
    * @see #readResolve()
    * @see #getInstance(int)
    * @see #getInstance(byte[])
@@ -1871,26 +1875,22 @@ public class ICC_Profile implements Serializable {
     boolean isKnownPredefinedCS = false;
     if (csName != null) {
       isKnownPredefinedCS = true;
-      if (csName.equals("CS_sRGB")) {
+      if ("CS_sRGB".equals(csName)) {
         cspace = ColorSpace.CS_sRGB;
-      } else if (csName.equals("CS_CIEXYZ")) {
+      } else if ("CS_CIEXYZ".equals(csName)) {
         cspace = ColorSpace.CS_CIEXYZ;
-      } else if (csName.equals("CS_PYCC")) {
+      } else if ("CS_PYCC".equals(csName)) {
         cspace = ColorSpace.CS_PYCC;
-      } else if (csName.equals("CS_GRAY")) {
+      } else if ("CS_GRAY".equals(csName)) {
         cspace = ColorSpace.CS_GRAY;
-      } else if (csName.equals("CS_LINEAR_RGB")) {
+      } else if ("CS_LINEAR_RGB".equals(csName)) {
         cspace = ColorSpace.CS_LINEAR_RGB;
       } else {
         isKnownPredefinedCS = false;
       }
     }
 
-    if (isKnownPredefinedCS) {
-      resolvedDeserializedProfile = getInstance(cspace);
-    } else {
-      resolvedDeserializedProfile = getInstance(data);
-    }
+    resolvedDeserializedProfile = isKnownPredefinedCS ? getInstance(cspace) : getInstance(data);
   }
 
   /**

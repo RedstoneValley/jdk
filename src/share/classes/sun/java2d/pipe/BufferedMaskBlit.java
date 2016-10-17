@@ -57,11 +57,12 @@ import sun.java2d.loops.SurfaceType;
  */
 public abstract class BufferedMaskBlit extends MaskBlit {
 
+  protected static final int RENDER_TILE_HEADER_SIZE = 20;
+  protected static final int RENDER_PIXEL_SIZE = 4;
   private static final int ST_INT_ARGB = 0;
   private static final int ST_INT_ARGB_PRE = 1;
   private static final int ST_INT_RGB = 2;
   private static final int ST_INT_BGR = 3;
-
   private final RenderQueue rq;
   private final int srcTypeVal;
   private Blit blitop;
@@ -71,13 +72,13 @@ public abstract class BufferedMaskBlit extends MaskBlit {
     super(srcType, compType, dstType);
     this.rq = rq;
     if (srcType == SurfaceType.IntArgb) {
-      this.srcTypeVal = ST_INT_ARGB;
+      srcTypeVal = ST_INT_ARGB;
     } else if (srcType == SurfaceType.IntArgbPre) {
-      this.srcTypeVal = ST_INT_ARGB_PRE;
+      srcTypeVal = ST_INT_ARGB_PRE;
     } else if (srcType == SurfaceType.IntRgb) {
-      this.srcTypeVal = ST_INT_RGB;
+      srcTypeVal = ST_INT_RGB;
     } else if (srcType == SurfaceType.IntBgr) {
-      this.srcTypeVal = ST_INT_BGR;
+      srcTypeVal = ST_INT_BGR;
     } else {
       throw new InternalError("unrecognized source surface type");
     }
@@ -94,9 +95,7 @@ public abstract class BufferedMaskBlit extends MaskBlit {
     if (mask == null) {
       // no mask involved; delegate to regular blit loop
       if (blitop == null) {
-        blitop = Blit.getFromCache(src.getSurfaceType(),
-            CompositeType.AnyAlpha,
-            this.getDestType());
+        blitop = Blit.getFromCache(src.getSurfaceType(), CompositeType.AnyAlpha, getDestType());
       }
       blitop.Blit(src, dst, comp, clip, srcx, srcy, dstx, dsty, width, height);
       return;
@@ -112,7 +111,7 @@ public abstract class BufferedMaskBlit extends MaskBlit {
       validateContext(dst, comp, clip);
 
       RenderBuffer buf = rq.getBuffer();
-      int totalBytesRequired = 20 + (width * height * 4);
+      int totalBytesRequired = RENDER_TILE_HEADER_SIZE + width * height * RENDER_PIXEL_SIZE;
 
             /*
              * REMIND: we should fix this so that it works with tiles that
@@ -145,9 +144,12 @@ public abstract class BufferedMaskBlit extends MaskBlit {
     }
   }
 
-  private native int enqueueTile(
+  private int enqueueTile(
       long buf, int bpos, SurfaceData srcData, long pSrcOps, int srcType, byte[] mask, int masklen,
-      int maskoff, int maskscan, int srcx, int srcy, int dstx, int dsty, int width, int height);
+      int maskoff, int maskscan, int srcx, int srcy, int dstx, int dsty, int width, int height) {
+    // TODO: In OpenJDK AWT, this is native
+    return 0;
+  }
 
   /**
    * Validates the context state using the given destination surface

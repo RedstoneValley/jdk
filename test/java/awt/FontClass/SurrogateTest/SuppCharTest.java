@@ -30,16 +30,18 @@
 import java.util.Locale;
 import java.awt.*;
 import java.awt.font.*;
-import javax.swing.*;
 
-public class SuppCharTest {
+public final class SuppCharTest {
 
-   static String str = "ABC\uD840\uDC01\uD840\uDC00AB";
-   static String EXTB_FONT = "MingLiU-ExtB";
+   static final String str = "ABC\uD840\uDC01\uD840\uDC00AB";
+   static final String EXTB_FONT = "MingLiU-ExtB";
 
-   public static void main(String args[]) throws Exception {
+  private SuppCharTest() {
+  }
 
-      final Font font = new Font(EXTB_FONT, Font.PLAIN, 36);
+  public static void main(String[] args) throws Exception {
+
+      Font font = new Font(EXTB_FONT, Font.PLAIN, 36);
       if (!EXTB_FONT.equalsIgnoreCase(font.getFamily(Locale.ENGLISH))) {
          return;
       }
@@ -49,10 +51,10 @@ public class SuppCharTest {
         public void run(){
             JFrame f = new JFrame("Test Supplementary Char Support");
             Component c = new SuppCharComp(font, str);
-            f.add("Center", c);
+            f.add(BorderLayout.CENTER, c);
             JButton b = new JButton(str);
             b.setFont(font);
-            f.add("South", b);
+            f.add(BorderLayout.SOUTH, b);
             f.pack();
             f.setVisible(true);
         }
@@ -89,16 +91,20 @@ public class SuppCharTest {
 class SuppCharComp extends Component {
 
   static final int w=400, h=250;
+  private static final long serialVersionUID = 8801672657143459386L;
+
+  @Override
   public Dimension preferredSize() {
      return new Dimension(w,h);
   }
 
-  String str = null;
-  Font font = null;
+  final String str;
+  final Font font;
   public SuppCharComp(Font font, String str) {
     this.font = font;
     this.str = str;
   }
+  @Override
   public void paint(Graphics g) {
      Graphics2D g2d = (Graphics2D)g.create();
      g2d.setColor(Color.white);

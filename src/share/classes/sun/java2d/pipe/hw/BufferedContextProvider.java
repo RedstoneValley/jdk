@@ -31,7 +31,7 @@ import sun.java2d.pipe.BufferedContext;
  * Classes implementing this interface can provide the {@code BufferedContext}
  * associated with or used by them.
  *
- * @see sun.java2d.pipe.BufferedContext
+ * @see BufferedContext
  */
 public interface BufferedContextProvider {
   /**
@@ -39,7 +39,7 @@ public interface BufferedContextProvider {
    * interface.
    *
    * @return associated context
-   * @see sun.java2d.pipe.BufferedContext
+   * @see BufferedContext
    */
-  public BufferedContext getContext();
+  BufferedContext getContext();
 }

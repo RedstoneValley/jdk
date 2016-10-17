@@ -39,6 +39,7 @@
 
 package j2dbench;
 
+import j2dbench.Option.ObjectChoice;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -59,65 +60,64 @@ public class Result {
   public static final int TIME_MICROS = 12;
   public static final int TIME_NANOS = 13;
   public static final int TIME_AUTO = 14;
-
+  private static final HashMap unitMap;
   static Group resultoptroot;
-  static Option.ObjectChoice timeOpt;
-  static Option.ObjectChoice workOpt;
-  static Option.ObjectChoice rateOpt;
-  private static HashMap unitMap;
+  static ObjectChoice timeOpt;
+  static ObjectChoice workOpt;
+  static ObjectChoice rateOpt;
 
   static {
     unitMap = new HashMap();
-    unitMap.put("U", new Integer(WORK_UNITS));
-    unitMap.put("M", new Integer(WORK_MILLIONS));
-    unitMap.put("K", new Integer(WORK_THOUSANDS));
-    unitMap.put("A", new Integer(WORK_AUTO));
-    unitMap.put("MU", new Integer(WORK_MILLIONS));
-    unitMap.put("KU", new Integer(WORK_THOUSANDS));
-    unitMap.put("AU", new Integer(WORK_AUTO));
+    unitMap.put("U", WORK_UNITS);
+    unitMap.put("M", WORK_MILLIONS);
+    unitMap.put("K", WORK_THOUSANDS);
+    unitMap.put("A", WORK_AUTO);
+    unitMap.put("MU", WORK_MILLIONS);
+    unitMap.put("KU", WORK_THOUSANDS);
+    unitMap.put("AU", WORK_AUTO);
 
-    unitMap.put("O", new Integer(WORK_UNITS | WORK_OPS));
-    unitMap.put("NO", new Integer(WORK_UNITS | WORK_OPS));
-    unitMap.put("MO", new Integer(WORK_MILLIONS | WORK_OPS));
-    unitMap.put("KO", new Integer(WORK_THOUSANDS | WORK_OPS));
-    unitMap.put("AO", new Integer(WORK_AUTO | WORK_OPS));
+    unitMap.put("O", WORK_UNITS | WORK_OPS);
+    unitMap.put("NO", WORK_UNITS | WORK_OPS);
+    unitMap.put("MO", WORK_MILLIONS | WORK_OPS);
+    unitMap.put("KO", WORK_THOUSANDS | WORK_OPS);
+    unitMap.put("AO", WORK_AUTO | WORK_OPS);
 
-    unitMap.put("s", new Integer(TIME_SECONDS));
-    unitMap.put("m", new Integer(TIME_MILLIS));
-    unitMap.put("u", new Integer(TIME_MICROS));
-    unitMap.put("n", new Integer(TIME_NANOS));
-    unitMap.put("a", new Integer(TIME_AUTO));
+    unitMap.put("s", TIME_SECONDS);
+    unitMap.put("m", TIME_MILLIS);
+    unitMap.put("u", TIME_MICROS);
+    unitMap.put("n", TIME_NANOS);
+    unitMap.put("a", TIME_AUTO);
   }
 
   String unitname = "unit";
-  Test test;
+  final Test test;
   int repsPerRun;
   int unitsPerRep;
-  Vector times;
+  final Vector times;
   Hashtable modifiers;
   Throwable error;
+
   public Result(Test test) {
     this.test = test;
-    this.repsPerRun = 1;
-    this.unitsPerRep = 1;
+    repsPerRun = 1;
+    unitsPerRep = 1;
     times = new Vector();
   }
 
   public static void init() {
     resultoptroot = new Group(TestEnvironment.globaloptroot, "results", "Result Options");
 
-    String workStrings[] = {
+    String[] workStrings = {
         "units", "kilounits", "megaunits", "autounits", "ops", "kiloops", "megaops", "autoops",};
-    String workDescriptions[] = {
+    String[] workDescriptions = {
         "Test Units", "Thousands of Test Units", "Millions of Test Units", "Auto-scaled Test Units",
         "Operations", "Thousands of Operations", "Millions of Operations",
         "Auto-scaled Operations",};
-    Integer workObjects[] = {
-        new Integer(WORK_UNITS), new Integer(WORK_THOUSANDS), new Integer(WORK_MILLIONS),
-        new Integer(WORK_AUTO), new Integer(WORK_OPS | WORK_UNITS),
-        new Integer(WORK_OPS | WORK_THOUSANDS), new Integer(WORK_OPS | WORK_MILLIONS),
-        new Integer(WORK_OPS | WORK_AUTO),};
-    workOpt = new Option.ObjectChoice(resultoptroot,
+    Integer[] workObjects = {
+        WORK_UNITS, WORK_THOUSANDS, WORK_MILLIONS, WORK_AUTO, WORK_OPS | WORK_UNITS, WORK_OPS | WORK_THOUSANDS, WORK_OPS | WORK_MILLIONS,
+        WORK_OPS | WORK_AUTO,};
+    workOpt = new ObjectChoice(
+        resultoptroot,
         "workunits",
         "Work Units",
         workStrings,
@@ -125,14 +125,14 @@ public class Result {
         workStrings,
         workDescriptions,
         0);
-    String timeStrings[] = {
+    String[] timeStrings = {
         "sec", "msec", "usec", "nsec", "autosec",};
-    String timeDescriptions[] = {
+    String[] timeDescriptions = {
         "Seconds", "Milliseconds", "Microseconds", "Nanoseconds", "Auto-scaled seconds",};
-    Integer timeObjects[] = {
-        new Integer(TIME_SECONDS), new Integer(TIME_MILLIS), new Integer(TIME_MICROS),
-        new Integer(TIME_NANOS), new Integer(TIME_AUTO),};
-    timeOpt = new Option.ObjectChoice(resultoptroot,
+    Integer[] timeObjects = {
+        TIME_SECONDS, TIME_MILLIS, TIME_MICROS, TIME_NANOS, TIME_AUTO,};
+    timeOpt = new ObjectChoice(
+        resultoptroot,
         "timeunits",
         "Time Units",
         timeStrings,
@@ -140,13 +140,14 @@ public class Result {
         timeStrings,
         timeDescriptions,
         0);
-    String rateStrings[] = {
+    String[] rateStrings = {
         "unitspersec", "secsperunit",};
-    String rateDescriptions[] = {
+    String[] rateDescriptions = {
         "Work units per Time", "Time units per Work",};
-    Boolean rateObjects[] = {
+    Boolean[] rateObjects = {
         Boolean.FALSE, Boolean.TRUE,};
-    rateOpt = new Option.ObjectChoice(resultoptroot,
+    rateOpt = new ObjectChoice(
+        resultoptroot,
         "ratio",
         "Rate Ratio",
         rateStrings,
@@ -156,79 +157,24 @@ public class Result {
         0);
   }
 
-  public static boolean isTimeUnit(int unit) {
-    return (unit >= TIME_SECONDS && unit <= TIME_AUTO);
-  }
-
-  public static boolean isWorkUnit(int unit) {
-    return (unit >= WORK_OPS && unit <= (WORK_AUTO | WORK_OPS));
-  }
-
-  public static String parseRateOpt(String opt) {
-    int timeScale = timeOpt.getIntValue();
-    int workScale = workOpt.getIntValue();
-    boolean invertRate = rateOpt.getBooleanValue();
-    int divindex = opt.indexOf('/');
-    if (divindex < 0) {
-      int unit = parseUnit(opt);
-      if (isTimeUnit(unit)) {
-        timeScale = unit;
-      } else if (isWorkUnit(unit)) {
-        workScale = unit;
-      } else {
-        return "Bad unit: " + opt;
-      }
-    } else {
-      int unit1 = parseUnit(opt.substring(0, divindex));
-      int unit2 = parseUnit(opt.substring(divindex + 1));
-      if (isTimeUnit(unit1)) {
-        if (isWorkUnit(unit2)) {
-          timeScale = unit1;
-          workScale = unit2;
-          invertRate = true;
-        } else if (isTimeUnit(unit2)) {
-          return "Both time units: " + opt;
-        } else {
-          return "Bad denominator: " + opt;
-        }
-      } else if (isWorkUnit(unit1)) {
-        if (isWorkUnit(unit2)) {
-          return "Both work units: " + opt;
-        } else if (isTimeUnit(unit2)) {
-          timeScale = unit2;
-          workScale = unit1;
-          invertRate = false;
-        } else {
-          return "Bad denominator: " + opt;
-        }
-      } else {
-        return "Bad numerator: " + opt;
-      }
-    }
-    timeOpt.setValue(timeScale);
-    workOpt.setValue(workScale);
-    rateOpt.setValue(invertRate);
-    return null;
-  }
-
   public static int parseUnit(String c) {
     Integer u = (Integer) unitMap.get(c);
     if (u != null) {
-      return u.intValue();
+      return u;
     }
     return RATE_UNKNOWN;
   }
 
   public void setReps(int reps) {
-    this.repsPerRun = reps;
+    repsPerRun = reps;
   }
 
   public void setUnits(int units) {
-    this.unitsPerRep = units;
+    unitsPerRep = units;
   }
 
   public void setUnitName(String name) {
-    this.unitname = name;
+    unitname = name;
   }
 
   public void addTime(long time) {
@@ -236,7 +182,7 @@ public class Result {
       System.out.println(test + " took " + time + "ms for " +
           getRepsPerRun() + " reps");
     }
-    times.addElement(new Long(time));
+    times.addElement(time);
   }
 
   public Throwable getError() {
@@ -244,7 +190,7 @@ public class Result {
   }
 
   public void setError(Throwable t) {
-    this.error = t;
+    error = t;
   }
 
   public int getRepsPerRun() {
@@ -256,7 +202,7 @@ public class Result {
   }
 
   public long getUnitsPerRun() {
-    return ((long) getRepsPerRun()) * ((long) getUnitsPerRep());
+    return (long) getRepsPerRun() * (long) getUnitsPerRep();
   }
 
   public Hashtable getModifiers() {
@@ -272,15 +218,15 @@ public class Result {
   }
 
   public long getTime(int index) {
-    return ((Long) times.elementAt(index)).longValue();
+    return (Long) times.elementAt(index);
   }
 
   public double getRepsPerSecond(int index) {
-    return (getRepsPerRun() * 1000.0) / getTime(index);
+    return getRepsPerRun() * 1000.0 / getTime(index);
   }
 
   public double getUnitsPerSecond(int index) {
-    return (getUnitsPerRun() * 1000.0) / getTime(index);
+    return getUnitsPerRun() * 1000.0 / getTime(index);
   }
 
   public long getTotalReps() {
@@ -300,11 +246,11 @@ public class Result {
   }
 
   public double getAverageRepsPerSecond() {
-    return (getTotalReps() * 1000.0) / getTotalTime();
+    return getTotalReps() * 1000.0 / getTotalTime();
   }
 
   public double getAverageUnitsPerSecond() {
-    return (getTotalUnits() * 1000.0) / getTotalTime();
+    return getTotalUnits() * 1000.0 / getTotalTime();
   }
 
   public String getAverageString() {
@@ -335,7 +281,7 @@ public class Result {
     boolean isOps = (workScale & WORK_OPS) != 0;
     String workname = isOps ? "op" : unitname;
     double work = isOps ? getTotalReps() : getTotalUnits();
-    switch (workScale & (~WORK_OPS)) {
+    switch (workScale & ~WORK_OPS) {
       case WORK_AUTO:
       case WORK_UNITS:
         break;
@@ -388,19 +334,17 @@ public class Result {
     } else {
       System.out.println(test + " averaged " + getAverageString());
     }
-    if (true) {
-      Enumeration enum_ = modifiers.keys();
-      System.out.print("    with");
-      String sep = " ";
-      while (enum_.hasMoreElements()) {
-        Modifier mod = (Modifier) enum_.nextElement();
-        Object v = modifiers.get(mod);
-        System.out.print(sep);
-        System.out.print(mod.getAbbreviatedModifierDescription(v));
-        sep = ", ";
-      }
-      System.out.println();
+    Enumeration enum_ = modifiers.keys();
+    System.out.print("    with");
+    String sep = " ";
+    while (enum_.hasMoreElements()) {
+      Modifier mod = (Modifier) enum_.nextElement();
+      Object v = modifiers.get(mod);
+      System.out.print(sep);
+      System.out.print(mod.getAbbreviatedModifierDescription(v));
+      sep = ", ";
     }
+    System.out.println();
   }
 
   public void write(PrintWriter pw) {

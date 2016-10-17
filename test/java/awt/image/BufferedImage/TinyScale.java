@@ -31,41 +31,16 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 
-public class TinyScale {
-    static double tinyscales[] = {
-        1E-0,
-        1E-1,
-        1E-2,
-        1E-3,
-        1E-4,
-        1E-5,
-        1E-6,
-        1E-7,
-        1E-8,
-        1E-9,
-        1E-10,
-        1E-11,
-        1E-12,
-        1E-13,
-        1E-14,
-        1E-15,
-        1E-16,
-        1E-17,
-        1E-18,
-        1E-19,
-        1E-20,
-        1E-21,
-        1E-22,
-        1E-23,
-        1E-24,
-        1E-25,
-        1E-26,
-        1E-27,
-        1E-28,
-        1E-29,
-    };
+public final class TinyScale {
+    static final double[] tinyscales = {
+        1E-0, 1E-1, 1E-2, 1E-3, 1E-4, 1E-5, 1E-6, 1E-7, 1E-8, 1E-9, 1E-10, 1E-11, 1E-12, 1E-13,
+        1E-14, 1E-15, 1E-16, 1E-17, 1E-18, 1E-19, 1E-20, 1E-21, 1E-22, 1E-23, 1E-24, 1E-25, 1E-26,
+        1E-27, 1E-28, 1E-29,};
 
-    static void test(BufferedImage rendImg, BufferedImage drawImg, double s) {
+  private TinyScale() {
+  }
+
+  static void test(BufferedImage rendImg, BufferedImage drawImg, double s) {
         Graphics2D g = drawImg.createGraphics();
         g.transform(new AffineTransform(s, 0.0, -1.0, 1.0, 0.0, 0.0));
         g.drawImage(rendImg,

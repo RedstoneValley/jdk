@@ -32,24 +32,26 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class PrintArcTest extends Panel implements ActionListener {
-    PrintCanvas canvas;
+    private static final long serialVersionUID = 7368570875181075086L;
+    final PrintCanvas canvas;
 
     public PrintArcTest () {
         setLayout(new BorderLayout());
         canvas = new PrintCanvas ();
-        add("North", canvas);
+        add(BorderLayout.NORTH, canvas);
 
         Button b = new Button("Click Me to Print!");
         b.setActionCommand ("print");
         b.addActionListener (this);
-        add("South", b);
+        add(BorderLayout.SOUTH, b);
         validate();
     }
 
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (cmd.equals("print")) {
+        if ("print".equals(cmd)) {
             PrintJob pjob = getToolkit().getPrintJob(getFrame(), "Printing Test", null);
             if (pjob != null) {
                 Graphics pg = pjob.getGraphics();
@@ -64,7 +66,7 @@ public class PrintArcTest extends Panel implements ActionListener {
     }
 
     private Frame getFrame() {
-        Container cont = getParent();;
+        Container cont = getParent();
 
         while ( !(cont instanceof Frame  ) ) {
             cont = cont.getParent();
@@ -73,13 +75,14 @@ public class PrintArcTest extends Panel implements ActionListener {
         return (Frame)cont;
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         PrintArcTest test = new PrintArcTest();
         Frame   f = new Frame( "PrintArcTest for Bug #4105609");
         f.add( test );
         f.setSize(500,400);
         f.show();
         f.addWindowListener( new WindowAdapter() {
+                                        @Override
                                         public void windowClosing(WindowEvent ev) {
                                             System.exit(0);
                                         }
@@ -89,10 +92,14 @@ public class PrintArcTest extends Panel implements ActionListener {
 }
 
 class PrintCanvas extends Canvas {
+    private static final long serialVersionUID = -4192228041956579930L;
+
+    @Override
     public Dimension getPreferredSize() {
             return new Dimension(300,300);
     }
 
+    @Override
     public void paint (Graphics g) {
         g.drawString("drawArc(25,50,150,100,45,90);",25,25);
         g.drawArc(25,50,150,100,45,90);

@@ -41,40 +41,48 @@ import java.util.Locale;
 
 public class HeadlessGraphicsEnvironment extends GraphicsEnvironment {
 
-  private GraphicsEnvironment ge;
+  private final GraphicsEnvironment ge;
 
   public HeadlessGraphicsEnvironment(GraphicsEnvironment ge) {
     this.ge = ge;
   }
 
+  @Override
   public GraphicsDevice[] getScreenDevices() throws HeadlessException {
     throw new HeadlessException();
   }
 
+  @Override
   public GraphicsDevice getDefaultScreenDevice() throws HeadlessException {
     throw new HeadlessException();
   }
 
+  @Override
   public Graphics2D createGraphics(BufferedImage img) {
     return ge.createGraphics(img);
   }
 
+  @Override
   public Font[] getAllFonts() {
     return ge.getAllFonts();
   }
 
+  @Override
   public String[] getAvailableFontFamilyNames() {
     return ge.getAvailableFontFamilyNames();
   }
 
+  @Override
   public String[] getAvailableFontFamilyNames(Locale l) {
     return ge.getAvailableFontFamilyNames(l);
   }
 
+  @Override
   public Point getCenterPoint() throws HeadlessException {
     throw new HeadlessException();
   }
 
+  @Override
   public Rectangle getMaximumWindowBounds() throws HeadlessException {
     throw new HeadlessException();
   }

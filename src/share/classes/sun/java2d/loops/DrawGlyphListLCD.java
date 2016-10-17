@@ -25,9 +25,9 @@
 
 package sun.java2d.loops;
 
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
+import sun.java2d.pipe.GlyphList;
 
 /**
  * DrawGlyphListLCD- loops for LCDTextRenderer pipe
@@ -37,9 +37,9 @@ import sun.java2d.SurfaceData;
  */
 public class DrawGlyphListLCD extends GraphicsPrimitive {
 
-  public final static String methodSignature = "DrawGlyphListLCD(...)".toString();
+  public static final String methodSignature = "DrawGlyphListLCD(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new DrawGlyphListLCD(null, null, null));
@@ -59,8 +59,11 @@ public class DrawGlyphListLCD extends GraphicsPrimitive {
     return (DrawGlyphListLCD) GraphicsPrimitiveMgr.locate(primTypeID, srctype, comptype, dsttype);
   }
 
-  public native void DrawGlyphListLCD(SunGraphics2D sg2d, SurfaceData dest, GlyphList srcData);
+  public void DrawGlyphListLCD(SunGraphics2D sg2d, SurfaceData dest, GlyphList srcData) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /* Do not return a General loop. SunGraphics2D determines whether
@@ -72,23 +75,26 @@ public class DrawGlyphListLCD extends GraphicsPrimitive {
     return null;
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawGlyphListLCD(this);
   }
 
   private static class TraceDrawGlyphListLCD extends DrawGlyphListLCD {
-    DrawGlyphListLCD target;
+    final DrawGlyphListLCD target;
 
     public TraceDrawGlyphListLCD(DrawGlyphListLCD target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawGlyphListLCD(SunGraphics2D sg2d, SurfaceData dest, GlyphList glyphs) {
       tracePrimitive(target);
       target.DrawGlyphListLCD(sg2d, dest, glyphs);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

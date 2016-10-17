@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test @summary JVM crash if the frame maximized from offscreen
+/*
+  @test @summary JVM crash if the frame maximized from offscreen
  * @bug 8020210
  * @author Petr Pchelko
  * @library ../../regtesthelpers
@@ -31,16 +31,16 @@
  * @run main/othervm MaximizeOffscreenTest
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 
-public class MaximizeOffscreenTest {
+public final class MaximizeOffscreenTest {
 
-    private static JFrame frame;
+    static JFrame frame;
 
-    public static void main(String[] args) throws Throwable {
+  private MaximizeOffscreenTest() {
+  }
+
+  public static void main(String[] args) throws Throwable {
 
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
@@ -59,7 +59,7 @@ public class MaximizeOffscreenTest {
         Util.waitForIdle(null);
     }
 
-    private static void constructTestUI() {
+    static void constructTestUI() {
         frame = new JFrame("Test frame");
         frame.setUndecorated(true);
         frame.setBounds(-1000, -1000, 100, 100);

@@ -31,32 +31,32 @@
   @run main InfiniteRecursion_4
 */
 
-/**
- * InfiniteRecursion_4.java
- *
- * summary: create simple JFrame and check that the WheelEvent is generated over it.
+/*
+  InfiniteRecursion_4.java
+
+  summary: create simple JFrame and check that the WheelEvent is generated over it.
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class InfiniteRecursion_4 {
-    final static Robot robot = Util.createRobot();
-    final static int MOVE_COUNT = 5;
+public final class InfiniteRecursion_4 {
+    static final Robot robot = Util.createRobot();
+    static final int MOVE_COUNT = 5;
     //*2 for both rotation directions over a single frame without any siblings
-    final static int EXPECTED_COUNT = MOVE_COUNT * 2;
-    static int actualEvents = 0;
+    static final int EXPECTED_COUNT = MOVE_COUNT << 1;
+    static int actualEvents;
 
-    public static void main(String []s)
+  private InfiniteRecursion_4() {
+  }
+
+  public static void main(String []s)
     {
         JFrame frame = new JFrame("A test frame");
 
         frame.setSize(200, 200);
         frame.addMouseWheelListener(new MouseWheelListener() {
+                @Override
                 public void mouseWheelMoved(MouseWheelEvent e)
                 {
                     System.out.println("Wheel moved on FRAME : "+e);

@@ -26,6 +26,8 @@
 package sun.awt.image;
 
 public class BadDepthException extends Exception {
+  private static final long serialVersionUID = 6249342407902262286L;
+
   public BadDepthException() {
   }
 }

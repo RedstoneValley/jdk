@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug     8038000 8047066
  *
  * @summary Verifies that we could create different type of Rasters with height 1
@@ -50,7 +50,7 @@ public class bug8038000 {
 
     private void checkOps() throws Exception {
 
-        RasterOp[] ops = new RasterOp[] {
+        RasterOp[] ops = {
                 new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_sRGB),
                         ColorSpace.getInstance(ColorSpace.CS_LINEAR_RGB), null),
                 new AffineTransformOp(AffineTransform.getScaleInstance(1, 1.1), null)
@@ -122,7 +122,8 @@ public class bug8038000 {
         for(int x = wr.getMinX(); x < wr.getMinX() + wr.getWidth(); x++) {
             for(int y = wr.getMinY(); y < wr.getMinY() + wr.getHeight(); y++) {
                 for (int b = 0; b < wr.getNumBands(); b++) {
-                    wr.setSample(x, y, b, c++);
+                    wr.setSample(x, y, b, c);
+                    c++;
                 }
             }
         }

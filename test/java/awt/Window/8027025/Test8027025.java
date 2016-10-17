@@ -30,14 +30,16 @@
 
 import sun.awt.SunToolkit;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Test8027025 {
+public final class Test8027025 {
 
     private static Frame frame;
     private static Window window;
+
+    private Test8027025() {
+    }
 
     public static void main(String[] args) throws Exception {
         try {

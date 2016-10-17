@@ -44,5 +44,5 @@ public interface ImageFetchable {
    * @see ImageFetcher
    * @see ImageProducer
    */
-  public void doFetch();
+  void doFetch();
 }

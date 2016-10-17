@@ -1,6 +1,7 @@
 package java.awt;
 
 import android.graphics.Canvas;
+import java.awt.BufferCapabilities.FlipContents;
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
@@ -132,7 +133,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
   }
 
   @Override
-  public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+  public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
     // TODO
   }
 

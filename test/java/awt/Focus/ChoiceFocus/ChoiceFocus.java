@@ -31,10 +31,8 @@
   @run main ChoiceFocus
 */
 
-import java.applet.*;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 /*
 Here is the old description for the test.
@@ -53,11 +51,11 @@ This bug occurs in Motif and was fixed in the native code.
    choice 1, the test passes.
 */
 
-public class ChoiceFocus {
+public final class ChoiceFocus {
     static Robot robot;
-    volatile static boolean keyPressed = false;
-    volatile static boolean keyReleased = false;
-    volatile static boolean keyTyped = false;
+    static volatile boolean keyPressed;
+    static volatile boolean keyReleased;
+    static volatile boolean keyTyped;
 
     public static void main(String[] args) {
         Frame f = new Frame("Test Frame");
@@ -71,14 +69,17 @@ public class ChoiceFocus {
         c2.add("Choice 2, Item 1");
         c2.add("Choice 2, Item 2");
         c1.addKeyListener(new KeyListener(){
+                @Override
                 public void keyPressed(KeyEvent e){
                     System.out.println("Key Pressed Event "+e);
                     keyPressed = true;
                 }
+                @Override
                 public void keyReleased(KeyEvent e){
                     System.out.println("Key Released Event "+e);
                     keyReleased = true;
                 }
+                @Override
                 public void keyTyped(KeyEvent e){
                     System.out.println("Key Typed Event "+e);
                     keyTyped = true;

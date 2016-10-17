@@ -27,50 +27,39 @@ package sun.awt;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
-import sun.nio.cs.HistoricallyNamedCharset;
+import java.security.AccessController;
 
 public class FontDescriptor implements Cloneable {
 
-  static boolean isLE;
+  static final boolean isLE;
 
   static {
     NativeLibLoader.loadLibraries();
-    initIDs();
   }
 
   static {
-    String enc
-        = (String) java.security.AccessController.doPrivileged(new sun.security.action
-        .GetPropertyAction("sun.io.unicode.encoding",
+    String enc = AccessController.doPrivileged(new sun.security.action.GetPropertyAction("sun.io"
+        + ".unicode.encoding",
         "UnicodeBig"));
     isLE = !"UnicodeBig".equals(enc);
   }
 
-  public CharsetEncoder encoder;
+  private final int[] exclusionRanges;
+  public final CharsetEncoder encoder;
   public CharsetEncoder unicodeEncoder;
-  String nativeName;
-  String charsetName;
-  boolean useUnicode; // set to true from native code on Unicode-based systems
-  private int[] exclusionRanges;
+  final String nativeName;
+  final String charsetName;
+  final boolean useUnicode; // set to true from native code on Unicode-based systems
 
   public FontDescriptor(String nativeName, CharsetEncoder encoder, int[] exclusionRanges) {
 
     this.nativeName = nativeName;
     this.encoder = encoder;
     this.exclusionRanges = exclusionRanges;
-    this.useUnicode = false;
+    useUnicode = false;
     Charset cs = encoder.charset();
-    if (cs instanceof HistoricallyNamedCharset) {
-      this.charsetName = ((HistoricallyNamedCharset) cs).historicalName();
-    } else {
-      this.charsetName = cs.name();
-    }
+    charsetName = cs.name();
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   public String getNativeName() {
     return nativeName;
@@ -94,8 +83,10 @@ public class FontDescriptor implements Cloneable {
   public boolean isExcluded(char ch) {
     for (int i = 0; i < exclusionRanges.length; ) {
 
-      int lo = (exclusionRanges[i++]);
-      int up = (exclusionRanges[i++]);
+      int lo = exclusionRanges[i];
+      i++;
+      int up = exclusionRanges[i];
+      i++;
 
       if (ch >= lo && ch <= up) {
         return true;
@@ -111,7 +102,7 @@ public class FontDescriptor implements Cloneable {
   public boolean useUnicode() {
     if (useUnicode && unicodeEncoder == null) {
       try {
-        this.unicodeEncoder = isLE ? StandardCharsets.UTF_16LE.newEncoder()
+        unicodeEncoder = isLE ? StandardCharsets.UTF_16LE.newEncoder()
             : StandardCharsets.UTF_16BE.newEncoder();
       } catch (IllegalArgumentException x) {
       }

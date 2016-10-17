@@ -33,50 +33,50 @@
 
 <project name="Metalworks/NB" basedir="..">
 
-    <import file="../build.xml" />
+    <import file="../build.xml"/>
 
     <target name="debug" depends="compile,-jdk-presetdef-nbjpdastart">
         <nbjpdastart name="Metalworks" addressproperty="jpda.address" transport="dt_socket">
-            <classpath path="${run.cp}" />
+            <classpath path="${run.cp}"/>
         </nbjpdastart>
         <java classname="${main.class}" failonerror="true" fork="true">
-            <classpath path="${run.cp}" />
-            <jvmarg value="-Xdebug" />
-            <jvmarg value="-Xnoagent" />
-            <jvmarg value="-Djava.compiler=none" />
-            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}" />
+            <classpath path="${run.cp}"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
         </java>
     </target>
 
     <target name="debug-fix" depends="-init">
         <javac debug="true" deprecation="${deprecation}" destdir="${classes.dir}"
-            srcdir="${src.dir}">
-            <classpath path="${cp}" />
-            <include name="${class}.java" />
+               srcdir="${src.dir}">
+            <classpath path="${cp}"/>
+            <include name="${class}.java"/>
         </javac>
         <nbjpdareload>
             <fileset dir="${classes.dir}">
-                <include name="${class}.class" />
+                <include name="${class}.class"/>
             </fileset>
         </nbjpdareload>
     </target>
 
     <target name="show-javadoc" depends="javadoc">
-        <nbbrowse file="${javadoc.dir}/index.html" />
+        <nbbrowse file="${javadoc.dir}/index.html"/>
     </target>
 
     <target name="profile" depends="compile">
         <nbprofiledirect>
-            <classpath path="${run.cp}" />
+            <classpath path="${run.cp}"/>
         </nbprofiledirect>
-        <property environment="env" />
+        <property environment="env"/>
         <java classname="${main.class}" dir="${profiler.session.working.dir}" failonerror="true"
-            fork="true" jvm="${profiler.info.jvm}">
-            <classpath path="${run.cp}" />
-            <jvmarg value="${profiler.info.jvmargs.agent}" />
-            <jvmarg line="${profiler.info.jvmargs}" />
-            <env key="LD_LIBRARY_PATH" path="${profiler.info.agentpath}:${env.LD_LIBRARY_PATH}" />
-            <env key="Path" path="${profiler.info.agentpath}:${env.Path}" />
+              fork="true" jvm="${profiler.info.jvm}">
+            <classpath path="${run.cp}"/>
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
+            <jvmarg line="${profiler.info.jvmargs}"/>
+            <env key="LD_LIBRARY_PATH" path="${profiler.info.agentpath}:${env.LD_LIBRARY_PATH}"/>
+            <env key="Path" path="${profiler.info.agentpath}:${env.Path}"/>
         </java>
     </target>
 

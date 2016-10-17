@@ -27,14 +27,13 @@ package java.awt.geom;
 
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.beans.Transient;
 
 /**
- * <code>RectangularShape</code> is the base class for a number of
+ * {@code RectangularShape} is the base class for a number of
  * {@link Shape} objects whose geometry is defined by a rectangular frame.
  * This class does not directly specify any specific geometry by
  * itself, but merely provides manipulation methods inherited by
- * a whole category of <code>Shape</code> objects.
+ * a whole category of {@code Shape} objects.
  * The manipulation methods provided by this class can be used to
  * query and modify the rectangular frame, which provides a reference
  * for the subclasses to define their geometry.
@@ -58,7 +57,7 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the X coordinate of the upper-left corner of
-   * the framing rectangle in <code>double</code> precision.
+   * the framing rectangle in {@code double} precision.
    *
    * @return the X coordinate of the upper-left corner of
    * the framing rectangle.
@@ -68,7 +67,7 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the Y coordinate of the upper-left corner of
-   * the framing rectangle in <code>double</code> precision.
+   * the framing rectangle in {@code double} precision.
    *
    * @return the Y coordinate of the upper-left corner of
    * the framing rectangle.
@@ -78,7 +77,7 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the width of the framing rectangle in
-   * <code>double</code> precision.
+   * {@code double} precision.
    *
    * @return the width of the framing rectangle.
    * @since 1.2
@@ -87,7 +86,7 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the height of the framing rectangle
-   * in <code>double</code> precision.
+   * in {@code double} precision.
    *
    * @return the height of the framing rectangle.
    * @since 1.2
@@ -96,11 +95,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the smallest X coordinate of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the smallest X coordinate of the framing
-   * rectangle of the <code>Shape</code>.
+   * rectangle of the {@code Shape}.
    * @since 1.2
    */
   public double getMinX() {
@@ -109,11 +108,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the smallest Y coordinate of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the smallest Y coordinate of the framing
-   * rectangle of the <code>Shape</code>.
+   * rectangle of the {@code Shape}.
    * @since 1.2
    */
   public double getMinY() {
@@ -122,11 +121,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the largest X coordinate of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the largest X coordinate of the framing
-   * rectangle of the <code>Shape</code>.
+   * rectangle of the {@code Shape}.
    * @since 1.2
    */
   public double getMaxX() {
@@ -135,11 +134,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the largest Y coordinate of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the largest Y coordinate of the framing
-   * rectangle of the <code>Shape</code>.
+   * rectangle of the {@code Shape}.
    * @since 1.2
    */
   public double getMaxY() {
@@ -148,11 +147,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the X coordinate of the center of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the X coordinate of the center of the framing rectangle
-   * of the <code>Shape</code>.
+   * of the {@code Shape}.
    * @since 1.2
    */
   public double getCenterX() {
@@ -161,11 +160,11 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Returns the Y coordinate of the center of the framing
-   * rectangle of the <code>Shape</code> in <code>double</code>
+   * rectangle of the {@code Shape} in {@code double}
    * precision.
    *
    * @return the Y coordinate of the center of the framing rectangle
-   * of the <code>Shape</code>.
+   * of the {@code Shape}.
    * @since 1.2
    */
   public double getCenterY() {
@@ -176,8 +175,8 @@ public abstract class RectangularShape implements Shape, Cloneable {
    * Returns the framing {@link Rectangle2D}
    * that defines the overall shape of this object.
    *
-   * @return a <code>Rectangle2D</code>, specified in
-   * <code>double</code> coordinates.
+   * @return a {@code Rectangle2D}, specified in
+   * {@code double} coordinates.
    * @see #setFrame(double, double, double, double)
    * @see #setFrame(Point2D, Dimension2D)
    * @see #setFrame(Rectangle2D)
@@ -189,12 +188,12 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Sets the framing rectangle of this <code>Shape</code> to
-   * be the specified <code>Rectangle2D</code>.  The framing rectangle is
-   * used by the subclasses of <code>RectangularShape</code> to define
+   * Sets the framing rectangle of this {@code Shape} to
+   * be the specified {@code Rectangle2D}.  The framing rectangle is
+   * used by the subclasses of {@code RectangularShape} to define
    * their geometry.
    *
-   * @param r the specified <code>Rectangle2D</code>
+   * @param r the specified {@code Rectangle2D}
    * @see #getFrame
    * @since 1.2
    */
@@ -203,19 +202,19 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Determines whether the <code>RectangularShape</code> is empty.
-   * When the <code>RectangularShape</code> is empty, it encloses no
+   * Determines whether the {@code RectangularShape} is empty.
+   * When the {@code RectangularShape} is empty, it encloses no
    * area.
    *
-   * @return <code>true</code> if the <code>RectangularShape</code> is empty;
-   * <code>false</code> otherwise.
+   * @return {@code true} if the {@code RectangularShape} is empty;
+   * {@code false} otherwise.
    * @since 1.2
    */
   public abstract boolean isEmpty();
 
   /**
    * Sets the location and size of the framing rectangle of this
-   * <code>Shape</code> to the specified rectangular values.
+   * {@code Shape} to the specified rectangular values.
    *
    * @param x the X coordinate of the upper-left corner of the
    *          specified rectangular shape
@@ -230,13 +229,13 @@ public abstract class RectangularShape implements Shape, Cloneable {
 
   /**
    * Sets the location and size of the framing rectangle of this
-   * <code>Shape</code> to the specified {@link Point2D} and
+   * {@code Shape} to the specified {@link Point2D} and
    * {@link Dimension2D}, respectively.  The framing rectangle is used
-   * by the subclasses of <code>RectangularShape</code> to define
+   * by the subclasses of {@code RectangularShape} to define
    * their geometry.
    *
-   * @param loc  the specified <code>Point2D</code>
-   * @param size the specified <code>Dimension2D</code>
+   * @param loc  the specified {@code Point2D}
+   * @param size the specified {@code Dimension2D}
    * @see #getFrame
    * @since 1.2
    */
@@ -245,9 +244,9 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Sets the diagonal of the framing rectangle of this <code>Shape</code>
+   * Sets the diagonal of the framing rectangle of this {@code Shape}
    * based on the two specified coordinates.  The framing rectangle is
-   * used by the subclasses of <code>RectangularShape</code> to define
+   * used by the subclasses of {@code RectangularShape} to define
    * their geometry.
    *
    * @param x1 the X coordinate of the start point of the specified diagonal
@@ -271,13 +270,13 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Sets the diagonal of the framing rectangle of this <code>Shape</code>
-   * based on two specified <code>Point2D</code> objects.  The framing
-   * rectangle is used by the subclasses of <code>RectangularShape</code>
+   * Sets the diagonal of the framing rectangle of this {@code Shape}
+   * based on two specified {@code Point2D} objects.  The framing
+   * rectangle is used by the subclasses of {@code RectangularShape}
    * to define their geometry.
    *
-   * @param p1 the start <code>Point2D</code> of the specified diagonal
-   * @param p2 the end <code>Point2D</code> of the specified diagonal
+   * @param p1 the start {@code Point2D} of the specified diagonal
+   * @param p2 the end {@code Point2D} of the specified diagonal
    * @since 1.2
    */
   public void setFrameFromDiagonal(Point2D p1, Point2D p2) {
@@ -285,10 +284,10 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Sets the framing rectangle of this <code>Shape</code>
+   * Sets the framing rectangle of this {@code Shape}
    * based on the specified center point coordinates and corner point
    * coordinates.  The framing rectangle is used by the subclasses of
-   * <code>RectangularShape</code> to define their geometry.
+   * {@code RectangularShape} to define their geometry.
    *
    * @param centerX the X coordinate of the specified center point
    * @param centerY the Y coordinate of the specified center point
@@ -303,13 +302,13 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * Sets the framing rectangle of this <code>Shape</code> based on a
-   * specified center <code>Point2D</code> and corner
-   * <code>Point2D</code>.  The framing rectangle is used by the subclasses
-   * of <code>RectangularShape</code> to define their geometry.
+   * Sets the framing rectangle of this {@code Shape} based on a
+   * specified center {@code Point2D} and corner
+   * {@code Point2D}.  The framing rectangle is used by the subclasses
+   * of {@code RectangularShape} to define their geometry.
    *
-   * @param center the specified center <code>Point2D</code>
-   * @param corner the specified corner <code>Point2D</code>
+   * @param center the specified center {@code Point2D}
+   * @param corner the specified corner {@code Point2D}
    * @since 1.2
    */
   public void setFrameFromCenter(Point2D center, Point2D corner) {
@@ -317,10 +316,9 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public Rectangle getBounds() {
     double width = getWidth();
     double height = getHeight();
@@ -337,59 +335,57 @@ public abstract class RectangularShape implements Shape, Cloneable {
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(Point2D p) {
     return contains(p.getX(), p.getY());
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean intersects(Rectangle2D r) {
     return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.2
    */
+  @Override
   public boolean contains(Rectangle2D r) {
     return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
   }
 
   /**
    * Returns an iterator object that iterates along the
-   * <code>Shape</code> object's boundary and provides access to a
-   * flattened view of the outline of the <code>Shape</code>
+   * {@code Shape} object's boundary and provides access to a
+   * flattened view of the outline of the {@code Shape}
    * object's geometry.
    * <p>
    * Only SEG_MOVETO, SEG_LINETO, and SEG_CLOSE point types will
    * be returned by the iterator.
    * <p>
    * The amount of subdivision of the curved segments is controlled
-   * by the <code>flatness</code> parameter, which specifies the
+   * by the {@code flatness} parameter, which specifies the
    * maximum distance that any point on the unflattened transformed
    * curve can deviate from the returned flattened path segments.
    * An optional {@link AffineTransform} can
    * be specified so that the coordinates returned in the iteration are
    * transformed accordingly.
    *
-   * @param at       an optional <code>AffineTransform</code> to be applied to the
+   * @param at       an optional {@code AffineTransform} to be applied to the
    *                 coordinates as they are returned in the iteration,
-   *                 or <code>null</code> if untransformed coordinates are desired.
+   *                 or {@code null} if untransformed coordinates are desired.
    * @param flatness the maximum distance that the line segments used to
    *                 approximate the curved segments are allowed to deviate
    *                 from any point on the original curve
-   * @return a <code>PathIterator</code> object that provides access to
-   * the <code>Shape</code> object's flattened geometry.
+   * @return a {@code PathIterator} object that provides access to
+   * the {@code Shape} object's flattened geometry.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at, double flatness) {
     return new FlatteningPathIterator(getPathIterator(at), flatness);
   }
@@ -400,9 +396,10 @@ public abstract class RectangularShape implements Shape, Cloneable {
    *
    * @return a clone of this instance.
    * @throws OutOfMemoryError if there is not enough memory.
-   * @see java.lang.Cloneable
+   * @see Cloneable
    * @since 1.2
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();

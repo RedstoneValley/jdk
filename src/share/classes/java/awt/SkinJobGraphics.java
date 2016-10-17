@@ -3,10 +3,12 @@ package java.awt;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 import java.awt.image.ImageObserver;
 import java.text.AttributedCharacterIterator;
+import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
 import java.util.Collections;
 import java.util.Map;
@@ -19,22 +21,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class SkinJobGraphics extends Graphics {
   private static final String TAG = "SkinJobGraphics";
-  private Set<CancelableImageObserver> pendingObservers
-      = Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
-  private Canvas canvas;
+  private final Set<CancelableImageObserver> pendingObservers = Collections.synchronizedSet(
+      Collections.newSetFromMap(new WeakHashMap<>()));
+  private final Canvas canvas;
+  private final android.graphics.Paint pen;
+  private final android.graphics.Paint brush;
+  private final android.graphics.Paint eraser;
   private int color = Color.BLACK.getRGB();
-  private android.graphics.Paint pen;
-  private android.graphics.Paint brush;
-  private android.graphics.Paint eraser;
 
   public SkinJobGraphics(Bitmap androidBitmap) {
     pen = new android.graphics.Paint();
     pen.setStrokeWidth(0);
-    pen.setStyle(Paint.Style.STROKE);
+    pen.setStyle(Style.STROKE);
     brush = new android.graphics.Paint();
-    brush.setStyle(Paint.Style.FILL);
+    brush.setStyle(Style.FILL);
     eraser = new android.graphics.Paint();
-    eraser.setStyle(Paint.Style.FILL);
+    eraser.setStyle(Style.FILL);
     eraser.setAlpha(0);
     canvas = new Canvas(androidBitmap);
   }
@@ -191,7 +193,7 @@ public class SkinJobGraphics extends Graphics {
     for (char c = iterator.first(); c != CharacterIterator.DONE; c = iterator.next()) {
       formattedText.append(c);
       charsWritten++;
-      Map<AttributedCharacterIterator.Attribute, Object> attributes = iterator.getAttributes();
+      Map<Attribute, Object> attributes = iterator.getAttributes();
       if (!attributes.isEmpty()) {
         new SkinJobTextAttributesDecoder(color)
             .addAttributes(attributes)
@@ -231,7 +233,7 @@ public class SkinJobGraphics extends Graphics {
     int height = img.getHeight(wrapperObserver);
     if (width >= 0 && height >= 0) {
       Paint bg = new Paint();
-      bg.setStyle(Paint.Style.FILL);
+      bg.setStyle(Style.FILL);
       bg.setColor(bgcolor.getRGB());
       canvas.drawRect(x, y, x + width, y + height, bg);
       return drawImage(img, x, y, observer);
@@ -244,7 +246,7 @@ public class SkinJobGraphics extends Graphics {
   public boolean drawImage(
       Image img, int x, int y, int width, int height, Color bgcolor, ImageObserver observer) {
     Paint bg = new Paint();
-    bg.setStyle(Paint.Style.FILL);
+    bg.setStyle(Style.FILL);
     bg.setColor(bgcolor.getRGB());
     canvas.drawRect(x, y, x + width, y + height, bg);
     return drawImage(img, x, y, width, height, observer);
@@ -263,7 +265,7 @@ public class SkinJobGraphics extends Graphics {
       Image img, int dx1, int dy1, int dx2, int dy2, int sx1, int sy1, int sx2, int sy2,
       Color bgcolor, ImageObserver observer) {
     Paint bg = new Paint();
-    bg.setStyle(Paint.Style.FILL);
+    bg.setStyle(Style.FILL);
     bg.setColor(bgcolor.getRGB());
     canvas.drawRect(dx1, dy1, dx2, dy2, bg);
     return drawImage(img, dx1, dy1, dx2, dy2, sx1, sy1, sx2, sy2, observer);
@@ -280,8 +282,11 @@ public class SkinJobGraphics extends Graphics {
     return canvas;
   }
 
-  private static abstract class CancelableImageObserver implements ImageObserver {
-    private AtomicBoolean canceled = new AtomicBoolean(false);
+  private abstract static class CancelableImageObserver implements ImageObserver {
+    private final AtomicBoolean canceled = new AtomicBoolean(false);
+
+    CancelableImageObserver() {
+    }
 
     public void cancel() {
       canceled.lazySet(true);
@@ -293,11 +298,7 @@ public class SkinJobGraphics extends Graphics {
     @Override
     public boolean imageUpdate(
         Image img, int infoflags, int x, int y, int width, int height) {
-      if (canceled.get()) {
-        return false;
-      } else {
-        return imageUpdateInternal(img, infoflags, x, y, width, height);
-      }
+      return canceled.get() ? false : imageUpdateInternal(img, infoflags, x, y, width, height);
     }
   }
 }

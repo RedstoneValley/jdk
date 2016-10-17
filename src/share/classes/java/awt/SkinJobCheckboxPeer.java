@@ -10,10 +10,10 @@ import java.awt.peer.CheckboxPeer;
 class SkinJobCheckboxPeer extends SkinJobComponentPeerForView<CompoundButton>
     implements CheckboxPeer {
   protected final Checkbox thisBox;
-  protected CheckboxGroup group = null;
+  protected CheckboxGroup group;
 
   public SkinJobCheckboxPeer(Checkbox target) {
-    super((CheckBox) target.androidWidget);
+    super((CompoundButton) target.androidWidget);
     thisBox = target;
     setCheckboxGroup(target.getCheckboxGroup());
   }

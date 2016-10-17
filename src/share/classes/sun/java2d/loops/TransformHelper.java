@@ -42,11 +42,11 @@ import sun.java2d.pipe.Region;
  * with overlapping regions of pixels
  */
 public class TransformHelper extends GraphicsPrimitive {
-  public static final String methodSignature = "TransformHelper(...)".toString();
+  public static final String methodSignature = "TransformHelper(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache helpercache = new RenderCache(10);
+  private static final RenderCache helpercache = new RenderCache(10);
 
   protected TransformHelper(SurfaceType srctype) {
     super(methodSignature, primTypeID, srctype, CompositeType.SrcNoEa, SurfaceType.IntArgbPre);
@@ -81,32 +81,37 @@ public class TransformHelper extends GraphicsPrimitive {
     return helper;
   }
 
-  public native void Transform(
+  public void Transform(
       MaskBlit output, SurfaceData src, SurfaceData dst, Composite comp, Region clip,
       AffineTransform itx, int txtype, int sx1, int sy1, int sx2, int sy2, int dx1, int dy1,
-      int dx2, int dy2, int edges[], int dxoff, int dyoff);
+      int dx2, int dy2, int[] edges, int dxoff, int dyoff) {
+    // TODO: Native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     return null;
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceTransformHelper(this);
   }
 
   private static class TraceTransformHelper extends TransformHelper {
-    TransformHelper target;
+    final TransformHelper target;
 
     public TraceTransformHelper(TransformHelper target) {
       super(target.getSourceType());
       this.target = target;
     }
 
+    @Override
     public void Transform(
         MaskBlit output, SurfaceData src, SurfaceData dst, Composite comp, Region clip,
         AffineTransform itx, int txtype, int sx1, int sy1, int sx2, int sy2, int dx1, int dy1,
-        int dx2, int dy2, int edges[], int dxoff, int dyoff) {
+        int dx2, int dy2, int[] edges, int dxoff, int dyoff) {
       tracePrimitive(target);
       target.Transform(output,
           src,
@@ -128,6 +133,7 @@ public class TransformHelper extends GraphicsPrimitive {
           dyoff);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

@@ -32,9 +32,14 @@ Toolkit.isModalExclusionTypeSupported() methods
 */
 
 import java.awt.*;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 
-public class SupportedTest
+public final class SupportedTest
 {
+    private SupportedTest() {
+    }
+
     public static void main(String[] args)
     {
         boolean passed = true;
@@ -43,12 +48,12 @@ public class SupportedTest
         // check for modality types
 
         Frame f = new Frame("F");
-        for (Dialog.ModalityType mt : Dialog.ModalityType.values())
+        for (ModalityType mt : ModalityType.values())
         {
             if (!tk.isModalityTypeSupported(mt))
             {
                 Dialog d = new Dialog(f, "D", mt);
-                if (!d.getModalityType().equals(Dialog.ModalityType.MODELESS))
+                if (d.getModalityType() != ModalityType.MODELESS)
                 {
                     System.err.println("Error: modality type " + mt + " is not supported\n" +
                                        "but a dialog with this modality type can be created");
@@ -58,13 +63,13 @@ public class SupportedTest
         }
 
         // check for modal exclusion types
-        for (Dialog.ModalExclusionType et : Dialog.ModalExclusionType.values())
+        for (ModalExclusionType et : ModalExclusionType.values())
         {
             if (!tk.isModalExclusionTypeSupported(et))
             {
                 Frame g = new Frame("G");
                 g.setModalExclusionType(et);
-                if (!g.getModalExclusionType().equals(Dialog.ModalExclusionType.NO_EXCLUDE))
+                if (g.getModalExclusionType() != ModalExclusionType.NO_EXCLUDE)
                 {
                     System.err.println("Error: modal exclusion type " + et + "is not supported\n" +
                                        "but a window with this modal exclusion type can be created");

@@ -25,6 +25,7 @@
 
 package sun.awt.util;
 
+import java.lang.reflect.Array;
 import java.util.AbstractSequentialList;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
@@ -62,7 +63,7 @@ import java.util.NoSuchElementException;
  * encapsulates the list.
  * <p>
  * If no such object exists, the list should be "wrapped" using the
- * {@link Collections#synchronizedList Collections.synchronizedList}
+ *
  * method.  This is best done at creation time, to prevent accidental
  * unsynchronized access to the list:<pre>
  *   List list = Collections.synchronizedList(new IdentityLinkedList(...));</pre>
@@ -86,9 +87,9 @@ import java.util.NoSuchElementException;
  * should be used only to detect bugs.</i>
  */
 
-public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements List<E>, Deque<E> {
-  private transient Entry<E> header = new Entry<E>(null, null, null);
-  private transient int size = 0;
+public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements Deque<E> {
+  final transient Entry<E> header = new Entry<>(null, null, null);
+  transient int size;
 
   /**
    * Constructs an empty list.
@@ -115,6 +116,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    *
    * @param e the element to add
    */
+  @Override
   public void addFirst(E e) {
     addBefore(e, header.next);
   }
@@ -126,6 +128,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    *
    * @param e the element to add
    */
+  @Override
   public void addLast(E e) {
     addBefore(e, header);
   }
@@ -134,9 +137,10 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * Inserts the specified element at the front of this list.
    *
    * @param e the element to insert
-   * @return <tt>true</tt> (as specified by {@link Deque#offerFirst})
+   * @return <tt>true</tt> (as specified by )
    * @since 1.6
    */
+  @Override
   public boolean offerFirst(E e) {
     addFirst(e);
     return true;
@@ -146,9 +150,10 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * Inserts the specified element at the end of this list.
    *
    * @param e the element to insert
-   * @return <tt>true</tt> (as specified by {@link Deque#offerLast})
+   * @return <tt>true</tt> (as specified by )
    * @since 1.6
    */
+  @Override
   public boolean offerLast(E e) {
     addLast(e);
     return true;
@@ -160,6 +165,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the first element from this list
    * @throws NoSuchElementException if this list is empty
    */
+  @Override
   public E removeFirst() {
     return remove(header.next);
   }
@@ -170,6 +176,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the last element from this list
    * @throws NoSuchElementException if this list is empty
    */
+  @Override
   public E removeLast() {
     return remove(header.previous);
   }
@@ -182,6 +189,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * this list is empty
    * @since 1.6
    */
+  @Override
   public E pollFirst() {
     if (size == 0) {
       return null;
@@ -197,6 +205,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * this list is empty
    * @since 1.6
    */
+  @Override
   public E pollLast() {
     if (size == 0) {
       return null;
@@ -210,6 +219,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the first element in this list
    * @throws NoSuchElementException if this list is empty
    */
+  @Override
   public E getFirst() {
     if (size == 0) {
       throw new NoSuchElementException();
@@ -224,6 +234,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the last element in this list
    * @throws NoSuchElementException if this list is empty
    */
+  @Override
   public E getLast() {
     if (size == 0) {
       throw new NoSuchElementException();
@@ -240,6 +251,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * if this list is empty
    * @since 1.6
    */
+  @Override
   public E peekFirst() {
     if (size == 0) {
       return null;
@@ -255,6 +267,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * if this list is empty
    * @since 1.6
    */
+  @Override
   public E peekLast() {
     if (size == 0) {
       return null;
@@ -271,6 +284,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return <tt>true</tt> if the list contained the specified element
    * @since 1.6
    */
+  @Override
   public boolean removeFirstOccurrence(Object o) {
     return remove(o);
   }
@@ -286,6 +300,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return <tt>true</tt> if the list contained the specified element
    * @since 1.6
    */
+  @Override
   public boolean removeLastOccurrence(Object o) {
     for (Entry<E> e = header.previous; e != header; e = e.previous) {
       if (o == e.element) {
@@ -300,9 +315,10 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * Adds the specified element as the tail (last element) of this list.
    *
    * @param e the element to add
-   * @return <tt>true</tt> (as specified by {@link Queue#offer})
+   * @return <tt>true</tt> (as specified by )
    * @since 1.5
    */
+  @Override
   public boolean offer(E e) {
     return add(e);
   }
@@ -314,6 +330,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @throws NoSuchElementException if this list is empty
    * @since 1.5
    */
+  @Override
   public E remove() {
     return removeFirst();
   }
@@ -324,6 +341,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the head of this list, or <tt>null</tt> if this list is empty
    * @since 1.5
    */
+  @Override
   public E poll() {
     if (size == 0) {
       return null;
@@ -338,6 +356,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @throws NoSuchElementException if this list is empty
    * @since 1.5
    */
+  @Override
   public E element() {
     return getFirst();
   }
@@ -350,6 +369,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the head of this list, or <tt>null</tt> if this list is empty
    * @since 1.5
    */
+  @Override
   public E peek() {
     if (size == 0) {
       return null;
@@ -366,6 +386,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @param e the element to push
    * @since 1.6
    */
+  @Override
   public void push(E e) {
     addFirst(e);
   }
@@ -383,6 +404,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @throws NoSuchElementException if this list is empty
    * @since 1.6
    */
+  @Override
   public E pop() {
     return removeFirst();
   }
@@ -390,6 +412,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
   /**
    * @since 1.6
    */
+  @Override
   public Iterator<E> descendingIterator() {
     return new DescendingIterator();
   }
@@ -399,6 +422,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    *
    * @return the number of elements in this list
    */
+  @Override
   public int size() {
     return size;
   }
@@ -412,6 +436,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @param o element whose presence in this list is to be tested
    * @return <tt>true</tt> if this list contains the specified element
    */
+  @Override
   public boolean contains(Object o) {
     return indexOf(o) != -1;
   }
@@ -430,11 +455,13 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return an array containing all of the elements in this list
    * in proper sequence
    */
+  @Override
   public Object[] toArray() {
     Object[] result = new Object[size];
     int i = 0;
     for (Entry<E> e = header.next; e != header; e = e.next) {
-      result[i++] = e.element;
+      result[i] = e.element;
+      i++;
     }
     return result;
   }
@@ -479,14 +506,16 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    *                              this list
    * @throws NullPointerException if the specified array is null
    */
+  @Override
   public <T> T[] toArray(T[] a) {
     if (a.length < size) {
-      a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+      a = (T[]) Array.newInstance(a.getClass().getComponentType(), size);
     }
     int i = 0;
     Object[] result = a;
     for (Entry<E> e = header.next; e != header; e = e.next) {
-      result[i++] = e.element;
+      result[i] = e.element;
+      i++;
     }
 
     if (a.length > size) {
@@ -508,6 +537,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @param o element to be removed from this list, if present
    * @return <tt>true</tt> if this list contained the specified element
    */
+  @Override
   public boolean remove(Object o) {
     for (Entry<E> e = header.next; e != header; e = e.next) {
       if (o == e.element) {
@@ -530,6 +560,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return <tt>true</tt> if this list changed as a result of the call
    * @throws NullPointerException if the specified collection is null
    */
+  @Override
   public boolean addAll(Collection<? extends E> c) {
     return addAll(size, c);
   }
@@ -542,6 +573,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @param e element to be appended to this list
    * @return <tt>true</tt> (as specified by {@link Collection#add})
    */
+  @Override
   public boolean add(E e) {
     addBefore(e, header);
     return true;
@@ -558,6 +590,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the index of the first occurrence of the specified element in
    * this list, or -1 if this list does not contain the element
    */
+  @Override
   public int indexOf(Object o) {
     int index = 0;
     for (Entry e = header.next; e != header; e = e.next) {
@@ -580,6 +613,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the index of the last occurrence of the specified element in
    * this list, or -1 if this list does not contain the element
    */
+  @Override
   public int lastIndexOf(Object o) {
     int index = size;
     for (Entry e = header.previous; e != header; e = e.previous) {
@@ -594,6 +628,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
   /**
    * Removes all of the elements from this list.
    */
+  @Override
   public void clear() {
     Entry<E> e = header.next;
     while (e != header) {
@@ -614,6 +649,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the element at the specified position in this list
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E get(int index) {
     return entry(index).element;
   }
@@ -627,6 +663,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E set(int index, E element) {
     Entry<E> e = entry(index);
     E oldVal = e.element;
@@ -643,8 +680,9 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @param element element to be inserted
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public void add(int index, E element) {
-    addBefore(element, (index == size ? header : entry(index)));
+    addBefore(element, index == size ? header : entry(index));
   }
 
   /**
@@ -656,6 +694,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E remove(int index) {
     return remove(entry(index));
   }
@@ -675,6 +714,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @throws IndexOutOfBoundsException {@inheritDoc}
    * @throws NullPointerException      if the specified collection is null
    */
+  @Override
   public boolean addAll(int index, Collection<? extends E> c) {
     if (index < 0 || index > size) {
       throw new IndexOutOfBoundsException("Index: " + index +
@@ -687,10 +727,10 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
     }
     modCount++;
 
-    Entry<E> successor = (index == size ? header : entry(index));
+    Entry<E> successor = index == size ? header : entry(index);
     Entry<E> predecessor = successor.previous;
-    for (int i = 0; i < numNew; i++) {
-      Entry<E> e = new Entry<E>((E) a[i], successor, predecessor);
+    for (Object anA : a) {
+      Entry<E> e = new Entry<>((E) anA, successor, predecessor);
       predecessor.next = e;
       predecessor = e;
     }
@@ -721,6 +761,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
    * @throws IndexOutOfBoundsException {@inheritDoc}
    * @see List#listIterator(int)
    */
+  @Override
   public ListIterator<E> listIterator(int index) {
     return new ListItr(index);
   }
@@ -734,7 +775,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
           ", Size: " + size);
     }
     Entry<E> e = header;
-    if (index < (size >> 1)) {
+    if (index < size >> 1) {
       for (int i = 0; i <= index; i++) {
         e = e.next;
       }
@@ -746,8 +787,8 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
     return e;
   }
 
-  private Entry<E> addBefore(E e, Entry<E> entry) {
-    Entry<E> newEntry = new Entry<E>(e, entry, entry.previous);
+  Entry<E> addBefore(E e, Entry<E> entry) {
+    Entry<E> newEntry = new Entry<>(e, entry, entry.previous);
     newEntry.previous.next = newEntry;
     newEntry.next.previous = newEntry;
     size++;
@@ -755,7 +796,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
     return newEntry;
   }
 
-  private E remove(Entry<E> e) {
+  E remove(Entry<E> e) {
     if (e == header) {
       throw new NoSuchElementException();
     }
@@ -793,7 +834,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
         throw new IndexOutOfBoundsException("Index: " + index +
             ", Size: " + size);
       }
-      if (index < (size >> 1)) {
+      if (index < size >> 1) {
         next = header.next;
         for (nextIndex = 0; nextIndex < index; nextIndex++) {
           next = next.next;
@@ -806,10 +847,12 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
       }
     }
 
+    @Override
     public boolean hasNext() {
       return nextIndex != size;
     }
 
+    @Override
     public E next() {
       checkForComodification();
       if (nextIndex == size) {
@@ -822,10 +865,12 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
       return lastReturned.element;
     }
 
+    @Override
     public boolean hasPrevious() {
       return nextIndex != 0;
     }
 
+    @Override
     public E previous() {
       if (nextIndex == 0) {
         throw new NoSuchElementException();
@@ -837,14 +882,17 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
       return lastReturned.element;
     }
 
+    @Override
     public int nextIndex() {
       return nextIndex;
     }
 
+    @Override
     public int previousIndex() {
       return nextIndex - 1;
     }
 
+    @Override
     public void remove() {
       checkForComodification();
       Entry<E> lastNext = lastReturned.next;
@@ -862,6 +910,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
       expectedModCount++;
     }
 
+    @Override
     public void set(E e) {
       if (lastReturned == header) {
         throw new IllegalStateException();
@@ -870,6 +919,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
       lastReturned.element = e;
     }
 
+    @Override
     public void add(E e) {
       checkForComodification();
       lastReturned = header;
@@ -891,14 +941,20 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
   private class DescendingIterator implements Iterator {
     final ListItr itr = new ListItr(size());
 
+    DescendingIterator() {
+    }
+
+    @Override
     public boolean hasNext() {
       return itr.hasPrevious();
     }
 
+    @Override
     public E next() {
       return itr.previous();
     }
 
+    @Override
     public void remove() {
       itr.remove();
     }

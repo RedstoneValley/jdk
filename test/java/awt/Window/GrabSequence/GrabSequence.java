@@ -33,14 +33,16 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class GrabSequence
+public final class GrabSequence
 {
+    private GrabSequence() {
+    }
+
     private static void init()
     {
         String toolkit = Toolkit.getDefaultToolkit().getClass().getName();
-        if ( toolkit.equals("sun.awt.motif.MToolkit")){
+        if ("sun.awt.motif.MToolkit".equals(toolkit)){
             System.out.println("This test is for XToolkit and WToolkit only. Now using " + toolkit + ". Automatically passed.");
             return;
         }
@@ -57,7 +59,7 @@ public class GrabSequence
         ch.addItem("Three");
         ch.addItem("Four");
         ch.addItem("Five");
-        final PopupMenu pm = new PopupMenu();
+        PopupMenu pm = new PopupMenu();
 
         MenuItem i1 = new MenuItem("Item1");
         MenuItem i2 = new MenuItem("Item2");
@@ -67,17 +69,19 @@ public class GrabSequence
         pm.add(i3);
         ch.add(pm);
         ch.addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent event) {
                 if (event.isPopupTrigger()) {
                     System.out.println("mousePressed"+event);
-                    pm.show((Choice)event.getSource(), event.getX(), event.getY());
+                    pm.show((Component) event.getSource(), event.getX(), event.getY());
                 }
             }
 
+            @Override
             public void mouseReleased(MouseEvent event) {
                 if (event.isPopupTrigger()) {
                     System.out.println("mouseReleased"+event);
-                    pm.show((Choice)event.getSource(), event.getX(), event.getY());
+                    pm.show((Component) event.getSource(), event.getX(), event.getY());
                 }
             }
         });
@@ -98,10 +102,10 @@ public class GrabSequence
             Util.waitForIdle(robot);
 
             Color color = robot.getPixelColor(ch.getLocationOnScreen().x + ch.getWidth()/2,
-                                              ch.getLocationOnScreen().y + ch.getHeight()*4);
+                                              ch.getLocationOnScreen().y + (ch.getHeight() << 2));
             System.out.println("1. Color is " + color);
             if (!color.equals(Color.red)){
-                GrabSequence.fail("Test failed. Choice is still not opened. ");
+                fail("Test failed. Choice is still not opened. ");
             }
 
             robot.mousePress(InputEvent.BUTTON3_MASK);
@@ -110,23 +114,26 @@ public class GrabSequence
             Util.waitForIdle(robot);
 
             color = robot.getPixelColor(ch.getLocationOnScreen().x + ch.getWidth()/2,
-                                              ch.getLocationOnScreen().y + ch.getHeight()*2);
+                                              ch.getLocationOnScreen().y + (ch.getHeight() << 1));
             System.out.println("2. Color is " + color);
             if (color.equals(Color.green)){
-                GrabSequence.fail("Test failed. popup menu is not opened. ");
+                fail("Test failed. popup menu is not opened. ");
             }
 
             color = robot.getPixelColor(ch.getLocationOnScreen().x + ch.getWidth()/2,
-                                              ch.getLocationOnScreen().y + ch.getHeight()*4);
+                                              ch.getLocationOnScreen().y + (ch.getHeight() << 2));
             System.out.println("3. Color is " + color);
-            if (!color.equals(Color.green) && !Toolkit.getDefaultToolkit().getClass().getName().equals("sun.awt.windows.WToolkit")){
-                GrabSequence.fail("Test failed. Choice is still opened. ");
+            if (!color.equals(Color.green) && !"sun.awt.windows.WToolkit".equals(Toolkit
+                .getDefaultToolkit()
+                .getClass()
+                .getName())){
+                fail("Test failed. Choice is still opened. ");
             }
         } catch(AWTException e){
-            GrabSequence.fail("Test interrupted."+e);
+            fail("Test interrupted."+e);
         }
 
-        GrabSequence.pass();
+        pass();
     }//End  init()
 
 
@@ -143,11 +150,11 @@ public class GrabSequence
      * There is a section following this for test-
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
@@ -155,7 +162,7 @@ public class GrabSequence
     //  instantiated in the same VM.  Being static (and using
     //  static vars), it aint gonna work.  Not worrying about
     //  it for now.
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -184,12 +191,14 @@ public class GrabSequence
         {
             //The test harness may have interrupted the test.  If so, rethrow the exception
             // so that the harness gets it and deals with it.
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
 
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -249,6 +258,7 @@ public class GrabSequence
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
@@ -291,16 +301,13 @@ class NewClass implements anInterface
 
 //************** End classes defined for the test *******************
 
-
-
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -314,9 +321,12 @@ class NewClass implements anInterface
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -361,9 +371,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -371,10 +382,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -390,35 +401,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

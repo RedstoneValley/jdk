@@ -27,6 +27,8 @@ package sun.java2d.cmm.lcms;
 
 import java.awt.color.CMMException;
 import java.awt.color.ICC_Profile;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import sun.java2d.cmm.ColorTransform;
 import sun.java2d.cmm.PCMM;
 import sun.java2d.cmm.Profile;
@@ -34,14 +36,10 @@ import sun.java2d.cmm.lcms.LCMSProfile.TagData;
 
 public class LCMS implements PCMM {
 
-  private static LCMS theLcms = null;
+  private static LCMS theLcms;
 
   private LCMS() {
   }
-
-  static native byte[] getTagNative(long profileID, int signature);
-
-  public synchronized static native LCMSProfile getProfileID(ICC_Profile profile);
 
   /* Helper method used from LCMSColorTransfrom */
   static long createTransform(
@@ -66,24 +64,24 @@ public class LCMS implements PCMM {
         disposerRef);
   }
 
-  private static native long createNativeTransform(
+  private static long createNativeTransform(
       long[] profileIDs, int renderType, int inFormatter, boolean isInIntPacked, int outFormatter,
-      boolean isOutIntPacked, Object disposerRef);
+      boolean isOutIntPacked, Object disposerRef) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  /* methods invoked from LCMSTransform */
-  public static native void colorConvert(
-      LCMSTransform trans, LCMSImageLayout src, LCMSImageLayout dest);
-
-  public static native void freeTransform(long ID);
-
-  public static native void initLCMS(Class Trans, Class IL, Class Pf);
+  public static void initLCMS(Class Trans, Class IL, Class Pf) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   static synchronized PCMM getModule() {
     if (theLcms != null) {
       return theLcms;
     }
 
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+    AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
                         /* We need to load awt here because of usage trace and
                          * disposer frameworks
@@ -104,9 +102,9 @@ public class LCMS implements PCMM {
   /* methods invoked from ICC_Profile */
   @Override
   public Profile loadProfile(byte[] data) {
-    final Object disposerRef = new Object();
+    Object disposerRef = new Object();
 
-    final long ptr = loadProfileNative(data, disposerRef);
+    long ptr = loadProfileNative(data, disposerRef);
 
     if (ptr != 0L) {
       return new LCMSProfile(ptr, disposerRef);
@@ -120,14 +118,14 @@ public class LCMS implements PCMM {
   }
 
   @Override
-  public int getProfileSize(final Profile p) {
+  public int getProfileSize(Profile p) {
     synchronized (p) {
       return getProfileSizeNative(getLcmsProfile(p).getLcmsPtr());
     }
   }
 
   @Override
-  public void getProfileData(final Profile p, byte[] data) {
+  public void getProfileData(Profile p, byte[] data) {
     synchronized (p) {
       getProfileDataNative(getLcmsProfile(p).getLcmsPtr(), data);
     }
@@ -135,7 +133,7 @@ public class LCMS implements PCMM {
 
   @Override
   public void getTagData(Profile p, int tagSignature, byte[] data) {
-    final LCMSProfile profile = getLcmsProfile(p);
+    LCMSProfile profile = getLcmsProfile(p);
 
     synchronized (profile) {
       TagData t = profile.getTag(tagSignature);
@@ -147,7 +145,7 @@ public class LCMS implements PCMM {
 
   @Override
   public int getTagSize(Profile p, int tagSignature) {
-    final LCMSProfile profile = getLcmsProfile(p);
+    LCMSProfile profile = getLcmsProfile(p);
 
     synchronized (profile) {
       TagData t = profile.getTag(tagSignature);
@@ -157,7 +155,7 @@ public class LCMS implements PCMM {
 
   @Override
   public synchronized void setTagData(Profile p, int tagSignature, byte[] data) {
-    final LCMSProfile profile = getLcmsProfile(p);
+    LCMSProfile profile = getLcmsProfile(p);
 
     synchronized (profile) {
       profile.clearTagCache();
@@ -175,6 +173,7 @@ public class LCMS implements PCMM {
   /**
    * Constructs ColorTransform object corresponding to an ICC_profile
    */
+  @Override
   public ColorTransform createTransform(ICC_Profile profile, int renderType, int transformType) {
     return new LCMSTransform(profile, renderType, renderType);
   }
@@ -183,12 +182,16 @@ public class LCMS implements PCMM {
    * Constructs an ColorTransform object from a list of ColorTransform
    * objects
    */
+  @Override
   public synchronized ColorTransform createTransform(
       ColorTransform[] transforms) {
     return new LCMSTransform(transforms);
   }
 
-  private native long loadProfileNative(byte[] data, Object ref);
+  private long loadProfileNative(byte[] data, Object ref) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
   private LCMSProfile getLcmsProfile(Profile p) {
     if (p instanceof LCMSProfile) {
@@ -197,11 +200,14 @@ public class LCMS implements PCMM {
     throw new CMMException("Invalid profile: " + p);
   }
 
-  private native int getProfileSizeNative(long ptr);
+  private int getProfileSizeNative(long ptr) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  ;
-
-  private native void getProfileDataNative(long ptr, byte[] data);
+  private void getProfileDataNative(long ptr, byte[] data) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   /**
    * Writes supplied data as a tag into the profile.
@@ -213,5 +219,7 @@ public class LCMS implements PCMM {
    * Throws CMMException if operation fails, preserve old profile from
    * destruction.
    */
-  private native void setTagDataNative(long ptr, int tagSignature, byte[] data);
+  private void setTagDataNative(long ptr, int tagSignature, byte[] data) {
+    // TODO: Native in OpenJDK AWT
+  }
 }

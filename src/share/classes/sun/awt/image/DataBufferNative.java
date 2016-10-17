@@ -29,7 +29,7 @@ import java.awt.image.DataBuffer;
 import sun.java2d.SurfaceData;
 
 /**
- * This class extends <CODE>DataBuffer</CODE> and allows access to
+ * This class extends {@code DataBuffer} and allows access to
  * native data via the DataBuffer methods.  Note that, unlike other
  * DataBuffer classes, the data is not stored in this class but
  * has been created and stored elsewhere and this class is used
@@ -44,8 +44,8 @@ import sun.java2d.SurfaceData;
  */
 
 public class DataBufferNative extends DataBuffer {
-  protected SurfaceData surfaceData;
-  protected int width;
+  protected final SurfaceData surfaceData;
+  protected final int width;
 
   /**
    * Constructor.  The constructor of this object requires a
@@ -55,10 +55,13 @@ public class DataBufferNative extends DataBuffer {
   public DataBufferNative(SurfaceData sData, int type, int width, int height) {
     super(type, width * height);
     this.width = width;
-    this.surfaceData = sData;
+    surfaceData = sData;
   }
 
-  protected native int getElem(int x, int y, SurfaceData sData);
+  protected int getElem(int x, int y, SurfaceData sData) {
+    // TODO: This is native in OpenJDK AWT
+    return 0;
+  }
 
   /**
    * getElem returns the pixel value for a given index into the
@@ -68,6 +71,7 @@ public class DataBufferNative extends DataBuffer {
    * from the index value and the native getElem() method is
    * called with the internal surfaceData object.
    */
+  @Override
   public int getElem(int bank, int i) {
     return getElem(i % width, i / width, surfaceData);
   }
@@ -80,9 +84,12 @@ public class DataBufferNative extends DataBuffer {
    * from the index value and the native setElem() method is
    * called with the internal surfaceData object.
    */
+  @Override
   public void setElem(int bank, int i, int val) {
     setElem(i % width, i / width, val, surfaceData);
   }
 
-  protected native void setElem(int x, int y, int val, SurfaceData sData);
+  protected void setElem(int x, int y, int val, SurfaceData sData) {
+    // TODO: This is native in OpenJDK AWT
+  }
 }

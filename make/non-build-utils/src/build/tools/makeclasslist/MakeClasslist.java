@@ -36,7 +36,10 @@ import java.util.jar.*;
     Prints the names of these classes to stdout.
 */
 
-public class MakeClasslist {
+public final class MakeClasslist {
+  private MakeClasslist() {
+  }
+
   public static void main(String[] args) throws IOException {
     List<String> classes = new ArrayList<>();
     String origJavaHome = System.getProperty("java.home");
@@ -45,11 +48,11 @@ public class MakeClasslist {
       origJavaHome = origJavaHome.substring(0, origJavaHome.length() - 4);
       javaHome     = javaHome.substring(0, javaHome.length() - 4);
     }
-    for (int i = 0; i < args.length; i++) {
+    for (String arg : args) {
       try {
-        File file = new File(args[i]);
+        File file = new File(arg);
         BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line = null;
+        String line;
         while ((line = reader.readLine()) != null) {
           StringTokenizer tok = new StringTokenizer(line, "[ \t\n\r\f");
           if (tok.hasMoreTokens()) {
@@ -57,14 +60,14 @@ public class MakeClasslist {
             // Understand only "Loading" from -XX:+TraceClassLoadingPreorder.
             // This ignores old "Loaded" from -verbose:class to force correct
             // classlist generation on Mustang.
-            if (t.equals("Loading")) {
+            if ("Loading".equals(t)) {
               t = tok.nextToken();
               t = t.replace('.', '/');
 
               // Check to make sure it came from the boot class path
               if (tok.hasMoreTokens()) {
                 String tmp = tok.nextToken();
-                if (tmp.equals("from")) {
+                if ("from".equals(tmp)) {
                   if (tok.hasMoreTokens()) {
                     tmp = tok.nextToken().toLowerCase();
                     // System.err.println("Loaded " + t + " from " + tmp);
@@ -79,8 +82,8 @@ public class MakeClasslist {
           }
         }
       } catch (IOException e) {
-        System.err.println("Error reading file " + args[i]);
-        throw(e);
+        System.err.println("Error reading file " + arg);
+        throw e;
       }
     }
 

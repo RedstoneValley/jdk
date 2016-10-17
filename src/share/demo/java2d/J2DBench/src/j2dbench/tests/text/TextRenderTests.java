@@ -81,14 +81,17 @@ public abstract class TextRenderTests extends TextTests {
       super(rendertestroot, "drawString", "Drawing Strings");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TextContext tctx = (TextContext) ctx;
       Graphics g = tctx.graphics;
       g.setFont(tctx.font);
       String text = tctx.text;
+      --numReps;
       do {
         g.drawString(text, 40, 40);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -97,14 +100,17 @@ public abstract class TextRenderTests extends TextTests {
       super(rendertestroot, "drawChars", "Drawing Char Arrays");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TextContext tctx = (TextContext) ctx;
       Graphics g = tctx.graphics;
       char[] chars = tctx.chars;
       g.setFont(tctx.font);
+      --numReps;
       do {
         g.drawChars(chars, 0, chars.length, 40, 40);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -113,15 +119,18 @@ public abstract class TextRenderTests extends TextTests {
       super(rendertestroot, "drawBytes", "Drawing Byte Arrays");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TextContext tctx = (TextContext) ctx;
       Graphics g = tctx.graphics;
       g.setFont(tctx.font);
       try {
         byte[] bytes = tctx.text.getBytes("ASCII"); // only good for english
+        --numReps;
         do {
           g.drawBytes(bytes, 0, bytes.length, 40, 40);
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (Exception e) {
         throw new RuntimeException(e);
       }
@@ -131,6 +140,7 @@ public abstract class TextRenderTests extends TextTests {
   public static class GVContext extends G2DContext {
     GlyphVector gv;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
       gv = font.createGlyphVector(frc, text);
@@ -142,23 +152,28 @@ public abstract class TextRenderTests extends TextTests {
       super(rendertestroot, "drawGlyphVectors", "Drawing GlyphVectors");
     }
 
+    @Override
     public Context createContext() {
       return new GVContext();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       Graphics2D g2d = gvctx.g2d;
       GlyphVector gv = gvctx.gv;
+      --numReps;
       do {
         g2d.drawGlyphVector(gv, 40, 40);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class TLContext extends G2DContext {
     TextLayout tl;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
       tl = new TextLayout(text, font, frc);
@@ -170,17 +185,21 @@ public abstract class TextRenderTests extends TextTests {
       super(rendertestroot, "drawTextLayout", "Drawing TextLayouts");
     }
 
+    @Override
     public Context createContext() {
       return new TLContext();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLContext tlctx = (TLContext) ctx;
       Graphics2D g2d = tlctx.g2d;
       TextLayout tl = tlctx.tl;
+      --numReps;
       do {
         tl.draw(g2d, 40, 40);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 }

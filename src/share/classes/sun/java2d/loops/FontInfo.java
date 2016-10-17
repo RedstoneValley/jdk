@@ -53,14 +53,15 @@ public class FontInfo implements Cloneable {
   public Font2D font2D;
 
   public String mtx(double[] matrix) {
-    return ("[" +
-                matrix[0] + ", " +
-                matrix[1] + ", " +
-                matrix[2] + ", " +
-                matrix[3] +
-                "]");
+    return "[" +
+        matrix[0] + ", " +
+        matrix[1] + ", " +
+        matrix[2] + ", " +
+        matrix[3] +
+        "]";
   }
 
+  @Override
   public Object clone() {
     try {
       return super.clone();
@@ -70,15 +71,15 @@ public class FontInfo implements Cloneable {
   }
 
   public String toString() {
-    return ("FontInfo[" +
-                "font=" + font + ", " +
-                "devTx=" + mtx(devTx) + ", " +
-                "glyphTx=" + mtx(glyphTx) + ", " +
-                "pixelHeight=" + pixelHeight + ", " +
-                "origin=(" + originX + "," + originY + "), " +
-                "aaHint=" + aaHint + ", " +
-                "lcdRGBOrder=" + (lcdRGBOrder ? "RGB" : "BGR") +
-                "lcdSubPixPos=" + lcdSubPixPos +
-                "]");
+    return "FontInfo[" +
+        "font=" + font + ", " +
+        "devTx=" + mtx(devTx) + ", " +
+        "glyphTx=" + mtx(glyphTx) + ", " +
+        "pixelHeight=" + pixelHeight + ", " +
+        "origin=(" + originX + "," + originY + "), " +
+        "aaHint=" + aaHint + ", " +
+        "lcdRGBOrder=" + (lcdRGBOrder ? "RGB" : "BGR") +
+        "lcdSubPixPos=" + lcdSubPixPos +
+        "]";
   }
 }

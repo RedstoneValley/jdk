@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6373505
  * @summary Tests that the result of Toolkit.getScreenResolution() is
  * consistent with GraphicsConfiguration.getNormalizingTransform().
@@ -35,9 +35,12 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.geom.AffineTransform;
 
-public class NormalizingTransformTest {
+public final class NormalizingTransformTest {
 
-    public static void main(String[] args) {
+  private NormalizingTransformTest() {
+  }
+
+  public static void main(String[] args) {
         GraphicsConfiguration gc =
             GraphicsEnvironment.getLocalGraphicsEnvironment().
                 getDefaultScreenDevice().getDefaultConfiguration();

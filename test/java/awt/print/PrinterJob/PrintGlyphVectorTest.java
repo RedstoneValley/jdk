@@ -28,7 +28,6 @@
  * @run main/manual=yesno PrintGlyphVectorTest
  */
 
-import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.font.*;
@@ -37,12 +36,14 @@ import java.awt.print.*;
 
 public class PrintGlyphVectorTest extends Component implements Printable {
 
-    public void drawGVs(Graphics g) {
+  private static final long serialVersionUID = 5496726229031792455L;
+
+  public void drawGVs(Graphics g) {
 
         String testString = "0123456789abcdefghijklm";
         Graphics2D g2d = (Graphics2D)g;
         g2d.setColor(Color.black);
-        Font font = new Font("SansSerif", Font.PLAIN, 30);
+        Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 30);
         FontRenderContext frc = g2d.getFontRenderContext();
         GlyphVector v = font.createGlyphVector(frc, testString);
 
@@ -74,16 +75,19 @@ public class PrintGlyphVectorTest extends Component implements Printable {
 
     }
 
+     @Override
      public void paint(Graphics g) {
        g.setColor(Color.white);
-       g.fillRect(0,0,getSize().width, getSize().height);
+       g.fillRect(0,0, getSize().width, getSize().height);
        drawGVs(g);
      }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(600,200);
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex) {
 
         if (pageIndex > 0) {
@@ -92,18 +96,18 @@ public class PrintGlyphVectorTest extends Component implements Printable {
 
         Graphics2D g2d = (Graphics2D)g;
         g2d.translate(pf.getImageableX(), pf.getImageableY());
-        drawGVs(g2d);
+      drawGVs(g2d);
 
         return Printable.PAGE_EXISTS;
     }
 
 
-    public static void main(String arg[]) throws Exception {
+    public static void main(String[] arg) throws Exception {
 
        Frame f = new Frame();
        PrintGlyphVectorTest pvt = new PrintGlyphVectorTest();
-       f.add("Center", pvt);
-       f.add("South", new PrintInstructions());
+       f.add(BorderLayout.CENTER, pvt);
+       f.add(BorderLayout.SOUTH, new PrintInstructions());
        f.pack();
        f.show();
 
@@ -119,18 +123,20 @@ class PrintInstructions extends Panel implements ActionListener {
        "Retrieve the output and compare the printed and on-screen text\n" +
        " to confirm that in both cases the text is aligned and the boxes\n" +
        "are around the text, not offset from the text.";
+  private static final long serialVersionUID = -1254827888824398571L;
 
   PrintInstructions() {
 
-     setLayout(new GridLayout(2,1));
+    setLayout(new GridLayout(2,1));
      TextArea t = new TextArea(INSTRUCTIONS, 8, 80);
-     add(t);
+    add(t);
      Button b = new Button("PRINT");
-     b.setFont(new Font("Dialog", Font.BOLD, 30));
+     b.setFont(new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 30));
      b.addActionListener(this);
-     add(b);
+    add(b);
   }
 
+  @Override
   public void actionPerformed(ActionEvent e) {
        PrinterJob pj = PrinterJob.getPrinterJob();
        if (pj == null ||

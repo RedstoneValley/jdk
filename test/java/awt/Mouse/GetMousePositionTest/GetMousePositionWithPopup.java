@@ -21,9 +21,6 @@
  * questions.
  */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -39,10 +36,13 @@ import java.awt.event.MouseMotionAdapter;
  * @run main/othervm GetMousePositionWithPopup
  */
 
-public class GetMousePositionWithPopup {
+public final class GetMousePositionWithPopup {
 
-    private static Frame frame1;
-    private static Frame frame2;
+    static Frame frame1;
+    static Frame frame2;
+
+    private GetMousePositionWithPopup() {
+    }
 
     public static void main(String[] args) throws Exception {
         try {
@@ -74,12 +74,12 @@ public class GetMousePositionWithPopup {
         }
     }
 
-    private static void constructTestUI() {
+    static void constructTestUI() {
         frame1 = new Frame();
         frame1.setBounds(100, 100, 100, 100);
         frame1.addMouseMotionListener(new MouseMotionAdapter() {
 
-            private boolean shown = false;
+            private boolean shown;
 
             @Override
             public void mouseMoved(MouseEvent e) {

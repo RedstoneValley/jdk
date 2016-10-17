@@ -40,11 +40,11 @@ import sun.java2d.SurfaceData;
  * perform the actual rendering.
  */
 public abstract class SpanShapeRenderer implements ShapeDrawPipe {
-  public static final int NON_RECTILINEAR_TRANSFORM_MASK = (AffineTransform.TYPE_GENERAL_TRANSFORM
-                                                                | AffineTransform
-      .TYPE_GENERAL_ROTATION);
-  final static RenderingEngine RenderEngine = RenderingEngine.getInstance();
+  public static final int NON_RECTILINEAR_TRANSFORM_MASK = AffineTransform.TYPE_GENERAL_TRANSFORM
+      | AffineTransform.TYPE_GENERAL_ROTATION;
+  static final RenderingEngine RenderEngine = RenderingEngine.getInstance();
 
+  @Override
   public void draw(SunGraphics2D sg, Shape s) {
     if (sg.stroke instanceof BasicStroke) {
       ShapeSpanIterator sr = LoopPipe.getStrokeSpans(sg, s);
@@ -58,6 +58,7 @@ public abstract class SpanShapeRenderer implements ShapeDrawPipe {
     }
   }
 
+  @Override
   public void fill(SunGraphics2D sg, Shape s) {
     if (s instanceof Rectangle2D
         && (sg.transform.getType() & NON_RECTILINEAR_TRANSFORM_MASK) == 0) {
@@ -83,7 +84,7 @@ public abstract class SpanShapeRenderer implements ShapeDrawPipe {
   public abstract void endSequence(Object ctx);
 
   public void renderRect(SunGraphics2D sg, Rectangle2D r) {
-    double corners[] = {
+    double[] corners = {
         r.getX(), r.getY(), r.getWidth(), r.getHeight(),};
     corners[2] += corners[0];
     corners[3] += corners[1];
@@ -101,7 +102,7 @@ public abstract class SpanShapeRenderer implements ShapeDrawPipe {
       corners[3] = corners[1];
       corners[1] = t;
     }
-    int abox[] = {
+    int[] abox = {
         (int) corners[0], (int) corners[1], (int) corners[2], (int) corners[3],};
     Rectangle devR = new Rectangle(abox[0], abox[1], abox[2] - abox[0], abox[3] - abox[1]);
     Region clipRegion = sg.getCompClip();
@@ -123,7 +124,7 @@ public abstract class SpanShapeRenderer implements ShapeDrawPipe {
 
   public void renderSpans(SunGraphics2D sg, Region clipRegion, Shape s, ShapeSpanIterator sr) {
     Object context = null;
-    int abox[] = new int[4];
+    int[] abox = new int[4];
     try {
       sr.getPathBox(abox);
       Rectangle devR = new Rectangle(abox[0], abox[1], abox[2] - abox[0], abox[3] - abox[1]);
@@ -154,36 +155,42 @@ public abstract class SpanShapeRenderer implements ShapeDrawPipe {
   }
 
   public static class Composite extends SpanShapeRenderer {
-    CompositePipe comppipe;
+    final CompositePipe comppipe;
 
     public Composite(CompositePipe pipe) {
       comppipe = pipe;
     }
 
+    @Override
     public Object startSequence(SunGraphics2D sg, Shape s, Rectangle devR, int[] bbox) {
       return comppipe.startSequence(sg, s, devR, bbox);
     }
 
+    @Override
     public void renderBox(Object ctx, int x, int y, int w, int h) {
       comppipe.renderPathTile(ctx, null, 0, w, x, y, w, h);
     }
 
+    @Override
     public void endSequence(Object ctx) {
       comppipe.endSequence(ctx);
     }
   }
 
   public static class Simple extends SpanShapeRenderer implements LoopBasedPipe {
+    @Override
     public Object startSequence(SunGraphics2D sg, Shape s, Rectangle devR, int[] bbox) {
       return sg;
     }
 
+    @Override
     public void renderBox(Object ctx, int x, int y, int w, int h) {
       SunGraphics2D sg2d = (SunGraphics2D) ctx;
       SurfaceData sd = sg2d.getSurfaceData();
       sg2d.loops.fillRectLoop.FillRect(sg2d, sd, x, y, w, h);
     }
 
+    @Override
     public void endSequence(Object ctx) {
     }
   }

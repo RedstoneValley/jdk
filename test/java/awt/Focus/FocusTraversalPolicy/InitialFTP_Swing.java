@@ -27,17 +27,14 @@
   @author    anton.tarasov@sun.com: area=awt.focus
 */
 
+import java.awt.Button;
 import java.awt.FlowLayout;
-import java.awt.FocusTraversalPolicy;
-import java.awt.Window;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JTextArea;
-import javax.swing.LayoutFocusTraversalPolicy;
 
-public class InitialFTP_Swing {
-    public static void main(String[] args) {
+public final class InitialFTP_Swing {
+  private InitialFTP_Swing() {
+  }
+
+  public static void main(String[] args) {
         SwingFrame f0 = new SwingFrame("frame0");
         f0.setVisible(true);
 
@@ -53,17 +50,17 @@ public class InitialFTP_Swing {
 }
 
 class SwingFrame extends JFrame {
-    JButton button = new JButton("button");
-    JTextArea text = new JTextArea("qwerty");
-    JList list = new JList(new String[] {"one", "two", "three"});
+    final JButton button = new JButton(Button.base);
+    final JTextArea text = new JTextArea("qwerty");
+    final JList list = new JList(new String[] {"one", "two", "three"});
 
     public SwingFrame(String title) {
         super(title);
 
-        this.setLayout(new FlowLayout());
-        this.add(button);
-        this.add(text);
-        this.add(list);
-        this.pack();
+        setLayout(new FlowLayout());
+        add(button);
+        add(text);
+        add(list);
+        pack();
     }
 }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6328154 6962082
  * @summary ensure that ascii, and latin-1 text without combining marks, both layout faster
  *  than latin-1 text with combining marks.  The presumption is then that the canonical
@@ -36,7 +36,7 @@ import java.awt.font.TextLayout;
 
 import static java.awt.Font.*;
 
-public class CombiningPerf {
+public final class CombiningPerf {
     private static Font font;
     private static FontRenderContext frc;
 
@@ -60,15 +60,15 @@ public class CombiningPerf {
         }
         /**/
         long atime = test(ascii);
-        System.err.println("atime: " + (atime/1000000.0) + " length: " + ascii.length());
+        System.err.println("atime: " + atime/1000000.0 + " length: " + ascii.length());
 
         long ftime = test(french);
-        System.err.println("ftime: " + (ftime/1000000.0) + " length: " + french.length());
+        System.err.println("ftime: " + ftime/1000000.0 + " length: " + french.length());
 
         long xtime = test(frenchX);
-        System.err.println("xtime: " + (xtime/1000000.0) + " length: " + frenchX.length());
+        System.err.println("xtime: " + xtime/1000000.0 + " length: " + frenchX.length());
 
-        long limit = xtime * 2 / 3;
+        long limit = (xtime << 1) / 3;
         if (atime > limit || ftime > limit) {
             throw new Exception("took too long");
         }

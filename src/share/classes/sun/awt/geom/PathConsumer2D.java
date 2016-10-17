@@ -29,29 +29,29 @@ public interface PathConsumer2D {
   /**
    * @see java.awt.geom.Path2D.Float.moveTo
    */
-  public void moveTo(float x, float y);
+  void moveTo(float x, float y);
 
   /**
    * @see java.awt.geom.Path2D.Float.lineTo
    */
-  public void lineTo(float x, float y);
+  void lineTo(float x, float y);
 
   /**
    * @see java.awt.geom.Path2D.Float.quadTo
    */
-  public void quadTo(
+  void quadTo(
       float x1, float y1, float x2, float y2);
 
   /**
    * @see java.awt.geom.Path2D.Float.curveTo
    */
-  public void curveTo(
+  void curveTo(
       float x1, float y1, float x2, float y2, float x3, float y3);
 
   /**
    * @see java.awt.geom.Path2D.Float.closePath
    */
-  public void closePath();
+  void closePath();
 
   /**
    * Called after the last segment of the last subpath when the
@@ -61,7 +61,7 @@ public interface PathConsumer2D {
    * {@link java.awt.geom.PathIterator PathIterator}
    * returns {@code true} from its {@code done} method.
    */
-  public void pathDone();
+  void pathDone();
 
   /**
    * If a given PathConsumer performs all or most of its work
@@ -74,5 +74,5 @@ public interface PathConsumer2D {
    *
    * @return a native pointer to a PathConsumerVec structure.
    */
-  public long getNativeConsumer();
+  long getNativeConsumer();
 }

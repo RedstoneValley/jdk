@@ -29,19 +29,21 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.jar.JarFile;
 
 /** Run an application (from a jar file) and terminate it after a given
  *  number of seconds.
  */
 
-public class MaxTime {
+public final class MaxTime {
 
-    private static boolean debugFlag = false;
+    private static final boolean debugFlag;
 
+    private MaxTime() {
+    }
 
-    private static void debug(String s) {
+    static void debug(String s) {
         if (debugFlag) {
             System.err.println(s);
         }
@@ -63,8 +65,9 @@ public class MaxTime {
         int timeoutPeriod = 0;
         String mainClass = null;
 
-        if (args.length != 2)
+        if (args.length != 2) {
             usage();
+        }
 
         // Identify the timeout value.
         try {
@@ -76,7 +79,7 @@ public class MaxTime {
         // Identify the application's main class.
         try {
             mainClass = new JarFile(args[0]).getManifest()
-                .getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+                .getMainAttributes().getValue(Name.MAIN_CLASS);
         } catch (FileNotFoundException e) {
             System.err.println("Can't find " + args[0]);
             System.exit(1);
@@ -86,8 +89,9 @@ public class MaxTime {
         }
 
         // Set the exit timer.
-        final int timeout = timeoutPeriod * 1000;
+        int timeout = timeoutPeriod * 1000;
         new Thread() {
+            @Override
             public void run() {
                 try {
                     debug("Before timeout!");
@@ -107,7 +111,7 @@ public class MaxTime {
                                    new URL[] {new URL("file:"+args[0])});
             Class clazz = cl.loadClass(mainClass);
             String[] objs = new String[0];
-            Method mainMethod = clazz.getMethod("main", new Class[]{objs.getClass()});
+            Method mainMethod = clazz.getMethod("main", objs.getClass());
             mainMethod.invoke(null, new Object[]{objs});
         } catch (Exception e) {
             e.printStackTrace();

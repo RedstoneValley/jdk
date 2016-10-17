@@ -60,21 +60,24 @@ public class CodePointInputMethodDescriptor implements InputMethodDescriptor {
   /**
    * This input method can be used by any locale.
    */
+  @Override
   public Locale[] getAvailableLocales() {
-    Locale[] locales = {
+    return new Locale[]{
         new Locale("", "", ""),};
-    return locales;
   }
 
+  @Override
   public boolean hasDynamicLocaleList() {
     return false;
   }
 
+  @Override
   public synchronized String getInputMethodDisplayName(
       Locale inputLocale, Locale displayLanguage) {
     return "CodePoint Input Method";
   }
 
+  @Override
   public Image getInputMethodIcon(Locale inputLocale) {
     return null;
   }
@@ -86,6 +89,7 @@ public class CodePointInputMethodDescriptor implements InputMethodDescriptor {
    * @throws Exception any exception that may occur while creating the
    *                   input method instance
    */
+  @Override
   public InputMethod createInputMethod() throws Exception {
     return new CodePointInputMethod();
   }

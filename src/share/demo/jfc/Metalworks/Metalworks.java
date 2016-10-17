@@ -38,11 +38,6 @@
  */
 
 import java.awt.Toolkit;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 
 /**
  * This application is a demo of the Metal Look & Feel
@@ -50,7 +45,10 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
  * @author Steve Wilson
  * @author Alexander Kouznetsov
  */
-public class Metalworks {
+public final class Metalworks {
+
+  private Metalworks() {
+  }
 
   public static void main(String[] args) {
     UIManager.put("swing.boldMetal", Boolean.FALSE);

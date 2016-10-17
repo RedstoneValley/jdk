@@ -33,24 +33,24 @@ import sun.awt.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class bug8013581 {
+public final class bug8013581 {
     private static Frame frame;
-    private static volatile int listenerCallCounter = 0;
+    static volatile int listenerCallCounter;
 
     public static void main(String[] args) throws Exception {
-        final GraphicsEnvironment ge = GraphicsEnvironment
+        GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
-        final GraphicsDevice[] devices = ge.getScreenDevices();
+        GraphicsDevice[] devices = ge.getScreenDevices();
 
-        final SunToolkit toolkit = (SunToolkit)Toolkit.getDefaultToolkit();
-        final Robot robot = new Robot();
+        SunToolkit toolkit = (SunToolkit)Toolkit.getDefaultToolkit();
+        Robot robot = new Robot();
         robot.setAutoDelay(50);
 
         createAndShowGUI();
         toolkit.realSync();
 
         Exception error = null;
-        for (final GraphicsDevice device : devices) {
+        for (GraphicsDevice device : devices) {
             if (!device.isFullScreenSupported()) {
                 continue;
             }

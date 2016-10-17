@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
@@ -64,14 +63,14 @@ class FileFormatException extends Exception {
  */
 final class Model3D {
 
-  static Color gr[];
-  float vert[];
-  int tvert[];
+  static Color[] gr;
+  float[] vert;
+  int[] tvert;
   int nvert, maxvert;
-  int con[];
+  int[] con;
   int ncon, maxcon;
   boolean transformed;
-  Matrix3D mat;
+  final Matrix3D mat;
   float xmin, xmax, ymin, ymax, zmin, zmax;
 
   Model3D() {
@@ -85,8 +84,7 @@ final class Model3D {
    */
   Model3D(InputStream is) throws IOException, FileFormatException {
     this();
-    StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(
-        is,
+    StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(is,
         "UTF-8")));
     st.eolIsSignificant(true);
     st.commentChar('#');
@@ -117,7 +115,7 @@ final class Model3D {
               equals(st.sval)) {
             int start = -1;
             int prev = -1;
-            int n = -1;
+            int n;
             while (true) {
               if (st.nextToken() == StreamTokenizer.TT_NUMBER) {
                 n = (int) st.nval;
@@ -163,8 +161,8 @@ final class Model3D {
         maxvert = 100;
         vert = new float[maxvert * 3];
       } else {
-        maxvert *= 2;
-        float nv[] = new float[maxvert * 3];
+        maxvert <<= 1;
+        float[] nv = new float[maxvert * 3];
         System.arraycopy(vert, 0, nv, 0, vert.length);
         vert = nv;
       }
@@ -173,7 +171,9 @@ final class Model3D {
     vert[i] = x;
     vert[i + 1] = y;
     vert[i + 2] = z;
-    return nvert++;
+    int result = nvert;
+    nvert++;
+    return result;
   }
 
   /**
@@ -189,8 +189,8 @@ final class Model3D {
         maxcon = 100;
         con = new int[maxcon];
       } else {
-        maxcon *= 2;
-        int nv[] = new int[maxcon];
+        maxcon <<= 1;
+        int[] nv = new int[maxcon];
         System.arraycopy(con, 0, nv, 0, con.length);
         con = nv;
       }
@@ -200,7 +200,7 @@ final class Model3D {
       p1 = p2;
       p2 = t;
     }
-    con[i] = (p1 << 16) | p2;
+    con[i] = p1 << 16 | p2;
     ncon = i + 1;
   }
 
@@ -220,7 +220,7 @@ final class Model3D {
 
   /* Quick Sort implementation
    */
-  private void quickSort(int a[], int left, int right) {
+  private void quickSort(int[] a, int left, int right) {
     int leftIndex = left;
     int rightIndex = right;
     int partionElement;
@@ -236,14 +236,14 @@ final class Model3D {
                 /* find the first element that is greater than or equal to
                  * the partionElement starting from the leftIndex.
                  */
-        while ((leftIndex < right) && (a[leftIndex] < partionElement)) {
+        while (leftIndex < right && a[leftIndex] < partionElement) {
           ++leftIndex;
         }
 
                 /* find an element that is smaller than or equal to
                  * the partionElement starting from the rightIndex.
                  */
-        while ((rightIndex > left) && (a[rightIndex] > partionElement)) {
+        while (rightIndex > left && a[rightIndex] > partionElement) {
           --rightIndex;
         }
 
@@ -271,7 +271,7 @@ final class Model3D {
     }
   }
 
-  private void swap(int a[], int i, int j) {
+  private void swap(int[] a, int i, int j) {
     int T;
     T = a[i];
     a[i] = a[j];
@@ -283,7 +283,7 @@ final class Model3D {
    */
   void compress() {
     int limit = ncon;
-    int c[] = con;
+    int[] c = con;
     quickSort(con, 0, ncon - 1);
     int d = 0;
     int pp1 = -1;
@@ -318,14 +318,14 @@ final class Model3D {
     }
     int lg = 0;
     int lim = ncon;
-    int c[] = con;
-    int v[] = tvert;
+    int[] c = con;
+    int[] v = tvert;
     if (lim <= 0 || nvert <= 0) {
       return;
     }
     for (int i = 0; i < lim; i++) {
       int T = c[i];
-      int p1 = ((T >> 16) & 0xFFFF) * 3;
+      int p1 = (T >> 16 & 0xFFFF) * 3;
       int p2 = (T & 0xFFFF) * 3;
       int grey = v[p1 + 2] + v[p2 + 2];
       if (grey < 0) {
@@ -349,7 +349,7 @@ final class Model3D {
     if (nvert <= 0) {
       return;
     }
-    float v[] = vert;
+    float[] v = vert;
     float _xmin = v[0], _xmax = _xmin;
     float _ymin = v[1], _ymax = _ymin;
     float _zmin = v[2], _zmax = _zmin;
@@ -376,12 +376,12 @@ final class Model3D {
         _zmax = z;
       }
     }
-    this.xmax = _xmax;
-    this.xmin = _xmin;
-    this.ymax = _ymax;
-    this.ymin = _ymin;
-    this.zmax = _zmax;
-    this.zmin = _zmin;
+    xmax = _xmax;
+    xmin = _xmin;
+    ymax = _ymax;
+    ymin = _ymin;
+    zmax = _zmax;
+    zmin = _zmin;
   }
 }
 
@@ -396,15 +396,16 @@ public class ThreeD extends Applet implements Runnable, MouseListener, MouseMoti
   float xfac;
   int prevx, prevy;
   float scalefudge = 1;
-  Matrix3D amat = new Matrix3D(), tmat = new Matrix3D();
-  String mdname = null;
-  String message = null;
+  final Matrix3D amat = new Matrix3D();
+  final Matrix3D tmat = new Matrix3D();
+  String mdname;
+  String message;
 
   @Override
   public void init() {
     mdname = getParameter("model");
     try {
-      scalefudge = Float.valueOf(getParameter("scale")).floatValue();
+      scalefudge = Float.valueOf(getParameter("scale"));
     } catch (Exception ignored) {
       // fall back to default scalefudge = 1
     }
@@ -549,9 +550,8 @@ public class ThreeD extends Applet implements Runnable, MouseListener, MouseMoti
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {"model", "path string", "The path to the model to be displayed."},
         {"scale", "float", "The scale of the model.  Default is 1."}};
-    return info;
   }
 }

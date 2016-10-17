@@ -31,20 +31,20 @@
   @run main/othervm -Djava.awt.headless=true AWTListener
 */
 
-/**
- * In a headless mode add a listener for container events.
- * Check if a single listener is still assigned to the Toolkit class.
+/*
+  In a headless mode add a listener for container events.
+  Check if a single listener is still assigned to the Toolkit class.
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class AWTListener {
+public final class AWTListener {
     public static void main(String []s) {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
 
         AWTEventListener orig = new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent event) { }
             };
 

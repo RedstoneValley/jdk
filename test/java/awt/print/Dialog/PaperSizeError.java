@@ -21,32 +21,32 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6360339
  * @summary Test for fp error in paper size calculations.
  * @run main/manual PaperSizeError
  */
 
 import java.awt.print.*;
-import javax.print.*;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.*;
 
-public class PaperSizeError {
+public final class PaperSizeError {
 
-  static String[] instructions = {
+  static final String[] instructions = {
      "This test assumes and requires that you have a printer installed",
      "Two page dialogs will appear. You must press 'OK' on both.",
      "If the test fails, it will throw an Exception.",
      ""
   };
 
+  private PaperSizeError() {
+  }
+
   public static void main(String[] args) {
 
-      for (int i=0;i<instructions.length;i++) {
-         System.out.println(instructions[i]);
-      }
+    for (String instruction : instructions) {
+      System.out.println(instruction);
+    }
 
       /* First find out if we have a valid test environment:
        * ie print service exists and supports A4.
@@ -73,9 +73,8 @@ public class PaperSizeError {
       PageFormat newPF = job.pageDialog(pf);
       if (newPF == null) {
           return; // user cancelled the dialog (and hence the test).
-      } else {
-          verifyPaper(newPF, a4w, a4h);
       }
+      verifyPaper(newPF, a4w, a4h);
 
       PrintRequestAttributeSet aset = new HashPrintRequestAttributeSet();
       aset.add(OrientationRequested.PORTRAIT);
@@ -94,8 +93,8 @@ public class PaperSizeError {
 
       double dw1 = pf.getWidth();
       double dh1 = pf.getHeight();
-      float fwMM = (float)((dw1 * 25.4) / 72.0);
-      float fhMM = (float)((dh1 * 25.4) / 72.0);
+      float fwMM = (float)(dw1 * 25.4 / 72.0);
+      float fhMM = (float)(dh1 * 25.4 / 72.0);
       MediaSizeName msn = MediaSize.findMedia(fwMM, fhMM, Size2DSyntax.MM);
       System.out.println("Units = 1/72\" new size=" + dw1 + "x" + dh1);
       System.out.println("Units = MM new size=" + fwMM + "x" + fhMM);

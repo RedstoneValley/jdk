@@ -37,10 +37,11 @@ import java.io.*;
 class DnDSource extends Button implements Transferable,
         DragGestureListener,
         DragSourceListener {
-    private DataFlavor df;
+    private static final long serialVersionUID = -8490098433033527592L;
+    private final DataFlavor df;
     private transient int dropAction;
     private final int dragOperation = DnDConstants.ACTION_COPY | DnDConstants.ACTION_MOVE | DnDConstants.ACTION_LINK;
-    DragSource dragSource = new DragSource();
+    final DragSource dragSource = new DragSource();
 
     DnDSource(String label) {
         super(label);
@@ -49,8 +50,7 @@ class DnDSource extends Button implements Transferable,
         df = new DataFlavor(DnDSource.class, "DnDSource");
 
         dragSource.createDefaultDragGestureRecognizer(
-                this,
-                dragOperation,
+                this, dragOperation,
                 this
         );
         dragSource.addDragSourceListener(this);
@@ -60,23 +60,25 @@ class DnDSource extends Button implements Transferable,
             DragSourceContext dsc,
             int ra
     ) {
-        java.awt.Cursor c = null;
-        if ((ra & DnDConstants.ACTION_LINK) == DnDConstants.ACTION_LINK)
+        Cursor c;
+        if ((ra & DnDConstants.ACTION_LINK) == DnDConstants.ACTION_LINK) {
             c = DragSource.DefaultLinkDrop;
-        else if ((ra & DnDConstants.ACTION_MOVE) == DnDConstants.ACTION_MOVE)
+        } else if ((ra & DnDConstants.ACTION_MOVE) == DnDConstants.ACTION_MOVE) {
             c = MyCursor.MOVE;//DragSource.DefaultMoveDrop;
-        else if ((ra & DnDConstants.ACTION_COPY) == DnDConstants.ACTION_COPY)
+        } else if ((ra & DnDConstants.ACTION_COPY) == DnDConstants.ACTION_COPY) {
             c = MyCursor.COPY;
-        else
+        } else {
             c = MyCursor.NO_DROP;
+        }
         dsc.setCursor(c);
     }
 
     /**
      * a Drag gesture has been recognized
      */
-    int iProblem = 0;
-    String[] problem = {"unready", "throw exeption", "good"};
+    int iProblem;
+    final String[] problem = {"unready", "throw exeption", "good"};
+    @Override
     public void dragGestureRecognized(DragGestureEvent dge) {
         System.out.println("starting Drag");
         if( !DragSource.isDragImageSupported() ) {
@@ -88,13 +90,14 @@ class DnDSource extends Button implements Transferable,
             setLabel("Drag ME! (with " + problem[iProblem] + " image)");
             int w = 100;
             int h = 100;
-            int pix[] = new int[w * h];
+            int[] pix = new int[w * h];
             int index = 0;
             for (int y = 0; y < h; y++) {
-                int red = (y * 255) / (h - 1);
+                int red = y * 255 / (h - 1);
                 for (int x = 0; x < w; x++) {
-                    int blue = (x * 255) / (w - 1);
-                    pix[index++] = (255 << 24) | (red << 16) | blue;
+                    int blue = x * 255 / (w - 1);
+                    pix[index] = 255 << 24 | red << 16 | blue;
+                    index++;
                 }
             }
             try{
@@ -120,9 +123,11 @@ class DnDSource extends Button implements Transferable,
                             }
                         ),
                         new Point(15, 40) {
+                            private static final long serialVersionUID = 6046763317211798114L;
+
                             @Override
                             public double getX() {
-                                if(2==iProblem){
+                                if(2== iProblem){
                                     //never happen
                                     throw new RuntimeException("test exception 2");
                                 }
@@ -137,7 +142,7 @@ class DnDSource extends Button implements Transferable,
                         this,
                         this);
             }catch(InvalidDnDOperationException e){
-                if( iProblem<=2 ){
+                if(iProblem <=2 ){
                     System.err.println("good exception: " + e.getMessage() );
                 } else {
                     System.err.println("bad exception");
@@ -154,6 +159,7 @@ class DnDSource extends Button implements Transferable,
      * as the hotspot enters a platform dependent drop site
      */
 
+    @Override
     public void dragEnter(DragSourceDragEvent dsde) {
         System.out.println("[Source] dragEnter");
         changeCursor(
@@ -165,6 +171,7 @@ class DnDSource extends Button implements Transferable,
     /**
      * as the hotspot moves over a platform dependent drop site
      */
+    @Override
     public void dragOver(DragSourceDragEvent dsde) {
         System.out.println("[Source] dragOver");
         changeCursor(
@@ -178,6 +185,7 @@ class DnDSource extends Button implements Transferable,
     /**
      * as the hotspot exits a platform dependent drop site
      */
+    @Override
     public void dragExit(DragSourceEvent dse) {
         System.out.println("[Source] dragExit");
         changeCursor(
@@ -203,24 +211,29 @@ class DnDSource extends Button implements Transferable,
     /**
      * as the operation completes
      */
+    @Override
     public void dragDropEnd(DragSourceDropEvent dsde) {
         System.out.println("[Source] dragDropEnd");
     }
 
+    @Override
     public void dropActionChanged(DragSourceDragEvent dsde) {
         System.out.println("[Source] dropActionChanged");
         dropAction = dsde.getUserAction() & dsde.getDropAction();
         System.out.println("dropAction = " + dropAction);
     }
 
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
         return new DataFlavor[]{df};
     }
 
+    @Override
     public boolean isDataFlavorSupported(DataFlavor sdf) {
         return df.equals(sdf);
     }
 
+    @Override
     public Object getTransferData(DataFlavor tdf) throws UnsupportedFlavorException, IOException {
         Object copy = null;
         if( !df.equals(tdf) ){
@@ -230,7 +243,7 @@ class DnDSource extends Button implements Transferable,
         switch (dropAction) {
             case DnDConstants.ACTION_COPY:
                 try {
-                    copy = this.clone();
+                    copy = clone();
                 } catch (CloneNotSupportedException e) {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
@@ -253,7 +266,7 @@ class DnDSource extends Button implements Transferable,
                         parent.remove(this);
                         Label label = new Label("[empty]");
                         label.setBackground(Color.cyan);
-                        label.setBounds(this.getBounds());
+                        label.setBounds(getBounds());
                         parent.add(label);
                     }
                 }

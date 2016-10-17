@@ -79,13 +79,13 @@ public abstract class RenderQueue {
   /**
    * The underlying buffer for this queue.
    */
-  protected RenderBuffer buf;
+  protected final RenderBuffer buf;
 
   /**
    * A Set containing hard references to Objects that must stay alive until
    * the queue has been completely flushed.
    */
-  protected Set refSet;
+  protected final Set refSet;
 
   protected RenderQueue() {
     refSet = new HashSet();
@@ -113,23 +113,23 @@ public abstract class RenderQueue {
          * acquires the AWT lock before calling into 2D code that wants to
          * acquire the RQ lock.)
          */
-    SunToolkit.awtLock();
+    SunToolkit.AWT_LOCK.lock();
   }
 
   /**
    * Attempts to lock the queue.  If successful, this method returns true,
    * indicating that the caller is responsible for calling
-   * <code>unlock</code>; otherwise this method returns false.
+   * {@code unlock}; otherwise this method returns false.
    */
   public final boolean tryLock() {
-    return SunToolkit.awtTryLock();
+    return SunToolkit.AWT_LOCK.tryLock();
   }
 
   /**
    * Unlocks the queue.
    */
   public final void unlock() {
-    SunToolkit.awtUnlock();
+    SunToolkit.AWT_LOCK.unlock();
   }
 
   /**

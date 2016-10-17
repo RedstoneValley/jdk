@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4040668
  * @summary Checks that banner titles which contain double quotation marks
  * or backslashes still print correctly.
@@ -43,26 +43,28 @@ public class QuoteAndBackslashTest {
 }
 
 class QuoteAndBackslashTestFrame extends Frame implements ActionListener {
-    PrintCanvas canvas;
+    private static final long serialVersionUID = -1535568147218554235L;
+    final PrintCanvas canvas;
 
     public QuoteAndBackslashTestFrame () {
         super("QuoteAndBackslashTest");
         canvas = new PrintCanvas ();
-        add("Center", canvas);
+        add(BorderLayout.CENTER, canvas);
 
         Button b = new Button("Print");
         b.setActionCommand ("print");
         b.addActionListener (this);
-        add("South", b);
+        add(BorderLayout.SOUTH, b);
 
         pack();
         setVisible(true);
     }
 
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (cmd.equals("print")) {
+        if ("print".equals(cmd)) {
             PrintJob pjob = getToolkit().getPrintJob(this, "\\\"\"\\\"",
                                                      null);
             if (pjob != null) {
@@ -80,10 +82,14 @@ class QuoteAndBackslashTestFrame extends Frame implements ActionListener {
 }
 
 class PrintCanvas extends Canvas {
+    private static final long serialVersionUID = -4192228041956579930L;
+
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(659, 792);
     }
 
+    @Override
     public void paint (Graphics g) {
         setBackground(Color.white);
         g.setColor(Color.blue);

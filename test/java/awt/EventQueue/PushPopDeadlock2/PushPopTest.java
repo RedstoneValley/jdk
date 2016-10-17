@@ -30,17 +30,22 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.EmptyStackException;
+import java.lang.reflect.InvocationTargetException;
 import sun.awt.SunToolkit;
 
-public class PushPopTest {
+public final class PushPopTest {
 
     public static Frame frame;
-    public static void main(String[] args) {
+
+  private PushPopTest() {
+  }
+
+  public static void main(String[] args) {
         frame = new Frame("");
         frame.pack();
 
         Runnable dummy = new Runnable() {
+                @Override
                 public void run() {
                     System.err.println("Dummy is here.");
                     System.err.flush();
@@ -57,6 +62,7 @@ public class PushPopTest {
         eq1.push(eq2);
         EventQueue.invokeLater(dummy);
         Runnable runnable = new Runnable() {
+                @Override
                 public void run() {
                     System.err.println("Dummy from SunToolkit");
                     System.err.flush();
@@ -72,6 +78,7 @@ public class PushPopTest {
 
 class MyEventQueue1 extends EventQueue {
 
+    @Override
     public void pop() {
         super.pop();
     }
@@ -79,13 +86,16 @@ class MyEventQueue1 extends EventQueue {
 
 class MyEventQueue2 extends EventQueue {
 
+    @Override
     protected void pop() {
         System.err.println("pop2()");
         Thread.dumpStack();
         try {
             EventQueue.invokeAndWait(new Runnable() {
+                    @Override
                     public void run() {
                         Runnable runnable = new Runnable() {
+                                @Override
                                 public void run() {
                                     System.err.println("Dummy from pop");
                                     System.err.flush();
@@ -93,14 +103,12 @@ class MyEventQueue2 extends EventQueue {
                              };
                         InvocationEvent ie = new InvocationEvent(MyEventQueue2.this, runnable, null, false);
                         SunToolkit.postEvent(SunToolkit.targetToAppContext(PushPopTest.frame), ie);
-                        postEvent(ie);
+                      postEvent(ie);
                     }
                 });
-        } catch (InterruptedException ie) {
-            ie.printStackTrace();
-        } catch (java.lang.reflect.InvocationTargetException ie) {
+        } catch (InterruptedException | InvocationTargetException ie) {
             ie.printStackTrace();
         }
-        super.pop();
+      super.pop();
     }
 }

@@ -26,7 +26,6 @@
 package build.tools.commentchecker;
 
 import java.io.*;
-import java.util.StringTokenizer;
 
 /**
  * CommentChecker is a utility which verifies that there aren't
@@ -52,12 +51,12 @@ import java.util.StringTokenizer;
  *
  * @author Thomas Ball
  */
-public class CommentChecker {
+public final class CommentChecker {
 
-    static int errors = 0;
+    static int errors;
 
     // Turn on this flag and recompile to dump this tool's state changes.
-    final static boolean verbose = false;
+    static final boolean verbose = false;
 
     static void check(String fileName) {
         BufferedReader in = null;
@@ -185,7 +184,7 @@ public class CommentChecker {
             System.exit(1);
         }
 
-        if (args.length == 1 && args[0].equals("-")) {
+        if (args.length == 1 && "-".equals(args[0])) {
             /* read filenames in one per line from stdin, ala cpio.
              * This is good for checking the whole JDK in one pass:
              *
@@ -207,8 +206,8 @@ public class CommentChecker {
                 error("error reading System.in: " + e);
             }
         } else {
-            for (int i = 0; i < args.length; i++) {
-                check(args[i]);
+            for (String arg : args) {
+                check(arg);
             }
         }
 

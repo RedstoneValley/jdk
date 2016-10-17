@@ -36,17 +36,18 @@
  */
 import java.awt.*;
 import java.util.Properties;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class GetPrintJobHeadless {
+public final class GetPrintJobHeadless {
 
-    public static void main(String[] s) {
+  private GetPrintJobHeadless() {
+  }
+
+  public static void main(String[] s) {
         boolean stage1Passed = false;
         boolean stage2Passed = false;
 
         try {
-            Toolkit.getDefaultToolkit().getPrintJob(
-                    (Frame) null, "title", new Properties());
+            Toolkit.getDefaultToolkit().getPrintJob(null, "title", new Properties());
         } catch (NullPointerException e) {
             stage1Passed = true;
             e.printStackTrace();
@@ -57,8 +58,7 @@ public class GetPrintJobHeadless {
         }
 
         try {
-            Toolkit.getDefaultToolkit().getPrintJob(
-                    (Frame) null, "title", new JobAttributes(), new PageAttributes());
+            Toolkit.getDefaultToolkit().getPrintJob(null, "title", new JobAttributes(), new PageAttributes());
         } catch (NullPointerException e) {
             stage2Passed = true;
             e.printStackTrace();

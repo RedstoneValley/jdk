@@ -31,10 +31,8 @@
   @run applet ExtraMouseClick.html
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 //**
 // Here are two values of smugde used in this test (2 and 5). They should be on
@@ -45,42 +43,47 @@ import test.java.awt.regtesthelpers.Util;
 
 public class ExtraMouseClick extends Applet
 {
-    Frame frame = new Frame("Extra Click After MouseDrag");
+    final Frame frame = new Frame("Extra Click After MouseDrag");
     final int TRIALS = 10;
     final int SMUDGE_WIDTH = 4;
     final int SMUDGE_HEIGHT = 4;
     Robot robot;
     Point fp; //frame's location on screen
-    boolean dragged = false;
-    boolean clicked = false;
-    boolean pressed = false;
-    boolean released = false;
+    boolean dragged;
+    boolean clicked;
+    boolean pressed;
+    boolean released;
 
     public void init()
     {
-        this.setLayout (new BorderLayout ());
+      setLayout(new BorderLayout ());
 
-        frame.addMouseListener(new MouseAdapter() {
+      frame.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     System.out.println("MousePressed");
-                    pressed = true;
+                  pressed = true;
                 }
 
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     System.out.println("MouseReleased");
-                    released = true;
+                  released = true;
                 }
 
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     System.out.println("MouseClicked!!!!");
-                    clicked = true;
+                  clicked = true;
                 }
             });
-        frame.addMouseMotionListener(new MouseMotionAdapter() {
+      frame.addMouseMotionListener(new MouseMotionAdapter() {
+                @Override
                 public void mouseDragged(MouseEvent e) {
                     System.out.println("MouseDragged--"+e);
-                    dragged = true;
+                  dragged = true;
                 }
+                @Override
                 public void mouseMoved(MouseEvent e) {
                 }
             });
@@ -90,46 +93,46 @@ public class ExtraMouseClick extends Applet
 
     public void start ()
     {
-        frame.setSize(480, 300);
-        frame.setVisible(true);
+      frame.setSize(480, 300);
+      frame.setVisible(true);
         try{
-            robot = new Robot();
+          robot = new Robot();
         }catch(AWTException e){
             throw new RuntimeException(e);
         }
 
         Util.waitForIdle(robot);  //a time to show Frame
 
-        fp = frame.getLocationOnScreen();
+      fp = frame.getLocationOnScreen();
 
         for (int i = 0; i< TRIALS; i++){
-            checkClicked();
-            clearFlags();
+          checkClicked();
+          clearFlags();
         }
 
         for (int i = 0; i< TRIALS; i++){
-            oneDrag(2);
-            clearFlags();
+          oneDrag(2);
+          clearFlags();
         }
 
         for (int i = 0; i< TRIALS; i++){
-            oneDrag(5);
-            clearFlags();
+          oneDrag(5);
+          clearFlags();
         }
 
         for (int i = 0; i< TRIALS; i++){
-            oneDrag(70);
-            clearFlags();
+          oneDrag(70);
+          clearFlags();
         }
 
         //Check that no Drag event occur in the SMUDGE area
         String sToolkit = Toolkit.getDefaultToolkit().getClass().getName();
         System.out.println("Toolkit == "+sToolkit);
         if ("sun.awt.windows.WToolkit".equals(sToolkit)){
-            int dragWidth = ((Integer)Toolkit.getDefaultToolkit().
-                             getDesktopProperty("win.drag.width")).intValue();
-            int dragHeight = ((Integer)Toolkit.getDefaultToolkit().
-                            getDesktopProperty("win.drag.height")).intValue();
+            int dragWidth = (Integer) Toolkit.getDefaultToolkit().
+                getDesktopProperty("win.drag.width");
+            int dragHeight = (Integer) Toolkit.getDefaultToolkit().
+                getDesktopProperty("win.drag.height");
             System.out.println("dragWidth=="+dragWidth+":: dragHeight=="+dragHeight);
             // DragWidth and dragHeight may be equal to 1. In that case the SMUDGE rectangle
             // narrowed into 1x1 pixel and we can't drag a mouse in it.
@@ -138,56 +141,61 @@ public class ExtraMouseClick extends Applet
             dragWidth = dragWidth > 1? dragWidth/2:1;
             dragHeight = dragHeight > 1? dragHeight/2:1;
             for (int i = 0; i< TRIALS; i++){
-                smallWin32Drag(dragWidth, dragHeight);
-                clearFlags();
+              smallWin32Drag(dragWidth, dragHeight);
+              clearFlags();
             }
         }else{
             for (int i = 0; i< TRIALS; i++){
-                smallDrag(SMUDGE_WIDTH - 1, SMUDGE_HEIGHT - 1); //on Motif and XAWT SMUDGE area is 4-pixels wide
-                clearFlags();
+              smallDrag(SMUDGE_WIDTH - 1, SMUDGE_HEIGHT - 1); //on Motif and XAWT SMUDGE area is 4-pixels wide
+
+              clearFlags();
             }
         }
         System.out.println("Test passed.");
     }// start()
 
     public void oneDrag(int pixels){
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+      robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
         //drag for a short distance
-        robot.mousePress(InputEvent.BUTTON1_MASK );
+      robot.mousePress(InputEvent.BUTTON1_MASK );
         for (int i = 1; i<pixels;i++){
-            robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
+          robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
         }
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+      robot.mouseRelease(InputEvent.BUTTON1_MASK );
+      robot.delay(1000);
         if (dragged && clicked){
-            throw new RuntimeException("Test failed. Clicked event follows by Dragged. Dragged = "+dragged +". Clicked = "+clicked + " : distance = "+pixels);
+            throw new RuntimeException("Test failed. Clicked event follows by Dragged. Dragged = "+ true
+                +". Clicked = "+ true
+                + " : distance = "+pixels);
         }
     }
 
   public void smallDrag(int pixelsX, int pixelsY){
         // by the X-axis
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+    robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
         //drag for a short distance
-        robot.mousePress(InputEvent.BUTTON1_MASK );
+    robot.mousePress(InputEvent.BUTTON1_MASK );
         for (int i = 1; i<pixelsX;i++){
-            robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
+          robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
         }
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+    robot.mouseRelease(InputEvent.BUTTON1_MASK );
+    robot.delay(1000);
         if (dragged){
-            throw new RuntimeException("Test failed. Dragged event (by the X-axis) occured in SMUDGE area. Dragged = "+dragged +". Clicked = "+clicked);
+            throw new RuntimeException("Test failed. Dragged event (by the X-axis) occured in SMUDGE area. Dragged = "+ true
+                +". Clicked = "+ clicked);
         }
 
         // the same with Y-axis
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
-        robot.mousePress(InputEvent.BUTTON1_MASK );
+    robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+    robot.mousePress(InputEvent.BUTTON1_MASK );
         for (int i = 1; i<pixelsY;i++){
-            robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 + i );
+          robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 + i );
         }
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+    robot.mouseRelease(InputEvent.BUTTON1_MASK );
+    robot.delay(1000);
         if (dragged){
-            throw new RuntimeException("Test failed. Dragged event (by the Y-axis) occured in SMUDGE area. Dragged = "+dragged +". Clicked = "+clicked);
+            throw new RuntimeException("Test failed. Dragged event (by the Y-axis) occured in SMUDGE area. Dragged = "+ dragged
+                +". Clicked = "+ clicked);
         }
 
     }
@@ -196,49 +204,53 @@ public class ExtraMouseClick extends Applet
     // On X-systems Dragged event first fired when mouse has left the SMUDGE area
     public void smallWin32Drag(int pixelsX, int pixelsY){
         // by the X-axis
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+      robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
         //drag for a short distance
-        robot.mousePress(InputEvent.BUTTON1_MASK );
+      robot.mousePress(InputEvent.BUTTON1_MASK );
         System.out.println(" pixelsX = "+ pixelsX +" pixelsY = " +pixelsY);
         for (int i = 1; i<=pixelsX;i++){
             System.out.println("Moving a mouse by X");
-            robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
+          robot.mouseMove(fp.x + frame.getWidth()/2 + i, fp.y + frame.getHeight()/2 );
         }
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+      robot.mouseRelease(InputEvent.BUTTON1_MASK );
+      robot.delay(1000);
         if (!dragged){
-            throw new RuntimeException("Test failed. Dragged event (by the X-axis) didn't occur in the SMUDGE area. Dragged = "+dragged);
+            throw new RuntimeException("Test failed. Dragged event (by the X-axis) didn't occur in the SMUDGE area. Dragged = "+ false);
         }
 
         // the same with Y-axis
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
-        robot.mousePress(InputEvent.BUTTON1_MASK );
+      robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+      robot.mousePress(InputEvent.BUTTON1_MASK );
         for (int i = 1; i<=pixelsY;i++){
             System.out.println("Moving a mouse by Y");
-            robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 + i );
+          robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 + i );
         }
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+      robot.mouseRelease(InputEvent.BUTTON1_MASK );
+      robot.delay(1000);
         if (!dragged){
-            throw new RuntimeException("Test failed. Dragged event (by the Y-axis) didn't occur in the SMUDGE area. Dragged = "+dragged);
+            throw new RuntimeException("Test failed. Dragged event (by the Y-axis) didn't occur in the SMUDGE area. Dragged = "+ dragged);
         }
     }
 
     public void checkClicked(){
-        robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
-        robot.mousePress(InputEvent.BUTTON1_MASK );
-        robot.delay(10);
-        robot.mouseRelease(InputEvent.BUTTON1_MASK );
-        robot.delay(1000);
+      robot.mouseMove(fp.x + frame.getWidth()/2, fp.y + frame.getHeight()/2 );
+      robot.mousePress(InputEvent.BUTTON1_MASK );
+      robot.delay(10);
+      robot.mouseRelease(InputEvent.BUTTON1_MASK );
+      robot.delay(1000);
         if (!clicked || !pressed || !released || dragged){
-            throw new RuntimeException("Test failed. Some of Pressed/Released/Clicked events are missed or dragged occured. Pressed/Released/Clicked/Dragged = "+pressed + ":"+released+":"+clicked +":" +dragged);
+            throw new RuntimeException("Test failed. Some of Pressed/Released/Clicked events are missed or dragged occured. Pressed/Released/Clicked/Dragged = "+ pressed
+                + ":"+ released
+
+                +":"+ clicked
+                +":" + dragged);
         }
     }
 
     public void clearFlags(){
-        clicked = false;
-        pressed = false;
-        released = false;
-        dragged = false;
+      clicked = false;
+      pressed = false;
+      released = false;
+      dragged = false;
     }
 }// class

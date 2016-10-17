@@ -38,16 +38,14 @@ import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 import sun.awt.SunToolkit;
 
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
 public class TestDispose {
 
-    public static Frame frame = null;
-    public static TextArea textArea = null;
-    public static volatile Process worker = null;
+    public static Frame frame;
+    public static TextArea textArea;
+    public static volatile Process worker;
 
     public void testDispose() throws InvocationTargetException,
             InterruptedException {
@@ -83,6 +81,7 @@ public class TestDispose {
     public static void main(String[] args) throws Exception{
         if(args.length == 0) {
             Runtime.getRuntime().addShutdownHook(new Thread(){
+                @Override
                 public void run() {
                     worker.destroy();
                 }

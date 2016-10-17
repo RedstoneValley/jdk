@@ -29,7 +29,7 @@ import java.awt.datatransfer.DataFlavor;
  * @summary DataFlavor.equals is not symmetric
  * @author Petr Pchelko <petr.pchelko@oracle.com>
  */
-public class EqualsHashCodeSymmetryTest {
+public final class EqualsHashCodeSymmetryTest {
 
     private static final DataFlavor[] dataFlavors = {
             DataFlavor.stringFlavor,
@@ -44,7 +44,10 @@ public class EqualsHashCodeSymmetryTest {
             new DataFlavor(StringBuilder.class, "My test flavor number 1")
     };
 
-    public static void main(String[] args) {
+  private EqualsHashCodeSymmetryTest() {
+  }
+
+  public static void main(String[] args) {
         testEqualsSymmetry();
         testEqualsHashCodeConsistency();
         testSimpleCollision();
@@ -64,7 +67,7 @@ public class EqualsHashCodeSymmetryTest {
     private static void testEqualsHashCodeConsistency() {
         for (DataFlavor flavor1 : dataFlavors) {
             for (DataFlavor flavor2 : dataFlavors) {
-                if ((flavor1.equals(flavor2) && flavor1.hashCode() != flavor2.hashCode())) {
+                if (flavor1.equals(flavor2) && flavor1.hashCode() != flavor2.hashCode()) {
                     throw new RuntimeException(
                             String.format("Equals and hash code not consistent for %s and %s", flavor1, flavor2));
                 }

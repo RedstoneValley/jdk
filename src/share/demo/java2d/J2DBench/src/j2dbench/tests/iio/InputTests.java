@@ -40,6 +40,7 @@
 package j2dbench.tests.iio;
 
 import j2dbench.Group;
+import j2dbench.Group.EnableSet;
 import j2dbench.Option;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
@@ -52,13 +53,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import javax.imageio.ImageIO;
-import javax.imageio.spi.IIORegistry;
-import javax.imageio.spi.ImageInputStreamSpi;
-import javax.imageio.stream.FileCacheImageInputStream;
-import javax.imageio.stream.FileImageInputStream;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.MemoryCacheImageInputStream;
+import java.nio.channels.FileChannel;
 
 abstract class InputTests extends IIOTests {
 
@@ -67,11 +62,11 @@ abstract class InputTests extends IIOTests {
   protected static final int INPUT_ARRAY = 3;
   protected static final int INPUT_FILECHANNEL = 4;
 
-  protected static ImageInputStreamSpi fileChannelIISSpi;
+  protected static final ImageInputStreamSpi fileChannelIISSpi;
   protected static Group inputRoot;
   protected static Group inputOptRoot;
   protected static Group generalOptRoot;
-  protected static Group.EnableSet generalSourceRoot;
+  protected static EnableSet generalSourceRoot;
   protected static Option sourceFileOpt;
   protected static Option sourceUrlOpt;
   protected static Option sourceByteArrayOpt;
@@ -100,7 +95,7 @@ abstract class InputTests extends IIOTests {
   }
 
   public static void init() {
-    inputRoot = new Group(iioRoot, "input", "Input Benchmarks");
+    inputRoot = new Group(iioRoot, FileNameOverrideTest.fileName, "Input Benchmarks");
     inputRoot.setTabbed();
 
     // Options
@@ -108,7 +103,7 @@ abstract class InputTests extends IIOTests {
 
     // General Options
     generalOptRoot = new Group(inputOptRoot, "general", "General Options");
-    generalSourceRoot = new Group.EnableSet(generalOptRoot, "source", "Sources");
+    generalSourceRoot = new EnableSet(generalOptRoot, "source", "Sources");
     sourceFileOpt = new InputType("file", "File", INPUT_FILE);
     sourceUrlOpt = new InputType("url", "URL", INPUT_URL);
     sourceByteArrayOpt = new InputType("byteArray", "byte[]", INPUT_ARRAY);
@@ -119,10 +114,10 @@ abstract class InputTests extends IIOTests {
       if (fileChannelIISSpi != null) {
         sourceFileChannelOpt = new InputType("fileChannel", "FileChannel", INPUT_FILECHANNEL);
       }
-      useCacheTog = new Option.Toggle(imageioGeneralOptRoot,
+      useCacheTog = new Toggle(imageioGeneralOptRoot,
           "useCache",
           "ImageIO.setUseCache()",
-          Option.Toggle.Off);
+          Toggle.Off);
     }
 
     InputImageTests.init();
@@ -131,8 +126,8 @@ abstract class InputTests extends IIOTests {
     }
   }
 
-  protected static class InputType extends Option.Enable {
-    private int type;
+  protected static class InputType extends Enable {
+    private final int type;
 
     public InputType(String nodeName, String description, int type) {
       super(generalSourceRoot, nodeName, description, false);
@@ -143,19 +138,21 @@ abstract class InputTests extends IIOTests {
       return type;
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return getModifierValueName(value);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return getNodeName();
     }
   }
 
-  protected static abstract class Context {
-    int size;
+  protected abstract static class Context {
+    final int size;
     Object input;
-    int inputType;
+    final int inputType;
     InputStream origStream;
 
     Context(TestEnvironment env, Result result) {
@@ -171,9 +168,9 @@ abstract class InputTests extends IIOTests {
     }
 
     void initInput() {
-      if ((inputType == INPUT_FILE) ||
-          (inputType == INPUT_URL) ||
-          (inputType == INPUT_FILECHANNEL)) {
+      if (inputType == INPUT_FILE ||
+          inputType == INPUT_URL ||
+          inputType == INPUT_FILECHANNEL) {
         try {
           // REMIND: this approach will fail for GIF on pre-1.6 VM's
           //         (since earlier releases do not include a
@@ -224,25 +221,19 @@ abstract class InputTests extends IIOTests {
         case INPUT_URL:
           origStream = ((URL) input).openStream();
           bis = new BufferedInputStream(origStream);
-          if (ImageIO.getUseCache()) {
-            iis = new FileCacheImageInputStream(bis, null);
-          } else {
-            iis = new MemoryCacheImageInputStream(bis);
-          }
+          iis = ImageIO.getUseCache() ? new FileCacheImageInputStream(bis, null)
+              : new MemoryCacheImageInputStream(bis);
           break;
         case INPUT_ARRAY:
           origStream = new ByteArrayInputStream((byte[]) input);
           bis = new BufferedInputStream(origStream);
-          if (ImageIO.getUseCache()) {
-            iis = new FileCacheImageInputStream(bis, null);
-          } else {
-            iis = new MemoryCacheImageInputStream(bis);
-          }
+          iis = ImageIO.getUseCache() ? new FileCacheImageInputStream(bis, null)
+              : new MemoryCacheImageInputStream(bis);
           break;
         case INPUT_FILECHANNEL:
           FileInputStream fis = new FileInputStream((File) input);
           origStream = fis;
-          java.nio.channels.FileChannel fc = fis.getChannel();
+          FileChannel fc = fis.getChannel();
           iis = fileChannelIISSpi.createInputStreamInstance(fc, false, null);
           break;
         default:

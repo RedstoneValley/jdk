@@ -40,7 +40,6 @@
 package com.sun.nio.zipfs;
 
 import java.io.IOException;
-import java.nio.file.attribute.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,8 +50,8 @@ import java.util.Map;
 public class ZipFileAttributeView implements BasicFileAttributeView {
   private final ZipPath path;
 
-  ;
   private final boolean isZipView;
+
   private ZipFileAttributeView(ZipPath path, boolean isZipView) {
     this.path = path;
     this.isZipView = isZipView;
@@ -75,10 +74,10 @@ public class ZipFileAttributeView implements BasicFileAttributeView {
     if (type == null) {
       throw new NullPointerException();
     }
-    if (type.equals("basic")) {
+    if ("basic".equals(type)) {
       return new ZipFileAttributeView(path, false);
     }
-    if (type.equals("zip")) {
+    if ("zip".equals(type)) {
       return new ZipFileAttributeView(path, true);
     }
     return null;
@@ -178,7 +177,7 @@ public class ZipFileAttributeView implements BasicFileAttributeView {
     return null;
   }
 
-  private static enum AttrID {
+  private enum AttrID {
     size,
     creationTime,
     lastAccessTime,

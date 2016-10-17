@@ -25,7 +25,6 @@
 
 package sun.java2d.pipe;
 
-import static sun.java2d.pipe.BufferedOpCodes.RESET_PAINT;
 import static sun.java2d.pipe.BufferedOpCodes.SET_COLOR;
 import static sun.java2d.pipe.BufferedOpCodes.SET_GRADIENT_PAINT;
 import static sun.java2d.pipe.BufferedOpCodes.SET_LINEAR_GRADIENT_PAINT;
@@ -41,17 +40,18 @@ import java.awt.Paint;
 import java.awt.RadialGradientPaint;
 import java.awt.TexturePaint;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.lang.annotation.Native;
 import sun.awt.image.PixelConverter;
+import sun.awt.image.PixelConverter.ArgbPre;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
 import sun.java2d.loops.CompositeType;
 
-public class BufferedPaints {
+public final class BufferedPaints {
 
   /**
    * The maximum number of gradient "stops" supported by our native
@@ -69,6 +69,20 @@ public class BufferedPaints {
    * re-evaluate this in the future as hardware becomes more capable.
    */
   @Native public static final int MULTI_MAX_FRACTIONS = 12;
+  protected static final int OPSIZE_SET_GRADIENT_PAINT = 44;
+  protected static final int OPALIGN_SET_GRADIENT_PAINT = 12;
+  protected static final int OPSIZE_SET_TEXTURE_PAINT = 68;
+  protected static final int OPALIGN_SET_TEXTURE_PAINT = 12;
+  protected static final float SRGB_CHANNEL_MAX = 255.0f;
+
+  /**
+   * The color-channel conversion function from sRGB to linear RGB is linear up to this value, and
+   * polynomial thereafter.
+   */
+  protected static final float SRGB_TO_LRGB_MAX_LINEAR = 0.04045f;
+  protected static final float LRGB_TO_SRGB_MIN_SLOPE = 12.92f;
+  protected static final double SRGB_TO_LRGB_POWER = 2.4;
+  protected static final double SRGB_TO_LRGB_BIAS = 0.055;
 
   static void setPaint(RenderQueue rq, SunGraphics2D sg2d, Paint paint, int ctxflags) {
     if (sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR) {
@@ -94,14 +108,7 @@ public class BufferedPaints {
     }
   }
 
-  static void resetPaint(RenderQueue rq) {
-    // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacity(4);
-    RenderBuffer buf = rq.getBuffer();
-    buf.putInt(RESET_PAINT);
-  }
-
-  /************************* GradientPaint support ****************************/
+  /************************ GradientPaint support ****************************/
 
   /******************************
    * Color support
@@ -175,7 +182,7 @@ public class BufferedPaints {
       RenderQueue rq, AffineTransform at, Color c1, Color c2, Point2D pt1, Point2D pt2,
       boolean isCyclic, boolean useMask) {
     // convert gradient colors to IntArgbPre format
-    PixelConverter pc = PixelConverter.ArgbPre.instance;
+    PixelConverter pc = ArgbPre.instance;
     int pixel1 = pc.rgbToPixel(c1.getRGB(), null);
     int pixel2 = pc.rgbToPixel(c2.getRGB(), null);
 
@@ -200,12 +207,12 @@ public class BufferedPaints {
       p0 = at.getScaleX();
       p1 = at.getShearX();
       p3 = at.getTranslateX();
-    } catch (java.awt.geom.NoninvertibleTransformException e) {
+    } catch (NoninvertibleTransformException e) {
       p0 = p1 = p3 = 0.0;
     }
 
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacityAndAlignment(44, 12);
+    rq.ensureCapacityAndAlignment(OPSIZE_SET_GRADIENT_PAINT, OPALIGN_SET_GRADIENT_PAINT);
     RenderBuffer buf = rq.getBuffer();
     buf.putInt(SET_GRADIENT_PAINT);
     buf.putInt(useMask ? 1 : 0);
@@ -230,7 +237,7 @@ public class BufferedPaints {
         useMask);
   }
 
-  /****************** Shared MultipleGradientPaint support ********************/
+  /***************** Shared MultipleGradientPaint support ********************/
 
   /**
    * We use OpenGL's texture coordinate generator to automatically
@@ -268,7 +275,7 @@ public class BufferedPaints {
         SunGraphics2D.TRANSFORM_ISIDENT,
         CompositeType.SrcOver,
         null);
-    boolean filter = (sg2d.interpolationType != AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+    boolean filter = sg2d.interpolationType != AffineTransformOp.TYPE_NEAREST_NEIGHBOR;
 
     // calculate plane equation constants
     AffineTransform at = (AffineTransform) sg2d.transform.clone();
@@ -285,12 +292,12 @@ public class BufferedPaints {
       yp0 = at.getShearY();
       yp1 = at.getScaleY();
       yp3 = at.getTranslateY();
-    } catch (java.awt.geom.NoninvertibleTransformException e) {
+    } catch (NoninvertibleTransformException e) {
       xp0 = xp1 = xp3 = yp0 = yp1 = yp3 = 0.0;
     }
 
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacityAndAlignment(68, 12);
+    rq.ensureCapacityAndAlignment(OPSIZE_SET_TEXTURE_PAINT, OPALIGN_SET_TEXTURE_PAINT);
     RenderBuffer buf = rq.getBuffer();
     buf.putInt(SET_TEXTURE_PAINT);
     buf.putInt(useMask ? 1 : 0);
@@ -308,14 +315,12 @@ public class BufferedPaints {
   public static int convertSRGBtoLinearRGB(int color) {
     float input, output;
 
-    input = color / 255.0f;
-    if (input <= 0.04045f) {
-      output = input / 12.92f;
-    } else {
-      output = (float) Math.pow((input + 0.055) / 1.055, 2.4);
-    }
+    input = color / SRGB_CHANNEL_MAX;
+    output = input <= SRGB_TO_LRGB_MAX_LINEAR ? input / LRGB_TO_SRGB_MIN_SLOPE
+        : (float) Math.pow((input + SRGB_TO_LRGB_BIAS) / (1 + SRGB_TO_LRGB_BIAS),
+            SRGB_TO_LRGB_POWER);
 
-    return Math.round(output * 255.0f);
+    return Math.round(output * SRGB_CHANNEL_MAX);
   }
 
   /**
@@ -323,25 +328,26 @@ public class BufferedPaints {
    * space to an IntArgbPre pixel value, optionally in linear RGB space.
    * Based on the PixelConverter.ArgbPre.rgbToPixel() method.
    */
+  @SuppressWarnings("MagicNumber")
   private static int colorToIntArgbPrePixel(Color c, boolean linear) {
     int rgb = c.getRGB();
-    if (!linear && ((rgb >> 24) == -1)) {
+    if (!linear && rgb >> 24 == -1) {
       return rgb;
     }
     int a = rgb >>> 24;
-    int r = (rgb >> 16) & 0xff;
-    int g = (rgb >> 8) & 0xff;
-    int b = (rgb) & 0xff;
+    int r = rgb >> 16 & 0xff;
+    int g = rgb >> 8 & 0xff;
+    int b = rgb & 0xff;
     if (linear) {
       r = convertSRGBtoLinearRGB(r);
       g = convertSRGBtoLinearRGB(g);
       b = convertSRGBtoLinearRGB(b);
     }
     int a2 = a + (a >> 7);
-    r = (r * a2) >> 8;
-    g = (g * a2) >> 8;
-    b = (b * a2) >> 8;
-    return ((a << 24) | (r << 16) | (g << 8) | (b));
+    r = r * a2 >> 8;
+    g = g * a2 >> 8;
+    b = b * a2 >> 8;
+    return a << 24 | r << 16 | g << 8 | b;
   }
 
   /**
@@ -358,7 +364,7 @@ public class BufferedPaints {
     return pixels;
   }
 
-  /********************** LinearGradientPaint support *************************/
+  /********************* LinearGradientPaint support *************************/
 
   /**
    * This method uses techniques that are nearly identical to those
@@ -381,7 +387,7 @@ public class BufferedPaints {
    */
   private static void setLinearGradientPaint(
       RenderQueue rq, SunGraphics2D sg2d, LinearGradientPaint paint, boolean useMask) {
-    boolean linear = (paint.getColorSpace() == ColorSpaceType.LINEAR_RGB);
+    boolean linear = paint.getColorSpace() == ColorSpaceType.LINEAR_RGB;
     Color[] colors = paint.getColors();
     int numStops = colors.length;
     Point2D pt1 = paint.getStartPoint();
@@ -392,7 +398,7 @@ public class BufferedPaints {
     if (!linear && numStops == 2 &&
         paint.getCycleMethod() != CycleMethod.REPEAT) {
       // delegate to the optimized two-color gradient codepath
-      boolean isCyclic = (paint.getCycleMethod() != CycleMethod.NO_CYCLE);
+      boolean isCyclic = paint.getCycleMethod() != CycleMethod.NO_CYCLE;
       setGradientPaint(rq, at, colors[0], colors[1], pt1, pt2, isCyclic, useMask);
       return;
     }
@@ -420,12 +426,12 @@ public class BufferedPaints {
       p0 = (float) at.getScaleX();
       p1 = (float) at.getShearX();
       p3 = (float) at.getTranslateX();
-    } catch (java.awt.geom.NoninvertibleTransformException e) {
+    } catch (NoninvertibleTransformException e) {
       p0 = p1 = p3 = 0.0f;
     }
 
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacity(20 + 12 + (numStops * 4 * 2));
+    rq.ensureCapacity(20 + 12 + numStops * 4 * 2);
     RenderBuffer buf = rq.getBuffer();
     buf.putInt(SET_LINEAR_GRADIENT_PAINT);
     buf.putInt(useMask ? 1 : 0);
@@ -439,7 +445,7 @@ public class BufferedPaints {
     buf.put(pixels);
   }
 
-  /********************** RadialGradientPaint support *************************/
+  /********************* RadialGradientPaint support *************************/
 
   /**
    * This method calculates six m** values and a focusX value that
@@ -455,7 +461,7 @@ public class BufferedPaints {
    */
   private static void setRadialGradientPaint(
       RenderQueue rq, SunGraphics2D sg2d, RadialGradientPaint paint, boolean useMask) {
-    boolean linear = (paint.getColorSpace() == ColorSpaceType.LINEAR_RGB);
+    boolean linear = paint.getColorSpace() == ColorSpaceType.LINEAR_RGB;
     int cycleMethod = paint.getCycleMethod().ordinal();
     float[] fractions = paint.getFractions();
     Color[] colors = paint.getColors();
@@ -496,7 +502,7 @@ public class BufferedPaints {
     fx = Math.min(focus.getX(), 0.99);
 
     // assert rq.lock.isHeldByCurrentThread();
-    rq.ensureCapacity(20 + 28 + (numStops * 4 * 2));
+    rq.ensureCapacity(20 + 28 + numStops * 4 * 2);
     RenderBuffer buf = rq.getBuffer();
     buf.putInt(SET_RADIAL_GRADIENT_PAINT);
     buf.putInt(useMask ? 1 : 0);

@@ -21,27 +21,25 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6531728
  * @summary Test printing of images which need to have src area clipped
  * @run main/manual=yesno/timeout=900 ClippedImages
  */
 
-import java.io.*;
 import java.awt.*;
 import java.awt.geom.*;
 import java.awt.event.*;
 import java.awt.print.*;
 import java.awt.image.BufferedImage;
-import javax.print.*;
-import javax.print.attribute.*;
 
 public class ClippedImages extends Frame implements ActionListener {
 
-    private ClippedImageCanvas c;
+    private static final long serialVersionUID = -5158612341954223560L;
+    private final ClippedImageCanvas c;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         ClippedImages f = new ClippedImages();
         f.setVisible(true);
@@ -50,7 +48,7 @@ public class ClippedImages extends Frame implements ActionListener {
     public ClippedImages() {
         super("Clipped Src Area Image Printing Test");
         c = new ClippedImageCanvas();
-        add("Center", c);
+        add(BorderLayout.CENTER, c);
 
         Button paintButton = new Button("Toggle Contents");
         paintButton.addActionListener(this);
@@ -65,9 +63,10 @@ public class ClippedImages extends Frame implements ActionListener {
         p.add(paintButton);
         p.add(printThisButton);
         p.add(printAllButton);
-        add("South", p);
-        add("North", getInstructions());
+        add(BorderLayout.SOUTH, p);
+        add(BorderLayout.NORTH, getInstructions());
         addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     System.exit(0);
                 }
@@ -78,7 +77,7 @@ public class ClippedImages extends Frame implements ActionListener {
 
     private TextArea getInstructions() {
         TextArea ta = new TextArea(18, 60);
-        ta.setFont(new Font("Dialog", Font.PLAIN, 11));
+        ta.setFont(new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 11));
         ta.setText
             ("This is a manual test as it requires that you compare "+
              "the on-screen rendering with the printed output.\n"+
@@ -101,13 +100,14 @@ public class ClippedImages extends Frame implements ActionListener {
         return ta;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
 
-        if (e.getActionCommand().equals("Print This")) {
+        if ("Print This".equals(e.getActionCommand())) {
             printOne();
-        } else if (e.getActionCommand().equals("Print All")) {
+        } else if ("Print All".equals(e.getActionCommand())) {
             printAll();
-        } else if (e.getActionCommand().equals("Toggle Contents")) {
+        } else if ("Toggle Contents".equals(e.getActionCommand())) {
             c.toggleContents();
             c.repaint();
         }
@@ -117,7 +117,7 @@ public class ClippedImages extends Frame implements ActionListener {
         PrinterJob pj = PrinterJob.getPrinterJob();
 
         PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-        if (pj != null && (false||pj.printDialog(attrs))) {
+        if (pj != null && (pj.printDialog(attrs))) {
             c.setPrinterJob(pj, false);
             pj.setPrintable(c);
             try {
@@ -134,7 +134,7 @@ public class ClippedImages extends Frame implements ActionListener {
     private void printAll() {
         PrinterJob pj = PrinterJob.getPrinterJob();
         PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-        if (pj != null && (false||pj.printDialog(attrs))) {
+        if (pj != null && (pj.printDialog(attrs))) {
             c.setPrinterJob(pj, true);
             pj.setPageable(c);
             try {
@@ -151,8 +151,10 @@ public class ClippedImages extends Frame implements ActionListener {
 
 class ClippedImageCanvas extends Component implements Printable, Pageable {
 
-    BufferedImage img = null;
-    int sw=50, sh=50;
+    private static final long serialVersionUID = 8313073495554021246L;
+    final BufferedImage img;
+    final int sw=50;
+    final int sh=50;
 
     ClippedImageCanvas() {
         img = new BufferedImage(sw, sh, BufferedImage.TYPE_INT_RGB);
@@ -161,13 +163,14 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         g2d.fillRect(0 ,0, sw, sh);
         g2d.setColor(Color.black);
         int cnt = 0;
-        Font font = new Font("Serif", Font.PLAIN, 11);
+        Font font = new Font(Font.SERIF, Font.PLAIN, 11);
         g2d.setFont(font);
         FontMetrics fm = g2d.getFontMetrics();
-        for (int y=12;y<sh;y+=12) {
+        for (int y=12;y< sh;y+=12) {
             int x = 0;
             while (x < sw) {
-                String s = (new Integer(++cnt)).toString();
+                ++cnt;
+                String s = Integer.toString(cnt);
                 g2d.drawString(s, x, y);
                 x+= fm.stringWidth(s);
             }
@@ -179,21 +182,19 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         paintSquares = !paintSquares;
     }
 
+    @Override
     public int getNumberOfPages() {
-        if (pageable) {
-            return 4;
-        } else {
-            return 1;
-        }
+        return pageable ? 4 : 1;
     }
 
-    boolean pageable = false;
+    boolean pageable;
     PrinterJob myPrinterJob;
     void setPrinterJob(PrinterJob job, boolean pageable) {
-        this.myPrinterJob = job;
+        myPrinterJob = job;
         this.pageable = pageable;
     }
 
+    @Override
     public PageFormat getPageFormat(int pageIndex)
         throws IndexOutOfBoundsException {
 
@@ -216,27 +217,22 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
     }
 
     String getOrientStr(PageFormat pf) {
-        if (pf.getOrientation() == PageFormat.PORTRAIT) {
-            return "Portrait Orientation, ";
-        } else {
-            return "Landscape Orientation,";
-        }
+        return pf.getOrientation() == PageFormat.PORTRAIT ? "Portrait Orientation, "
+            : "Landscape Orientation,";
     }
 
+    @Override
     public Printable getPrintable(int pageIndex)
         throws IndexOutOfBoundsException {
 
         if (pageIndex < 0 || pageIndex >= getNumberOfPages()) {
             throw new IndexOutOfBoundsException();
         }
-        if (pageIndex < 2) {
-            paintSquares = true;
-        } else {
-            paintSquares = false;
-        }
+        paintSquares = pageIndex < 2;
         return this;
     }
 
+    @Override
     public int print(Graphics g, PageFormat pgFmt, int pgIndex) {
 
         if (pgIndex > getNumberOfPages()-1) {
@@ -253,12 +249,16 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
                            int dx1, int dy1, int dx2, int dy2,
                            int sx1, int sy1, int sx2, int sy2) {
 
-        int rx = (dx1 < dx2) ? dx1 : dx2;
-        int ry = (dy1 < dy2) ? dy1 : dy2;
+        int rx = dx1 < dx2 ? dx1 : dx2;
+        int ry = dy1 < dy2 ? dy1 : dy2;
         int rw = dx2-dx1;
-        if (rw < 0) rw = -rw;
+        if (rw < 0) {
+            rw = -rw;
+        }
         int rh = dy2-dy1;
-        if (rh < 0) rh = -rh;
+        if (rh < 0) {
+            rh = -rh;
+        }
 
         g.setColor(Color.green);
         g.drawRect(rx-1 ,ry-1, rw+1, rh+1);
@@ -270,7 +270,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         g.drawOval(dx2-r, dy2-r, 2*r, 2*r);
     }
 
-    private AffineTransform savedTx = null;
+    private AffineTransform savedTx;
 
     private void saveTx(Graphics2D g2d) {
         savedTx = g2d.getTransform();
@@ -280,6 +280,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         g2d.setTransform(savedTx);
     }
 
+    @Override
     public void paint(Graphics g) {
         Dimension size = getSize();
         g.setColor(Color.black);
@@ -326,13 +327,13 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         drawImage(g, dx, dy, dx+dw*10, dy+dh*10, 30, sy, dw, dh);
         g2d.scale(-1, -1);
         dx=-280; dy=-200;
-        drawImage(g, dx, dy, dx+dw*2, dy+dh*2, 30, sy, dw, dh);
+        drawImage(g, dx, dy, dx+ (dw << 1), dy+ (dh << 1), 30, sy, dw, dh);
 
         restoreTx(g2d);
 
         g2d.scale(1, -1);
         dx=430; dy=-150;
-        drawImage(g, dx, dy, dx+dw*5, dy+dh*2, 30, sy, dw, dh);
+        drawImage(g, dx, dy, dx+dw*5, dy+ (dh << 1), 30, sy, dw, dh);
 
         restoreTx(g2d);
 
@@ -388,7 +389,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         drawImage(g, dxa, dya, dxd, dyd, sxc, syc, sxb, syb);
 
         g.translate(-3*incX, incY);
-        /******/
+        /*****/
 
         /* sA + sD -> dD + dA */
         drawImage(g, dxd, dyd, dxa, dya, sxa, sya, sxd, syd);
@@ -406,7 +407,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         drawImage(g, dxd, dyd, dxa, dya, sxc, syc, sxb, syb);
 
         g.translate(-3*incX, incY);
-        /******/
+        /*****/
 
         /* sA + sD -> dB + dC */
         drawImage(g, dxb, dyb, dxc, dyc, sxa, sya, sxd, syd);
@@ -424,7 +425,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
         drawImage(g, dxb, dyb, dxc, dyc, sxc, syc, sxb, syb);
 
         g.translate(-3*incX, incY);
-        /******/
+        /*****/
 
 
         /* sA + sD -> dC + dB */
@@ -449,6 +450,7 @@ class ClippedImageCanvas extends Component implements Printable, Pageable {
       * page. This means there will be clipping, what is clipped will
       * depend on PageFormat orientation.
       */
+     @Override
      public Dimension getPreferredSize() {
         return new Dimension(468, 468);
     }

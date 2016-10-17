@@ -176,7 +176,7 @@ final class Stroker implements PathConsumer2D {
   // finds values of t where the curve in pts should be subdivided in order
   // to get good offset curves a distance of w away from the middle curve.
   // Stores the points in ts, and returns how many of them there were.
-  private static Curve c = new Curve();
+  private static final Curve c = new Curve();
   private final PathConsumer2D out;
   private final int capStyle;
   private final int joinStyle;
@@ -185,6 +185,13 @@ final class Stroker implements PathConsumer2D {
   private final float[] miter = new float[2];
   private final float miterLimitSq;
   private final PolyStack reverse = new PolyStack();
+  // This is where the curve to be processed is put. We give it
+  // enough room to store 2 curves: one for the current subdivision, the
+  // other for the rest of the curve.
+  private final float[] middle = new float[(2 << 3)];
+  private final float[] lp = new float[8];
+  private final float[] rp = new float[8];
+  private final float[] subdivTs = new float[MAX_N_CURVES - 1];
   private int prev;
   // The starting point of the path, and the slope there.
   private float sx0, sy0, sdx, sdy;
@@ -197,48 +204,41 @@ final class Stroker implements PathConsumer2D {
   // could be computed from sdx,sdy and cdx,cdy (and vice versa), but that
   // would be error prone and hard to read, so we keep these anyway.
   private float smx, smy, cmx, cmy;
-  // This is where the curve to be processed is put. We give it
-  // enough room to store 2 curves: one for the current subdivision, the
-  // other for the rest of the curve.
-  private float[] middle = new float[2 * 8];
-  private float[] lp = new float[8];
-  private float[] rp = new float[8];
-  private float[] subdivTs = new float[MAX_N_CURVES - 1];
 
   /**
-   * Constructs a <code>Stroker</code>.
+   * Constructs a {@code Stroker}.
    *
-   * @param pc2d       an output <code>PathConsumer2D</code>.
+   * @param pc2d       an output {@code PathConsumer2D}.
    * @param lineWidth  the desired line width in pixels
    * @param capStyle   the desired end cap style, one of
-   *                   <code>CAP_BUTT</code>, <code>CAP_ROUND</code> or
-   *                   <code>CAP_SQUARE</code>.
+   *                   {@code CAP_BUTT}, {@code CAP_ROUND} or
+   *                   {@code CAP_SQUARE}.
    * @param joinStyle  the desired line join style, one of
-   *                   <code>JOIN_MITER</code>, <code>JOIN_ROUND</code> or
-   *                   <code>JOIN_BEVEL</code>.
+   *                   {@code JOIN_MITER}, {@code JOIN_ROUND} or
+   *                   {@code JOIN_BEVEL}.
    * @param miterLimit the desired miter limit
    */
   public Stroker(
       PathConsumer2D pc2d, float lineWidth, int capStyle, int joinStyle, float miterLimit) {
-    this.out = pc2d;
+    out = pc2d;
 
-    this.lineWidth2 = lineWidth / 2;
+    lineWidth2 = lineWidth / 2;
     this.capStyle = capStyle;
     this.joinStyle = joinStyle;
 
     float limit = miterLimit * lineWidth2;
-    this.miterLimitSq = limit * limit;
+    miterLimitSq = limit * limit;
 
-    this.prev = CLOSE;
+    prev = CLOSE;
   }
 
   private static void computeOffset(
-      final float lx, final float ly, final float w, final float[] m) {
-    final float len = (float) sqrt(lx * lx + ly * ly);
+      float lx, float ly, float w, float[] m) {
+    float len = (float) sqrt(lx * lx + ly * ly);
     if (len == 0) {
       m[0] = m[1] = 0;
     } else {
-      m[0] = (ly * w) / len;
+      m[0] = ly * w / len;
       m[1] = -(lx * w) / len;
     }
   }
@@ -251,45 +251,45 @@ final class Stroker implements PathConsumer2D {
   // q = p2+(dx2,dy2), which is the same as saying p1, p2, q are in a
   // clockwise order.
   // NOTE: "clockwise" here assumes coordinates with 0,0 at the bottom left.
-  private static boolean isCW(final float dx1, final float dy1, final float dx2, final float dy2) {
+  private static boolean isCW(float dx1, float dy1, float dx2, float dy2) {
     return dx1 * dy2 <= dy1 * dx2;
   }
 
   private static boolean within(
-      final float x1, final float y1, final float x2, final float y2, final float ERR) {
+      float x1, float y1, float x2, float y2, float ERR) {
     assert ERR > 0 : "";
     // compare taxicab distance. ERR will always be small, so using
     // true distance won't give much benefit
-    return (Helpers.within(x1, x2, ERR) &&  // we want to avoid calling Math.abs
-                Helpers.within(y1, y2, ERR)); // this is just as good.
+    return Helpers.within(x1, x2, ERR) &&  // we want to avoid calling Math.abs
+        Helpers.within(y1, y2, ERR); // this is just as good.
   }
 
   private static boolean isFinite(float x) {
-    return (Float.NEGATIVE_INFINITY < x && x < Float.POSITIVE_INFINITY);
+    return Float.NEGATIVE_INFINITY < x && x < Float.POSITIVE_INFINITY;
   }
 
-  private static int findSubdivPoints(float[] pts, float[] ts, final int type, final float w) {
-    final float x12 = pts[2] - pts[0];
-    final float y12 = pts[3] - pts[1];
+  private static int findSubdivPoints(float[] pts, float[] ts, int type, float w) {
+    float x12 = pts[2] - pts[0];
+    float y12 = pts[3] - pts[1];
     // if the curve is already parallel to either axis we gain nothing
     // from rotating it.
     if (y12 != 0f && x12 != 0f) {
       // we rotate it so that the first vector in the control polygon is
       // parallel to the x-axis. This will ensure that rotated quarter
       // circles won't be subdivided.
-      final float hypot = (float) sqrt(x12 * x12 + y12 * y12);
-      final float cos = x12 / hypot;
-      final float sin = y12 / hypot;
-      final float x1 = cos * pts[0] + sin * pts[1];
-      final float y1 = cos * pts[1] - sin * pts[0];
-      final float x2 = cos * pts[2] + sin * pts[3];
-      final float y2 = cos * pts[3] - sin * pts[2];
-      final float x3 = cos * pts[4] + sin * pts[5];
-      final float y3 = cos * pts[5] - sin * pts[4];
+      float hypot = (float) sqrt(x12 * x12 + y12 * y12);
+      float cos = x12 / hypot;
+      float sin = y12 / hypot;
+      float x1 = cos * pts[0] + sin * pts[1];
+      float y1 = cos * pts[1] - sin * pts[0];
+      float x2 = cos * pts[2] + sin * pts[3];
+      float y2 = cos * pts[3] - sin * pts[2];
+      float x3 = cos * pts[4] + sin * pts[5];
+      float y3 = cos * pts[5] - sin * pts[4];
       switch (type) {
         case 8:
-          final float x4 = cos * pts[6] + sin * pts[7];
-          final float y4 = cos * pts[7] - sin * pts[6];
+          float x4 = cos * pts[6] + sin * pts[7];
+          float y4 = cos * pts[7] - sin * pts[6];
           c.set(x1, y1, x2, y2, x3, y3, x4, y4);
           break;
         case 6:
@@ -316,13 +316,73 @@ final class Stroker implements PathConsumer2D {
     ret += c.rootsOfROCMinusW(ts, ret, w, 0.0001f);
 
     ret = Helpers.filterOutNotInAB(ts, 0, ret, 0.0001f, 0.9999f);
-    Helpers.isort(ts, 0, ret);
+    isort(ts, 0, ret);
     return ret;
+  }
+
+  // curve to be broken should be in pts
+  // this will change the contents of pts but not Ts
+  // TODO: There's no reason for Ts to be an array. All we need is a sequence
+  // of t values at which to subdivide. An array statisfies this condition,
+  // but is unnecessarily restrictive. Ts should be an Iterator<Float> instead.
+  // Doing this will also make dashing easier, since we could easily make
+  // LengthIterator an Iterator<Float> and feed it to this function to simplify
+  // the loop in Dasher.somethingTo.
+  static Iterator<Integer> breakPtsAtTs(
+      float[] pts, int type, float[] Ts, int numTs) {
+    assert pts.length >= 2 * type && numTs <= Ts.length;
+    return new Iterator<Integer>() {
+      // these prevent object creation and destruction during autoboxing.
+      // Because of this, the compiler should be able to completely
+      // eliminate the boxing costs.
+      final Integer i0 = 0;
+      final Integer itype = type;
+      int nextCurveIdx;
+      Integer curCurveOff = i0;
+      float prevT;
+
+      @Override
+      public boolean hasNext() {
+        return nextCurveIdx < numTs + 1;
+      }
+
+      @Override
+      public Integer next() {
+        Integer ret;
+        if (nextCurveIdx < numTs) {
+          float curT = Ts[nextCurveIdx];
+          float splitT = (curT - prevT) / (1 - prevT);
+          Helpers.subdivideAt(splitT, pts, curCurveOff, pts, 0, pts, type, type);
+          prevT = curT;
+          ret = i0;
+          curCurveOff = itype;
+        } else {
+          ret = curCurveOff;
+        }
+        nextCurveIdx++;
+        return ret;
+      }
+
+      @Override
+      public void remove() {
+      }
+    };
+  }
+
+  static void isort(float[] a, int off, int len) {
+    for (int i = off + 1; i < off + len; i++) {
+      float ai = a[i];
+      int j = i - 1;
+      for (; j >= off && a[j] > ai; j--) {
+        a[j + 1] = a[j];
+      }
+      a[j + 1] = ai;
+    }
   }
 
   private void drawRoundJoin(
       float x, float y, float omx, float omy, float mx, float my, boolean rev, float threshold) {
-    if ((omx == 0 && omy == 0) || (mx == 0 && my == 0)) {
+    if (omx == 0 && omy == 0 || mx == 0 && my == 0) {
       return;
     }
 
@@ -351,7 +411,7 @@ final class Stroker implements PathConsumer2D {
     // If it is >=0, we know that abs(ext) is <= 90 degrees, so we only
     // need 1 curve to approximate the circle section that joins omx,omy
     // and mx,my.
-    final int numCurves = cosext >= 0 ? 1 : 2;
+    int numCurves = cosext >= 0 ? 1 : 2;
 
     switch (numCurves) {
       case 1:
@@ -392,34 +452,33 @@ final class Stroker implements PathConsumer2D {
 
   // the input arc defined by omx,omy and mx,my must span <= 90 degrees.
   private void drawBezApproxForArc(
-      final float cx, final float cy, final float omx, final float omy, final float mx,
-      final float my, boolean rev) {
+      float cx, float cy, float omx, float omy, float mx, float my, boolean rev) {
     float cosext2 = (omx * mx + omy * my) / (2 * lineWidth2 * lineWidth2);
     // cv is the length of P1-P0 and P2-P3 divided by the radius of the arc
     // (so, cv assumes the arc has radius 1). P0, P1, P2, P3 are the points that
     // define the bezier curve we're computing.
     // It is computed using the constraints that P1-P0 and P3-P2 are parallel
     // to the arc tangents at the endpoints, and that |P1-P0|=|P3-P2|.
-    float cv = (float) ((4.0 / 3.0) * sqrt(0.5 - cosext2) / (1.0 + sqrt(cosext2 + 0.5)));
+    float cv = (float) (4.0 / 3.0 * sqrt(0.5 - cosext2) / (1.0 + sqrt(cosext2 + 0.5)));
     // if clockwise, we need to negate cv.
     if (rev) { // rev is equivalent to isCW(omx, omy, mx, my)
       cv = -cv;
     }
-    final float x1 = cx + omx;
-    final float y1 = cy + omy;
-    final float x2 = x1 - cv * omy;
-    final float y2 = y1 + cv * omx;
+    float x1 = cx + omx;
+    float y1 = cy + omy;
+    float x2 = x1 - cv * omy;
+    float y2 = y1 + cv * omx;
 
-    final float x4 = cx + mx;
-    final float y4 = cy + my;
-    final float x3 = x4 + cv * my;
-    final float y3 = y4 - cv * mx;
+    float x4 = cx + mx;
+    float y4 = cy + my;
+    float x3 = x4 + cv * my;
+    float y3 = y4 - cv * mx;
 
     emitCurveTo(x1, y1, x2, y2, x3, y3, x4, y4, rev);
   }
 
   private void drawRoundCap(float cx, float cy, float mx, float my) {
-    final float C = 0.5522847498307933f;
+    float C = 0.5522847498307933f;
     // the first and second arguments of the following two calls
     // are really will be ignored by emitCurveTo (because of the false),
     // but we put them in anyway, as opposed to just giving it 4 zeroes,
@@ -449,8 +508,8 @@ final class Stroker implements PathConsumer2D {
   // and (x0p, y0p) -> (x1p, y1p) in m[off] and m[off+1].
   // If the lines are parallel, it will put a non finite number in m.
   private void computeIntersection(
-      final float x0, final float y0, final float x1, final float y1, final float x0p,
-      final float y0p, final float x1p, final float y1p, final float[] m, int off) {
+      float x0, float y0, float x1, float y1, float x0p, float y0p, float x1p, float y1p, float[] m,
+      int off) {
     float x10 = x1 - x0;
     float y10 = y1 - y0;
     float x10p = x1p - x0p;
@@ -459,16 +518,17 @@ final class Stroker implements PathConsumer2D {
     float den = x10 * y10p - x10p * y10;
     float t = x10p * (y0 - y0p) - y10p * (x0 - x0p);
     t /= den;
-    m[off++] = x0 + t * x10;
+    m[off] = x0 + t * x10;
+    off++;
     m[off] = y0 + t * y10;
   }
 
   private void drawMiter(
-      final float pdx, final float pdy, final float x0, final float y0, final float dx,
-      final float dy, float omx, float omy, float mx, float my, boolean rev) {
-    if ((mx == omx && my == omy) ||
-        (pdx == 0 && pdy == 0) ||
-        (dx == 0 && dy == 0)) {
+      float pdx, float pdy, float x0, float y0, float dx, float dy, float omx, float omy, float mx,
+      float my, boolean rev) {
+    if (mx == omx && my == omy ||
+        pdx == 0 && pdy == 0 ||
+        dx == 0 && dy == 0) {
       return;
     }
 
@@ -479,12 +539,12 @@ final class Stroker implements PathConsumer2D {
       my = -my;
     }
 
-    computeIntersection((x0 - pdx) + omx,
-        (y0 - pdy) + omy,
+    computeIntersection(x0 - pdx + omx,
+        y0 - pdy + omy,
         x0 + omx,
         y0 + omy,
-        (dx + x0) + mx,
-        (dy + y0) + my,
+        dx + x0 + mx,
+        dy + y0 + my,
         x0 + mx,
         y0 + my,
         miter,
@@ -502,17 +562,19 @@ final class Stroker implements PathConsumer2D {
     }
   }
 
+  @Override
   public void moveTo(float x0, float y0) {
     if (prev == DRAWING_OP_TO) {
       finish();
     }
-    this.sx0 = this.cx0 = x0;
-    this.sy0 = this.cy0 = y0;
-    this.cdx = this.sdx = 1;
-    this.cdy = this.sdy = 0;
-    this.prev = MOVE_TO;
+    sx0 = cx0 = x0;
+    sy0 = cy0 = y0;
+    cdx = sdx = 1;
+    cdy = sdy = 0;
+    prev = MOVE_TO;
   }
 
+  @Override
   public void lineTo(float x1, float y1) {
     float dx = x1 - cx0;
     float dy = y1 - cy0;
@@ -531,13 +593,13 @@ final class Stroker implements PathConsumer2D {
     emitLineTo(cx0 - mx, cy0 - my, true);
     emitLineTo(x1 - mx, y1 - my, true);
 
-    this.cmx = mx;
-    this.cmy = my;
-    this.cdx = dx;
-    this.cdy = dy;
-    this.cx0 = x1;
-    this.cy0 = y1;
-    this.prev = DRAWING_OP_TO;
+    cmx = mx;
+    cmy = my;
+    cdx = dx;
+    cdy = dy;
+    cx0 = x1;
+    cy0 = y1;
+    prev = DRAWING_OP_TO;
   }
 
   @Override
@@ -553,12 +615,12 @@ final class Stroker implements PathConsumer2D {
     // See the TODO on somethingTo
 
     // need these so we can update the state at the end of this method
-    final float xf = middle[4], yf = middle[5];
+    float xf = middle[4], yf = middle[5];
     float dxs = middle[2] - middle[0];
     float dys = middle[3] - middle[1];
     float dxf = middle[4] - middle[2];
     float dyf = middle[5] - middle[3];
-    if ((dxs == 0f && dys == 0f) || (dxf == 0f && dyf == 0f)) {
+    if (dxs == 0f && dys == 0f || dxf == 0f && dyf == 0f) {
       dxs = dxf = middle[4] - middle[0];
       dys = dyf = middle[5] - middle[1];
     }
@@ -581,14 +643,14 @@ final class Stroker implements PathConsumer2D {
     }
 
     computeOffset(dxs, dys, lineWidth2, offset[0]);
-    final float mx = offset[0][0];
-    final float my = offset[0][1];
+    float mx = offset[0][0];
+    float my = offset[0][1];
     drawJoin(cdx, cdy, cx0, cy0, dxs, dys, cmx, cmy, mx, my);
 
     int nSplits = findSubdivPoints(middle, subdivTs, 6, lineWidth2);
 
     int kind = 0;
-    Iterator<Integer> it = Curve.breakPtsAtTs(middle, 6, subdivTs, nSplits);
+    Iterator<Integer> it = breakPtsAtTs(middle, 6, subdivTs, nSplits);
     while (it.hasNext()) {
       int curCurveOff = it.next();
 
@@ -607,13 +669,13 @@ final class Stroker implements PathConsumer2D {
       emitLineTo(rp[kind - 2], rp[kind - 1], true);
     }
 
-    this.cmx = (lp[kind - 2] - rp[kind - 2]) / 2;
-    this.cmy = (lp[kind - 1] - rp[kind - 1]) / 2;
-    this.cdx = dxf;
-    this.cdy = dyf;
-    this.cx0 = xf;
-    this.cy0 = yf;
-    this.prev = DRAWING_OP_TO;
+    cmx = (lp[kind - 2] - rp[kind - 2]) / 2;
+    cmy = (lp[kind - 1] - rp[kind - 1]) / 2;
+    cdx = dxf;
+    cdy = dyf;
+    cx0 = xf;
+    cy0 = yf;
+    prev = DRAWING_OP_TO;
   }
 
   @Override
@@ -631,14 +693,14 @@ final class Stroker implements PathConsumer2D {
     // See the TODO on somethingTo
 
     // need these so we can update the state at the end of this method
-    final float xf = middle[6], yf = middle[7];
+    float xf = middle[6], yf = middle[7];
     float dxs = middle[2] - middle[0];
     float dys = middle[3] - middle[1];
     float dxf = middle[6] - middle[4];
     float dyf = middle[7] - middle[5];
 
-    boolean p1eqp2 = (dxs == 0f && dys == 0f);
-    boolean p3eqp4 = (dxf == 0f && dyf == 0f);
+    boolean p1eqp2 = dxs == 0f && dys == 0f;
+    boolean p3eqp4 = dxf == 0f && dyf == 0f;
     if (p1eqp2) {
       dxs = middle[4] - middle[0];
       dys = middle[5] - middle[1];
@@ -675,14 +737,14 @@ final class Stroker implements PathConsumer2D {
     }
 
     computeOffset(dxs, dys, lineWidth2, offset[0]);
-    final float mx = offset[0][0];
-    final float my = offset[0][1];
+    float mx = offset[0][0];
+    float my = offset[0][1];
     drawJoin(cdx, cdy, cx0, cy0, dxs, dys, cmx, cmy, mx, my);
 
     int nSplits = findSubdivPoints(middle, subdivTs, 8, lineWidth2);
 
     int kind = 0;
-    Iterator<Integer> it = Curve.breakPtsAtTs(middle, 8, subdivTs, nSplits);
+    Iterator<Integer> it = breakPtsAtTs(middle, 8, subdivTs, nSplits);
     while (it.hasNext()) {
       int curCurveOff = it.next();
 
@@ -701,25 +763,26 @@ final class Stroker implements PathConsumer2D {
       emitLineTo(rp[kind - 2], rp[kind - 1], true);
     }
 
-    this.cmx = (lp[kind - 2] - rp[kind - 2]) / 2;
-    this.cmy = (lp[kind - 1] - rp[kind - 1]) / 2;
-    this.cdx = dxf;
-    this.cdy = dyf;
-    this.cx0 = xf;
-    this.cy0 = yf;
-    this.prev = DRAWING_OP_TO;
+    cmx = (lp[kind - 2] - rp[kind - 2]) / 2;
+    cmy = (lp[kind - 1] - rp[kind - 1]) / 2;
+    cdx = dxf;
+    cdy = dyf;
+    cx0 = xf;
+    cy0 = yf;
+    prev = DRAWING_OP_TO;
   }
 
+  @Override
   public void closePath() {
     if (prev != DRAWING_OP_TO) {
       if (prev == CLOSE) {
         return;
       }
       emitMoveTo(cx0, cy0 - lineWidth2);
-      this.cmx = this.smx = 0;
-      this.cmy = this.smy = -lineWidth2;
-      this.cdx = this.sdx = 1;
-      this.cdy = this.sdy = 0;
+      cmx = smx = 0;
+      cmy = smy = -lineWidth2;
+      cdx = sdx = 1;
+      cdy = sdy = 0;
       finish();
       return;
     }
@@ -735,10 +798,11 @@ final class Stroker implements PathConsumer2D {
     emitMoveTo(sx0 - smx, sy0 - smy);
     emitReverse();
 
-    this.prev = CLOSE;
+    prev = CLOSE;
     emitClose();
   }
 
+  @Override
   public void pathDone() {
     if (prev == DRAWING_OP_TO) {
       finish();
@@ -747,7 +811,7 @@ final class Stroker implements PathConsumer2D {
     out.pathDone();
     // this shouldn't matter since this object won't be used
     // after the call to this method.
-    this.prev = CLOSE;
+    prev = CLOSE;
   }
 
   @Override
@@ -781,15 +845,15 @@ final class Stroker implements PathConsumer2D {
     emitClose();
   }
 
-  private void emitMoveTo(final float x0, final float y0) {
+  private void emitMoveTo(float x0, float y0) {
     out.moveTo(x0, y0);
   }
 
-  private void emitLineTo(final float x1, final float y1) {
+  private void emitLineTo(float x1, float y1) {
     out.lineTo(x1, y1);
   }
 
-  private void emitLineTo(final float x1, final float y1, final boolean rev) {
+  private void emitLineTo(float x1, float y1, boolean rev) {
     if (rev) {
       reverse.pushLine(x1, y1);
     } else {
@@ -798,8 +862,7 @@ final class Stroker implements PathConsumer2D {
   }
 
   private void emitQuadTo(
-      final float x0, final float y0, final float x1, final float y1, final float x2,
-      final float y2, final boolean rev) {
+      float x0, float y0, float x1, float y1, float x2, float y2, boolean rev) {
     if (rev) {
       reverse.pushQuad(x0, y0, x1, y1);
     } else {
@@ -808,8 +871,7 @@ final class Stroker implements PathConsumer2D {
   }
 
   private void emitCurveTo(
-      final float x0, final float y0, final float x1, final float y1, final float x2,
-      final float y2, final float x3, final float y3, final boolean rev) {
+      float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3, boolean rev) {
     if (rev) {
       reverse.pushCubic(x0, y0, x1, y1, x2, y2);
     } else {
@@ -831,10 +893,10 @@ final class Stroker implements PathConsumer2D {
       float my) {
     if (prev != DRAWING_OP_TO) {
       emitMoveTo(x0 + mx, y0 + my);
-      this.sdx = dx;
-      this.sdy = dy;
-      this.smx = mx;
-      this.smy = my;
+      sdx = dx;
+      sdy = dy;
+      smx = mx;
+      smy = my;
     } else {
       boolean cw = isCW(pdx, pdy, dx, dy);
       if (joinStyle == JOIN_MITER) {
@@ -859,7 +921,7 @@ final class Stroker implements PathConsumer2D {
     right[3] = y2 - offset[0][1];
   }
 
-  private int computeOffsetCubic(float[] pts, final int off, float[] leftOff, float[] rightOff) {
+  private int computeOffsetCubic(float[] pts, int off, float[] leftOff, float[] rightOff) {
     // if p1=p2 or p3=p4 it means that the derivative at the endpoint
     // vanishes, which creates problems with computeOffset. Usually
     // this happens when this stroker object is trying to winden
@@ -867,10 +929,10 @@ final class Stroker implements PathConsumer2D {
     // the input curve at the cusp, and passes it to this function.
     // because of inaccuracies in the splitting, we consider points
     // equal if they're very close to each other.
-    final float x1 = pts[off + 0], y1 = pts[off + 1];
-    final float x2 = pts[off + 2], y2 = pts[off + 3];
-    final float x3 = pts[off + 4], y3 = pts[off + 5];
-    final float x4 = pts[off + 6], y4 = pts[off + 7];
+    float x1 = pts[off], y1 = pts[off + 1];
+    float x2 = pts[off + 2], y2 = pts[off + 3];
+    float x3 = pts[off + 4], y3 = pts[off + 5];
+    float x4 = pts[off + 6], y4 = pts[off + 7];
 
     float dx4 = x4 - x3;
     float dy4 = y4 - y3;
@@ -879,12 +941,13 @@ final class Stroker implements PathConsumer2D {
 
     // if p1 == p2 && p3 == p4: draw line from p1->p4, unless p1 == p4,
     // in which case ignore if p1 == p2
-    final boolean p1eqp2 = within(x1, y1, x2, y2, 6 * ulp(y2));
-    final boolean p3eqp4 = within(x3, y3, x4, y4, 6 * ulp(y4));
+    boolean p1eqp2 = within(x1, y1, x2, y2, 6 * ulp(y2));
+    boolean p3eqp4 = within(x3, y3, x4, y4, 6 * ulp(y4));
     if (p1eqp2 && p3eqp4) {
       getLineOffsets(x1, y1, x4, y4, leftOff, rightOff);
       return 4;
-    } else if (p1eqp2) {
+    }
+    if (p1eqp2) {
       dx1 = x3 - x1;
       dy1 = y3 - y1;
     } else if (p3eqp4) {
@@ -893,8 +956,8 @@ final class Stroker implements PathConsumer2D {
     }
 
     // if p2-p1 and p4-p3 are parallel, that must mean this curve is a line
-    float dotsq = (dx1 * dx4 + dy1 * dy4);
-    dotsq = dotsq * dotsq;
+    float dotsq = dx1 * dx4 + dy1 * dy4;
+    dotsq *= dotsq;
     float l1sq = dx1 * dx1 + dy1 * dy1, l4sq = dx4 * dx4 + dy4 * dy4;
     if (Helpers.within(dotsq, l1sq * l4sq, 4 * ulp(dotsq))) {
       getLineOffsets(x1, y1, x4, y4, leftOff, rightOff);
@@ -991,8 +1054,8 @@ final class Stroker implements PathConsumer2D {
 
     x1p = x1 - offset[0][0];
     y1p = y1 - offset[0][1];
-    xi = xi - 2 * offset[1][0];
-    yi = yi - 2 * offset[1][1];
+    xi -= 2 * offset[1][0];
+    yi -= 2 * offset[1][1];
     x4p = x4 - offset[2][0];
     y4p = y4 - offset[2][1];
 
@@ -1018,15 +1081,15 @@ final class Stroker implements PathConsumer2D {
   }
 
   // return the kind of curve in the right and left arrays.
-  private int computeOffsetQuad(float[] pts, final int off, float[] leftOff, float[] rightOff) {
-    final float x1 = pts[off + 0], y1 = pts[off + 1];
-    final float x2 = pts[off + 2], y2 = pts[off + 3];
-    final float x3 = pts[off + 4], y3 = pts[off + 5];
+  private int computeOffsetQuad(float[] pts, int off, float[] leftOff, float[] rightOff) {
+    float x1 = pts[off], y1 = pts[off + 1];
+    float x2 = pts[off + 2], y2 = pts[off + 3];
+    float x3 = pts[off + 4], y3 = pts[off + 5];
 
-    final float dx3 = x3 - x2;
-    final float dy3 = y3 - y2;
-    final float dx1 = x2 - x1;
-    final float dy1 = y2 - y1;
+    float dx3 = x3 - x2;
+    float dy3 = y3 - y2;
+    float dx1 = x2 - x1;
+    float dy1 = y2 - y1;
 
     // this computes the offsets at t = 0, 1
     computeOffset(dx1, dy1, lineWidth2, offset[0]);
@@ -1117,52 +1180,67 @@ final class Stroker implements PathConsumer2D {
 
     private void ensureSpace(int n) {
       if (end + n >= curves.length) {
-        int newSize = (end + n) * 2;
+        int newSize = (end + n) << 1;
         curves = Arrays.copyOf(curves, newSize);
       }
       if (numCurves >= curveTypes.length) {
-        int newSize = numCurves * 2;
+        int newSize = numCurves << 1;
         curveTypes = Arrays.copyOf(curveTypes, newSize);
       }
     }
 
     public void pushCubic(float x0, float y0, float x1, float y1, float x2, float y2) {
       ensureSpace(6);
-      curveTypes[numCurves++] = 8;
+      curveTypes[numCurves] = 8;
+      numCurves++;
       // assert(x0 == lastX && y0 == lastY)
 
       // we reverse the coordinate order to make popping easier
-      curves[end++] = x2;
-      curves[end++] = y2;
-      curves[end++] = x1;
-      curves[end++] = y1;
-      curves[end++] = x0;
-      curves[end++] = y0;
+      curves[end] = x2;
+      end++;
+      curves[end] = y2;
+      end++;
+      curves[end] = x1;
+      end++;
+      curves[end] = y1;
+      end++;
+      curves[end] = x0;
+      end++;
+      curves[end] = y0;
+      end++;
     }
 
     public void pushQuad(float x0, float y0, float x1, float y1) {
       ensureSpace(4);
-      curveTypes[numCurves++] = 6;
+      curveTypes[numCurves] = 6;
+      numCurves++;
       // assert(x0 == lastX && y0 == lastY)
-      curves[end++] = x1;
-      curves[end++] = y1;
-      curves[end++] = x0;
-      curves[end++] = y0;
+      curves[end] = x1;
+      end++;
+      curves[end] = y1;
+      end++;
+      curves[end] = x0;
+      end++;
+      curves[end] = y0;
+      end++;
     }
 
     public void pushLine(float x, float y) {
       ensureSpace(2);
-      curveTypes[numCurves++] = 4;
+      curveTypes[numCurves] = 4;
+      numCurves++;
       // assert(x0 == lastX && y0 == lastY)
-      curves[end++] = x;
-      curves[end++] = y;
+      curves[end] = x;
+      end++;
+      curves[end] = y;
+      end++;
     }
 
     @SuppressWarnings("unused")
     public int pop(float[] pts) {
       int ret = curveTypes[numCurves - 1];
       numCurves--;
-      end -= (ret - 2);
+      end -= ret - 2;
       System.arraycopy(curves, end, pts, 0, ret - 2);
       return ret;
     }
@@ -1170,10 +1248,10 @@ final class Stroker implements PathConsumer2D {
     public void pop(PathConsumer2D io) {
       numCurves--;
       int type = curveTypes[numCurves];
-      end -= (type - 2);
+      end -= type - 2;
       switch (type) {
         case 8:
-          io.curveTo(curves[end + 0],
+          io.curveTo(curves[end],
               curves[end + 1],
               curves[end + 2],
               curves[end + 3],
@@ -1181,7 +1259,7 @@ final class Stroker implements PathConsumer2D {
               curves[end + 5]);
           break;
         case 6:
-          io.quadTo(curves[end + 0], curves[end + 1], curves[end + 2], curves[end + 3]);
+          io.quadTo(curves[end], curves[end + 1], curves[end + 2], curves[end + 3]);
           break;
         case 4:
           io.lineTo(curves[end], curves[end + 1]);
@@ -1196,7 +1274,7 @@ final class Stroker implements PathConsumer2D {
       while (nc > 0) {
         nc--;
         int type = curveTypes[numCurves];
-        end -= (type - 2);
+        end -= type - 2;
         switch (type) {
           case 8:
             ret += "cubic: ";

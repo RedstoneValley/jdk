@@ -29,38 +29,37 @@
   @run applet ChoiceKeyEventReaction.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class ChoiceKeyEventReaction extends Applet
 {
     Robot robot;
-    Choice choice1 = new Choice();
+    final Choice choice1 = new Choice();
     Point pt;
-    TextField tf = new TextField("Hi");
+    final TextField tf = new TextField("Hi");
 
-    boolean keyTypedOnTextField = false;
-    boolean itemChanged = false;
+    boolean keyTypedOnTextField;
+    boolean itemChanged;
     String toolkit;
 
     public void init()
     {
         toolkit = Toolkit.getDefaultToolkit().getClass().getName();
-        System.out.println("Current toolkit is :" +toolkit);
+        System.out.println("Current toolkit is :" + toolkit);
         for (int i = 1; i<20; i++){
             choice1.add("item-0"+i);
         }
         tf.addKeyListener(new KeyAdapter(){
+                @Override
                 public void keyPressed(KeyEvent ke) {
                     keyTypedOnTextField = true;
                     System.out.println(ke);
                 }
             });
 
-
         choice1.addItemListener(new ItemListener() {
+                @Override
                 public void itemStateChanged(ItemEvent e) {
                     itemChanged = true;
                     System.out.println(e);
@@ -102,7 +101,7 @@ public class ChoiceKeyEventReaction extends Applet
 
         Util.waitForIdle(robot);
 
-        System.out.println("keyTypedOnTextField = "+keyTypedOnTextField +": itemChanged = " + itemChanged);
+        System.out.println("keyTypedOnTextField = "+ keyTypedOnTextField +": itemChanged = " + itemChanged);
 
         if (itemChanged){
                 throw new RuntimeException("Test failed. ItemChanged event occur on Choice.");
@@ -111,14 +110,13 @@ public class ChoiceKeyEventReaction extends Applet
         // We may just write
         // if (toolkit.equals("sun.awt.windows.WToolkit") == keyTypedOnTextField) {fail;}
         // but  must report differently in these cases so put two separate if statements for simplicity.
-        if (toolkit.equals("sun.awt.windows.WToolkit") &&
+        if ("sun.awt.windows.WToolkit".equals(toolkit) &&
             !keyTypedOnTextField)
         {
             throw new RuntimeException("Test failed. (Win32) KeyEvent wasn't addressed to TextField. ");
         }
 
-        if (!toolkit.equals("sun.awt.windows.WToolkit") &&
-            keyTypedOnTextField)
+        if (!"sun.awt.windows.WToolkit".equals(toolkit) && keyTypedOnTextField)
         {
             throw new RuntimeException("Test failed. (XToolkit/MToolkit). KeyEvent was addressed to TextField.");
         }

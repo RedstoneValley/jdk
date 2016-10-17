@@ -42,18 +42,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Label;
 import java.awt.LayoutManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 
 /**
  * This is a subclass of JInternalFrame which displays documents.
@@ -64,7 +57,7 @@ import javax.swing.border.EmptyBorder;
 public class MetalworksDocumentFrame extends JInternalFrame {
 
   static final int offset = 30;
-  static int openFrameCount = 0;
+  static int openFrameCount;
 
   public MetalworksDocumentFrame() {
     super("", true, true, true, true);
@@ -96,17 +89,17 @@ public class MetalworksDocumentFrame extends JInternalFrame {
 
     JLabel toLabel = new JLabel("To: ", JLabel.RIGHT);
     JTextField toField = new JTextField(25);
-    p.add(toLabel, "label");
+    p.add(toLabel, Label.base);
     p.add(toField, "field");
 
     JLabel subLabel = new JLabel("Subj: ", JLabel.RIGHT);
     JTextField subField = new JTextField(25);
-    p.add(subLabel, "label");
+    p.add(subLabel, Label.base);
     p.add(subField, "field");
 
     JLabel ccLabel = new JLabel("cc: ", JLabel.RIGHT);
     JTextField ccField = new JTextField(25);
-    p.add(ccLabel, "label");
+    p.add(ccLabel, Label.base);
     p.add(ccField, "field");
 
     return p;
@@ -114,28 +107,32 @@ public class MetalworksDocumentFrame extends JInternalFrame {
 
   class LabeledPairLayout implements LayoutManager {
 
-    List<Component> labels = new ArrayList<Component>();
-    List<Component> fields = new ArrayList<Component>();
-    int yGap = 2;
-    int xGap = 2;
+    final List<Component> labels = new ArrayList<>();
+    final List<Component> fields = new ArrayList<>();
+    final int yGap = 2;
+    final int xGap = 2;
 
+    @Override
     public void addLayoutComponent(String s, Component c) {
-      if (s.equals("label")) {
+      if (Label.base.equals(s)) {
         labels.add(c);
       } else {
         fields.add(c);
       }
     }
 
+    @Override
     public void removeLayoutComponent(Component c) {
     }
 
+    @Override
     public Dimension preferredLayoutSize(Container c) {
       Dimension d = minimumLayoutSize(c);
-      d.width *= 2;
+      d.width <<= 1;
       return d;
     }
 
+    @Override
     public Dimension minimumLayoutSize(Container c) {
       Insets insets = c.getInsets();
 
@@ -153,11 +150,12 @@ public class MetalworksDocumentFrame extends JInternalFrame {
         Component field = fieldIter.next();
         int height = Math.max(label.getPreferredSize().height, field.
             getPreferredSize().height);
-        yPos += (height + yGap);
+        yPos += height + yGap;
       }
       return new Dimension(labelWidth * 3, yPos);
     }
 
+    @Override
     public void layoutContainer(Container c) {
       Insets insets = c.getInsets();
 
@@ -180,7 +178,7 @@ public class MetalworksDocumentFrame extends JInternalFrame {
             yPos,
             c.getSize().width - (labelWidth + xGap + insets.left + insets.right),
             height);
-        yPos += (height + yGap);
+        yPos += height + yGap;
       }
     }
   }

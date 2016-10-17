@@ -57,7 +57,7 @@ import java.awt.geom.Point2D;
 import java.lang.reflect.Field;
 
 public abstract class GraphicsTests extends Test {
-  public static boolean hasGraphics2D;
+  public static final boolean hasGraphics2D;
   static Group graphicsroot;
   static Group groptroot;
   static Option animList;
@@ -71,10 +71,11 @@ public abstract class GraphicsTests extends Test {
 
   static {
     try {
-      hasGraphics2D = (Graphics2D.class != null);
+      hasGraphics2D = true;
     } catch (NoClassDefFoundError e) {
     }
   }
+
   public GraphicsTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
     addDependency(Destinations.destroot);
@@ -96,7 +97,7 @@ public abstract class GraphicsTests extends Test {
 
     groptroot = new Group(graphicsroot, "opts", "General Graphics Options");
 
-    animList = new Option.IntList(groptroot,
+    animList = new IntList(groptroot,
         "anim",
         "Movement of rendering position",
         new int[]{0, 1, 2},
@@ -106,7 +107,7 @@ public abstract class GraphicsTests extends Test {
             "No movement", "Shift horizontal alignment", "Bounce around window",},
         0x4);
 
-    sizeList = new Option.IntList(groptroot,
+    sizeList = new IntList(groptroot,
         "sizes",
         "Size of Operations to perform",
         new int[]{1, 20, 100, 250, 1000},
@@ -117,11 +118,11 @@ public abstract class GraphicsTests extends Test {
             "Large Shapes (250x250)", "X-Large Shapes (1000x1000)",},
         0xa);
     if (hasGraphics2D) {
-      String rulenames[] = {
+      String[] rulenames = {
           "Clear", "Src", "Dst", "SrcOver", "DstOver", "SrcIn", "DstIn", "SrcOut", "DstOut",
           "SrcAtop", "DstAtop", "Xor",};
-      String ruledescs[] = new String[rulenames.length];
-      Object rules[] = new Object[rulenames.length];
+      String[] ruledescs = new String[rulenames.length];
+      Object[] rules = new Object[rulenames.length];
       int j = 0;
       int defrule = 0;
       for (int i = 0; i < rulenames.length; i++) {
@@ -148,13 +149,13 @@ public abstract class GraphicsTests extends Test {
         } else {
           suffix = "";
         }
-        if (suffix.length() > 0) {
+        if (!suffix.isEmpty()) {
           suffix = " " + suffix;
         }
         ruledescs[j] = rulename + suffix;
         j++;
       }
-      compRules = new Option.ObjectList(groptroot,
+      compRules = new ObjectList(groptroot,
           "alpharule",
           "AlphaComposite Rule",
           j,
@@ -162,19 +163,19 @@ public abstract class GraphicsTests extends Test {
           rules,
           rulenames,
           ruledescs,
-          (1 << defrule));
-      ((Option.ObjectList) compRules).setNumRows(4);
+          1 << defrule);
+      ((ObjectList) compRules).setNumRows(4);
 
-      Transform xforms[] = {
+      Transform[] xforms = {
           Identity.instance, FTranslate.instance, Scale2x2.instance, Rotate15.instance,
           ShearX.instance, ShearY.instance,};
-      String xformnames[] = new String[xforms.length];
-      String xformdescs[] = new String[xforms.length];
+      String[] xformnames = new String[xforms.length];
+      String[] xformdescs = new String[xforms.length];
       for (int i = 0; i < xforms.length; i++) {
         xformnames[i] = xforms[i].getShortName();
         xformdescs[i] = xforms[i].getDescription();
       }
-      transforms = new Option.ObjectList(groptroot,
+      transforms = new ObjectList(groptroot,
           "transform",
           "Affine Transform",
           xforms.length,
@@ -183,20 +184,17 @@ public abstract class GraphicsTests extends Test {
           xformnames,
           xformdescs,
           0x1);
-      ((Option.ObjectList) transforms).setNumRows(3);
+      ((ObjectList) transforms).setNumRows(3);
 
-      doExtraAlpha = new Option.Toggle(groptroot,
+      doExtraAlpha = new Toggle(groptroot,
           "extraalpha",
           "Render with an \"extra alpha\" of 0.125",
-          Option.Toggle.Off);
-      doXor = new Option.Toggle(groptroot, "xormode", "Render in XOR mode", Option.Toggle.Off);
-      doClipping = new Option.Toggle(groptroot,
-          "clip",
-          "Render through a complex clip shape",
-          Option.Toggle.Off);
-      String rhintnames[] = {
+          Toggle.Off);
+      doXor = new Toggle(groptroot, "xormode", "Render in XOR mode", Toggle.Off);
+      doClipping = new Toggle(groptroot, "clip", "Render through a complex clip shape", Toggle.Off);
+      String[] rhintnames = {
           "Default", "Speed", "Quality",};
-      renderHint = new Option.ObjectList(groptroot,
+      renderHint = new ObjectList(groptroot,
           "renderhint",
           "Rendering Hint",
           rhintnames,
@@ -209,6 +207,7 @@ public abstract class GraphicsTests extends Test {
     }
   }
 
+  @Override
   public Object initTest(TestEnvironment env, Result result) {
     Context ctx = createContext();
     initContext(env, ctx);
@@ -217,6 +216,7 @@ public abstract class GraphicsTests extends Test {
     return ctx;
   }
 
+  @Override
   public void cleanupTest(TestEnvironment env, Object ctx) {
     Graphics graphics = ((Context) ctx).graphics;
     graphics.dispose();
@@ -285,8 +285,8 @@ public abstract class GraphicsTests extends Test {
         break;
       case 2:
         ctx.animate = true;
-        ctx.maxX = (w - ctx.outdim.width) + 1;
-        ctx.maxY = (h - ctx.outdim.height) + 1;
+        ctx.maxX = w - ctx.outdim.width + 1;
+        ctx.maxY = h - ctx.outdim.height + 1;
         ctx.maxX = adjustWidth(ctx.maxX, ctx.maxY);
         ctx.maxX = Math.max(ctx.maxX, 3);
         ctx.maxY = Math.max(ctx.maxY, 1);
@@ -362,14 +362,17 @@ public abstract class GraphicsTests extends Test {
     private Identity() {
     }
 
+    @Override
     public String getShortName() {
       return "ident";
     }
 
+    @Override
     public String getDescription() {
       return "Identity";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
     }
   }
@@ -380,14 +383,17 @@ public abstract class GraphicsTests extends Test {
     private FTranslate() {
     }
 
+    @Override
     public String getShortName() {
       return "ftrans";
     }
 
+    @Override
     public String getDescription() {
       return "FTranslate 1.5";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
       int w = dim.width;
       int h = dim.height;
@@ -404,14 +410,17 @@ public abstract class GraphicsTests extends Test {
     private Scale2x2() {
     }
 
+    @Override
     public String getShortName() {
       return "scale2x2";
     }
 
+    @Override
     public String getDescription() {
       return "Scale 2x by 2x";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
       int w = dim.width;
       int h = dim.height;
@@ -429,14 +438,17 @@ public abstract class GraphicsTests extends Test {
     private Rotate15() {
     }
 
+    @Override
     public String getShortName() {
       return "rot15";
     }
 
+    @Override
     public String getDescription() {
       return "Rotate 15 degrees";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
       int w = dim.width;
       int h = dim.height;
@@ -463,14 +475,17 @@ public abstract class GraphicsTests extends Test {
     private ShearX() {
     }
 
+    @Override
     public String getShortName() {
       return "shearx";
     }
 
+    @Override
     public String getDescription() {
       return "Shear X to the right";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
       int w = dim.width;
       int h = dim.height;
@@ -488,14 +503,17 @@ public abstract class GraphicsTests extends Test {
     private ShearY() {
     }
 
+    @Override
     public String getShortName() {
       return "sheary";
     }
 
+    @Override
     public String getDescription() {
       return "Shear Y down";
     }
 
+    @Override
     public void init(Graphics2D g2d, Context ctx, Dimension dim) {
       int w = dim.width;
       int h = dim.height;

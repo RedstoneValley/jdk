@@ -25,16 +25,19 @@
 
 package java.awt.im;
 
+import java.lang.Character.Subset;
+import java.lang.Character.UnicodeBlock;
+
 /**
  * Defines additional Unicode subsets for use by input methods.  Unlike the
  * UnicodeBlock subsets defined in the <code>{@link
- * java.lang.Character.UnicodeBlock}</code> class, these constants do not
+ * UnicodeBlock}</code> class, these constants do not
  * directly correspond to Unicode code blocks.
  *
  * @since 1.2
  */
 
-public final class InputSubset extends Character.Subset {
+public final class InputSubset extends Subset {
 
   /**
    * Constant for all Latin characters, including the characters

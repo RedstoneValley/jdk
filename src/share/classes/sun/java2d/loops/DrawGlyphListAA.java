@@ -25,9 +25,9 @@
 
 package sun.java2d.loops;
 
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
+import sun.java2d.pipe.GlyphList;
 import sun.java2d.pipe.Region;
 
 /**
@@ -38,9 +38,9 @@ import sun.java2d.pipe.Region;
  */
 public class DrawGlyphListAA extends GraphicsPrimitive {
 
-  public final static String methodSignature = "DrawGlyphListAA(...)".toString();
+  public static final String methodSignature = "DrawGlyphListAA(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new DrawGlyphListAA(null, null, null));
@@ -60,25 +60,30 @@ public class DrawGlyphListAA extends GraphicsPrimitive {
     return (DrawGlyphListAA) GraphicsPrimitiveMgr.locate(primTypeID, srctype, comptype, dsttype);
   }
 
-  public native void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData dest, GlyphList srcData);
+  public void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData dest, GlyphList srcData) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     return new General(srctype, comptype, dsttype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawGlyphListAA(this);
   }
 
   public static class General extends DrawGlyphListAA {
-    MaskFill maskop;
+    final MaskFill maskop;
 
     public General(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
       super(srctype, comptype, dsttype);
       maskop = MaskFill.locate(srctype, comptype, dsttype);
     }
 
+    @Override
     public void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData dest, GlyphList gl) {
       gl.getBounds(); // Don't delete, bug 4895493
       int num = gl.getNumGlyphs();
@@ -89,7 +94,7 @@ public class DrawGlyphListAA extends GraphicsPrimitive {
       int cy2 = clip.getHiY();
       for (int i = 0; i < num; i++) {
         gl.setGlyphIndex(i);
-        int metrics[] = gl.getMetrics();
+        int[] metrics = gl.getMetrics();
         int gx1 = metrics[0];
         int gy1 = metrics[1];
         int w = metrics[2];
@@ -111,7 +116,7 @@ public class DrawGlyphListAA extends GraphicsPrimitive {
           gy2 = cy2;
         }
         if (gx2 > gx1 && gy2 > gy1) {
-          byte alpha[] = gl.getGrayBits();
+          byte[] alpha = gl.getGrayBits();
           maskop.MaskFill(sg2d,
               dest,
               sg2d.composite,
@@ -128,17 +133,19 @@ public class DrawGlyphListAA extends GraphicsPrimitive {
   }
 
   private static class TraceDrawGlyphListAA extends DrawGlyphListAA {
-    DrawGlyphListAA target;
+    final DrawGlyphListAA target;
 
     public TraceDrawGlyphListAA(DrawGlyphListAA target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }
 
+    @Override
     public void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData dest, GlyphList glyphs) {
       tracePrimitive(target);
       target.DrawGlyphListAA(sg2d, dest, glyphs);

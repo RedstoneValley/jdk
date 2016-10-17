@@ -40,24 +40,24 @@ import sun.java2d.SunGraphics2D;
  * be transformed into one or more variants of these calls.
  */
 public interface PixelDrawPipe {
-  public void drawLine(
+  void drawLine(
       SunGraphics2D sg, int x1, int y1, int x2, int y2);
 
-  public void drawRect(
+  void drawRect(
       SunGraphics2D sg, int x, int y, int width, int height);
 
-  public void drawRoundRect(
+  void drawRoundRect(
       SunGraphics2D sg, int x, int y, int width, int height, int arcWidth, int arcHeight);
 
-  public void drawOval(
+  void drawOval(
       SunGraphics2D sg, int x, int y, int width, int height);
 
-  public void drawArc(
+  void drawArc(
       SunGraphics2D sg, int x, int y, int width, int height, int startAngle, int arcAngle);
 
-  public void drawPolyline(
-      SunGraphics2D sg, int xPoints[], int yPoints[], int nPoints);
+  void drawPolyline(
+      SunGraphics2D sg, int[] xPoints, int[] yPoints, int nPoints);
 
-  public void drawPolygon(
-      SunGraphics2D sg, int xPoints[], int yPoints[], int nPoints);
+  void drawPolygon(
+      SunGraphics2D sg, int[] xPoints, int[] yPoints, int nPoints);
 }

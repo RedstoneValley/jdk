@@ -72,18 +72,18 @@ public interface WritableRenderedImage extends RenderedImage {
    * Adds an observer.  If the observer is already present,
    * it will receive multiple notifications.
    *
-   * @param to the specified <code>TileObserver</code>
+   * @param to the specified {@code TileObserver}
    */
-  public void addTileObserver(TileObserver to);
+  void addTileObserver(TileObserver to);
 
   /**
    * Removes an observer.  If the observer was not registered,
    * nothing happens.  If the observer was registered for multiple
    * notifications, it will now be registered for one fewer.
    *
-   * @param to the specified <code>TileObserver</code>
+   * @param to the specified {@code TileObserver}
    */
-  public void removeTileObserver(TileObserver to);
+  void removeTileObserver(TileObserver to);
 
   /**
    * Checks out a tile for writing.
@@ -96,7 +96,7 @@ public interface WritableRenderedImage extends RenderedImage {
    * @param tileY the Y index of the tile.
    * @return a writable tile.
    */
-  public WritableRaster getWritableTile(int tileX, int tileY);
+  WritableRaster getWritableTile(int tileX, int tileY);
 
   /**
    * Relinquishes the right to write to a tile.  If the caller
@@ -112,17 +112,17 @@ public interface WritableRenderedImage extends RenderedImage {
    * @param tileX the X index of the tile.
    * @param tileY the Y index of the tile.
    */
-  public void releaseWritableTile(int tileX, int tileY);
+  void releaseWritableTile(int tileX, int tileY);
 
   /**
    * Returns whether a tile is currently checked out for writing.
    *
    * @param tileX the X index of the tile.
    * @param tileY the Y index of the tile.
-   * @return <code>true</code> if specified tile is checked out
-   * for writing; <code>false</code> otherwise.
+   * @return {@code true} if specified tile is checked out
+   * for writing; {@code false} otherwise.
    */
-  public boolean isTileWritable(int tileX, int tileY);
+  boolean isTileWritable(int tileX, int tileY);
 
   /**
    * Returns an array of Point objects indicating which tiles
@@ -132,23 +132,23 @@ public interface WritableRenderedImage extends RenderedImage {
    * @return an array containing the locations of tiles that are
    * checked out for writing.
    */
-  public Point[] getWritableTileIndices();
+  Point[] getWritableTileIndices();
 
   /**
    * Returns whether any tile is checked out for writing.
    * Semantically equivalent to (getWritableTileIndices() != null).
    *
-   * @return <code>true</code> if any tiles are checked out for
-   * writing; <code>false</code> otherwise.
+   * @return {@code true} if any tiles are checked out for
+   * writing; {@code false} otherwise.
    */
-  public boolean hasTileWriters();
+  boolean hasTileWriters();
 
   /**
    * Sets a rect of the image to the contents of the Raster r, which is
    * assumed to be in the same coordinate space as the WritableRenderedImage.
    * The operation is clipped to the bounds of the WritableRenderedImage.
    *
-   * @param r the specified <code>Raster</code>
+   * @param r the specified {@code Raster}
    */
-  public void setData(Raster r);
+  void setData(Raster r);
 }

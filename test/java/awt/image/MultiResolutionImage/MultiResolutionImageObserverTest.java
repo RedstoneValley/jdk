@@ -29,7 +29,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import static java.awt.image.ImageObserver.*;
 import java.io.File;
-import javax.imageio.ImageIO;
 /*
  * @test
  * @bug 8065627
@@ -38,11 +37,14 @@ import javax.imageio.ImageIO;
  * @run main MultiResolutionImageObserverTest
  */
 
-public class MultiResolutionImageObserverTest {
+public final class MultiResolutionImageObserverTest {
 
     private static final int TIMEOUT = 500;
 
-    public static void main(String[] args) throws Exception {
+  private MultiResolutionImageObserverTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         generateImages();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -57,7 +59,7 @@ public class MultiResolutionImageObserverTest {
                 = new LoadImageObserver(SOMEBITS | FRAMEBITS | ALLBITS);
 
         BufferedImage buffImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2d = (Graphics2D) buffImage.createGraphics();
+        Graphics2D g2d = buffImage.createGraphics();
         g2d.scale(2, 2);
         g2d.drawImage(image, 0, 0, bitsObserver);
         waitForImageLoading(bitsObserver, "The second observer is not called!");
@@ -78,8 +80,8 @@ public class MultiResolutionImageObserverTest {
         }
     }
 
-    private static final String IMAGE_NAME_1X = "image.png";
-    private static final String IMAGE_NAME_2X = "image@2x.png";
+    private static final String IMAGE_NAME_1X = MultiResolutionImageTest.IMAGE_NAME_1X;
+    private static final String IMAGE_NAME_2X = MultiResolutionImageTest.IMAGE_NAME_2X;
 
     private static void generateImages() throws Exception {
         generateImage(1);
@@ -101,10 +103,10 @@ public class MultiResolutionImageObserverTest {
     private static class LoadImageObserver implements ImageObserver {
 
         private final int infoflags;
-        private boolean loaded;
+        boolean loaded;
 
         public LoadImageObserver(int flags) {
-            this.infoflags = flags;
+            infoflags = flags;
         }
 
         @Override

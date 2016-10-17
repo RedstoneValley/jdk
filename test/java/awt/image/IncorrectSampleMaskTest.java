@@ -33,7 +33,6 @@
 
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImageOp;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
@@ -43,9 +42,12 @@ import java.awt.image.RasterOp;
 import java.awt.image.WritableRaster;
 import java.awt.image.SinglePixelPackedSampleModel;
 
-public class IncorrectSampleMaskTest {
-    public static void main(String[] args) {
-        int[] dataTypes = new int[] {
+public final class IncorrectSampleMaskTest {
+  private IncorrectSampleMaskTest() {
+  }
+
+  public static void main(String[] args) {
+        int[] dataTypes = {
             DataBuffer.TYPE_BYTE,
             DataBuffer.TYPE_USHORT,
             DataBuffer.TYPE_INT };
@@ -58,17 +60,17 @@ public class IncorrectSampleMaskTest {
     private static final int w = 100;
     private static final int h = 100;
 
-    private static AffineTransform at =
+    private static final AffineTransform at =
         AffineTransform.getScaleInstance(0.5, 0.5);
 
-    private static RasterOp op =
+    private static final RasterOp op =
         new AffineTransformOp(at, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 
     private static void doTest(int dataType) {
         int maxSize = DataBuffer.getDataTypeSize(dataType);
         System.out.println("Type size: " + maxSize);
 
-        int theMask = (int)(1L << (maxSize + 2)) - 1;
+        int theMask = (int)(1L << maxSize + 2) - 1;
         System.out.printf("theMask=%x\n", theMask);
 
         SinglePixelPackedSampleModel sm =
@@ -102,11 +104,10 @@ public class IncorrectSampleMaskTest {
             short[] buf = new short[w * h];
             return new DataBufferUShort(buf, buf.length);
         }
-        case DataBuffer.TYPE_INT: {
+        case DataBuffer.TYPE_INT:
             int[] buf = new int[w * h];
             return new DataBufferInt(buf, buf.length);
-        }
-        default :
+            default :
             throw new RuntimeException("Unsupported data type.");
         }
     }

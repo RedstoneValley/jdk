@@ -30,14 +30,15 @@
 import java.awt.Button;
 import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.FlowLayout;
-import java.awt.FocusTraversalPolicy;
 import java.awt.Frame;
 import java.awt.List;
 import java.awt.TextArea;
-import java.awt.Window;
 
-public class InitialFTP_AWT {
-    public static void main(String[] args) {
+public final class InitialFTP_AWT {
+  private InitialFTP_AWT() {
+  }
+
+  public static void main(String[] args) {
         AWTFrame f0 = new AWTFrame("frame0");
         f0.setVisible(true);
 
@@ -53,9 +54,10 @@ public class InitialFTP_AWT {
 }
 
 class AWTFrame extends Frame {
-    Button button = new Button("button");
-    TextArea text = new TextArea("qwerty");
-    List list = new List();
+  private static final long serialVersionUID = -2159660395251773836L;
+  final Button button = new Button(Button.base);
+    final TextArea text = new TextArea("qwerty");
+    final List list = new List();
 
     public AWTFrame(String title) {
         super(title);
@@ -64,10 +66,10 @@ class AWTFrame extends Frame {
         list.add("two");
         list.add("three");
 
-        this.setLayout(new FlowLayout());
-        this.add(button);
-        this.add(text);
-        this.add(list);
-        this.pack();
+        setLayout(new FlowLayout());
+        add(button);
+        add(text);
+        add(list);
+        pack();
     }
 }

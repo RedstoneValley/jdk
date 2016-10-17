@@ -29,15 +29,15 @@ import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 
 /**
- * The <code>PackedColorModel</code> class is an abstract
+ * The {@code PackedColorModel} class is an abstract
  * {@link ColorModel} class that works with pixel values which represent
  * color and alpha information as separate samples and which pack all
  * samples for a single pixel into a single int, short, or byte quantity.
  * This class can be used with an arbitrary {@link ColorSpace}.  The number of
  * color samples in the pixel values must be the same as the number of color
- * components in the <code>ColorSpace</code>.  There can be a single alpha
+ * components in the {@code ColorSpace}.  There can be a single alpha
  * sample.  The array length is always 1 for those methods that use a
- * primitive array pixel representation of type <code>transferType</code>.
+ * primitive array pixel representation of type {@code transferType}.
  * The transfer types supported are DataBuffer.TYPE_BYTE,
  * DataBuffer.TYPE_USHORT, and DataBuffer.TYPE_INT.
  * Color and alpha samples are stored in the single element of the array
@@ -53,7 +53,7 @@ import java.awt.color.ColorSpace;
  * indices refer to color samples.
  * <li> If an alpha sample is present, it corresponds the last index.
  * <li> The order of the color indices is specified
- * by the <code>ColorSpace</code>.  Typically, this reflects the name of
+ * by the {@code ColorSpace}.  Typically, this reflects the name of
  * the color space type (for example, TYPE_RGB), index 0
  * corresponds to red, index 1 to green, and index 2 to blue.
  * </ul>
@@ -61,22 +61,22 @@ import java.awt.color.ColorSpace;
  * The translation from pixel values to color/alpha components for
  * display or processing purposes is a one-to-one correspondence of
  * samples to components.
- * A <code>PackedColorModel</code> is typically used with image data
+ * A {@code PackedColorModel} is typically used with image data
  * that uses masks to define packed samples.  For example, a
- * <code>PackedColorModel</code> can be used in conjunction with a
+ * {@code PackedColorModel} can be used in conjunction with a
  * {@link SinglePixelPackedSampleModel} to construct a
  * {@link BufferedImage}.  Normally the masks used by the
- * {@link SampleModel} and the <code>ColorModel</code> would be the same.
+ * {@link SampleModel} and the {@code ColorModel} would be the same.
  * However, if they are different, the color interpretation of pixel data is
- * done according to the masks of the <code>ColorModel</code>.
+ * done according to the masks of the {@code ColorModel}.
  * <p>
- * A single <code>int</code> pixel representation is valid for all objects
+ * A single {@code int} pixel representation is valid for all objects
  * of this class since it is always possible to represent pixel values
- * used with this class in a single <code>int</code>.  Therefore, methods
+ * used with this class in a single {@code int}.  Therefore, methods
  * that use this representation do not throw an
- * <code>IllegalArgumentException</code> due to an invalid pixel value.
+ * {@code IllegalArgumentException} due to an invalid pixel value.
  * <p>
- * A subclass of <code>PackedColorModel</code> is {@link DirectColorModel},
+ * A subclass of {@code PackedColorModel} is {@link DirectColorModel},
  * which is similar to an X11 TrueColor visual.
  *
  * @see DirectColorModel
@@ -90,24 +90,24 @@ public abstract class PackedColorModel extends ColorModel {
   float[] scaleFactors;
 
   /**
-   * Constructs a <code>PackedColorModel</code> from a color mask array,
-   * which specifies which bits in an <code>int</code> pixel representation
+   * Constructs a {@code PackedColorModel} from a color mask array,
+   * which specifies which bits in an {@code int} pixel representation
    * contain each of the color samples, and an alpha mask.  Color
-   * components are in the specified <code>ColorSpace</code>.  The length of
-   * <code>colorMaskArray</code> should be the number of components in
-   * the <code>ColorSpace</code>.  All of the bits in each mask
+   * components are in the specified {@code ColorSpace}.  The length of
+   * {@code colorMaskArray} should be the number of components in
+   * the {@code ColorSpace}.  All of the bits in each mask
    * must be contiguous and fit in the specified number of least significant
-   * bits of an <code>int</code> pixel representation.  If the
-   * <code>alphaMask</code> is 0, there is no alpha.  If there is alpha,
-   * the <code>boolean</code> <code>isAlphaPremultiplied</code> specifies
+   * bits of an {@code int} pixel representation.  If the
+   * {@code alphaMask} is 0, there is no alpha.  If there is alpha,
+   * the {@code boolean} {@code isAlphaPremultiplied} specifies
    * how to interpret color and alpha samples in pixel values.  If the
-   * <code>boolean</code> is <code>true</code>, color samples are assumed
+   * {@code boolean} is {@code true}, color samples are assumed
    * to have been multiplied by the alpha sample.  The transparency,
-   * <code>trans</code>, specifies what alpha values can be represented
+   * {@code trans}, specifies what alpha values can be represented
    * by this color model.  The transfer type is the type of primitive
    * array used to represent pixel values.
    *
-   * @param space                the specified <code>ColorSpace</code>
+   * @param space                the specified {@code ColorSpace}
    * @param bits                 the number of bits in the pixel values
    * @param colorMaskArray       array that specifies the masks representing
    *                             the bits of the pixel values that represent the color
@@ -115,12 +115,12 @@ public abstract class PackedColorModel extends ColorModel {
    * @param alphaMask            specifies the mask representing
    *                             the bits of the pixel values that represent the alpha
    *                             component
-   * @param isAlphaPremultiplied <code>true</code> if color samples are
-   *                             premultiplied by the alpha sample; <code>false</code> otherwise
+   * @param isAlphaPremultiplied {@code true} if color samples are
+   *                             premultiplied by the alpha sample; {@code false} otherwise
    * @param trans                specifies the alpha value that can be represented by
    *                             this color model
    * @param transferType         the type of array used to represent pixel values
-   * @throws IllegalArgumentException if <code>bits</code> is less than
+   * @throws IllegalArgumentException if {@code bits} is less than
    *                                  1 or greater than 32
    */
   public PackedColorModel(
@@ -128,9 +128,9 @@ public abstract class PackedColorModel extends ColorModel {
       int trans, int transferType) {
     super(
         bits,
-        PackedColorModel.createBitsArray(colorMaskArray, alphaMask),
+        createBitsArray(colorMaskArray, alphaMask),
         space,
-        (alphaMask == 0 ? false : true),
+        alphaMask != 0,
         isAlphaPremultiplied,
         trans,
         transferType);
@@ -154,24 +154,24 @@ public abstract class PackedColorModel extends ColorModel {
   }
 
   /**
-   * Constructs a <code>PackedColorModel</code> from the specified
-   * masks which indicate which bits in an <code>int</code> pixel
+   * Constructs a {@code PackedColorModel} from the specified
+   * masks which indicate which bits in an {@code int} pixel
    * representation contain the alpha, red, green and blue color samples.
-   * Color components are in the specified <code>ColorSpace</code>, which
+   * Color components are in the specified {@code ColorSpace}, which
    * must be of type ColorSpace.TYPE_RGB.  All of the bits in each
    * mask must be contiguous and fit in the specified number of
-   * least significant bits of an <code>int</code> pixel representation.  If
-   * <code>amask</code> is 0, there is no alpha.  If there is alpha,
-   * the <code>boolean</code> <code>isAlphaPremultiplied</code>
+   * least significant bits of an {@code int} pixel representation.  If
+   * {@code amask} is 0, there is no alpha.  If there is alpha,
+   * the {@code boolean} {@code isAlphaPremultiplied}
    * specifies how to interpret color and alpha samples
-   * in pixel values.  If the <code>boolean</code> is <code>true</code>,
+   * in pixel values.  If the {@code boolean} is {@code true},
    * color samples are assumed to have been multiplied by the alpha sample.
-   * The transparency, <code>trans</code>, specifies what alpha values
+   * The transparency, {@code trans}, specifies what alpha values
    * can be represented by this color model.
    * The transfer type is the type of primitive array used to represent
    * pixel values.
    *
-   * @param space                the specified <code>ColorSpace</code>
+   * @param space                the specified {@code ColorSpace}
    * @param bits                 the number of bits in the pixel values
    * @param rmask                specifies the mask representing
    *                             the bits of the pixel values that represent the red
@@ -185,12 +185,12 @@ public abstract class PackedColorModel extends ColorModel {
    * @param amask                specifies the mask representing
    *                             the bits of the pixel values that represent
    *                             the alpha component
-   * @param isAlphaPremultiplied <code>true</code> if color samples are
-   *                             premultiplied by the alpha sample; <code>false</code> otherwise
+   * @param isAlphaPremultiplied {@code true} if color samples are
+   *                             premultiplied by the alpha sample; {@code false} otherwise
    * @param trans                specifies the alpha value that can be represented by
    *                             this color model
    * @param transferType         the type of array used to represent pixel values
-   * @throws IllegalArgumentException if <code>space</code> is not a
+   * @throws IllegalArgumentException if {@code space} is not a
    *                                  TYPE_RGB space
    * @see ColorSpace
    */
@@ -199,9 +199,9 @@ public abstract class PackedColorModel extends ColorModel {
       boolean isAlphaPremultiplied, int trans, int transferType) {
     super(
         bits,
-        PackedColorModel.createBitsArray(rmask, gmask, bmask, amask),
+        createBitsArray(rmask, gmask, bmask, amask),
         space,
-        (amask == 0 ? false : true),
+        amask != 0,
         isAlphaPremultiplied,
         trans,
         transferType);
@@ -227,9 +227,9 @@ public abstract class PackedColorModel extends ColorModel {
     }
   }
 
-  private final static int[] createBitsArray(int[] colorMaskArray, int alphaMask) {
+  private static final int[] createBitsArray(int[] colorMaskArray, int alphaMask) {
     int numColors = colorMaskArray.length;
-    int numAlpha = (alphaMask == 0 ? 0 : 1);
+    int numAlpha = alphaMask == 0 ? 0 : 1;
     int[] arr = new int[numColors + numAlpha];
     for (int i = 0; i < numColors; i++) {
       arr[i] = countBits(colorMaskArray[i]);
@@ -249,16 +249,18 @@ public abstract class PackedColorModel extends ColorModel {
     return arr;
   }
 
-  private final static int[] createBitsArray(int rmask, int gmask, int bmask, int amask) {
+  private static final int[] createBitsArray(int rmask, int gmask, int bmask, int amask) {
     int[] arr = new int[3 + (amask == 0 ? 0 : 1)];
     arr[0] = countBits(rmask);
     arr[1] = countBits(gmask);
     arr[2] = countBits(bmask);
     if (arr[0] < 0) {
       throw new IllegalArgumentException("Noncontiguous red mask (" + Integer.toHexString(rmask));
-    } else if (arr[1] < 0) {
+    }
+    if (arr[1] < 0) {
       throw new IllegalArgumentException("Noncontiguous green mask (" + Integer.toHexString(gmask));
-    } else if (arr[2] < 0) {
+    }
+    if (arr[2] < 0) {
       throw new IllegalArgumentException("Noncontiguous blue mask (" + Integer.toHexString(bmask));
     }
     if (amask != 0) {
@@ -271,7 +273,7 @@ public abstract class PackedColorModel extends ColorModel {
     return arr;
   }
 
-  private final static int countBits(int mask) {
+  private static final int countBits(int mask) {
     int count = 0;
     if (mask != 0) {
       while ((mask & 1) == 0) {
@@ -291,26 +293,26 @@ public abstract class PackedColorModel extends ColorModel {
   /**
    * Returns the mask indicating which bits in a pixel
    * contain the specified color/alpha sample.  For color
-   * samples, <code>index</code> corresponds to the placement of color
-   * sample names in the color space.  Thus, an <code>index</code>
+   * samples, {@code index} corresponds to the placement of color
+   * sample names in the color space.  Thus, an {@code index}
    * equal to 0 for a CMYK ColorSpace would correspond to
-   * Cyan and an <code>index</code> equal to 1 would correspond to
-   * Magenta.  If there is alpha, the alpha <code>index</code> would be:
+   * Cyan and an {@code index} equal to 1 would correspond to
+   * Magenta.  If there is alpha, the alpha {@code index} would be:
    * <pre>
    *      alphaIndex = numComponents() - 1;
    * </pre>
    *
    * @param index the specified color or alpha sample
-   * @return the mask, which indicates which bits of the <code>int</code>
+   * @return the mask, which indicates which bits of the {@code int}
    * pixel representation contain the color or alpha sample specified
-   * by <code>index</code>.
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code> is
+   * by {@code index}.
+   * @throws ArrayIndexOutOfBoundsException if {@code index} is
    *                                        greater than the number of components minus 1 in this
-   *                                        <code>PackedColorModel</code> or if
-   *                                        <code>index</code> is
+   *                                        {@code PackedColorModel} or if
+   *                                        {@code index} is
    *                                        less than zero
    */
-  final public int getMask(int index) {
+  public final int getMask(int index) {
     return maskArray[index];
   }
 
@@ -319,11 +321,11 @@ public abstract class PackedColorModel extends ColorModel {
    * contain the color and alpha samples.
    *
    * @return the mask array , which indicates which bits of the
-   * <code>int</code> pixel
+   * {@code int} pixel
    * representation contain the color or alpha samples.
    */
-  final public int[] getMasks() {
-    return (int[]) maskArray.clone();
+  public final int[] getMasks() {
+    return maskArray.clone();
   }
 
   /*
@@ -354,25 +356,20 @@ public abstract class PackedColorModel extends ColorModel {
     }
 
     maskOffsets[idx] = off;
-    if (count == 0) {
-      // High enough to scale any 0-ff value down to 0.0, but not
-      // high enough to get Infinity when scaling back to pixel bits
-      scaleFactors[idx] = 256.0f;
-    } else {
-      scaleFactors[idx] = 255.0f / ((1 << count) - 1);
-    }
+    scaleFactors[idx] = count == 0 ? 256.0f : 255.0f / ((1 << count) - 1);
   }
 
   /**
-   * Tests if the specified <code>Object</code> is an instance
-   * of <code>PackedColorModel</code> and equals this
-   * <code>PackedColorModel</code>.
+   * Tests if the specified {@code Object} is an instance
+   * of {@code PackedColorModel} and equals this
+   * {@code PackedColorModel}.
    *
-   * @param obj the <code>Object</code> to test for equality
-   * @return <code>true</code> if the specified <code>Object</code>
-   * is an instance of <code>PackedColorModel</code> and equals this
-   * <code>PackedColorModel</code>; <code>false</code> otherwise.
+   * @param obj the {@code Object} to test for equality
+   * @return {@code true} if the specified {@code Object}
+   * is an instance of {@code PackedColorModel} and equals this
+   * {@code PackedColorModel}; {@code false} otherwise.
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object obj) {
     if (!(obj instanceof PackedColorModel)) {
       return false;
@@ -396,35 +393,37 @@ public abstract class PackedColorModel extends ColorModel {
   }
 
   /**
-   * Creates a <code>SampleModel</code> with the specified width and
+   * Creates a {@code SampleModel} with the specified width and
    * height that has a data layout compatible with this
-   * <code>ColorModel</code>.
+   * {@code ColorModel}.
    *
    * @param w the width (in pixels) of the region of the image data
    *          described
    * @param h the height (in pixels) of the region of the image data
    *          described
-   * @return the newly created <code>SampleModel</code>.
-   * @throws IllegalArgumentException if <code>w</code> or
-   *                                  <code>h</code> is not greater than 0
+   * @return the newly created {@code SampleModel}.
+   * @throws IllegalArgumentException if {@code w} or
+   *                                  {@code h} is not greater than 0
    * @see SampleModel
    */
+  @Override
   public SampleModel createCompatibleSampleModel(int w, int h) {
     return new SinglePixelPackedSampleModel(transferType, w, h, maskArray);
   }
 
   /**
-   * Checks if the specified <code>SampleModel</code> is compatible
-   * with this <code>ColorModel</code>.  If <code>sm</code> is
-   * <code>null</code>, this method returns <code>false</code>.
+   * Checks if the specified {@code SampleModel} is compatible
+   * with this {@code ColorModel}.  If {@code sm} is
+   * {@code null}, this method returns {@code false}.
    *
-   * @param sm the specified <code>SampleModel</code>,
-   *           or <code>null</code>
-   * @return <code>true</code> if the specified <code>SampleModel</code>
-   * is compatible with this <code>ColorModel</code>;
-   * <code>false</code> otherwise.
+   * @param sm the specified {@code SampleModel},
+   *           or {@code null}
+   * @return {@code true} if the specified {@code SampleModel}
+   * is compatible with this {@code ColorModel};
+   * {@code false} otherwise.
    * @see SampleModel
    */
+  @Override
   public boolean isCompatibleSampleModel(SampleModel sm) {
     if (!(sm instanceof SinglePixelPackedSampleModel)) {
       return false;
@@ -462,20 +461,21 @@ public abstract class PackedColorModel extends ColorModel {
 
   /**
    * Returns a {@link WritableRaster} representing the alpha channel of
-   * an image, extracted from the input <code>WritableRaster</code>.
-   * This method assumes that <code>WritableRaster</code> objects
-   * associated with this <code>ColorModel</code> store the alpha band,
-   * if present, as the last band of image data.  Returns <code>null</code>
+   * an image, extracted from the input {@code WritableRaster}.
+   * This method assumes that {@code WritableRaster} objects
+   * associated with this {@code ColorModel} store the alpha band,
+   * if present, as the last band of image data.  Returns {@code null}
    * if there is no separate spatial alpha channel associated with this
-   * <code>ColorModel</code>.  This method creates a new
-   * <code>WritableRaster</code>, but shares the data array.
+   * {@code ColorModel}.  This method creates a new
+   * {@code WritableRaster}, but shares the data array.
    *
-   * @param raster a <code>WritableRaster</code> containing an image
-   * @return a <code>WritableRaster</code> that represents the alpha
-   * channel of the image contained in <code>raster</code>.
+   * @param raster a {@code WritableRaster} containing an image
+   * @return a {@code WritableRaster} that represents the alpha
+   * channel of the image contained in {@code raster}.
    */
+  @Override
   public WritableRaster getAlphaRaster(WritableRaster raster) {
-    if (hasAlpha() == false) {
+    if (!hasAlpha()) {
       return null;
     }
 

@@ -25,15 +25,15 @@
 package java.awt;
 
 /**
- * <code>Panel</code> is the simplest container class. A panel
+ * {@code Panel} is the simplest container class. A panel
  * provides space in which an application can attach any other
  * component, including other panels.
  * <p>
  * The default layout manager for a panel is the
- * <code>FlowLayout</code> layout manager.
+ * {@code FlowLayout} layout manager.
  *
  * @author Sami Shaio
- * @see java.awt.FlowLayout
+ * @see FlowLayout
  * @since JDK1.0
  */
 public class Panel extends Container {
@@ -42,12 +42,12 @@ public class Panel extends Container {
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = -2728009084054400034L;
-  private static int nameCounter = 0;
+  private static int nameCounter;
 
   /**
    * Creates a new panel using the default layout manager.
    * The default layout manager for all panels is the
-   * <code>FlowLayout</code> class.
+   * {@code FlowLayout} class.
    */
   public Panel() {
     this(new FlowLayout());
@@ -67,9 +67,12 @@ public class Panel extends Container {
    * Construct a name for this component.  Called by getName() when the
    * name is null.
    */
+  @Override
   String constructComponentName() {
     synchronized (Panel.class) {
-      return base + nameCounter++;
+      String result = base + nameCounter;
+      nameCounter++;
+      return result;
     }
   }
 
@@ -78,6 +81,7 @@ public class Panel extends Container {
    * appearance of the panel without changing its functionality.
    */
 
+  @Override
   public void addNotify() {
     synchronized (getTreeLock()) {
       if (peer == null) {

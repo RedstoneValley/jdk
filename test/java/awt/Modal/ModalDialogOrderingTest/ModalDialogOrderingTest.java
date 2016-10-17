@@ -38,19 +38,22 @@ import sun.awt.SunToolkit;
  * @author Alexandr Scherbatiy
  * @run main ModalDialogOrderingTest
  */
-public class ModalDialogOrderingTest {
+public final class ModalDialogOrderingTest {
 
     private static final Color DIALOG_COLOR = Color.GREEN;
     private static final Color FRAME_COLOR = Color.BLUE;
 
+    private ModalDialogOrderingTest() {
+    }
+
     public static void main(String[] args) {
 
-        final Frame frame = new Frame("Test");
+        Frame frame = new Frame("Test");
         frame.setSize(400, 400);
         frame.setBackground(FRAME_COLOR);
         frame.setVisible(true);
 
-        final Dialog modalDialog = new Dialog(null, true);
+        Dialog modalDialog = new Dialog(null, true);
         modalDialog.setTitle("Modal Dialog");
         modalDialog.setSize(400, 200);
         modalDialog.setBackground(DIALOG_COLOR);
@@ -67,7 +70,7 @@ public class ModalDialogOrderingTest {
         modalDialog.setVisible(true);
     }
 
-    private static void runTest(Dialog dialog, Frame frame) {
+    static void runTest(Dialog dialog, Frame frame) {
         try {
             Robot robot = new Robot();
             robot.setAutoDelay(50);

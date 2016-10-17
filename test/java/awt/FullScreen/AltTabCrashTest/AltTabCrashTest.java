@@ -59,7 +59,9 @@ import java.util.Vector;
  * on Windows, and only if there are no interventions.
  */
 
+@SuppressWarnings("MagicNumber")
 public class AltTabCrashTest extends Frame {
+    private static final long serialVersionUID = 5908506776273306913L;
     public static int width;
     public static int height;
     public static volatile boolean autoMode;
@@ -67,24 +69,25 @@ public class AltTabCrashTest extends Frame {
     public static final int NUM_OF_BALLS = 70;
     // number of times to alt+tab in and out of the app
     public static int altTabs = 5;
-    private final Vector<Ball> balls = new Vector<>();
-    GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
+    final Vector<Ball> balls = new Vector<>();
+    final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
         .getDefaultScreenDevice();
-    VolatileImage vimg = null;
-    BufferStrategy bufferStrategy = null;
-    volatile boolean timeToQuit = false;
+    VolatileImage vimg;
+    BufferStrategy bufferStrategy;
+    volatile boolean timeToQuit;
     static final Object lock = new Object();
 
     enum SpriteType {
         OVALS, VIMAGES, BIMAGES, AAOVALS, TEXT
     }
 
-    private static boolean changeDM = false;
+    private static boolean changeDM;
     private static SpriteType spriteType;
-    static Random rnd = new Random();
+    static final Random rnd = new Random();
 
     public AltTabCrashTest( ) {
         addKeyListener(new KeyAdapter() {
+            @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     timeToQuit = true;
@@ -133,12 +136,11 @@ public class AltTabCrashTest extends Frame {
                     }
                 }
             }
-            t = null;
             dispose();
         }
     }
 
-    private Ball createRandomBall(final int y, final int x) {
+    Ball createRandomBall(int y, int x) {
         Ball b;
         SpriteType type;
 
@@ -159,6 +161,10 @@ public class AltTabCrashTest extends Frame {
     }
 
     private class MouseHandler extends MouseAdapter  {
+        MouseHandler() {
+        }
+
+        @Override
         public void mousePressed(MouseEvent e) {
             synchronized (balls) {
                 balls.addElement(createRandomBall(e.getX(), e.getY()));
@@ -166,8 +172,12 @@ public class AltTabCrashTest extends Frame {
         }
     }
 
+    @SuppressWarnings("MagicNumber")
     private class AltTabberThread extends Thread {
         Robot robot;
+
+        AltTabberThread() {
+        }
 
         void pressAltTab() {
             robot.keyPress(KeyEvent.VK_ALT);
@@ -180,6 +190,7 @@ public class AltTabCrashTest extends Frame {
             pressAltTab();
             robot.keyRelease(KeyEvent.VK_SHIFT);
         }
+        @Override
         public void run() {
             try {
                 robot = new Robot();
@@ -188,7 +199,8 @@ public class AltTabCrashTest extends Frame {
                 throw new RuntimeException("Can't create robot");
             }
             boolean out = true;
-            while (altTabs-- > 0 && !timeToQuit) {
+            while (altTabs > 0 && !timeToQuit) {
+                altTabs--;
                 System.err.println("Alt+tabber Iteration: "+altTabs);
                 try { Thread.sleep(2500); } catch (InterruptedException ex) {}
 
@@ -201,6 +213,7 @@ public class AltTabCrashTest extends Frame {
                 }
                 out = !out;
             }
+            altTabs--;
             System.err.println("Alt+tabber finished.");
             synchronized (lock) {
                 timeToQuit = true;
@@ -210,27 +223,32 @@ public class AltTabCrashTest extends Frame {
     }
 
     private class BallThread extends Thread {
+        BallThread() {
+        }
+
+        @Override
         public void run() {
             while (!timeToQuit) {
                 if (useBS) {
                     renderToBS();
                     bufferStrategy.show();
                 } else {
-                    Graphics g = AltTabCrashTest.this.getGraphics();
+                    Graphics g = getGraphics();
                     render(g);
                     g.dispose();
                 }
             }
             gd.setFullScreenWindow(null);
-            AltTabCrashTest.this.dispose();
+            dispose();
         }
     }
 
+    @SuppressWarnings("MagicNumber")
     static class Ball {
 
         int x, y;     // current location
         int dx, dy;   // motion delta
-        int diameter = 40;
+        final int diameter = 40;
         Color color = Color.red;
 
         public Ball() {
@@ -245,10 +263,12 @@ public class AltTabCrashTest extends Frame {
         }
 
         public void move() {
-            if (x < 10 || x >= AltTabCrashTest.width - 20)
+            if (x < 10 || x >= width - 20) {
                 dx = -dx;
-            if (y < 10 || y > AltTabCrashTest.height - 20)
+            }
+            if (y < 10 || y > height - 20) {
                 dy = -dy;
+            }
             x += dx;
             y += dy;
         }
@@ -265,12 +285,13 @@ public class AltTabCrashTest extends Frame {
     }
 
     static class TextBall extends Ball {
-        String text;
+        final String text;
         public TextBall(int x, int y, String text) {
             super(x, y);
             this.text = text;
         }
 
+        @Override
         public void paint(Graphics g, Color c) {
             if (c == null) {
                 g.setColor(color);
@@ -285,6 +306,7 @@ public class AltTabCrashTest extends Frame {
         public AAOvalBall(int x, int y) {
             super(x, y);
         }
+        @Override
         public void paint(Graphics g, Color c) {
             if (c == null) {
                 Graphics2D g2d = (Graphics2D)g.create();
@@ -294,12 +316,12 @@ public class AltTabCrashTest extends Frame {
                 g2d.fillOval(x, y, diameter, diameter);
             } else {
                 g.setColor(c);
-                g.fillOval(x-2, y-2, diameter+4, diameter+4);
+                g.fillOval(x -2, y -2, diameter +4, diameter +4);
             }
         }
     }
 
-    static abstract class SpriteBall extends Ball {
+    abstract static class SpriteBall extends Ball {
         Image image;
         public SpriteBall(int x, int y) {
             super(x, y);
@@ -308,35 +330,42 @@ public class AltTabCrashTest extends Frame {
             g.setColor(color);
             g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
         }
+        @Override
         public void paint(Graphics g, Color c) {
             if (c != null) {
                 g.setColor(c);
                 g.fillRect(x, y, image.getWidth(null), image.getHeight(null));
-            } else do {
-                validateSprite();
-                g.drawImage(image, x, y, null);
-            } while (renderingIncomplete());
+            } else {
+                do {
+                    validateSprite();
+                    g.drawImage(image, x, y, null);
+                } while (renderingIncomplete());
+            }
         }
         public abstract Image createSprite();
         public void validateSprite() {}
         public boolean renderingIncomplete() { return false; }
     }
+    @SuppressWarnings("MagicNumber")
     class VISpriteBall extends SpriteBall {
 
         public VISpriteBall(int x, int y) {
             super(x, y);
         }
+        @Override
         public boolean renderingIncomplete() {
-            return ((VolatileImage)image).contentsLost();
+            return ((VolatileImage) image).contentsLost();
         }
 
+        @Override
         public Image createSprite() {
             return gd.getDefaultConfiguration().
                 createCompatibleVolatileImage(20, 20);
         }
+        @Override
         public void validateSprite() {
             int result =
-                ((VolatileImage)image).validate(getGraphicsConfiguration());
+                ((VolatileImage) image).validate(getGraphicsConfiguration());
             if (result == VolatileImage.IMAGE_INCOMPATIBLE) {
                 image = createSprite();
                 result = VolatileImage.IMAGE_RESTORED;
@@ -348,10 +377,12 @@ public class AltTabCrashTest extends Frame {
             }
         }
     }
+    @SuppressWarnings("MagicNumber")
     class BISpriteBall extends SpriteBall {
         public BISpriteBall(int x, int y) {
             super(x, y);
         }
+        @Override
         public Image createSprite() {
             return new BufferedImage(20, 20, BufferedImage.TYPE_INT_RGB);
         }
@@ -375,7 +406,7 @@ public class AltTabCrashTest extends Frame {
         height = getHeight();
 
         do {
-            Graphics2D g2d = (Graphics2D)bufferStrategy.getDrawGraphics();
+            Graphics2D g2d = (Graphics2D) bufferStrategy.getDrawGraphics();
 
             g2d.clearRect(0, 0, width, height);
             synchronized (balls) {
@@ -385,8 +416,7 @@ public class AltTabCrashTest extends Frame {
                 }
             }
             g2d.dispose();
-        } while (bufferStrategy.contentsLost() ||
-                bufferStrategy.contentsRestored());
+        } while (bufferStrategy.contentsLost() || bufferStrategy.contentsRestored());
     }
 
     public void render(Graphics g)  {
@@ -411,26 +441,26 @@ public class AltTabCrashTest extends Frame {
         } while (vimg.contentsLost());
     }
 
-    public static void main(String args[])  {
+    public static void main(String[] args)  {
         for (String arg : args) {
-            if (arg.equalsIgnoreCase("-auto")) {
+            if ("-auto".equalsIgnoreCase(arg)) {
                 autoMode = true;
                 System.err.println("Running in automatic mode using Robot");
-            } else if (arg.equalsIgnoreCase("-usebs")) {
+            } else if ("-usebs".equalsIgnoreCase(arg)) {
                 useBS = true;
                 System.err.println("Using BufferStrategy instead of VI");
-            } else if (arg.equalsIgnoreCase("-changedm")) {
+            } else if ("-changedm".equalsIgnoreCase(arg)) {
                 changeDM= true;
                 System.err.println("The test will change display mode");
-            } else if (arg.equalsIgnoreCase("-vi")) {
+            } else if ("-vi".equalsIgnoreCase(arg)) {
                 spriteType = SpriteType.VIMAGES;
-            } else if (arg.equalsIgnoreCase("-bi")) {
+            } else if ("-bi".equalsIgnoreCase(arg)) {
                 spriteType = SpriteType.BIMAGES;
-            } else if (arg.equalsIgnoreCase("-ov")) {
+            } else if ("-ov".equalsIgnoreCase(arg)) {
                 spriteType = SpriteType.OVALS;
-            } else if (arg.equalsIgnoreCase("-aaov")) {
+            } else if ("-aaov".equalsIgnoreCase(arg)) {
                 spriteType = SpriteType.AAOVALS;
-            } else if (arg.equalsIgnoreCase("-tx")) {
+            } else if ("-tx".equalsIgnoreCase(arg)) {
                 spriteType = SpriteType.TEXT;
             } else {
                 System.err.println("Usage: AltTabCrashTest [-usebs][-auto]" +
@@ -452,7 +482,7 @@ public class AltTabCrashTest extends Frame {
 
     private DisplayMode findDisplayMode() {
         GraphicsDevice gd = getGraphicsConfiguration().getDevice();
-        DisplayMode dms[] = gd.getDisplayModes();
+        DisplayMode[] dms = gd.getDisplayModes();
         DisplayMode currentDM = gd.getDisplayMode();
         for (DisplayMode dm : dms) {
             if (dm.getBitDepth() > 8 &&

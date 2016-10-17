@@ -93,15 +93,15 @@ public class Region {
     this.hix = hix;
     this.hiy = hiy;
     this.bands = bands;
-    this.endIndex = end;
+    endIndex = end;
   }
 
   /**
-   * Adds the dimension <code>dim</code> to the coordinate
-   * <code>start</code> with appropriate clipping.  If
-   * <code>dim</code> is non-positive then the method returns
+   * Adds the dimension {@code dim} to the coordinate
+   * {@code start} with appropriate clipping.  If
+   * {@code dim} is non-positive then the method returns
    * the start coordinate.  If the sum overflows an integer
-   * data type then the method returns <code>Integer.MAX_VALUE</code>.
+   * data type then the method returns {@code Integer.MAX_VALUE}.
    */
   public static int dimAdd(int start, int dim) {
     if (dim <= 0) {
@@ -124,8 +124,8 @@ public class Region {
    */
   public static int clipAdd(int v, int dv) {
     int newv = v + dv;
-    if ((newv > v) != (dv > 0)) {
-      newv = (dv < 0) ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+    if (newv > v != dv > 0) {
+      newv = dv < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
     }
     return newv;
   }
@@ -138,11 +138,11 @@ public class Region {
    * Integer.MIN_VALUE} then {@code Integer.MIN_VALUE} is returned. Otherwise
    * the multiplication is returned.
    */
-  public static int clipScale(final int v, final double sv) {
+  public static int clipScale(int v, double sv) {
     if (sv == 1.0) {
       return v;
     }
-    final double newv = v * sv;
+    double newv = v * sv;
     if (newv < Integer.MIN_VALUE) {
       return Integer.MIN_VALUE;
     }
@@ -160,9 +160,9 @@ public class Region {
    *
    * @param s  a non-null Shape object specifying the geometry enclosing
    *           the pixels of interest
-   * @param at an optional <code>AffineTransform</code> to be applied to the
+   * @param at an optional {@code AffineTransform} to be applied to the
    *           coordinates as they are returned in the iteration, or
-   *           <code>null</code> if untransformed coordinates are desired
+   *           {@code null} if untransformed coordinates are desired
    */
   public static Region getInstance(Shape s, AffineTransform at) {
     return getInstance(WHOLE_REGION, false, s, at);
@@ -186,9 +186,9 @@ public class Region {
    *                  clip the geometry to
    * @param s         a non-null Shape object specifying the geometry enclosing
    *                  the pixels of interest
-   * @param at        an optional <code>AffineTransform</code> to be applied to the
+   * @param at        an optional {@code AffineTransform} to be applied to the
    *                  coordinates as they are returned in the iteration, or
-   *                  <code>null</code> if untransformed coordinates are desired
+   *                  {@code null} if untransformed coordinates are desired
    */
   public static Region getInstance(Region devBounds, Shape s, AffineTransform at) {
     return getInstance(devBounds, false, s, at);
@@ -217,9 +217,9 @@ public class Region {
    *                  normalization
    * @param s         a non-null Shape object specifying the geometry enclosing
    *                  the pixels of interest
-   * @param at        an optional <code>AffineTransform</code> to be applied to the
+   * @param at        an optional {@code AffineTransform} to be applied to the
    *                  coordinates as they are returned in the iteration, or
-   *                  <code>null</code> if untransformed coordinates are desired
+   *                  {@code null} if untransformed coordinates are desired
    */
   public static Region getInstance(
       Region devBounds, boolean normalize, Shape s, AffineTransform at) {
@@ -228,13 +228,13 @@ public class Region {
       return EMPTY_REGION;
     }
 
-    int box[] = new int[4];
+    int[] box = new int[4];
     ShapeSpanIterator sr = new ShapeSpanIterator(normalize);
     try {
       sr.setOutputArea(devBounds);
       sr.appendPath(s.getPathIterator(at));
       sr.getPathBox(box);
-      Region r = Region.getInstance(box);
+      Region r = getInstance(box);
       r.appendSpans(sr);
       return r;
     } finally {
@@ -251,32 +251,39 @@ public class Region {
    * @see TransformHelper
    */
   static Region getInstance(
-      final int lox, final int loy, final int hix, final int hiy, final int[] edges) {
-    final int y1 = edges[0];
-    final int y2 = edges[1];
+      int lox, int loy, int hix, int hiy, int[] edges) {
+    int y1 = edges[0];
+    int y2 = edges[1];
     if (hiy <= loy || hix <= lox || y2 <= y1) {
       return EMPTY_REGION;
     }
     // rowsNum * (3 + 1 * 2)
-    final int[] bands = new int[(y2 - y1) * 5];
+    int[] bands = new int[(y2 - y1) * 5];
     int end = 0;
     int index = 2;
     for (int y = y1; y < y2; ++y) {
-      final int spanlox = Math.max(clipAdd(lox, edges[index++]), lox);
-      final int spanhix = Math.min(clipAdd(lox, edges[index++]), hix);
+      int spanlox = Math.max(clipAdd(lox, edges[index]), lox);
+      index++;
+      int spanhix = Math.min(clipAdd(lox, edges[index]), hix);
+      index++;
       if (spanlox < spanhix) {
-        final int spanloy = Math.max(clipAdd(loy, y), loy);
-        final int spanhiy = Math.min(clipAdd(spanloy, 1), hiy);
+        int spanloy = Math.max(clipAdd(loy, y), loy);
+        int spanhiy = Math.min(clipAdd(spanloy, 1), hiy);
         if (spanloy < spanhiy) {
-          bands[end++] = spanloy;
-          bands[end++] = spanhiy;
-          bands[end++] = 1; // 1 span per row
-          bands[end++] = spanlox;
-          bands[end++] = spanhix;
+          bands[end] = spanloy;
+          end++;
+          bands[end] = spanhiy;
+          end++;
+          bands[end] = 1; // 1 span per row
+          end++;
+          bands[end] = spanlox;
+          end++;
+          bands[end] = spanhix;
+          end++;
         }
       }
     }
-    return end != 0 ? new Region(lox, loy, hix, hiy, bands, end) : EMPTY_REGION;
+    return end == 0 ? EMPTY_REGION : new Region(lox, loy, hix, hiy, bands, end);
   }
 
   /**
@@ -287,7 +294,7 @@ public class Region {
    * region.
    */
   public static Region getInstance(Rectangle r) {
-    return Region.getInstanceXYWH(r.x, r.y, r.width, r.height);
+    return getInstanceXYWH(r.x, r.y, r.width, r.height);
   }
 
   /**
@@ -298,7 +305,7 @@ public class Region {
    * region.
    */
   public static Region getInstanceXYWH(int x, int y, int w, int h) {
-    return Region.getInstanceXYXY(x, y, dimAdd(x, w), dimAdd(y, h));
+    return getInstanceXYXY(x, y, dimAdd(x, w), dimAdd(y, h));
   }
 
   /**
@@ -308,7 +315,7 @@ public class Region {
    * This method can also be used to create a simple rectangular
    * region.
    */
-  public static Region getInstance(int box[]) {
+  public static Region getInstance(int[] box) {
     return new Region(box[0], box[1], box[2], box[3]);
   }
 
@@ -338,7 +345,7 @@ public class Region {
    * Sets the rectangle of interest for storing and returning
    * region bands.  The rectangle is specified in x, y, width, height
    * format and appropriate clipping is performed as per the method
-   * <code>dimAdd</code>.
+   * {@code dimAdd}.
    * <p>
    * This method can also be used to initialize a simple rectangular
    * region.
@@ -354,11 +361,11 @@ public class Region {
    * This method can also be used to initialize a simple rectangular
    * region.
    */
-  public void setOutputArea(int box[]) {
-    this.lox = box[0];
-    this.loy = box[1];
-    this.hix = box[2];
-    this.hiy = box[3];
+  public void setOutputArea(int[] box) {
+    lox = box[0];
+    loy = box[1];
+    hix = box[2];
+    hiy = box[3];
   }
 
   /**
@@ -398,11 +405,11 @@ public class Region {
    * Returns a Region object that represents the same list of rectangles as
    * the current Region object, scaled by the specified sx, sy factors.
    */
-  public Region getScaledRegion(final double sx, final double sy) {
+  public Region getScaledRegion(double sx, double sy) {
     if (sx == 0 || sy == 0 || this == EMPTY_REGION) {
       return EMPTY_REGION;
     }
-    if ((sx == 1.0 && sy == 1.0) || (this == WHOLE_REGION)) {
+    if (sx == 1.0 && sy == 1.0 || this == WHOLE_REGION) {
       return this;
     }
 
@@ -411,30 +418,42 @@ public class Region {
     int thix = clipScale(hix, sx);
     int thiy = clipScale(hiy, sy);
     Region ret = new Region(tlox, tloy, thix, thiy);
-    int bands[] = this.bands;
+    int[] bands = this.bands;
     if (bands != null) {
       int end = endIndex;
-      int newbands[] = new int[end];
+      int[] newbands = new int[end];
       int i = 0; // index for source bands
       int j = 0; // index for translated newbands
       int ncol;
       while (i < end) {
         int y1, y2;
-        newbands[j++] = y1 = clipScale(bands[i++], sy);
-        newbands[j++] = y2 = clipScale(bands[i++], sy);
-        newbands[j++] = ncol = bands[i++];
+        newbands[j] = y1 = clipScale(bands[i], sy);
+        j++;
+        i++;
+        newbands[j] = y2 = clipScale(bands[i], sy);
+        j++;
+        i++;
+        newbands[j] = ncol = bands[i];
+        j++;
+        i++;
         int savej = j;
         if (y1 < y2) {
-          while (--ncol >= 0) {
-            int x1 = clipScale(bands[i++], sx);
-            int x2 = clipScale(bands[i++], sx);
+          --ncol;
+          while (ncol >= 0) {
+            int x1 = clipScale(bands[i], sx);
+            i++;
+            int x2 = clipScale(bands[i], sx);
+            i++;
             if (x1 < x2) {
-              newbands[j++] = x1;
-              newbands[j++] = x2;
+              newbands[j] = x1;
+              j++;
+              newbands[j] = x2;
+              j++;
             }
+            --ncol;
           }
         } else {
-          i += ncol * 2;
+          i += ncol << 1;
         }
         // Did we get any non-empty bands in this row?
         if (j > savej) {
@@ -479,18 +498,18 @@ public class Region {
     int tloy = loy + dy;
     int thix = hix + dx;
     int thiy = hiy + dy;
-    if ((tlox > lox) != (dx > 0) ||
-        (tloy > loy) != (dy > 0) ||
-        (thix > hix) != (dx > 0) ||
-        (thiy > hiy) != (dy > 0)) {
+    if (tlox > lox != dx > 0 ||
+        tloy > loy != dy > 0 ||
+        thix > hix != dx > 0 ||
+        thiy > hiy != dy > 0) {
       return getSafeTranslatedRegion(dx, dy);
     }
     Region ret = new Region(tlox, tloy, thix, thiy);
-    int bands[] = this.bands;
+    int[] bands = this.bands;
     if (bands != null) {
       int end = endIndex;
       ret.endIndex = end;
-      int newbands[] = new int[end];
+      int[] newbands = new int[end];
       ret.bands = newbands;
       int i = 0;
       int ncol;
@@ -501,11 +520,13 @@ public class Region {
         i++;
         newbands[i] = ncol = bands[i];
         i++;
-        while (--ncol >= 0) {
+        --ncol;
+        while (ncol >= 0) {
           newbands[i] = bands[i] + dx;
           i++;
           newbands[i] = bands[i] + dx;
           i++;
+          --ncol;
         }
       }
     }
@@ -518,30 +539,42 @@ public class Region {
     int thix = clipAdd(hix, dx);
     int thiy = clipAdd(hiy, dy);
     Region ret = new Region(tlox, tloy, thix, thiy);
-    int bands[] = this.bands;
+    int[] bands = this.bands;
     if (bands != null) {
       int end = endIndex;
-      int newbands[] = new int[end];
+      int[] newbands = new int[end];
       int i = 0; // index for source bands
       int j = 0; // index for translated newbands
       int ncol;
       while (i < end) {
         int y1, y2;
-        newbands[j++] = y1 = clipAdd(bands[i++], dy);
-        newbands[j++] = y2 = clipAdd(bands[i++], dy);
-        newbands[j++] = ncol = bands[i++];
+        newbands[j] = y1 = clipAdd(bands[i], dy);
+        j++;
+        i++;
+        newbands[j] = y2 = clipAdd(bands[i], dy);
+        j++;
+        i++;
+        newbands[j] = ncol = bands[i];
+        j++;
+        i++;
         int savej = j;
         if (y1 < y2) {
-          while (--ncol >= 0) {
-            int x1 = clipAdd(bands[i++], dx);
-            int x2 = clipAdd(bands[i++], dx);
+          --ncol;
+          while (ncol >= 0) {
+            int x1 = clipAdd(bands[i], dx);
+            i++;
+            int x2 = clipAdd(bands[i], dx);
+            i++;
             if (x1 < x2) {
-              newbands[j++] = x1;
-              newbands[j++] = x2;
+              newbands[j] = x1;
+              j++;
+              newbands[j] = x2;
+              j++;
             }
+            --ncol;
           }
         } else {
-          i += ncol * 2;
+          i += ncol << 1;
         }
         // Did we get any non-empty bands in this row?
         if (j > savej) {
@@ -600,12 +633,12 @@ public class Region {
     if (isInsideXYXY(lox, loy, hix, hiy)) {
       return this;
     }
-    Region ret = new Region((lox < this.lox) ? this.lox : lox,
-        (loy < this.loy) ? this.loy : loy,
-        (hix > this.hix) ? this.hix : hix,
-        (hiy > this.hiy) ? this.hiy : hiy);
+    Region ret = new Region(lox < this.lox ? this.lox : lox,
+        loy < this.loy ? this.loy : loy,
+        hix > this.hix ? this.hix : hix,
+        hiy > this.hiy ? this.hiy : hiy);
     if (bands != null) {
-      ret.appendSpans(this.getSpanIterator());
+      ret.appendSpans(getSpanIterator());
     }
     return ret;
   }
@@ -615,7 +648,7 @@ public class Region {
    * object with the specified Region object.
    * <p>
    * If {@code A} and {@code B} are both Region Objects and
-   * <code>C = A.getIntersection(B);</code> then a point will
+   * {@code C = A.getIntersection(B);} then a point will
    * be contained in {@code C} iff it is contained in both
    * {@code A} and {@code B}.
    * <p>
@@ -623,16 +656,16 @@ public class Region {
    * Region object if no clipping occurs.
    */
   public Region getIntersection(Region r) {
-    if (this.isInsideQuickCheck(r)) {
+    if (isInsideQuickCheck(r)) {
       return this;
     }
     if (r.isInsideQuickCheck(this)) {
       return r;
     }
-    Region ret = new Region((r.lox < this.lox) ? this.lox : r.lox,
-        (r.loy < this.loy) ? this.loy : r.loy,
-        (r.hix > this.hix) ? this.hix : r.hix,
-        (r.hiy > this.hiy) ? this.hiy : r.hiy);
+    Region ret = new Region(r.lox < lox ? lox : r.lox,
+        r.loy < loy ? loy : r.loy,
+        r.hix > hix ? hix : r.hix,
+        r.hiy > hiy ? hiy : r.hiy);
     if (!ret.isEmpty()) {
       ret.filterSpans(this, r, INCLUDE_COMMON);
     }
@@ -644,7 +677,7 @@ public class Region {
    * object with the specified Region object.
    * <p>
    * If {@code A} and {@code B} are both Region Objects and
-   * <code>C = A.getUnion(B);</code> then a point will
+   * {@code C = A.getUnion(B);} then a point will
    * be contained in {@code C} iff it is contained in either
    * {@code A} or {@code B}.
    * <p>
@@ -655,13 +688,13 @@ public class Region {
     if (r.isEmpty() || r.isInsideQuickCheck(this)) {
       return this;
     }
-    if (this.isEmpty() || this.isInsideQuickCheck(r)) {
+    if (isEmpty() || isInsideQuickCheck(r)) {
       return r;
     }
-    Region ret = new Region((r.lox > this.lox) ? this.lox : r.lox,
-        (r.loy > this.loy) ? this.loy : r.loy,
-        (r.hix < this.hix) ? this.hix : r.hix,
-        (r.hiy < this.hiy) ? this.hiy : r.hiy);
+    Region ret = new Region(r.lox > lox ? lox : r.lox,
+        r.loy > loy ? loy : r.loy,
+        r.hix < hix ? hix : r.hix,
+        r.hiy < hiy ? hiy : r.hiy);
     ret.filterSpans(this, r, INCLUDE_A | INCLUDE_B | INCLUDE_COMMON);
     return ret;
   }
@@ -671,7 +704,7 @@ public class Region {
    * specified Region object subtracted from this object.
    * <p>
    * If {@code A} and {@code B} are both Region Objects and
-   * <code>C = A.getDifference(B);</code> then a point will
+   * {@code C = A.getDifference(B);} then a point will
    * be contained in {@code C} iff it is contained in
    * {@code A} but not contained in {@code B}.
    * <p>
@@ -682,10 +715,10 @@ public class Region {
     if (!r.intersectsQuickCheck(this)) {
       return this;
     }
-    if (this.isInsideQuickCheck(r)) {
+    if (isInsideQuickCheck(r)) {
       return EMPTY_REGION;
     }
-    Region ret = new Region(this.lox, this.loy, this.hix, this.hiy);
+    Region ret = new Region(lox, loy, hix, hiy);
     ret.filterSpans(this, r, INCLUDE_A);
     return ret;
   }
@@ -695,7 +728,7 @@ public class Region {
    * object with the specified Region object.
    * <p>
    * If {@code A} and {@code B} are both Region Objects and
-   * <code>C = A.getExclusiveOr(B);</code> then a point will
+   * {@code C = A.getExclusiveOr(B);} then a point will
    * be contained in {@code C} iff it is contained in either
    * {@code A} or {@code B}, but not if it is contained in both.
    * <p>
@@ -706,45 +739,54 @@ public class Region {
     if (r.isEmpty()) {
       return this;
     }
-    if (this.isEmpty()) {
+    if (isEmpty()) {
       return r;
     }
-    Region ret = new Region((r.lox > this.lox) ? this.lox : r.lox,
-        (r.loy > this.loy) ? this.loy : r.loy,
-        (r.hix < this.hix) ? this.hix : r.hix,
-        (r.hiy < this.hiy) ? this.hiy : r.hiy);
+    Region ret = new Region(r.lox > lox ? lox : r.lox,
+        r.loy > loy ? loy : r.loy,
+        r.hix < hix ? hix : r.hix,
+        r.hiy < hiy ? hiy : r.hiy);
     ret.filterSpans(this, r, INCLUDE_A | INCLUDE_B);
     return ret;
   }
 
   private void filterSpans(Region ra, Region rb, int flags) {
-    int abands[] = ra.bands;
-    int bbands[] = rb.bands;
+    int[] abands = ra.bands;
+    int[] bbands = rb.bands;
     if (abands == null) {
       abands = new int[]{ra.loy, ra.hiy, 1, ra.lox, ra.hix};
     }
     if (bbands == null) {
       bbands = new int[]{rb.loy, rb.hiy, 1, rb.lox, rb.hix};
     }
-    int box[] = new int[6];
+    int[] box = new int[6];
     int acolstart = 0;
-    int ay1 = abands[acolstart++];
-    int ay2 = abands[acolstart++];
-    int acolend = abands[acolstart++];
+    int ay1 = abands[acolstart];
+    acolstart++;
+    int ay2 = abands[acolstart];
+    acolstart++;
+    int acolend = abands[acolstart];
+    acolstart++;
     acolend = acolstart + 2 * acolend;
     int bcolstart = 0;
-    int by1 = bbands[bcolstart++];
-    int by2 = bbands[bcolstart++];
-    int bcolend = bbands[bcolstart++];
+    int by1 = bbands[bcolstart];
+    bcolstart++;
+    int by2 = bbands[bcolstart];
+    bcolstart++;
+    int bcolend = bbands[bcolstart];
+    bcolstart++;
     bcolend = bcolstart + 2 * bcolend;
     int y = loy;
     while (y < hiy) {
       if (y >= ay2) {
         if (acolend < ra.endIndex) {
           acolstart = acolend;
-          ay1 = abands[acolstart++];
-          ay2 = abands[acolstart++];
-          acolend = abands[acolstart++];
+          ay1 = abands[acolstart];
+          acolstart++;
+          ay2 = abands[acolstart];
+          acolstart++;
+          acolend = abands[acolstart];
+          acolstart++;
           acolend = acolstart + 2 * acolend;
         } else {
           if ((flags & INCLUDE_B) == 0) {
@@ -757,9 +799,12 @@ public class Region {
       if (y >= by2) {
         if (bcolend < rb.endIndex) {
           bcolstart = bcolend;
-          by1 = bbands[bcolstart++];
-          by2 = bbands[bcolstart++];
-          bcolend = bbands[bcolstart++];
+          by1 = bbands[bcolstart];
+          bcolstart++;
+          by2 = bbands[bcolstart];
+          bcolstart++;
+          bcolend = bbands[bcolstart];
+          bcolstart++;
           bcolend = bcolstart + 2 * bcolend;
         } else {
           if ((flags & INCLUDE_A) == 0) {
@@ -782,8 +827,10 @@ public class Region {
           box[3] = yend;
           int acol = acolstart;
           while (acol < acolend) {
-            box[0] = abands[acol++];
-            box[2] = abands[acol++];
+            box[0] = abands[acol];
+            acol++;
+            box[2] = abands[acol];
+            acol++;
             appendSpan(box);
           }
         }
@@ -795,8 +842,10 @@ public class Region {
           box[3] = yend;
           int bcol = bcolstart;
           while (bcol < bcolend) {
-            box[0] = bbands[bcol++];
-            box[2] = bbands[bcol++];
+            box[0] = bbands[bcol];
+            bcol++;
+            box[2] = bbands[bcol];
+            bcol++;
             appendSpan(box);
           }
         }
@@ -807,10 +856,14 @@ public class Region {
         box[3] = yend;
         int acol = acolstart;
         int bcol = bcolstart;
-        int ax1 = abands[acol++];
-        int ax2 = abands[acol++];
-        int bx1 = bbands[bcol++];
-        int bx2 = bbands[bcol++];
+        int ax1 = abands[acol];
+        acol++;
+        int ax2 = abands[acol];
+        acol++;
+        int bx1 = bbands[bcol];
+        bcol++;
+        int bx2 = bbands[bcol];
+        bcol++;
         int x = Math.min(ax1, bx1);
         if (x < lox) {
           x = lox;
@@ -818,8 +871,10 @@ public class Region {
         while (x < hix) {
           if (x >= ax2) {
             if (acol < acolend) {
-              ax1 = abands[acol++];
-              ax2 = abands[acol++];
+              ax1 = abands[acol];
+              acol++;
+              ax2 = abands[acol];
+              acol++;
             } else {
               if ((flags & INCLUDE_B) == 0) {
                 break;
@@ -830,8 +885,10 @@ public class Region {
           }
           if (x >= bx2) {
             if (bcol < bcolend) {
-              bx1 = bbands[bcol++];
-              bx2 = bbands[bcol++];
+              bx1 = bbands[bcol];
+              bcol++;
+              bx2 = bbands[bcol];
+              bcol++;
             } else {
               if ((flags & INCLUDE_A) == 0) {
                 break;
@@ -848,14 +905,14 @@ public class Region {
               appendit = false;
             } else {
               xend = Math.min(ax2, bx1);
-              appendit = ((flags & INCLUDE_A) != 0);
+              appendit = (flags & INCLUDE_A) != 0;
             }
           } else if (x < ax1) {
             xend = Math.min(ax1, bx2);
-            appendit = ((flags & INCLUDE_B) != 0);
+            appendit = (flags & INCLUDE_B) != 0;
           } else {
             xend = Math.min(ax2, bx2);
-            appendit = ((flags & INCLUDE_COMMON) != 0);
+            appendit = (flags & INCLUDE_COMMON) != 0;
           }
           if (appendit) {
             box[0] = x;
@@ -904,15 +961,15 @@ public class Region {
    * and this Region is rectangular.
    */
   public Region getBoundsIntersectionXYXY(int lox, int loy, int hix, int hiy) {
-    if (this.bands == null &&
+    if (bands == null &&
         this.lox >= lox && this.loy >= loy &&
         this.hix <= hix && this.hiy <= hiy) {
       return this;
     }
-    return new Region((lox < this.lox) ? this.lox : lox,
-        (loy < this.loy) ? this.loy : loy,
-        (hix > this.hix) ? this.hix : hix,
-        (hiy > this.hiy) ? this.hiy : hiy);
+    return new Region(lox < this.lox ? this.lox : lox,
+        loy < this.loy ? this.loy : loy,
+        hix > this.hix ? this.hix : hix,
+        hiy > this.hiy ? this.hiy : hiy);
   }
 
   /**
@@ -924,16 +981,16 @@ public class Region {
    * rectangular.
    */
   public Region getBoundsIntersection(Region r) {
-    if (this.encompasses(r)) {
+    if (encompasses(r)) {
       return r;
     }
     if (r.encompasses(this)) {
       return this;
     }
-    return new Region((r.lox < this.lox) ? this.lox : r.lox,
-        (r.loy < this.loy) ? this.loy : r.loy,
-        (r.hix > this.hix) ? this.hix : r.hix,
-        (r.hiy > this.hiy) ? this.hiy : r.hiy);
+    return new Region(r.lox < lox ? lox : r.lox,
+        r.loy < loy ? loy : r.loy,
+        r.hix > hix ? hix : r.hix,
+        r.hiy > hiy ? hiy : r.hiy);
   }
 
   /**
@@ -944,7 +1001,7 @@ public class Region {
    * highest Y band in the region and a higher X coordinate
    * than any of the spans in that band.
    */
-  private void appendSpan(int box[]) {
+  private void appendSpan(int[] box) {
     int spanlox, spanloy, spanhix, spanhiy;
     if ((spanlox = box[0]) < lox) {
       spanlox = lox;
@@ -971,9 +1028,12 @@ public class Region {
         endRow(box);
         curYrow = box[4];
       }
-      bands[endIndex++] = spanloy;
-      bands[endIndex++] = spanhiy;
-      bands[endIndex++] = 0;
+      bands[endIndex] = spanloy;
+      endIndex++;
+      bands[endIndex] = spanhiy;
+      endIndex++;
+      bands[endIndex] = 0;
+      endIndex++;
     } else if (spanloy == bands[curYrow] &&
         spanhiy == bands[curYrow + 1] &&
         spanlox >= bands[endIndex - 1]) {
@@ -985,8 +1045,10 @@ public class Region {
     } else {
       throw new InternalError("bad span");
     }
-    bands[endIndex++] = spanlox;
-    bands[endIndex++] = spanhix;
+    bands[endIndex] = spanlox;
+    endIndex++;
+    bands[endIndex] = spanhix;
+    endIndex++;
     bands[curYrow + 2]++;
   }
 
@@ -998,19 +1060,21 @@ public class Region {
     }
   }
 
-  private void endRow(int box[]) {
+  private void endRow(int[] box) {
     int cur = box[4];
     int prev = box[5];
     if (cur > prev) {
       int[] bands = this.bands;
       if (bands[prev + 1] == bands[cur] && bands[prev + 2] == bands[cur + 2]) {
-        int num = bands[cur + 2] * 2;
+        int num = bands[cur + 2] << 1;
         cur += 3;
         prev += 3;
         while (num > 0) {
-          if (bands[cur++] != bands[prev++]) {
+          if (bands[cur] != bands[prev]) {
             break;
           }
+          cur++;
+          prev++;
           num--;
         }
         if (num == 0) {
@@ -1040,7 +1104,7 @@ public class Region {
       this.bands = null;
       return;
     }
-    int lox = this.hix;
+    int lox = hix;
     int hix = this.lox;
     int hiyindex = 0;
 
@@ -1052,16 +1116,16 @@ public class Region {
       if (lox > bands[i]) {
         lox = bands[i];
       }
-      i += numbands * 2;
+      i += numbands << 1;
       if (hix < bands[i - 1]) {
         hix = bands[i - 1];
       }
     }
 
     this.lox = lox;
-    this.loy = bands[0];
+    loy = bands[0];
     this.hix = hix;
-    this.hiy = bands[hiyindex + 1];
+    hiy = bands[hiyindex + 1];
   }
 
   /**
@@ -1124,7 +1188,7 @@ public class Region {
    * Returns true iff this Region encloses no area.
    */
   public boolean isEmpty() {
-    return (hix <= lox || hiy <= loy);
+    return hix <= lox || hiy <= loy;
   }
 
   /**
@@ -1132,7 +1196,7 @@ public class Region {
    * rectangular area.
    */
   public boolean isRectangular() {
-    return (bands == null);
+    return bands == null;
   }
 
   /**
@@ -1147,25 +1211,31 @@ public class Region {
     }
     int i = 0;
     while (i < endIndex) {
-      if (y < bands[i++]) {
+      if (y < bands[i]) {
         return false;
       }
-      if (y >= bands[i++]) {
-        int numspans = bands[i++];
-        i += numspans * 2;
+      i++;
+      if (y >= bands[i]) {
+        int numspans = bands[i];
+        i++;
+        i += numspans << 1;
       } else {
-        int end = bands[i++];
-        end = i + end * 2;
+        int end = bands[i];
+        i++;
+        end = i + (end << 1);
         while (i < end) {
-          if (x < bands[i++]) {
+          if (x < bands[i]) {
             return false;
           }
-          if (x < bands[i++]) {
+          i++;
+          if (x < bands[i]) {
             return true;
           }
+          i++;
         }
         return false;
       }
+      i++;
     }
     return false;
   }
@@ -1184,8 +1254,8 @@ public class Region {
    * rectangular area specified in lox, loy, hix, hiy format.
    */
   public boolean isInsideXYXY(int lox, int loy, int hix, int hiy) {
-    return (this.lox >= lox && this.loy >= loy &&
-                this.hix <= hix && this.hiy <= hiy);
+    return this.lox >= lox && this.loy >= loy &&
+        this.hix <= hix && this.hiy <= hiy;
   }
 
   /**
@@ -1196,9 +1266,9 @@ public class Region {
    * object is not a simple rectangle.
    */
   public boolean isInsideQuickCheck(Region r) {
-    return (r.bands == null &&
-                r.lox <= this.lox && r.loy <= this.loy &&
-                r.hix >= this.hix && r.hiy >= this.hiy);
+    return r.bands == null &&
+        r.lox <= lox && r.loy <= loy &&
+        r.hix >= hix && r.hiy >= hiy;
   }
 
   /**
@@ -1210,8 +1280,8 @@ public class Region {
    * actually intersects any bands.
    */
   public boolean intersectsQuickCheckXYXY(int lox, int loy, int hix, int hiy) {
-    return (hix > this.lox && lox < this.hix &&
-                hiy > this.loy && loy < this.hiy);
+    return hix > this.lox && lox < this.hix &&
+        hiy > this.loy && loy < this.hiy;
   }
 
   /**
@@ -1223,8 +1293,8 @@ public class Region {
    * actually intersects any bands.
    */
   public boolean intersectsQuickCheck(Region r) {
-    return (r.hix > this.lox && r.lox < this.hix &&
-                r.hiy > this.loy && r.loy < this.hiy);
+    return r.hix > lox && r.lox < hix &&
+        r.hiy > loy && r.loy < hiy;
   }
 
   /**
@@ -1235,9 +1305,9 @@ public class Region {
    * not a simple rectangle.
    */
   public boolean encompasses(Region r) {
-    return (this.bands == null &&
-                this.lox <= r.lox && this.loy <= r.loy &&
-                this.hix >= r.hix && this.hiy >= r.hiy);
+    return bands == null &&
+        lox <= r.lox && loy <= r.loy &&
+        hix >= r.hix && hiy >= r.hiy;
   }
 
   /**
@@ -1259,15 +1329,15 @@ public class Region {
    * not a simple rectangle.
    */
   public boolean encompassesXYXY(int lox, int loy, int hix, int hiy) {
-    return (this.bands == null &&
-                this.lox <= lox && this.loy <= loy &&
-                this.hix >= hix && this.hiy >= hiy);
+    return bands == null &&
+        this.lox <= lox && this.loy <= loy &&
+        this.hix >= hix && this.hiy >= hiy;
   }
 
   /**
    * Gets the bbox of the available spans, clipped to the OutputArea.
    */
-  public void getBounds(int pathbox[]) {
+  public void getBounds(int[] pathbox) {
     pathbox[0] = lox;
     pathbox[1] = loy;
     pathbox[2] = hix;
@@ -1277,7 +1347,7 @@ public class Region {
   /**
    * Clips the indicated bbox array to the bounds of this Region.
    */
-  public void clipBoxToBounds(int bbox[]) {
+  public void clipBoxToBounds(int[] bbox) {
     if (bbox[0] < lox) {
       bbox[0] = lox;
     }
@@ -1310,7 +1380,7 @@ public class Region {
    * Gets a span iterator object that iterates over the spans in this region
    * but clipped to the bounds given in the argument (xlo, ylo, xhi, yhi).
    */
-  public SpanIterator getSpanIterator(int bbox[]) {
+  public SpanIterator getSpanIterator(int[] bbox) {
     SpanIterator result = getSpanIterator();
     result.intersectClipBox(bbox[0], bbox[1], bbox[2], bbox[3]);
     return result;
@@ -1329,34 +1399,38 @@ public class Region {
     return si;
   }
 
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
-    return (isEmpty() ? 0 : (lox * 3 + loy * 5 + hix * 7 + hiy * 9));
+    return isEmpty() ? 0 : lox * 3 + loy * 5 + hix * 7 + hiy * 9;
   }
 
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object o) {
     if (!(o instanceof Region)) {
       return false;
     }
     Region r = (Region) o;
-    if (this.isEmpty()) {
+    if (isEmpty()) {
       return r.isEmpty();
-    } else if (r.isEmpty()) {
+    }
+    if (r.isEmpty()) {
       return false;
     }
-    if (r.lox != this.lox || r.loy != this.loy ||
-        r.hix != this.hix || r.hiy != this.hiy) {
+    if (r.lox != lox || r.loy != loy ||
+        r.hix != hix || r.hiy != hiy) {
       return false;
     }
-    if (this.bands == null) {
-      return (r.bands == null);
-    } else if (r.bands == null) {
+    if (bands == null) {
+      return r.bands == null;
+    }
+    if (r.bands == null) {
       return false;
     }
-    if (this.endIndex != r.endIndex) {
+    if (endIndex != r.endIndex) {
       return false;
     }
-    int abands[] = this.bands;
-    int bbands[] = r.bands;
+    int[] abands = bands;
+    int[] bbands = r.bands;
     for (int i = 0; i < endIndex; i++) {
       if (abands[i] != bbands[i]) {
         return false;
@@ -1366,7 +1440,7 @@ public class Region {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("Region[[");
     sb.append(lox);
     sb.append(", ");
@@ -1380,17 +1454,22 @@ public class Region {
       int col = 0;
       while (col < endIndex) {
         sb.append("y{");
-        sb.append(bands[col++]);
+        sb.append(bands[col]);
+        col++;
         sb.append(",");
-        sb.append(bands[col++]);
+        sb.append(bands[col]);
+        col++;
         sb.append("}[");
-        int end = bands[col++];
-        end = col + end * 2;
+        int end = bands[col];
+        col++;
+        end = col + (end << 1);
         while (col < end) {
           sb.append("x(");
-          sb.append(bands[col++]);
+          sb.append(bands[col]);
+          col++;
           sb.append(", ");
-          sb.append(bands[col++]);
+          sb.append(bands[col]);
+          col++;
           sb.append(")");
         }
         sb.append("]");
@@ -1412,20 +1491,25 @@ public class Region {
       super(lox, loy, hix, hiy);
     }
 
-    public void setOutputArea(java.awt.Rectangle r) {
+    @Override
+    public void setOutputArea(Rectangle r) {
     }
 
+    @Override
     public void setOutputAreaXYWH(int x, int y, int w, int h) {
     }
 
+    @Override
     public void setOutputArea(int[] box) {
     }
 
+    @Override
     public void setOutputAreaXYXY(int lox, int loy, int hix, int hiy) {
     }
 
     // Override all the methods that mutate the object
-    public void appendSpans(sun.java2d.pipe.SpanIterator si) {
+    @Override
+    public void appendSpans(SpanIterator si) {
     }
   }
 }

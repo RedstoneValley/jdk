@@ -29,14 +29,15 @@
  */
 
 import java.awt.geom.AffineTransform;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
-public class TestTransform {
-    public static void testTransformedFont(AffineTransform a, Object textHint) {
+public final class TestTransform {
+  private TestTransform() {
+  }
+
+  public static void testTransformedFont(AffineTransform a, Object textHint) {
         BufferedImage bi = new BufferedImage(200, 200,
                                    BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = (Graphics2D) bi.getGraphics();
@@ -56,10 +57,9 @@ public class TestTransform {
     }
 
     public static void main(String[] args) {
-        Object aahints[] = {RenderingHints.VALUE_TEXT_ANTIALIAS_OFF,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB};
+        Object[] aahints = {
+            RenderingHints.VALUE_TEXT_ANTIALIAS_OFF, RenderingHints.VALUE_TEXT_ANTIALIAS_ON,
+            RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB};
         int i, j, k;
         AffineTransform a = new AffineTransform();
 

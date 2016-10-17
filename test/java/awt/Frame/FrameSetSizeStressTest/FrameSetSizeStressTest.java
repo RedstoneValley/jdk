@@ -31,8 +31,11 @@ import java.awt.Frame;
 */
 public final class FrameSetSizeStressTest {
 
-    public static void main(final String[] args) {
-        final Frame frame = new Frame();
+  private FrameSetSizeStressTest() {
+  }
+
+  public static void main(String[] args) {
+        Frame frame = new Frame();
         frame.setSize(200, 200);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);

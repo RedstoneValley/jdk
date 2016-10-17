@@ -39,12 +39,6 @@
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
-import javax.swing.JMenu;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.UIManager;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.MetalTheme;
 
 /**
  * This class describes a theme using "green" colors.
@@ -55,7 +49,7 @@ import javax.swing.plaf.metal.MetalTheme;
 @SuppressWarnings("serial")
 public class MetalThemeMenu extends JMenu implements ActionListener {
 
-  MetalTheme[] themes;
+  final MetalTheme[] themes;
 
   @SuppressWarnings("LeakingThisInConstructor")
   public MetalThemeMenu(String name, MetalTheme[] themeArray) {
@@ -75,6 +69,7 @@ public class MetalThemeMenu extends JMenu implements ActionListener {
     }
   }
 
+  @Override
   public void actionPerformed(ActionEvent e) {
     String numStr = e.getActionCommand();
     MetalTheme selectedTheme = themes[Integer.parseInt(numStr)];

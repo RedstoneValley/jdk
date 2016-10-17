@@ -44,6 +44,7 @@ import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.GraphicsPrimitive;
 import sun.java2d.loops.GraphicsPrimitiveMgr;
 import sun.java2d.loops.SurfaceType;
+import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.BufferedMaskFill;
 
 class OGLMaskFill extends BufferedMaskFill {
@@ -65,13 +66,15 @@ class OGLMaskFill extends BufferedMaskFill {
   }
 
   @Override
-  protected native void maskFill(
-      int x, int y, int w, int h, int maskoff, int maskscan, int masklen, byte[] mask);
+  protected void maskFill(
+      int x, int y, int w, int h, int maskoff, int maskscan, int masklen, byte[] mask) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   @Override
   protected void validateContext(SunGraphics2D sg2d, Composite comp, int ctxflags) {
     OGLSurfaceData dstData = (OGLSurfaceData) sg2d.surfaceData;
-    OGLContext.validateContext(dstData,
+    BufferedContext.validateContext(dstData,
         dstData,
         sg2d.getCompClip(),
         comp,

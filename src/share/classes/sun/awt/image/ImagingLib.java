@@ -51,19 +51,20 @@ import java.security.PrivilegedAction;
  * (in which case our java code will be executed) or may throw
  * an exception.
  */
-public class ImagingLib {
+public final class ImagingLib {
 
   private static final int NUM_NATIVE_OPS = 3;
   private static final int LOOKUP_OP = 0;
   private static final int AFFINE_OP = 1;
   private static final int CONVOLVE_OP = 2;
-  static boolean useLib = true;
-  static boolean verbose = false;
-  private static Class[] nativeOpClass = new Class[NUM_NATIVE_OPS];
+  private static final Class[] nativeOpClass = new Class[NUM_NATIVE_OPS];
+  static final boolean useLib = true;
+  static boolean verbose;
 
   static {
 
     PrivilegedAction<Boolean> doMlibInitialization = new PrivilegedAction<Boolean>() {
+      @Override
       public Boolean run() {
         String arch = System.getProperty("os.arch");
 
@@ -75,7 +76,7 @@ public class ImagingLib {
           }
         }
         boolean success = init();
-        return Boolean.valueOf(success);
+        return success;
       }
     };
 
@@ -102,6 +103,9 @@ public class ImagingLib {
     }
   }
 
+  private ImagingLib() {
+  }
+
   /**
    * Returned value indicates whether the library initailization was
    * succeded.
@@ -110,21 +114,42 @@ public class ImagingLib {
    * - failed to load library.
    * - failed to get all required entry points.
    */
-  private static native boolean init();
+  static boolean init() {
+    // TODO: Native in OpenJDK AWT
+    return true;
+  }
 
-  static public native int transformBI(
-      BufferedImage src, BufferedImage dst, double[] matrix, int interpType);
+  public static int transformBI(
+      BufferedImage src, BufferedImage dst, double[] matrix, int interpType) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  static public native int transformRaster(Raster src, Raster dst, double[] matrix, int interpType);
+  public static int transformRaster(Raster src, Raster dst, double[] matrix, int interpType) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  static public native int convolveBI(
-      BufferedImage src, BufferedImage dst, Kernel kernel, int edgeHint);
+  public static int convolveBI(
+      BufferedImage src, BufferedImage dst, Kernel kernel, int edgeHint) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  static public native int convolveRaster(Raster src, Raster dst, Kernel kernel, int edgeHint);
+  public static int convolveRaster(Raster src, Raster dst, Kernel kernel, int edgeHint) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  static public native int lookupByteBI(BufferedImage src, BufferedImage dst, byte[][] table);
+  public static int lookupByteBI(BufferedImage src, BufferedImage dst, byte[][] table) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
-  static public native int lookupByteRaster(Raster src, Raster dst, byte[][] table);
+  public static int lookupByteRaster(Raster src, Raster dst, byte[][] table) {
+    // TODO: Native in OpenJDK AWT
+    return 0;
+  }
 
   private static int getNativeOpIndex(Class opClass) {
     //
@@ -142,7 +167,7 @@ public class ImagingLib {
   }
 
   public static WritableRaster filter(RasterOp op, Raster src, WritableRaster dst) {
-    if (useLib == false) {
+    if (!useLib) {
       return null;
     }
 
@@ -201,7 +226,7 @@ public class ImagingLib {
       System.out.println("in filter and op is " + op + "bufimage is " + src + " and " + dst);
     }
 
-    if (useLib == false) {
+    if (!useLib) {
       return null;
     }
 

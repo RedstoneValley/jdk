@@ -38,31 +38,34 @@ import sun.awt.SunToolkit;
  * @summary Background of the window should not depend from the paint()/update()
  * @author Sergey Bylokhov
  */
+@SuppressWarnings("MagicNumber")
 public final class BackgroundIsNotUpdated extends Window {
 
-    public BackgroundIsNotUpdated(final Frame owner) {
+    private static final long serialVersionUID = -602930317824748962L;
+
+    public BackgroundIsNotUpdated(Frame owner) {
         super(owner);
     }
 
     @Override
-    public void paint(final Graphics ignored) {
+    public void paint(Graphics ignored) {
         // Intentionally left blank
     }
 
     @Override
-    public void update(final Graphics ignored) {
+    public void update(Graphics ignored) {
         // Intentionally left blank
     }
 
-    public static void main(final String[] args) throws AWTException {
-        final Window window = new BackgroundIsNotUpdated(null);
+    public static void main(String[] args) throws AWTException {
+        Window window = new BackgroundIsNotUpdated(null);
         window.setSize(300, 300);
         window.setLocationRelativeTo(null);
         window.setVisible(true);
         sleep();
         window.setBackground(Color.GREEN);
         sleep();
-        final Robot robot = new Robot();
+        Robot robot = new Robot();
         robot.setAutoDelay(200);
         Point point = window.getLocationOnScreen();
         Color color = robot.getPixelColor(point.x + window.getWidth() / 2,

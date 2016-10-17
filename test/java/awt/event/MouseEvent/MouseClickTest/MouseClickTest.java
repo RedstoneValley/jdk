@@ -29,12 +29,9 @@
   @run applet MouseClickTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import test.java.awt.regtesthelpers.Util;
 
 public class MouseClickTest extends Applet
 {
@@ -54,7 +51,7 @@ public class MouseClickTest extends Applet
         runTests();
     }
 
-    public static final void main(String args[])
+    public static final void main(String[] args)
     {
         MouseClickTest test = new MouseClickTest();
         test.init();
@@ -63,7 +60,7 @@ public class MouseClickTest extends Applet
 
     void runTests()
     {
-        Frame frame = new Frame("frame");
+        Frame frame = new Frame(Frame.base);
         frame.setBounds(100, 100, 100, 100);
         frame.setVisible(true);
         frame.validate();
@@ -84,11 +81,12 @@ public class MouseClickTest extends Applet
      * no event is coming when dragging happens until button will be
      * relealed.
      */
-    public static void oneButtonPressRelease(final Component comp, final Robot robot,
-                                             final boolean dragging, final int EXPECTED_EVENT_COUNT)
+    public static void oneButtonPressRelease(
+        Component comp, Robot robot,
+                                             boolean dragging, int EXPECTED_EVENT_COUNT)
     {
-        final AtomicInteger eventCount = new AtomicInteger(0);
-        final MouseAdapter adapter = new MouseEventAdapter(eventCount, EXPECTED_EVENT_COUNT);
+        AtomicInteger eventCount = new AtomicInteger(0);
+        MouseAdapter adapter = new MouseEventAdapter(eventCount, EXPECTED_EVENT_COUNT);
         comp.addMouseListener(adapter);
 
         Rectangle bounds = new Rectangle(comp.getLocationOnScreen(), comp.getSize());
@@ -119,11 +117,12 @@ public class MouseClickTest extends Applet
      * It verifies that number of coming MouseClick events equals to number
      * of mouse clicks are performed by the robot.
      */
-    public static void twoButtonPressRelease(final Component comp, final Robot robot,
-                                             final boolean dragging, final int EXPECTED_EVENT_COUNT)
+    public static void twoButtonPressRelease(
+        Component comp, Robot robot,
+                                             boolean dragging, int EXPECTED_EVENT_COUNT)
     {
-        final AtomicInteger eventCount = new AtomicInteger(0);
-        final MouseAdapter adapter = new MouseEventAdapter(eventCount, EXPECTED_EVENT_COUNT);
+        AtomicInteger eventCount = new AtomicInteger(0);
+        MouseAdapter adapter = new MouseEventAdapter(eventCount, EXPECTED_EVENT_COUNT);
         comp.addMouseListener(adapter);
 
         Rectangle bounds = new Rectangle(comp.getLocationOnScreen(), comp.getSize());
@@ -150,7 +149,8 @@ public class MouseClickTest extends Applet
         System.out.println("Test passed.");
     }
 
-    private static void waitForCondition(final AtomicInteger eventCount, int EXPECTED_EVENT_COUNT,
+    private static void waitForCondition(
+        AtomicInteger eventCount, int EXPECTED_EVENT_COUNT,
                                          long timeout)
     {
         synchronized (eventCount) {
@@ -171,11 +171,12 @@ class MouseEventAdapter extends MouseAdapter {
     private final int EXPECTED_EVENT_COUNT;
     private final AtomicInteger eventCount;
 
-    public MouseEventAdapter(final AtomicInteger eventCount, final int EXPECTED_EVENT_COUNT) {
+    public MouseEventAdapter(AtomicInteger eventCount, int EXPECTED_EVENT_COUNT) {
         this.EXPECTED_EVENT_COUNT = EXPECTED_EVENT_COUNT;
         this.eventCount = eventCount;
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {
         System.out.println(e);
         synchronized (eventCount) {

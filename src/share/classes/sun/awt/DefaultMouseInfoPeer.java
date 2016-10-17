@@ -37,7 +37,15 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
   DefaultMouseInfoPeer() {
   }
 
-  public native int fillPointWithCoords(Point point);
+  @Override
+  public int fillPointWithCoords(Point point) {
+    // TODO: This is native in OpenJDK AWT
+    return 0;
+  }
 
-  public native boolean isWindowUnderMouse(Window w);
+  @Override
+  public boolean isWindowUnderMouse(Window w) {
+    // TODO: This is native in OpenJDK AWT
+    return false;
+  }
 }

@@ -31,7 +31,7 @@ import java.io.IOException;
  */
 class HtmlTransferable implements Transferable {
 
-    final static String SOURCE_HTML = "<html><head><title>Simple html content</title></head>" +
+    static final String SOURCE_HTML = "<html><head><title>Simple html content</title></head>" +
             "<body><ol><li>Dasha</li><li>Masha</li><li>Lida</li></ol></body></html>";
 
     // Data identical to ie output for the next html without end of lines,
@@ -49,7 +49,7 @@ class HtmlTransferable implements Transferable {
     // </body>
     // </html>
 
-    final static String ALL_HTML_AS_STRING = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n" +
+    static final String ALL_HTML_AS_STRING = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n" +
             "\n" +
             "<HTML><HEAD><TITLE>Simple html content</TITLE></HEAD>\n" +
             "\n" +
@@ -60,15 +60,15 @@ class HtmlTransferable implements Transferable {
             "</BODY>\n" +
             "</HTML>";
 
-    final static String FRAGMENT_HTML_AS_STRING = "<LI>Masha\n" +
+    static final String FRAGMENT_HTML_AS_STRING = "<LI>Masha\n" +
             "<LI>Lida</LI>";
 
-    final static String SELECTION_HTML_AS_STRING =  "<LI>Masha" +
+    static final String SELECTION_HTML_AS_STRING =  "<LI>Masha" +
             "<LI>Lida</LI>";
 
-    private DataFlavor[] supportedDataFlavors;
+    private final DataFlavor[] supportedDataFlavors;
 
-    final static DataFlavor[] htmlDataFlavors = new DataFlavor [] {
+    static final DataFlavor[] htmlDataFlavors = {
             DataFlavor.allHtmlFlavor,
             DataFlavor.fragmentHtmlFlavor,
             DataFlavor.selectionHtmlFlavor

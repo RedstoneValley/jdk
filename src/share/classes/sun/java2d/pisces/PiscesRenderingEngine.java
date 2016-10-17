@@ -30,6 +30,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
+import java.util.Arrays;
 import sun.awt.geom.PathConsumer2D;
 import sun.java2d.pipe.AATileGenerator;
 import sun.java2d.pipe.Region;
@@ -37,16 +38,6 @@ import sun.java2d.pipe.RenderingEngine;
 
 public class PiscesRenderingEngine extends RenderingEngine {
   static {
-    if (PathIterator.WIND_NON_ZERO != Renderer.WIND_NON_ZERO ||
-        PathIterator.WIND_EVEN_ODD != Renderer.WIND_EVEN_ODD ||
-        BasicStroke.JOIN_MITER != Stroker.JOIN_MITER ||
-        BasicStroke.JOIN_ROUND != Stroker.JOIN_ROUND ||
-        BasicStroke.JOIN_BEVEL != Stroker.JOIN_BEVEL ||
-        BasicStroke.CAP_BUTT != Stroker.CAP_BUTT ||
-        BasicStroke.CAP_ROUND != Stroker.CAP_ROUND ||
-        BasicStroke.CAP_SQUARE != Stroker.CAP_SQUARE) {
-      throw new InternalError("mismatched renderer constants");
-    }
   }
 
   private static boolean nearZero(double num, int nulps) {
@@ -56,6 +47,62 @@ public class PiscesRenderingEngine extends RenderingEngine {
   static void pathTo(PathIterator pi, PathConsumer2D pc2d) {
     RenderingEngine.feedConsumer(pi, pc2d);
     pc2d.pathDone();
+  }
+
+  public static PathConsumer2D inverseDeltaTransformConsumer(
+      PathConsumer2D out, AffineTransform at) {
+    if (at == null) {
+      return out;
+    }
+    float Mxx = (float) at.getScaleX();
+    float Mxy = (float) at.getShearX();
+    float Myx = (float) at.getShearY();
+    float Myy = (float) at.getScaleY();
+    if (Mxy == 0f && Myx == 0f) {
+      return Mxx == 1f && Myy == 1f ? out : new TransformingPathConsumer2D.DeltaScaleFilter(out, 1.0f / Mxx, 1.0f / Myy);
+    } else {
+      float det = Mxx * Myy - Mxy * Myx;
+      return new TransformingPathConsumer2D.DeltaTransformFilter(out, Myy / det, -Mxy / det, -Myx / det, Mxx / det);
+    }
+  }
+
+  public static PathConsumer2D deltaTransformConsumer(PathConsumer2D out, AffineTransform at) {
+    if (at == null) {
+      return out;
+    }
+    float Mxx = (float) at.getScaleX();
+    float Mxy = (float) at.getShearX();
+    float Myx = (float) at.getShearY();
+    float Myy = (float) at.getScaleY();
+    if (Mxy == 0f && Myx == 0f) {
+      return Mxx == 1f && Myy == 1f ? out : new TransformingPathConsumer2D.DeltaScaleFilter(out, Mxx, Myy);
+    } else {
+      return new TransformingPathConsumer2D.DeltaTransformFilter(out, Mxx, Mxy, Myx, Myy);
+    }
+  }
+
+  public static PathConsumer2D transformConsumer(PathConsumer2D out, AffineTransform at) {
+    if (at == null) {
+      return out;
+    }
+    float Mxx = (float) at.getScaleX();
+    float Mxy = (float) at.getShearX();
+    float Mxt = (float) at.getTranslateX();
+    float Myx = (float) at.getShearY();
+    float Myy = (float) at.getScaleY();
+    float Myt = (float) at.getTranslateY();
+    if (Mxy == 0f && Myx == 0f) {
+      if (Mxx == 1f && Myy == 1f) {
+        return Mxt == 0f && Myt == 0f ? out : new TransformingPathConsumer2D.TranslateFilter(out, Mxt, Myt);
+      } else {
+        return Mxt == 0f && Myt == 0f ? new TransformingPathConsumer2D.DeltaScaleFilter(out, Mxx, Myy)
+            : new TransformingPathConsumer2D.ScaleFilter(out, Mxx, Myy, Mxt, Myt);
+      }
+    } else if (Mxt == 0f && Myt == 0f) {
+      return new TransformingPathConsumer2D.DeltaTransformFilter(out, Mxx, Mxy, Myx, Myy);
+    } else {
+      return new TransformingPathConsumer2D.TransformFilter(out, Mxx, Mxy, Mxt, Myx, Myy, Myt);
+    }
   }
 
   /**
@@ -75,10 +122,11 @@ public class PiscesRenderingEngine extends RenderingEngine {
    * @return the widened path stored in a new {@code Shape} object
    * @since 1.7
    */
+  @Override
   public Shape createStrokedShape(
-      Shape src, float width, int caps, int join, float miterlimit, float dashes[],
+      Shape src, float width, int caps, int join, float miterlimit, float[] dashes,
       float dashphase) {
-    final Path2D p2d = new Path2D.Float();
+    Path2D p2d = new Path2D.Float();
 
     strokeTo(
         src,
@@ -91,29 +139,36 @@ public class PiscesRenderingEngine extends RenderingEngine {
         dashes,
         dashphase,
         new PathConsumer2D() {
+          @Override
           public void moveTo(float x0, float y0) {
             p2d.moveTo(x0, y0);
           }
 
+          @Override
           public void lineTo(float x1, float y1) {
             p2d.lineTo(x1, y1);
           }
 
+          @Override
           public void quadTo(float x1, float y1, float x2, float y2) {
             p2d.quadTo(x1, y1, x2, y2);
           }
 
+          @Override
           public void curveTo(float x1, float y1, float x2, float y2, float x3, float y3) {
             p2d.curveTo(x1, y1, x2, y2, x3, y3);
           }
 
+          @Override
           public void closePath() {
             p2d.closePath();
           }
 
+          @Override
           public void pathDone() {
           }
 
+          @Override
           public long getNativeConsumer() {
             throw new InternalError("Not using a native peer");
           }
@@ -148,11 +203,11 @@ public class PiscesRenderingEngine extends RenderingEngine {
    *                  the widened geometry to
    * @since 1.7
    */
+  @Override
   public void strokeTo(
       Shape src, AffineTransform at, BasicStroke bs, boolean thin, boolean normalize,
-      boolean antialias, final PathConsumer2D consumer) {
-    NormMode norm = (normalize) ? ((antialias) ? NormMode.ON_WITH_AA : NormMode.ON_NO_AA)
-        : NormMode.OFF;
+      boolean antialias, PathConsumer2D consumer) {
+    NormMode norm = normalize ? antialias ? NormMode.ON_WITH_AA : NormMode.ON_NO_AA : NormMode.OFF;
     strokeTo(src, at, bs, thin, norm, antialias, consumer);
   }
 
@@ -203,18 +258,16 @@ public class PiscesRenderingEngine extends RenderingEngine {
    * for tile coverages, or null if there is no output to render
    * @since 1.7
    */
+  @Override
   public AATileGenerator getAATileGenerator(
       Shape s, AffineTransform at, Region clip, BasicStroke bs, boolean thin, boolean normalize,
-      int bbox[]) {
+      int[] bbox) {
     Renderer r;
-    NormMode norm = (normalize) ? NormMode.ON_WITH_AA : NormMode.OFF;
+    NormMode norm = normalize ? NormMode.ON_WITH_AA : NormMode.OFF;
     if (bs == null) {
       PathIterator pi;
-      if (normalize) {
-        pi = new NormalizingPathIterator(s.getPathIterator(at), norm);
-      } else {
-        pi = s.getPathIterator(at);
-      }
+      pi = normalize ? new NormalizingPathIterator(s.getPathIterator(at), norm)
+          : s.getPathIterator(at);
       r = new Renderer(
           3,
           3,
@@ -241,12 +294,13 @@ public class PiscesRenderingEngine extends RenderingEngine {
     return ptg;
   }
 
+  @Override
   public AATileGenerator getAATileGenerator(
       double x, double y, double dx1, double dy1, double dx2, double dy2, double lw1, double lw2,
-      Region clip, int bbox[]) {
+      Region clip, int[] bbox) {
     // REMIND: Deal with large coordinates!
     double ldx1, ldy1, ldx2, ldy2;
-    boolean innerpgram = (lw1 > 0 && lw2 > 0);
+    boolean innerpgram = lw1 > 0 && lw2 > 0;
 
     if (innerpgram) {
       ldx1 = dx1 * lw1;
@@ -310,6 +364,7 @@ public class PiscesRenderingEngine extends RenderingEngine {
    *
    * @since 1.7
    */
+  @Override
   public float getMinimumAAPenSize() {
     return 0.5f;
   }
@@ -319,11 +374,7 @@ public class PiscesRenderingEngine extends RenderingEngine {
       boolean antialias, PathConsumer2D pc2d) {
     float lw;
     if (thin) {
-      if (antialias) {
-        lw = userSpaceLineWidth(at, 0.5f);
-      } else {
-        lw = userSpaceLineWidth(at, 1.0f);
-      }
+      lw = antialias ? userSpaceLineWidth(at, 0.5f) : userSpaceLineWidth(at, 1.0f);
     } else {
       lw = bs.getLineWidth();
     }
@@ -398,7 +449,7 @@ public class PiscesRenderingEngine extends RenderingEngine {
 
       double hypot = Math.sqrt(EB * EB + (EA - EC) * (EA - EC));
             /* sqrt omitted, compare to squared limits below. */
-      double widthsquared = ((EA + EC + hypot) / 2.0);
+      double widthsquared = (EA + EC + hypot) / 2.0;
 
       widthScale = Math.sqrt(widthsquared);
     }
@@ -408,7 +459,7 @@ public class PiscesRenderingEngine extends RenderingEngine {
 
   void strokeTo(
       Shape src, AffineTransform at, float width, NormMode normalize, int caps, int join,
-      float miterlimit, float dashes[], float dashphase, PathConsumer2D pc2d) {
+      float miterlimit, float[] dashes, float dashphase, PathConsumer2D pc2d) {
     // We use strokerat and outat so that in Stroker and Dasher we can work only
     // with the pre-transformation coordinates. This will repeat a lot of
     // computations done in the path iterator, but the alternative is to
@@ -427,14 +478,14 @@ public class PiscesRenderingEngine extends RenderingEngine {
     AffineTransform strokerat = null;
     AffineTransform outat = null;
 
-    PathIterator pi = null;
+    PathIterator pi;
 
     if (at != null && !at.isIdentity()) {
-      final double a = at.getScaleX();
-      final double b = at.getShearX();
-      final double c = at.getShearY();
-      final double d = at.getScaleY();
-      final double det = a * d - c * b;
+      double a = at.getScaleX();
+      double b = at.getShearX();
+      double c = at.getShearY();
+      double d = at.getScaleY();
+      double det = a * d - c * b;
       if (Math.abs(det) <= 2 * Float.MIN_VALUE) {
         // this rendering engine takes one dimensional curves and turns
         // them into 2D shapes by giving them width.
@@ -461,7 +512,7 @@ public class PiscesRenderingEngine extends RenderingEngine {
       if (nearZero(a * b + c * d, 2) && nearZero(a * a + c * c - (b * b + d * d), 2)) {
         double scale = Math.sqrt(a * a + c * c);
         if (dashes != null) {
-          dashes = java.util.Arrays.copyOf(dashes, dashes.length);
+          dashes = Arrays.copyOf(dashes, dashes.length);
           for (int i = 0; i < dashes.length; i++) {
             dashes[i] = (float) (scale * dashes[i]);
           }
@@ -513,17 +564,17 @@ public class PiscesRenderingEngine extends RenderingEngine {
     // a constant multiple of an orthogonal transformation, they will both be
     // null. In other cases, outat == at if normalization is off, and if
     // normalization is on, strokerat == at.
-    pc2d = TransformingPathConsumer2D.transformConsumer(pc2d, outat);
-    pc2d = TransformingPathConsumer2D.deltaTransformConsumer(pc2d, strokerat);
+    pc2d = transformConsumer(pc2d, outat);
+    pc2d = deltaTransformConsumer(pc2d, strokerat);
     pc2d = new Stroker(pc2d, width, caps, join, miterlimit);
     if (dashes != null) {
       pc2d = new Dasher(pc2d, dashes, dashphase);
     }
-    pc2d = TransformingPathConsumer2D.inverseDeltaTransformConsumer(pc2d, strokerat);
+    pc2d = inverseDeltaTransformConsumer(pc2d, strokerat);
     pathTo(pi, pc2d);
   }
 
-  private static enum NormMode {OFF, ON_NO_AA, ON_WITH_AA}
+  private enum NormMode {OFF, ON_NO_AA, ON_WITH_AA}
 
   private static class NormalizingPathIterator implements PathIterator {
 
@@ -555,18 +606,22 @@ public class PiscesRenderingEngine extends RenderingEngine {
       }
     }
 
+    @Override
     public int getWindingRule() {
       return src.getWindingRule();
     }
 
+    @Override
     public boolean isDone() {
       return src.isDone();
     }
 
+    @Override
     public void next() {
       src.next();
     }
 
+    @Override
     public int currentSegment(float[] coords) {
       int type = src.currentSegment(coords);
 
@@ -625,11 +680,12 @@ public class PiscesRenderingEngine extends RenderingEngine {
       return type;
     }
 
+    @Override
     public int currentSegment(double[] coords) {
       float[] tmp = new float[6];
-      int type = this.currentSegment(tmp);
+      int type = currentSegment(tmp);
       for (int i = 0; i < 6; i++) {
-        coords[i] = (float) tmp[i];
+        coords[i] = tmp[i];
       }
       return type;
     }

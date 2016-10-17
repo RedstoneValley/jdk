@@ -29,40 +29,40 @@ import java.io.File;
 import java.util.TreeSet;
 
 public class DirDiff implements Runnable {
-    private final static String FILE_SEPARATOR = System.getProperty("file.separator");
+    private static final String FILE_SEPARATOR = System.getProperty("file.separator");
     private static final boolean traversSccsDirs;
     private static final boolean recurseExtraDirs;
     private static final boolean verboseMode;
     private static final boolean checkSizes;
-    private static long SizeTolerance = 0;
-    private File goldenDir = null;
-    private File testDir = null;
+    private static final long SizeTolerance;
+    private final File goldenDir;
+    private final File testDir;
 
     // static initializer:
       static {
           String traversePropertyValue = System.getProperty("sccs");
-          traversSccsDirs = (traversePropertyValue != null &&
-                              traversePropertyValue.toLowerCase().equals("true"))? true : false;
+          traversSccsDirs = traversePropertyValue != null && "true".equals(traversePropertyValue
+              .toLowerCase());
           if (traversSccsDirs) {
               System.err.println("traversing SCCS directories...");
           }
 
           String verbosePropertyValue = System.getProperty("verbose");
-          verboseMode = (verbosePropertyValue != null &&
-                              verbosePropertyValue.toLowerCase().equals("true"))? true : false;
+          verboseMode = verbosePropertyValue != null && "true".equals(verbosePropertyValue
+              .toLowerCase());
           if (verboseMode) {
               System.err.println("verbose mode truned on...");
           }
 
           String noRecurseExtraDirsPropertyValue = System.getProperty("recurse");
-          recurseExtraDirs = (noRecurseExtraDirsPropertyValue != null &&
-                              noRecurseExtraDirsPropertyValue.toLowerCase().equals("true"))? true : false;
+          recurseExtraDirs = noRecurseExtraDirsPropertyValue != null
+              && "true".equals(noRecurseExtraDirsPropertyValue.toLowerCase());
           if (recurseExtraDirs) {
               System.err.println("recursing extra directories...");
           }
 
           String sizeToleranceValue = System.getProperty("sizeTolerance");
-          checkSizes = (sizeToleranceValue != null);
+          checkSizes = sizeToleranceValue != null;
           if (checkSizes) {
               try {
                   SizeTolerance = Long.parseLong(sizeToleranceValue);
@@ -98,7 +98,7 @@ public class DirDiff implements Runnable {
               System.err.println("Error: exception thrown and caught:");
               e.printStackTrace();
           }
-          if (java.lang.Math.abs(goldenLength - testLength) > SizeTolerance) {
+          if (Math.abs(goldenLength - testLength) > SizeTolerance) {
               if (goldenLength > testLength) {
                   System.out.println("File short [" + (testLength - goldenLength) + "]:\t" + testChild.getAbsolutePath());
               } else {
@@ -157,6 +157,7 @@ public class DirDiff implements Runnable {
                          (testChild.isDirectory()? "directory" : "file"));
   }
 
+  @Override
   public void run() {
       File[] currentTestDirs = null;
       if (testDir != null) {
@@ -167,27 +168,25 @@ public class DirDiff implements Runnable {
       TreeSet<String> goldDirSet = new TreeSet<>();
       if (goldenDir != null) {
           currentGoldenDirs = goldenDir.listFiles();
-          for (int i=0; i<currentGoldenDirs.length; i++) {
-              goldDirSet.add(currentGoldenDirs[i].getName());
+          for (File currentGoldenDir : currentGoldenDirs) {
+              goldDirSet.add(currentGoldenDir.getName());
           }
       }
 
       // now go through the list of members
       if (currentGoldenDirs != null) {
-          for (int i=0; i<currentGoldenDirs.length; i++) {
-              File newGoldenDir = currentGoldenDirs[i];
-
+          for (File newGoldenDir : currentGoldenDirs) {
               // do not traverse SCCS directories...
-              if (!(newGoldenDir.getAbsolutePath().endsWith("SCCS")) || traversSccsDirs ) {
+              if (!newGoldenDir.getAbsolutePath().endsWith("SCCS") || traversSccsDirs) {
                   // start a compare of this child and the like-named test child...
                   File newTestDir = new File(testDir.getAbsolutePath() + FILE_SEPARATOR +
-                                             newGoldenDir.getName());
+                      newGoldenDir.getName());
 
                   if (newTestDir.exists()) {
                       if (newGoldenDir.isDirectory()) {
                           if (newTestDir.isDirectory()) {
                               whatToDoWithMatchingDirs(newGoldenDir, newTestDir);
-                              Thread t = new Thread( new DirDiff(newGoldenDir, newTestDir));
+                              Thread t = new Thread(new DirDiff(newGoldenDir, newTestDir));
                               t.start();
                           } else {
                               whatToDoWithNonMatchingChildren(newGoldenDir, newTestDir);
@@ -196,12 +195,12 @@ public class DirDiff implements Runnable {
                           if (newTestDir.isDirectory()) {
                               whatToDoWithNonMatchingChildren(newGoldenDir, newTestDir);
                           }
-                           whatToDoWithMatchingFiles(newGoldenDir, newTestDir);
+                          whatToDoWithMatchingFiles(newGoldenDir, newTestDir);
                       }
                   } else { // of... newTestDir.exists()...
                       if (newGoldenDir.isDirectory()) {
                           whatToDoWithMissingDirs(newTestDir);
-                          Thread t = new Thread( new DirDiff(newGoldenDir, newTestDir));
+                          Thread t = new Thread(new DirDiff(newGoldenDir, newTestDir));
                           t.start();
                       } else {
                           whatToDoWithMissingFiles(newTestDir);
@@ -213,18 +212,18 @@ public class DirDiff implements Runnable {
 
       // look for extra test objs...
       if (currentTestDirs != null) {
-          for (int i=0; i<currentTestDirs.length; i++) {
+          for (File currentTestDir : currentTestDirs) {
               // do not traverse SCCS directories...
-              if (!(currentTestDirs[i].getAbsolutePath().endsWith("SCCS")) || traversSccsDirs ) {
-                  if (!goldDirSet.contains(currentTestDirs[i].getName())) {
-                      if (currentTestDirs[i].isDirectory()) {
-                          whatToDoWithExtraDirs(currentTestDirs[i]);
+              if (!currentTestDir.getAbsolutePath().endsWith("SCCS") || traversSccsDirs) {
+                  if (!goldDirSet.contains(currentTestDir.getName())) {
+                      if (currentTestDir.isDirectory()) {
+                          whatToDoWithExtraDirs(currentTestDir);
                           if (recurseExtraDirs) {
-                              Thread t = new Thread( new DirDiff( null, currentTestDirs[i]));
+                              Thread t = new Thread(new DirDiff(null, currentTestDir));
                               t.start();
                           }
                       } else {
-                          whatToDoWithExtraFiles(currentTestDirs[i]);
+                          whatToDoWithExtraFiles(currentTestDir);
                       }
                   }
               }

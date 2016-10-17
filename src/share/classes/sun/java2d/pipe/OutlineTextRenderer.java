@@ -61,6 +61,7 @@ public class OutlineTextRenderer implements TextPipe {
   // drawn via this pipe.
   public static final int THRESHHOLD = 100;
 
+  @Override
   public void drawString(SunGraphics2D g2d, String str, double x, double y) {
 
     if ("".equals(str)) {
@@ -92,6 +93,7 @@ public class OutlineTextRenderer implements TextPipe {
     }
   }
 
+  @Override
   public void drawGlyphVector(SunGraphics2D g2d, GlyphVector gv, float x, float y) {
 
     Shape s = gv.getOutline(x, y);
@@ -128,7 +130,8 @@ public class OutlineTextRenderer implements TextPipe {
     }
   }
 
-  public void drawChars(SunGraphics2D g2d, char data[], int offset, int length, int x, int y) {
+  @Override
+  public void drawChars(SunGraphics2D g2d, char[] data, int offset, int length, int x, int y) {
 
     String s = new String(data, offset, length);
     drawString(g2d, s, x, y);

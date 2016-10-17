@@ -21,19 +21,18 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6359283
  * @summary pagedialog needs to update based on change of printer.
  * @run main/manual PageFormatChange
  */
 
 import java.awt.print.*;
-import javax.print.*;
 
-public class PageFormatChange {
+public final class PageFormatChange {
 
-    static String[] text = {
+    static final String[] text = {
     "This is is a manual test intended to be run on Windows, and you",
     "must have at least two printers installed, and ideally the second",
     "printer should support large paper sizes. When the pageDialog appears",
@@ -41,7 +40,10 @@ public class PageFormatChange {
     "the dialog. The test will throw an Exception if it fails",
     };
 
-    public static void main(String[] args) {
+  private PageFormatChange() {
+  }
+
+  public static void main(String[] args) {
         if (!System.getProperty("os.name","").startsWith("Windows")) {
            System.out.println("Not Windows, so test is not applicable");
            return;
@@ -70,8 +72,8 @@ public class PageFormatChange {
         int ih = (int)(pf2.getImageableHeight()+0.5);
         int ix = (int)(pf2.getImageableX()+0.5);
         int iy = (int)(pf2.getImageableY()+0.5);
-        int expectedWidth = ix*2+iw;
-        int expectedHeight = iy*2+ih;
+        int expectedWidth = (ix << 1) +iw;
+        int expectedHeight = (iy << 1) +ih;
         if (expectedWidth != pw || expectedHeight != ph) {
             throw new RuntimeException("Unexpected size");
         }

@@ -41,9 +41,6 @@ package com.sun.nio.zipfs;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.*;
-import java.nio.file.attribute.*;
-import java.nio.file.spi.*;
 
 public class JarFileSystemProvider extends ZipFileSystemProvider {
 
@@ -55,13 +52,13 @@ public class JarFileSystemProvider extends ZipFileSystemProvider {
   @Override
   protected Path uriToPath(URI uri) {
     String scheme = uri.getScheme();
-    if ((scheme == null) || !scheme.equalsIgnoreCase(getScheme())) {
+    if (scheme == null || !scheme.equalsIgnoreCase(getScheme())) {
       throw new IllegalArgumentException("URI scheme is not '" + getScheme() + "'");
     }
     try {
       String uristr = uri.toString();
       int end = uristr.indexOf("!/");
-      uristr = uristr.substring(4, (end == -1) ? uristr.length() : end);
+      uristr = uristr.substring(4, end == -1 ? uristr.length() : end);
       uri = new URI(uristr);
       return Paths.get(new URI("file", uri.getHost(), uri.getPath(), null)).toAbsolutePath();
     } catch (URISyntaxException e) {

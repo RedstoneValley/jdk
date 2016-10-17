@@ -39,6 +39,9 @@
 
 package j2dbench;
 
+import j2dbench.Node.Iterator;
+import j2dbench.Node.Visitor;
+import j2dbench.Option.Enable;
 import j2dbench.tests.GraphicsTests;
 import j2dbench.tests.ImageTests;
 import j2dbench.tests.MiscTests;
@@ -66,32 +69,28 @@ import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
+import java.util.Locale;
 
-public class J2DBench {
-  static final SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy 'at' HH:mm aaa z");
+public final class J2DBench {
+  static final SimpleDateFormat sdf =
+      new SimpleDateFormat("MM.dd.yyyy 'at' HH:mm aaa z", Locale.US);
   public static JFileChooser theFC;
   public static ResultSet lastResults;
   static Group progoptroot;
-  static Option.Enable verbose;
-  static Option.Enable printresults;
-  static boolean looping = false;
+  static Enable verbose;
+  static Enable printresults;
+  static boolean looping;
   static JFrame guiFrame;
+
+  private J2DBench() {
+  }
 
   public static void init() {
     progoptroot = new Group("prog", "Program Options");
     progoptroot.setHidden();
 
-    verbose = new Option.Enable(progoptroot, "verbose", "Verbose print statements", false);
-    printresults = new Option.Enable(progoptroot,
-        "printresults",
-        "Print results after each run",
-        true);
+    verbose = new Enable(progoptroot, "verbose", "Verbose print statements", false);
+    printresults = new Enable(progoptroot, "printresults", "Print results after each run", true);
   }
 
   public static void usage(int exitcode) {
@@ -151,7 +150,7 @@ public class J2DBench {
     System.exit(exitcode);
   }
 
-  public static void main(String argv[]) {
+  public static void main(String[] argv) {
     init();
     TestEnvironment.init();
     Result.init();
@@ -179,26 +178,27 @@ public class J2DBench {
     long requiredLoopTime = 259200000; // 72 hrs * 60 * 60 * 1000
     for (int i = 0; i < argv.length; i++) {
       String arg = argv[i];
-      if (arg.equalsIgnoreCase("-list")) {
+      if ("-list".equalsIgnoreCase(arg)) {
         PrintWriter pw = new PrintWriter(System.out);
-        Node.Iterator iter = Group.root.getRecursiveChildIterator();
+        Iterator iter = Group.root.getRecursiveChildIterator();
         while (iter.hasNext()) {
           Node n = iter.next();
           n.write(pw);
         }
         pw.flush();
-      } else if (arg.equalsIgnoreCase("-gui") || arg.equalsIgnoreCase("-interactive")) {
+      } else if ("-gui".equalsIgnoreCase(arg) || "-interactive".equalsIgnoreCase(arg)) {
         gui = true;
-      } else if (arg.equalsIgnoreCase("-batch")) {
+      } else if ("-batch".equalsIgnoreCase(arg)) {
         gui = false;
-      } else if (arg.equalsIgnoreCase("-noshow")) {
+      } else if ("-noshow".equalsIgnoreCase(arg)) {
         showresults = false;
-      } else if (arg.equalsIgnoreCase("-nosave")) {
+      } else if ("-nosave".equalsIgnoreCase(arg)) {
         saveresults = false;
-      } else if (arg.equalsIgnoreCase("-usage") || arg.equalsIgnoreCase("-help")) {
+      } else if ("-usage".equalsIgnoreCase(arg) || "-help".equalsIgnoreCase(arg)) {
         usage(0);
-      } else if (arg.equalsIgnoreCase("-loadoptions") || arg.equalsIgnoreCase("-loadopts")) {
-        if (++i < argv.length) {
+      } else if ("-loadoptions".equalsIgnoreCase(arg) || "-loadopts".equalsIgnoreCase(arg)) {
+        ++i;
+        if (i < argv.length) {
           String file = argv[i];
           String reason = loadOptions(file);
           if (reason != null) {
@@ -208,8 +208,9 @@ public class J2DBench {
         } else {
           usage(1);
         }
-      } else if (arg.equalsIgnoreCase("-saveoptions") || arg.equalsIgnoreCase("-saveopts")) {
-        if (++i < argv.length) {
+      } else if ("-saveoptions".equalsIgnoreCase(arg) || "-saveopts".equalsIgnoreCase(arg)) {
+        ++i;
+        if (i < argv.length) {
           String file = argv[i];
           String reason = saveOptions(file);
           if (reason != null) {
@@ -219,38 +220,42 @@ public class J2DBench {
         } else {
           usage(1);
         }
-      } else if (arg.equalsIgnoreCase("-saveresults") ||
-          arg.equalsIgnoreCase("-saveres") ||
-          arg.equalsIgnoreCase("-appendresults") ||
-          arg.equalsIgnoreCase("-appres")) {
-        if (++i < argv.length) {
+      } else if ("-saveresults".equalsIgnoreCase(arg) ||
+          "-saveres".equalsIgnoreCase(arg) ||
+          "-appendresults".equalsIgnoreCase(arg) ||
+          "-appres".equalsIgnoreCase(arg)) {
+        ++i;
+        if (i < argv.length) {
           resfilename = argv[i];
-          appendres = arg.substring(0, 4).equalsIgnoreCase("-app");
+          appendres = "-app".equalsIgnoreCase(arg.substring(0, 4));
         } else {
           usage(1);
         }
-      } else if (arg.equalsIgnoreCase("-title")) {
-        if (++i < argv.length) {
+      } else if ("-title".equalsIgnoreCase(arg)) {
+        ++i;
+        if (i < argv.length) {
           title = argv[i];
         } else {
           usage(1);
         }
-      } else if (arg.equalsIgnoreCase("-desc") || arg.equalsIgnoreCase("-description")) {
-        if (++i < argv.length) {
+      } else if ("-desc".equalsIgnoreCase(arg) || "-description".equalsIgnoreCase(arg)) {
+        ++i;
+        if (i < argv.length) {
           desc = argv[i];
         } else {
           usage(1);
         }
-      } else if (arg.equalsIgnoreCase("-loopdef") || arg.equalsIgnoreCase("-loopdefault")) {
+      } else if ("-loopdef".equalsIgnoreCase(arg) || "-loopdefault".equalsIgnoreCase(arg)) {
         requiredLoopTime = 259200000; // 72 hrs * 60 * 60 * 1000
-        J2DBench.looping = true;
-      } else if (arg.equalsIgnoreCase("-loop")) {
+        looping = true;
+      } else if ("-loop".equalsIgnoreCase(arg)) {
 
-        if (++i >= argv.length) {
+        ++i;
+        if (i >= argv.length) {
           usage(1);
         }
 
-        J2DBench.looping = true;
+        looping = true;
 
                 /*
                  * d or D    ->  Days
@@ -259,10 +264,10 @@ public class J2DBench {
                  * dd:hh:mm  ->  Days:Hours:Minutes
                  */
 
-        if (argv[i].indexOf(":") >= 0) {
+        if (argv[i].contains(":")) {
 
-          String values[] = argv[i].split(":");
-          int intVals[] = new int[3];
+          String[] values = argv[i].split(":");
+          int[] intVals = new int[3];
 
           for (int j = 0; j < values.length; j++) {
             try {
@@ -275,20 +280,20 @@ public class J2DBench {
               " days " + intVals[1] +
               " hours and " + intVals[2] + " minutes.\n");
 
-          requiredLoopTime = ((intVals[0] * 24 * 60 * 60) +
-                                  (intVals[1] * 60 * 60) +
-                                  (intVals[2] * 60)) * 1000;
+          requiredLoopTime = (intVals[0] * 24 * 60 * 60 +
+                                  intVals[1] * 60 * 60 +
+                                  intVals[2] * 60) * 1000;
         } else {
 
           String type = argv[i].substring(argv[i].length() - 1);
 
           int multiplyWith = 1;
 
-          if (type.equalsIgnoreCase("d")) {
+          if ("d".equalsIgnoreCase(type)) {
             multiplyWith = 24 * 60 * 60;
-          } else if (type.equalsIgnoreCase("h")) {
+          } else if ("h".equalsIgnoreCase(type)) {
             multiplyWith = 60 * 60;
-          } else if (type.equalsIgnoreCase("m")) {
+          } else if ("m".equalsIgnoreCase(type)) {
             multiplyWith = 60;
           } else {
             System.err.println("Invalid \"-loop\" option specified.");
@@ -305,21 +310,22 @@ public class J2DBench {
 
           requiredLoopTime = val * multiplyWith * 1000;
         }
-      } else if (arg.length() > 8 && arg.substring(0, 8).equalsIgnoreCase("-report:")) {
-        String error = Result.parseRateOpt(arg.substring(8));
+      } else if (arg.length() > 8 && "-report:".equalsIgnoreCase(arg.substring(0, 8))) {
+        String error = parseRateOpt(arg.substring(8));
         if (error != null) {
           System.err.println("Invalid rate: " + error);
           usage(1);
         }
       } else {
-        String reason = Group.root.setOption(arg);
+        String reason = setOption(arg);
         if (reason != null) {
           System.err.println("Option " + arg + " ignored: " + reason);
         }
       }
     }
     if (verbose.isEnabled()) {
-      Group.root.traverse(new Node.Visitor() {
+      Group.root.traverse(new Visitor() {
+        @Override
         public void visit(Node node) {
           System.out.println(node);
         }
@@ -345,10 +351,10 @@ public class J2DBench {
 
       PrintWriter writer = null;
 
-      if (J2DBench.looping) {
+      if (looping) {
 
         System.out.println("\nAbout to run tests for : " +
-            (requiredLoopTime / 1000) + " seconds.\n");
+            requiredLoopTime / 1000 + " seconds.\n");
 
         if (resfilename != null) {
 
@@ -371,7 +377,7 @@ public class J2DBench {
       do {
 
         Date loopStart = new Date();
-        if (J2DBench.looping) {
+        if (looping) {
           writer.println("<b>Loop # " + nLoopCount + "</b><br>");
           writer.println("<b>Start : </b>" + sdf.format(loopStart) + "<br>");
           writer.flush();
@@ -391,7 +397,7 @@ public class J2DBench {
           }
         }
 
-        if (J2DBench.looping) {
+        if (looping) {
 
           Date loopEnd = new Date();
 
@@ -407,7 +413,7 @@ public class J2DBench {
           writer.println("</center><hr size=\"1\">");
           writer.flush();
 
-          if ((loopEnd.getTime() - start) > requiredLoopTime) {
+          if (loopEnd.getTime() - start > requiredLoopTime) {
             break;
           }
 
@@ -416,9 +422,9 @@ public class J2DBench {
 
           nLoopCount++;
         }
-      } while (J2DBench.looping);
+      } while (looping);
 
-      if (J2DBench.looping) {
+      if (looping) {
         writer.println("</html>");
         writer.flush();
         writer.close();
@@ -448,11 +454,11 @@ public class J2DBench {
 
   public static String loadOptions(FileReader fr, String filename) {
     LineNumberReader lnr = new LineNumberReader(fr);
-    Group.restoreAllDefaults();
+    restoreAllDefaults();
     String line;
     try {
       while ((line = lnr.readLine()) != null) {
-        String reason = Group.root.setOption(line);
+        String reason = setOption(line);
         if (reason != null) {
           System.err.println("Option " + line +
               " at line " + lnr.getLineNumber() +
@@ -460,9 +466,9 @@ public class J2DBench {
         }
       }
     } catch (IOException e) {
-      Group.restoreAllDefaults();
-      return ("IO Error reading " + filename +
-                  " at line " + lnr.getLineNumber());
+      restoreAllDefaults();
+      return "IO Error reading " + filename +
+          " at line " + lnr.getLineNumber();
     }
     return null;
   }
@@ -502,7 +508,7 @@ public class J2DBench {
 
   public static String saveOptions(FileWriter fw, String filename) {
     PrintWriter pw = new PrintWriter(fw);
-    Group.writeAll(pw);
+    writeAll(pw);
     return null;
   }
 
@@ -618,7 +624,7 @@ public class J2DBench {
   }
 
   public static void startGUI() {
-    final JFrame f = new JFrame("J2DBench") {
+    JFrame f = new JFrame("J2DBench") {
       public Dimension getPreferredSize() {
         Dimension pref = super.getPreferredSize();
         pref.width = Math.max(pref.width, 800);
@@ -634,6 +640,7 @@ public class J2DBench {
     p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
     JButton b = new JButton("Run Tests...");
     b.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         if (!saveOrDiscardLastResults()) {
           return;
@@ -643,6 +650,7 @@ public class J2DBench {
           System.out.println("running tests...");
         }
         new Thread(new Runnable() {
+          @Override
           public void run() {
             runTests(true);
           }
@@ -656,6 +664,7 @@ public class J2DBench {
 
     b = new JButton("Load Options");
     b.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = getFileChooser();
         int ret = fc.showOpenDialog(f);
@@ -671,6 +680,7 @@ public class J2DBench {
 
     b = new JButton("Save Options");
     b.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         JFileChooser fc = getFileChooser();
         int ret = fc.showSaveDialog(f);
@@ -686,6 +696,7 @@ public class J2DBench {
 
     b = new JButton("Save Results");
     b.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         if (saveResults()) {
           lastResults = null;
@@ -696,6 +707,7 @@ public class J2DBench {
 
     b = new JButton("Quit");
     b.addActionListener(new ActionListener() {
+      @Override
       public void actionPerformed(ActionEvent e) {
         if (!saveOrDiscardLastResults()) {
           return;
@@ -711,11 +723,12 @@ public class J2DBench {
   }
 
   public static void runTests(boolean showresults) {
-    final TestEnvironment env = new TestEnvironment();
+    TestEnvironment env = new TestEnvironment();
     Frame f = null;
     if (showresults) {
       f = new Frame("J2DBench test run");
       f.addWindowListener(new WindowAdapter() {
+        @Override
         public void windowClosing(WindowEvent e) {
           env.stop();
         }
@@ -733,11 +746,95 @@ public class J2DBench {
       f.dispose();
     }
     lastResults = env.results;
-    if (J2DBench.printresults.isEnabled()) {
+    if (printresults.isEnabled()) {
       System.out.println();
     }
     System.out.println("All test results:");
     env.summarize();
     System.out.println();
+  }
+
+  public static String parseRateOpt(String opt) {
+    int timeScale = Result.timeOpt.getIntValue();
+    int workScale = Result.workOpt.getIntValue();
+    boolean invertRate = Result.rateOpt.getBooleanValue();
+    int divindex = opt.indexOf('/');
+    if (divindex < 0) {
+      int unit = Result.parseUnit(opt);
+      if (isTimeUnit(unit)) {
+        timeScale = unit;
+      } else if (isWorkUnit(unit)) {
+        workScale = unit;
+      } else {
+        return "Bad unit: " + opt;
+      }
+    } else {
+      int unit1 = Result.parseUnit(opt.substring(0, divindex));
+      int unit2 = Result.parseUnit(opt.substring(divindex + 1));
+      if (isTimeUnit(unit1)) {
+        if (isWorkUnit(unit2)) {
+          timeScale = unit1;
+          workScale = unit2;
+          invertRate = true;
+        } else if (isTimeUnit(unit2)) {
+          return "Both time units: " + opt;
+        } else {
+          return "Bad denominator: " + opt;
+        }
+      } else if (isWorkUnit(unit1)) {
+        if (isWorkUnit(unit2)) {
+          return "Both work units: " + opt;
+        } else if (isTimeUnit(unit2)) {
+          timeScale = unit2;
+          workScale = unit1;
+          invertRate = false;
+        } else {
+          return "Bad denominator: " + opt;
+        }
+      } else {
+        return "Bad numerator: " + opt;
+      }
+    }
+    Result.timeOpt.setValue(timeScale);
+    Result.workOpt.setValue(workScale);
+    Result.rateOpt.setValue(invertRate);
+    return null;
+  }
+
+  public static String setOption(String s) {
+    int index = s.indexOf('=');
+    if (index < 0) {
+      return "No value specified";
+    }
+    String key = s.substring(0, index);
+    String value = s.substring(index + 1);
+    return Group.root.setOption(key, value);
+  }
+
+  public static void writeAll(PrintWriter pw) {
+    Group.root.traverse(new Visitor() {
+      @Override
+      public void visit(Node node) {
+        node.write(pw);
+      }
+    });
+    pw.flush();
+  }
+
+  public static void restoreAllDefaults() {
+    Group.root.traverse(new Visitor() {
+      @Override
+      public void visit(Node node) {
+        node.restoreDefault();
+      }
+    });
+  }
+
+  public static boolean isWorkUnit(int unit) {
+    return unit >= Result.WORK_OPS && unit <= (Result.WORK_AUTO | Result.WORK_OPS);
+  }
+
+  public static boolean isTimeUnit(int unit) {
+    return unit >= Result.TIME_SECONDS && unit <= Result.TIME_AUTO;
   }
 }

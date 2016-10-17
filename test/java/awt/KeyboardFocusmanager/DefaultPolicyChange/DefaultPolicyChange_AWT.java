@@ -32,11 +32,13 @@
 */
 
 import java.awt.*;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class DefaultPolicyChange_AWT {
-    public static void main(String []s) {
-        DefaultPolicyChange_AWT.runTestAWT();
+public final class DefaultPolicyChange_AWT {
+  private DefaultPolicyChange_AWT() {
+  }
+
+  public static void main(String []s) {
+        runTestAWT();
     }
 
     private static void runTestAWT(){
@@ -49,11 +51,11 @@ public class DefaultPolicyChange_AWT {
 
         FocusTraversalPolicy resultFTP = window.getFocusTraversalPolicy();
         Sysout.println("FocusTraversalPolicy on window = " + resultFTP);
-        /**
-         * Note: this call doesn't affect already created components as they have
-         * their policy initialized. Only new components will use this policy as
-         * their default policy.
-         **/
+        /*
+          Note: this call doesn't affect already created components as they have
+          their policy initialized. Only new components will use this policy as
+          their default policy.
+         */
         Sysout.println("Now will set another policy.");
         currentKFM.setDefaultFocusTraversalPolicy(newFTP);
         resultFTP = window.getFocusTraversalPolicy();

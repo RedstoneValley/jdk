@@ -41,17 +41,19 @@
 package java.awt.font;
 
 import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 
 /**
- * The <code>TransformAttribute</code> class provides an immutable
+ * The {@code TransformAttribute} class provides an immutable
  * wrapper for a transform so that it is safe to use as an attribute.
  */
 public final class TransformAttribute implements Serializable {
 
   /**
-   * A <code>TransformAttribute</code> representing the identity transform.
+   * A {@code TransformAttribute} representing the identity transform.
    *
    * @since 1.6
    */
@@ -59,9 +61,9 @@ public final class TransformAttribute implements Serializable {
   // Added for serial backwards compatibility (4348425)
   static final long serialVersionUID = 3356247357827709530L;
   /**
-   * The <code>AffineTransform</code> for this
-   * <code>TransformAttribute</code>, or <code>null</code>
-   * if <code>AffineTransform</code> is the identity transform.
+   * The {@code AffineTransform} for this
+   * {@code TransformAttribute}, or {@code null}
+   * if {@code AffineTransform} is the identity transform.
    */
   private AffineTransform transform;
 
@@ -84,31 +86,30 @@ public final class TransformAttribute implements Serializable {
   /**
    * Returns a copy of the wrapped transform.
    *
-   * @return a <code>AffineTransform</code> that is a copy of the wrapped
-   * transform of this <code>TransformAttribute</code>.
+   * @return a {@code AffineTransform} that is a copy of the wrapped
+   * transform of this {@code TransformAttribute}.
    */
   public AffineTransform getTransform() {
     AffineTransform at = transform;
-    return (at == null) ? new AffineTransform() : new AffineTransform(at);
+    return at == null ? new AffineTransform() : new AffineTransform(at);
   }
 
   /**
-   * Returns <code>true</code> if the wrapped transform is
+   * Returns {@code true} if the wrapped transform is
    * an identity transform.
    *
-   * @return <code>true</code> if the wrapped transform is
-   * an identity transform; <code>false</code> otherwise.
+   * @return {@code true} if the wrapped transform is
+   * an identity transform; {@code false} otherwise.
    * @since 1.4
    */
   public boolean isIdentity() {
     return transform == null;
   }
 
-  private void writeObject(java.io.ObjectOutputStream s)
-      throws java.lang.ClassNotFoundException, java.io.IOException {
+  private void writeObject(ObjectOutputStream s) throws ClassNotFoundException, IOException {
     // sigh -- 1.3 expects transform is never null, so we need to always write one out
-    if (this.transform == null) {
-      this.transform = new AffineTransform();
+    if (transform == null) {
+      transform = new AffineTransform();
     }
     s.defaultWriteObject();
   }
@@ -126,21 +127,23 @@ public final class TransformAttribute implements Serializable {
   /**
    * @since 1.6
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
     return transform == null ? 0 : transform.hashCode();
   }
 
   /**
-   * Returns <code>true</code> if rhs is a <code>TransformAttribute</code>
-   * whose transform is equal to this <code>TransformAttribute</code>'s
+   * Returns {@code true} if rhs is a {@code TransformAttribute}
+   * whose transform is equal to this {@code TransformAttribute}'s
    * transform.
    *
    * @param rhs the object to compare to
-   * @return <code>true</code> if the argument is a <code>TransformAttribute</code>
-   * whose transform is equal to this <code>TransformAttribute</code>'s
+   * @return {@code true} if the argument is a {@code TransformAttribute}
+   * whose transform is equal to this {@code TransformAttribute}'s
    * transform.
    * @since 1.6
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object rhs) {
     if (rhs != null) {
       try {

@@ -37,27 +37,30 @@ import sun.awt.SunToolkit;
  * @summary Frame size reverts meaning of maximized attribute
  * @run main MaximizedToMaximized
  */
-public class MaximizedToMaximized {
+public final class MaximizedToMaximized {
 
-    public static void main(String[] args) throws Exception {
+  private MaximizedToMaximized() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
        Frame frame = new Frame();
-        final Toolkit toolkit = Toolkit.getDefaultToolkit();
-        final GraphicsEnvironment graphicsEnvironment =
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        GraphicsEnvironment graphicsEnvironment =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsDevice graphicsDevice =
+        GraphicsDevice graphicsDevice =
                 graphicsEnvironment.getDefaultScreenDevice();
 
-        final Dimension screenSize = toolkit.getScreenSize();
-        final Insets screenInsets = toolkit.getScreenInsets(
+        Dimension screenSize = toolkit.getScreenSize();
+        Insets screenInsets = toolkit.getScreenInsets(
                 graphicsDevice.getDefaultConfiguration());
 
-        final Rectangle availableScreenBounds = new Rectangle(screenSize);
+        Rectangle availableScreenBounds = new Rectangle(screenSize);
 
         availableScreenBounds.x += screenInsets.left;
         availableScreenBounds.y += screenInsets.top;
-        availableScreenBounds.width -= (screenInsets.left + screenInsets.right);
-        availableScreenBounds.height -= (screenInsets.top + screenInsets.bottom);
+        availableScreenBounds.width -= screenInsets.left + screenInsets.right;
+        availableScreenBounds.height -= screenInsets.top + screenInsets.bottom;
 
         frame.setBounds(availableScreenBounds.x, availableScreenBounds.y,
                 availableScreenBounds.width, availableScreenBounds.height);

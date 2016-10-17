@@ -34,18 +34,21 @@
 import java.awt.*;
 import java.awt.event.*;
 
-import test.java.awt.regtesthelpers.Util;
+import java.lang.Thread.UncaughtExceptionHandler;
 
-public class HandleExceptionOnEDT
+public final class HandleExceptionOnEDT
 {
-    private final static String EXCEPTION_MESSAGE = "A1234567890";
+    private static final String EXCEPTION_MESSAGE = "A1234567890";
 
-    private static volatile boolean exceptionHandled = false;
-    private static volatile boolean mousePressed = false;
+    static volatile boolean exceptionHandled;
+    static volatile boolean mousePressed;
+
+    private HandleExceptionOnEDT() {
+    }
 
     public static void main(String[] args)
     {
-        final Thread.UncaughtExceptionHandler eh = new Thread.UncaughtExceptionHandler()
+        UncaughtExceptionHandler eh = new UncaughtExceptionHandler()
         {
             @Override
             public void uncaughtException(Thread t, Throwable e)
@@ -100,7 +103,7 @@ public class HandleExceptionOnEDT
         }
 
         // check exception with modal dialog
-        final Dialog d = new Dialog(f, "D", true);
+        Dialog d = new Dialog(f, "D", true);
         d.setBounds(fp.x + 100, fp.y + 100, 400, 300);
         d.addMouseListener(exceptionListener);
         EventQueue.invokeLater(new Runnable()

@@ -32,7 +32,7 @@
 
 import java.awt.*;
 
-public class BadDisplayTest{
+public final class BadDisplayTest{
    public static void main(String[] args) {
 
         Throwable th = null;

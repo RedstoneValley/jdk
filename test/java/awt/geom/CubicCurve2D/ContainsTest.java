@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4724552
  * @summary Verifies that CubicCurve2D.contains(Rectangle2D) does not return
  *          true when the rectangle is only partially contained.
@@ -33,7 +33,7 @@
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Rectangle2D;
 
-public class ContainsTest {
+public final class ContainsTest {
 
     public static void main(String[] args) throws Exception {
         CubicCurve2D c = new CubicCurve2D.Double(0, 0, 4, -4, -2, -4, 2, 0);

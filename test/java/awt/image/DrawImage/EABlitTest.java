@@ -24,7 +24,6 @@
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
-import javax.swing.*;
 
 /**
  * @test
@@ -33,6 +32,8 @@ import javax.swing.*;
  * @author ceisserer
  */
 public class EABlitTest extends Frame {
+    private static final long serialVersionUID = 238690278944746531L;
+
     protected void test() {
         BufferedImage srcImg = createSrcImage();
         Image dstImg = getGraphicsConfiguration().createCompatibleVolatileImage(20, 50);

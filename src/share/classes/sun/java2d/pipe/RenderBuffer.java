@@ -25,8 +25,6 @@
 
 package sun.java2d.pipe;
 
-import sun.misc.Unsafe;
-
 /**
  * The RenderBuffer class is a simplified, high-performance, Unsafe wrapper
  * used for buffering rendering operations in a single-threaded rendering

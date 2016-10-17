@@ -37,5 +37,5 @@ public interface InputMethodWindow {
    *
    * @see java.awt.im.spi.InputMethodContext#createInputMethodWindow
    */
-  public void setInputContext(InputContext inputContext);
+  void setInputContext(InputContext inputContext);
 }

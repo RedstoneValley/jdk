@@ -30,9 +30,9 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 public class ByteArrayImageSource extends InputStreamImageSource {
-  byte[] imagedata;
-  int imageoffset;
-  int imagelength;
+  final byte[] imagedata;
+  final int imageoffset;
+  final int imagelength;
 
   public ByteArrayImageSource(byte[] data) {
     this(data, 0, data.length);
@@ -44,6 +44,7 @@ public class ByteArrayImageSource extends InputStreamImageSource {
     imagelength = length;
   }
 
+  @Override
   final boolean checkSecurity(Object context, boolean quiet) {
     // No need to check security.  Applets and downloaded code can
     // only make byte array image once they already have a handle
@@ -51,8 +52,10 @@ public class ByteArrayImageSource extends InputStreamImageSource {
     return true;
   }
 
+  @Override
   protected ImageDecoder getDecoder() {
-    InputStream is = new BufferedInputStream(new ByteArrayInputStream(imagedata,
+    InputStream is = new BufferedInputStream(new ByteArrayInputStream(
+        imagedata,
         imageoffset,
         imagelength));
     return getDecoder(is);

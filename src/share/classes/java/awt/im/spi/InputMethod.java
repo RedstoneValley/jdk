@@ -57,9 +57,9 @@ public interface InputMethod {
    * method.
    *
    * @param context the input method context for this input method
-   * @throws NullPointerException if <code>context</code> is null
+   * @throws NullPointerException if {@code context} is null
    */
-  public void setInputMethodContext(InputMethodContext context);
+  void setInputMethodContext(InputMethodContext context);
 
   /**
    * Attempts to set the input locale. If the input method supports the
@@ -72,15 +72,15 @@ public interface InputMethod {
    * <li>by {@link java.awt.im.InputContext#selectInputMethod InputContext.selectInputMethod},
    * <li>when switching to this input method through the user interface if the user
    * specified a locale or if the previously selected input method's
-   * {@link java.awt.im.spi.InputMethod#getLocale getLocale} method
+   * {@link InputMethod#getLocale getLocale} method
    * returns a non-null value.
    * </ul>
    *
    * @param locale locale to input
    * @return whether the specified locale is supported
-   * @throws NullPointerException if <code>locale</code> is null
+   * @throws NullPointerException if {@code locale} is null
    */
-  public boolean setLocale(Locale locale);
+  boolean setLocale(Locale locale);
 
   /**
    * Returns the current input locale. Might return null in exceptional cases.
@@ -94,7 +94,7 @@ public interface InputMethod {
    *
    * @return the current input locale, or null
    */
-  public Locale getLocale();
+  Locale getLocale();
 
   /**
    * Sets the subsets of the Unicode character set that this input method
@@ -111,7 +111,7 @@ public interface InputMethod {
    * @param subsets the subsets of the Unicode character set from which
    *                characters may be input
    */
-  public void setCharacterSubsets(Subset[] subsets);
+  void setCharacterSubsets(Subset[] subsets);
 
   /**
    * Determines whether this input method is enabled.
@@ -128,17 +128,17 @@ public interface InputMethod {
    * {@link java.awt.im.InputContext#selectInputMethod InputContext.selectInputMethod}.
    * </ul>
    *
-   * @return <code>true</code> if this input method is enabled for
-   * composition; <code>false</code> otherwise.
+   * @return {@code true} if this input method is enabled for
+   * composition; {@code false} otherwise.
    * @throws UnsupportedOperationException if this input method does not
    *                                       support checking whether it is enabled for composition
    * @see #setCompositionEnabled
    */
-  public boolean isCompositionEnabled();
+  boolean isCompositionEnabled();
 
   /**
    * Enables or disables this input method for composition,
-   * depending on the value of the parameter <code>enable</code>.
+   * depending on the value of the parameter {@code enable}.
    * <p>
    * An input method that is enabled for composition interprets incoming
    * events for both composition and control purposes, while a
@@ -152,7 +152,7 @@ public interface InputMethod {
    * determine whether this operation is supported. For example, an input method may enable
    * composition only for some locales, and do nothing for other locales. For such input
    * methods, it is possible that this method does not throw
-   * {@link java.lang.UnsupportedOperationException UnsupportedOperationException},
+   * {@link UnsupportedOperationException UnsupportedOperationException},
    * but also does not affect whether composition is enabled.
    * <p>
    * This method is called
@@ -163,7 +163,7 @@ public interface InputMethod {
    * user interface or
    * {@link java.awt.im.InputContext#selectInputMethod InputContext.selectInputMethod},
    * if the previously selected input method's
-   * {@link java.awt.im.spi.InputMethod#isCompositionEnabled isCompositionEnabled}
+   * {@link InputMethod#isCompositionEnabled isCompositionEnabled}
    * method returns without throwing an exception.
    * </ul>
    *
@@ -172,17 +172,17 @@ public interface InputMethod {
    *                                       support the enabling/disabling operation
    * @see #isCompositionEnabled
    */
-  public void setCompositionEnabled(boolean enable);
+  void setCompositionEnabled(boolean enable);
 
   /**
    * Starts the reconversion operation. The input method obtains the
    * text to be reconverted from the current client component using the
    * {@link java.awt.im.InputMethodRequests#getSelectedText InputMethodRequests.getSelectedText}
-   * method. It can use other <code>InputMethodRequests</code>
+   * method. It can use other {@code InputMethodRequests}
    * methods to request additional information required for the
    * reconversion operation. The composed and committed text
    * produced by the operation is sent to the client component as a
-   * sequence of <code>InputMethodEvent</code>s. If the given text
+   * sequence of {@code InputMethodEvent}s. If the given text
    * cannot be reconverted, the same text should be sent to the
    * client component as committed text.
    * <p>
@@ -192,7 +192,7 @@ public interface InputMethod {
    * @throws UnsupportedOperationException if the input method does not
    *                                       support the reconversion operation.
    */
-  public void reconvert();
+  void reconvert();
 
   /**
    * Dispatches the event to the input method. If input method support is
@@ -200,7 +200,7 @@ public interface InputMethod {
    * are dispatched to the current input method for this component before
    * they are dispatched to the component's methods or event listeners.
    * The input method decides whether it needs to handle the event. If it
-   * does, it also calls the event's <code>consume</code> method; this
+   * does, it also calls the event's {@code consume} method; this
    * causes the event to not get dispatched to the component's event
    * processing methods or event listeners.
    * <p>
@@ -212,9 +212,9 @@ public interface InputMethod {
    * {@link java.awt.im.InputContext#dispatchEvent InputContext.dispatchEvent}.
    *
    * @param event the event being dispatched to the input method
-   * @throws NullPointerException if <code>event</code> is null
+   * @throws NullPointerException if {@code event} is null
    */
-  public void dispatchEvent(AWTEvent event);
+  void dispatchEvent(AWTEvent event);
 
   /**
    * Notifies this input method of changes in the client window
@@ -234,13 +234,13 @@ public interface InputMethod {
    * in location, size, visibility, iconification state, or when the
    * window is closed.</li>
    * <li>
-   * from <code> enableClientWindowNotification(inputMethod,
-   * true)</code> if the current client component exists,</li>
+   * from {@code enableClientWindowNotification(inputMethod,
+   * true)} if the current client component exists,</li>
    * <li>
    * when activating the input method for the first time after it
    * called
-   * <code>enableClientWindowNotification(inputMethod,
-   * true)</code> if during the call no current client component was
+   * {@code enableClientWindowNotification(inputMethod,
+   * true)} if during the call no current client component was
    * available,</li>
    * <li>
    * when activating the input method for a new client component
@@ -252,7 +252,7 @@ public interface InputMethod {
    *               java.awt.Component#getBounds bounds} on the screen; or null if
    *               the client window is iconified or invisible
    */
-  public void notifyClientWindowChange(Rectangle bounds);
+  void notifyClientWindowChange(Rectangle bounds);
 
   /**
    * Activates the input method for immediate input processing.
@@ -271,7 +271,7 @@ public interface InputMethod {
    * The method is only called when the input method is inactive.
    * A newly instantiated input method is assumed to be inactive.
    */
-  public void activate();
+  void activate();
 
   /**
    * Deactivates the input method.
@@ -302,7 +302,7 @@ public interface InputMethod {
    *
    * @param isTemporary whether the focus change is temporary
    */
-  public void deactivate(boolean isTemporary);
+  void deactivate(boolean isTemporary);
 
   /**
    * Closes or hides all windows opened by this input method instance or
@@ -316,7 +316,7 @@ public interface InputMethod {
    * </ul>
    * The method is only called when the input method is inactive.
    */
-  public void hideWindows();
+  void hideWindows();
 
   /**
    * Notifies the input method that a client component has been
@@ -328,7 +328,7 @@ public interface InputMethod {
    * <p>
    * The method is only called when the input method is inactive.
    */
-  public void removeNotify();
+  void removeNotify();
 
   /**
    * Ends any input composition that may currently be going on in this
@@ -352,7 +352,7 @@ public interface InputMethod {
    * {@link java.awt.im.InputContext#selectInputMethod InputContext.selectInputMethod}.
    * </ul>
    */
-  public void endComposition();
+  void endComposition();
 
   /**
    * Releases the resources used by this input method.
@@ -364,7 +364,7 @@ public interface InputMethod {
    * The method is only called when the input method is inactive.
    * No method of this interface is called on this instance after dispose.
    */
-  public void dispose();
+  void dispose();
 
   /**
    * Returns a control object from this input method, or null. A
@@ -380,5 +380,5 @@ public interface InputMethod {
    *
    * @return a control object from this input method, or null
    */
-  public Object getControlObject();
+  Object getControlObject();
 }

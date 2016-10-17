@@ -46,7 +46,7 @@ abstract class OGLPaints {
    * Holds all registered implementations, using the corresponding
    * SunGraphics2D.PAINT_* constant as the hash key.
    */
-  private static Map<Integer, OGLPaints> impls = new HashMap<Integer, OGLPaints>(4, 1.0f);
+  private static final Map<Integer, OGLPaints> impls = new HashMap<>(4, 1.0f);
 
   static {
     impls.put(SunGraphics2D.PAINT_GRADIENT, new Gradient());
@@ -64,7 +64,7 @@ abstract class OGLPaints {
    */
   static boolean isValid(SunGraphics2D sg2d) {
     OGLPaints impl = impls.get(sg2d.paintState);
-    return (impl != null && impl.isPaintValid(sg2d));
+    return impl != null && impl.isPaintValid(sg2d);
   }
 
   /**
@@ -79,7 +79,7 @@ abstract class OGLPaints {
    ****************************/
 
   private static class Gradient extends OGLPaints {
-    private Gradient() {
+    Gradient() {
     }
 
     /**
@@ -97,7 +97,7 @@ abstract class OGLPaints {
    ****************************/
 
   private static class Texture extends OGLPaints {
-    private Texture() {
+    Texture() {
     }
 
     /**
@@ -121,7 +121,7 @@ abstract class OGLPaints {
         int imgh = bi.getHeight();
 
         // verify that the texture image dimensions are pow2
-        if ((imgw & (imgw - 1)) != 0 || (imgh & (imgh - 1)) != 0) {
+        if ((imgw & imgw - 1) != 0 || (imgh & imgh - 1) != 0) {
           return false;
         }
       }
@@ -145,11 +145,7 @@ abstract class OGLPaints {
 
       // verify that the source surface is actually a texture
       OGLSurfaceData oglData = (OGLSurfaceData) srcData;
-      if (oglData.getType() != OGLSurfaceData.TEXTURE) {
-        return false;
-      }
-
-      return true;
+      return oglData.getType() == OGLSurfaceData.TEXTURE;
     }
   }
 
@@ -157,7 +153,7 @@ abstract class OGLPaints {
    * Shared MultipleGradientPaint support
    ********************/
 
-  private static abstract class MultiGradient extends OGLPaints {
+  private abstract static class MultiGradient extends OGLPaints {
     protected MultiGradient() {
     }
 
@@ -180,11 +176,7 @@ abstract class OGLPaints {
 
       OGLSurfaceData dstData = (OGLSurfaceData) sg2d.surfaceData;
       OGLGraphicsConfig gc = dstData.getOGLGraphicsConfig();
-      if (!gc.isCapPresent(CAPS_EXT_GRAD_SHADER)) {
-        return false;
-      }
-
-      return true;
+      return gc.isCapPresent(CAPS_EXT_GRAD_SHADER);
     }
   }
 
@@ -193,7 +185,7 @@ abstract class OGLPaints {
    *************************/
 
   private static class LinearGradient extends MultiGradient {
-    private LinearGradient() {
+    LinearGradient() {
     }
 
     @Override
@@ -217,7 +209,7 @@ abstract class OGLPaints {
    *************************/
 
   private static class RadialGradient extends MultiGradient {
-    private RadialGradient() {
+    RadialGradient() {
     }
   }
 }

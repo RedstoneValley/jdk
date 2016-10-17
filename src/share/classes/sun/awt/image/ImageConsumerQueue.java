@@ -30,7 +30,7 @@ import java.awt.image.ImageConsumer;
 class ImageConsumerQueue {
   ImageConsumerQueue next;
 
-  ImageConsumer consumer;
+  final ImageConsumer consumer;
   boolean interested;
 
   Object securityContext;
@@ -48,11 +48,7 @@ class ImageConsumerQueue {
       secure = true;
     } else {
       SecurityManager security = System.getSecurityManager();
-      if (security != null) {
-        securityContext = security.getSecurityContext();
-      } else {
-        securityContext = null;
-      }
+      securityContext = security != null ? security.getSecurityContext() : null;
     }
   }
 
@@ -84,9 +80,9 @@ class ImageConsumerQueue {
   }
 
   public String toString() {
-    return ("[" + consumer +
-                ", " + (interested ? "" : "not ") + "interested" +
-                (securityContext != null ? ", " + securityContext : "") +
-                "]");
+    return "[" + consumer +
+        ", " + (interested ? "" : "not ") + "interested" +
+        (securityContext != null ? ", " + securityContext : "") +
+        "]";
   }
 }

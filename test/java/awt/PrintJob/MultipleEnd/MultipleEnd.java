@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4112758
  * @summary Checks that a second invocation of PrintJob.end() does not cause
  * an exception or segmentation violation.
@@ -30,6 +30,7 @@
  */
 
 import java.awt.*;
+import java.awt.JobAttributes.DialogType;
 
 public class MultipleEnd {
     public static void main(String[] args) {
@@ -41,12 +42,14 @@ public class MultipleEnd {
 }
 
 class MultipleEndFrame extends Frame {
+    private static final long serialVersionUID = -871938893022777940L;
+
     public MultipleEndFrame() {
         super("MultipleEnd");
         setVisible(true);
 
         JobAttributes job = new JobAttributes();
-        job.setDialog(JobAttributes.DialogType.NONE);
+        job.setDialog(DialogType.NONE);
         PrintJob pj  = getToolkit().getPrintJob(this, "MultipleEnd", job, null);
         if (pj != null) {
             pj.end();

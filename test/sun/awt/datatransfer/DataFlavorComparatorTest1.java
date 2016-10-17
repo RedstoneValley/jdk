@@ -28,16 +28,20 @@
    @author Anton Nashatyrev
    @run main DataFlavorComparatorTest1
 */
-import sun.awt.datatransfer.DataTransferer;
 
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.SystemFlavorMap;
 import java.util.Comparator;
+import sun.awt.datatransfer.DataTransferer.DataFlavorComparator;
 
-public class DataFlavorComparatorTest1 {
+public final class DataFlavorComparatorTest1 {
 
-    public static void main(String[] args) throws Exception {
-        String[] mimes = new String[] {
-                "text/plain",
+  private DataFlavorComparatorTest1() {
+  }
+
+  public static void main(String[] args) throws Exception {
+        String[] mimes = {
+            SystemFlavorMap.TEXT_PLAIN_BASE_TYPE,
                 "text/plain; charset=unicode",
                 "text/plain; charset=cp1251",
                 "text/plain; charset=unicode; class=java.io.InputStream",
@@ -69,7 +73,7 @@ public class DataFlavorComparatorTest1 {
                 "application/unknown",
                 "application/x-java-jvm-local-objectref; class=java.io.InputStream",
                 "application/x-java-jvm-local-objectref; class=java.lang.Object",
-                "application/x-java-jvm-local-objectref",
+            DataFlavor.javaJVMLocalObjectMimeType,
                 "unknown/flavor",
                 "unknown/flavor; class=java.io.InputStream",
                 "unknown/flavor; class=java.lang.Object",
@@ -80,13 +84,12 @@ public class DataFlavorComparatorTest1 {
             flavors[i] = new DataFlavor(mimes[i]);
         }
 
-        testComparator(new DataTransferer.DataFlavorComparator(true), flavors);
-        testComparator(new DataTransferer.DataFlavorComparator(false), flavors);
+        testComparator(new DataFlavorComparator(true), flavors);
+        testComparator(new DataFlavorComparator(false), flavors);
 
     }
 
-    private static void testComparator(Comparator cmp, DataFlavor[] flavs)
-            throws ClassNotFoundException {
+    private static void testComparator(Comparator cmp, DataFlavor[] flavs) {
 
         for (DataFlavor x: flavs) {
             for (DataFlavor y: flavs) {

@@ -40,7 +40,7 @@ import java.util.EventListenerProxy;
  * and {@code AWTEventListenerProxy} objects.
  *
  * @see java.awt.Toolkit
- * @see java.util.EventListenerProxy
+ * @see EventListenerProxy
  * @since 1.4
  */
 public class AWTEventListenerProxy extends EventListenerProxy<AWTEventListener>
@@ -65,6 +65,7 @@ public class AWTEventListenerProxy extends EventListenerProxy<AWTEventListener>
    *
    * @param event the AWT event
    */
+  @Override
   public void eventDispatched(AWTEvent event) {
     getListener().eventDispatched(event);
   }
@@ -75,6 +76,6 @@ public class AWTEventListenerProxy extends EventListenerProxy<AWTEventListener>
    * @return the event mask associated with the listener
    */
   public long getEventMask() {
-    return this.eventMask;
+    return eventMask;
   }
 }

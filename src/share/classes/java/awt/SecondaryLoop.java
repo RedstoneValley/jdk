@@ -117,7 +117,7 @@ public interface SecondaryLoop {
    * if the secondary loop was started by this call,
    * {@code false} otherwise
    */
-  public boolean enter();
+  boolean enter();
 
   /**
    * Unblocks the execution of the thread blocked by the {@link
@@ -133,12 +133,12 @@ public interface SecondaryLoop {
    * <p>
    * If this secondary loop has not been started with the {@link
    * #enter} method, or this secondary loop has already finished
-   * with the {@link #exit} method, this method returns {@code
+   * with the  method, this method returns {@code
    * false}, otherwise {@code true} is returned.
    *
    * @return {@code true} if this loop was previously started and
-   * has not yet been finished with the {@link #exit} method,
+   * has not yet been finished with the  method,
    * {@code false} otherwise
    */
-  public boolean exit();
+  boolean exit();
 }

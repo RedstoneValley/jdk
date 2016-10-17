@@ -24,17 +24,16 @@
   @test
   @bug 4429544
   @summary This test should not throw a printer exception. Test has been modified to correspond with the behavior of 1.5 and above.
-  @run main PrtException
+  @run main PrtExceptionTest
 */
 
 import java.awt.*;
 import java.awt.print.*;
-import javax.print.*;
 
-public class PrtException implements Printable {
+public class PrtExceptionTest implements Printable {
     PrinterJob pj;
 
-    public PrtException() {
+    public PrtExceptionTest() {
 
         try{
             PrintService[] svc;
@@ -48,7 +47,7 @@ public class PrtException implements Printable {
             }
 
             System.out.println("PrintService found : "+defService);
-            pj = PrinterJob.getPrinterJob();;
+            pj = PrinterJob.getPrinterJob();
             pj.setPrintService(defService);
             //pj.setPrintable(this); // commenting this line should not result in PrinterException
             pj.print();
@@ -60,6 +59,7 @@ public class PrtException implements Printable {
     }
 
 
+    @Override
     public int print(Graphics g,PageFormat pf,int pageIndex) {
         Graphics2D g2= (Graphics2D)g;
         if(pageIndex>=1){
@@ -72,7 +72,7 @@ public class PrtException implements Printable {
         return Printable.PAGE_EXISTS;
     }
 
-    public static void main(String arg[]) {
-        PrtException sp = new PrtException();
+    public static void main(String[] arg) {
+        PrtExceptionTest sp = new PrtExceptionTest();
     }
 }

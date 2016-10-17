@@ -24,9 +24,12 @@
 import java.io.*;
 import java.awt.*;
 
-public class DeleteFont {
+public final class DeleteFont {
 
-    public static void main(String args[]) throws Exception {
+  private DeleteFont() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         String font = "A.ttf";
         String sep = System.getProperty("file.separator");
@@ -42,13 +45,14 @@ public class DeleteFont {
         f.canDisplay('X');
 
        InputStream in = new InputStream() {
+            @Override
             public int read() {
                 throw new RuntimeException();
             }
         };
         boolean gotException = false;
         try {
-           Font.createFont(java.awt.Font.TRUETYPE_FONT, in);
+           Font.createFont(Font.TRUETYPE_FONT, in);
         } catch (IOException e) {
             gotException = true;
         }
@@ -65,16 +69,16 @@ public class DeleteFont {
         System.gc(); System.gc();
     }
 
-    static void badRead(final int retval, int fontType) {
+    static void badRead(int retval, int fontType) {
         int num = 2;
-        byte[] buff = new byte[16*8192]; // Multiple of 8192 is important.
+        byte[] buff = new byte[(16 << 13)]; // Multiple of 8192 is important.
         for (int ct=0; ct<num; ++ct) {
             try {
                 Font.createFont(
                     fontType,
                     new ByteArrayInputStream(buff) {
                         @Override
-                        public int read(byte[] buff, int off, int len) {
+                        public synchronized int read(byte[] buff, int off, int len) {
                             int read = super.read(buff, off, len);
                             return read<0 ? retval : read;
                         }

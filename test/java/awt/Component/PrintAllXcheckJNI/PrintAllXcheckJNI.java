@@ -32,9 +32,12 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class PrintAllXcheckJNI
+public final class PrintAllXcheckJNI
 {
-    public static void main(String []s)
+  private PrintAllXcheckJNI() {
+  }
+
+  public static void main(String []s)
     {
         Frame frame = new Frame();
         frame.setVisible(true);

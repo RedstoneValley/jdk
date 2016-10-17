@@ -41,12 +41,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.KeyboardFocusManagerAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.KeyboardFocusManagerPeerProvider;
 import sun.awt.SunToolkit;
 
@@ -87,9 +90,9 @@ import sun.awt.SunToolkit;
  * @see Window
  * @see Frame
  * @see Dialog
- * @see java.awt.event.FocusEvent
- * @see java.awt.event.WindowEvent
- * @see java.awt.event.KeyEvent
+ * @see FocusEvent
+ * @see WindowEvent
+ * @see KeyEvent
  * @since 1.4
  */
 public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEventPostProcessor {
@@ -156,6 +159,18 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       InputEvent.SHIFT_DOWN_MASK | InputEvent.SHIFT_MASK |
           InputEvent.CTRL_DOWN_MASK | InputEvent.CTRL_MASK,
       false),}, {}, {},};
+  /**
+   * Maps Windows to those Windows' most recent focus owners.
+   */
+  private static final Map<Window, WeakReference<Component>> mostRecentFocusOwners
+      = new WeakHashMap<>();
+  /*
+   * heavyweightRequests is used as a monitor for synchronized changes of
+   * currentLightweightRequests, clearingCurrentLightweightRequests and
+   * newFocusOwner.
+   */
+  private static final LinkedList<HeavyweightFocusRequest> heavyweightRequests
+      = new LinkedList<>();
   static Field proxyActive;
   /**
    * The Component in an application that will typically receive all
@@ -187,35 +202,24 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * case, the current focus cycle root is used to differentiate among the
    * possibilities.
    */
-  private static Container currentFocusCycleRoot;
-  /**
-   * Maps Windows to those Windows' most recent focus owners.
-   */
-  private static java.util.Map<Window, WeakReference<Component>> mostRecentFocusOwners
-      = new WeakHashMap<>();
+  static Container currentFocusCycleRoot;
   /**
    * We cache the permission used to verify that the calling thread is
    * permitted to access the global focus state.
    */
   private static AWTPermission replaceKeyboardFocusManagerPermission;
-  /*
-   * heavyweightRequests is used as a monitor for synchronized changes of
-   * currentLightweightRequests, clearingCurrentLightweightRequests and
-   * newFocusOwner.
-   */
-  private static LinkedList<HeavyweightFocusRequest> heavyweightRequests
-      = new LinkedList<HeavyweightFocusRequest>();
   private static LinkedList<LightweightFocusRequest> currentLightweightRequests;
   private static boolean clearingCurrentLightweightRequests;
   private static boolean allowSyncFocusRequests = true;
-  private static Component newFocusOwner = null;
+  private static Component newFocusOwner;
   private static volatile boolean disableRestoreFocus;
 
   static {
-    AWTAccessor.setKeyboardFocusManagerAccessor(new AWTAccessor.KeyboardFocusManagerAccessor() {
+    AWTAccessor.setKeyboardFocusManagerAccessor(new KeyboardFocusManagerAccessor() {
+      @Override
       public int shouldNativelyFocusHeavyweight(
           Component heavyweight, Component descendant, boolean temporary,
-          boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+          boolean focusedWindowChangeAllowed, long time, Cause cause) {
         return KeyboardFocusManager.shouldNativelyFocusHeavyweight(heavyweight,
             descendant,
             temporary,
@@ -224,6 +228,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
             cause);
       }
 
+      @Override
       public boolean processSynchronousLightweightTransfer(
           Component heavyweight, Component descendant, boolean temporary,
           boolean focusedWindowChangeAllowed, long time) {
@@ -234,29 +239,41 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
             time);
       }
 
+      @Override
       public void removeLastFocusRequest(Component heavyweight) {
         KeyboardFocusManager.removeLastFocusRequest(heavyweight);
       }
 
+      @Override
       public void setMostRecentFocusOwner(Window window, Component component) {
         KeyboardFocusManager.setMostRecentFocusOwner(window, component);
       }
 
+      @Override
       public KeyboardFocusManager getCurrentKeyboardFocusManager(AppContext ctx) {
         return KeyboardFocusManager.getCurrentKeyboardFocusManager(ctx);
       }
 
+      @Override
       public Container getCurrentFocusCycleRoot() {
-        return KeyboardFocusManager.currentFocusCycleRoot;
+        return currentFocusCycleRoot;
       }
     });
   }
 
+  /**
+   * The default focus traversal keys. Each array of traversal keys will be
+   * in effect on all Windows that have no such array of their own explicitly
+   * set. Each array will also be inherited, recursively, by any child
+   * Component of those Windows that has no such array of its own explicitly
+   * set.
+   */
+  private final Set<AWTKeyStroke>[] defaultFocusTraversalKeys = new Set[4];
   transient KeyboardFocusManagerPeer peer;
   /*
    * SequencedEvent which is currently dispatched in AppContext.
    */
-  transient SequencedEvent currentSequencedEvent = null;
+  transient SequencedEvent currentSequencedEvent;
   /**
    * The default FocusTraversalPolicy for all Windows that have no policy of
    * their own set. If those Windows have focus-cycle-root children that have
@@ -265,14 +282,6 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * children).
    */
   private FocusTraversalPolicy defaultPolicy = new DefaultFocusTraversalPolicy();
-  /**
-   * The default focus traversal keys. Each array of traversal keys will be
-   * in effect on all Windows that have no such array of their own explicitly
-   * set. Each array will also be inherited, recursively, by any child
-   * Component of those Windows that has no such array of its own explicitly
-   * set.
-   */
-  private Set<AWTKeyStroke>[] defaultFocusTraversalKeys = new Set[4];
   /**
    * A description of any VetoableChangeListeners which have been registered.
    */
@@ -284,19 +293,19 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   /**
    * This KeyboardFocusManager's KeyEventDispatcher chain. The List does not
    * include this KeyboardFocusManager unless it was explicitly re-registered
-   * via a call to <code>addKeyEventDispatcher</code>. If no other
+   * via a call to {@code addKeyEventDispatcher}. If no other
    * KeyEventDispatchers are registered, this field may be null or refer to
    * a List of length 0.
    */
-  private java.util.LinkedList<KeyEventDispatcher> keyEventDispatchers;
+  private LinkedList<KeyEventDispatcher> keyEventDispatchers;
   /**
    * This KeyboardFocusManager's KeyEventPostProcessor chain. The List does
    * not include this KeyboardFocusManager unless it was explicitly
-   * re-registered via a call to <code>addKeyEventPostProcessor</code>.
+   * re-registered via a call to {@code addKeyEventPostProcessor}.
    * If no other KeyEventPostProcessors are registered, this field may be
    * null or refer to a List of length 0.
    */
-  private java.util.LinkedList<KeyEventPostProcessor> keyEventPostProcessors;
+  private LinkedList<KeyEventPostProcessor> keyEventPostProcessors;
 
   /**
    * Initializes a KeyboardFocusManager.
@@ -304,10 +313,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   public KeyboardFocusManager() {
     for (int i = 0; i < TRAVERSAL_KEY_LENGTH; i++) {
       Set<AWTKeyStroke> work_set = new HashSet<>();
-      for (int j = 0; j < defaultFocusTraversalKeyStrokes[i].length; j++) {
-        work_set.add(defaultFocusTraversalKeyStrokes[i][j]);
-      }
-      defaultFocusTraversalKeys[i] = (work_set.isEmpty()) ? Collections.EMPTY_SET
+      Collections.addAll(work_set, defaultFocusTraversalKeyStrokes[i]);
+      defaultFocusTraversalKeys[i] = work_set.isEmpty() ? Collections.EMPTY_SET
           : Collections.unmodifiableSet(work_set);
     }
     initPeer();
@@ -345,7 +352,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       KeyboardFocusManager newManager) throws SecurityException {
     checkReplaceKFMPermission();
 
-    KeyboardFocusManager oldManager = null;
+    KeyboardFocusManager oldManager;
 
     synchronized (KeyboardFocusManager.class) {
       AppContext appcontext = AppContext.getAppContext();
@@ -368,7 +375,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     }
   }
 
-  synchronized static KeyboardFocusManager getCurrentKeyboardFocusManager(AppContext appcontext) {
+  static synchronized KeyboardFocusManager getCurrentKeyboardFocusManager(AppContext appcontext) {
     KeyboardFocusManager manager
         = (KeyboardFocusManager) appcontext.get(KeyboardFocusManager.class);
     if (manager == null) {
@@ -376,14 +383,6 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       appcontext.put(KeyboardFocusManager.class, manager);
     }
     return manager;
-  }
-
-  static Set<AWTKeyStroke> initFocusTraversalKeysSet(String value, Set<AWTKeyStroke> targetSet) {
-    StringTokenizer tokens = new StringTokenizer(value, ",");
-    while (tokens.hasMoreTokens()) {
-      targetSet.add(AWTKeyStroke.getAWTKeyStroke(tokens.nextToken()));
-    }
-    return (targetSet.isEmpty()) ? Collections.EMPTY_SET : Collections.unmodifiableSet(targetSet);
   }
 
   static void setMostRecentFocusOwner(Component component) {
@@ -408,41 +407,13 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     mostRecentFocusOwners.put(window, weakValue);
   }
 
-  static void clearMostRecentFocusOwner(Component comp) {
-    Container window;
-
-    if (comp == null) {
-      return;
-    }
-
-    synchronized (comp.getTreeLock()) {
-      window = comp.getParent();
-      while (window != null && !(window instanceof Window)) {
-        window = window.getParent();
-      }
-    }
-
-    synchronized (KeyboardFocusManager.class) {
-      if ((window != null) && (getMostRecentFocusOwner((Window) window) == comp)) {
-        setMostRecentFocusOwner((Window) window, null);
-      }
-      // Also clear temporary lost component stored in Window
-      if (window != null) {
-        Window realWindow = (Window) window;
-        if (realWindow.getTemporaryLostComponent() == comp) {
-          realWindow.setTemporaryLostComponent(null);
-        }
-      }
-    }
-  }
-
   /*
    * Please be careful changing this method! It is called from
    * javax.swing.JComponent.runInputVerifier() using reflection.
    */
   static synchronized Component getMostRecentFocusOwner(Window window) {
     WeakReference<Component> weakValue = mostRecentFocusOwners.get(window);
-    return weakValue == null ? null : (Component) weakValue.get();
+    return weakValue == null ? null : weakValue.get();
   }
 
   static boolean processSynchronousLightweightTransfer(
@@ -486,7 +457,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         hwFocusRequest = new HeavyweightFocusRequest(heavyweight,
             descendant,
             temporary,
-            CausedFocusEvent.Cause.UNKNOWN);
+            Cause.UNKNOWN);
         heavyweightRequests.add(hwFocusRequest);
 
         if (currentFocusOwner != null) {
@@ -502,16 +473,16 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       }
     }
     boolean result = false;
-    final boolean clearing = clearingCurrentLightweightRequests;
+    boolean clearing = clearingCurrentLightweightRequests;
 
     Throwable caughtEx = null;
     try {
       clearingCurrentLightweightRequests = false;
       synchronized (Component.LOCK) {
 
-        if (currentFocusOwnerEvent != null && currentFocusOwner != null) {
+        if (currentFocusOwnerEvent != null) {
           ((AWTEvent) currentFocusOwnerEvent).isPosted = true;
-          caughtEx = dispatchAndCatchException(caughtEx, currentFocusOwner, currentFocusOwnerEvent);
+          caughtEx = dispatchAndCatchException(null, currentFocusOwner, currentFocusOwnerEvent);
           result = true;
         }
 
@@ -526,7 +497,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     }
     if (caughtEx instanceof RuntimeException) {
       throw (RuntimeException) caughtEx;
-    } else if (caughtEx instanceof Error) {
+    }
+    if (caughtEx instanceof Error) {
       throw (Error) caughtEx;
     }
     return result;
@@ -552,7 +524,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    */
   static int shouldNativelyFocusHeavyweight(
       Component heavyweight, Component descendant, boolean temporary,
-      boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+      boolean focusedWindowChangeAllowed, long time, Cause cause) {
     if (heavyweight == null) {
       Log.d(TAG, "Assertion (heavyweight != null) failed");
     }
@@ -574,22 +546,22 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     Component nativeFocusOwner = thisManager.getNativeFocusOwner();
     Window nativeFocusedWindow = thisManager.getNativeFocusedWindow();
     Log.v(TAG,
-        String.format("SNFH for {0} in {1}",
+        String.format("SNFH for %s in %s",
             String.valueOf(descendant),
             String.valueOf(heavyweight)));
-    Log.v(TAG, "0. Current focus owner " + String.valueOf(currentFocusOwner));
-    Log.v(TAG, "0. Native focus owner {0}" + String.valueOf(nativeFocusOwner));
-    Log.v(TAG, "0. Native focused window {0}" + String.valueOf(nativeFocusedWindow));
+    Log.v(TAG, "0. Current focus owner " + currentFocusOwner);
+    Log.v(TAG, "0. Native focus owner " + nativeFocusOwner);
+    Log.v(TAG, "0. Native focused window " + nativeFocusedWindow);
     synchronized (heavyweightRequests) {
       HeavyweightFocusRequest hwFocusRequest = getLastHWRequest();
-      Log.v(TAG, "Request " + String.valueOf(hwFocusRequest));
+      Log.v(TAG, "Request " + hwFocusRequest);
       if (hwFocusRequest == null &&
           heavyweight == nativeFocusOwner &&
           heavyweight.androidWidget.getWindowId()
               == nativeFocusedWindow.androidWidget.getWindowId()) {
         if (descendant == currentFocusOwner) {
           // Redundant request.
-          Log.v(TAG, "1. SNFH_FAILURE for " + String.valueOf(descendant));
+          Log.v(TAG, "1. SNFH_FAILURE for " + descendant);
           return SNFH_FAILURE;
         }
 
@@ -621,7 +593,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         // SunToolkit.postPriorityEvent(newFocusOwnerEvent);
         SunToolkit.postEvent(descendant.appContext, newFocusOwnerEvent);
 
-        Log.v(TAG, "2. SNFH_HANDLED for " + String.valueOf(descendant));
+        Log.v(TAG, "2. SNFH_HANDLED for " + descendant);
         return SNFH_SUCCESS_HANDLED;
       } else if (hwFocusRequest != null && hwFocusRequest.heavyweight == heavyweight) {
         // 'heavyweight' doesn't have the native focus right now, but
@@ -644,11 +616,10 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
           // acceptable value.
           if (hwFocusRequest == HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) {
             int size = heavyweightRequests.size();
-            hwFocusRequest = (HeavyweightFocusRequest) ((size >= 2) ? heavyweightRequests.get(
-                size - 2) : null);
+            hwFocusRequest = size >= 2 ? heavyweightRequests.get(size - 2) : null;
           }
           if (focusedWindowChanged(heavyweight,
-              (hwFocusRequest != null) ? hwFocusRequest.heavyweight : nativeFocusedWindow)) {
+              hwFocusRequest != null ? hwFocusRequest.heavyweight : nativeFocusedWindow)) {
             Log.v(TAG, "4. SNFH_FAILURE for " + descendant);
             return SNFH_FAILURE;
           }
@@ -675,7 +646,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   static Window markClearGlobalFocusOwner() {
     // need to call this out of synchronized block to avoid possible deadlock
     // see 6454631.
-    final Component nativeFocusedWindow = getCurrentKeyboardFocusManager().getNativeFocusedWindow();
+    Component nativeFocusedWindow = getCurrentKeyboardFocusManager().getNativeFocusedWindow();
 
     synchronized (heavyweightRequests) {
       HeavyweightFocusRequest hwFocusRequest = getLastHWRequest();
@@ -686,10 +657,10 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
       heavyweightRequests.add(HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER);
 
-      Component activeWindow = ((hwFocusRequest != null) ? SunToolkit.getContainingWindow(
-          hwFocusRequest.heavyweight) : nativeFocusedWindow);
-      while (activeWindow != null && !((activeWindow instanceof Frame)
-                                           || (activeWindow instanceof Dialog))) {
+      Component activeWindow = hwFocusRequest != null ? SunToolkit.getContainingWindow(
+          hwFocusRequest.heavyweight) : nativeFocusedWindow;
+      while (activeWindow != null && !(activeWindow instanceof Frame
+                                           || activeWindow instanceof Dialog)) {
         activeWindow = activeWindow.getParent_NoClientCode();
       }
 
@@ -699,9 +670,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
   static boolean isAutoFocusTransferEnabled() {
     synchronized (heavyweightRequests) {
-      return (heavyweightRequests.size() == 0) && !disableRestoreFocus && (null
-                                                                               ==
-                                                                               currentLightweightRequests);
+      return heavyweightRequests.isEmpty() && !disableRestoreFocus
+          && null == currentLightweightRequests;
     }
   }
 
@@ -715,15 +685,13 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * @param comp the component to dispatch the event to
    * @param event the event to dispatch to the component
    */
-  static private Throwable dispatchAndCatchException(
+  private static Throwable dispatchAndCatchException(
       Throwable ex, Component comp, FocusEvent event) {
     Throwable retEx = null;
     try {
       comp.dispatchEvent(event);
-    } catch (RuntimeException re) {
+    } catch (RuntimeException | Error re) {
       retEx = re;
-    } catch (Error er) {
-      retEx = er;
     }
     if (retEx != null) {
       if (ex != null) {
@@ -734,16 +702,16 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     return ex;
   }
 
-  static private void handleException(Throwable ex) {
+  private static void handleException(Throwable ex) {
     ex.printStackTrace();
   }
 
   static void processCurrentLightweightRequests() {
     KeyboardFocusManager manager = getCurrentKeyboardFocusManager();
-    LinkedList<LightweightFocusRequest> localLightweightRequests = null;
+    LinkedList<LightweightFocusRequest> localLightweightRequests;
 
     Component globalFocusOwner = manager.getGlobalFocusOwner();
-    if ((globalFocusOwner != null) && (globalFocusOwner.appContext != AppContext.getAppContext())) {
+    if (globalFocusOwner != null && globalFocusOwner.appContext != AppContext.getAppContext()) {
       // The current app context differs from the app context of a focus
       // owner (and all pending lightweight requests), so we do nothing
       // now and wait for a next event.
@@ -755,7 +723,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         clearingCurrentLightweightRequests = true;
         disableRestoreFocus = true;
         localLightweightRequests = currentLightweightRequests;
-        allowSyncFocusRequests = (localLightweightRequests.size() < 2);
+        allowSyncFocusRequests = localLightweightRequests.size() < 2;
         currentLightweightRequests = null;
       } else {
         // do nothing
@@ -765,69 +733,64 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
     Throwable caughtEx = null;
     try {
-      if (localLightweightRequests != null) {
-        Component lastFocusOwner = null;
-        Component currentFocusOwner = null;
+      Component lastFocusOwner = null;
+      Component currentFocusOwner;
 
-        for (Iterator<KeyboardFocusManager.LightweightFocusRequest> iter
-            = localLightweightRequests.iterator(); iter.hasNext(); ) {
+      for (Iterator<LightweightFocusRequest> iter = localLightweightRequests.iterator();
+          iter.hasNext(); ) {
 
-          currentFocusOwner = manager.getGlobalFocusOwner();
-          LightweightFocusRequest lwFocusRequest = iter.next();
+        currentFocusOwner = manager.getGlobalFocusOwner();
+        LightweightFocusRequest lwFocusRequest = iter.next();
 
-                    /*
-                     * WARNING: This is based on DKFM's logic solely!
-                     *
-                     * We allow to trigger restoreFocus() in the dispatching process
-                     * only if we have the last request to dispatch. If the last request
-                     * fails, focus will be restored to either the component of the last
-                     * previously succedded request, or to to the focus owner that was
-                     * before this clearing process.
-                     */
-          if (!iter.hasNext()) {
-            disableRestoreFocus = false;
-          }
+                  /*
+                   * WARNING: This is based on DKFM's logic solely!
+                   *
+                   * We allow to trigger restoreFocus() in the dispatching process
+                   * only if we have the last request to dispatch. If the last request
+                   * fails, focus will be restored to either the component of the last
+                   * previously succedded request, or to to the focus owner that was
+                   * before this clearing process.
+                   */
+        if (!iter.hasNext()) {
+          disableRestoreFocus = false;
+        }
 
-          FocusEvent currentFocusOwnerEvent = null;
-                    /*
-                     * We're not dispatching FOCUS_LOST while the current focus owner is null.
-                     * But regardless of whether it's null or not, we're clearing ALL the local
-                     * lw requests.
-                     */
-          if (currentFocusOwner != null) {
-            currentFocusOwnerEvent = new CausedFocusEvent(currentFocusOwner,
-                FocusEvent.FOCUS_LOST,
-                lwFocusRequest.temporary,
-                lwFocusRequest.component,
-                lwFocusRequest.cause);
-          }
-          FocusEvent newFocusOwnerEvent = new CausedFocusEvent(lwFocusRequest.component,
-              FocusEvent.FOCUS_GAINED,
+        FocusEvent currentFocusOwnerEvent = null;
+                  /*
+                   * We're not dispatching FOCUS_LOST while the current focus owner is null.
+                   * But regardless of whether it's null or not, we're clearing ALL the local
+                   * lw requests.
+                   */
+        if (currentFocusOwner != null) {
+          currentFocusOwnerEvent = new CausedFocusEvent(currentFocusOwner,
+              FocusEvent.FOCUS_LOST,
               lwFocusRequest.temporary,
-              currentFocusOwner == null ? lastFocusOwner : currentFocusOwner,
-              lwFocusRequest.cause);
-
-          if (currentFocusOwner != null) {
-            ((AWTEvent) currentFocusOwnerEvent).isPosted = true;
-            caughtEx = dispatchAndCatchException(caughtEx,
-                currentFocusOwner,
-                currentFocusOwnerEvent);
-          }
-
-          ((AWTEvent) newFocusOwnerEvent).isPosted = true;
-          caughtEx = dispatchAndCatchException(caughtEx,
               lwFocusRequest.component,
-              newFocusOwnerEvent);
+              lwFocusRequest.cause);
+        }
+        FocusEvent newFocusOwnerEvent = new CausedFocusEvent(lwFocusRequest.component,
+            FocusEvent.FOCUS_GAINED,
+            lwFocusRequest.temporary,
+            currentFocusOwner == null ? lastFocusOwner : currentFocusOwner,
+            lwFocusRequest.cause);
 
-          if (manager.getGlobalFocusOwner() == lwFocusRequest.component) {
-            lastFocusOwner = lwFocusRequest.component;
-          }
+        if (currentFocusOwner != null) {
+          ((AWTEvent) currentFocusOwnerEvent).isPosted = true;
+          caughtEx = dispatchAndCatchException(caughtEx, currentFocusOwner, currentFocusOwnerEvent);
+        }
+
+        ((AWTEvent) newFocusOwnerEvent).isPosted = true;
+        caughtEx = dispatchAndCatchException(caughtEx,
+            lwFocusRequest.component,
+            newFocusOwnerEvent);
+
+        if (manager.getGlobalFocusOwner() == lwFocusRequest.component) {
+          lastFocusOwner = lwFocusRequest.component;
         }
       }
     } finally {
       clearingCurrentLightweightRequests = false;
       disableRestoreFocus = false;
-      localLightweightRequests = null;
       allowSyncFocusRequests = true;
     }
     if (caughtEx instanceof RuntimeException) {
@@ -854,16 +817,12 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
           source))) {
         temporary = true;
       }
-      return new CausedFocusEvent(source,
-          fe.getID(),
-          temporary,
-          opposite,
-          CausedFocusEvent.Cause.NATIVE_SYSTEM);
+      return new CausedFocusEvent(source, fe.getID(), temporary, opposite, Cause.NATIVE_SYSTEM);
     }
   }
 
   static FocusEvent retargetFocusGained(FocusEvent fe) {
-    assert (fe.getID() == FocusEvent.FOCUS_GAINED);
+    assert fe.getID() == FocusEvent.FOCUS_GAINED;
 
     Component currentFocusOwner = getCurrentKeyboardFocusManager().
         getGlobalFocusOwner();
@@ -911,12 +870,13 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
           newFocusOwner = newSource;
         }
 
-        boolean temporary = (opposite == null || isTemporary(newSource, opposite)) ? false
-            : lwFocusRequest.temporary;
+        boolean temporary = !(opposite == null || isTemporary(newSource, opposite))
+            && lwFocusRequest.temporary;
 
-        if (hwFocusRequest.lightweightRequests.size() > 0) {
+        if (!hwFocusRequest.lightweightRequests.isEmpty()) {
           currentLightweightRequests = hwFocusRequest.lightweightRequests;
           EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
               processCurrentLightweightRequests();
             }
@@ -942,7 +902,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
             FocusEvent.FOCUS_GAINED,
             false,
             null,
-            CausedFocusEvent.Cause.ACTIVATION);
+            Cause.ACTIVATION);
       }
 
       return retargetUnexpectedFocusEvent(fe);
@@ -950,7 +910,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   }
 
   static FocusEvent retargetFocusLost(FocusEvent fe) {
-    assert (fe.getID() == FocusEvent.FOCUS_LOST);
+    assert fe.getID() == FocusEvent.FOCUS_LOST;
 
     Component currentFocusOwner = getCurrentKeyboardFocusManager().
         getGlobalFocusOwner();
@@ -968,22 +928,18 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
               FocusEvent.FOCUS_LOST,
               false,
               null,
-              CausedFocusEvent.Cause.CLEAR_GLOBAL_FOCUS_OWNER);
+              Cause.CLEAR_GLOBAL_FOCUS_OWNER);
         }
 
         // Otherwise, fall through to failure case below
 
       } else if (opposite == null) {
         // Focus leaving application
-        if (currentFocusOwner != null) {
-          return new CausedFocusEvent(currentFocusOwner,
-              FocusEvent.FOCUS_LOST,
-              true,
-              null,
-              CausedFocusEvent.Cause.ACTIVATION);
-        } else {
-          return fe;
-        }
+        return currentFocusOwner != null ? new CausedFocusEvent(currentFocusOwner,
+            FocusEvent.FOCUS_LOST,
+            true,
+            null,
+            Cause.ACTIVATION) : fe;
       } else if (hwFocusRequest != null && (nativeOpposite == hwFocusRequest.heavyweight
                                                 || nativeOpposite == null
           && opposite == hwFocusRequest.getFirstLightweightRequest().component)) {
@@ -999,8 +955,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
         LightweightFocusRequest lwFocusRequest = hwFocusRequest.lightweightRequests.getFirst();
 
-        boolean temporary = isTemporary(opposite, currentFocusOwner) ? true
-            : lwFocusRequest.temporary;
+        boolean temporary = isTemporary(opposite, currentFocusOwner) || lwFocusRequest.temporary;
 
         return new CausedFocusEvent(currentFocusOwner,
             FocusEvent.FOCUS_LOST,
@@ -1016,7 +971,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
               FocusEvent.FOCUS_LOST,
               true,
               opposite,
-              CausedFocusEvent.Cause.ACTIVATION);
+              Cause.ACTIVATION);
         }
         return fe;
       }
@@ -1033,11 +988,11 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     KeyboardFocusManager manager = getCurrentKeyboardFocusManager();
     if (Log.isLoggable(TAG, Log.VERBOSE)) {
       if (event instanceof FocusEvent || event instanceof WindowEvent) {
-        Log.v(TAG, ">>> " + String.valueOf(event));
+        Log.v(TAG, ">>> " + event);
       }
       if (event instanceof KeyEvent) {
-        Log.v(TAG, "    focus owner is " + String.valueOf(manager.getGlobalFocusOwner()));
-        Log.v(TAG, ">>> " + String.valueOf(event));
+        Log.v(TAG, "    focus owner is " + manager.getGlobalFocusOwner());
+        Log.v(TAG, ">>> " + event);
       }
     }
 
@@ -1066,14 +1021,12 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     processCurrentLightweightRequests();
 
     switch (event.getID()) {
-      case FocusEvent.FOCUS_GAINED: {
+      case FocusEvent.FOCUS_GAINED:
         event = retargetFocusGained((FocusEvent) event);
         break;
-      }
-      case FocusEvent.FOCUS_LOST: {
+      case FocusEvent.FOCUS_LOST:
         event = retargetFocusLost((FocusEvent) event);
         break;
-      }
       default:
                 /* do nothing */
     }
@@ -1081,7 +1034,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   }
 
   static boolean removeFirstRequest() {
-    KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+    KeyboardFocusManager manager = getCurrentKeyboardFocusManager();
 
     synchronized (heavyweightRequests) {
       HeavyweightFocusRequest hwFocusRequest = getFirstHWRequest();
@@ -1089,20 +1042,18 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       if (hwFocusRequest != null) {
         heavyweightRequests.removeFirst();
         if (hwFocusRequest.lightweightRequests != null) {
-          for (Iterator<KeyboardFocusManager.LightweightFocusRequest> lwIter
-              = hwFocusRequest.lightweightRequests.
-              iterator(); lwIter.hasNext(); ) {
-            manager.dequeueKeyEvents(-1, lwIter.next().
+          for (LightweightFocusRequest lightweightRequest : hwFocusRequest.lightweightRequests) {
+            manager.dequeueKeyEvents(-1, lightweightRequest.
                 component);
           }
         }
       }
       // Fix for 4799136 - clear type-ahead markers if requests queue is empty
       // We do it here because this method is called only when problems happen
-      if (heavyweightRequests.size() == 0) {
+      if (heavyweightRequests.isEmpty()) {
         manager.clearMarkers();
       }
-      return (heavyweightRequests.size() > 0);
+      return !heavyweightRequests.isEmpty();
     }
   }
 
@@ -1111,7 +1062,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       Log.d(TAG, "Assertion (heavyweight != null) failed");
     }
 
-    KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+    KeyboardFocusManager manager = getCurrentKeyboardFocusManager();
     synchronized (heavyweightRequests) {
       HeavyweightFocusRequest hwFocusRequest = getLastHWRequest();
       if (hwFocusRequest != null && hwFocusRequest.heavyweight == heavyweight) {
@@ -1119,7 +1070,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       }
       // Fix for 4799136 - clear type-ahead markers if requests queue is empty
       // We do it here because this method is called only when problems happen
-      if (heavyweightRequests.size() == 0) {
+      if (heavyweightRequests.isEmpty()) {
         manager.clearMarkers();
       }
     }
@@ -1137,7 +1088,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (wfrom == null) {
       return true;
     }
-    return (wto != wfrom);
+    return wto != wfrom;
   }
 
   private static boolean isTemporary(Component to, Component from) {
@@ -1152,7 +1103,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (wfrom == null) {
       return false;
     }
-    return (wto != wfrom);
+    return wto != wfrom;
   }
 
   static Component getHeavyweight(Component comp) {
@@ -1169,6 +1120,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   private static boolean isProxyActiveImpl(KeyEvent e) {
     if (proxyActive == null) {
       proxyActive = AccessController.doPrivileged(new PrivilegedAction<Field>() {
+        @Override
         public Field run() {
           Field field = null;
           try {
@@ -1177,7 +1129,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
               field.setAccessible(true);
             }
           } catch (NoSuchFieldException nsf) {
-            assert (false);
+            assert false;
           }
           return field;
         }
@@ -1187,29 +1139,25 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     try {
       return proxyActive.getBoolean(e);
     } catch (IllegalAccessException iae) {
-      assert (false);
+      assert false;
     }
     return false;
   }
 
   // Returns the value of this KeyEvent's field isProxyActive
   static boolean isProxyActive(KeyEvent e) {
-    if (!GraphicsEnvironment.isHeadless()) {
-      return isProxyActiveImpl(e);
-    } else {
-      return false;
-    }
+    return isProxyActiveImpl(e);
   }
 
   private static HeavyweightFocusRequest getLastHWRequest() {
     synchronized (heavyweightRequests) {
-      return (heavyweightRequests.size() > 0) ? heavyweightRequests.getLast() : null;
+      return !heavyweightRequests.isEmpty() ? heavyweightRequests.getLast() : null;
     }
   }
 
   private static HeavyweightFocusRequest getFirstHWRequest() {
     synchronized (heavyweightRequests) {
-      return (heavyweightRequests.size() > 0) ? heavyweightRequests.getFirst() : null;
+      return !heavyweightRequests.isEmpty() ? heavyweightRequests.getFirst() : null;
     }
   }
 
@@ -1232,7 +1180,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
   final void setCurrentSequencedEvent(SequencedEvent current) {
     synchronized (SequencedEvent.class) {
-      assert (current == null || currentSequencedEvent == null);
+      assert current == null || currentSequencedEvent == null;
       currentSequencedEvent = current;
     }
   }
@@ -1263,7 +1211,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         return null;
       }
 
-      return (focusOwner.appContext == AppContext.getAppContext()) ? focusOwner : null;
+      return focusOwner.appContext == AppContext.getAppContext() ? focusOwner : null;
     }
   }
 
@@ -1306,8 +1254,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * <p>
    * This method does not actually set the focus to the specified Component.
    * It merely stores the value to be subsequently returned by
-   * <code>getFocusOwner()</code>. Use <code>Component.requestFocus()</code>
-   * or <code>Component.requestFocusInWindow()</code> to change the focus
+   * {@code getFocusOwner()}. Use {@code Component.requestFocus()}
+   * or {@code Component.requestFocusInWindow()} to change the focus
    * owner, subject to platform limitations.
    *
    * @param focusOwner the focus owner
@@ -1340,7 +1288,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
                                        || !focusOwner.isFocusCycleRoot(getCurrentFocusCycleRoot()
         ))) {
           Container rootAncestor = focusOwner.getFocusCycleRootAncestor();
-          if (rootAncestor == null && (focusOwner instanceof Window)) {
+          if (rootAncestor == null && focusOwner instanceof Window) {
             rootAncestor = (Container) focusOwner;
           }
           if (rootAncestor != null) {
@@ -1370,7 +1318,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * active Windows.
    *
    * @see Component#requestFocus()
-   * @see java.awt.event.FocusEvent#FOCUS_LOST
+   * @see FocusEvent#FOCUS_LOST
    * @since 1.8
    */
   public void clearFocusOwner() {
@@ -1385,7 +1333,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * FOCUS_LOST event. After this operation completes, the native windowing
    * system will discard all user-generated KeyEvents until the user selects
    * a new Component to receive focus, or a Component is given focus
-   * explicitly via a call to <code>requestFocus()</code>. This operation
+   * explicitly via a call to {@code requestFocus()}. This operation
    * does not change the focused or active Windows.
    * <p>
    * If a SecurityManager is installed, the calling thread must be granted
@@ -1401,17 +1349,15 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    *                           "replaceKeyboardFocusManager" permission
    * @see KeyboardFocusManager#clearFocusOwner
    * @see Component#requestFocus()
-   * @see java.awt.event.FocusEvent#FOCUS_LOST
+   * @see FocusEvent#FOCUS_LOST
    */
   public void clearGlobalFocusOwner() throws SecurityException {
     checkReplaceKFMPermission();
-    if (!GraphicsEnvironment.isHeadless()) {
-      // Toolkit must be fully initialized, otherwise
-      // _clearGlobalFocusOwner will crash or throw an exception
-      Toolkit.getDefaultToolkit();
+    // Toolkit must be fully initialized, otherwise
+    // _clearGlobalFocusOwner will crash or throw an exception
+    Toolkit.getDefaultToolkit();
 
-      _clearGlobalFocusOwner();
-    }
+    _clearGlobalFocusOwner();
   }
 
   private void _clearGlobalFocusOwner() {
@@ -1421,6 +1367,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
   void clearGlobalFocusOwnerPriv() {
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         clearGlobalFocusOwner();
         return null;
@@ -1463,7 +1410,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         return null;
       }
 
-      return (permanentFocusOwner.appContext == AppContext.getAppContext()) ? permanentFocusOwner
+      return permanentFocusOwner.appContext == AppContext.getAppContext() ? permanentFocusOwner
           : null;
     }
   }
@@ -1504,9 +1451,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * <p>
    * This method does not actually set the focus to the specified Component.
    * It merely stores the value to be subsequently returned by
-   * <code>getPermanentFocusOwner()</code>. Use
-   * <code>Component.requestFocus()</code> or
-   * <code>Component.requestFocusInWindow()</code> to change the focus owner,
+   * {@code getPermanentFocusOwner()}. Use
+   * {@code Component.requestFocus()} or
+   * {@code Component.requestFocusInWindow()} to change the focus owner,
    * subject to platform limitations.
    *
    * @param permanentFocusOwner the permanent focus owner
@@ -1536,8 +1483,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
 
         KeyboardFocusManager.permanentFocusOwner = permanentFocusOwner;
 
-        KeyboardFocusManager.
-            setMostRecentFocusOwner(permanentFocusOwner);
+        setMostRecentFocusOwner(permanentFocusOwner);
 
         shouldFire = true;
       }
@@ -1564,7 +1510,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         return null;
       }
 
-      return (focusedWindow.appContext == AppContext.getAppContext()) ? focusedWindow : null;
+      return focusedWindow.appContext == AppContext.getAppContext() ? focusedWindow : null;
     }
   }
 
@@ -1596,9 +1542,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * <p>
    * This method does not actually change the focused Window as far as the
    * native windowing system is concerned. It merely stores the value to be
-   * subsequently returned by <code>getFocusedWindow()</code>. Use
-   * <code>Component.requestFocus()</code> or
-   * <code>Component.requestFocusInWindow()</code> to change the focused
+   * subsequently returned by {@code getFocusedWindow()}. Use
+   * {@code Component.requestFocus()} or
+   * {@code Component.requestFocusInWindow()} to change the focused
    * Window, subject to platform limitations.
    *
    * @param focusedWindow the focused Window
@@ -1653,7 +1599,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         return null;
       }
 
-      return (activeWindow.appContext == AppContext.getAppContext()) ? activeWindow : null;
+      return activeWindow.appContext == AppContext.getAppContext() ? activeWindow : null;
     }
   }
 
@@ -1690,9 +1636,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * <p>
    * This method does not actually change the active Window as far as the
    * native windowing system is concerned. It merely stores the value to be
-   * subsequently returned by <code>getActiveWindow()</code>. Use
-   * <code>Component.requestFocus()</code> or
-   * <code>Component.requestFocusInWindow()</code>to change the active
+   * subsequently returned by {@code getActiveWindow()}. Use
+   * {@code Component.requestFocus()} or
+   * {@code Component.requestFocusInWindow()}to change the active
    * Window, subject to platform limitations.
    *
    * @param activeWindow the active Window
@@ -1904,16 +1850,16 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * have no such Set of their own explicitly defined. This Set will also be
    * inherited, recursively, by any child Component of those Windows that has
    * no such Set of its own explicitly defined. (See
-   * <code>setDefaultFocusTraversalKeys</code> for a full description of each
+   * {@code setDefaultFocusTraversalKeys} for a full description of each
    * operation.)
    *
    * @param id one of KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
    *           KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
    *           KeyboardFocusManager.UP_CYCLE_TRAVERSAL_KEYS, or
    *           KeyboardFocusManager.DOWN_CYCLE_TRAVERSAL_KEYS
-   * @return the <code>Set</code> of <code>AWTKeyStroke</code>s
-   * for the specified operation; the <code>Set</code>
-   * will be unmodifiable, and may be empty; <code>null</code>
+   * @return the {@code Set} of {@code AWTKeyStroke}s
+   * for the specified operation; the {@code Set}
+   * will be unmodifiable, and may be empty; {@code null}
    * will never be returned
    * @throws IllegalArgumentException if id is not one of
    *                                  KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,
@@ -1955,8 +1901,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
         return null;
       }
 
-      return (currentFocusCycleRoot.appContext == AppContext.getAppContext())
-          ? currentFocusCycleRoot : null;
+      return currentFocusCycleRoot.appContext == AppContext.getAppContext() ? currentFocusCycleRoot
+          : null;
     }
   }
 
@@ -2020,8 +1966,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     firePropertyChange("currentFocusCycleRoot", oldFocusCycleRoot, newFocusCycleRoot);
   }
 
-  void setGlobalCurrentFocusCycleRootPriv(final Container newFocusCycleRoot) {
+  void setGlobalCurrentFocusCycleRootPriv(Container newFocusCycleRoot) {
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         setGlobalCurrentFocusCycleRoot(newFocusCycleRoot);
         return null;
@@ -2058,7 +2005,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * @param listener the PropertyChangeListener to be added
    * @see #removePropertyChangeListener
    * @see #getPropertyChangeListeners
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
    */
   public void addPropertyChangeListener(PropertyChangeListener listener) {
     if (listener != null) {
@@ -2081,7 +2028,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * @param listener the PropertyChangeListener to be removed
    * @see #addPropertyChangeListener
    * @see #getPropertyChangeListeners
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
    */
   public void removePropertyChangeListener(PropertyChangeListener listener) {
     if (listener != null) {
@@ -2098,12 +2045,12 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * registered on this keyboard focus manager.
    *
    * @return all of this keyboard focus manager's
-   * <code>PropertyChangeListener</code>s
+   * {@code PropertyChangeListener}s
    * or an empty array if no property change
    * listeners are currently registered
    * @see #addPropertyChangeListener
    * @see #removePropertyChangeListener
-   * @see #getPropertyChangeListeners(java.lang.String)
+   * @see #getPropertyChangeListeners(String)
    * @since 1.4
    */
   public synchronized PropertyChangeListener[] getPropertyChangeListeners() {
@@ -2141,9 +2088,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    *
    * @param propertyName one of the property names listed above
    * @param listener     the PropertyChangeListener to be added
-   * @see #addPropertyChangeListener(java.beans.PropertyChangeListener)
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #getPropertyChangeListeners(java.lang.String)
+   * @see #addPropertyChangeListener(PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
+   * @see #getPropertyChangeListeners(String)
    */
   public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
     if (listener != null) {
@@ -2165,9 +2112,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    *
    * @param propertyName a valid property name
    * @param listener     the PropertyChangeListener to be removed
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #getPropertyChangeListeners(java.lang.String)
-   * @see #removePropertyChangeListener(java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
+   * @see #getPropertyChangeListeners(String)
+   * @see #removePropertyChangeListener(PropertyChangeListener)
    */
   public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
     if (listener != null) {
@@ -2180,14 +2127,14 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   }
 
   /**
-   * Returns an array of all the <code>PropertyChangeListener</code>s
+   * Returns an array of all the {@code PropertyChangeListener}s
    * associated with the named property.
    *
-   * @return all of the <code>PropertyChangeListener</code>s associated with
+   * @return all of the {@code PropertyChangeListener}s associated with
    * the named property or an empty array if no such listeners have
    * been added.
-   * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
-   * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+   * @see #addPropertyChangeListener(String, PropertyChangeListener)
+   * @see #removePropertyChangeListener(String, PropertyChangeListener)
    * @since 1.4
    */
   public synchronized PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
@@ -2245,8 +2192,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * KeyEventDispatcher dispatch KeyEvents generated by the user before
    * finally dispatching the KeyEvent itself. KeyEventDispatchers will be
    * notified in the order in which they were added. Notifications will halt
-   * as soon as one KeyEventDispatcher returns <code>true</code> from its
-   * <code>dispatchKeyEvent</code> method. There is no limit to the total
+   * as soon as one KeyEventDispatcher returns {@code true} from its
+   * {@code dispatchKeyEvent} method. There is no limit to the total
    * number of KeyEventDispatchers which can be added, nor to the number of
    * times which a particular KeyEventDispatcher instance can be added.
    * <p>
@@ -2265,7 +2212,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (dispatcher != null) {
       synchronized (this) {
         if (keyEventDispatchers == null) {
-          keyEventDispatchers = new java.util.LinkedList<>();
+          keyEventDispatchers = new LinkedList<>();
         }
         keyEventDispatchers.add(dispatcher);
       }
@@ -2276,7 +2223,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * Removes a KeyEventDispatcher which was previously added to this
    * KeyboardFocusManager's dispatcher chain. This KeyboardFocusManager
    * cannot itself be removed, unless it was explicitly re-registered via a
-   * call to <code>addKeyEventDispatcher</code>.
+   * call to {@code addKeyEventDispatcher}.
    * <p>
    * If a null dispatcher is specified, if the specified dispatcher is not
    * in the dispatcher chain, or if this KeyboardFocusManager is specified
@@ -2306,7 +2253,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * Returns this KeyboardFocusManager's KeyEventDispatcher chain as a List.
    * The List will not include this KeyboardFocusManager unless it was
    * explicitly re-registered via a call to
-   * <code>addKeyEventDispatcher</code>. If no other KeyEventDispatchers are
+   * {@code addKeyEventDispatcher}. If no other KeyEventDispatchers are
    * registered, implementations are free to return null or a List of length
    * 0. Client code should not assume one behavior over another, nor should
    * it assume that the behavior, once established, will not change.
@@ -2316,7 +2263,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * @see #removeKeyEventDispatcher
    */
   protected synchronized java.util.List<KeyEventDispatcher> getKeyEventDispatchers() {
-    return (keyEventDispatchers != null) ? (java.util.List) keyEventDispatchers.clone() : null;
+    return keyEventDispatchers != null ? (java.util.List) keyEventDispatchers.clone() : null;
   }
 
   /**
@@ -2327,8 +2274,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * of the KeyEvent's final resolution. KeyEventPostProcessors
    * will be notified in the order in which they were added; the current
    * KeyboardFocusManager will be notified last. Notifications will halt
-   * as soon as one KeyEventPostProcessor returns <code>true</code> from its
-   * <code>postProcessKeyEvent</code> method. There is no limit to the the
+   * as soon as one KeyEventPostProcessor returns {@code true} from its
+   * {@code postProcessKeyEvent} method. There is no limit to the the
    * total number of KeyEventPostProcessors that can be added, nor to the
    * number of times that a particular KeyEventPostProcessor instance can be
    * added.
@@ -2349,7 +2296,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (processor != null) {
       synchronized (this) {
         if (keyEventPostProcessors == null) {
-          keyEventPostProcessors = new java.util.LinkedList<>();
+          keyEventPostProcessors = new LinkedList<>();
         }
         keyEventPostProcessors.add(processor);
       }
@@ -2360,7 +2307,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * Removes a previously added KeyEventPostProcessor from this
    * KeyboardFocusManager's post-processor chain. This KeyboardFocusManager
    * cannot itself be entirely removed from the chain. Only additional
-   * references added via <code>addKeyEventPostProcessor</code> can be
+   * references added via {@code addKeyEventPostProcessor} can be
    * removed.
    * <p>
    * If a null post-processor is specified, if the specified post-processor
@@ -2390,7 +2337,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   /**
    * Returns this KeyboardFocusManager's KeyEventPostProcessor chain as a
    * List. The List will not include this KeyboardFocusManager unless it was
-   * explicitly added via a call to <code>addKeyEventPostProcessor</code>. If
+   * explicitly added via a call to {@code addKeyEventPostProcessor}. If
    * no KeyEventPostProcessors are registered, implementations are free to
    * return null or a List of length 0. Client code should not assume one
    * behavior over another, nor should it assume that the behavior, once
@@ -2401,8 +2348,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * @see #removeKeyEventPostProcessor
    */
   protected java.util.List<KeyEventPostProcessor> getKeyEventPostProcessors() {
-    return (keyEventPostProcessors != null) ? (java.util.List) keyEventPostProcessors.clone()
-        : null;
+    return keyEventPostProcessors != null ? (java.util.List) keyEventPostProcessors.clone() : null;
   }
 
   /**
@@ -2413,14 +2359,14 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * These events should be dispatched based on the KeyboardFocusManager's
    * notion of the focus owner and the focused and active Windows, sometimes
    * overriding the source of the specified AWTEvent. Dispatching must be
-   * done using <code>redispatchEvent</code> to prevent the AWT event
+   * done using {@code redispatchEvent} to prevent the AWT event
    * dispatcher from recursively requesting that the KeyboardFocusManager
-   * dispatch the event again. If this method returns <code>false</code>,
+   * dispatch the event again. If this method returns {@code false},
    * then the AWT event dispatcher will attempt to dispatch the event itself.
    *
    * @param e the AWTEvent to be dispatched
-   * @return <code>true</code> if this method dispatched the event;
-   * <code>false</code> otherwise
+   * @return {@code true} if this method dispatched the event;
+   * {@code false} otherwise
    * @see #redispatchEvent
    * @see #dispatchKeyEvent
    */
@@ -2430,9 +2376,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * Redispatches an AWTEvent in such a way that the AWT event dispatcher
    * will not recursively request that the KeyboardFocusManager, or any
    * installed KeyEventDispatchers, dispatch the event again. Client
-   * implementations of <code>dispatchEvent</code> and client-defined
-   * KeyEventDispatchers must call <code>redispatchEvent(target, e)</code>
-   * instead of <code>target.dispatchEvent(e)</code> to dispatch an event.
+   * implementations of {@code dispatchEvent} and client-defined
+   * KeyEventDispatchers must call {@code redispatchEvent(target, e)}
+   * instead of {@code target.dispatchEvent(e)} to dispatch an event.
    * <p>
    * This method is intended to be used only by KeyboardFocusManagers and
    * KeyEventDispatchers. It is not for general client use.
@@ -2449,34 +2395,36 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   }
 
   /**
-   * Typically this method will be called by <code>dispatchEvent</code> if no
+   * Typically this method will be called by {@code dispatchEvent} if no
    * other KeyEventDispatcher in the dispatcher chain dispatched the
    * KeyEvent, or if no other KeyEventDispatchers are registered. If an
-   * implementation of this method returns <code>false</code>,
-   * <code>dispatchEvent</code> may try to dispatch the KeyEvent itself, or
-   * may simply return <code>false</code>. If <code>true</code> is returned,
-   * <code>dispatchEvent</code> should return <code>true</code> as well.
+   * implementation of this method returns {@code false},
+   * {@code dispatchEvent} may try to dispatch the KeyEvent itself, or
+   * may simply return {@code false}. If {@code true} is returned,
+   * {@code dispatchEvent} should return {@code true} as well.
    *
    * @param e the KeyEvent which the current KeyboardFocusManager has
    *          requested that this KeyEventDispatcher dispatch
-   * @return <code>true</code> if the KeyEvent was dispatched;
-   * <code>false</code> otherwise
+   * @return {@code true} if the KeyEvent was dispatched;
+   * {@code false} otherwise
    * @see #dispatchEvent
    */
+  @Override
   public abstract boolean dispatchKeyEvent(KeyEvent e);
 
   /**
-   * This method will be called by <code>dispatchKeyEvent</code>.
+   * This method will be called by {@code dispatchKeyEvent}.
    * By default, this method will handle any unconsumed KeyEvents that
-   * map to an AWT <code>MenuShortcut</code> by consuming the event
+   * map to an AWT {@code MenuShortcut} by consuming the event
    * and activating the shortcut.
    *
    * @param e the KeyEvent to post-process
-   * @return <code>true</code> to indicate that no other
+   * @return {@code true} to indicate that no other
    * KeyEventPostProcessor will be notified of the KeyEvent.
    * @see #dispatchKeyEvent
    * @see MenuShortcut
    */
+  @Override
   public abstract boolean postProcessKeyEvent(KeyEvent e);
 
   /**
@@ -2503,8 +2451,8 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
    * the KeyboardFocusManager to delay dispatching of KeyEvents with
    * timestamps later than the specified time stamp until the specified
    * Component receives a FOCUS_GAINED event, or the AWT cancels the delay
-   * request by invoking <code>dequeueKeyEvents</code> or
-   * <code>discardKeyEvents</code>.
+   * request by invoking {@code dequeueKeyEvents} or
+   * {@code discardKeyEvents}.
    *
    * @param after        timestamp of current event, or the current, system time if
    *                     the current event has no timestamp, or the AWT cannot determine
@@ -2519,16 +2467,16 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   /**
    * Called by the AWT to notify the KeyboardFocusManager that it should
    * cancel delayed dispatching of KeyEvents. All KeyEvents which were
-   * enqueued because of a call to <code>enqueueKeyEvents</code> with the
+   * enqueued because of a call to {@code enqueueKeyEvents} with the
    * same timestamp and Component should be released for normal dispatching
    * to the current focus owner. If the given timestamp is less than zero,
    * the outstanding enqueue request for the given Component with the <b>
    * oldest</b> timestamp (if any) should be cancelled.
    *
    * @param after        the timestamp specified in the call to
-   *                     <code>enqueueKeyEvents</code>, or any value &lt; 0
+   *                     {@code enqueueKeyEvents}, or any value &lt; 0
    * @param untilFocused the Component specified in the call to
-   *                     <code>enqueueKeyEvents</code>
+   *                     {@code enqueueKeyEvents}
    * @see #enqueueKeyEvents
    * @see #discardKeyEvents
    */
@@ -2537,11 +2485,11 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   /**
    * Called by the AWT to notify the KeyboardFocusManager that it should
    * cancel delayed dispatching of KeyEvents. All KeyEvents which were
-   * enqueued because of one or more calls to <code>enqueueKeyEvents</code>
+   * enqueued because of one or more calls to {@code enqueueKeyEvents}
    * with the same Component should be discarded.
    *
    * @param comp the Component specified in one or more calls to
-   *             <code>enqueueKeyEvents</code>
+   *             {@code enqueueKeyEvents}
    * @see #enqueueKeyEvents
    * @see #dequeueKeyEvents
    */
@@ -2704,9 +2652,9 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   private static final class LightweightFocusRequest {
     final Component component;
     final boolean temporary;
-    final CausedFocusEvent.Cause cause;
+    final Cause cause;
 
-    LightweightFocusRequest(Component component, boolean temporary, CausedFocusEvent.Cause cause) {
+    LightweightFocusRequest(Component component, boolean temporary, Cause cause) {
       this.component = component;
       this.temporary = temporary;
       this.cause = cause;
@@ -2729,28 +2677,27 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     }
 
     HeavyweightFocusRequest(
-        Component heavyweight, Component descendant, boolean temporary,
-        CausedFocusEvent.Cause cause) {
+        Component heavyweight, Component descendant, boolean temporary, Cause cause) {
       if (heavyweight == null) {
         Log.d(TAG, "Assertion (heavyweight != null) failed");
       }
 
       this.heavyweight = heavyweight;
-      this.lightweightRequests = new LinkedList<LightweightFocusRequest>();
+      lightweightRequests = new LinkedList<>();
       addLightweightRequest(descendant, temporary, cause);
     }
 
     boolean addLightweightRequest(
-        Component descendant, boolean temporary, CausedFocusEvent.Cause cause) {
-      if (this == HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) {
+        Component descendant, boolean temporary, Cause cause) {
+      if (this == CLEAR_GLOBAL_FOCUS_OWNER) {
         Log.d(TAG, "Assertion (this != HeavyweightFocusRequest.CLEAR_GLOBAL_FOCUS_OWNER) failed");
       }
       if (descendant == null) {
         Log.d(TAG, "Assertion (descendant != null) failed");
       }
 
-      Component lastDescendant = ((lightweightRequests.size() > 0)
-                                      ? lightweightRequests.getLast().component : null);
+      Component lastDescendant = !lightweightRequests.isEmpty()
+          ? lightweightRequests.getLast().component : null;
 
       if (descendant != lastDescendant) {
         // Not a duplicate request

@@ -37,15 +37,6 @@
  * this sample code.
  */
 
-import javax.swing.UIDefaults;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.plaf.BorderUIResource;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.basic.BasicBorders;
-import javax.swing.plaf.metal.DefaultMetalTheme;
-
 /**
  * This class describes a higher-contrast Metal Theme.
  *

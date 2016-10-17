@@ -49,24 +49,28 @@ public final class IncorrectAlphaConversionBicubic {
     private static final Color RGB = new Color(200, 255, 7, 123);
     private static final int SIZE = 100;
 
-    public static void main(final String[] args) {
-        final GraphicsEnvironment ge =
+    private IncorrectAlphaConversionBicubic() {
+    }
+
+    public static void main(String[] args) {
+        GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsDevice gd = ge.getDefaultScreenDevice();
-        final GraphicsConfiguration gc = gd.getDefaultConfiguration();
-        final VolatileImage vi =
+        GraphicsDevice gd = ge.getDefaultScreenDevice();
+        GraphicsConfiguration gc = gd.getDefaultConfiguration();
+        VolatileImage vi =
                 gc.createCompatibleVolatileImage(SIZE, SIZE, TRANSLUCENT);
-        final BufferedImage bi = makeUnmanagedBI(gc, TRANSLUCENT);
-        final int expected = bi.getRGB(2, 2);
+        BufferedImage bi = makeUnmanagedBI(gc, TRANSLUCENT);
+        int expected = bi.getRGB(2, 2);
 
         int attempt = 0;
         BufferedImage snapshot;
         while (true) {
-            if (++attempt > 10) {
+            ++attempt;
+            if (attempt > 10) {
                 throw new RuntimeException("Too many attempts: " + attempt);
             }
             vi.validate(gc);
-            final Graphics2D g2d = vi.createGraphics();
+            Graphics2D g2d = vi.createGraphics();
             g2d.setComposite(AlphaComposite.Src);
             g2d.scale(2, 2);
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
@@ -80,7 +84,7 @@ public final class IncorrectAlphaConversionBicubic {
             }
             break;
         }
-        final int actual = snapshot.getRGB(2, 2);
+        int actual = snapshot.getRGB(2, 2);
         if (actual != expected) {
             System.err.println("Actual: " + Integer.toHexString(actual));
             System.err.println("Expected: " + Integer.toHexString(expected));
@@ -95,7 +99,7 @@ public final class IncorrectAlphaConversionBicubic {
         g2d.setColor(RGB);
         g2d.fillRect(0, 0, SIZE, SIZE);
         g2d.dispose();
-        final DataBuffer db = img.getRaster().getDataBuffer();
+        DataBuffer db = img.getRaster().getDataBuffer();
         if (db instanceof DataBufferInt) {
             ((DataBufferInt) db).getData();
         } else if (db instanceof DataBufferShort) {
@@ -105,7 +109,7 @@ public final class IncorrectAlphaConversionBicubic {
         } else {
             try {
                 img.setAccelerationPriority(0.0f);
-            } catch (final Throwable ignored) {
+            } catch (Throwable ignored) {
             }
         }
         return img;

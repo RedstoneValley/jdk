@@ -22,12 +22,6 @@
  */
 
 import java.awt.*;
-import java.awt.MultipleGradientPaint.*;
-import java.awt.image.*;
-import java.io.*;
-
-import javax.imageio.*;
-import javax.swing.*;
 
 /**
  * @test
@@ -37,8 +31,10 @@ import javax.swing.*;
  * @author ceisserer
  */
 public class XRenderElt254TextTest extends Frame implements Runnable {
-    public volatile boolean success = false;
+    private static final long serialVersionUID = -3834953275605642520L;
+    public volatile boolean success;
 
+    @Override
     public void run() {
         Image dstImg = getGraphicsConfiguration().createCompatibleVolatileImage(400, 400);
         Graphics2D g = (Graphics2D) dstImg.getGraphics();

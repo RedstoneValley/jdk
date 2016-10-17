@@ -43,8 +43,6 @@
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import javax.management.*;
-import javax.management.remote.*;
 
 /**
  * This FullThreadDump class demonstrates the capability to get
@@ -111,8 +109,8 @@ public class FullThreadDump {
   private void connect(String urlPath) {
     try {
       JMXServiceURL url = new JMXServiceURL("rmi", "", 0, urlPath);
-      this.jmxc = JMXConnectorFactory.connect(url);
-      this.server = jmxc.getMBeanServerConnection();
+      jmxc = JMXConnectorFactory.connect(url);
+      server = jmxc.getMBeanServerConnection();
     } catch (MalformedURLException e) {
       // should not reach here
     } catch (IOException e) {

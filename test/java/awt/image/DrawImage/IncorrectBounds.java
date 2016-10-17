@@ -42,14 +42,17 @@ public final class IncorrectBounds {
     private static final int width = 400;
     private static final int height = 400;
 
-    public static void main(final String[] args) {
+    private IncorrectBounds() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsConfiguration gc =
                 ge.getDefaultScreenDevice().getDefaultConfiguration();
         VolatileImage vi = gc.createCompatibleVolatileImage(width / 4,
                                                             height / 4);
-        final BufferedImage bi = new BufferedImage(width, height,
+        BufferedImage bi = new BufferedImage(width, height,
                                                    BufferedImage.TYPE_INT_ARGB);
         while (true) {
             vi.validate(gc);
@@ -71,8 +74,7 @@ public final class IncorrectBounds {
             g.setColor(Color.red);
             g.fillRect(0, 0, width, height);
             // Use sx and sy outside of VI bounds.
-            g.drawImage(vi, 0, 0, width / 2, height / 2, 0, 0, width * 2,
-                        height * 2, null);
+            g.drawImage(vi, 0, 0, width / 2, height / 2, 0, 0, width << 1, height << 1, null);
             g.dispose();
 
             if (vi.contentsLost()) {

@@ -27,21 +27,22 @@ package java.awt.image;
 
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.util.Arrays;
 
 /**
- * The <code>DirectColorModel</code> class is a <code>ColorModel</code>
+ * The {@code DirectColorModel} class is a {@code ColorModel}
  * class that works with pixel values that represent RGB
  * color and alpha information as separate samples and that pack all
  * samples for a single pixel into a single int, short, or byte quantity.
  * This class can be used only with ColorSpaces of type ColorSpace.TYPE_RGB.
  * In addition, for each component of the ColorSpace, the minimum
- * normalized component value obtained via the <code>getMinValue()</code>
+ * normalized component value obtained via the {@code getMinValue()}
  * method of ColorSpace must be 0.0, and the maximum value obtained via
- * the <code>getMaxValue()</code> method must be 1.0 (these min/max
+ * the {@code getMaxValue()} method must be 1.0 (these min/max
  * values are typical for RGB spaces).
  * There must be three color samples in the pixel values and there can
  * be a single alpha sample.  For those methods that use a primitive array
- * pixel representation of type <code>transferType</code>, the array
+ * pixel representation of type {@code transferType}, the array
  * length is always one.  The transfer
  * types supported are DataBuffer.TYPE_BYTE,
  * DataBuffer.TYPE_USHORT, and DataBuffer.TYPE_INT.
@@ -60,26 +61,26 @@ import java.awt.color.ColorSpace;
  * <p>
  * The translation from pixel values to color/alpha components for
  * display or processing purposes is a one-to-one correspondence of
- * samples to components.  A <code>DirectColorModel</code> is
+ * samples to components.  A {@code DirectColorModel} is
  * typically used with image data which uses masks to define packed
- * samples.  For example, a <code>DirectColorModel</code> can be used in
- * conjunction with a <code>SinglePixelPackedSampleModel</code> to
+ * samples.  For example, a {@code DirectColorModel} can be used in
+ * conjunction with a {@code SinglePixelPackedSampleModel} to
  * construct a {@link BufferedImage}.  Normally the masks used by the
- * {@link SampleModel} and the <code>ColorModel</code> would be the
+ * {@link SampleModel} and the {@code ColorModel} would be the
  * same.  However, if they are different, the color interpretation
  * of pixel data will be done according to the masks of the
- * <code>ColorModel</code>.
+ * {@code ColorModel}.
  * <p>
  * A single int pixel representation is valid for all objects of this
  * class, since it is always possible to represent pixel values used with
  * this class in a single int.  Therefore, methods which use this
- * representation will not throw an <code>IllegalArgumentException</code>
+ * representation will not throw an {@code IllegalArgumentException}
  * due to an invalid pixel value.
  * <p>
  * This color model is similar to an X11 TrueColor visual.
  * The default RGB ColorModel specified by the
  * {@link ColorModel#getRGBdefault() getRGBdefault} method is a
- * <code>DirectColorModel</code> with the following parameters:
+ * {@code DirectColorModel} with the following parameters:
  * <pre>
  * Number of bits:        32
  * Red mask:              0x00ff0000
@@ -125,15 +126,15 @@ public class DirectColorModel extends PackedColorModel {
   private short[] fromsRGB8LUT16;
 
   /**
-   * Constructs a <code>DirectColorModel</code> from the specified masks
-   * that indicate which bits in an <code>int</code> pixel representation
+   * Constructs a {@code DirectColorModel} from the specified masks
+   * that indicate which bits in an {@code int} pixel representation
    * contain the red, green and blue color samples.  As pixel values do not
    * contain alpha information, all pixels are treated as opaque, which
    * means that alpha&nbsp;=&nbsp;1.0.  All of the bits
    * in each mask must be contiguous and fit in the specified number
-   * of least significant bits of an <code>int</code> pixel representation.
-   * The <code>ColorSpace</code> is the default sRGB space. The
-   * transparency value is Transparency.OPAQUE.  The transfer type
+   * of least significant bits of an {@code int} pixel representation.
+   * The {@code ColorSpace} is the default sRGB space. The
+   * transparency value is Transparency.CHANNEL_MAX.  The transfer type
    * is the smallest of DataBuffer.TYPE_BYTE, DataBuffer.TYPE_USHORT,
    * or DataBuffer.TYPE_INT that can hold a single pixel.
    *
@@ -151,16 +152,16 @@ public class DirectColorModel extends PackedColorModel {
   }
 
   /**
-   * Constructs a <code>DirectColorModel</code> from the specified masks
-   * that indicate which bits in an <code>int</code> pixel representation
+   * Constructs a {@code DirectColorModel} from the specified masks
+   * that indicate which bits in an {@code int} pixel representation
    * contain the red, green and blue color samples and the alpha sample,
-   * if present.  If <code>amask</code> is 0, pixel values do not contain
+   * if present.  If {@code amask} is 0, pixel values do not contain
    * alpha information and all pixels are treated as opaque, which means
    * that alpha&nbsp;=&nbsp;1.0.  All of the bits in each mask must
    * be contiguous and fit in the specified number of least significant bits
-   * of an <code>int</code> pixel representation.  Alpha, if present, is not
-   * premultiplied.  The <code>ColorSpace</code> is the default sRGB space.
-   * The transparency value is Transparency.OPAQUE if no alpha is
+   * of an {@code int} pixel representation.  Alpha, if present, is not
+   * premultiplied.  The {@code ColorSpace} is the default sRGB space.
+   * The transparency value is Transparency.CHANNEL_MAX if no alpha is
    * present, or Transparency.TRANSLUCENT otherwise.  The transfer type
    * is the smallest of DataBuffer.TYPE_BYTE, DataBuffer.TYPE_USHORT,
    * or DataBuffer.TYPE_INT that can hold a single pixel.
@@ -177,8 +178,7 @@ public class DirectColorModel extends PackedColorModel {
    *              integer pixel contain the alpha component
    */
   public DirectColorModel(int bits, int rmask, int gmask, int bmask, int amask) {
-    super(
-        ColorSpace.getInstance(ColorSpace.CS_sRGB),
+    super(ColorSpace.getInstance(ColorSpace.CS_sRGB),
         bits,
         rmask,
         gmask,
@@ -191,30 +191,30 @@ public class DirectColorModel extends PackedColorModel {
   }
 
   /**
-   * Constructs a <code>DirectColorModel</code> from the specified
+   * Constructs a {@code DirectColorModel} from the specified
    * parameters.  Color components are in the specified
-   * <code>ColorSpace</code>, which must be of type ColorSpace.TYPE_RGB
+   * {@code ColorSpace}, which must be of type ColorSpace.TYPE_RGB
    * and have minimum normalized component values which are all 0.0
    * and maximum values which are all 1.0.
-   * The masks specify which bits in an <code>int</code> pixel
+   * The masks specify which bits in an {@code int} pixel
    * representation contain the red, green and blue color samples and
-   * the alpha sample, if present.  If <code>amask</code> is 0, pixel
+   * the alpha sample, if present.  If {@code amask} is 0, pixel
    * values do not contain alpha information and all pixels are treated
    * as opaque, which means that alpha&nbsp;=&nbsp;1.0.  All of the
    * bits in each mask must be contiguous and fit in the specified number
-   * of least significant bits of an <code>int</code> pixel
-   * representation.  If there is alpha, the <code>boolean</code>
-   * <code>isAlphaPremultiplied</code> specifies how to interpret
-   * color and alpha samples in pixel values.  If the <code>boolean</code>
-   * is <code>true</code>, color samples are assumed to have been
+   * of least significant bits of an {@code int} pixel
+   * representation.  If there is alpha, the {@code boolean}
+   * {@code isAlphaPremultiplied} specifies how to interpret
+   * color and alpha samples in pixel values.  If the {@code boolean}
+   * is {@code true}, color samples are assumed to have been
    * multiplied by the alpha sample.  The transparency value is
-   * Transparency.OPAQUE, if no alpha is present, or
+   * Transparency.CHANNEL_MAX, if no alpha is present, or
    * Transparency.TRANSLUCENT otherwise.  The transfer type
    * is the type of primitive array used to represent pixel values and
    * must be one of DataBuffer.TYPE_BYTE, DataBuffer.TYPE_USHORT, or
    * DataBuffer.TYPE_INT.
    *
-   * @param space                the specified <code>ColorSpace</code>
+   * @param space                the specified {@code ColorSpace}
    * @param bits                 the number of bits in the pixel values; for example,
    *                             the sum of the number of bits in the masks.
    * @param rmask                specifies a mask indicating which bits in an
@@ -225,18 +225,17 @@ public class DirectColorModel extends PackedColorModel {
    *                             integer pixel contain the blue component
    * @param amask                specifies a mask indicating which bits in an
    *                             integer pixel contain the alpha component
-   * @param isAlphaPremultiplied <code>true</code> if color samples are
-   *                             premultiplied by the alpha sample; <code>false</code> otherwise
+   * @param isAlphaPremultiplied {@code true} if color samples are
+   *                             premultiplied by the alpha sample; {@code false} otherwise
    * @param transferType         the type of array used to represent pixel values
-   * @throws IllegalArgumentException if <code>space</code> is not a
+   * @throws IllegalArgumentException if {@code space} is not a
    *                                  TYPE_RGB space or if the min/max normalized component
    *                                  values are not 0.0/1.0.
    */
   public DirectColorModel(
       ColorSpace space, int bits, int rmask, int gmask, int bmask, int amask,
       boolean isAlphaPremultiplied, int transferType) {
-    super(
-        space,
+    super(space,
         bits,
         rmask,
         gmask,
@@ -260,7 +259,7 @@ public class DirectColorModel extends PackedColorModel {
       for (int i = 0; i < 3; i++) {
         // super constructor checks that space is TYPE_RGB
         // check here that min/max are all 0.0/1.0
-        if ((space.getMinValue(i) != 0.0f) || (space.getMaxValue(i) != 1.0f)) {
+        if (space.getMinValue(i) != 0.0f || space.getMaxValue(i) != 1.0f) {
           throw new IllegalArgumentException("Illegal min/max RGB component value");
         }
       }
@@ -269,51 +268,47 @@ public class DirectColorModel extends PackedColorModel {
   }
 
   /**
-   * Returns the mask indicating which bits in an <code>int</code> pixel
+   * Returns the mask indicating which bits in an {@code int} pixel
    * representation contain the red color component.
    *
-   * @return the mask, which indicates which bits of the <code>int</code>
+   * @return the mask, which indicates which bits of the {@code int}
    * pixel representation contain the red color sample.
    */
-  final public int getRedMask() {
+  public final int getRedMask() {
     return maskArray[0];
   }
 
   /**
-   * Returns the mask indicating which bits in an <code>int</code> pixel
+   * Returns the mask indicating which bits in an {@code int} pixel
    * representation contain the green color component.
    *
-   * @return the mask, which indicates which bits of the <code>int</code>
+   * @return the mask, which indicates which bits of the {@code int}
    * pixel representation contain the green color sample.
    */
-  final public int getGreenMask() {
+  public final int getGreenMask() {
     return maskArray[1];
   }
 
   /**
-   * Returns the mask indicating which bits in an <code>int</code> pixel
+   * Returns the mask indicating which bits in an {@code int} pixel
    * representation contain the blue color component.
    *
-   * @return the mask, which indicates which bits of the <code>int</code>
+   * @return the mask, which indicates which bits of the {@code int}
    * pixel representation contain the blue color sample.
    */
-  final public int getBlueMask() {
+  public final int getBlueMask() {
     return maskArray[2];
   }
 
   /**
-   * Returns the mask indicating which bits in an <code>int</code> pixel
+   * Returns the mask indicating which bits in an {@code int} pixel
    * representation contain the alpha component.
    *
-   * @return the mask, which indicates which bits of the <code>int</code>
+   * @return the mask, which indicates which bits of the {@code int}
    * pixel representation contain the alpha sample.
    */
-  final public int getAlphaMask() {
-    if (supportsAlpha) {
-      return maskArray[3];
-    } else {
-      return 0;
-    }
+  public final int getAlphaMask() {
+    return supportsAlpha ? maskArray[3] : 0;
   }
 
   /*
@@ -322,35 +317,32 @@ public class DirectColorModel extends PackedColorModel {
    * components as float values between 0.0 and 1.0.
    */
   private float[] getDefaultRGBComponents(int pixel) {
-    int components[] = getComponents(pixel, null, 0);
-    float norm[] = getNormalizedComponents(components, 0, null, 0);
+    int[] components = getComponents(pixel, null, 0);
+    float[] norm = getNormalizedComponents(components, 0, null, 0);
     // Note that getNormalizedComponents returns non-premultiplied values
     return colorSpace.toRGB(norm);
   }
 
   private int getsRGBComponentFromsRGB(int pixel, int idx) {
-    int c = ((pixel & maskArray[idx]) >>> maskOffsets[idx]);
+    int c = (pixel & maskArray[idx]) >>> maskOffsets[idx];
     if (isAlphaPremultiplied) {
-      int a = ((pixel & maskArray[3]) >>> maskOffsets[3]);
-      c = (a == 0) ? 0 : (int) (((c * scaleFactors[idx]) * 255.0f / (a * scaleFactors[3])) + 0.5f);
+      int a = (pixel & maskArray[3]) >>> maskOffsets[3];
+      c = a == 0 ? 0 : (int) (c * scaleFactors[idx] * 255.0f / (a * scaleFactors[3]) + 0.5f);
     } else if (scaleFactors[idx] != 1.0f) {
-      c = (int) ((c * scaleFactors[idx]) + 0.5f);
+      c = (int) (c * scaleFactors[idx] + 0.5f);
     }
     return c;
   }
 
   private int getsRGBComponentFromLinearRGB(int pixel, int idx) {
-    int c = ((pixel & maskArray[idx]) >>> maskOffsets[idx]);
+    int c = (pixel & maskArray[idx]) >>> maskOffsets[idx];
     if (isAlphaPremultiplied) {
       float factor = (float) ((1 << lRGBprecision) - 1);
-      int a = ((pixel & maskArray[3]) >>> maskOffsets[3]);
-      c = (a == 0) ? 0 : (int) (((c * scaleFactors[idx]) * factor / (a * scaleFactors[3])) + 0.5f);
+      int a = (pixel & maskArray[3]) >>> maskOffsets[3];
+      c = a == 0 ? 0 : (int) (c * scaleFactors[idx] * factor / (a * scaleFactors[3]) + 0.5f);
     } else if (nBits[idx] != lRGBprecision) {
-      if (lRGBprecision == 16) {
-        c = (int) ((c * scaleFactors[idx] * 257.0f) + 0.5f);
-      } else {
-        c = (int) ((c * scaleFactors[idx]) + 0.5f);
-      }
+      c = lRGBprecision == 16 ? (int) (c * scaleFactors[idx] * 257.0f + 0.5f)
+          : (int) (c * scaleFactors[idx] + 0.5f);
     }
     // now range of c is 0-255 or 0-65535, depending on lRGBprecision
     return tosRGB8LUT[c] & 0xff;
@@ -358,9 +350,9 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns the red color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * as an <code>int</code>.
+   * as an {@code int}.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the red value
@@ -368,23 +360,25 @@ public class DirectColorModel extends PackedColorModel {
    *
    * @param pixel the specified pixel
    * @return the red color component for the specified pixel, from
-   * 0 to 255 in the sRGB <code>ColorSpace</code>.
+   * 0 to 255 in the sRGB {@code ColorSpace}.
    */
-  final public int getRed(int pixel) {
+  @Override
+  public final int getRed(int pixel) {
     if (is_sRGB) {
       return getsRGBComponentFromsRGB(pixel, 0);
-    } else if (is_LinearRGB) {
+    }
+    if (is_LinearRGB) {
       return getsRGBComponentFromLinearRGB(pixel, 0);
     }
-    float rgb[] = getDefaultRGBComponents(pixel);
+    float[] rgb = getDefaultRGBComponents(pixel);
     return (int) (rgb[0] * 255.0f + 0.5f);
   }
 
   /**
    * Returns the green color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * as an <code>int</code>.
+   * as an {@code int}.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the green value
@@ -392,23 +386,25 @@ public class DirectColorModel extends PackedColorModel {
    *
    * @param pixel the specified pixel
    * @return the green color component for the specified pixel, from
-   * 0 to 255 in the sRGB <code>ColorSpace</code>.
+   * 0 to 255 in the sRGB {@code ColorSpace}.
    */
-  final public int getGreen(int pixel) {
+  @Override
+  public final int getGreen(int pixel) {
     if (is_sRGB) {
       return getsRGBComponentFromsRGB(pixel, 1);
-    } else if (is_LinearRGB) {
+    }
+    if (is_LinearRGB) {
       return getsRGBComponentFromLinearRGB(pixel, 1);
     }
-    float rgb[] = getDefaultRGBComponents(pixel);
+    float[] rgb = getDefaultRGBComponents(pixel);
     return (int) (rgb[1] * 255.0f + 0.5f);
   }
 
   /**
    * Returns the blue color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * as an <code>int</code>.
+   * as an {@code int}.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the blue value
@@ -416,31 +412,34 @@ public class DirectColorModel extends PackedColorModel {
    *
    * @param pixel the specified pixel
    * @return the blue color component for the specified pixel, from
-   * 0 to 255 in the sRGB <code>ColorSpace</code>.
+   * 0 to 255 in the sRGB {@code ColorSpace}.
    */
-  final public int getBlue(int pixel) {
+  @Override
+  public final int getBlue(int pixel) {
     if (is_sRGB) {
       return getsRGBComponentFromsRGB(pixel, 2);
-    } else if (is_LinearRGB) {
+    }
+    if (is_LinearRGB) {
       return getsRGBComponentFromLinearRGB(pixel, 2);
     }
-    float rgb[] = getDefaultRGBComponents(pixel);
+    float[] rgb = getDefaultRGBComponents(pixel);
     return (int) (rgb[2] * 255.0f + 0.5f);
   }
 
   /**
    * Returns the alpha component for the specified pixel, scaled
-   * from 0 to 255.  The pixel value is specified as an <code>int</code>.
+   * from 0 to 255.  The pixel value is specified as an {@code int}.
    *
    * @param pixel the specified pixel
-   * @return the value of the alpha component of <code>pixel</code>
+   * @return the value of the alpha component of {@code pixel}
    * from 0 to 255.
    */
-  final public int getAlpha(int pixel) {
+  @Override
+  public final int getAlpha(int pixel) {
     if (!supportsAlpha) {
       return 255;
     }
-    int a = ((pixel & maskArray[3]) >>> maskOffsets[3]);
+    int a = (pixel & maskArray[3]) >>> maskOffsets[3];
     if (scaleFactors[3] != 1.0f) {
       a = (int) (a * scaleFactors[3] + 0.5f);
     }
@@ -450,7 +449,7 @@ public class DirectColorModel extends PackedColorModel {
   /**
    * Returns the color/alpha components of the pixel in the default
    * RGB color model format.  A color conversion is done if necessary.
-   * The pixel value is specified as an <code>int</code>.
+   * The pixel value is specified as an {@code int}.
    * The returned value is in a non pre-multiplied format.  Thus, if
    * the alpha is premultiplied, this method divides it out of the
    * color components.  If the alpha value is 0, for example, the color
@@ -461,61 +460,62 @@ public class DirectColorModel extends PackedColorModel {
    * pixel.
    * @see ColorModel#getRGBdefault
    */
-  final public int getRGB(int pixel) {
+  @Override
+  public final int getRGB(int pixel) {
     if (is_sRGB || is_LinearRGB) {
-      return (getAlpha(pixel) << 24) | (getRed(pixel) << 16) | (getGreen(pixel) << 8) | (
-          getBlue(pixel) << 0);
+      return getAlpha(pixel) << 24 | getRed(pixel) << 16 | getGreen(pixel) << 8 | getBlue(pixel);
     }
-    float rgb[] = getDefaultRGBComponents(pixel);
-    return (getAlpha(pixel) << 24) | (((int) (rgb[0] * 255.0f + 0.5f)) << 16) | (
-        ((int) (rgb[1] * 255.0f + 0.5f)) << 8) | (((int) (rgb[2] * 255.0f + 0.5f)) << 0);
+    float[] rgb = getDefaultRGBComponents(pixel);
+    return getAlpha(pixel) << 24 | (int) (rgb[0] * 255.0f + 0.5f) << 16 |
+        (int) (rgb[1] * 255.0f + 0.5f) << 8 | (int) (rgb[2] * 255.0f + 0.5f);
   }
 
   /**
    * Returns the red color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * by an array of data elements of type <code>transferType</code> passed
+   * by an array of data elements of type {@code transferType} passed
    * in as an object reference.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the red value
    * is 0.
-   * If <code>inData</code> is not a primitive array of type
-   * <code>transferType</code>, a <code>ClassCastException</code> is
-   * thrown.  An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>inData</code> is not large enough to hold a
-   * pixel value for this <code>ColorModel</code>.  Since
-   * <code>DirectColorModel</code> can be subclassed, subclasses inherit
+   * If {@code inData} is not a primitive array of type
+   * {@code transferType}, a {@code ClassCastException} is
+   * thrown.  An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code inData} is not large enough to hold a
+   * pixel value for this {@code ColorModel}.  Since
+   * {@code DirectColorModel} can be subclassed, subclasses inherit
    * the implementation of this method and if they don't override it
    * then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
-   * An <code>UnsupportedOperationException</code> is thrown if this
-   * <code>transferType</code> is not supported by this
-   * <code>ColorModel</code>.
+   * {@code transferType}.
+   * An {@code UnsupportedOperationException} is thrown if this
+   * {@code transferType} is not supported by this
+   * {@code ColorModel}.
    *
    * @param inData the array containing the pixel value
    * @return the value of the red component of the specified pixel.
-   * @throws ArrayIndexOutOfBoundsException if <code>inData</code> is not
+   * @throws ArrayIndexOutOfBoundsException if {@code inData} is not
    *                                        large enough to hold a pixel value for this color model
-   * @throws ClassCastException             if <code>inData</code> is not a
-   *                                        primitive array of type <code>transferType</code>
-   * @throws UnsupportedOperationException  if this <code>transferType</code>
+   * @throws ClassCastException             if {@code inData} is not a
+   *                                        primitive array of type {@code transferType}
+   * @throws UnsupportedOperationException  if this {@code transferType}
    *                                        is not supported by this color model
    */
+  @Override
   public int getRed(Object inData) {
-    int pixel = 0;
+    int pixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) inData;
+        byte[] bdata = (byte[]) inData;
         pixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) inData;
+        short[] sdata = (short[]) inData;
         pixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) inData;
+        int[] idata = (int[]) inData;
         pixel = idata[0];
         break;
       default:
@@ -527,48 +527,49 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns the green color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * by an array of data elements of type <code>transferType</code> passed
+   * by an array of data elements of type {@code transferType} passed
    * in as an object reference.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the green value
-   * is 0.  If <code>inData</code> is not a primitive array of type
-   * <code>transferType</code>, a <code>ClassCastException</code> is thrown.
-   * An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>inData</code> is not large enough to hold a pixel
-   * value for this <code>ColorModel</code>.  Since
-   * <code>DirectColorModel</code> can be subclassed, subclasses inherit
+   * is 0.  If {@code inData} is not a primitive array of type
+   * {@code transferType}, a {@code ClassCastException} is thrown.
+   * An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code inData} is not large enough to hold a pixel
+   * value for this {@code ColorModel}.  Since
+   * {@code DirectColorModel} can be subclassed, subclasses inherit
    * the implementation of this method and if they don't override it
    * then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
-   * An <code>UnsupportedOperationException</code> is
-   * thrown if this <code>transferType</code> is not supported by this
-   * <code>ColorModel</code>.
+   * {@code transferType}.
+   * An {@code UnsupportedOperationException} is
+   * thrown if this {@code transferType} is not supported by this
+   * {@code ColorModel}.
    *
    * @param inData the array containing the pixel value
    * @return the value of the green component of the specified pixel.
-   * @throws ArrayIndexOutOfBoundsException if <code>inData</code> is not
+   * @throws ArrayIndexOutOfBoundsException if {@code inData} is not
    *                                        large enough to hold a pixel value for this color model
-   * @throws ClassCastException             if <code>inData</code> is not a
-   *                                        primitive array of type <code>transferType</code>
-   * @throws UnsupportedOperationException  if this <code>transferType</code>
+   * @throws ClassCastException             if {@code inData} is not a
+   *                                        primitive array of type {@code transferType}
+   * @throws UnsupportedOperationException  if this {@code transferType}
    *                                        is not supported by this color model
    */
+  @Override
   public int getGreen(Object inData) {
-    int pixel = 0;
+    int pixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) inData;
+        byte[] bdata = (byte[]) inData;
         pixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) inData;
+        short[] sdata = (short[]) inData;
         pixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) inData;
+        int[] idata = (int[]) inData;
         pixel = idata[0];
         break;
       default:
@@ -580,48 +581,49 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns the blue color component for the specified pixel, scaled
-   * from 0 to 255 in the default RGB <code>ColorSpace</code>, sRGB.  A
+   * from 0 to 255 in the default RGB {@code ColorSpace}, sRGB.  A
    * color conversion is done if necessary.  The pixel value is specified
-   * by an array of data elements of type <code>transferType</code> passed
+   * by an array of data elements of type {@code transferType} passed
    * in as an object reference.
    * The returned value is a non pre-multiplied value.  Thus, if the
    * alpha is premultiplied, this method divides it out before returning
    * the value.  If the alpha value is 0, for example, the blue value
-   * is 0.  If <code>inData</code> is not a primitive array of type
-   * <code>transferType</code>, a <code>ClassCastException</code> is thrown.
-   * An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>inData</code> is not large enough to hold a pixel
-   * value for this <code>ColorModel</code>.  Since
-   * <code>DirectColorModel</code> can be subclassed, subclasses inherit
+   * is 0.  If {@code inData} is not a primitive array of type
+   * {@code transferType}, a {@code ClassCastException} is thrown.
+   * An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code inData} is not large enough to hold a pixel
+   * value for this {@code ColorModel}.  Since
+   * {@code DirectColorModel} can be subclassed, subclasses inherit
    * the implementation of this method and if they don't override it
    * then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
-   * An <code>UnsupportedOperationException</code> is
-   * thrown if this <code>transferType</code> is not supported by this
-   * <code>ColorModel</code>.
+   * {@code transferType}.
+   * An {@code UnsupportedOperationException} is
+   * thrown if this {@code transferType} is not supported by this
+   * {@code ColorModel}.
    *
    * @param inData the array containing the pixel value
    * @return the value of the blue component of the specified pixel.
-   * @throws ArrayIndexOutOfBoundsException if <code>inData</code> is not
+   * @throws ArrayIndexOutOfBoundsException if {@code inData} is not
    *                                        large enough to hold a pixel value for this color model
-   * @throws ClassCastException             if <code>inData</code> is not a
-   *                                        primitive array of type <code>transferType</code>
-   * @throws UnsupportedOperationException  if this <code>transferType</code>
+   * @throws ClassCastException             if {@code inData} is not a
+   *                                        primitive array of type {@code transferType}
+   * @throws UnsupportedOperationException  if this {@code transferType}
    *                                        is not supported by this color model
    */
+  @Override
   public int getBlue(Object inData) {
-    int pixel = 0;
+    int pixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) inData;
+        byte[] bdata = (byte[]) inData;
         pixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) inData;
+        short[] sdata = (short[]) inData;
         pixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) inData;
+        int[] idata = (int[]) inData;
         pixel = idata[0];
         break;
       default:
@@ -634,47 +636,48 @@ public class DirectColorModel extends PackedColorModel {
   /**
    * Returns the alpha component for the specified pixel, scaled
    * from 0 to 255.  The pixel value is specified by an array of data
-   * elements of type <code>transferType</code> passed in as an object
+   * elements of type {@code transferType} passed in as an object
    * reference.
-   * If <code>inData</code> is not a primitive array of type
-   * <code>transferType</code>, a <code>ClassCastException</code> is
-   * thrown.  An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>inData</code> is not large enough to hold a pixel
-   * value for this <code>ColorModel</code>.  Since
-   * <code>DirectColorModel</code> can be subclassed, subclasses inherit
+   * If {@code inData} is not a primitive array of type
+   * {@code transferType}, a {@code ClassCastException} is
+   * thrown.  An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code inData} is not large enough to hold a pixel
+   * value for this {@code ColorModel}.  Since
+   * {@code DirectColorModel} can be subclassed, subclasses inherit
    * the implementation of this method and if they don't override it
    * then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
-   * If this <code>transferType</code> is not supported, an
-   * <code>UnsupportedOperationException</code> is thrown.
+   * {@code transferType}.
+   * If this {@code transferType} is not supported, an
+   * {@code UnsupportedOperationException} is thrown.
    *
    * @param inData the specified pixel
    * @return the alpha component of the specified pixel, scaled from
    * 0 to 255.
-   * @throws ClassCastException             if <code>inData</code>
+   * @throws ClassCastException             if {@code inData}
    *                                        is not a primitive array of type
-   *                                        <code>transferType</code>
+   *                                        {@code transferType}
    * @throws ArrayIndexOutOfBoundsException if
-   *                                        <code>inData</code> is not large enough to hold a
+   *                                        {@code inData} is not large enough to hold a
    *                                        pixel value
-   *                                        for this <code>ColorModel</code>
+   *                                        for this {@code ColorModel}
    * @throws UnsupportedOperationException  if this
-   *                                        <code>tranferType</code> is not supported by this
-   *                                        <code>ColorModel</code>
+   *                                        {@code tranferType} is not supported by this
+   *                                        {@code ColorModel}
    */
+  @Override
   public int getAlpha(Object inData) {
-    int pixel = 0;
+    int pixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) inData;
+        byte[] bdata = (byte[]) inData;
         pixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) inData;
+        short[] sdata = (short[]) inData;
         pixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) inData;
+        int[] idata = (int[]) inData;
         pixel = idata[0];
         break;
       default:
@@ -688,41 +691,42 @@ public class DirectColorModel extends PackedColorModel {
    * Returns the color/alpha components for the specified pixel in the
    * default RGB color model format.  A color conversion is done if
    * necessary.  The pixel value is specified by an array of data
-   * elements of type <code>transferType</code> passed in as an object
-   * reference.  If <code>inData</code> is not a primitive array of type
-   * <code>transferType</code>, a <code>ClassCastException</code> is
-   * thrown.  An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>inData</code> is not large enough to hold a pixel
-   * value for this <code>ColorModel</code>.
+   * elements of type {@code transferType} passed in as an object
+   * reference.  If {@code inData} is not a primitive array of type
+   * {@code transferType}, a {@code ClassCastException} is
+   * thrown.  An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code inData} is not large enough to hold a pixel
+   * value for this {@code ColorModel}.
    * The returned value is in a non pre-multiplied format.  Thus, if
    * the alpha is premultiplied, this method divides it out of the
    * color components.  If the alpha value is 0, for example, the color
-   * values is 0.  Since <code>DirectColorModel</code> can be
+   * values is 0.  Since {@code DirectColorModel} can be
    * subclassed, subclasses inherit the implementation of this method
    * and if they don't override it then
    * they throw an exception if they use an unsupported
-   * <code>transferType</code>.
+   * {@code transferType}.
    *
    * @param inData the specified pixel
    * @return the color and alpha components of the specified pixel.
    * @throws UnsupportedOperationException if this
-   *                                       <code>transferType</code> is not supported by this
-   *                                       <code>ColorModel</code>
+   *                                       {@code transferType} is not supported by this
+   *                                       {@code ColorModel}
    * @see ColorModel#getRGBdefault
    */
+  @Override
   public int getRGB(Object inData) {
-    int pixel = 0;
+    int pixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) inData;
+        byte[] bdata = (byte[]) inData;
         pixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) inData;
+        short[] sdata = (short[]) inData;
         pixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) inData;
+        int[] idata = (int[]) inData;
         pixel = idata[0];
         break;
       default:
@@ -734,44 +738,45 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns a data element array representation of a pixel in this
-   * <code>ColorModel</code>, given an integer pixel representation in the
+   * {@code ColorModel}, given an integer pixel representation in the
    * default RGB color model.
-   * This array can then be passed to the <code>setDataElements</code>
-   * method of a <code>WritableRaster</code> object.  If the pixel variable
-   * is <code>null</code>, a new array is allocated.  If <code>pixel</code>
-   * is not <code>null</code>, it must be a primitive array of type
-   * <code>transferType</code>; otherwise, a
-   * <code>ClassCastException</code> is thrown.  An
-   * <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>pixel</code> is not large enough to hold a pixel
-   * value for this <code>ColorModel</code>.  The pixel array is returned.
-   * Since <code>DirectColorModel</code> can be subclassed, subclasses
+   * This array can then be passed to the {@code setDataElements}
+   * method of a {@code WritableRaster} object.  If the pixel variable
+   * is {@code null}, a new array is allocated.  If {@code pixel}
+   * is not {@code null}, it must be a primitive array of type
+   * {@code transferType}; otherwise, a
+   * {@code ClassCastException} is thrown.  An
+   * {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code pixel} is not large enough to hold a pixel
+   * value for this {@code ColorModel}.  The pixel array is returned.
+   * Since {@code DirectColorModel} can be subclassed, subclasses
    * inherit the implementation of this method and if they don't
    * override it then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
+   * {@code transferType}.
    *
    * @param rgb   the integer pixel representation in the default RGB
    *              color model
    * @param pixel the specified pixel
    * @return an array representation of the specified pixel in this
-   * <code>ColorModel</code>
-   * @throws ClassCastException             if <code>pixel</code>
+   * {@code ColorModel}
+   * @throws ClassCastException             if {@code pixel}
    *                                        is not a primitive array of type
-   *                                        <code>transferType</code>
+   *                                        {@code transferType}
    * @throws ArrayIndexOutOfBoundsException if
-   *                                        <code>pixel</code> is not large enough to hold a
+   *                                        {@code pixel} is not large enough to hold a
    *                                        pixel value
-   *                                        for this <code>ColorModel</code>
+   *                                        for this {@code ColorModel}
    * @throws UnsupportedOperationException  if this
-   *                                        <code>transferType</code> is not supported by this
-   *                                        <code>ColorModel</code>
+   *                                        {@code transferType} is not supported by this
+   *                                        {@code ColorModel}
    * @see WritableRaster#setDataElements
    * @see SampleModel#setDataElements
    */
+  @Override
   public Object getDataElements(int rgb, Object pixel) {
     //REMIND: maybe more efficient not to use int array for
     //DataBuffer.TYPE_USHORT and DataBuffer.TYPE_INT
-    int intpixel[] = null;
+    int[] intpixel;
     if (transferType == DataBuffer.TYPE_INT && pixel != null) {
       intpixel = (int[]) pixel;
       intpixel[0] = 0;
@@ -786,8 +791,8 @@ public class DirectColorModel extends PackedColorModel {
     }
 
     int red, grn, blu, alp;
-    red = (rgb >> 16) & 0xff;
-    grn = (rgb >> 8) & 0xff;
+    red = rgb >> 16 & 0xff;
+    grn = rgb >> 8 & 0xff;
     blu = rgb & 0xff;
     if (is_sRGB || is_LinearRGB) {
       int precision;
@@ -811,14 +816,14 @@ public class DirectColorModel extends PackedColorModel {
         factor = 1.0f / 255.0f;
       }
       if (supportsAlpha) {
-        alp = (rgb >> 24) & 0xff;
+        alp = rgb >> 24 & 0xff;
         if (isAlphaPremultiplied) {
-          factor *= (alp * (1.0f / 255.0f));
+          factor *= alp * 1.0f / 255.0f;
           precision = -1;  // force component calculations below
         }
         if (nBits[3] != 8) {
-          alp = (int) ((alp * (1.0f / 255.0f) * ((1 << nBits[3]) - 1)) + 0.5f);
-          if (alp > ((1 << nBits[3]) - 1)) {
+          alp = (int) (alp * 1.0f / 255.0f * ((1 << nBits[3]) - 1) + 0.5f);
+          if (alp > (1 << nBits[3]) - 1) {
             // fix 4412670 - see comment below
             alp = (1 << nBits[3]) - 1;
           }
@@ -826,13 +831,13 @@ public class DirectColorModel extends PackedColorModel {
         intpixel[0] = alp << maskOffsets[3];
       }
       if (nBits[0] != precision) {
-        red = (int) ((red * factor * ((1 << nBits[0]) - 1)) + 0.5f);
+        red = (int) (red * factor * ((1 << nBits[0]) - 1) + 0.5f);
       }
       if (nBits[1] != precision) {
-        grn = (int) ((grn * factor * ((1 << nBits[1]) - 1)) + 0.5f);
+        grn = (int) (grn * factor * ((1 << nBits[1]) - 1) + 0.5f);
       }
       if (nBits[2] != precision) {
-        blu = (int) ((blu * factor * ((1 << nBits[2]) - 1)) + 0.5f);
+        blu = (int) (blu * factor * ((1 << nBits[2]) - 1) + 0.5f);
       }
     } else {
       // Need to convert the color
@@ -843,7 +848,7 @@ public class DirectColorModel extends PackedColorModel {
       norm[2] = blu * factor;
       norm = colorSpace.fromRGB(norm);
       if (supportsAlpha) {
-        alp = (rgb >> 24) & 0xff;
+        alp = rgb >> 24 & 0xff;
         if (isAlphaPremultiplied) {
           factor *= alp;
           for (int i = 0; i < 3; i++) {
@@ -851,17 +856,17 @@ public class DirectColorModel extends PackedColorModel {
           }
         }
         if (nBits[3] != 8) {
-          alp = (int) ((alp * (1.0f / 255.0f) * ((1 << nBits[3]) - 1)) + 0.5f);
-          if (alp > ((1 << nBits[3]) - 1)) {
+          alp = (int) (alp * 1.0f / 255.0f * ((1 << nBits[3]) - 1) + 0.5f);
+          if (alp > (1 << nBits[3]) - 1) {
             // fix 4412670 - see comment below
             alp = (1 << nBits[3]) - 1;
           }
         }
         intpixel[0] = alp << maskOffsets[3];
       }
-      red = (int) ((norm[0] * ((1 << nBits[0]) - 1)) + 0.5f);
-      grn = (int) ((norm[1] * ((1 << nBits[1]) - 1)) + 0.5f);
-      blu = (int) ((norm[2] * ((1 << nBits[2]) - 1)) + 0.5f);
+      red = (int) (norm[0] * ((1 << nBits[0]) - 1) + 0.5f);
+      grn = (int) (norm[1] * ((1 << nBits[1]) - 1) + 0.5f);
+      blu = (int) (norm[2] * ((1 << nBits[2]) - 1) + 0.5f);
     }
 
     if (maxBits > 23) {
@@ -869,42 +874,32 @@ public class DirectColorModel extends PackedColorModel {
       // some calculations done above with float precision
       // may lose enough precision that the integer result
       // overflows nBits, so we need to clamp.
-      if (red > ((1 << nBits[0]) - 1)) {
+      if (red > (1 << nBits[0]) - 1) {
         red = (1 << nBits[0]) - 1;
       }
-      if (grn > ((1 << nBits[1]) - 1)) {
+      if (grn > (1 << nBits[1]) - 1) {
         grn = (1 << nBits[1]) - 1;
       }
-      if (blu > ((1 << nBits[2]) - 1)) {
+      if (blu > (1 << nBits[2]) - 1) {
         blu = (1 << nBits[2]) - 1;
       }
     }
 
-    intpixel[0] |= (red << maskOffsets[0]) |
-        (grn << maskOffsets[1]) |
-        (blu << maskOffsets[2]);
+    intpixel[0] |= red << maskOffsets[0] |
+        grn << maskOffsets[1] |
+        blu << maskOffsets[2];
 
     switch (transferType) {
-      case DataBuffer.TYPE_BYTE: {
-        byte bdata[];
-        if (pixel == null) {
-          bdata = new byte[1];
-        } else {
-          bdata = (byte[]) pixel;
-        }
+      case DataBuffer.TYPE_BYTE:
+        byte[] bdata;
+        bdata = pixel == null ? new byte[1] : (byte[]) pixel;
         bdata[0] = (byte) (0xff & intpixel[0]);
         return bdata;
-      }
-      case DataBuffer.TYPE_USHORT: {
-        short sdata[];
-        if (pixel == null) {
-          sdata = new short[1];
-        } else {
-          sdata = (short[]) pixel;
-        }
+      case DataBuffer.TYPE_USHORT:
+        short[] sdata;
+        sdata = pixel == null ? new short[1] : (short[]) pixel;
         sdata[0] = (short) (intpixel[0] & 0xffff);
         return sdata;
-      }
       case DataBuffer.TYPE_INT:
         return intpixel;
     }
@@ -914,26 +909,27 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns an array of unnormalized color/alpha components given a pixel
-   * in this <code>ColorModel</code>.  The pixel value is specified as an
-   * <code>int</code>.  If the <code>components</code> array is
-   * <code>null</code>, a new array is allocated.  The
-   * <code>components</code> array is returned.  Color/alpha components are
-   * stored in the <code>components</code> array starting at
-   * <code>offset</code>, even if the array is allocated by this method.
-   * An <code>ArrayIndexOutOfBoundsException</code> is thrown if the
-   * <code>components</code> array is not <code>null</code> and is not large
+   * in this {@code ColorModel}.  The pixel value is specified as an
+   * {@code int}.  If the {@code components} array is
+   * {@code null}, a new array is allocated.  The
+   * {@code components} array is returned.  Color/alpha components are
+   * stored in the {@code components} array starting at
+   * {@code offset}, even if the array is allocated by this method.
+   * An {@code ArrayIndexOutOfBoundsException} is thrown if the
+   * {@code components} array is not {@code null} and is not large
    * enough to hold all the color and alpha components, starting at
-   * <code>offset</code>.
+   * {@code offset}.
    *
    * @param pixel      the specified pixel
    * @param components the array to receive the color and alpha
    *                   components of the specified pixel
-   * @param offset     the offset into the <code>components</code> array at
+   * @param offset     the offset into the {@code components} array at
    *                   which to start storing the color and alpha components
    * @return an array containing the color and alpha components of the
    * specified pixel starting at the specified offset.
    */
-  final public int[] getComponents(int pixel, int[] components, int offset) {
+  @Override
+  public final int[] getComponents(int pixel, int[] components, int offset) {
     if (components == null) {
       components = new int[offset + numComponents];
     }
@@ -947,62 +943,63 @@ public class DirectColorModel extends PackedColorModel {
 
   /**
    * Returns an array of unnormalized color/alpha components given a pixel
-   * in this <code>ColorModel</code>.  The pixel value is specified by an
-   * array of data elements of type <code>transferType</code> passed in as
-   * an object reference.  If <code>pixel</code> is not a primitive array
-   * of type <code>transferType</code>, a <code>ClassCastException</code>
-   * is thrown.  An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if <code>pixel</code> is not large enough to hold a
-   * pixel value for this <code>ColorModel</code>.  If the
-   * <code>components</code> array is <code>null</code>, a new
-   * array is allocated.  The <code>components</code> array is returned.
-   * Color/alpha components are stored in the <code>components</code> array
-   * starting at <code>offset</code>, even if the array is allocated by
-   * this method.  An <code>ArrayIndexOutOfBoundsException</code>
-   * is thrown if the <code>components</code> array is not
-   * <code>null</code> and is not large enough to hold all the color and
-   * alpha components, starting at <code>offset</code>.
-   * Since <code>DirectColorModel</code> can be subclassed, subclasses
+   * in this {@code ColorModel}.  The pixel value is specified by an
+   * array of data elements of type {@code transferType} passed in as
+   * an object reference.  If {@code pixel} is not a primitive array
+   * of type {@code transferType}, a {@code ClassCastException}
+   * is thrown.  An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if {@code pixel} is not large enough to hold a
+   * pixel value for this {@code ColorModel}.  If the
+   * {@code components} array is {@code null}, a new
+   * array is allocated.  The {@code components} array is returned.
+   * Color/alpha components are stored in the {@code components} array
+   * starting at {@code offset}, even if the array is allocated by
+   * this method.  An {@code ArrayIndexOutOfBoundsException}
+   * is thrown if the {@code components} array is not
+   * {@code null} and is not large enough to hold all the color and
+   * alpha components, starting at {@code offset}.
+   * Since {@code DirectColorModel} can be subclassed, subclasses
    * inherit the implementation of this method and if they don't
    * override it then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
+   * {@code transferType}.
    *
    * @param pixel      the specified pixel
    * @param components the array to receive the color and alpha
    *                   components of the specified pixel
-   * @param offset     the offset into the <code>components</code> array at
+   * @param offset     the offset into the {@code components} array at
    *                   which to start storing the color and alpha components
    * @return an array containing the color and alpha components of the
    * specified pixel starting at the specified offset.
-   * @throws ClassCastException             if <code>pixel</code>
+   * @throws ClassCastException             if {@code pixel}
    *                                        is not a primitive array of type
-   *                                        <code>transferType</code>
+   *                                        {@code transferType}
    * @throws ArrayIndexOutOfBoundsException if
-   *                                        <code>pixel</code> is not large enough to hold a
+   *                                        {@code pixel} is not large enough to hold a
    *                                        pixel value
-   *                                        for this <code>ColorModel</code>, or if
-   *                                        <code>components</code>
-   *                                        is not <code>null</code> and is not large enough to
+   *                                        for this {@code ColorModel}, or if
+   *                                        {@code components}
+   *                                        is not {@code null} and is not large enough to
    *                                        hold all the
    *                                        color and alpha components, starting at
-   *                                        <code>offset</code>
+   *                                        {@code offset}
    * @throws UnsupportedOperationException  if this
-   *                                        <code>transferType</code> is not supported by this
+   *                                        {@code transferType} is not supported by this
    *                                        color model
    */
-  final public int[] getComponents(Object pixel, int[] components, int offset) {
-    int intpixel = 0;
+  @Override
+  public final int[] getComponents(Object pixel, int[] components, int offset) {
+    int intpixel;
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
-        byte bdata[] = (byte[]) pixel;
+        byte[] bdata = (byte[]) pixel;
         intpixel = bdata[0] & 0xff;
         break;
       case DataBuffer.TYPE_USHORT:
-        short sdata[] = (short[]) pixel;
+        short[] sdata = (short[]) pixel;
         intpixel = sdata[0] & 0xffff;
         break;
       case DataBuffer.TYPE_INT:
-        int idata[] = (int[]) pixel;
+        int[] idata = (int[]) pixel;
         intpixel = idata[0];
         break;
       default:
@@ -1013,112 +1010,111 @@ public class DirectColorModel extends PackedColorModel {
   }
 
   /**
-   * Returns a pixel value represented as an <code>int</code> in this
-   * <code>ColorModel</code>, given an array of unnormalized color/alpha
-   * components.   An <code>ArrayIndexOutOfBoundsException</code> is
-   * thrown if the <code>components</code> array is
+   * Returns a pixel value represented as an {@code int} in this
+   * {@code ColorModel}, given an array of unnormalized color/alpha
+   * components.   An {@code ArrayIndexOutOfBoundsException} is
+   * thrown if the {@code components} array is
    * not large enough to hold all the color and alpha components, starting
-   * at <code>offset</code>.
+   * at {@code offset}.
    *
    * @param components an array of unnormalized color and alpha
    *                   components
-   * @param offset     the index into <code>components</code> at which to
+   * @param offset     the index into {@code components} at which to
    *                   begin retrieving the color and alpha components
-   * @return an <code>int</code> pixel value in this
-   * <code>ColorModel</code> corresponding to the specified components.
+   * @return an {@code int} pixel value in this
+   * {@code ColorModel} corresponding to the specified components.
    * @throws ArrayIndexOutOfBoundsException if
-   *                                        the <code>components</code> array is not large
+   *                                        the {@code components} array is not large
    *                                        enough to
    *                                        hold all of the color and alpha components starting at
-   *                                        <code>offset</code>
+   *                                        {@code offset}
    */
+  @Override
   public int getDataElement(int[] components, int offset) {
     int pixel = 0;
     for (int i = 0; i < numComponents; i++) {
-      pixel |= ((components[offset + i] << maskOffsets[i]) & maskArray[i]);
+      pixel |= components[offset + i] << maskOffsets[i] & maskArray[i];
     }
     return pixel;
   }
 
   /**
    * Returns a data element array representation of a pixel in this
-   * <code>ColorModel</code>, given an array of unnormalized color/alpha
+   * {@code ColorModel}, given an array of unnormalized color/alpha
    * components.
-   * This array can then be passed to the <code>setDataElements</code>
-   * method of a <code>WritableRaster</code> object.
-   * An <code>ArrayIndexOutOfBoundsException</code> is thrown if the
-   * <code>components</code> array
+   * This array can then be passed to the {@code setDataElements}
+   * method of a {@code WritableRaster} object.
+   * An {@code ArrayIndexOutOfBoundsException} is thrown if the
+   * {@code components} array
    * is not large enough to hold all the color and alpha components,
-   * starting at offset.  If the <code>obj</code> variable is
-   * <code>null</code>, a new array is allocated.  If <code>obj</code> is
-   * not <code>null</code>, it must be a primitive array
-   * of type <code>transferType</code>; otherwise, a
-   * <code>ClassCastException</code> is thrown.
-   * An <code>ArrayIndexOutOfBoundsException</code> is thrown if
-   * <code>obj</code> is not large enough to hold a pixel value for this
-   * <code>ColorModel</code>.
-   * Since <code>DirectColorModel</code> can be subclassed, subclasses
+   * starting at offset.  If the {@code obj} variable is
+   * {@code null}, a new array is allocated.  If {@code obj} is
+   * not {@code null}, it must be a primitive array
+   * of type {@code transferType}; otherwise, a
+   * {@code ClassCastException} is thrown.
+   * An {@code ArrayIndexOutOfBoundsException} is thrown if
+   * {@code obj} is not large enough to hold a pixel value for this
+   * {@code ColorModel}.
+   * Since {@code DirectColorModel} can be subclassed, subclasses
    * inherit the implementation of this method and if they don't
    * override it then they throw an exception if they use an unsupported
-   * <code>transferType</code>.
+   * {@code transferType}.
    *
    * @param components an array of unnormalized color and alpha
    *                   components
-   * @param offset     the index into <code>components</code> at which to
+   * @param offset     the index into {@code components} at which to
    *                   begin retrieving color and alpha components
-   * @param obj        the <code>Object</code> representing an array of color
+   * @param obj        the {@code Object} representing an array of color
    *                   and alpha components
-   * @return an <code>Object</code> representing an array of color and
+   * @return an {@code Object} representing an array of color and
    * alpha components.
-   * @throws ClassCastException             if <code>obj</code>
+   * @throws ClassCastException             if {@code obj}
    *                                        is not a primitive array of type
-   *                                        <code>transferType</code>
+   *                                        {@code transferType}
    * @throws ArrayIndexOutOfBoundsException if
-   *                                        <code>obj</code> is not large enough to hold a pixel
+   *                                        {@code obj} is not large enough to hold a pixel
    *                                        value
-   *                                        for this <code>ColorModel</code> or the
-   *                                        <code>components</code>
+   *                                        for this {@code ColorModel} or the
+   *                                        {@code components}
    *                                        array is not large enough to hold all of the color
    *                                        and alpha
-   *                                        components starting at <code>offset</code>
+   *                                        components starting at {@code offset}
    * @throws UnsupportedOperationException  if this
-   *                                        <code>transferType</code> is not supported by this
+   *                                        {@code transferType} is not supported by this
    *                                        color model
    * @see WritableRaster#setDataElements
    * @see SampleModel#setDataElements
    */
+  @Override
   public Object getDataElements(int[] components, int offset, Object obj) {
     int pixel = 0;
     for (int i = 0; i < numComponents; i++) {
-      pixel |= ((components[offset + i] << maskOffsets[i]) & maskArray[i]);
+      pixel |= components[offset + i] << maskOffsets[i] & maskArray[i];
     }
     switch (transferType) {
       case DataBuffer.TYPE_BYTE:
         if (obj instanceof byte[]) {
-          byte bdata[] = (byte[]) obj;
+          byte[] bdata = (byte[]) obj;
           bdata[0] = (byte) (pixel & 0xff);
           return bdata;
         } else {
-          byte bdata[] = {(byte) (pixel & 0xff)};
-          return bdata;
+          return new byte[]{(byte) (pixel & 0xff)};
         }
       case DataBuffer.TYPE_USHORT:
         if (obj instanceof short[]) {
-          short sdata[] = (short[]) obj;
+          short[] sdata = (short[]) obj;
           sdata[0] = (short) (pixel & 0xffff);
           return sdata;
         } else {
-          short sdata[] = {(short) (pixel & 0xffff)};
-          return sdata;
+          return new short[]{(short) (pixel & 0xffff)};
         }
       case DataBuffer.TYPE_INT:
         if (obj instanceof int[]) {
-          int idata[] = (int[]) obj;
+          int[] idata = (int[]) obj;
           idata[0] = pixel;
           return idata;
         } else {
-          int idata[] = {pixel};
-          return idata;
+          return new int[]{pixel};
         }
       default:
         throw new ClassCastException("This method has not been " +
@@ -1127,44 +1123,45 @@ public class DirectColorModel extends PackedColorModel {
   }
 
   /**
-   * Returns a <code>String</code> that represents this
-   * <code>DirectColorModel</code>.
+   * Returns a {@code String} that represents this
+   * {@code DirectColorModel}.
    *
-   * @return a <code>String</code> representing this
-   * <code>DirectColorModel</code>.
+   * @return a {@code String} representing this
+   * {@code DirectColorModel}.
    */
   public String toString() {
-    return new String("DirectColorModel: rmask=" + Integer.toHexString(red_mask) + " gmask="
+    return "DirectColorModel: rmask=" + Integer.toHexString(red_mask) + " gmask="
         + Integer.toHexString(green_mask) + " bmask=" + Integer.toHexString(blue_mask) + " amask="
-        + Integer.toHexString(alpha_mask));
+        + Integer.toHexString(alpha_mask);
   }
 
   /**
    * Forces the raster data to match the state specified in the
-   * <code>isAlphaPremultiplied</code> variable, assuming the data is
-   * currently correctly described by this <code>ColorModel</code>.  It
+   * {@code isAlphaPremultiplied} variable, assuming the data is
+   * currently correctly described by this {@code ColorModel}.  It
    * may multiply or divide the color raster data by alpha, or do
    * nothing if the data is in the correct state.  If the data needs to
    * be coerced, this method will also return an instance of this
-   * <code>ColorModel</code> with the <code>isAlphaPremultiplied</code>
+   * {@code ColorModel} with the {@code isAlphaPremultiplied}
    * flag set appropriately.  This method will throw a
-   * <code>UnsupportedOperationException</code> if this transferType is
-   * not supported by this <code>ColorModel</code>.  Since
-   * <code>ColorModel</code> can be subclassed, subclasses inherit the
+   * {@code UnsupportedOperationException} if this transferType is
+   * not supported by this {@code ColorModel}.  Since
+   * {@code ColorModel} can be subclassed, subclasses inherit the
    * implementation of this method and if they don't override it then
    * they throw an exception if they use an unsupported transferType.
    *
-   * @param raster               the <code>WritableRaster</code> data
-   * @param isAlphaPremultiplied <code>true</code> if the alpha is
-   *                             premultiplied; <code>false</code> otherwise
-   * @return a <code>ColorModel</code> object that represents the
+   * @param raster               the {@code WritableRaster} data
+   * @param isAlphaPremultiplied {@code true} if the alpha is
+   *                             premultiplied; {@code false} otherwise
+   * @return a {@code ColorModel} object that represents the
    * coerced data.
    * @throws UnsupportedOperationException if this
-   *                                       <code>transferType</code> is not supported by this
+   *                                       {@code transferType} is not supported by this
    *                                       color model
    */
-  final public ColorModel coerceData(WritableRaster raster, boolean isAlphaPremultiplied) {
-    if (!supportsAlpha || this.isAlphaPremultiplied() == isAlphaPremultiplied) {
+  @Override
+  public final ColorModel coerceData(WritableRaster raster, boolean isAlphaPremultiplied) {
+    if (!supportsAlpha || isAlphaPremultiplied() == isAlphaPremultiplied) {
       return this;
     }
 
@@ -1172,19 +1169,19 @@ public class DirectColorModel extends PackedColorModel {
     int h = raster.getHeight();
     int aIdx = numColorComponents;
     float normAlpha;
-    float alphaScale = 1.0f / ((float) ((1 << nBits[aIdx]) - 1));
+    float alphaScale = 1.0f / (float) ((1 << nBits[aIdx]) - 1);
 
     int rminX = raster.getMinX();
     int rY = raster.getMinY();
     int rX;
-    int pixel[] = null;
-    int zpixel[] = null;
+    int[] pixel = null;
+    int[] zpixel = null;
 
     if (isAlphaPremultiplied) {
       // Must mean that we are currently not premultiplied so
       // multiply by alpha
       switch (transferType) {
-        case DataBuffer.TYPE_BYTE: {
+        case DataBuffer.TYPE_BYTE:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1198,15 +1195,14 @@ public class DirectColorModel extends PackedColorModel {
               } else {
                 if (zpixel == null) {
                   zpixel = new int[numComponents];
-                  java.util.Arrays.fill(zpixel, 0);
+                  Arrays.fill(zpixel, 0);
                 }
                 raster.setPixel(rX, rY, zpixel);
               }
             }
           }
-        }
-        break;
-        case DataBuffer.TYPE_USHORT: {
+          break;
+        case DataBuffer.TYPE_USHORT:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1220,15 +1216,14 @@ public class DirectColorModel extends PackedColorModel {
               } else {
                 if (zpixel == null) {
                   zpixel = new int[numComponents];
-                  java.util.Arrays.fill(zpixel, 0);
+                  Arrays.fill(zpixel, 0);
                 }
                 raster.setPixel(rX, rY, zpixel);
               }
             }
           }
-        }
-        break;
-        case DataBuffer.TYPE_INT: {
+          break;
+        case DataBuffer.TYPE_INT:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1242,14 +1237,13 @@ public class DirectColorModel extends PackedColorModel {
               } else {
                 if (zpixel == null) {
                   zpixel = new int[numComponents];
-                  java.util.Arrays.fill(zpixel, 0);
+                  Arrays.fill(zpixel, 0);
                 }
                 raster.setPixel(rX, rY, zpixel);
               }
             }
           }
-        }
-        break;
+          break;
         default:
           throw new UnsupportedOperationException("This method has not been " +
               "implemented for transferType " + transferType);
@@ -1257,7 +1251,7 @@ public class DirectColorModel extends PackedColorModel {
     } else {
       // We are premultiplied and want to divide it out
       switch (transferType) {
-        case DataBuffer.TYPE_BYTE: {
+        case DataBuffer.TYPE_BYTE:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1272,9 +1266,8 @@ public class DirectColorModel extends PackedColorModel {
               }
             }
           }
-        }
-        break;
-        case DataBuffer.TYPE_USHORT: {
+          break;
+        case DataBuffer.TYPE_USHORT:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1289,9 +1282,8 @@ public class DirectColorModel extends PackedColorModel {
               }
             }
           }
-        }
-        break;
-        case DataBuffer.TYPE_INT: {
+          break;
+        case DataBuffer.TYPE_INT:
           for (int y = 0; y < h; y++, rY++) {
             rX = rminX;
             for (int x = 0; x < w; x++, rX++) {
@@ -1306,8 +1298,7 @@ public class DirectColorModel extends PackedColorModel {
               }
             }
           }
-        }
-        break;
+          break;
         default:
           throw new UnsupportedOperationException("This method has not been " +
               "implemented for transferType " + transferType);
@@ -1315,26 +1306,23 @@ public class DirectColorModel extends PackedColorModel {
     }
 
     // Return a new color model
-    return new DirectColorModel(
-        colorSpace,
-        pixel_bits,
-        maskArray[0],
-        maskArray[1],
+    return new DirectColorModel(colorSpace, pixel_bits, maskArray[0], maskArray[1],
+
         maskArray[2],
-        maskArray[3],
-        isAlphaPremultiplied,
-        transferType);
+
+        maskArray[3], isAlphaPremultiplied, transferType);
   }
 
   /**
-   * Returns <code>true</code> if <code>raster</code> is compatible
-   * with this <code>ColorModel</code> and <code>false</code> if it is
+   * Returns {@code true} if {@code raster} is compatible
+   * with this {@code ColorModel} and {@code false} if it is
    * not.
    *
    * @param raster the {@link Raster} object to test for compatibility
-   * @return <code>true</code> if <code>raster</code> is compatible
-   * with this <code>ColorModel</code>; <code>false</code> otherwise.
+   * @return {@code true} if {@code raster} is compatible
+   * with this {@code ColorModel}; {@code false} otherwise.
    */
+  @Override
   public boolean isCompatibleRaster(Raster raster) {
     SampleModel sm = raster.getSampleModel();
     SinglePixelPackedSampleModel spsm;
@@ -1354,25 +1342,26 @@ public class DirectColorModel extends PackedColorModel {
       }
     }
 
-    return (raster.getTransferType() == transferType);
+    return raster.getTransferType() == transferType;
   }
 
   /**
-   * Creates a <code>WritableRaster</code> with the specified width and
-   * height that has a data layout (<code>SampleModel</code>) compatible
-   * with this <code>ColorModel</code>.
+   * Creates a {@code WritableRaster} with the specified width and
+   * height that has a data layout ({@code SampleModel}) compatible
+   * with this {@code ColorModel}.
    *
-   * @param w the width to apply to the new <code>WritableRaster</code>
-   * @param h the height to apply to the new <code>WritableRaster</code>
-   * @return a <code>WritableRaster</code> object with the specified
+   * @param w the width to apply to the new {@code WritableRaster}
+   * @param h the height to apply to the new {@code WritableRaster}
+   * @return a {@code WritableRaster} object with the specified
    * width and height.
-   * @throws IllegalArgumentException if <code>w</code> or <code>h</code>
+   * @throws IllegalArgumentException if {@code w} or {@code h}
    *                                  is less than or equal to zero
    * @see WritableRaster
    * @see SampleModel
    */
-  final public WritableRaster createCompatibleWritableRaster(int w, int h) {
-    if ((w <= 0) || (h <= 0)) {
+  @Override
+  public final WritableRaster createCompatibleWritableRaster(int w, int h) {
+    if (w <= 0 || h <= 0) {
       throw new IllegalArgumentException("Width (" + w + ") and height (" + h +
           ") cannot be <= 0");
     }

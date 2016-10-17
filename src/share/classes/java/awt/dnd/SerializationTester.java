@@ -37,11 +37,12 @@ import java.io.Serializable;
  * @since 1.4
  */
 final class SerializationTester {
-  private static ObjectOutputStream stream;
+  private static final ObjectOutputStream stream;
 
   static {
     try {
       stream = new ObjectOutputStream(new OutputStream() {
+        @Override
         public void write(int b) {
         }
       });

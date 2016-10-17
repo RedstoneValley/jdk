@@ -33,17 +33,12 @@
   @run applet/othervm URIListToFileListBetweenJVMsTest.html
  */
 
-/**
- * URIListToFileListBetweenJVMsTest.java
- *
- * summary: DnD of File-List across JVM adds two empty items to the list
+/*
+  URIListToFileListBetweenJVMsTest.java
+
+  summary: DnD of File-List across JVM adds two empty items to the list
  */
 
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.process.ProcessCommunicator;
-import test.java.awt.regtesthelpers.process.ProcessResults;
-
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.InputEvent;
 
@@ -52,7 +47,7 @@ import static java.lang.Thread.sleep;
 public class URIListToFileListBetweenJVMsTest extends Applet {
 
     // information related to the test in common
-    static int VISIBLE_RAWS_IN_LIST=15;
+    static final int VISIBLE_RAWS_IN_LIST=15;
 
     public void init() {
         setLayout(new BorderLayout());
@@ -64,7 +59,7 @@ public class URIListToFileListBetweenJVMsTest extends Applet {
 
         Util.waitForIdle(null);
 
-        String [] args = new String [] {
+        String [] args = {
                 String.valueOf(sourceFrame.getNextLocationX()),
                 String.valueOf(sourceFrame.getNextLocationY()),
                 String.valueOf(sourceFrame.getDragSourcePointX()),
@@ -72,7 +67,7 @@ public class URIListToFileListBetweenJVMsTest extends Applet {
                 String.valueOf(sourceFrame.getSourceFilesNumber())
         };
 
-        ProcessResults processResults = ProcessCommunicator.executeChildProcess(this.getClass(), args);
+        ProcessResults processResults = ProcessCommunicator.executeChildProcess(getClass(), args);
 
         verifyTestResults(processResults);
 
@@ -90,7 +85,6 @@ public class URIListToFileListBetweenJVMsTest extends Applet {
 
     //We cannot make an instance of the applet without the default constructor
     public URIListToFileListBetweenJVMsTest() {
-        super();
     }
 
     //We need in this constructor to pass frame position between JVMs
@@ -102,7 +96,7 @@ public class URIListToFileListBetweenJVMsTest extends Applet {
 
         Util.waitForIdle(null);
 
-        final Robot robot = Util.createRobot();
+        Robot robot = Util.createRobot();
 
         robot.mouseMove((int)dragSourcePoint.getX(),(int)dragSourcePoint.getY());
         sleep(100);
@@ -123,7 +117,7 @@ public class URIListToFileListBetweenJVMsTest extends Applet {
         FILES_IN_THE_LIST_NUMBER_ARGUMENT;
 
         int extract (String [] args) {
-            return Integer.parseInt(args[this.ordinal()]);
+            return Integer.parseInt(args[ordinal()]);
         }
     }
 

@@ -34,18 +34,21 @@
  */
 
 import java.awt.*;
+import java.awt.BufferCapabilities.FlipContents;
 import java.awt.peer.*;
 import java.awt.event.PaintEvent;
 import java.awt.image.ImageProducer;
 import java.awt.image.ImageObserver;
 import java.awt.image.ColorModel;
 import java.awt.image.VolatileImage;
-import java.awt.GraphicsConfiguration;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 import sun.java2d.pipe.Region;
 
-public class StubPeerCrash {
-    public static int ITERATIONS = 20;
+public final class StubPeerCrash {
+    public static final int ITERATIONS = 20;
+
+    private StubPeerCrash() {
+    }
 
     public static void main(String []s)
     {
@@ -64,125 +67,198 @@ public class StubPeerCrash {
 }
 
 class AHeavyweightComponent extends Component {
-    private ComponentPeer peer = new StubComponentPeer();
+    private static final long serialVersionUID = -2355192972546054656L;
+    private final ComponentPeer peer = new StubComponentPeer();
 
     public AHeavyweightComponent(){
     }
 
+    @Override
     public boolean isLightweight() {
         return false;
     }
 
+    @Override
     public ComponentPeer getPeer(){
         return peer;
     }
 }
 
 class StubComponentPeer implements ComponentPeer {
-    public boolean isObscured(){return true;};
-    public boolean canDetermineObscurity(){return true;};
-    public void                setVisible(boolean b){};
-    public void                setEnabled(boolean b){};
-    public void                paint(Graphics g){};
-    public void                repaint(long tm, int x, int y, int width, int height){};
-    public void                print(Graphics g){};
-    public void                setBounds(int x, int y, int width, int height, int op){};
-    public void                handleEvent(AWTEvent e){};
-    public void                coalescePaintEvent(PaintEvent e){};
-    public Point               getLocationOnScreen(){return null;};
-    public Dimension           getPreferredSize(){return null;};
-    public Dimension           getMinimumSize(){return null;};
-    public ColorModel          getColorModel(){return null;};
-    public Toolkit             getToolkit(){return null;};
-    public Graphics            getGraphics(){return null;};
-    public FontMetrics         getFontMetrics(Font font){return null;};
-    public void                dispose(){};
-    public void                setForeground(Color c){};
-    public void                setBackground(Color c){};
-    public void                setFont(Font f){};
-    public void                updateCursorImmediately(){};
+    @Override
+    public boolean isObscured(){return true;}
+
+    @Override
+    public boolean canDetermineObscurity(){return true;}
+
+    @Override
+    public void                setVisible(boolean b){}
+
+    @Override
+    public void                setEnabled(boolean b){}
+
+    @Override
+    public void                paint(Graphics g){}
+
+    public void                repaint(long tm, int x, int y, int width, int height){}
+
+    @Override
+    public void                print(Graphics g){}
+
+    @Override
+    public void                setBounds(int x, int y, int width, int height, int op){}
+
+    @Override
+    public void                handleEvent(AWTEvent e){}
+
+    @Override
+    public void                coalescePaintEvent(PaintEvent e){}
+
+    @Override
+    public Point               getLocationOnScreen(){return null;}
+
+    @Override
+    public Dimension           getPreferredSize(){return null;}
+
+    @Override
+    public Dimension           getMinimumSize(){return null;}
+
+    @Override
+    public ColorModel          getColorModel(){return null;}
+
+    public Toolkit             getToolkit(){return null;}
+
+    @Override
+    public Graphics            getGraphics(){return null;}
+
+    @Override
+    public FontMetrics         getFontMetrics(Font font){return null;}
+
+    @Override
+    public void                dispose(){}
+
+    @Override
+    public void                setForeground(Color c){}
+
+    @Override
+    public void                setBackground(Color c){}
+
+    @Override
+    public void                setFont(Font f){}
+
+    @Override
+    public void                updateCursorImmediately(){}
+
+    @Override
     public boolean             requestFocus(Component lightweightChild,
                                      boolean temporary,
                                      boolean focusedWindowChangeAllowed,
-                                     long time, CausedFocusEvent.Cause cause){
+                                     long time, Cause cause){
         return true;
-    };
-    public boolean             isFocusable(){return true;};
+    }
 
-    public Image               createImage(ImageProducer producer){return null;};
-    public Image               createImage(int width, int height){return null;};
-    public VolatileImage       createVolatileImage(int width, int height){return null;};
-    public boolean             prepareImage(Image img, int w, int h, ImageObserver o){return true;};
-    public int                 checkImage(Image img, int w, int h, ImageObserver o){return 0;};
-    public GraphicsConfiguration getGraphicsConfiguration(){return null;};
-    public boolean     handlesWheelScrolling(){return true;};
-    public void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException{};
-    public Image getBackBuffer(){return null;};
-    public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction){};
-    public void destroyBuffers(){};
+    @Override
+    public boolean             isFocusable(){return true;}
+
+    @Override
+    public Image               createImage(ImageProducer producer){return null;}
+
+    @Override
+    public Image               createImage(int width, int height){return null;}
+
+    @Override
+    public VolatileImage       createVolatileImage(int width, int height){return null;}
+
+    @Override
+    public boolean             prepareImage(Image img, int w, int h, ImageObserver o){return true;}
+
+    @Override
+    public int                 checkImage(Image img, int w, int h, ImageObserver o){return 0;}
+
+    @Override
+    public GraphicsConfiguration getGraphicsConfiguration(){return null;}
+
+    @Override
+    public boolean     handlesWheelScrolling(){return true;}
+
+    @Override
+    public void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException{}
+
+    @Override
+    public Image getBackBuffer(){return null;}
+
+    @Override
+    public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction){}
+
+    @Override
+    public void destroyBuffers(){}
 
     /**
-     * Reparents this peer to the new parent referenced by <code>newContainer</code> peer
+     * Reparents this peer to the new parent referenced by {@code newContainer} peer
      * Implementation depends on toolkit and container.
      * @param newContainer peer of the new parent container
      * @since 1.5
      */
-    public void reparent(ContainerPeer newContainer){};
+    @Override
+    public void reparent(ContainerPeer newContainer){}
+
     /**
      * Returns whether this peer supports reparenting to another parent withour destroying the peer
      * @return true if appropriate reparent is supported, false otherwise
      * @since 1.5
      */
-    public boolean isReparentSupported(){return true;};
+    @Override
+    public boolean isReparentSupported(){return true;}
 
     /**
      * Used by lightweight implementations to tell a ComponentPeer to layout
      * its sub-elements.  For instance, a lightweight Checkbox needs to layout
      * the box, as well as the text label.
      */
-    public void        layout(){};
+    @Override
+    public void        layout(){}
 
-
-     public    Rectangle getBounds(){return null;};
+    public    Rectangle getBounds(){return null;}
 
     /**
      * Applies the shape to the native component window.
      * @since 1.7
      */
-    public void applyShape(Region shape){};
+    @Override
+    public void applyShape(Region shape){}
 
     /**
      * DEPRECATED:  Replaced by getPreferredSize().
      */
-    public Dimension           preferredSize(){return null;};
+    public Dimension           preferredSize(){return null;}
 
     /**
      * DEPRECATED:  Replaced by getMinimumSize().
      */
-    public Dimension           minimumSize(){return null;};
+    public Dimension           minimumSize(){return null;}
 
     /**
      * DEPRECATED:  Replaced by setVisible(boolean).
      */
-    public void                show(){};
+    public void                show(){}
 
     /**
      * DEPRECATED:  Replaced by setVisible(boolean).
      */
-    public void                hide(){};
+    public void                hide(){}
 
     /**
      * DEPRECATED:  Replaced by setEnabled(boolean).
      */
-    public void                enable(){};
+    public void                enable(){}
 
     /**
      * DEPRECATED:  Replaced by setEnabled(boolean).
      */
-    public void                disable(){};
+    public void                disable(){}
 
     /**
      * DEPRECATED:  Replaced by setBounds(int, int, int, int).
      */
-    public void                reshape(int x, int y, int width, int height){};
+    public void                reshape(int x, int y, int width, int height){}
 }

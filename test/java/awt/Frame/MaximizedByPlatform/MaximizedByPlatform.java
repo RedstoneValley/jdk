@@ -29,16 +29,20 @@
  */
 
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunToolkit;
 
 import java.awt.*;
 
-public class MaximizedByPlatform {
+public final class MaximizedByPlatform {
     private static Frame frame;
     private static Rectangle availableScreenBounds;
 
+    private MaximizedByPlatform() {
+    }
+
     public static void main(String[] args) {
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             // Test only for macosx. Pass
             return;
         }
@@ -84,22 +88,22 @@ public class MaximizedByPlatform {
     }
 
     private static Rectangle getAvailableScreenBounds() {
-        final Toolkit toolkit = Toolkit.getDefaultToolkit();
-        final GraphicsEnvironment graphicsEnvironment =
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        GraphicsEnvironment graphicsEnvironment =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
-        final GraphicsDevice graphicsDevice =
+        GraphicsDevice graphicsDevice =
                 graphicsEnvironment.getDefaultScreenDevice();
 
-        final Dimension screenSize = toolkit.getScreenSize();
-        final Insets screenInsets = toolkit.getScreenInsets(
+        Dimension screenSize = toolkit.getScreenSize();
+        Insets screenInsets = toolkit.getScreenInsets(
                 graphicsDevice.getDefaultConfiguration());
 
-        final Rectangle availableScreenBounds = new Rectangle(screenSize);
+        Rectangle availableScreenBounds = new Rectangle(screenSize);
 
         availableScreenBounds.x += screenInsets.left;
         availableScreenBounds.y += screenInsets.top;
-        availableScreenBounds.width -= (screenInsets.left + screenInsets.right);
-        availableScreenBounds.height -= (screenInsets.top + screenInsets.bottom);
+        availableScreenBounds.width -= screenInsets.left + screenInsets.right;
+        availableScreenBounds.height -= screenInsets.top + screenInsets.bottom;
         return availableScreenBounds;
     }
 }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6581756
  * @summary Test printing of images which need to have src area clipped
  * @run main/manual=yesno PrintARGBImage
@@ -34,7 +34,7 @@ import java.awt.print.*;
 
 public class PrintARGBImage implements Printable {
 
-    static String[] text = {
+    static final String[] text = {
      "This is a manual test which needs a printer installed",
      "If you have no printer installed you CANNOT use this test",
      "It runs automatically and sends one page to the default printer",
@@ -43,8 +43,8 @@ public class PrintARGBImage implements Printable {
 
     public static void main( String[] args ) {
 
-        for (int i=0;i<text.length;i++) {
-            System.out.println(text[i]);
+        for (String aText : text) {
+            System.out.println(aText);
         }
 
         try {
@@ -55,6 +55,7 @@ public class PrintARGBImage implements Printable {
         }
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex)
                throws PrinterException{
 

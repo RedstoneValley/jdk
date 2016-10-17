@@ -57,6 +57,6 @@ public class Mutex {
   }
 
   protected boolean isOwned() {
-    return (locked && Thread.currentThread() == owner);
+    return locked && Thread.currentThread() == owner;
   }
 }

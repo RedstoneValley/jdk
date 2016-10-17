@@ -36,5 +36,5 @@ public interface ProfileActivator {
   /**
    * Activate a previously deferred ICC_Profile object.
    */
-  public void activate() throws ProfileDataException;
+  void activate() throws ProfileDataException;
 }

@@ -63,16 +63,16 @@ package java.awt.image;
 public abstract class RGBImageFilter extends ImageFilter {
 
   /**
-   * The <code>ColorModel</code> to be replaced by
-   * <code>newmodel</code> when the user calls
+   * The {@code ColorModel} to be replaced by
+   * {@code newmodel} when the user calls
    * {@link #substituteColorModel(ColorModel, ColorModel) substituteColorModel}.
    */
   protected ColorModel origmodel;
 
   /**
-   * The <code>ColorModel</code> with which to
-   * replace <code>origmodel</code> when the user calls
-   * <code>substituteColorModel</code>.
+   * The {@code ColorModel} with which to
+   * replace {@code origmodel} when the user calls
+   * {@code substituteColorModel}.
    */
   protected ColorModel newmodel;
 
@@ -100,7 +100,7 @@ public abstract class RGBImageFilter extends ImageFilter {
    * specifies the default RGB ColorModel instead.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -109,8 +109,9 @@ public abstract class RGBImageFilter extends ImageFilter {
    * @see ImageConsumer
    * @see ColorModel#getRGBdefault
    */
+  @Override
   public void setColorModel(ColorModel model) {
-    if (canFilterIndexColorModel && (model instanceof IndexColorModel)) {
+    if (canFilterIndexColorModel && model instanceof IndexColorModel) {
       ColorModel newcm = filterIndexColorModel((IndexColorModel) model);
       substituteColorModel(model, newcm);
       consumer.setColorModel(newcm);
@@ -127,7 +128,7 @@ public abstract class RGBImageFilter extends ImageFilter {
    * buffer to the filterRGBPixels method to be converted one by one.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -136,16 +137,17 @@ public abstract class RGBImageFilter extends ImageFilter {
    * @see ColorModel#getRGBdefault
    * @see #filterRGBPixels
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, byte[] pixels, int off, int scansize) {
     if (model == origmodel) {
       consumer.setPixels(x, y, w, h, newmodel, pixels, off, scansize);
     } else {
-      int filteredpixels[] = new int[w];
+      int[] filteredpixels = new int[w];
       int index = off;
       for (int cy = 0; cy < h; cy++) {
         for (int cx = 0; cx < w; cx++) {
-          filteredpixels[cx] = model.getRGB((pixels[index] & 0xff));
+          filteredpixels[cx] = model.getRGB(pixels[index] & 0xff);
           index++;
         }
         index += scansize - w;
@@ -164,7 +166,7 @@ public abstract class RGBImageFilter extends ImageFilter {
    * and passes the converted buffer to the filterRGBPixels method.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -173,12 +175,13 @@ public abstract class RGBImageFilter extends ImageFilter {
    * @see ColorModel#getRGBdefault
    * @see #filterRGBPixels
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, int pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, int[] pixels, int off, int scansize) {
     if (model == origmodel) {
       consumer.setPixels(x, y, w, h, newmodel, pixels, off, scansize);
     } else {
-      int filteredpixels[] = new int[w];
+      int[] filteredpixels = new int[w];
       int index = off;
       for (int cy = 0; cy < h; cy++) {
         for (int cx = 0; cx < w; cx++) {
@@ -214,14 +217,14 @@ public abstract class RGBImageFilter extends ImageFilter {
    *
    * @param icm the IndexColorModel object to be filtered
    * @return a new IndexColorModel representing the filtered colors
-   * @throws NullPointerException if <code>icm</code> is null
+   * @throws NullPointerException if {@code icm} is null
    */
   public IndexColorModel filterIndexColorModel(IndexColorModel icm) {
     int mapsize = icm.getMapSize();
-    byte r[] = new byte[mapsize];
-    byte g[] = new byte[mapsize];
-    byte b[] = new byte[mapsize];
-    byte a[] = new byte[mapsize];
+    byte[] r = new byte[mapsize];
+    byte[] g = new byte[mapsize];
+    byte[] b = new byte[mapsize];
+    byte[] a = new byte[mapsize];
     icm.getReds(r);
     icm.getGreens(g);
     icm.getBlues(b);
@@ -231,18 +234,15 @@ public abstract class RGBImageFilter extends ImageFilter {
     for (int i = 0; i < mapsize; i++) {
       int rgb = filterRGB(-1, -1, icm.getRGB(i));
       a[i] = (byte) (rgb >> 24);
-      if (a[i] != ((byte) 0xff) && i != trans) {
+      if (a[i] != (byte) 0xff && i != trans) {
         needalpha = true;
       }
       r[i] = (byte) (rgb >> 16);
       g[i] = (byte) (rgb >> 8);
-      b[i] = (byte) (rgb >> 0);
+      b[i] = (byte) (rgb);
     }
-    if (needalpha) {
-      return new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, a);
-    } else {
-      return new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, trans);
-    }
+    return needalpha ? new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, a)
+        : new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, trans);
   }
 
   /**
@@ -256,13 +256,13 @@ public abstract class RGBImageFilter extends ImageFilter {
    * @param w        the width of the region of pixels
    * @param h        the height of the region of pixels
    * @param pixels   the array of pixels
-   * @param off      the offset into the <code>pixels</code> array
+   * @param off      the offset into the {@code pixels} array
    * @param scansize the distance from one row of pixels to the next
    *                 in the array
    * @see ColorModel#getRGBdefault
    * @see #filterRGB
    */
-  public void filterRGBPixels(int x, int y, int w, int h, int pixels[], int off, int scansize) {
+  public void filterRGBPixels(int x, int y, int w, int h, int[] pixels, int off, int scansize) {
     int index = off;
     for (int cy = 0; cy < h; cy++) {
       for (int cx = 0; cx < w; cx++) {

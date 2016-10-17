@@ -51,10 +51,17 @@ import java.awt.image.WritableRaster;
 public class ByteInterleavedRaster extends ByteComponentRaster {
 
   /**
+   * A cached copy of minX + width for use in bounds checks.
+   */
+  private final int maxX;
+  /**
+   * A cached copy of minY + height for use in bounds checks.
+   */
+  private final int maxY;
+  /**
    * True if the data offsets range from 0 to (pixelStride - 1) in order.
    */
   boolean inOrder;
-
   /**
    * The DataBuffer offset, minus sampleModelTranslateX*pixelStride,
    * minus sampleModelTranslateY*scanlineStride, used to calculate
@@ -62,31 +69,18 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    */
   int dbOffset;
   int dbOffsetPacked;
-
   /**
    * True if a SinglePixelPackedSampleModel is being used.
    */
-  boolean packed = false;
-
+  boolean packed;
   /**
    * If packed == true, the SampleModel's bit masks.
    */
   int[] bitMasks;
-
   /**
    * If packed == true, the SampleModel's bit offsets.
    */
   int[] bitOffsets;
-
-  /**
-   * A cached copy of minX + width for use in bounds checks.
-   */
-  private int maxX;
-
-  /**
-   * A cached copy of minY + height for use in bounds checks.
-   */
-  private int maxY;
 
   /**
    * Constructs a ByteInterleavedRaster with the given SampleModel.
@@ -99,8 +93,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param origin      The Point that specified the origin.
    */
   public ByteInterleavedRaster(SampleModel sampleModel, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         sampleModel.createDataBuffer(),
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -120,8 +113,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param origin      The Point that specifies the origin.
    */
   public ByteInterleavedRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -152,37 +144,37 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point origin,
       ByteInterleavedRaster parent) {
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
 
     if (!(dataBuffer instanceof DataBufferByte)) {
       throw new RasterFormatException("ByteInterleavedRasters must have " + "byte DataBuffers");
     }
 
     DataBufferByte dbb = (DataBufferByte) dataBuffer;
-    this.data = stealData(dbb, 0);
+    data = stealData(dbb, 0);
 
     int xOffset = aRegion.x - origin.x;
     int yOffset = aRegion.y - origin.y;
-    if (sampleModel instanceof PixelInterleavedSampleModel || (
-        sampleModel instanceof ComponentSampleModel
-            && isInterleaved((ComponentSampleModel) sampleModel))) {
+    if (sampleModel instanceof PixelInterleavedSampleModel
+        || sampleModel instanceof ComponentSampleModel
+        && isInterleaved((ComponentSampleModel) sampleModel)) {
       ComponentSampleModel csm = (ComponentSampleModel) sampleModel;
-      this.scanlineStride = csm.getScanlineStride();
-      this.pixelStride = csm.getPixelStride();
-      this.dataOffsets = csm.getBandOffsets();
+      scanlineStride = csm.getScanlineStride();
+      pixelStride = csm.getPixelStride();
+      dataOffsets = csm.getBandOffsets();
       for (int i = 0; i < getNumDataElements(); i++) {
         dataOffsets[i] += xOffset * pixelStride + yOffset * scanlineStride;
       }
     } else if (sampleModel instanceof SinglePixelPackedSampleModel) {
       SinglePixelPackedSampleModel sppsm = (SinglePixelPackedSampleModel) sampleModel;
-      this.packed = true;
-      this.bitMasks = sppsm.getBitMasks();
-      this.bitOffsets = sppsm.getBitOffsets();
-      this.scanlineStride = sppsm.getScanlineStride();
-      this.pixelStride = 1;
-      this.dataOffsets = new int[1];
-      this.dataOffsets[0] = dbb.getOffset();
+      packed = true;
+      bitMasks = sppsm.getBitMasks();
+      bitOffsets = sppsm.getBitOffsets();
+      scanlineStride = sppsm.getScanlineStride();
+      pixelStride = 1;
+      dataOffsets = new int[1];
+      dataOffsets[0] = dbb.getOffset();
       dataOffsets[0] += xOffset * pixelStride + yOffset * scanlineStride;
     } else {
       throw new RasterFormatException("ByteInterleavedRasters must " +
@@ -190,16 +182,16 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
           " or interleaved ComponentSampleModel.  Sample model is " +
           sampleModel);
     }
-    this.bandOffset = this.dataOffsets[0];
+    bandOffset = dataOffsets[0];
 
-    this.dbOffsetPacked = dataBuffer.getOffset() -
+    dbOffsetPacked = dataBuffer.getOffset() -
         sampleModelTranslateY * scanlineStride -
         sampleModelTranslateX * pixelStride;
-    this.dbOffset = dbOffsetPacked - (xOffset * pixelStride + yOffset * scanlineStride);
+    dbOffset = dbOffsetPacked - (xOffset * pixelStride + yOffset * scanlineStride);
 
     // Set inOrder to true if the data elements are in order and
     // have no gaps between them
-    this.inOrder = false;
+    inOrder = false;
     if (numDataElements == pixelStride) {
       inOrder = true;
       for (int i = 1; i < numDataElements; i++) {
@@ -251,11 +243,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         maxOffset = offset;
       }
     }
-    if (maxOffset - minOffset >= sm.getPixelStride()) {
-      return false;
-    }
-
-    return true;
+    return maxOffset - minOffset < sm.getPixelStride();
   }
 
   /**
@@ -263,8 +251,9 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * is the index into the band's data array, of the first sample of the
    * band.
    */
+  @Override
   public int[] getDataOffsets() {
-    return (int[]) dataOffsets.clone();
+    return dataOffsets.clone();
   }
 
   /**
@@ -274,6 +263,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param band The band whose offset is returned.
    */
+  @Override
   public int getDataOffset(int band) {
     return dataOffsets[band];
   }
@@ -283,6 +273,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * a given sample and the sample in the same column of the next row in the
    * same band.
    */
+  @Override
   public int getScanlineStride() {
     return scanlineStride;
   }
@@ -291,6 +282,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * Returns pixel stride -- the number of data array elements between two
    * samples for the same band on the same scanline.
    */
+  @Override
   public int getPixelStride() {
     return pixelStride;
   }
@@ -298,6 +290,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
   /**
    * Returns a reference to the data array.
    */
+  @Override
   public byte[] getDataStorage() {
     return data;
   }
@@ -315,17 +308,16 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param band    The band to return.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
    * @return Data array with data elements for all bands.
    */
+  @Override
   public byte[] getByteData(int x, int y, int w, int h, int band, byte[] outData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
@@ -351,7 +343,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
+          outData[off] = data[xoff];
+          off++;
         }
       }
     }
@@ -375,15 +368,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
    * @return Data array with data elements for all bands.
    */
+  @Override
   public byte[] getByteData(int x, int y, int w, int h, byte[] outData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
@@ -411,7 +403,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
+          outData[off] = data[xoff];
+          off++;
         }
       }
     } else if (numDataElements == 2) {
@@ -420,8 +413,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
-          outData[off++] = data[xoff + d1];
+          outData[off] = data[xoff];
+          off++;
+          outData[off] = data[xoff + d1];
+          off++;
         }
       }
     } else if (numDataElements == 3) {
@@ -431,9 +426,12 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
-          outData[off++] = data[xoff + d1];
-          outData[off++] = data[xoff + d2];
+          outData[off] = data[xoff];
+          off++;
+          outData[off] = data[xoff + d1];
+          off++;
+          outData[off] = data[xoff + d2];
+          off++;
         }
       }
     } else if (numDataElements == 4) {
@@ -444,10 +442,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
-          outData[off++] = data[xoff + d1];
-          outData[off++] = data[xoff + d2];
-          outData[off++] = data[xoff + d3];
+          outData[off] = data[xoff];
+          off++;
+          outData[off] = data[xoff + d1];
+          off++;
+          outData[off] = data[xoff + d2];
+          off++;
+          outData[off] = data[xoff + d3];
+          off++;
         }
       }
     } else {
@@ -455,7 +457,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
           for (int c = 0; c < numDataElements; c++) {
-            outData[off++] = data[dataOffsets[c] + xoff];
+            outData[off] = data[dataOffsets[c] + xoff];
+            off++;
           }
         }
       }
@@ -483,10 +486,11 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param band   The band to set.
    * @param inData The data elements to be stored.
    */
+  @Override
   public void putByteData(int x, int y, int w, int h, int band, byte[] inData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int yoff = (y - minY) * scanlineStride +
@@ -509,7 +513,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
         }
       }
     }
@@ -535,9 +540,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param h      Height of the pixel rectangle.
    * @param inData The data elements to be stored.
    */
+  @Override
   public void putByteData(int x, int y, int w, int h, byte[] inData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
@@ -563,7 +569,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
         }
       }
     } else if (numDataElements == 2) {
@@ -572,8 +579,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
-          data[xoff + d1] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
+          data[xoff + d1] = inData[off];
+          off++;
         }
       }
     } else if (numDataElements == 3) {
@@ -583,9 +592,12 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
-          data[xoff + d1] = inData[off++];
-          data[xoff + d2] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
+          data[xoff + d1] = inData[off];
+          off++;
+          data[xoff + d2] = inData[off];
+          off++;
         }
       }
     } else if (numDataElements == 4) {
@@ -596,10 +608,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
-          data[xoff + d1] = inData[off++];
-          data[xoff + d2] = inData[off++];
-          data[xoff + d3] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
+          data[xoff + d1] = inData[off];
+          off++;
+          data[xoff + d2] = inData[off];
+          off++;
+          data[xoff + d3] = inData[off];
+          off++;
         }
       }
     } else {
@@ -607,7 +623,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
           for (int c = 0; c < numDataElements; c++) {
-            data[dataOffsets[c] + xoff] = inData[off++];
+            data[dataOffsets[c] + xoff] = inData[off];
+            off++;
           }
         }
       }
@@ -635,34 +652,30 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent Raster.
    */
+  @Override
   public WritableRaster createWritableChild(
       int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    if (x < this.minX) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside the raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside the raster");
     }
-    if ((x + width < x) || (x + width > this.minX + this.width)) {
+    if (x + width < x || x + width > minX + this.width) {
       throw new RasterFormatException("(x + width) is outside of Raster");
     }
-    if ((y + height < y) || (y + height > this.minY + this.height)) {
+    if (y + height < y || y + height > minY + this.height) {
       throw new RasterFormatException("(y + height) is outside of Raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
 
-    return new ByteInterleavedRaster(
-        sm,
+    return new ByteInterleavedRaster(sm,
         dataBuffer,
         new Rectangle(x0, y0, width, height),
         new Point(sampleModelTranslateX + deltaX, sampleModelTranslateY + deltaY),
@@ -678,16 +691,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte inData[] = (byte[]) obj;
+    byte[] inData = (byte[]) obj;
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
 
     for (int i = 0; i < numDataElements; i++) {
@@ -706,6 +717,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     int srcOffX = inRaster.getMinX();
     int srcOffY = inRaster.getMinY();
@@ -713,8 +725,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     int dstOffY = y + srcOffY;
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
 
@@ -739,11 +751,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
     putByteData(x, y, w, h, (byte[]) obj);
   }
@@ -754,6 +763,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * the Raster is a subRaster, this will call
    * createCompatibleRaster(width, height).
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -762,9 +772,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * Creates a Raster with the same layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -791,9 +802,9 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    WritableRaster newRaster = createWritableChild(x, y, width, height, x0, y0, bandList);
-    return (Raster) newRaster;
+    return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
   /**
@@ -806,24 +817,17 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte outData[];
-    if (obj == null) {
-      outData = new byte[numDataElements];
-    } else {
-      outData = (byte[]) obj;
-    }
+    byte[] outData;
+    outData = obj == null ? new byte[numDataElements] : (byte[]) obj;
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
 
     for (int band = 0; band < numDataElements; band++) {
@@ -851,25 +855,19 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object obj) {
     return getByteData(x, y, w, h, (byte[]) obj);
   }
 
   public String toString() {
-    return new String(
-        "ByteInterleavedRaster: width = " + width + " height = " + height + " #numDataElements "
-            + numDataElements
-            //  +" xOff = "+xOffset+" yOff = "+yOffset
-            + " dataOff[0] = " + dataOffsets[0]);
+    return "ByteInterleavedRaster: width = " + width + " height = " + height + " #numDataElements "
+        + numDataElements
+        //  +" xOff = "+xOffset+" yOff = "+yOffset
+        + " dataOff[0] = " + dataOffsets[0];
   }
 
   /**
@@ -936,17 +934,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     }
   }
 
+  @Override
   public int[] getPixels(int x, int y, int w, int h, int[] iArray) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int pixels[];
-    if (iArray != null) {
-      pixels = iArray;
-    } else {
-      pixels = new int[w * h * numBands];
-    }
+    int[] pixels;
+    pixels = iArray != null ? iArray : new int[w * h * numBands];
 
     int lineOffset = y * scanlineStride + x * pixelStride;
     int dstOffset = 0;
@@ -957,7 +952,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int i = 0; i < w; i++) {
           int value = data[lineOffset + i];
           for (int k = 0; k < numBands; k++) {
-            pixels[dstOffset++] = (value & bitMasks[k]) >>> bitOffsets[k];
+            pixels[dstOffset] = (value & bitMasks[k]) >>> bitOffsets[k];
+            dstOffset++;
           }
         }
         lineOffset += scanlineStride;
@@ -970,7 +966,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            pixels[dstOffset++] = data[pixelOffset] & 0xff;
+            pixels[dstOffset] = data[pixelOffset] & 0xff;
+            dstOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -980,8 +977,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            pixels[dstOffset++] = data[pixelOffset] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d1] & 0xff;
+            pixels[dstOffset] = data[pixelOffset] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d1] & 0xff;
+            dstOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -992,9 +991,12 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            pixels[dstOffset++] = data[pixelOffset] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d1] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d2] & 0xff;
+            pixels[dstOffset] = data[pixelOffset] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d1] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d2] & 0xff;
+            dstOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1006,10 +1008,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            pixels[dstOffset++] = data[pixelOffset] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d1] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d2] & 0xff;
-            pixels[dstOffset++] = data[pixelOffset + d3] & 0xff;
+            pixels[dstOffset] = data[pixelOffset] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d1] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d2] & 0xff;
+            dstOffset++;
+            pixels[dstOffset] = data[pixelOffset + d3] & 0xff;
+            dstOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1019,7 +1025,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
           int pixelOffset = lineOffset;
           for (int i = 0; i < w; i++) {
             for (int k = 0; k < numBands; k++) {
-              pixels[dstOffset++] = data[pixelOffset + dataOffsets[k]] & 0xff;
+              pixels[dstOffset] = data[pixelOffset + dataOffsets[k]] & 0xff;
+              dstOffset++;
             }
             pixelOffset += pixelStride;
           }
@@ -1031,9 +1038,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     return pixels;
   }
 
+  @Override
   public int getSample(int x, int y, int b) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (packed) {
@@ -1046,17 +1054,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     }
   }
 
+  @Override
   public int[] getSamples(int x, int y, int w, int h, int b, int[] iArray) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int samples[];
-    if (iArray != null) {
-      samples = iArray;
-    } else {
-      samples = new int[w * h];
-    }
+    int[] samples;
+    samples = iArray != null ? iArray : new int[w * h];
 
     int lineOffset = y * scanlineStride + x * pixelStride;
     int dstOffset = 0;
@@ -1069,8 +1074,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (int j = 0; j < h; j++) {
         int sampleOffset = lineOffset;
         for (int i = 0; i < w; i++) {
-          int value = data[sampleOffset++];
-          samples[dstOffset++] = ((value & bitMask) >>> bitOffset);
+          int value = data[sampleOffset];
+          sampleOffset++;
+          samples[dstOffset] = (value & bitMask) >>> bitOffset;
+          dstOffset++;
         }
         lineOffset += scanlineStride;
       }
@@ -1079,7 +1086,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (int j = 0; j < h; j++) {
         int sampleOffset = lineOffset;
         for (int i = 0; i < w; i++) {
-          samples[dstOffset++] = data[sampleOffset] & 0xff;
+          samples[dstOffset] = data[sampleOffset] & 0xff;
+          dstOffset++;
           sampleOffset += pixelStride;
         }
         lineOffset += scanlineStride;
@@ -1089,6 +1097,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     return samples;
   }
 
+  @Override
   public void setRect(int dx, int dy, Raster srcRaster) {
     if (!(srcRaster instanceof ByteInterleavedRaster)) {
       super.setRect(dx, dy, srcRaster);
@@ -1103,31 +1112,32 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     int dstOffY = dy + srcOffY;
 
     // Clip to this raster
-    if (dstOffX < this.minX) {
+    if (dstOffX < minX) {
       int skipX = minX - dstOffX;
       width -= skipX;
       srcOffX += skipX;
-      dstOffX = this.minX;
+      dstOffX = minX;
     }
-    if (dstOffY < this.minY) {
-      int skipY = this.minY - dstOffY;
+    if (dstOffY < minY) {
+      int skipY = minY - dstOffY;
       height -= skipY;
       srcOffY += skipY;
-      dstOffY = this.minY;
+      dstOffY = minY;
     }
-    if (dstOffX + width > this.maxX) {
-      width = this.maxX - dstOffX;
+    if (dstOffX + width > maxX) {
+      width = maxX - dstOffX;
     }
-    if (dstOffY + height > this.maxY) {
-      height = this.maxY - dstOffY;
+    if (dstOffY + height > maxY) {
+      height = maxY - dstOffY;
     }
 
     setDataElements(dstOffX, dstOffY, srcOffX, srcOffY, width, height, srcRaster);
   }
 
+  @Override
   public void setPixels(int x, int y, int w, int h, int[] iArray) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int lineOffset = y * scanlineStride + x * pixelStride;
@@ -1139,8 +1149,9 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int i = 0; i < w; i++) {
           int value = 0;
           for (int k = 0; k < numBands; k++) {
-            int srcValue = iArray[srcOffset++];
-            value |= ((srcValue << bitOffsets[k]) & bitMasks[k]);
+            int srcValue = iArray[srcOffset];
+            srcOffset++;
+            value |= srcValue << bitOffsets[k] & bitMasks[k];
           }
           data[lineOffset + i] = (byte) value;
         }
@@ -1154,7 +1165,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            data[pixelOffset] = (byte) iArray[srcOffset++];
+            data[pixelOffset] = (byte) iArray[srcOffset];
+            srcOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1164,8 +1176,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            data[pixelOffset] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d1] = (byte) iArray[srcOffset++];
+            data[pixelOffset] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d1] = (byte) iArray[srcOffset];
+            srcOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1176,9 +1190,12 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            data[pixelOffset] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d1] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d2] = (byte) iArray[srcOffset++];
+            data[pixelOffset] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d1] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d2] = (byte) iArray[srcOffset];
+            srcOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1190,10 +1207,14 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int j = 0; j < h; j++) {
           int pixelOffset = lineOffset + d0;
           for (int i = 0; i < w; i++) {
-            data[pixelOffset] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d1] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d2] = (byte) iArray[srcOffset++];
-            data[pixelOffset + d3] = (byte) iArray[srcOffset++];
+            data[pixelOffset] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d1] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d2] = (byte) iArray[srcOffset];
+            srcOffset++;
+            data[pixelOffset + d3] = (byte) iArray[srcOffset];
+            srcOffset++;
             pixelOffset += pixelStride;
           }
           lineOffset += scanlineStride;
@@ -1203,7 +1224,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
           int pixelOffset = lineOffset;
           for (int i = 0; i < w; i++) {
             for (int k = 0; k < numBands; k++) {
-              data[pixelOffset + dataOffsets[k]] = (byte) iArray[srcOffset++];
+              data[pixelOffset + dataOffsets[k]] = (byte) iArray[srcOffset];
+              srcOffset++;
             }
             pixelOffset += pixelStride;
           }
@@ -1215,9 +1237,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     markDirty();
   }
 
+  @Override
   public void setSample(int x, int y, int b, int s) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (packed) {
@@ -1226,7 +1249,7 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
 
       byte value = data[offset];
       value &= ~bitMask;
-      value |= (s << bitOffsets[b]) & bitMask;
+      value |= s << bitOffsets[b] & bitMask;
       data[offset] = value;
     } else {
       int offset = y * scanlineStride + x * pixelStride + dbOffset;
@@ -1236,9 +1259,10 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
     markDirty();
   }
 
-  public void setSamples(int x, int y, int w, int h, int b, int iArray[]) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+  @Override
+  public void setSamples(int x, int y, int w, int h, int b, int[] iArray) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int lineOffset = y * scanlineStride + x * pixelStride;
@@ -1253,9 +1277,11 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
         for (int i = 0; i < w; i++) {
           byte value = data[sampleOffset];
           value &= ~bitMask;
-          int sample = iArray[srcOffset++];
-          value |= (sample << bitOffsets[b]) & bitMask;
-          data[sampleOffset++] = value;
+          int sample = iArray[srcOffset];
+          srcOffset++;
+          value |= sample << bitOffsets[b] & bitMask;
+          data[sampleOffset] = value;
+          sampleOffset++;
         }
         lineOffset += scanlineStride;
       }
@@ -1264,7 +1290,8 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
       for (int i = 0; i < h; i++) {
         int sampleOffset = lineOffset;
         for (int j = 0; j < w; j++) {
-          data[sampleOffset] = (byte) iArray[srcOffset++];
+          data[sampleOffset] = (byte) iArray[srcOffset];
+          srcOffset++;
           sampleOffset += pixelStride;
         }
         lineOffset += scanlineStride;

@@ -32,11 +32,10 @@
  */
 
 import java.awt.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class bug7024749 {
+public final class bug7024749 {
     public static void main(String[] args) {
-        final Frame f = new Frame("F");
+        Frame f = new Frame("F");
         f.setBounds(0,0,200,200);
         f.setEnabled(false); // <- disable the top-level
         f.setVisible(true);

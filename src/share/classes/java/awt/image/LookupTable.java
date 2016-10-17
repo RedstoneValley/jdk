@@ -42,7 +42,7 @@ package java.awt.image;
  * @see ShortLookupTable
  * @see LookupOp
  */
-public abstract class LookupTable extends Object {
+public abstract class LookupTable {
 
   /**
    * Constants
@@ -57,11 +57,11 @@ public abstract class LookupTable extends Object {
    * into the lookup table.
    *
    * @param offset        the offset to subtract from input values before indexing
-   *                      into the data arrays for this <code>LookupTable</code>
+   *                      into the data arrays for this {@code LookupTable}
    * @param numComponents the number of data arrays in this
-   *                      <code>LookupTable</code>
-   * @throws IllegalArgumentException if <code>offset</code> is less than 0
-   *                                  or if <code>numComponents</code> is less than 1
+   *                      {@code LookupTable}
+   * @throws IllegalArgumentException if {@code offset} is less than 0
+   *                                  or if {@code numComponents} is less than 1
    */
   protected LookupTable(int offset, int numComponents) {
     if (offset < 0) {
@@ -77,7 +77,7 @@ public abstract class LookupTable extends Object {
   /**
    * Returns the number of components in the lookup table.
    *
-   * @return the number of components in this <code>LookupTable</code>.
+   * @return the number of components in this {@code LookupTable}.
    */
   public int getNumComponents() {
     return numComponents;
@@ -86,23 +86,23 @@ public abstract class LookupTable extends Object {
   /**
    * Returns the offset.
    *
-   * @return the offset of this <code>LookupTable</code>.
+   * @return the offset of this {@code LookupTable}.
    */
   public int getOffset() {
     return offset;
   }
 
   /**
-   * Returns an <code>int</code> array of components for
-   * one pixel.  The <code>dest</code> array contains the
+   * Returns an {@code int} array of components for
+   * one pixel.  The {@code dest} array contains the
    * result of the lookup and is returned.  If dest is
-   * <code>null</code>, a new array is allocated.  The
+   * {@code null}, a new array is allocated.  The
    * source and destination can be equal.
    *
    * @param src  the source array of components of one pixel
    * @param dest the destination array of components for one pixel,
-   *             translated with this <code>LookupTable</code>
-   * @return an <code>int</code> array of components for one
+   *             translated with this {@code LookupTable}
+   * @return an {@code int} array of components for one
    * pixel.
    */
   public abstract int[] lookupPixel(int[] src, int[] dest);

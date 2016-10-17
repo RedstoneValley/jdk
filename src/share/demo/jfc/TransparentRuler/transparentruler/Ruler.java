@@ -57,15 +57,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D.Float;
-import java.lang.reflect.InvocationTargetException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 
 /**
  * This sample demonstrates shaped and translucent window feature.
@@ -76,14 +67,14 @@ import javax.swing.WindowConstants;
 public class Ruler extends JFrame {
 
   private static final Color BACKGROUND = Color.RED;
-  private static final Color FOREGROUND = Color.WHITE;
+  static final Color FOREGROUND = Color.WHITE;
   private static final int OPACITY = 180;
   private static final int W = 70;
   private static final int F_HEIGHT = 400;
   private static final int F_WIDTH = (int) (F_HEIGHT * 1.618 + 0.5);
 
-  private static boolean translucencySupported;
-  private static boolean transparencySupported;
+  static boolean translucencySupported;
+  static boolean transparencySupported;
   private final ComponentAdapter componentListener = new ComponentAdapter() {
 
     /**
@@ -99,7 +90,7 @@ public class Ruler extends JFrame {
       }
     }
   };
-  private final Action exitAction = new AbstractAction("Exit") {
+  final Action exitAction = new AbstractAction("Exit") {
 
     {
       putValue(Action.MNEMONIC_KEY, KeyEvent.VK_X);
@@ -110,7 +101,7 @@ public class Ruler extends JFrame {
       System.exit(0);
     }
   };
-  private final JPopupMenu jPopupMenu = new JPopupMenu();
+  final JPopupMenu jPopupMenu = new JPopupMenu();
   /**
    * Implements mouse-related behavior: window dragging and popup menu
    * invocation
@@ -213,7 +204,7 @@ public class Ruler extends JFrame {
         gg.setColor(FOREGROUND);
         for (int x = 0; x < w * (h - 8) / h - 5; x += 5) {
           boolean hi = x % 50 == 0;
-          gg.drawLine(x + 5, 0, x + 5, hi ? 20 : (x % 25 == 0 ? 13 : 8));
+          gg.drawLine(x + 5, 0, x + 5, hi ? 20 : x % 25 == 0 ? 13 : 8);
           if (hi) {
             String number = Integer.toString(x);
             int ww = gg.getFontMetrics().stringWidth(number);
@@ -229,7 +220,7 @@ public class Ruler extends JFrame {
     setLocationByPlatform(true);
   }
 
-  private static boolean checkTranslucencyMode(WindowTranslucency arg) {
+  static boolean checkTranslucencyMode(WindowTranslucency arg) {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice gd = ge.getDefaultScreenDevice();
     return gd.isWindowTranslucencySupported(arg);
@@ -238,7 +229,7 @@ public class Ruler extends JFrame {
   /**
    * @param args the command line arguments are ignored
    */
-  public static void main(String[] args) throws InterruptedException, InvocationTargetException {
+  public static void main(String[] args) {
 
     SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -264,7 +255,7 @@ public class Ruler extends JFrame {
     int h = getHeight();
     int w = getWidth();
     float a = (float) Math.hypot(h, w);
-    Float path = new java.awt.geom.Path2D.Float();
+    Float path = new Float();
     path.moveTo(0, 0);
     path.lineTo(w, 0);
     path.lineTo(0, h);

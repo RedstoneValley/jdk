@@ -29,14 +29,15 @@
   @run applet FirstItemRemoveTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 
 public class FirstItemRemoveTest extends Applet
 {
-    List list = new List(4, false);
-    Panel panel = new Panel();
+    final List list = new List(4, false);
+    final Panel panel = new Panel();
 
     public void init()
     {
@@ -50,8 +51,8 @@ public class FirstItemRemoveTest extends Applet
         panel.setLayout(new FlowLayout ());
         panel.add(list);
 
-        this.add(panel);
-        this.setLayout (new FlowLayout ());
+        add(panel);
+        setLayout(new FlowLayout ());
     }//End  init()
 
     public void start ()
@@ -65,7 +66,7 @@ public class FirstItemRemoveTest extends Applet
 
     private void test(){
 
-        if (sun.awt.OSInfo.getOSType() == sun.awt.OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() == OSType.MACOSX) {
             System.err.println("Skipped. This test is not for OS X.");
             return;
         }
@@ -83,7 +84,7 @@ public class FirstItemRemoveTest extends Applet
         r.delay(1000);
 
         // Request focus to list
-        Point loc = this.getLocationOnScreen();
+        Point loc = getLocationOnScreen();
         r.delay(1000);
 
         r.mouseMove(loc.x+10, loc.y+10);

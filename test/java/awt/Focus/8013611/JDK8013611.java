@@ -31,21 +31,18 @@
   @run      main JDK8013611
 */
 
-import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
 
 import java.awt.*;
 
 public class JDK8013611 extends JFrame {
-    static JTextField textField = new JTextField("text");
-    static JButton button1 = new JButton("button1");
-    static JButton button2 = new JButton("button2");
+    static final JTextField textField = new JTextField("text");
+    static final JButton button1 = new JButton("button1");
+    static final JButton button2 = new JButton("button2");
     static Robot robot;
 
     static JDialog dialog;
-    static JButton button3 = new JButton("button3");
+    static final JButton button3 = new JButton("button3");
 
     public static void main(String[] args) {
         robot = Util.createRobot();

@@ -34,9 +34,11 @@ import java.awt.peer.ListPeer;
  */
 public final class ListRepaint extends List {
 
-    public static void main(final String[] args) {
+    private static final long serialVersionUID = 4426419782507213523L;
+
+    public static void main(String[] args) {
         for (int i = 0; i < 10; ++i) {
-            final Frame frame = new Frame();
+            Frame frame = new Frame();
             frame.setSize(300, 300);
             frame.setLocationRelativeTo(null);
             ListRepaint list = new ListRepaint();
@@ -61,7 +63,7 @@ public final class ListRepaint extends List {
     }
 
     @Override
-    public void paint(final Graphics g) {
+    public void paint(Graphics g) {
         super.paint(g);
         if (!EventQueue.isDispatchThread()) {
             throw new RuntimeException("Wrong thread");

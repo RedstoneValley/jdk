@@ -26,7 +26,6 @@
 package sun.awt;
 
 import java.awt.RenderingHints;
-import java.lang.annotation.Native;
 
 /**
  * This class contains rendering hints that can be used by the
@@ -34,7 +33,7 @@ import java.lang.annotation.Native;
  * {@link java.awt.image.BufferedImageOp} and
  * {@link java.awt.image.Raster}.
  */
-public class SunHints {
+public final class SunHints {
   /**
    * Rendering hint key and values
    */
@@ -119,181 +118,64 @@ public class SunHints {
   /**
    * Rendering hint key and value objects
    */
-  public static final Key KEY_RENDERING = new SunHints.Key(SunHints.INTKEY_RENDERING,
-      "Global rendering quality key");
-  public static final Object VALUE_RENDER_SPEED = new SunHints.Value(KEY_RENDERING,
-      SunHints.INTVAL_RENDER_SPEED,
-      "Fastest rendering methods");
-  public static final Object VALUE_RENDER_QUALITY = new SunHints.Value(KEY_RENDERING,
-      SunHints.INTVAL_RENDER_QUALITY,
-      "Highest quality rendering methods");
-  public static final Object VALUE_RENDER_DEFAULT = new SunHints.Value(KEY_RENDERING,
-      SunHints.INTVAL_RENDER_DEFAULT,
-      "Default rendering methods");
+  public static final Key KEY_RENDERING = new Key(INTKEY_RENDERING, "Global rendering quality key");
   /**
    * Antialiasing hint key and value objects
    */
-  public static final Key KEY_ANTIALIASING = new SunHints.Key(SunHints.INTKEY_ANTIALIASING,
+  public static final Key KEY_ANTIALIASING = new Key(INTKEY_ANTIALIASING,
       "Global antialiasing enable key");
-  public static final Object VALUE_ANTIALIAS_ON = new SunHints.Value(KEY_ANTIALIASING,
-      SunHints.INTVAL_ANTIALIAS_ON,
-      "Antialiased rendering mode");
-  public static final Object VALUE_ANTIALIAS_OFF = new SunHints.Value(KEY_ANTIALIASING,
-      SunHints.INTVAL_ANTIALIAS_OFF,
-      "Nonantialiased rendering mode");
-  public static final Object VALUE_ANTIALIAS_DEFAULT = new SunHints.Value(KEY_ANTIALIASING,
-      SunHints.INTVAL_ANTIALIAS_DEFAULT,
-      "Default antialiasing rendering mode");
   /**
    * Text antialiasing hint key and value objects
    */
-  public static final Key KEY_TEXT_ANTIALIASING
-      = new SunHints.Key(SunHints.INTKEY_TEXT_ANTIALIASING,
+  public static final Key KEY_TEXT_ANTIALIASING = new Key(INTKEY_TEXT_ANTIALIASING,
       "Text-specific antialiasing enable key");
-  public static final Object VALUE_TEXT_ANTIALIAS_ON = new SunHints.Value(KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_ON,
-      "Antialiased text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_OFF = new SunHints.Value(KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_OFF,
-      "Nonantialiased text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_DEFAULT
-      = new SunHints.Value(KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_DEFAULT,
-      "Default antialiasing text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_GASP = new SunHints.Value(KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_GASP,
-      "gasp antialiasing text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HRGB = new SunHints.Value(
-      KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_LCD_HRGB,
-      "LCD HRGB antialiasing text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HBGR = new SunHints.Value(
-      KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_LCD_HBGR,
-      "LCD HBGR antialiasing text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VRGB = new SunHints.Value(
-      KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_LCD_VRGB,
-      "LCD VRGB antialiasing text mode");
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VBGR = new SunHints.Value(
-      KEY_TEXT_ANTIALIASING,
-      SunHints.INTVAL_TEXT_ANTIALIAS_LCD_VBGR,
-      "LCD VBGR antialiasing text mode");
   /**
    * Font fractional metrics hint key and value objects
    */
-  public static final Key KEY_FRACTIONALMETRICS
-      = new SunHints.Key(SunHints.INTKEY_FRACTIONALMETRICS, "Fractional metrics enable key");
-  public static final Object VALUE_FRACTIONALMETRICS_ON = new SunHints.Value(KEY_FRACTIONALMETRICS,
-      SunHints.INTVAL_FRACTIONALMETRICS_ON,
-      "Fractional text metrics mode");
-  public static final Object VALUE_FRACTIONALMETRICS_OFF = new SunHints.Value(KEY_FRACTIONALMETRICS,
-      SunHints.INTVAL_FRACTIONALMETRICS_OFF,
-      "Integer text metrics mode");
-  public static final Object VALUE_FRACTIONALMETRICS_DEFAULT = new SunHints.Value(
-      KEY_FRACTIONALMETRICS,
-      SunHints.INTVAL_FRACTIONALMETRICS_DEFAULT,
-      "Default fractional text metrics mode");
+  public static final Key KEY_FRACTIONALMETRICS = new Key(
+      INTKEY_FRACTIONALMETRICS,
+      "Fractional metrics enable key");
   /**
    * Dithering hint key and value objects
    */
-  public static final Key KEY_DITHERING = new SunHints.Key(SunHints.INTKEY_DITHERING,
-      "Dithering quality key");
-  public static final Object VALUE_DITHER_ENABLE = new SunHints.Value(KEY_DITHERING,
-      SunHints.INTVAL_DITHER_ENABLE,
-      "Dithered rendering mode");
-  public static final Object VALUE_DITHER_DISABLE = new SunHints.Value(KEY_DITHERING,
-      SunHints.INTVAL_DITHER_DISABLE,
-      "Nondithered rendering mode");
-  public static final Object VALUE_DITHER_DEFAULT = new SunHints.Value(KEY_DITHERING,
-      SunHints.INTVAL_DITHER_DEFAULT,
-      "Default dithering mode");
+  public static final Key KEY_DITHERING = new Key(INTKEY_DITHERING, "Dithering quality key");
   /**
    * Interpolation hint key and value objects
    */
-  public static final Key KEY_INTERPOLATION = new SunHints.Key(SunHints.INTKEY_INTERPOLATION,
+  public static final Key KEY_INTERPOLATION = new Key(INTKEY_INTERPOLATION,
       "Image interpolation method key");
-  public static final Object VALUE_INTERPOLATION_NEAREST_NEIGHBOR = new SunHints.Value(
-      KEY_INTERPOLATION,
-      SunHints.INTVAL_INTERPOLATION_NEAREST_NEIGHBOR,
-      "Nearest Neighbor image interpolation mode");
-  public static final Object VALUE_INTERPOLATION_BILINEAR = new SunHints.Value(KEY_INTERPOLATION,
-      SunHints.INTVAL_INTERPOLATION_BILINEAR,
-      "Bilinear image interpolation mode");
-  public static final Object VALUE_INTERPOLATION_BICUBIC = new SunHints.Value(KEY_INTERPOLATION,
-      SunHints.INTVAL_INTERPOLATION_BICUBIC,
-      "Bicubic image interpolation mode");
   /**
    * Alpha interpolation hint key and value objects
    */
-  public static final Key KEY_ALPHA_INTERPOLATION
-      = new SunHints.Key(SunHints.INTKEY_ALPHA_INTERPOLATION,
+  public static final Key KEY_ALPHA_INTERPOLATION = new Key(INTKEY_ALPHA_INTERPOLATION,
       "Alpha blending interpolation method key");
-  public static final Object VALUE_ALPHA_INTERPOLATION_SPEED = new SunHints.Value(
-      KEY_ALPHA_INTERPOLATION,
-      SunHints.INTVAL_ALPHA_INTERPOLATION_SPEED,
-      "Fastest alpha blending methods");
-  public static final Object VALUE_ALPHA_INTERPOLATION_QUALITY = new SunHints.Value(
-      KEY_ALPHA_INTERPOLATION,
-      SunHints.INTVAL_ALPHA_INTERPOLATION_QUALITY,
-      "Highest quality alpha blending methods");
-  public static final Object VALUE_ALPHA_INTERPOLATION_DEFAULT = new SunHints.Value(
-      KEY_ALPHA_INTERPOLATION,
-      SunHints.INTVAL_ALPHA_INTERPOLATION_DEFAULT,
-      "Default alpha blending methods");
   /**
    * Color rendering hint key and value objects
    */
-  public static final Key KEY_COLOR_RENDERING = new SunHints.Key(SunHints.INTKEY_COLOR_RENDERING,
+  public static final Key KEY_COLOR_RENDERING = new Key(INTKEY_COLOR_RENDERING,
       "Color rendering quality key");
-  public static final Object VALUE_COLOR_RENDER_SPEED = new SunHints.Value(KEY_COLOR_RENDERING,
-      SunHints.INTVAL_COLOR_RENDER_SPEED,
-      "Fastest color rendering mode");
-  public static final Object VALUE_COLOR_RENDER_QUALITY = new SunHints.Value(KEY_COLOR_RENDERING,
-      SunHints.INTVAL_COLOR_RENDER_QUALITY,
-      "Highest quality color rendering mode");
-  public static final Object VALUE_COLOR_RENDER_DEFAULT = new SunHints.Value(KEY_COLOR_RENDERING,
-      SunHints.INTVAL_COLOR_RENDER_DEFAULT,
-      "Default color rendering mode");
   /**
    * Stroke normalization control hint key and value objects
    */
-  public static final Key KEY_STROKE_CONTROL = new SunHints.Key(SunHints.INTKEY_STROKE_CONTROL,
+  public static final Key KEY_STROKE_CONTROL = new Key(INTKEY_STROKE_CONTROL,
       "Stroke normalization control key");
-  public static final Object VALUE_STROKE_DEFAULT = new SunHints.Value(KEY_STROKE_CONTROL,
-      SunHints.INTVAL_STROKE_DEFAULT,
-      "Default stroke normalization");
-  public static final Object VALUE_STROKE_NORMALIZE = new SunHints.Value(KEY_STROKE_CONTROL,
-      SunHints.INTVAL_STROKE_NORMALIZE,
-      "Normalize strokes for consistent rendering");
-  public static final Object VALUE_STROKE_PURE = new SunHints.Value(KEY_STROKE_CONTROL,
-      SunHints.INTVAL_STROKE_PURE,
-      "Pure stroke conversion for accurate paths");
   /**
    * Image resolution variant hint key and value objects
    */
-  public static final Key KEY_RESOLUTION_VARIANT
-      = new SunHints.Key(SunHints.INTKEY_RESOLUTION_VARIANT, "Global image resolution variant key");
-  public static final Object VALUE_RESOLUTION_VARIANT_DEFAULT = new SunHints.Value(
-      KEY_RESOLUTION_VARIANT,
-      SunHints.INTVAL_RESOLUTION_VARIANT_DEFAULT,
-      "Choose image resolutions based on a default heuristic");
-  public static final Object VALUE_RESOLUTION_VARIANT_OFF = new SunHints.Value(
-      KEY_RESOLUTION_VARIANT,
-      SunHints.INTVAL_RESOLUTION_VARIANT_OFF,
-      "Use only the standard resolution of an image");
-  public static final Object VALUE_RESOLUTION_VARIANT_ON
-      = new SunHints.Value(KEY_RESOLUTION_VARIANT,
-      SunHints.INTVAL_RESOLUTION_VARIANT_ON,
-      "Always use resolution-specific variants of images");
+  public static final Key KEY_RESOLUTION_VARIANT = new Key(
+      INTKEY_RESOLUTION_VARIANT,
+      "Global image resolution variant key");
   /**
    * LCD text contrast hint key
    */
   public static final RenderingHints.Key KEY_TEXT_ANTIALIAS_LCD_CONTRAST = new LCDContrastKey
-      (SunHints.INTKEY_AATEXT_LCD_CONTRAST,
+      (INTKEY_AATEXT_LCD_CONTRAST,
       "Text-specific LCD contrast key");
   private static final int NUM_KEYS = 10;
   private static final int VALS_PER_KEY = 8;
+
+  private SunHints() {
+  }
 
   /**
    * Defines the type of all keys used to control various
@@ -303,7 +185,7 @@ public class SunHints {
    * of the more expensive equals() method.
    */
   public static class Key extends RenderingHints.Key {
-    String description;
+    final String description;
 
     /**
      * Construct a key using the indicated private key.  Each
@@ -332,6 +214,7 @@ public class SunHints {
      * Returns true if the specified object is a valid value
      * for this Key.
      */
+    @Override
     public boolean isCompatibleValue(Object val) {
       if (val instanceof Value) {
         return ((Value) val).isCompatibleKey(this);
@@ -354,11 +237,116 @@ public class SunHints {
    * tests for matches can be made using the == operator instead
    * of the more expensive equals() method.
    */
-  public static class Value {
-    private static Value[][] ValueObjects = new Value[NUM_KEYS][VALS_PER_KEY];
-    private SunHints.Key myKey;
-    private int index;
-    private String description;
+  public static enum Value {
+    VALUE_RENDER_SPEED(KEY_RENDERING,
+        INTVAL_RENDER_SPEED,
+        "Fastest rendering methods"),
+    VALUE_RENDER_QUALITY(KEY_RENDERING,
+        INTVAL_RENDER_QUALITY,
+        "Highest quality rendering methods"),
+    VALUE_RENDER_DEFAULT(KEY_RENDERING,
+        INTVAL_RENDER_DEFAULT,
+        "Default rendering methods"),
+    VALUE_ANTIALIAS_ON(KEY_ANTIALIASING,
+        INTVAL_ANTIALIAS_ON,
+        "Antialiased rendering mode"),
+    VALUE_ANTIALIAS_OFF(KEY_ANTIALIASING,
+        INTVAL_ANTIALIAS_OFF,
+        "Nonantialiased rendering mode"),
+    VALUE_ANTIALIAS_DEFAULT(KEY_ANTIALIASING,
+        INTVAL_ANTIALIAS_DEFAULT,
+        "Default antialiasing rendering mode"),
+    VALUE_TEXT_ANTIALIAS_ON(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_ON,
+        "Antialiased text mode"),
+    VALUE_TEXT_ANTIALIAS_OFF(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_OFF,
+        "Nonantialiased text mode"),
+    VALUE_TEXT_ANTIALIAS_DEFAULT(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_DEFAULT,
+        "Default antialiasing text mode"),
+    VALUE_TEXT_ANTIALIAS_GASP(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_GASP,
+        "gasp antialiasing text mode"),
+    VALUE_TEXT_ANTIALIAS_LCD_HRGB(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_LCD_HRGB,
+        "LCD HRGB antialiasing text mode"),
+    VALUE_TEXT_ANTIALIAS_LCD_HBGR(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_LCD_HBGR,
+        "LCD HBGR antialiasing text mode"),
+    VALUE_TEXT_ANTIALIAS_LCD_VRGB(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_LCD_VRGB,
+        "LCD VRGB antialiasing text mode"),
+    VALUE_TEXT_ANTIALIAS_LCD_VBGR(KEY_TEXT_ANTIALIASING,
+        INTVAL_TEXT_ANTIALIAS_LCD_VBGR,
+        "LCD VBGR antialiasing text mode"),
+    VALUE_FRACTIONALMETRICS_ON(KEY_FRACTIONALMETRICS,
+        INTVAL_FRACTIONALMETRICS_ON,
+        "Fractional text metrics mode"),
+    VALUE_FRACTIONALMETRICS_OFF(KEY_FRACTIONALMETRICS,
+        INTVAL_FRACTIONALMETRICS_OFF,
+        "Integer text metrics mode"),
+    VALUE_FRACTIONALMETRICS_DEFAULT(KEY_FRACTIONALMETRICS,
+        INTVAL_FRACTIONALMETRICS_DEFAULT,
+        "Default fractional text metrics mode"),
+    VALUE_DITHER_ENABLE(KEY_DITHERING,
+        INTVAL_DITHER_ENABLE,
+        "Dithered rendering mode"),
+    VALUE_DITHER_DISABLE(KEY_DITHERING,
+        INTVAL_DITHER_DISABLE,
+        "Nondithered rendering mode"),
+    VALUE_DITHER_DEFAULT(KEY_DITHERING,
+        INTVAL_DITHER_DEFAULT,
+        "Default dithering mode"),
+    VALUE_INTERPOLATION_NEAREST_NEIGHBOR(KEY_INTERPOLATION,
+        INTVAL_INTERPOLATION_NEAREST_NEIGHBOR,
+        "Nearest Neighbor image interpolation mode"),
+    VALUE_INTERPOLATION_BILINEAR(KEY_INTERPOLATION,
+        INTVAL_INTERPOLATION_BILINEAR,
+        "Bilinear image interpolation mode"),
+    VALUE_INTERPOLATION_BICUBIC(KEY_INTERPOLATION,
+        INTVAL_INTERPOLATION_BICUBIC,
+        "Bicubic image interpolation mode"),
+    VALUE_ALPHA_INTERPOLATION_SPEED(KEY_ALPHA_INTERPOLATION,
+        INTVAL_ALPHA_INTERPOLATION_SPEED,
+        "Fastest alpha blending methods"),
+    VALUE_ALPHA_INTERPOLATION_QUALITY(KEY_ALPHA_INTERPOLATION,
+        INTVAL_ALPHA_INTERPOLATION_QUALITY,
+        "Highest quality alpha blending methods"),
+    VALUE_ALPHA_INTERPOLATION_DEFAULT(KEY_ALPHA_INTERPOLATION,
+        INTVAL_ALPHA_INTERPOLATION_DEFAULT,
+        "Default alpha blending methods"),
+    VALUE_COLOR_RENDER_SPEED(KEY_COLOR_RENDERING,
+        INTVAL_COLOR_RENDER_SPEED,
+        "Fastest color rendering mode"),
+    VALUE_COLOR_RENDER_QUALITY(KEY_COLOR_RENDERING,
+        INTVAL_COLOR_RENDER_QUALITY,
+        "Highest quality color rendering mode"),
+    VALUE_COLOR_RENDER_DEFAULT(KEY_COLOR_RENDERING,
+        INTVAL_COLOR_RENDER_DEFAULT,
+        "Default color rendering mode"),
+    VALUE_STROKE_DEFAULT(KEY_STROKE_CONTROL,
+        INTVAL_STROKE_DEFAULT,
+        "Default stroke normalization"),
+    VALUE_STROKE_NORMALIZE(KEY_STROKE_CONTROL,
+        INTVAL_STROKE_NORMALIZE,
+        "Normalize strokes for consistent rendering"),
+    VALUE_STROKE_PURE(KEY_STROKE_CONTROL,
+        INTVAL_STROKE_PURE,
+        "Pure stroke conversion for accurate paths"),
+    VALUE_RESOLUTION_VARIANT_DEFAULT(KEY_RESOLUTION_VARIANT,
+        INTVAL_RESOLUTION_VARIANT_DEFAULT,
+        "Choose image resolutions based on a default heuristic"),
+    VALUE_RESOLUTION_VARIANT_OFF(KEY_RESOLUTION_VARIANT,
+        INTVAL_RESOLUTION_VARIANT_OFF,
+        "Use only the standard resolution of an image"),
+    VALUE_RESOLUTION_VARIANT_ON(KEY_RESOLUTION_VARIANT,
+        INTVAL_RESOLUTION_VARIANT_ON,
+        "Always use resolution-specific variants of images");
+    private static final Value[][] ValueObjects = new Value[NUM_KEYS][VALS_PER_KEY];
+    private final Key myKey;
+    private final int index;
+    private final String description;
 
     /**
      * Construct a value using the indicated private index.  Each
@@ -366,15 +354,15 @@ public class SunHints {
      * indices.  Enforcing the uniqueness of the integer indices
      * is left to the subclass.
      */
-    public Value(SunHints.Key key, int index, String description) {
-      this.myKey = key;
+    Value(Key key, int index, String description) {
+      myKey = key;
       this.index = index;
       this.description = description;
 
       register(key, this);
     }
 
-    private synchronized static void register(SunHints.Key key, Value value) {
+    private static synchronized void register(Key key, Value value) {
       int kindex = key.getIndex();
       int vindex = value.getIndex();
       if (ValueObjects[kindex][vindex] != null) {
@@ -405,28 +393,11 @@ public class SunHints {
     }
 
     /**
-     * The hash code for all SunHints.Value objects will be the same
-     * as the system identity code of the object as defined by the
-     * System.identityHashCode() method.
-     */
-    public final int hashCode() {
-      return System.identityHashCode(this);
-    }    /**
      * Returns a string representation of this Value.
      */
     public final String toString() {
       return description;
     }
-
-    /**
-     * The equals method for all SunHints.Value objects will return
-     * the same result as the equality operator '=='.
-     */
-    public final boolean equals(Object o) {
-      return this == o;
-    }
-
-
   }
 
   public static class LCDContrastKey extends Key {
@@ -439,9 +410,10 @@ public class SunHints {
      * Returns true if the specified object is a valid value
      * for this Key. The allowable range is 100 to 250.
      */
+    @Override
     public final boolean isCompatibleValue(Object val) {
       if (val instanceof Integer) {
-        int ival = ((Integer) val).intValue();
+        int ival = (Integer) val;
         return ival >= 100 && ival <= 250;
       }
       return false;

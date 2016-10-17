@@ -33,9 +33,14 @@ import java.awt.geom.Path2D;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.WritableRaster;
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
+import sun.java2d.loops.ProcessPath.DrawHandler;
+import sun.java2d.loops.XorPixelWriter.ByteData;
+import sun.java2d.loops.XorPixelWriter.DoubleData;
+import sun.java2d.loops.XorPixelWriter.FloatData;
+import sun.java2d.loops.XorPixelWriter.IntData;
+import sun.java2d.loops.XorPixelWriter.ShortData;
 import sun.java2d.pipe.Region;
 import sun.java2d.pipe.SpanIterator;
 
@@ -50,6 +55,9 @@ public final class GeneralRenderer {
   static final int OUTCODE_BOTTOM = 2;
   static final int OUTCODE_LEFT = 4;
   static final int OUTCODE_RIGHT = 8;
+
+  private GeneralRenderer() {
+  }
 
   public static void register() {
     Class owner = GeneralRenderer.class;
@@ -157,7 +165,7 @@ public final class GeneralRenderer {
   }
 
   static void doDrawPoly(
-      SurfaceData sData, PixelWriter pw, int xPoints[], int yPoints[], int off, int nPoints,
+      SurfaceData sData, PixelWriter pw, int[] xPoints, int[] yPoints, int off, int nPoints,
       Region clip, int transx, int transy, boolean close) {
     int mx, my, x1, y1;
     int[] tmp = null;
@@ -167,16 +175,18 @@ public final class GeneralRenderer {
     }
     mx = x1 = xPoints[off] + transx;
     my = y1 = yPoints[off] + transy;
-    while (--nPoints > 0) {
+    --nPoints;
+    while (nPoints > 0) {
       ++off;
       int x2 = xPoints[off] + transx;
       int y2 = yPoints[off] + transy;
-      tmp = GeneralRenderer.doDrawLine(sData, pw, tmp, clip, x1, y1, x2, y2);
+      tmp = doDrawLine(sData, pw, tmp, clip, x1, y1, x2, y2);
       x1 = x2;
       y1 = y2;
+      --nPoints;
     }
     if (close && (x1 != mx || y1 != my)) {
-      tmp = GeneralRenderer.doDrawLine(sData, pw, tmp, clip, x1, y1, mx, my);
+      tmp = doDrawLine(sData, pw, tmp, clip, x1, y1, mx, my);
     }
   }
 
@@ -257,19 +267,19 @@ public final class GeneralRenderer {
       if (ax >= ay) {
                 /* x is dominant */
         xmajor = true;
-        errmajor = ay * 2;
-        errminor = ax * 2;
-        bumpmajor = (dx < 0) ? -1 : 1;
-        bumpminor = (dy < 0) ? -1 : 1;
+        errmajor = ay << 1;
+        errminor = ax << 1;
+        bumpmajor = dx < 0 ? -1 : 1;
+        bumpminor = dy < 0 ? -1 : 1;
         ax = -ax; /* For clipping adjustment below */
         steps = x2 - x1;
       } else {
                 /* y is dominant */
         xmajor = false;
-        errmajor = ax * 2;
-        errminor = ay * 2;
-        bumpmajor = (dy < 0) ? -1 : 1;
-        bumpminor = (dx < 0) ? -1 : 1;
+        errmajor = ax << 1;
+        errminor = ay << 1;
+        bumpmajor = dy < 0 ? -1 : 1;
+        bumpminor = dx < 0 ? -1 : 1;
         ay = -ay; /* For clipping adjustment below */
         steps = y2 - y1;
       }
@@ -292,6 +302,7 @@ public final class GeneralRenderer {
         steps = -steps;
       }
       if (xmajor) {
+        --steps;
         do {
           pw.writePixel(x1, y1);
           x1 += bumpmajor;
@@ -300,8 +311,10 @@ public final class GeneralRenderer {
             y1 += bumpminor;
             error -= errminor;
           }
-        } while (--steps >= 0);
+          --steps;
+        } while (steps >= 0);
       } else {
+        --steps;
         do {
           pw.writePixel(x1, y1);
           y1 += bumpmajor;
@@ -310,7 +323,8 @@ public final class GeneralRenderer {
             x1 += bumpminor;
             error -= errminor;
           }
-        } while (--steps >= 0);
+          --steps;
+        } while (steps >= 0);
       }
     }
     return boundPts;
@@ -372,7 +386,7 @@ public final class GeneralRenderer {
     int num = gl.getNumGlyphs();
     for (int i = 0; i < num; i++) {
       gl.setGlyphIndex(i);
-      int metrics[] = gl.getMetrics();
+      int[] metrics = gl.getMetrics();
       int gx1 = metrics[0];
       int gy1 = metrics[1];
       int w = metrics[2];
@@ -394,13 +408,14 @@ public final class GeneralRenderer {
         gy2 = cy2;
       }
       if (gx2 > gx1 && gy2 > gy1) {
-        byte alpha[] = gl.getGrayBits();
-        w -= (gx2 - gx1);
+        byte[] alpha = gl.getGrayBits();
+        w -= gx2 - gx1;
         for (int y = gy1; y < gy2; y++) {
           for (int x = gx1; x < gx2; x++) {
-            if (alpha[off++] < 0) {
+            if (alpha[off] < 0) {
               pw.writePixel(x, y);
             }
+            off++;
           }
           off += w;
         }
@@ -433,7 +448,7 @@ public final class GeneralRenderer {
     int x2 = boundPts[2];
     int y2 = boundPts[3];
 
-    if ((cxmax < cxmin) || (cymax < cymin)) {
+    if (cxmax < cxmin || cymax < cymin) {
       return false;
     }
 
@@ -482,9 +497,9 @@ public final class GeneralRenderer {
       int outcode1, outcode2;
       int dx = x2 - x1;
       int dy = y2 - y1;
-      int ax = (dx < 0) ? -dx : dx;
-      int ay = (dy < 0) ? -dy : dy;
-      boolean xmajor = (ax >= ay);
+      int ax = dx < 0 ? -dx : dx;
+      int ay = dy < 0 ? -dy : dy;
+      boolean xmajor = ax >= ay;
 
       outcode1 = outcode(x1, y1, cxmin, cymin, cxmax, cymax);
       outcode2 = outcode(x2, y2, cxmin, cymin, cxmax, cymax);
@@ -495,11 +510,7 @@ public final class GeneralRenderer {
         }
         if (outcode1 != 0) {
           if (0 != (outcode1 & (OUTCODE_TOP | OUTCODE_BOTTOM))) {
-            if (0 != (outcode1 & OUTCODE_TOP)) {
-              y1 = cymin;
-            } else {
-              y1 = cymax;
-            }
+            y1 = 0 != (outcode1 & OUTCODE_TOP) ? cymin : cymax;
             ysteps = y1 - boundPts[1];
             if (ysteps < 0) {
               ysteps = -ysteps;
@@ -508,17 +519,13 @@ public final class GeneralRenderer {
             if (xmajor) {
               xsteps += ay - ax - 1;
             }
-            xsteps = xsteps / (2 * ay);
+            xsteps /= (2 * ay);
             if (dx < 0) {
               xsteps = -xsteps;
             }
             x1 = boundPts[0] + xsteps;
           } else if (0 != (outcode1 & (OUTCODE_LEFT | OUTCODE_RIGHT))) {
-            if (0 != (outcode1 & OUTCODE_LEFT)) {
-              x1 = cxmin;
-            } else {
-              x1 = cxmax;
-            }
+            x1 = 0 != (outcode1 & OUTCODE_LEFT) ? cxmin : cxmax;
             xsteps = x1 - boundPts[0];
             if (xsteps < 0) {
               xsteps = -xsteps;
@@ -527,7 +534,7 @@ public final class GeneralRenderer {
             if (!xmajor) {
               ysteps += ax - ay - 1;
             }
-            ysteps = ysteps / (2 * ax);
+            ysteps /= (2 * ax);
             if (dy < 0) {
               ysteps = -ysteps;
             }
@@ -536,11 +543,7 @@ public final class GeneralRenderer {
           outcode1 = outcode(x1, y1, cxmin, cymin, cxmax, cymax);
         } else {
           if (0 != (outcode2 & (OUTCODE_TOP | OUTCODE_BOTTOM))) {
-            if (0 != (outcode2 & OUTCODE_TOP)) {
-              y2 = cymin;
-            } else {
-              y2 = cymax;
-            }
+            y2 = 0 != (outcode2 & OUTCODE_TOP) ? cymin : cymax;
             ysteps = y2 - boundPts[3];
             if (ysteps < 0) {
               ysteps = -ysteps;
@@ -551,17 +554,13 @@ public final class GeneralRenderer {
             } else {
               xsteps -= 1;
             }
-            xsteps = xsteps / (2 * ay);
+            xsteps /= (2 * ay);
             if (dx > 0) {
               xsteps = -xsteps;
             }
             x2 = boundPts[2] + xsteps;
           } else if (0 != (outcode2 & (OUTCODE_LEFT | OUTCODE_RIGHT))) {
-            if (0 != (outcode2 & OUTCODE_LEFT)) {
-              x2 = cxmin;
-            } else {
-              x2 = cxmax;
-            }
+            x2 = 0 != (outcode2 & OUTCODE_LEFT) ? cxmin : cxmax;
             xsteps = x2 - boundPts[2];
             if (xsteps < 0) {
               xsteps = -xsteps;
@@ -572,7 +571,7 @@ public final class GeneralRenderer {
             } else {
               ysteps += ax - ay;
             }
-            ysteps = ysteps / (2 * ax);
+            ysteps /= (2 * ax);
             if (dy > 0) {
               ysteps = -ysteps;
             }
@@ -611,16 +610,16 @@ public final class GeneralRenderer {
 
     switch (dstCM.getTransferType()) {
       case DataBuffer.TYPE_BYTE:
-        return new XorPixelWriter.ByteData(srcPixel, xorPixel);
+        return new ByteData(srcPixel, xorPixel);
       case DataBuffer.TYPE_SHORT:
       case DataBuffer.TYPE_USHORT:
-        return new XorPixelWriter.ShortData(srcPixel, xorPixel);
+        return new ShortData(srcPixel, xorPixel);
       case DataBuffer.TYPE_INT:
-        return new XorPixelWriter.IntData(srcPixel, xorPixel);
+        return new IntData(srcPixel, xorPixel);
       case DataBuffer.TYPE_FLOAT:
-        return new XorPixelWriter.FloatData(srcPixel, xorPixel);
+        return new FloatData(srcPixel, xorPixel);
       case DataBuffer.TYPE_DOUBLE:
-        return new XorPixelWriter.DoubleData(srcPixel, xorPixel);
+        return new DoubleData(srcPixel, xorPixel);
       default:
         throw new InternalError("Unsupported XOR pixel type");
     }
@@ -632,6 +631,7 @@ class SetFillRectANY extends FillRect {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void FillRect(SunGraphics2D sg2d, SurfaceData sData, int x, int y, int w, int h) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
 
@@ -641,10 +641,10 @@ class SetFillRectANY extends FillRect {
   }
 }
 
-class PixelWriterDrawHandler extends ProcessPath.DrawHandler {
-  PixelWriter pw;
-  SurfaceData sData;
-  Region clip;
+class PixelWriterDrawHandler extends DrawHandler {
+  final PixelWriter pw;
+  final SurfaceData sData;
+  final Region clip;
 
   public PixelWriterDrawHandler(SurfaceData sData, PixelWriter pw, Region clip, int strokeHint) {
     super(clip.getLoX(), clip.getLoY(), clip.getHiX(), clip.getHiY(), strokeHint);
@@ -653,14 +653,17 @@ class PixelWriterDrawHandler extends ProcessPath.DrawHandler {
     this.clip = clip;
   }
 
+  @Override
   public void drawLine(int x0, int y0, int x1, int y1) {
     GeneralRenderer.doDrawLine(sData, pw, null, clip, x0, y0, x1, y1);
   }
 
+  @Override
   public void drawPixel(int x0, int y0) {
     GeneralRenderer.doSetRect(sData, pw, x0, y0, x0 + 1, y0 + 1);
   }
 
+  @Override
   public void drawScanline(int x0, int x1, int y0) {
     GeneralRenderer.doSetRect(sData, pw, x0, y0, x1 + 1, y0 + 1);
   }
@@ -671,6 +674,7 @@ class SetFillPathANY extends FillPath {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void FillPath(
       SunGraphics2D sg2d, SurfaceData sData, int transx, int transy, Path2D.Float p2df) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
@@ -686,10 +690,11 @@ class SetFillSpansANY extends FillSpans {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void FillSpans(SunGraphics2D sg2d, SurfaceData sData, SpanIterator si) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
 
-    int span[] = new int[4];
+    int[] span = new int[4];
     while (si.nextSpan(span)) {
       GeneralRenderer.doSetRect(sData, pw, span[0], span[1], span[2], span[3]);
     }
@@ -701,6 +706,7 @@ class SetDrawLineANY extends DrawLine {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void DrawLine(SunGraphics2D sg2d, SurfaceData sData, int x1, int y1, int x2, int y2) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
 
@@ -717,8 +723,9 @@ class SetDrawPolygonsANY extends DrawPolygons {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void DrawPolygons(
-      SunGraphics2D sg2d, SurfaceData sData, int xPoints[], int yPoints[], int nPoints[],
+      SunGraphics2D sg2d, SurfaceData sData, int[] xPoints, int[] yPoints, int[] nPoints,
       int numPolys, int transx, int transy, boolean close) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
 
@@ -746,6 +753,7 @@ class SetDrawPathANY extends DrawPath {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void DrawPath(
       SunGraphics2D sg2d, SurfaceData sData, int transx, int transy, Path2D.Float p2df) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
@@ -761,6 +769,7 @@ class SetDrawRectANY extends DrawRect {
     super(SurfaceType.AnyColor, CompositeType.SrcNoEa, SurfaceType.Any);
   }
 
+  @Override
   public void DrawRect(SunGraphics2D sg2d, SurfaceData sData, int x, int y, int w, int h) {
     PixelWriter pw = GeneralRenderer.createSolidPixelWriter(sg2d, sData);
 
@@ -773,6 +782,7 @@ class XorFillRectANY extends FillRect {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void FillRect(SunGraphics2D sg2d, SurfaceData sData, int x, int y, int w, int h) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
@@ -787,6 +797,7 @@ class XorFillPathANY extends FillPath {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void FillPath(
       SunGraphics2D sg2d, SurfaceData sData, int transx, int transy, Path2D.Float p2df) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
@@ -802,10 +813,11 @@ class XorFillSpansANY extends FillSpans {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void FillSpans(SunGraphics2D sg2d, SurfaceData sData, SpanIterator si) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
-    int span[] = new int[4];
+    int[] span = new int[4];
     while (si.nextSpan(span)) {
       GeneralRenderer.doSetRect(sData, pw, span[0], span[1], span[2], span[3]);
     }
@@ -817,6 +829,7 @@ class XorDrawLineANY extends DrawLine {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawLine(SunGraphics2D sg2d, SurfaceData sData, int x1, int y1, int x2, int y2) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
@@ -833,8 +846,9 @@ class XorDrawPolygonsANY extends DrawPolygons {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawPolygons(
-      SunGraphics2D sg2d, SurfaceData sData, int xPoints[], int yPoints[], int nPoints[],
+      SunGraphics2D sg2d, SurfaceData sData, int[] xPoints, int[] yPoints, int[] nPoints,
       int numPolys, int transx, int transy, boolean close) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
@@ -862,6 +876,7 @@ class XorDrawPathANY extends DrawPath {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawPath(
       SunGraphics2D sg2d, SurfaceData sData, int transx, int transy, Path2D.Float p2df) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
@@ -877,6 +892,7 @@ class XorDrawRectANY extends DrawRect {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawRect(SunGraphics2D sg2d, SurfaceData sData, int x, int y, int w, int h) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
@@ -889,6 +905,7 @@ class XorDrawGlyphListANY extends DrawGlyphList {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawGlyphList(SunGraphics2D sg2d, SurfaceData sData, GlyphList gl) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
     GeneralRenderer.doDrawGlyphList(sData, pw, gl, sg2d.getCompClip());
@@ -900,6 +917,7 @@ class XorDrawGlyphListAAANY extends DrawGlyphListAA {
     super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
   }
 
+  @Override
   public void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData sData, GlyphList gl) {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
     GeneralRenderer.doDrawGlyphList(sData, pw, gl, sg2d.getCompClip());
@@ -917,12 +935,13 @@ abstract class PixelWriter {
 }
 
 class SolidPixelWriter extends PixelWriter {
-  protected Object srcData;
+  protected final Object srcData;
 
   SolidPixelWriter(Object srcPixel) {
-    this.srcData = srcPixel;
+    srcData = srcPixel;
   }
 
+  @Override
   public void writePixel(int x, int y) {
     dstRast.setDataElements(x, y, srcData);
   }
@@ -937,49 +956,53 @@ abstract class XorPixelWriter extends PixelWriter {
     byte[] xorData;
 
     ByteData(Object srcPixel, Object xorPixel) {
-      this.xorData = (byte[]) srcPixel;
+      xorData = (byte[]) srcPixel;
       xorPixel(xorPixel);
-      this.xorData = (byte[]) xorPixel;
+      xorData = (byte[]) xorPixel;
     }
 
+    @Override
     protected void xorPixel(Object pixData) {
       byte[] dstData = (byte[]) pixData;
       for (int i = 0; i < dstData.length; i++) {
         dstData[i] ^= xorData[i];
       }
     }
-  }  public void writePixel(int x, int y) {
-    Object dstPixel = dstRast.getDataElements(x, y, null);
-    xorPixel(dstPixel);
-    dstRast.setDataElements(x, y, dstPixel);
   }
 
   public static class ShortData extends XorPixelWriter {
     short[] xorData;
 
     ShortData(Object srcPixel, Object xorPixel) {
-      this.xorData = (short[]) srcPixel;
+      xorData = (short[]) srcPixel;
       xorPixel(xorPixel);
-      this.xorData = (short[]) xorPixel;
+      xorData = (short[]) xorPixel;
     }
 
+    @Override
     protected void xorPixel(Object pixData) {
       short[] dstData = (short[]) pixData;
       for (int i = 0; i < dstData.length; i++) {
         dstData[i] ^= xorData[i];
       }
     }
+  }  @Override
+  public void writePixel(int x, int y) {
+    Object dstPixel = dstRast.getDataElements(x, y, null);
+    xorPixel(dstPixel);
+    dstRast.setDataElements(x, y, dstPixel);
   }
 
   public static class IntData extends XorPixelWriter {
     int[] xorData;
 
     IntData(Object srcPixel, Object xorPixel) {
-      this.xorData = (int[]) srcPixel;
+      xorData = (int[]) srcPixel;
       xorPixel(xorPixel);
-      this.xorData = (int[]) xorPixel;
+      xorData = (int[]) xorPixel;
     }
 
+    @Override
     protected void xorPixel(Object pixData) {
       int[] dstData = (int[]) pixData;
       for (int i = 0; i < dstData.length; i++) {
@@ -989,17 +1012,18 @@ abstract class XorPixelWriter extends PixelWriter {
   }
 
   public static class FloatData extends XorPixelWriter {
-    int[] xorData;
+    final int[] xorData;
 
     FloatData(Object srcPixel, Object xorPixel) {
       float[] srcData = (float[]) srcPixel;
       float[] xorData = (float[]) xorPixel;
       this.xorData = new int[srcData.length];
       for (int i = 0; i < srcData.length; i++) {
-        this.xorData[i] = (Float.floatToIntBits(srcData[i]) ^ Float.floatToIntBits(xorData[i]));
+        this.xorData[i] = Float.floatToIntBits(srcData[i]) ^ Float.floatToIntBits(xorData[i]);
       }
     }
 
+    @Override
     protected void xorPixel(Object pixData) {
       float[] dstData = (float[]) pixData;
       for (int i = 0; i < dstData.length; i++) {
@@ -1010,18 +1034,18 @@ abstract class XorPixelWriter extends PixelWriter {
   }
 
   public static class DoubleData extends XorPixelWriter {
-    long[] xorData;
+    final long[] xorData;
 
     DoubleData(Object srcPixel, Object xorPixel) {
       double[] srcData = (double[]) srcPixel;
       double[] xorData = (double[]) xorPixel;
       this.xorData = new long[srcData.length];
       for (int i = 0; i < srcData.length; i++) {
-        this.xorData[i] = (Double.doubleToLongBits(srcData[i])
-                               ^ Double.doubleToLongBits(xorData[i]));
+        this.xorData[i] = Double.doubleToLongBits(srcData[i]) ^ Double.doubleToLongBits(xorData[i]);
       }
     }
 
+    @Override
     protected void xorPixel(Object pixData) {
       double[] dstData = (double[]) pixData;
       for (int i = 0; i < dstData.length; i++) {

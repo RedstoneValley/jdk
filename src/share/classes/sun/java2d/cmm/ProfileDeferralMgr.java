@@ -36,10 +36,13 @@ import java.util.Vector;
  * graphics, but which may not be needed if the program does not need
  * high quality color conversion.
  */
-public class ProfileDeferralMgr {
+public final class ProfileDeferralMgr {
 
   public static boolean deferring = true;
   private static Vector<ProfileActivator> aVector;
+
+  private ProfileDeferralMgr() {
+  }
 
   /**
    * Records a ProfileActivator object whose activate method will
@@ -51,7 +54,7 @@ public class ProfileDeferralMgr {
       return;
     }
     if (aVector == null) {
-      aVector = new Vector<ProfileActivator>(3, 3);
+      aVector = new Vector<>(3, 3);
     }
     aVector.addElement(pa);
     return;

@@ -25,9 +25,8 @@
 
 package sun.awt.geom;
 
-import java.awt.geom.IllegalPathStateException;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+import java.util.List;
 import java.util.Vector;
 
 public abstract class Curve {
@@ -65,17 +64,17 @@ public abstract class Curve {
    */
   public static final int RECT_INTERSECTS = 0x80000000;
   public static final double TMIN = 1E-3;
-  protected int direction;
+  protected final int direction;
 
   public Curve(int direction) {
     this.direction = direction;
   }
 
-  public static void insertMove(Vector curves, double x, double y) {
+  public static void insertMove(List curves, double x, double y) {
     curves.add(new Order0(x, y));
   }
 
-  public static void insertLine(Vector curves, double x0, double y0, double x1, double y1) {
+  public static void insertLine(List curves, double x0, double y0, double x1, double y1) {
     if (y0 < y1) {
       curves.add(new Order1(x0, y0, x1, y1, INCREASING));
     } else if (y0 > y1) {
@@ -85,7 +84,7 @@ public abstract class Curve {
     }
   }
 
-  public static void insertQuad(Vector curves, double x0, double y0, double coords[]) {
+  public static void insertQuad(Vector curves, double x0, double y0, double[] coords) {
     double y1 = coords[3];
     if (y0 > y1) {
       Order2.insert(curves, coords, coords[2], y1, coords[0], coords[1], x0, y0, DECREASING);
@@ -97,7 +96,7 @@ public abstract class Curve {
     }
   }
 
-  public static void insertCubic(Vector curves, double x0, double y0, double coords[]) {
+  public static void insertCubic(Vector curves, double x0, double y0, double[] coords) {
     double y1 = coords[5];
     if (y0 > y1) {
       Order3.insert(curves,
@@ -130,99 +129,6 @@ public abstract class Curve {
   }
 
   /**
-   * Calculates the number of times the given path
-   * crosses the ray extending to the right from (px,py).
-   * If the point lies on a part of the path,
-   * then no crossings are counted for that intersection.
-   * +1 is added for each crossing where the Y coordinate is increasing
-   * -1 is added for each crossing where the Y coordinate is decreasing
-   * The return value is the sum of all crossings for every segment in
-   * the path.
-   * The path must start with a SEG_MOVETO, otherwise an exception is
-   * thrown.
-   * The caller must check p[xy] for NaN values.
-   * The caller may also reject infinite p[xy] values as well.
-   */
-  public static int pointCrossingsForPath(PathIterator pi, double px, double py) {
-    if (pi.isDone()) {
-      return 0;
-    }
-    double coords[] = new double[6];
-    if (pi.currentSegment(coords) != PathIterator.SEG_MOVETO) {
-      throw new IllegalPathStateException("missing initial moveto " + "in path definition");
-    }
-    pi.next();
-    double movx = coords[0];
-    double movy = coords[1];
-    double curx = movx;
-    double cury = movy;
-    double endx, endy;
-    int crossings = 0;
-    while (!pi.isDone()) {
-      switch (pi.currentSegment(coords)) {
-        case PathIterator.SEG_MOVETO:
-          if (cury != movy) {
-            crossings += pointCrossingsForLine(px, py, curx, cury, movx, movy);
-          }
-          movx = curx = coords[0];
-          movy = cury = coords[1];
-          break;
-        case PathIterator.SEG_LINETO:
-          endx = coords[0];
-          endy = coords[1];
-          crossings += pointCrossingsForLine(px, py, curx, cury, endx, endy);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_QUADTO:
-          endx = coords[2];
-          endy = coords[3];
-          crossings += pointCrossingsForQuad(px,
-              py,
-              curx,
-              cury,
-              coords[0],
-              coords[1],
-              endx,
-              endy,
-              0);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_CUBICTO:
-          endx = coords[4];
-          endy = coords[5];
-          crossings += pointCrossingsForCubic(px,
-              py,
-              curx,
-              cury,
-              coords[0],
-              coords[1],
-              coords[2],
-              coords[3],
-              endx,
-              endy,
-              0);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_CLOSE:
-          if (cury != movy) {
-            crossings += pointCrossingsForLine(px, py, curx, cury, movx, movy);
-          }
-          curx = movx;
-          cury = movy;
-          break;
-      }
-      pi.next();
-    }
-    if (cury != movy) {
-      crossings += pointCrossingsForLine(px, py, curx, cury, movx, movy);
-    }
-    return crossings;
-  }
-
-  /**
    * Calculates the number of times the line from (x0,y0) to (x1,y1)
    * crosses the ray extending to the right from (px,py).
    * If the point lies on the line, then no crossings are recorded.
@@ -242,13 +148,13 @@ public abstract class Curve {
       return 0;
     }
     if (px < x0 && px < x1) {
-      return (y0 < y1) ? 1 : -1;
+      return y0 < y1 ? 1 : -1;
     }
     double xintercept = x0 + (py - y0) * (x1 - x0) / (y1 - y0);
     if (px >= xintercept) {
       return 0;
     }
-    return (y0 < y1) ? 1 : -1;
+    return y0 < y1 ? 1 : -1;
   }
 
   /**
@@ -304,8 +210,8 @@ public abstract class Curve {
       // These values are also NaN if opposing infinities are added
       return 0;
     }
-    return (pointCrossingsForQuad(px, py, x0, y0, x0c, y0c, xc, yc, level + 1)
-                + pointCrossingsForQuad(px, py, xc, yc, xc1, yc1, x1, y1, level + 1));
+    return pointCrossingsForQuad(px, py, x0, y0, x0c, y0c, xc, yc, level + 1)
+        + pointCrossingsForQuad(px, py, xc, yc, xc1, yc1, x1, y1, level + 1);
   }
 
   /**
@@ -367,155 +273,8 @@ public abstract class Curve {
       // These values are also NaN if opposing infinities are added
       return 0;
     }
-    return (pointCrossingsForCubic(px, py, x0, y0, xc0, yc0, xc0m, yc0m, xmid, ymid, level + 1)
-                + pointCrossingsForCubic(px,
-        py,
-        xmid,
-        ymid,
-        xmc1,
-        ymc1,
-        xc1,
-        yc1,
-        x1,
-        y1,
-        level + 1));
-  }
-
-  /**
-   * Accumulate the number of times the path crosses the shadow
-   * extending to the right of the rectangle.  See the comment
-   * for the RECT_INTERSECTS constant for more complete details.
-   * The return value is the sum of all crossings for both the
-   * top and bottom of the shadow for every segment in the path,
-   * or the special value RECT_INTERSECTS if the path ever enters
-   * the interior of the rectangle.
-   * The path must start with a SEG_MOVETO, otherwise an exception is
-   * thrown.
-   * The caller must check r[xy]{min,max} for NaN values.
-   */
-  public static int rectCrossingsForPath(
-      PathIterator pi, double rxmin, double rymin, double rxmax, double rymax) {
-    if (rxmax <= rxmin || rymax <= rymin) {
-      return 0;
-    }
-    if (pi.isDone()) {
-      return 0;
-    }
-    double coords[] = new double[6];
-    if (pi.currentSegment(coords) != PathIterator.SEG_MOVETO) {
-      throw new IllegalPathStateException("missing initial moveto " + "in path definition");
-    }
-    pi.next();
-    double curx, cury, movx, movy, endx, endy;
-    curx = movx = coords[0];
-    cury = movy = coords[1];
-    int crossings = 0;
-    while (crossings != RECT_INTERSECTS && !pi.isDone()) {
-      switch (pi.currentSegment(coords)) {
-        case PathIterator.SEG_MOVETO:
-          if (curx != movx || cury != movy) {
-            crossings = rectCrossingsForLine(crossings,
-                rxmin,
-                rymin,
-                rxmax,
-                rymax,
-                curx,
-                cury,
-                movx,
-                movy);
-          }
-          // Count should always be a multiple of 2 here.
-          // assert((crossings & 1) != 0);
-          movx = curx = coords[0];
-          movy = cury = coords[1];
-          break;
-        case PathIterator.SEG_LINETO:
-          endx = coords[0];
-          endy = coords[1];
-          crossings = rectCrossingsForLine(crossings,
-              rxmin,
-              rymin,
-              rxmax,
-              rymax,
-              curx,
-              cury,
-              endx,
-              endy);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_QUADTO:
-          endx = coords[2];
-          endy = coords[3];
-          crossings = rectCrossingsForQuad(crossings,
-              rxmin,
-              rymin,
-              rxmax,
-              rymax,
-              curx,
-              cury,
-              coords[0],
-              coords[1],
-              endx,
-              endy,
-              0);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_CUBICTO:
-          endx = coords[4];
-          endy = coords[5];
-          crossings = rectCrossingsForCubic(crossings,
-              rxmin,
-              rymin,
-              rxmax,
-              rymax,
-              curx,
-              cury,
-              coords[0],
-              coords[1],
-              coords[2],
-              coords[3],
-              endx,
-              endy,
-              0);
-          curx = endx;
-          cury = endy;
-          break;
-        case PathIterator.SEG_CLOSE:
-          if (curx != movx || cury != movy) {
-            crossings = rectCrossingsForLine(crossings,
-                rxmin,
-                rymin,
-                rxmax,
-                rymax,
-                curx,
-                cury,
-                movx,
-                movy);
-          }
-          curx = movx;
-          cury = movy;
-          // Count should always be a multiple of 2 here.
-          // assert((crossings & 1) != 0);
-          break;
-      }
-      pi.next();
-    }
-    if (crossings != RECT_INTERSECTS && (curx != movx || cury != movy)) {
-      crossings = rectCrossingsForLine(crossings,
-          rxmin,
-          rymin,
-          rxmax,
-          rymax,
-          curx,
-          cury,
-          movx,
-          movy);
-    }
-    // Count should always be a multiple of 2 here.
-    // assert((crossings & 1) != 0);
-    return crossings;
+    return pointCrossingsForCubic(px, py, x0, y0, xc0, yc0, xc0m, yc0m, xmid, ymid, level + 1)
+        + pointCrossingsForCubic(px, py, xmid, ymid, xmc1, ymc1, xc1, yc1, x1, y1, level + 1);
   }
 
   /**
@@ -566,24 +325,23 @@ public abstract class Curve {
     // Both x and y ranges overlap by a non-empty amount
     // First do trivial INTERSECTS rejection of the cases
     // where one of the endpoints is inside the rectangle.
-    if ((x0 > rxmin && x0 < rxmax && y0 > rymin && y0 < rymax) || (x1 > rxmin && x1 < rxmax
-                                                                       && y1 > rymin
-                                                                       && y1 < rymax)) {
+    if (x0 > rxmin && x0 < rxmax && y0 > rymin && y0 < rymax
+        || x1 > rxmin && x1 < rxmax && y1 > rymin && y1 < rymax) {
       return RECT_INTERSECTS;
     }
     // Otherwise calculate the y intercepts and see where
     // they fall with respect to the rectangle
     double xi0 = x0;
     if (y0 < rymin) {
-      xi0 += ((rymin - y0) * (x1 - x0) / (y1 - y0));
+      xi0 += (rymin - y0) * (x1 - x0) / (y1 - y0);
     } else if (y0 > rymax) {
-      xi0 += ((rymax - y0) * (x1 - x0) / (y1 - y0));
+      xi0 += (rymax - y0) * (x1 - x0) / (y1 - y0);
     }
     double xi1 = x1;
     if (y1 < rymin) {
-      xi1 += ((rymin - y1) * (x0 - x1) / (y0 - y1));
+      xi1 += (rymin - y1) * (x0 - x1) / (y0 - y1);
     } else if (y1 > rymax) {
-      xi1 += ((rymax - y1) * (x0 - x1) / (y0 - y1));
+      xi1 += (rymax - y1) * (x0 - x1) / (y0 - y1);
     }
     if (xi0 <= rxmin && xi1 <= rxmin) {
       return crossings;
@@ -661,9 +419,8 @@ public abstract class Curve {
     // The intersection of ranges is more complicated
     // First do trivial INTERSECTS rejection of the cases
     // where one of the endpoints is inside the rectangle.
-    if ((x0 < rxmax && x0 > rxmin && y0 < rymax && y0 > rymin) || (x1 < rxmax && x1 > rxmin
-                                                                       && y1 < rymax
-                                                                       && y1 > rymin)) {
+    if (x0 < rxmax && x0 > rxmin && y0 < rymax && y0 > rymin
+        || x1 < rxmax && x1 > rxmin && y1 < rymax && y1 > rymin) {
       return RECT_INTERSECTS;
     }
     // Otherwise, subdivide and look for one of the cases above.
@@ -760,9 +517,8 @@ public abstract class Curve {
     // The intersection of ranges is more complicated
     // First do trivial INTERSECTS rejection of the cases
     // where one of the endpoints is inside the rectangle.
-    if ((x0 > rxmin && x0 < rxmax && y0 > rymin && y0 < rymax) || (x1 > rxmin && x1 < rxmax
-                                                                       && y1 > rymin
-                                                                       && y1 < rymax)) {
+    if (x0 > rxmin && x0 < rxmax && y0 > rymin && y0 < rymax
+        || x1 > rxmin && x1 < rxmax && y1 > rymin && y1 < rymax) {
       return RECT_INTERSECTS;
     }
     // Otherwise, subdivide and look for one of the cases above.
@@ -837,7 +593,7 @@ public abstract class Curve {
   }
 
   public static long signeddiffbits(double y1, double y2) {
-    return (Double.doubleToLongBits(y1) - Double.doubleToLongBits(y2));
+    return Double.doubleToLongBits(y1) - Double.doubleToLongBits(y2);
   }
 
   public static long diffbits(double y1, double y2) {
@@ -857,17 +613,17 @@ public abstract class Curve {
   }
 
   public final Curve getWithDirection(int direction) {
-    return (this.direction == direction ? this : getReversedCurve());
+    return this.direction == direction ? this : getReversedCurve();
   }
 
   public String toString() {
-    return ("Curve[" +
-                getOrder() + ", " +
-                ("(" + round(getX0()) + ", " + round(getY0()) + "), ") +
-                controlPointString() +
-                ("(" + round(getX1()) + ", " + round(getY1()) + "), ") +
-                (direction == INCREASING ? "D" : "U") +
-                "]");
+    return "Curve[" +
+        getOrder() + ", " +
+        "(" + round(getX0()) + ", " + round(getY0()) + "), " +
+        controlPointString() +
+        "(" + round(getX1()) + ", " + round(getY1()) + "), " +
+        (direction == INCREASING ? "D" : "U") +
+        "]";
   }
 
   public String controlPointString() {
@@ -986,14 +742,14 @@ public abstract class Curve {
 
   public abstract Curve getSubCurve(double ystart, double yend, int dir);
 
-  public int compareTo(Curve that, double yrange[]) {
+  public int compareTo(Curve that, double[] yrange) {
         /*
         System.out.println(this+".compareTo("+that+")");
         System.out.println("target range = "+yrange[0]+"=>"+yrange[1]);
         */
     double y0 = yrange[0];
     double y1 = yrange[1];
-    y1 = Math.min(Math.min(y1, this.getYBot()), that.getYBot());
+    y1 = Math.min(Math.min(y1, getYBot()), that.getYBot());
     if (y1 <= yrange[0]) {
       System.err.println("this == " + this);
       System.err.println("that == " + that);
@@ -1001,13 +757,13 @@ public abstract class Curve {
       throw new InternalError("backstepping from " + yrange[0] + " to " + y1);
     }
     yrange[1] = y1;
-    if (this.getXMax() <= that.getXMin()) {
-      if (this.getXMin() == that.getXMax()) {
+    if (getXMax() <= that.getXMin()) {
+      if (getXMin() == that.getXMax()) {
         return 0;
       }
       return -1;
     }
-    if (this.getXMin() >= that.getXMax()) {
+    if (getXMin() >= that.getXMax()) {
       return 1;
     }
     // Parameter s for thi(s) curve and t for tha(t) curve
@@ -1016,15 +772,15 @@ public abstract class Curve {
     // [st]h = parameters for hypothesis point
     // [d][xy]s = valuations of thi(s) curve at sh
     // [d][xy]t = valuations of tha(t) curve at th
-    double s0 = this.TforY(y0);
-    double ys0 = this.YforT(s0);
+    double s0 = TforY(y0);
+    double ys0 = YforT(s0);
     if (ys0 < y0) {
       s0 = refineTforY(s0, ys0, y0);
-      ys0 = this.YforT(s0);
+      ys0 = YforT(s0);
     }
-    double s1 = this.TforY(y1);
-    if (this.YforT(s1) < y0) {
-      s1 = refineTforY(s1, this.YforT(s1), y0);
+    double s1 = TforY(y1);
+    if (YforT(s1) < y0) {
+      s1 = refineTforY(s1, YforT(s1), y0);
       //System.out.println("s1 problem!");
     }
     double t0 = that.TforY(y0);
@@ -1038,7 +794,7 @@ public abstract class Curve {
       t1 = that.refineTforY(t1, that.YforT(t1), y0);
       //System.out.println("t1 problem!");
     }
-    double xs0 = this.XforT(s0);
+    double xs0 = XforT(s0);
     double xt0 = that.XforT(t0);
     double scale = Math.max(Math.abs(y0), Math.abs(y1));
     double ymin = Math.max(scale * 1E-14, 1E-300);
@@ -1047,7 +803,7 @@ public abstract class Curve {
       double maxbump = Math.min(ymin * 1E13, (y1 - y0) * .1);
       double y = y0 + bump;
       while (y <= y1) {
-        if (fairlyClose(this.XforY(y), that.XforY(y))) {
+        if (fairlyClose(XforY(y), that.XforY(y))) {
           if ((bump *= 2) > maxbump) {
             bump = maxbump;
           }
@@ -1059,7 +815,7 @@ public abstract class Curve {
             if (newy <= y) {
               break;
             }
-            if (fairlyClose(this.XforY(newy), that.XforY(newy))) {
+            if (fairlyClose(XforY(newy), that.XforY(newy))) {
               y = newy;
             }
           }
@@ -1083,9 +839,9 @@ public abstract class Curve {
         System.out.println("t range = "+t0+" to "+t1);
         */
     while (s0 < s1 && t0 < t1) {
-      double sh = this.nextVertical(s0, s1);
-      double xsh = this.XforT(sh);
-      double ysh = this.YforT(sh);
+      double sh = nextVertical(s0, s1);
+      double xsh = XforT(sh);
+      double ysh = YforT(sh);
       double th = that.nextVertical(t0, t1);
       double xth = that.XforT(th);
       double yth = that.YforT(th);
@@ -1159,11 +915,11 @@ public abstract class Curve {
         System.out.println("final order = "+orderof(this.XforY(ymid),
                                                     that.XforY(ymid)));
         */
-    return orderof(this.XforY(ymid), that.XforY(ymid));
+    return orderof(XforY(ymid), that.XforY(ymid));
   }
 
   public boolean findIntersect(
-      Curve that, double yrange[], double ymin, int slevel, int tlevel, double s0, double xs0,
+      Curve that, double[] yrange, double ymin, int slevel, int tlevel, double s0, double xs0,
       double ys0, double s1, double xs1, double ys1, double t0, double xt0, double yt0, double t1,
       double xt1, double yt1) {
         /*
@@ -1191,8 +947,8 @@ public abstract class Curve {
     //  intensive algorithm).
     if (s1 - s0 > TMIN) {
       double s = (s0 + s1) / 2;
-      double xs = this.XforT(s);
-      double ys = this.YforT(s);
+      double xs = XforT(s);
+      double ys = YforT(s);
       if (s == s0 || s == s1) {
         System.out.println("s0 = " + s0);
         System.out.println("s1 = " + s1);
@@ -1405,7 +1161,7 @@ public abstract class Curve {
           if (s < 0 || s > 1 || t < 0 || t > 1) {
             System.out.println("Uh oh!");
           }
-          double y = (this.YforT(s) + that.YforT(t)) / 2;
+          double y = (YforT(s) + that.YforT(t)) / 2;
           if (y <= yrange[1] && y > yrange[0]) {
             yrange[1] = y;
             return true;
@@ -1427,7 +1183,6 @@ public abstract class Curve {
       double y = YforT(th);
       if (y < y0) {
         t0 = th;
-        yt0 = y;
       } else if (y > y0) {
         t1 = th;
       } else {
@@ -1437,8 +1192,8 @@ public abstract class Curve {
   }
 
   public boolean fairlyClose(double v1, double v2) {
-    return (Math.abs(v1 - v2) < Math.max(Math.abs(v1), Math.abs(v2)) * 1E-10);
+    return Math.abs(v1 - v2) < Math.max(Math.abs(v1), Math.abs(v2)) * 1E-10;
   }
 
-  public abstract int getSegment(double coords[]);
+  public abstract int getSegment(double[] coords);
 }

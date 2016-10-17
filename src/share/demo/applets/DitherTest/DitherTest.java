@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Button;
@@ -65,7 +64,7 @@ import java.awt.image.MemoryImageSource;
 enum DitherMethod {
 
   NOOP, RED, GREEN, BLUE, ALPHA, SATURATION
-};
+}
 
 @SuppressWarnings("serial")
 public class DitherTest extends Applet implements Runnable {
@@ -75,11 +74,11 @@ public class DitherTest extends Applet implements Runnable {
   private DitherControls YControls;
   private DitherCanvas canvas;
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     Frame f = new Frame("DitherTest");
     DitherTest ditherTest = new DitherTest();
     ditherTest.init();
-    f.add("Center", ditherTest);
+    f.add(BorderLayout.CENTER, ditherTest);
     f.pack();
     f.setVisible(true);
     ditherTest.start();
@@ -88,8 +87,8 @@ public class DitherTest extends Applet implements Runnable {
   @Override
   public void init() {
     String xspec = null, yspec = null;
-    int xvals[] = new int[2];
-    int yvals[] = new int[2];
+    int[] xvals = new int[2];
+    int[] yvals = new int[2];
 
     try {
       xspec = getParameter("xaxis");
@@ -111,12 +110,12 @@ public class DitherTest extends Applet implements Runnable {
     XControls = new DitherControls(this, xvals[0], xvals[1], xmethod, false);
     YControls = new DitherControls(this, yvals[0], yvals[1], ymethod, true);
     YControls.addRenderButton();
-    add("North", XControls);
-    add("South", YControls);
-    add("Center", canvas = new DitherCanvas());
+    add(BorderLayout.NORTH, XControls);
+    add(BorderLayout.SOUTH, YControls);
+    add(BorderLayout.CENTER, canvas = new DitherCanvas());
   }
 
-  private DitherMethod colorMethod(String s, int vals[]) {
+  private DitherMethod colorMethod(String s, int[] vals) {
     DitherMethod method = DitherMethod.NOOP;
     if (s == null) {
       s = "";
@@ -132,7 +131,7 @@ public class DitherTest extends Applet implements Runnable {
     if (method == DitherMethod.NOOP) {
       vals[0] = 0;
       vals[1] = 0;
-      return method;
+      return DitherMethod.NOOP;
     }
     int begval = 0;
     int endval = 255;
@@ -173,12 +172,12 @@ public class DitherTest extends Applet implements Runnable {
 
     int width = canvas.getSize().width;
     int height = canvas.getSize().height;
-    int xvals[] = new int[2];
-    int yvals[] = new int[2];
+    int[] xvals = new int[2];
+    int[] yvals = new int[2];
     int xmethod = XControls.getParams(xvals);
     int ymethod = YControls.getParams(yvals);
-    int pixels[] = new int[width * height];
-    int c[] = new int[4];   //temporarily holds R,G,B,A information
+    int[] pixels = new int[width * height];
+    int[] c = new int[4];   //temporarily holds R,G,B,A information
     int index = 0;
     for (int j = 0; j < height; j++) {
       for (int i = 0; i < width; i++) {
@@ -191,7 +190,8 @@ public class DitherTest extends Applet implements Runnable {
           applyMethod(c, ymethod, j, height, yvals);
           applyMethod(c, xmethod, i, width, xvals);
         }
-        pixels[index++] = ((c[3] << 24) | (c[0] << 16) | (c[1] << 8) | c[2]);
+        pixels[index] = c[3] << 24 | c[0] << 16 | c[1] << 8 | c[2];
+        index++;
       }
 
       // Poll once per row to see if we've been told to stop.
@@ -207,12 +207,12 @@ public class DitherTest extends Applet implements Runnable {
         width));
   }
 
-  private void applyMethod(int c[], int methodIndex, int step, int total, int vals[]) {
+  private void applyMethod(int[] c, int methodIndex, int step, int total, int[] vals) {
     DitherMethod method = DitherMethod.values()[methodIndex];
     if (method == DitherMethod.NOOP) {
       return;
     }
-    int val = ((total < 2) ? vals[0] : vals[0] + ((vals[1] - vals[0]) * step / (total - 1)));
+    int val = total < 2 ? vals[0] : vals[0] + (vals[1] - vals[0]) * step / (total - 1);
     switch (method) {
       case RED:
         c[0] = val;
@@ -276,20 +276,19 @@ public class DitherTest extends Applet implements Runnable {
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {
             "xaxis", "{RED, GREEN, BLUE, ALPHA, SATURATION}",
             "The color of the Y axis.  Default is RED."}, {
         "yaxis", "{RED, GREEN, BLUE, ALPHA, SATURATION}",
         "The color of the X axis.  Default is BLUE."}};
-    return info;
   }
 }
 
 @SuppressWarnings("serial")
 class DitherCanvas extends Canvas {
 
-  private static String calcString = "Calculating...";
+  private static final String calcString = "Calculating...";
   private Image img;
 
   @Override
@@ -336,12 +335,12 @@ class DitherCanvas extends Canvas {
 @SuppressWarnings("serial")
 class DitherControls extends Panel implements ActionListener {
 
-  private static LayoutManager dcLayout = new FlowLayout(FlowLayout.CENTER, 10, 5);
-  private CardinalTextField start;
-  private CardinalTextField end;
+  private static final LayoutManager dcLayout = new FlowLayout(FlowLayout.CENTER, 10, 5);
+  private final CardinalTextField start;
+  private final CardinalTextField end;
+  private final Choice choice;
+  private final DitherTest applet;
   private Button button;
-  private Choice choice;
-  private DitherTest applet;
 
   public DitherControls(DitherTest app, int s, int e, DitherMethod type, boolean vertical) {
     applet = app;
@@ -363,7 +362,7 @@ class DitherControls extends Panel implements ActionListener {
   }
 
   /* retrieves data from the user input fields */
-  public int getParams(int vals[]) {
+  public int getParams(int[] vals) {
     try {
       vals[0] = scale(Integer.parseInt(start.getText()));
     } catch (NumberFormatException nfe) {
@@ -399,7 +398,7 @@ class DitherControls extends Panel implements ActionListener {
 @SuppressWarnings("serial")
 class CardinalTextField extends TextField {
 
-  String oldText = null;
+  String oldText;
 
   public CardinalTextField(String text, int columns) {
     super(text, columns);
@@ -425,7 +424,7 @@ class CardinalTextField extends TextField {
 
     // Digits, backspace, and delete are okay
     // Note that the minus sign is not allowed (neither is decimal)
-    if (Character.isDigit(c) || (c == '\b') || (c == '\u007f')) {
+    if (Character.isDigit(c) || c == '\b' || c == '\u007f') {
       super.processEvent(evt);
       return;
     }
@@ -446,7 +445,7 @@ class CardinalTextField extends TextField {
   protected void processTextEvent(TextEvent te) {
     // The empty string is okay, too
     String newText = getText();
-    if (newText.equals("") || textIsCardinal(newText)) {
+    if ("".equals(newText) || textIsCardinal(newText)) {
       oldText = newText;
       super.processTextEvent(te);
       return;

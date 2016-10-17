@@ -36,10 +36,13 @@ import sun.awt.SunToolkit;
  * @author Alexandr Scherbatiy
  * @run main ExtendedKeyCodeTest
  */
-public class ExtendedKeyCodeTest {
+public final class ExtendedKeyCodeTest {
 
-    private static volatile boolean setExtendedKeyCode = true;
-    private static volatile int eventsCount = 0;
+    static volatile boolean setExtendedKeyCode = true;
+    static volatile int eventsCount;
+
+    private ExtendedKeyCodeTest() {
+    }
 
     public static void main(String[] args) throws Exception {
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
@@ -54,15 +57,15 @@ public class ExtendedKeyCodeTest {
             @Override
             public void keyPressed(KeyEvent e) {
                 eventsCount++;
-                setExtendedKeyCode = setExtendedKeyCode && (e.getExtendedKeyCode()
-                        == ExtendedKeyCodes.getExtendedKeyCodeForChar(e.getKeyChar()));
+                setExtendedKeyCode = setExtendedKeyCode && e.getExtendedKeyCode()
+                        == ExtendedKeyCodes.getExtendedKeyCodeForChar(e.getKeyChar());
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
                 eventsCount++;
-                setExtendedKeyCode = setExtendedKeyCode && (e.getExtendedKeyCode()
-                        == ExtendedKeyCodes.getExtendedKeyCodeForChar(e.getKeyChar()));
+                setExtendedKeyCode = setExtendedKeyCode && e.getExtendedKeyCode()
+                        == ExtendedKeyCodes.getExtendedKeyCodeForChar(e.getKeyChar());
             }
         });
 

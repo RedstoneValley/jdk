@@ -33,7 +33,7 @@ package sun.java2d.pipe;
  */
 public class RegionSpanIterator implements SpanIterator {
   // The RegionIterator that we use to do the work
-  RegionIterator ri;
+  final RegionIterator ri;
 
   // Clipping bounds
   int lox, loy, hix, hiy;
@@ -42,10 +42,10 @@ public class RegionSpanIterator implements SpanIterator {
   int curloy, curhiy;
 
   // Are we done?
-  boolean done = false;
+  boolean done;
 
   // Is the associated Region rectangular?
-  boolean isrect;
+  final boolean isrect;
 
 /*
     REMIND: For native implementation
@@ -77,7 +77,8 @@ public class RegionSpanIterator implements SpanIterator {
   /**
    * Gets the bbox of the available region spans.
    */
-  public void getPathBox(int pathbox[]) {
+  @Override
+  public void getPathBox(int[] pathbox) {
     pathbox[0] = lox;
     pathbox[1] = loy;
     pathbox[2] = hix;
@@ -88,6 +89,7 @@ public class RegionSpanIterator implements SpanIterator {
    * Intersect the box used for clipping the output spans with the
    * given box.
    */
+  @Override
   public void intersectClipBox(int clox, int cloy, int chix, int chiy) {
     if (clox > lox) {
       lox = clox;
@@ -108,7 +110,8 @@ public class RegionSpanIterator implements SpanIterator {
    * Fetches the next span that needs to be operated on.
    * If the return value is false then there are no more spans.
    */
-  public boolean nextSpan(int spanbox[]) {
+  @Override
+  public boolean nextSpan(int[] spanbox) {
 
     // Quick test for end conditions
     if (done) {
@@ -179,6 +182,7 @@ public class RegionSpanIterator implements SpanIterator {
    * This method tells the iterator that it may skip all spans
    * whose Y range is completely above the indicated Y coordinate.
    */
+  @Override
   public void skipDownTo(int y) {
     loy = y;
   }
@@ -194,6 +198,7 @@ public class RegionSpanIterator implements SpanIterator {
    *     src/share/native/sun/java2d/pipe/SpanIterator.h
    * </pre>
    */
+  @Override
   public long getNativeIterator() {
     return 0;
   }

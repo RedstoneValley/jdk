@@ -45,10 +45,6 @@ import j2dbench.Result;
 import j2dbench.Test;
 import j2dbench.TestEnvironment;
 import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.color.ICC_Profile;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class CMMTests extends Test {
 
@@ -73,13 +69,13 @@ public class CMMTests extends Test {
                 new Option.Enable(cmmOptRoot, "csPlatfrom",
                         "Use Platfrom Profiles", false);
         */
-    int[] colorspaces = new int[]{
+    int[] colorspaces = {
         ColorSpace.CS_sRGB, ColorSpace.CS_GRAY, ColorSpace.CS_LINEAR_RGB, ColorSpace.CS_CIEXYZ};
 
-    String[] csNames = new String[]{
+    String[] csNames = {
         "CS_sRGB", "CS_GRAY", "CS_LINEAR_RGB", "CS_CIEXYZ"};
 
-    csList = new Option.IntList(cmmOptRoot,
+    csList = new IntList(cmmOptRoot,
         "profiles",
         "Color Profiles",
         colorspaces,
@@ -96,39 +92,7 @@ public class CMMTests extends Test {
     Boolean usePlatfrom = true; //(Boolean)env.getModifier(usePlatfromProfiles);
 
     int cs_code = env.getIntValue(csList);
-    if (usePlatfrom) {
-      cs = ColorSpace.getInstance(cs_code);
-    } else {
-      String resource = "profiles/";
-      switch (cs_code) {
-        case ColorSpace.CS_CIEXYZ:
-          resource += "CIEXYZ.pf";
-          break;
-        case ColorSpace.CS_GRAY:
-          resource += "GRAY.pf";
-          break;
-        case ColorSpace.CS_LINEAR_RGB:
-          resource += "LINEAR_RGB.pf";
-          break;
-        case ColorSpace.CS_PYCC:
-          resource += "PYCC.pf";
-          break;
-        case ColorSpace.CS_sRGB:
-          resource += "sRGB.pf";
-          break;
-        default:
-          throw new RuntimeException("Unknown color space: " + cs_code);
-      }
-
-      try {
-        InputStream is = CMMTests.class.getResourceAsStream(resource);
-        ICC_Profile p = ICC_Profile.getInstance(is);
-
-        cs = new ICC_ColorSpace(p);
-      } catch (IOException e) {
-        throw new RuntimeException("Unable load profile from resource " + resource, e);
-      }
-    }
+    cs = ColorSpace.getInstance(cs_code);
     return cs;
   }
 

@@ -26,7 +26,7 @@
 package java.awt.image;
 
 import java.awt.Image;
-import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * The PixelGrabber class implements an ImageConsumer which can be attached
@@ -68,11 +68,11 @@ import java.util.Hashtable;
  * @see ColorModel#getRGBdefault
  */
 public class PixelGrabber implements ImageConsumer {
-  private static final int GRABBEDBITS = (ImageObserver.FRAMEBITS | ImageObserver.ALLBITS);
-  private static final int DONEBITS = (GRABBEDBITS | ImageObserver.ERROR);
-  ImageProducer producer;
-  int dstX;
-  int dstY;
+  private static final int GRABBEDBITS = ImageObserver.FRAMEBITS | ImageObserver.ALLBITS;
+  private static final int DONEBITS = GRABBEDBITS | ImageObserver.ERROR;
+  final ImageProducer producer;
+  final int dstX;
+  final int dstY;
   int dstW;
   int dstH;
   ColorModel imageModel;
@@ -120,7 +120,7 @@ public class PixelGrabber implements ImageConsumer {
    * (x, y, w, h) is stored in the array at
    * <tt>pix[(j - y) * scansize + (i - x) + off]</tt>.
    *
-   * @param ip       the <code>ImageProducer</code> that produces the
+   * @param ip       the {@code ImageProducer} that produces the
    *                 image from which to retrieve pixels
    * @param x        the x coordinate of the upper left corner of the rectangle
    *                 of pixels to retrieve from the image, relative to the default
@@ -193,7 +193,7 @@ public class PixelGrabber implements ImageConsumer {
     }
     if (!grabbing) {
       grabbing = true;
-      flags &= ~(ImageObserver.ABORT);
+      flags &= ~ImageObserver.ABORT;
       producer.startProduction(this);
     }
   }
@@ -223,13 +223,13 @@ public class PixelGrabber implements ImageConsumer {
    * wait for all of the pixels in the rectangle of interest to be
    * delivered or until the specified timeout has elapsed.  This method
    * behaves in the following ways, depending on the value of
-   * <code>ms</code>:
+   * {@code ms}:
    * <ul>
    * <li> If {@code ms == 0}, waits until all pixels are delivered
    * <li> If {@code ms > 0}, waits until all pixels are delivered
    * as timeout expires.
-   * <li> If {@code ms < 0}, returns <code>true</code> if all pixels
-   * are grabbed, <code>false</code> otherwise and does not wait.
+   * <li> If {@code ms < 0}, returns {@code true} if all pixels
+   * are grabbed, {@code false} otherwise and does not wait.
    * </ul>
    *
    * @param ms the number of milliseconds to wait for the image pixels
@@ -245,7 +245,7 @@ public class PixelGrabber implements ImageConsumer {
     long end = ms + System.currentTimeMillis();
     if (!grabbing) {
       grabbing = true;
-      flags &= ~(ImageObserver.ABORT);
+      flags &= ~ImageObserver.ABORT;
       producer.startProduction(this);
     }
     while (grabbing) {
@@ -285,7 +285,7 @@ public class PixelGrabber implements ImageConsumer {
    * @see #getStatus
    */
   public synchronized int getWidth() {
-    return (dstW < 0) ? -1 : dstW;
+    return dstW < 0 ? -1 : dstW;
   }
 
   /**
@@ -299,7 +299,7 @@ public class PixelGrabber implements ImageConsumer {
    * @see #getStatus
    */
   public synchronized int getHeight() {
-    return (dstH < 0) ? -1 : dstH;
+    return dstH < 0 ? -1 : dstH;
   }
 
   /**
@@ -319,7 +319,7 @@ public class PixelGrabber implements ImageConsumer {
    * @see #setPixels(int, int, int, int, ColorModel, int[], int, int)
    */
   public synchronized Object getPixels() {
-    return (bytePixels == null) ? ((Object) intPixels) : ((Object) bytePixels);
+    return bytePixels == null ? intPixels : bytePixels;
   }
 
   /**
@@ -354,9 +354,10 @@ public class PixelGrabber implements ImageConsumer {
    * this method directly since that operation could result in problems
    * with retrieving the requested pixels.
    *
-   * @param model the specified <code>ColorModel</code>
+   * @param model the specified {@code ColorModel}
    * @see #getColorModel
    */
+  @Override
   public void setColorModel(ColorModel model) {
     return;
   }
@@ -373,6 +374,7 @@ public class PixelGrabber implements ImageConsumer {
    *
    * @param hints a set of hints used to process the pixels
    */
+  @Override
   public void setHints(int hints) {
     return;
   }
@@ -393,15 +395,16 @@ public class PixelGrabber implements ImageConsumer {
    *                of the area of pixels to be set
    * @param srcW    the width of the area of pixels
    * @param srcH    the height of the area of pixels
-   * @param model   the specified <code>ColorModel</code>
+   * @param model   the specified {@code ColorModel}
    * @param pixels  the array of pixels
    * @param srcOff  the offset into the pixels array
    * @param srcScan the distance from one row of pixels to the next
    *                in the pixels array
    * @see #getPixels
    */
+  @Override
   public void setPixels(
-      int srcX, int srcY, int srcW, int srcH, ColorModel model, byte pixels[], int srcOff,
+      int srcX, int srcY, int srcW, int srcH, ColorModel model, byte[] pixels, int srcOff,
       int srcScan) {
     if (srcY < dstY) {
       int diff = dstY - srcY;
@@ -413,7 +416,7 @@ public class PixelGrabber implements ImageConsumer {
       srcH -= diff;
     }
     if (srcY + srcH > dstY + dstH) {
-      srcH = (dstY + dstH) - srcY;
+      srcH = dstY + dstH - srcY;
       if (srcH <= 0) {
         return;
       }
@@ -428,12 +431,12 @@ public class PixelGrabber implements ImageConsumer {
       srcW -= diff;
     }
     if (srcX + srcW > dstX + dstW) {
-      srcW = (dstX + dstW) - srcX;
+      srcW = dstX + dstW - srcX;
       if (srcW <= 0) {
         return;
       }
     }
-    int dstPtr = dstOff + (srcY - dstY) * dstScan + (srcX - dstX);
+    int dstPtr = dstOff + (srcY - dstY) * dstScan + srcX - dstX;
     if (intPixels == null) {
       if (bytePixels == null) {
         bytePixels = new byte[dstW * dstH];
@@ -456,7 +459,9 @@ public class PixelGrabber implements ImageConsumer {
       int srcRem = srcScan - srcW;
       for (int h = srcH; h > 0; h--) {
         for (int w = srcW; w > 0; w--) {
-          intPixels[dstPtr++] = model.getRGB(pixels[srcOff++] & 0xff);
+          intPixels[dstPtr] = model.getRGB(pixels[srcOff] & 0xff);
+          dstPtr++;
+          srcOff++;
         }
         srcOff += srcRem;
         dstPtr += dstRem;
@@ -481,15 +486,16 @@ public class PixelGrabber implements ImageConsumer {
    *                of the area of pixels to be set
    * @param srcW    the width of the area of pixels
    * @param srcH    the height of the area of pixels
-   * @param model   the specified <code>ColorModel</code>
+   * @param model   the specified {@code ColorModel}
    * @param pixels  the array of pixels
    * @param srcOff  the offset into the pixels array
    * @param srcScan the distance from one row of pixels to the next
    *                in the pixels array
    * @see #getPixels
    */
+  @Override
   public void setPixels(
-      int srcX, int srcY, int srcW, int srcH, ColorModel model, int pixels[], int srcOff,
+      int srcX, int srcY, int srcW, int srcH, ColorModel model, int[] pixels, int srcOff,
       int srcScan) {
     if (srcY < dstY) {
       int diff = dstY - srcY;
@@ -501,7 +507,7 @@ public class PixelGrabber implements ImageConsumer {
       srcH -= diff;
     }
     if (srcY + srcH > dstY + dstH) {
-      srcH = (dstY + dstH) - srcY;
+      srcH = dstY + dstH - srcY;
       if (srcH <= 0) {
         return;
       }
@@ -516,7 +522,7 @@ public class PixelGrabber implements ImageConsumer {
       srcW -= diff;
     }
     if (srcX + srcW > dstX + dstW) {
-      srcW = (dstX + dstW) - srcX;
+      srcW = dstX + dstW - srcX;
       if (srcW <= 0) {
         return;
       }
@@ -531,7 +537,7 @@ public class PixelGrabber implements ImageConsumer {
         convertToRGB();
       }
     }
-    int dstPtr = dstOff + (srcY - dstY) * dstScan + (srcX - dstX);
+    int dstPtr = dstOff + (srcY - dstY) * dstScan + srcX - dstX;
     if (imageModel == model) {
       for (int h = srcH; h > 0; h--) {
         System.arraycopy(pixels, srcOff, intPixels, dstPtr, srcW);
@@ -546,7 +552,9 @@ public class PixelGrabber implements ImageConsumer {
       int srcRem = srcScan - srcW;
       for (int h = srcH; h > 0; h--) {
         for (int w = srcW; w > 0; w--) {
-          intPixels[dstPtr++] = model.getRGB(pixels[srcOff++]);
+          intPixels[dstPtr] = model.getRGB(pixels[srcOff]);
+          dstPtr++;
+          srcOff++;
         }
         srcOff += srcRem;
         dstPtr += dstRem;
@@ -567,6 +575,7 @@ public class PixelGrabber implements ImageConsumer {
    *
    * @param status the status of image loading
    */
+  @Override
   public synchronized void imageComplete(int status) {
     grabbing = false;
     switch (status) {
@@ -601,6 +610,7 @@ public class PixelGrabber implements ImageConsumer {
    * @param width  the width of the dimension
    * @param height the height of the dimension
    */
+  @Override
   public void setDimensions(int width, int height) {
     if (dstW < 0) {
       dstW = width - dstX;
@@ -615,7 +625,7 @@ public class PixelGrabber implements ImageConsumer {
       dstScan = dstW;
       dstOff = 0;
     }
-    flags |= (ImageObserver.WIDTH | ImageObserver.HEIGHT);
+    flags |= ImageObserver.WIDTH | ImageObserver.HEIGHT;
   }
 
   /**
@@ -630,13 +640,14 @@ public class PixelGrabber implements ImageConsumer {
    *
    * @param props the list of properties
    */
-  public void setProperties(Hashtable<?, ?> props) {
+  @Override
+  public void setProperties(Map<?, ?> props) {
     return;
   }
 
   private void convertToRGB() {
     int size = dstW * dstH;
-    int newpixels[] = new int[size];
+    int[] newpixels = new int[size];
     if (bytePixels != null) {
       for (int i = 0; i < size; i++) {
         newpixels[i] = imageModel.getRGB(bytePixels[i] & 0xff);
@@ -657,7 +668,7 @@ public class PixelGrabber implements ImageConsumer {
    * Returns the status of the pixels.  The ImageObserver flags
    * representing the available pixel information are returned.
    * This method and {@link #getStatus() getStatus} have the
-   * same implementation, but <code>getStatus</code> is the
+   * same implementation, but {@code getStatus} is the
    * preferred method because it conforms to the convention of
    * naming information-retrieval methods with the form
    * "getXXX".

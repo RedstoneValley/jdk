@@ -31,18 +31,13 @@
   @run       main RequestFocusToDisabledCompTest
 */
 
-import java.awt.Robot;
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.applet.Applet;
-import test.java.awt.regtesthelpers.Util;
 
 public class RequestFocusToDisabledCompTest extends Applet {
     Robot robot;
-    JFrame frame = new JFrame("Frame");
-    JButton b0 = new JButton("b0");
-    JButton b1 = new JButton("b1");
+    final JFrame frame = new JFrame("Frame");
+    final JButton b0 = new JButton("b0");
+    final JButton b1 = new JButton("b1");
 
     public static void main(String[] args) {
         RequestFocusToDisabledCompTest app = new RequestFocusToDisabledCompTest();
@@ -66,7 +61,7 @@ public class RequestFocusToDisabledCompTest extends Applet {
         if (!b0.hasFocus()) {
             // Request focus on b0.
             if (!Util.focusComponent(b0, 2000)) {
-                throw new TestErrorException("couldn't focus " + b0);
+                throw new TestError("couldn't focus " + b0);
             }
         }
 
@@ -82,6 +77,8 @@ public class RequestFocusToDisabledCompTest extends Applet {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -91,6 +88,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

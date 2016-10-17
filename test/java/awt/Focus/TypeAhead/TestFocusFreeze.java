@@ -39,18 +39,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.concurrent.atomic.AtomicBoolean;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import test.java.awt.regtesthelpers.Util;
 
-public class TestFocusFreeze {
-    private static JFrame frame;
-    private static JDialog dialog;
+public final class TestFocusFreeze {
+    static JFrame frame;
+    static JDialog dialog;
     private static JButton dlgButton;
     private static JButton frameButton;
-    private static AtomicBoolean lock = new AtomicBoolean(false);
-    private static Robot robot = Util.createRobot();
+    static final AtomicBoolean lock = new AtomicBoolean(false);
+    private static final Robot robot = Util.createRobot();
+
+    private TestFocusFreeze() {
+    }
 
     public static void main(String[] args) {
         boolean all_passed = true;
@@ -71,9 +70,9 @@ public class TestFocusFreeze {
         System.out.println("Test passed.");
     }
 
-    public static void test(final KeyboardFocusManager testKFM, final KeyboardFocusManager defKFM) {
+    public static void test(KeyboardFocusManager testKFM, KeyboardFocusManager defKFM) {
         frame = new JFrame("Frame");
-        dialog = new JDialog(frame, "Dialog", true);
+        dialog = new JDialog(frame, OwnedWindowsSerialization.DIALOG_LABEL, true);
         dlgButton = new JButton("Dialog_Button");
         frameButton = new JButton("Frame_Button");
 
@@ -86,6 +85,7 @@ public class TestFocusFreeze {
         frame.pack();
 
         dlgButton.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 dialog.dispose();
                 frame.dispose();
@@ -97,6 +97,7 @@ public class TestFocusFreeze {
         });
 
         frameButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     // Right before the dialog will be shown, there will be called
                     // enqueuKeyEvents() method. We are to catch it.
@@ -107,6 +108,7 @@ public class TestFocusFreeze {
             });
 
         Runnable showAction = new Runnable() {
+            @Override
             public void run() {
                 frame.setVisible(true);
             }
@@ -126,10 +128,11 @@ public class TestFocusFreeze {
 }
 
 class TestKFM extends DefaultKeyboardFocusManager {
-    Robot robot;
+    final Robot robot;
     public TestKFM(Robot robot) {
         this.robot = robot;
     }
+    @Override
     protected synchronized void enqueueKeyEvents(long after, Component untilFocused) {
         super.enqueueKeyEvents(after, untilFocused);
         robot.delay(1);

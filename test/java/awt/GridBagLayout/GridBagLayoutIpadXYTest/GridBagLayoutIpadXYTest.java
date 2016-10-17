@@ -29,19 +29,19 @@
   @run applet GridBagLayoutIpadXYTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
+import sun.awt.SunToolkit;
 
 public class GridBagLayoutIpadXYTest extends Applet
 {
-    Frame frame = new Frame();
-    TextField jtf = null;
+    final Frame frame = new Frame();
+    TextField jtf;
     final int customIpadx = 300;
     final int customIpady = 40;
 
     public void init()
     {
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
 
         String[] instructions =
         {
@@ -57,8 +57,8 @@ public class GridBagLayoutIpadXYTest extends Applet
         GridBagConstraints gc = new GridBagConstraints();
         Insets fieldInsets = new Insets(0,5,5,0);
 
-        gc.anchor = gc.NORTH;
-        gc.fill = gc.HORIZONTAL;
+        gc.anchor = GridBagConstraints.NORTH;
+        gc.fill = GridBagConstraints.HORIZONTAL;
         gc.gridx = 1;
         gc.gridy = 0;
         gc.weightx = 1;
@@ -71,7 +71,7 @@ public class GridBagLayoutIpadXYTest extends Applet
         frame.pack();
         frame.setVisible(true);
 
-        ((sun.awt.SunToolkit)Toolkit.getDefaultToolkit()).realSync();
+        ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
 
         Dimension minSize = jtf.getMinimumSize();
         if ( minSize.width + customIpadx != jtf.getSize().width ||
@@ -79,7 +79,7 @@ public class GridBagLayoutIpadXYTest extends Applet
             System.out.println("TextField originally has min size = " + jtf.getMinimumSize());
             System.out.println("TextField supplied with ipadx =  300, ipady =40");
             System.out.println("Frame size: " + frame.getSize());
-            System.out.println(" Fields's size is "+jtf.getSize());
+            System.out.println(" Fields's size is "+ jtf.getSize());
 
             throw new RuntimeException("Test Failed. TextField has incorrect width. ");
         }

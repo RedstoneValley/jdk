@@ -20,8 +20,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-/**
- * @test
+/*
+  @test
  * @bug 4257262 6708509
  * @summary Image should be sent to printer.
 * @run main/manual PrintAWTImage
@@ -35,10 +35,11 @@ import java.awt.print.*;
 public class PrintAWTImage extends Frame
                            implements ActionListener, Printable {
 
- public Image imgJava;
+  private static final long serialVersionUID = 3262199969092030934L;
+  public Image imgJava;
 
 
- public static void main(String args[]) {
+ public static void main(String[] args) {
     PrintAWTImage f = new PrintAWTImage();
     f.show();
  }
@@ -46,19 +47,21 @@ public class PrintAWTImage extends Frame
  public PrintAWTImage() {
 
     Button printButton = new Button("Print");
-    setLayout(new FlowLayout());
-    add(printButton);
+   setLayout(new FlowLayout());
+   add(printButton);
     printButton.addActionListener(this);
 
-    addWindowListener(new WindowAdapter() {
+   addWindowListener(new WindowAdapter() {
+       @Override
        public void windowClosing(WindowEvent e) {
              System.exit(0);
             }
     });
 
-    pack();
+   pack();
  }
 
+ @Override
  public void actionPerformed(ActionEvent e) {
 
    PrinterJob pj = PrinterJob.getPrinterJob();
@@ -75,9 +78,11 @@ public class PrintAWTImage extends Frame
  }
 
 
+    @Override
     public int print(Graphics g, PageFormat pgFmt, int pgIndex) {
-      if (pgIndex > 0)
-         return Printable.NO_SUCH_PAGE;
+      if (pgIndex > 0) {
+        return Printable.NO_SUCH_PAGE;
+      }
 
       Graphics2D g2d = (Graphics2D)g;
       g2d.translate(pgFmt.getImageableX(), pgFmt.getImageableY());

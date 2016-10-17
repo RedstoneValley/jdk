@@ -39,6 +39,8 @@
 
 package j2dbench;
 
+import j2dbench.Node.Visitor;
+import j2dbench.Option.Int;
 import j2dbench.tests.GraphicsTests;
 import java.awt.AlphaComposite;
 import java.awt.Canvas;
@@ -50,59 +52,60 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.util.Hashtable;
 
-public class TestEnvironment implements Node.Visitor {
+public class TestEnvironment implements Visitor {
   static Group globaloptroot;
   static Group envroot;
 
-  static Option.Int outputWidth;
-  static Option.Int outputHeight;
+  static Int outputWidth;
+  static Int outputHeight;
 
-  static Option.Int runCount;
-  static Option.Int repCount;
-  static Option.Int testTime;
+  static Int runCount;
+  static Int repCount;
+  static Int testTime;
   Canvas comp;
   Image testImage;
   Image srcImage;
   boolean stopped;
-  ResultSet results;
-  Hashtable modifiers;
-  Timer timer;
+  final ResultSet results;
+  final Hashtable modifiers;
+  final Timer timer;
+
   public TestEnvironment() {
     results = new ResultSet();
     modifiers = new Hashtable();
-    timer = Timer.getImpl();
+    timer = getImpl();
   }
 
   public static void init() {
     globaloptroot = new Group("global", "Global Options");
     envroot = new Group(globaloptroot, "env", "Test Environment Options");
 
-    outputWidth = new Option.Int(envroot,
+    outputWidth = new Int(envroot,
         "outputwidth",
         "Width of Output Window or Image",
         1,
         Integer.MAX_VALUE,
         640);
-    outputHeight = new Option.Int(envroot,
+    outputHeight = new Int(envroot,
         "outputheight",
         "Height of Output Window or Image",
         1,
         Integer.MAX_VALUE,
         480);
 
-    runCount = new Option.Int(envroot,
+    runCount = new Int(envroot,
         "runcount",
         "Fixed Number of Test Runs per Benchmark",
         1,
         Integer.MAX_VALUE,
         5);
-    repCount = new Option.Int(envroot,
+    repCount = new Int(envroot,
         "repcount",
         "Fixed Number of Reps (0 means calibrate)",
         0,
         Integer.MAX_VALUE,
         0);
-    testTime = new Option.Int(envroot,
+    testTime = new Int(envroot,
         "testtime",
         "Target test time to calibrate for",
         1,
@@ -110,6 +113,16 @@ public class TestEnvironment implements Node.Visitor {
         2500);
   }
 
+  public static Timer getImpl() {
+    try {
+      System.nanoTime();
+      return new Timer.Nanos();
+    } catch (NoSuchMethodError e) {
+      return new Timer.Millis();
+    }
+  }
+
+  @Override
   public void visit(Node node) {
     if (node instanceof Test) {
       ((Test) node).runTest(this);
@@ -138,9 +151,12 @@ public class TestEnvironment implements Node.Visitor {
 
   public Canvas getCanvas() {
     if (comp == null) {
-      final int w = getWidth();
-      final int h = getHeight();
+      int w = getWidth();
+      int h = getHeight();
       comp = new Canvas() {
+        private static final long serialVersionUID = 3425553168686604157L;
+
+        @Override
         public Dimension getPreferredSize() {
           return new Dimension(w, h);
         }
@@ -154,7 +170,7 @@ public class TestEnvironment implements Node.Visitor {
   }
 
   public void setSrcImage(Image img) {
-    this.srcImage = img;
+    srcImage = img;
   }
 
   public void stop() {
@@ -166,7 +182,7 @@ public class TestEnvironment implements Node.Visitor {
   }
 
   public void setTestImage(Image img) {
-    this.testImage = img;
+    testImage = img;
   }
 
   public void erase() {
@@ -241,11 +257,11 @@ public class TestEnvironment implements Node.Visitor {
   }
 
   public boolean isEnabled(Modifier o) {
-    return ((Boolean) modifiers.get(o)).booleanValue();
+    return (Boolean) modifiers.get(o);
   }
 
   public int getIntValue(Modifier o) {
-    return ((Integer) modifiers.get(o)).intValue();
+    return (Integer) modifiers.get(o);
   }
 
   public void removeModifier(Modifier o) {
@@ -276,14 +292,6 @@ public class TestEnvironment implements Node.Visitor {
   }
 
   private abstract static class Timer {
-    public static Timer getImpl() {
-      try {
-        System.nanoTime();
-        return new Nanos();
-      } catch (NoSuchMethodError e) {
-        return new Millis();
-      }
-    }
 
     public abstract void start();
 
@@ -296,18 +304,22 @@ public class TestEnvironment implements Node.Visitor {
     private static class Millis extends Timer {
       private long millis;
 
+      @Override
       public void start() {
         millis = System.currentTimeMillis();
       }
 
+      @Override
       public void stop() {
         millis = System.currentTimeMillis() - millis;
       }
 
+      @Override
       public long getTimeMillis() {
         return millis;
       }
 
+      @Override
       public long getTimeNanos() {
         return millis * 1000 * 1000;
       }
@@ -316,18 +328,22 @@ public class TestEnvironment implements Node.Visitor {
     private static class Nanos extends Timer {
       private long nanos;
 
+      @Override
       public void start() {
         nanos = System.nanoTime();
       }
 
+      @Override
       public void stop() {
         nanos = System.nanoTime() - nanos;
       }
 
+      @Override
       public long getTimeMillis() {
-        return (nanos + (500 * 1000)) / (1000 * 1000);
+        return (nanos + 500 * 1000) / (1000 * 1000);
       }
 
+      @Override
       public long getTimeNanos() {
         return nanos;
       }

@@ -50,6 +50,7 @@ class CharArrayIterator implements CharacterIterator {
    * @return the first character in the text, or DONE if the text is empty
    * @see getBeginIndex
    */
+  @Override
   public char first() {
 
     pos = 0;
@@ -63,13 +64,10 @@ class CharArrayIterator implements CharacterIterator {
    * @return the last character in the text, or DONE if the text is empty
    * @see getEndIndex
    */
+  @Override
   public char last() {
 
-    if (chars.length > 0) {
-      pos = chars.length - 1;
-    } else {
-      pos = 0;
-    }
+    pos = chars.length > 0 ? chars.length - 1 : 0;
     return current();
   }
 
@@ -80,13 +78,10 @@ class CharArrayIterator implements CharacterIterator {
    * position is off the end of the text.
    * @see getIndex
    */
+  @Override
   public char current() {
 
-    if (pos >= 0 && pos < chars.length) {
-      return chars[pos];
-    } else {
-      return DONE;
-    }
+    return pos >= 0 && pos < chars.length ? chars[pos] : DONE;
   }
 
   /**
@@ -98,6 +93,7 @@ class CharArrayIterator implements CharacterIterator {
    * @return the character at the new position or DONE if the new
    * position is off the end of the text range.
    */
+  @Override
   public char next() {
 
     if (pos < chars.length - 1) {
@@ -117,6 +113,7 @@ class CharArrayIterator implements CharacterIterator {
    * @return the character at the new position or DONE if the current
    * position is equal to getBeginIndex().
    */
+  @Override
   public char previous() {
 
     if (pos > 0) {
@@ -138,6 +135,7 @@ class CharArrayIterator implements CharacterIterator {
    * @return the character at the specified position or DONE if the specified position is equal
    * to getEndIndex()
    */
+  @Override
   public char setIndex(int position) {
 
     position -= begin;
@@ -153,6 +151,7 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return the index at which the text begins.
    */
+  @Override
   public int getBeginIndex() {
     return begin;
   }
@@ -163,6 +162,7 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return the index after the last character in the text
    */
+  @Override
   public int getEndIndex() {
     return begin + chars.length;
   }
@@ -172,6 +172,7 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return the current index.
    */
+  @Override
   public int getIndex() {
     return begin + pos;
   }
@@ -181,9 +182,11 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return A copy of this
    */
-  public Object clone() {
+  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @Override
+  public CharArrayIterator clone() {
     CharArrayIterator c = new CharArrayIterator(chars, begin);
-    c.pos = this.pos;
+    c.pos = pos;
     return c;
   }
 

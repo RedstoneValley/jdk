@@ -42,7 +42,7 @@ public interface ImageObserver {
    * @see Image#getWidth
    * @see #imageUpdate
    */
-  public static final int WIDTH = 1;
+  int WIDTH = 1;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * the height of the base image is now available and can be taken
@@ -51,7 +51,7 @@ public interface ImageObserver {
    * @see Image#getHeight
    * @see #imageUpdate
    */
-  public static final int HEIGHT = 2;
+  int HEIGHT = 2;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * the properties of the image are now available.
@@ -59,7 +59,7 @@ public interface ImageObserver {
    * @see Image#getProperty
    * @see #imageUpdate
    */
-  public static final int PROPERTIES = 4;
+  int PROPERTIES = 4;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * more pixels needed for drawing a scaled variation of the image
@@ -70,7 +70,7 @@ public interface ImageObserver {
    * @see java.awt.Graphics#drawImage
    * @see #imageUpdate
    */
-  public static final int SOMEBITS = 8;
+  int SOMEBITS = 8;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * another complete frame of a multi-frame image which was previously
@@ -80,7 +80,7 @@ public interface ImageObserver {
    * @see java.awt.Graphics#drawImage
    * @see #imageUpdate
    */
-  public static final int FRAMEBITS = 16;
+  int FRAMEBITS = 16;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * a static image which was previously drawn is now complete and can
@@ -90,7 +90,7 @@ public interface ImageObserver {
    * @see java.awt.Graphics#drawImage
    * @see #imageUpdate
    */
-  public static final int ALLBITS = 32;
+  int ALLBITS = 32;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * an image which was being tracked asynchronously has encountered
@@ -101,7 +101,7 @@ public interface ImageObserver {
    *
    * @see #imageUpdate
    */
-  public static final int ERROR = 64;
+  int ERROR = 64;
   /**
    * This flag in the infoflags argument to imageUpdate indicates that
    * an image which was being tracked asynchronously was aborted before
@@ -113,7 +113,7 @@ public interface ImageObserver {
    *
    * @see #imageUpdate
    */
-  public static final int ABORT = 128;
+  int ABORT = 128;
 
   /**
    * This method is called when information about an image which was
@@ -135,24 +135,24 @@ public interface ImageObserver {
    * of the x, y, width, and height arguments depends on the contents
    * of the infoflags argument.
    * <p>
-   * The <code>infoflags</code> argument should be the bitwise inclusive
-   * <b>OR</b> of the following flags: <code>WIDTH</code>,
-   * <code>HEIGHT</code>, <code>PROPERTIES</code>, <code>SOMEBITS</code>,
-   * <code>FRAMEBITS</code>, <code>ALLBITS</code>, <code>ERROR</code>,
-   * <code>ABORT</code>.
+   * The {@code infoflags} argument should be the bitwise inclusive
+   * <b>OR</b> of the following flags: {@code WIDTH},
+   * {@code HEIGHT}, {@code PROPERTIES}, {@code SOMEBITS},
+   * {@code FRAMEBITS}, {@code ALLBITS}, {@code ERROR},
+   * {@code ABORT}.
    *
    * @param img       the image being observed.
    * @param infoflags the bitwise inclusive OR of the following
-   *                  flags:  <code>WIDTH</code>, <code>HEIGHT</code>,
-   *                  <code>PROPERTIES</code>, <code>SOMEBITS</code>,
-   *                  <code>FRAMEBITS</code>, <code>ALLBITS</code>,
-   *                  <code>ERROR</code>, <code>ABORT</code>.
+   *                  flags:  {@code WIDTH}, {@code HEIGHT},
+   *                  {@code PROPERTIES}, {@code SOMEBITS},
+   *                  {@code FRAMEBITS}, {@code ALLBITS},
+   *                  {@code ERROR}, {@code ABORT}.
    * @param x         the <i>x</i> coordinate.
    * @param y         the <i>y</i> coordinate.
    * @param width     the width.
    * @param height    the height.
-   * @return <code>false</code> if the infoflags indicate that the
-   * image is completely loaded; <code>true</code> otherwise.
+   * @return {@code false} if the infoflags indicate that the
+   * image is completely loaded; {@code true} otherwise.
    * @see #WIDTH
    * @see #HEIGHT
    * @see #PROPERTIES
@@ -165,6 +165,6 @@ public interface ImageObserver {
    * @see Image#getHeight
    * @see java.awt.Graphics#drawImage
    */
-  public boolean imageUpdate(
+  boolean imageUpdate(
       Image img, int infoflags, int x, int y, int width, int height);
 }

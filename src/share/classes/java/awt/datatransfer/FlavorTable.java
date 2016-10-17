@@ -39,40 +39,40 @@ import java.util.List;
 public interface FlavorTable extends FlavorMap {
 
   /**
-   * Returns a <code>List</code> of <code>String</code> natives to which the
-   * specified <code>DataFlavor</code> corresponds. The <code>List</code>
+   * Returns a {@code List} of {@code String} natives to which the
+   * specified {@code DataFlavor} corresponds. The {@code List}
    * will be sorted from best native to worst. That is, the first native will
    * best reflect data in the specified flavor to the underlying native
-   * platform. The returned <code>List</code> is a modifiable copy of this
-   * <code>FlavorTable</code>'s internal data. Client code is free to modify
-   * the <code>List</code> without affecting this object.
+   * platform. The returned {@code List} is a modifiable copy of this
+   * {@code FlavorTable}'s internal data. Client code is free to modify
+   * the {@code List} without affecting this object.
    *
-   * @param flav the <code>DataFlavor</code> whose corresponding natives
-   *             should be returned. If <code>null</code> is specified, all
-   *             natives currently known to this <code>FlavorTable</code> are
+   * @param flav the {@code DataFlavor} whose corresponding natives
+   *             should be returned. If {@code null} is specified, all
+   *             natives currently known to this {@code FlavorTable} are
    *             returned in a non-deterministic order.
-   * @return a <code>java.util.List</code> of <code>java.lang.String</code>
+   * @return a {@code java.util.List} of {@code java.lang.String}
    * objects which are platform-specific representations of platform-
    * specific data formats
    */
   List<String> getNativesForFlavor(DataFlavor flav);
 
   /**
-   * Returns a <code>List</code> of <code>DataFlavor</code>s to which the
-   * specified <code>String</code> corresponds. The <code>List</code> will be
-   * sorted from best <code>DataFlavor</code> to worst. That is, the first
-   * <code>DataFlavor</code> will best reflect data in the specified
-   * native to a Java application. The returned <code>List</code> is a
-   * modifiable copy of this <code>FlavorTable</code>'s internal data.
-   * Client code is free to modify the <code>List</code> without affecting
+   * Returns a {@code List} of {@code DataFlavor}s to which the
+   * specified {@code String} corresponds. The {@code List} will be
+   * sorted from best {@code DataFlavor} to worst. That is, the first
+   * {@code DataFlavor} will best reflect data in the specified
+   * native to a Java application. The returned {@code List} is a
+   * modifiable copy of this {@code FlavorTable}'s internal data.
+   * Client code is free to modify the {@code List} without affecting
    * this object.
    *
-   * @param nat the native whose corresponding <code>DataFlavor</code>s
-   *            should be returned. If <code>null</code> is specified, all
-   *            <code>DataFlavor</code>s currently known to this
-   *            <code>FlavorTable</code> are returned in a non-deterministic
+   * @param nat the native whose corresponding {@code DataFlavor}s
+   *            should be returned. If {@code null} is specified, all
+   *            {@code DataFlavor}s currently known to this
+   *            {@code FlavorTable} are returned in a non-deterministic
    *            order.
-   * @return a <code>java.util.List</code> of <code>DataFlavor</code>
+   * @return a {@code java.util.List} of {@code DataFlavor}
    * objects into which platform-specific data in the specified,
    * platform-specific native can be translated
    */

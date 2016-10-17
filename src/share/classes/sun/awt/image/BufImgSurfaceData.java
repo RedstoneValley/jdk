@@ -56,11 +56,10 @@ public class BufImgSurfaceData extends SurfaceData {
   private static final int DCM_ARGBBM_GREEN_MASK = 0x0000ff00;
   private static final int DCM_ARGBBM_BLUE_MASK = 0x000000ff;
   private static final int CACHE_SIZE = 5;
-  private static RenderLoops loopcache[] = new RenderLoops[CACHE_SIZE];
-  private static SurfaceType typecache[] = new SurfaceType[CACHE_SIZE];
+  private static final RenderLoops[] loopcache = new RenderLoops[CACHE_SIZE];
+  private static final SurfaceType[] typecache = new SurfaceType[CACHE_SIZE];
 
   static {
-    initIDs(IndexColorModel.class, ICMColorData.class);
   }
 
   BufferedImage bufImg;
@@ -76,8 +75,7 @@ public class BufImgSurfaceData extends SurfaceData {
     super(surfaceType, cm);
   }
 
-  private static native void initIDs(Class ICM, Class ICMColorData);
-
+  @SuppressWarnings("MagicNumber")
   public static SurfaceData createData(BufferedImage bufImg) {
     if (bufImg == null) {
       throw new NullPointerException("BufferedImage cannot be null");
@@ -118,11 +116,8 @@ public class BufImgSurfaceData extends SurfaceData {
         SurfaceType sType;
         switch (cm.getTransparency()) {
           case OPAQUE:
-            if (isOpaqueGray((IndexColorModel) cm)) {
-              sType = SurfaceType.Index8Gray;
-            } else {
-              sType = SurfaceType.ByteIndexedOpaque;
-            }
+            sType = isOpaqueGray((IndexColorModel) cm) ? SurfaceType.Index8Gray
+                : SurfaceType.ByteIndexedOpaque;
             break;
           case BITMASK:
             sType = SurfaceType.ByteIndexedBm;
@@ -162,7 +157,7 @@ public class BufImgSurfaceData extends SurfaceData {
       }
       break;
       case BufferedImage.TYPE_CUSTOM:
-      default: {
+      default:
         Raster raster = bufImg.getRaster();
         int numBands = raster.getNumBands();
         if (raster instanceof IntegerComponentRaster &&
@@ -193,7 +188,8 @@ public class BufImgSurfaceData extends SurfaceData {
           }
           sData = createDataIC(bufImg, sType);
           break;
-        } else if (raster instanceof ShortComponentRaster &&
+        }
+        if (raster instanceof ShortComponentRaster &&
             raster.getNumDataElements() == 1 &&
             ((ShortComponentRaster) raster).getPixelStride() == 1) {
           SurfaceType sType = SurfaceType.AnyShort;
@@ -233,8 +229,7 @@ public class BufImgSurfaceData extends SurfaceData {
           break;
         }
         sData = new BufImgSurfaceData(raster.getDataBuffer(), bufImg, SurfaceType.Custom);
-      }
-      break;
+        break;
     }
     ((BufImgSurfaceData) sData).initSolidLoops();
     return sData;
@@ -248,13 +243,10 @@ public class BufImgSurfaceData extends SurfaceData {
     IntegerComponentRaster icRaster = (IntegerComponentRaster) bImg.getRaster();
     BufImgSurfaceData bisd = new BufImgSurfaceData(icRaster.getDataBuffer(), bImg, sType);
     bisd.initRaster(
-        icRaster.getDataStorage(),
-        icRaster.getDataOffset(0) * 4,
+        icRaster.getDataStorage(), icRaster.getDataOffset(0) << 2,
         0,
         icRaster.getWidth(),
-        icRaster.getHeight(),
-        icRaster.getPixelStride() * 4,
-        icRaster.getScanlineStride() * 4,
+        icRaster.getHeight(), icRaster.getPixelStride() << 2, icRaster.getScanlineStride() << 2,
         null);
     return bisd;
   }
@@ -264,13 +256,10 @@ public class BufImgSurfaceData extends SurfaceData {
     ShortComponentRaster scRaster = (ShortComponentRaster) bImg.getRaster();
     BufImgSurfaceData bisd = new BufImgSurfaceData(scRaster.getDataBuffer(), bImg, sType);
     bisd.initRaster(
-        scRaster.getDataStorage(),
-        scRaster.getDataOffset(0) * 2,
+        scRaster.getDataStorage(), scRaster.getDataOffset(0) << 1,
         0,
         scRaster.getWidth(),
-        scRaster.getHeight(),
-        scRaster.getPixelStride() * 2,
-        scRaster.getScanlineStride() * 2,
+        scRaster.getHeight(), scRaster.getPixelStride() << 1, scRaster.getScanlineStride() << 1,
         icm);
     return bisd;
   }
@@ -279,7 +268,7 @@ public class BufImgSurfaceData extends SurfaceData {
     ByteComponentRaster bcRaster = (ByteComponentRaster) bImg.getRaster();
     BufImgSurfaceData bisd = new BufImgSurfaceData(bcRaster.getDataBuffer(), bImg, sType);
     ColorModel cm = bImg.getColorModel();
-    IndexColorModel icm = ((cm instanceof IndexColorModel) ? (IndexColorModel) cm : null);
+    IndexColorModel icm = cm instanceof IndexColorModel ? (IndexColorModel) cm : null;
     bisd.initRaster(
         bcRaster.getDataStorage(),
         bcRaster.getDataOffset(primaryBank),
@@ -296,7 +285,7 @@ public class BufImgSurfaceData extends SurfaceData {
     BytePackedRaster bpRaster = (BytePackedRaster) bImg.getRaster();
     BufImgSurfaceData bisd = new BufImgSurfaceData(bpRaster.getDataBuffer(), bImg, sType);
     ColorModel cm = bImg.getColorModel();
-    IndexColorModel icm = ((cm instanceof IndexColorModel) ? (IndexColorModel) cm : null);
+    IndexColorModel icm = cm instanceof IndexColorModel ? (IndexColorModel) cm : null;
     bisd.initRaster(
         bpRaster.getDataStorage(),
         bpRaster.getDataBitOffset() / 8,
@@ -326,25 +315,31 @@ public class BufImgSurfaceData extends SurfaceData {
     return l;
   }
 
-  private static native void freeNativeICMData(long pData);
+  static void freeNativeICMData(long pData) {
+    // TODO: In OpenJDK AWT, this is native
+  }
 
   /**
    * Initializes the native Ops pointer.
    */
-  protected native void initRaster(
+  protected void initRaster(
       Object theArray, int offset, int bitoffset, int width, int height, int pixStr, int scanStr,
-      IndexColorModel icm);
-
-  public void initSolidLoops() {
-    this.solidloops = getSolidLoops(getSurfaceType());
+      IndexColorModel icm) {
+    // TODO: In OpenJDK AWT, this is native
   }
 
+  public void initSolidLoops() {
+    solidloops = getSolidLoops(getSurfaceType());
+  }
+
+  @Override
   public SurfaceData getReplacement() {
     // BufImgSurfaceData objects should never lose their contents,
     // so this method should never be called.
     return restoreContents(bufImg);
   }
 
+  @Override
   public RenderLoops getRenderLoops(SunGraphics2D sg2d) {
     if (sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR
         && sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY) {
@@ -353,6 +348,7 @@ public class BufImgSurfaceData extends SurfaceData {
     return super.getRenderLoops(sg2d);
   }
 
+  @Override
   public synchronized GraphicsConfiguration getDeviceConfiguration() {
     if (graphicsConfig == null) {
       graphicsConfig = BufferedImageGraphicsConfig.getConfig(bufImg);
@@ -360,14 +356,17 @@ public class BufImgSurfaceData extends SurfaceData {
     return graphicsConfig;
   }
 
-  public java.awt.image.Raster getRaster(int x, int y, int w, int h) {
+  @Override
+  public Raster getRaster(int x, int y, int w, int h) {
     return bufImg.getRaster();
   }
 
-  public java.awt.Rectangle getBounds() {
+  @Override
+  public Rectangle getBounds() {
     return new Rectangle(bufImg.getWidth(), bufImg.getHeight());
   }
 
+  @Override
   protected void checkCustomComposite() {
     // BufferedImages always allow Custom Composite objects since
     // their pixels are immediately retrievable anyway.
@@ -376,22 +375,25 @@ public class BufImgSurfaceData extends SurfaceData {
   /**
    * Returns destination Image associated with this SurfaceData.
    */
+  @Override
   public Object getDestination() {
     return bufImg;
   }
 
   public static final class ICMColorData {
-    private long pData = 0L;
+    private long pData;
 
     private ICMColorData(long pData) {
       this.pData = pData;
     }
 
-    public void finalize() {
+    @Override
+    protected void finalize() throws Throwable {
       if (pData != 0L) {
-        BufImgSurfaceData.freeNativeICMData(pData);
+        freeNativeICMData(pData);
         pData = 0L;
       }
+      super.finalize();
     }
   }
 }

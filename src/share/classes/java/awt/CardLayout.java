@@ -27,23 +27,23 @@ package java.awt;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
+import java.io.ObjectOutputStream.PutField;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
- * A <code>CardLayout</code> object is a layout manager for a
+ * A {@code CardLayout} object is a layout manager for a
  * container. It treats each component in the container as a card.
  * Only one card is visible at a time, and the container acts as
  * a stack of cards. The first component added to a
- * <code>CardLayout</code> object is the visible component when the
+ * {@code CardLayout} object is the visible component when the
  * container is first displayed.
  * <p>
  * The ordering of cards is determined by the container's own internal
- * ordering of its component objects. <code>CardLayout</code>
+ * ordering of its component objects. {@code CardLayout}
  * defines a set of methods that allow an application to flip
  * through these cards sequentially, or to show a specified card.
  * The {@link CardLayout#addLayoutComponent}
@@ -51,7 +51,7 @@ import java.util.Vector;
  * for fast random access.
  *
  * @author Arthur van Hoff
- * @see java.awt.Container
+ * @see Container
  * @since JDK1.0
  */
 
@@ -68,16 +68,16 @@ public class CardLayout implements LayoutManager2, Serializable {
    */
   private static final ObjectStreamField[] serialPersistentFields = {
       new ObjectStreamField("tab", Hashtable.class), new ObjectStreamField("hgap", Integer.TYPE),
-      new ObjectStreamField("vgap", Integer.TYPE), new ObjectStreamField("vector", Vector.class),
+      new ObjectStreamField("vgap", Integer.TYPE), new ObjectStreamField(IIOTests.CONTENT_VECTOR, Vector.class),
       new ObjectStreamField("currentCard", Integer.TYPE)};
   /*
    * This creates a Vector to store associated
    * pairs of components and their names.
    * @see java.util.Vector
-   */ Vector<Card> vector = new Vector<>();
+   */ java.util.List<Card> vector = new Vector<>();
   /*
    * Index of Component currently displayed by CardLayout.
-   */ int currentCard = 0;
+   */ int currentCard;
 
   /*
   * A cards horizontal Layout gap (inset). It specifies
@@ -122,8 +122,8 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Gets the horizontal gap between components.
    *
    * @return the horizontal gap between components.
-   * @see java.awt.CardLayout#setHgap(int)
-   * @see java.awt.CardLayout#getVgap()
+   * @see CardLayout#setHgap(int)
+   * @see CardLayout#getVgap()
    * @since JDK1.1
    */
   public int getHgap() {
@@ -134,8 +134,8 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Sets the horizontal gap between components.
    *
    * @param hgap the horizontal gap between components.
-   * @see java.awt.CardLayout#getHgap()
-   * @see java.awt.CardLayout#setVgap(int)
+   * @see CardLayout#getHgap()
+   * @see CardLayout#setVgap(int)
    * @since JDK1.1
    */
   public void setHgap(int hgap) {
@@ -146,8 +146,8 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Gets the vertical gap between components.
    *
    * @return the vertical gap between components.
-   * @see java.awt.CardLayout#setVgap(int)
-   * @see java.awt.CardLayout#getHgap()
+   * @see CardLayout#setVgap(int)
+   * @see CardLayout#getHgap()
    */
   public int getVgap() {
     return vgap;
@@ -157,8 +157,8 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Sets the vertical gap between components.
    *
    * @param vgap the vertical gap between components.
-   * @see java.awt.CardLayout#getVgap()
-   * @see java.awt.CardLayout#setHgap(int)
+   * @see CardLayout#getVgap()
+   * @see CardLayout#setHgap(int)
    * @since JDK1.1
    */
   public void setVgap(int vgap) {
@@ -167,18 +167,19 @@ public class CardLayout implements LayoutManager2, Serializable {
 
   /**
    * Adds the specified component to this card layout's internal
-   * table of names. The object specified by <code>constraints</code>
+   * table of names. The object specified by {@code constraints}
    * must be a string. The card layout stores this string as a key-value
    * pair that can be used for random access to a particular card.
-   * By calling the <code>show</code> method, an application can
+   * By calling the {@code show} method, an application can
    * display the component with the specified name.
    *
    * @param comp        the component to be added.
    * @param constraints a tag that identifies a particular
    *                    card in the layout.
    * @throws IllegalArgumentException if the constraint is not a string.
-   * @see java.awt.CardLayout#show(java.awt.Container, java.lang.String)
+   * @see CardLayout#show(Container, String)
    */
+  @Override
   public void addLayoutComponent(Component comp, Object constraints) {
     synchronized (comp.getTreeLock()) {
       if (constraints == null) {
@@ -201,6 +202,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * @see #minimumLayoutSize
    * @see #preferredLayoutSize
    */
+  @Override
   public Dimension maximumLayoutSize(Container target) {
     return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
   }
@@ -212,6 +214,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * where 0 represents alignment along the origin, 1 is aligned
    * the furthest away from the origin, 0.5 is centered, etc.
    */
+  @Override
   public float getLayoutAlignmentX(Container parent) {
     return 0.5f;
   }
@@ -223,6 +226,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * where 0 represents alignment along the origin, 1 is aligned
    * the furthest away from the origin, 0.5 is centered, etc.
    */
+  @Override
   public float getLayoutAlignmentY(Container parent) {
     return 0.5f;
   }
@@ -231,13 +235,15 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Invalidates the layout, indicating that if the layout manager
    * has cached information it should be discarded.
    */
+  @Override
   public void invalidateLayout(Container target) {
   }
 
   /**
    * @deprecated replaced by
-   * <code>addLayoutComponent(Component, Object)</code>.
+   * {@code addLayoutComponent(Component, Object)}.
    */
+  @Override
   @Deprecated
   public void addLayoutComponent(String name, Component comp) {
     synchronized (comp.getTreeLock()) {
@@ -245,8 +251,8 @@ public class CardLayout implements LayoutManager2, Serializable {
         comp.setVisible(false);
       }
       for (int i = 0; i < vector.size(); i++) {
-        if (((Card) vector.get(i)).name.equals(name)) {
-          ((Card) vector.get(i)).comp = comp;
+        if (vector.get(i).name.equals(name)) {
+          vector.get(i).comp = comp;
           return;
         }
       }
@@ -259,15 +265,16 @@ public class CardLayout implements LayoutManager2, Serializable {
    * If the card was visible on top, the next card underneath it is shown.
    *
    * @param comp the component to be removed.
-   * @see java.awt.Container#remove(java.awt.Component)
-   * @see java.awt.Container#removeAll()
+   * @see Container#remove(Component)
+   * @see Container#removeAll()
    */
+  @Override
   public void removeLayoutComponent(Component comp) {
     synchronized (comp.getTreeLock()) {
       for (int i = 0; i < vector.size(); i++) {
-        if (((Card) vector.get(i)).comp == comp) {
+        if (vector.get(i).comp == comp) {
           // if we remove current component we should show next one
-          if (comp.isVisible() && (comp.getParent() != null)) {
+          if (comp.isVisible() && comp.getParent() != null) {
             next(comp.getParent());
           }
 
@@ -290,9 +297,10 @@ public class CardLayout implements LayoutManager2, Serializable {
    * @param parent the parent container in which to do the layout
    * @return the preferred dimensions to lay out the subcomponents
    * of the specified container
-   * @see java.awt.Container#getPreferredSize
-   * @see java.awt.CardLayout#minimumLayoutSize
+   * @see Container#getPreferredSize
+   * @see CardLayout#minimumLayoutSize
    */
+  @Override
   public Dimension preferredLayoutSize(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
@@ -310,8 +318,8 @@ public class CardLayout implements LayoutManager2, Serializable {
           h = d.height;
         }
       }
-      return new Dimension(insets.left + insets.right + w + hgap * 2,
-          insets.top + insets.bottom + h + vgap * 2);
+      return new Dimension(insets.left + insets.right + w + (hgap << 1),
+          insets.top + insets.bottom + h + (vgap << 1));
     }
   }
 
@@ -321,9 +329,10 @@ public class CardLayout implements LayoutManager2, Serializable {
    * @param parent the parent container in which to do the layout
    * @return the minimum dimensions required to lay out the
    * subcomponents of the specified container
-   * @see java.awt.Container#doLayout
-   * @see java.awt.CardLayout#preferredLayoutSize
+   * @see Container#doLayout
+   * @see CardLayout#preferredLayoutSize
    */
+  @Override
   public Dimension minimumLayoutSize(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
@@ -341,34 +350,35 @@ public class CardLayout implements LayoutManager2, Serializable {
           h = d.height;
         }
       }
-      return new Dimension(insets.left + insets.right + w + hgap * 2,
-          insets.top + insets.bottom + h + vgap * 2);
+      return new Dimension(insets.left + insets.right + w + (hgap << 1),
+          insets.top + insets.bottom + h + (vgap << 1));
     }
   }
 
   /**
    * Lays out the specified container using this card layout.
    * <p>
-   * Each component in the <code>parent</code> container is reshaped
+   * Each component in the {@code parent} container is reshaped
    * to be the size of the container, minus space for surrounding
    * insets, horizontal gaps, and vertical gaps.
    *
    * @param parent the parent container in which to do the layout
-   * @see java.awt.Container#doLayout
+   * @see Container#doLayout
    */
+  @Override
   public void layoutContainer(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
       int ncomponents = parent.getComponentCount();
-      Component comp = null;
+      Component comp;
       boolean currentFound = false;
 
       for (int i = 0; i < ncomponents; i++) {
         comp = parent.getComponent(i);
         comp.setBounds(hgap + insets.left,
             vgap + insets.top,
-            parent.width - (hgap * 2 + insets.left + insets.right),
-            parent.height - (vgap * 2 + insets.top + insets.bottom));
+            parent.width - ((hgap << 1) + insets.left + insets.right),
+            parent.height - ((vgap << 1) + insets.top + insets.bottom));
         if (comp.isVisible()) {
           currentFound = true;
         }
@@ -394,7 +404,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Flips to the first card of the container.
    *
    * @param parent the parent container in which to do the layout
-   * @see java.awt.CardLayout#last
+   * @see CardLayout#last
    */
   public void first(Container parent) {
     synchronized (parent.getTreeLock()) {
@@ -421,7 +431,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * first card in the layout.
    *
    * @param parent the parent container in which to do the layout
-   * @see java.awt.CardLayout#previous
+   * @see CardLayout#previous
    */
   public void next(Container parent) {
     synchronized (parent.getTreeLock()) {
@@ -448,7 +458,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * last card in the layout.
    *
    * @param parent the parent container in which to do the layout
-   * @see java.awt.CardLayout#next
+   * @see CardLayout#next
    */
   public void previous(Container parent) {
     synchronized (parent.getTreeLock()) {
@@ -458,7 +468,7 @@ public class CardLayout implements LayoutManager2, Serializable {
         Component comp = parent.getComponent(i);
         if (comp.isVisible()) {
           comp.setVisible(false);
-          currentCard = ((i > 0) ? i - 1 : ncomponents - 1);
+          currentCard = (i > 0 ? i : ncomponents) - 1;
           comp = parent.getComponent(currentCard);
           comp.setVisible(true);
           parent.validate();
@@ -481,7 +491,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Flips to the last card of the container.
    *
    * @param parent the parent container in which to do the layout
-   * @see java.awt.CardLayout#first
+   * @see CardLayout#first
    */
   public void last(Container parent) {
     synchronized (parent.getTreeLock()) {
@@ -504,12 +514,12 @@ public class CardLayout implements LayoutManager2, Serializable {
 
   /**
    * Flips to the component that was added to this layout with the
-   * specified <code>name</code>, using <code>addLayoutComponent</code>.
+   * specified {@code name}, using {@code addLayoutComponent}.
    * If no such component exists, then nothing happens.
    *
    * @param parent the parent container in which to do the layout
    * @param name   the component name
-   * @see java.awt.CardLayout#addLayoutComponent(java.awt.Component, java.lang.Object)
+   * @see CardLayout#addLayoutComponent(Component, Object)
    */
   public void show(Container parent, String name) {
     synchronized (parent.getTreeLock()) {
@@ -517,14 +527,14 @@ public class CardLayout implements LayoutManager2, Serializable {
       Component next = null;
       int ncomponents = vector.size();
       for (int i = 0; i < ncomponents; i++) {
-        Card card = (Card) vector.get(i);
+        Card card = vector.get(i);
         if (card.name.equals(name)) {
           next = card.comp;
           currentCard = i;
           break;
         }
       }
-      if ((next != null) && !next.isVisible()) {
+      if (next != null && !next.isVisible()) {
         ncomponents = parent.getComponentCount();
         for (int i = 0; i < ncomponents; i++) {
           Component comp = parent.getComponent(i);
@@ -552,19 +562,19 @@ public class CardLayout implements LayoutManager2, Serializable {
    * Reads serializable fields from stream.
    */
   private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
-    ObjectInputStream.GetField f = s.readFields();
+    GetField f = s.readFields();
 
     hgap = f.get("hgap", 0);
     vgap = f.get("vgap", 0);
 
-    if (f.defaulted("vector")) {
+    if (f.defaulted(IIOTests.CONTENT_VECTOR)) {
       //  pre-1.4 stream
       Hashtable<String, Component> tab = (Hashtable) f.get("tab", null);
       vector = new Vector<>();
       if (tab != null && !tab.isEmpty()) {
         for (Enumeration<String> e = tab.keys(); e.hasMoreElements(); ) {
-          String key = (String) e.nextElement();
-          Component comp = (Component) tab.get(key);
+          String key = e.nextElement();
+          Component comp = tab.get(key);
           vector.add(new Card(key, comp));
           if (comp.isVisible()) {
             currentCard = vector.size() - 1;
@@ -572,7 +582,7 @@ public class CardLayout implements LayoutManager2, Serializable {
         }
       }
     } else {
-      vector = (Vector) f.get("vector", null);
+      vector = (Vector) f.get(IIOTests.CONTENT_VECTOR, null);
       currentCard = f.get("currentCard", 0);
     }
   }
@@ -584,14 +594,14 @@ public class CardLayout implements LayoutManager2, Serializable {
     Hashtable<String, Component> tab = new Hashtable<>();
     int ncomponents = vector.size();
     for (int i = 0; i < ncomponents; i++) {
-      Card card = (Card) vector.get(i);
+      Card card = vector.get(i);
       tab.put(card.name, card.comp);
     }
 
-    ObjectOutputStream.PutField f = s.putFields();
+    PutField f = s.putFields();
     f.put("hgap", hgap);
     f.put("vgap", vgap);
-    f.put("vector", vector);
+    f.put(IIOTests.CONTENT_VECTOR, vector);
     f.put("currentCard", currentCard);
     f.put("tab", tab);
     s.writeFields();
@@ -602,7 +612,7 @@ public class CardLayout implements LayoutManager2, Serializable {
    */
   class Card implements Serializable {
     static final long serialVersionUID = 6640330810709497518L;
-    public String name;
+    public final String name;
     public Component comp;
 
     public Card(String cardName, Component cardComponent) {

@@ -21,27 +21,28 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6263951
  * @summary Text should be B&W, grayscale, and LCD.
  * @run main/manual=yesno TextAAHintsTest
  */
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.image.*;
 
 public class TextAAHintsTest extends Component {
 
-    String black = "This text should be solid black";
-    String gray  = "This text should be gray scale anti-aliased";
-    String lcd   = "This text should be LCD sub-pixel text (coloured).";
+    private static final long serialVersionUID = -6524011542046668576L;
+    final String black = "This text should be solid black";
+    final String gray  = "This text should be gray scale anti-aliased";
+    final String lcd   = "This text should be LCD sub-pixel text (coloured).";
 
+    @Override
     public void paint(Graphics g) {
 
         Graphics2D g2d = (Graphics2D)g.create();
         g2d.setColor(Color.white);
-        g2d.fillRect(0,0,getSize().width, getSize().height);
+        g2d.fillRect(0,0, getSize().width, getSize().height);
 
         drawText(g.create(0, 0, 500, 100));
         bufferedImageText(g.create(0, 100, 500, 100));
@@ -135,6 +136,7 @@ public class TextAAHintsTest extends Component {
         }
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(500,300);
     }

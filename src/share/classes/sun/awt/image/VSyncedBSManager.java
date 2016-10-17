@@ -27,16 +27,15 @@ package sun.awt.image;
 
 import java.awt.image.BufferStrategy;
 import java.lang.ref.WeakReference;
+import java.security.AccessController;
 
 /**
  * Manages v-synced buffer strategies.
  */
 public abstract class VSyncedBSManager {
 
-  private static final boolean vSyncLimit
-      = Boolean.valueOf((String) java.security.AccessController.doPrivileged(new sun.security
-      .action.GetPropertyAction("sun.java2d.vsynclimit",
-      "true")));
+  private static final boolean vSyncLimit = Boolean.valueOf((String) AccessController.doPrivileged(
+      new sun.security.action.GetPropertyAction("sun.java2d.vsynclimit", "true")));
   private static VSyncedBSManager theInstance;
 
   private static VSyncedBSManager getInstance(boolean create) {
@@ -77,6 +76,9 @@ public abstract class VSyncedBSManager {
    * v-synced.
    */
   private static final class NoLimitVSyncBSMgr extends VSyncedBSManager {
+    NoLimitVSyncBSMgr() {
+    }
+
     @Override
     boolean checkAllowed(BufferStrategy bs) {
       return true;
@@ -94,15 +96,18 @@ public abstract class VSyncedBSManager {
   private static final class SingleVSyncedBSMgr extends VSyncedBSManager {
     private WeakReference<BufferStrategy> strategy;
 
+    SingleVSyncedBSMgr() {
+    }
+
     @Override
     public synchronized boolean checkAllowed(BufferStrategy bs) {
       if (strategy != null) {
         BufferStrategy current = strategy.get();
         if (current != null) {
-          return (current == bs);
+          return current == bs;
         }
       }
-      strategy = new WeakReference<BufferStrategy>(bs);
+      strategy = new WeakReference<>(bs);
       return true;
     }
 

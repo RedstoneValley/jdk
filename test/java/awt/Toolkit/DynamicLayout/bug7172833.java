@@ -27,6 +27,10 @@ import android.content.Intent;
 import android.net.Uri;
 
 import java.awt.*;
+import java.awt.BufferCapabilities.FlipContents;
+import java.awt.Desktop.Action;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.Clipboard;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.InvalidDnDOperationException;
@@ -49,8 +53,7 @@ import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
 
-import sun.awt.CausedFocusEvent;
-
+import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * @test
@@ -60,8 +63,8 @@ import sun.awt.CausedFocusEvent;
  */
 public final class bug7172833 {
 
-    public static void main(final String[] args) throws Exception {
-        final StubbedToolkit t = new StubbedToolkit();
+    public static void main(String[] args) throws Exception {
+        StubbedToolkit t = new StubbedToolkit();
 
         t.setDynamicLayout(true);
         if(!t.isDynamicLayoutSet()){
@@ -81,123 +84,128 @@ public final class bug7172833 {
             return super.isDynamicLayoutSet();
         }
 
-        protected DesktopPeer createDesktopPeer(final Desktop target)
-                throws HeadlessException {
-            return null;
-        }
-
-        protected ButtonPeer createButton(final Button target)
-                throws HeadlessException {
-            return null;
-        }
-
-        protected TextFieldPeer createTextField(final TextField target)
-                throws HeadlessException {
-            return null;
-        }
-
-        protected LabelPeer createLabel(final Label target) throws HeadlessException {
-            return null;
-        }
-
-        protected ListPeer createList(final List target) throws HeadlessException {
-            return null;
-        }
-
         @Override
-        protected CheckboxPeer createCheckbox(final Checkbox target)
+        protected DesktopPeer createDesktopPeer(Desktop target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected ScrollbarPeer createScrollbar(final Scrollbar target)
+        protected ButtonPeer createButton(Button target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected ScrollPanePeer createScrollPane(final ScrollPane target)
+        protected TextFieldPeer createTextField(TextField target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected TextAreaPeer createTextArea(final TextArea target)
+        protected LabelPeer createLabel(Label target) throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected ListPeer createList(List target) throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected CheckboxPeer createCheckbox(Checkbox target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected ChoicePeer createChoice(final Choice target)
+        protected ScrollbarPeer createScrollbar(Scrollbar target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected FramePeer createFrame(final Frame target) throws HeadlessException {
-            return null;
-        }
-
-        @Override
-        protected CanvasPeer createCanvas(final Canvas target) {
-            return null;
-        }
-
-        @Override
-        protected PanelPeer createPanel(final Panel target) {
-            return null;
-        }
-
-        @Override
-        protected WindowPeer createWindow(final Window target)
+        protected ScrollPanePeer createScrollPane(ScrollPane target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected DialogPeer createDialog(final Dialog target)
+        protected TextAreaPeer createTextArea(TextArea target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected MenuBarPeer createMenuBar(final MenuBar target)
+        protected ChoicePeer createChoice(Choice target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected MenuPeer createMenu(final Menu target) throws HeadlessException {
+        protected FramePeer createFrame(Frame target) throws HeadlessException {
             return null;
         }
 
         @Override
-        protected PopupMenuPeer createPopupMenu(final PopupMenu target)
+        protected CanvasPeer createCanvas(Canvas target) {
+            return null;
+        }
+
+        @Override
+        protected PanelPeer createPanel(Panel target) {
+            return null;
+        }
+
+        @Override
+        protected WindowPeer createWindow(Window target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected MenuItemPeer createMenuItem(final MenuItem target)
+        protected DialogPeer createDialog(Dialog target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
-        protected FileDialogPeer createFileDialog(final FileDialog target)
+        protected MenuBarPeer createMenuBar(MenuBar target)
+                throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected MenuPeer createMenu(Menu target) throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected PopupMenuPeer createPopupMenu(PopupMenu target)
+                throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected MenuItemPeer createMenuItem(MenuItem target)
+                throws HeadlessException {
+            return null;
+        }
+
+        @Override
+        protected FileDialogPeer createFileDialog(FileDialog target)
                 throws HeadlessException {
             return null;
         }
 
         @Override
         protected CheckboxMenuItemPeer createCheckboxMenuItem(
-                final CheckboxMenuItem target) throws HeadlessException {
+                CheckboxMenuItem target) throws HeadlessException {
             return null;
         }
 
         @Override
-        protected FontPeer getFontPeer(final String name, final int style) {
+        protected FontPeer getFontPeer(String name, int style) {
             return null;
         }
 
@@ -222,7 +230,7 @@ public final class bug7172833 {
         }
 
         @Override
-        public FontMetrics getFontMetrics(final Font font) {
+        public FontMetrics getFontMetrics(Font font) {
             return null;
         }
 
@@ -232,52 +240,55 @@ public final class bug7172833 {
         }
 
         @Override
-        public Image getImage(final String filename) {
+        public Image getImage(String filename) {
             return null;
         }
 
         @Override
-        public Image getImage(final URL url) {
+        public Image getImage(URL url) {
             return null;
         }
 
         @Override
-        public Image createImage(final String filename) {
+        public Image createImage(String filename) {
             return null;
         }
 
         @Override
-        public Image createImage(final URL url) {
+        public Image createImage(URL url) {
             return null;
         }
 
         @Override
         public boolean prepareImage(
-                final Image image, final int width, final int height,
-                                    final ImageObserver observer) {
+                Image image, int width, int height,
+                                    ImageObserver observer) {
             return false;
         }
 
         @Override
-        public int checkImage(final Image image, final int width, final int height,
-                              final ImageObserver observer) {
+        public int checkImage(
+            Image image, int width, int height,
+                              ImageObserver observer) {
             return 0;
         }
 
         @Override
-        public Image createImage(final ImageProducer producer) {
+        public Image createImage(ImageProducer producer) {
             return null;
         }
 
         @Override
-        public Image createImage(final byte[] imagedata, final int imageoffset,
-                                 final int imagelength) {
+        public Image createImage(
+            byte[] imagedata, int imageoffset,
+                                 int imagelength) {
             return null;
         }
 
         @Override
-        public PrintJob getPrintJob(final Frame frame, final String jobtitle,
-                                    final Properties props) {
+        public PrintJob getPrintJob(
+            Frame frame, String jobtitle,
+                                    Properties props) {
             return null;
         }
 
@@ -298,25 +309,25 @@ public final class bug7172833 {
 
         @Override
         public DragSourceContextPeer createDragSourceContextPeer(
-                final DragGestureEvent dge) throws InvalidDnDOperationException {
+                DragGestureEvent dge) throws InvalidDnDOperationException {
             return null;
         }
 
         @Override
         public boolean isModalityTypeSupported(
-                final Dialog.ModalityType modalityType) {
+                ModalityType modalityType) {
             return false;
         }
 
         @Override
         public boolean isModalExclusionTypeSupported(
-                final Dialog.ModalExclusionType modalExclusionType) {
+                ModalExclusionType modalExclusionType) {
             return false;
         }
 
         @Override
         public Map<TextAttribute, ?> mapInputMethodHighlight(
-                final InputMethodHighlight highlight) throws HeadlessException {
+                InputMethodHighlight highlight) throws HeadlessException {
             return null;
         }
 
@@ -330,7 +341,9 @@ public final class bug7172833 {
             FileInputStream fileInputStream = new FileInputStream(file);
             try {
                 String mime = URLConnection.guessContentTypeFromStream();
-                if (mime == null) mime = URLConnection.guessContentTypeFromName(file.getName());
+                if (mime == null) {
+                    mime = URLConnection.guessContentTypeFromName(file.getName());
+                }
                 intentToOpen.setDataAndType(fileUri, mime);
                 androidContext.startActivity(intentToOpen);
             } finally {
@@ -449,7 +462,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -504,7 +517,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -710,7 +723,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -765,7 +778,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -917,7 +930,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -972,7 +985,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -1168,7 +1181,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -1223,7 +1236,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -1266,8 +1279,8 @@ public final class bug7172833 {
         private class DesktopPeerImpl implements DesktopPeer {
 
             @Override
-            public boolean isSupported(Desktop.Action action) {
-                return action != Desktop.Action.PRINT;
+            public boolean isSupported(Action action) {
+                return action != Action.PRINT;
             }
 
             @Override
@@ -1284,7 +1297,8 @@ public final class bug7172833 {
             public void print(File file) throws IOException {
                 throw new
                     UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
-                /**
+
+                /*
                 if (ContextCompat.checkSelfPermission(androidContext,
                         Manifest.permission.READ_CONTACTS)
                         != PackageManager.PERMISSION_GRANTED) {

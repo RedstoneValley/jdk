@@ -34,22 +34,26 @@ import java.awt.image.ComponentSampleModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.SampleModel;
 
-public class GetDataElementsTest {
+public final class GetDataElementsTest {
 
-    public static int width = 100;
-    public static int height = 100;
-    public static int dataType = DataBuffer.TYPE_BYTE;
+    public static final int width = 100;
+    public static final int height = 100;
+    public static final int dataType = DataBuffer.TYPE_BYTE;
     public static int numBands = 4;
 
+    private GetDataElementsTest() {
+    }
+
     public static void main(String[] args) {
-        SampleModel sm = new ComponentSampleModel(dataType, width, height, 4, width * 4, new int[] { 0, 1, 2, 3 } );
+        SampleModel sm = new ComponentSampleModel(dataType, width, height, 4,
+            width << 2, new int[] { 0, 1, 2, 3 } );
 
         DataBuffer db = sm.createDataBuffer();
         Object o = null;
 
         boolean testPassed = false;
         try {
-            o = sm.getDataElements(Integer.MAX_VALUE, 0, 1, 1, o, db);
+            o = sm.getDataElements(Integer.MAX_VALUE, 0, 1, 1, null, db);
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println(e.getMessage());
             testPassed = true;

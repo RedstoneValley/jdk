@@ -32,9 +32,11 @@ import java.awt.peer.ButtonPeer;
  */
 public final class ButtonRepaint extends Button {
 
-    public static void main(final String[] args) {
+    private static final long serialVersionUID = 6369530770553609272L;
+
+    public static void main(String[] args) {
         for (int i = 0; i < 10; ++i) {
-            final Frame frame = new Frame();
+            Frame frame = new Frame();
             frame.setSize(300, 300);
             frame.setLocationRelativeTo(null);
             ButtonRepaint button = new ButtonRepaint();
@@ -54,7 +56,7 @@ public final class ButtonRepaint extends Button {
     }
 
     @Override
-    public void paint(final Graphics g) {
+    public void paint(Graphics g) {
         super.paint(g);
         if (!EventQueue.isDispatchThread()) {
             throw new RuntimeException("Wrong thread");

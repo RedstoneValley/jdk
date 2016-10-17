@@ -29,12 +29,15 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 
-public class TextLayoutBounds {
+public final class TextLayoutBounds {
 
-    public static void main(String args[]) {
+  private TextLayoutBounds() {
+  }
+
+  public static void main(String[] args) {
        FontRenderContext frc = new FontRenderContext(null, false, false);
-       Font f = new Font("SansSerif",Font.BOLD,32);
-       String s = new String("JAVA");
+       Font f = new Font(Font.SANS_SERIF,Font.BOLD,32);
+       String s = "JAVA";
        TextLayout tl = new TextLayout(s, f, frc);
        Rectangle2D tlBounds = tl.getBounds();
        GlyphVector gv = f.createGlyphVector(frc, s);

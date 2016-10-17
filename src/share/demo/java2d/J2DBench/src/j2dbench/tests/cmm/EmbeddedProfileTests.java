@@ -46,9 +46,6 @@ import j2dbench.TestEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 
 /* This benchmark verifies how changes in cmm library affects image decoding */
 public class EmbeddedProfileTests extends ColorConversionTests {
@@ -88,7 +85,7 @@ public class EmbeddedProfileTests extends ColorConversionTests {
       descr[i] = images[i].description;
     }
 
-    Option list = new Option.ObjectList(grpOptionsRoot,
+    return new ObjectList(grpOptionsRoot,
         "Images",
         "Input Images",
         names,
@@ -96,15 +93,14 @@ public class EmbeddedProfileTests extends ColorConversionTests {
         abbrev,
         descr,
         1);
-
-    return list;
   }
 
+  @Override
   public Object initTest(TestEnvironment env, Result res) {
     return new Context(env, res);
   }
 
-  private static enum IccImageResource {
+  private enum IccImageResource {
     SMALL("images/img_icc_small.jpg", "512x512", "Small: 512x512"),
     MEDIUM("images/img_icc_medium.jpg", "2048x2048", "Medium: 2048x2048"),
     LARGE("images/img_icc_large.jpg", "4096x4096", "Large: 4096x4096");
@@ -112,9 +108,10 @@ public class EmbeddedProfileTests extends ColorConversionTests {
     public final URL url;
     public final String abbrev;
     public final String description;
-    private IccImageResource(String file, String name, String description) {
-      this.url = CMMTests.class.getResource(file);
-      this.abbrev = name;
+
+    IccImageResource(String file, String name, String description) {
+      url = CMMTests.class.getResource(file);
+      abbrev = name;
       this.description = description;
     }
   }
@@ -135,11 +132,12 @@ public class EmbeddedProfileTests extends ColorConversionTests {
       super(grpRoot, "embd_img_read", "ImageReader.read()");
     }
 
+    @Override
     public void runTest(Object octx, int numReps) {
-      final Context ctx = (Context) octx;
-      final URL url = ctx.input;
-      ImageInputStream iis = null;
-      ImageReader reader = null;
+      Context ctx = (Context) octx;
+      URL url = ctx.input;
+      ImageInputStream iis;
+      ImageReader reader;
 
       try {
         iis = ImageIO.createImageInputStream(url.openStream());
@@ -148,6 +146,7 @@ public class EmbeddedProfileTests extends ColorConversionTests {
         throw new RuntimeException("Unable to run the becnhmark", e);
       }
 
+      --numReps;
       do {
         try {
           reader.setInput(iis);
@@ -158,12 +157,14 @@ public class EmbeddedProfileTests extends ColorConversionTests {
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
-  }  public void cleanupTest(TestEnvironment env, Object o) {
+  }
+
+  @Override
+  public void cleanupTest(TestEnvironment env, Object o) {
     Context ctx = (Context) o;
     ctx.input = null;
   }
-
-
 }

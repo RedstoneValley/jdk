@@ -37,24 +37,20 @@
  * this sample code.
  */
 
-import static java.nio.file.StandardCopyOption.*;
-import static java.nio.file.StandardOpenOption.*;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.*;
-import java.nio.file.attribute.*;
-import java.nio.file.spi.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 /*
  * ZipFileSystem usage demo
@@ -64,7 +60,12 @@ import java.util.Set;
  * @author Xueming Shen
  */
 
-public class Demo {
+public final class Demo {
+
+  protected static final String DATE_FORMAT = "MM/dd/yyyy-HH:mm:ss";
+
+  private Demo() {
+  }
 
   public static void main(String[] args) throws Throwable {
     FileSystemProvider provider = getZipFSProvider();
@@ -74,7 +75,7 @@ public class Demo {
     }
 
     Action action = Action.valueOf(args[0]);
-    Map<String, Object> env = env = new HashMap<>();
+    Map<String, Object> env = new HashMap<>();
     if (action == Action.create) {
       env.put("create", "true");
     }
@@ -139,7 +140,7 @@ public class Demo {
           }
           break;
         case setmtime:
-          DateFormat df = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
+          DateFormat df = new SimpleDateFormat(DATE_FORMAT, Locale.US);
           Date newDatetime = df.parse(args[2]);
           for (int i = 3; i < args.length; i++) {
             path = fs.getPath(args[i]);
@@ -150,7 +151,7 @@ public class Demo {
           }
           break;
         case setctime:
-          df = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
+          df = new SimpleDateFormat(DATE_FORMAT, Locale.US);
           newDatetime = df.parse(args[2]);
           for (int i = 3; i < args.length; i++) {
             path = fs.getPath(args[i]);
@@ -159,7 +160,7 @@ public class Demo {
           }
           break;
         case setatime:
-          df = new SimpleDateFormat("MM/dd/yyyy-HH:mm:ss");
+          df = new SimpleDateFormat(DATE_FORMAT, Locale.US);
           newDatetime = df.parse(args[2]);
           for (int i = 3; i < args.length; i++) {
             path = fs.getPath(args[i]);
@@ -192,7 +193,7 @@ public class Demo {
           break;
         case twalk:
         case walk:
-          walk(fs.getPath((args.length > 2) ? args[2] : "/"));
+          walk(fs.getPath(args.length > 2 ? args[2] : "/"));
           break;
         case extract:
           if (args.length == 2) {
@@ -217,7 +218,7 @@ public class Demo {
           break;
         case lsdir:
           path = fs.getPath(args[2]);
-          final String fStr = (args.length > 3) ? args[3] : "";
+          String fStr = args.length > 3 ? args[3] : "";
           try (DirectoryStream<Path> ds = Files.newDirectoryStream(path,
               new DirectoryStream.Filter<Path>() {
                 @Override
@@ -244,12 +245,12 @@ public class Demo {
             System.out.println(Files.readAttributes(path, BasicFileAttributes.class).toString());
             System.out.println("-------(2)---------");
             Map<String, Object> map = Files.readAttributes(path, "zip:*");
-            for (Map.Entry<String, Object> e : map.entrySet()) {
+            for (Entry<String, Object> e : map.entrySet()) {
               System.out.printf("    %s : %s%n", e.getKey(), e.getValue());
             }
             System.out.println("-------(3)---------");
             map = Files.readAttributes(path, "size,lastModifiedTime,isDirectory");
-            for (Map.Entry<String, ?> e : map.entrySet()) {
+            for (Entry<String, ?> e : map.entrySet()) {
               System.out.printf("    %s : %s%n", e.getKey(), e.getValue());
             }
           }
@@ -277,28 +278,30 @@ public class Demo {
   }
 
   @SuppressWarnings("unused")
-  /**
-   * Not used in demo, but included for demonstrational purposes.
+  /*
+    Not used in demo, but included for demonstrational purposes.
    */ private static byte[] getBytes(String name) {
     return name.getBytes();
   }
 
   @SuppressWarnings("unused")
-  /**
-   * Not used in demo, but included for demonstrational purposes.
+  /*
+    Not used in demo, but included for demonstrational purposes.
    */ private static String getString(byte[] name) {
     return new String(name);
   }
 
-  private static void walk(Path path) throws IOException {
+  private static void walk(Path path) {
     Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-      private int indent = 0;
+      private int indent;
 
       private void indent() {
         int n = 0;
-        while (n++ < indent) {
+        while (n < indent) {
+          n++;
           System.out.printf(" ");
         }
+        n++;
       }
 
       @Override
@@ -351,7 +354,7 @@ public class Demo {
         }
       }
     } else {
-      if (path.startsWith("/")) {
+      if (path.length() > 0 && path.charAt(0) == '/') {
         path = path.substring(1);
       }
       Path dst = FileSystems.getDefault().getPath(path);
@@ -377,7 +380,7 @@ public class Demo {
       }
       try (DirectoryStream<Path> ds = Files.newDirectoryStream(srcPath)) {
         for (Path child : ds) {
-          z2zcopy(src, dst, path + (path.endsWith("/") ? "" : "/") + child.getFileName());
+          z2zcopy(src, dst, path + (path.length() > 0 && path.charAt(path.length() - 1) == '/' ? "" : "/") + child.getFileName());
         }
       }
     } else {
@@ -387,9 +390,9 @@ public class Demo {
   }
 
   // use TreeWalk to move
-  private static void z2zmove(FileSystem src, FileSystem dst, String path) throws IOException {
-    final Path srcPath = src.getPath(path).toAbsolutePath();
-    final Path dstPath = dst.getPath(path).toAbsolutePath();
+  private static void z2zmove(FileSystem src, FileSystem dst, String path) {
+    Path srcPath = src.getPath(path).toAbsolutePath();
+    Path dstPath = dst.getPath(path).toAbsolutePath();
 
     Files.walkFileTree(srcPath, new SimpleFileVisitor<Path>() {
 
@@ -425,7 +428,7 @@ public class Demo {
       }
 
       @Override
-      public FileVisitResult postVisitDirectory(Path dir, IOException ioe) throws IOException {
+      public FileVisitResult postVisitDirectory(Path dir, IOException ioe) {
         try {
           Files.delete(dir);
         } catch (IOException x) {
@@ -436,7 +439,7 @@ public class Demo {
     });
   }
 
-  private static void mkdirs(Path path) throws IOException {
+  static void mkdirs(Path path) throws IOException {
     path = path.toAbsolutePath();
     Path parent = path.getParent();
     if (parent != null) {
@@ -448,9 +451,9 @@ public class Demo {
   }
 
   @SuppressWarnings("unused")
-  /**
-   * Not used in demo, but included for demonstrational purposes.
-   */ private static void rmdirs(Path path) throws IOException {
+  /*
+    Not used in demo, but included for demonstrational purposes.
+   */ private static void rmdirs(Path path) {
     while (path != null && path.getNameCount() != 0) {
       Files.delete(path);
       path = path.getParent();
@@ -477,9 +480,9 @@ public class Demo {
   }
 
   @SuppressWarnings("unused")
-  /**
-   * Checks that the content of two paths are equal.
-   * Not used in demo, but included for demonstrational purposes.
+  /*
+    Checks that the content of two paths are equal.
+    Not used in demo, but included for demonstrational purposes.
    */ private static void checkEqual(Path src, Path dst) throws IOException {
     //System.out.printf("checking <%s> vs <%s>...%n",
     //                  src.toString(), dst.toString());
@@ -489,7 +492,7 @@ public class Demo {
     byte[] bufDst = new byte[8192];
     try (InputStream isSrc = Files.newInputStream(src);
         InputStream isDst = Files.newInputStream(dst)) {
-      int nSrc = 0;
+      int nSrc;
       while ((nSrc = isSrc.read(bufSrc)) != -1) {
         int nDst = 0;
         while (nDst < nSrc) {
@@ -500,12 +503,14 @@ public class Demo {
           }
           nDst += n;
         }
-        while (--nSrc >= 0) {
+        --nSrc;
+        while (nSrc >= 0) {
           if (bufSrc[nSrc] != bufDst[nSrc]) {
             System.out.printf("checking <%s> vs <%s>...%n", src.toString(), dst.toString());
             throw new RuntimeException("CHECK FAILED!");
           }
           nSrc--;
+          --nSrc;
         }
       }
     }
@@ -525,19 +530,21 @@ public class Demo {
       ByteBuffer bbSrc = ByteBuffer.allocate(8192);
       ByteBuffer bbDst = ByteBuffer.allocate(8192);
 
-      int nSrc = 0;
+      int nSrc;
       while ((nSrc = chSrc.read(bbSrc)) != -1) {
         int nDst = chDst.read(bbDst);
         if (nSrc != nDst) {
           System.out.printf("checking <%s> vs <%s>...%n", src.toString(), dst.toString());
           throw new RuntimeException("CHECK FAILED!");
         }
-        while (--nSrc >= 0) {
+        --nSrc;
+        while (nSrc >= 0) {
           if (bbSrc.get(nSrc) != bbDst.get(nSrc)) {
             System.out.printf("checking <%s> vs <%s>...%n", src.toString(), dst.toString());
             throw new RuntimeException("CHECK FAILED!");
           }
           nSrc--;
+          --nSrc;
         }
         bbSrc.flip();
         bbDst.flip();
@@ -587,14 +594,14 @@ public class Demo {
     byte[] buf = new byte[8192];
     try (InputStream isSrc = Files.newInputStream(src);
         OutputStream osDst = Files.newOutputStream(dst)) {
-      int n = 0;
+      int n;
       while ((n = isSrc.read(buf)) != -1) {
         osDst.write(buf, 0, n);
       }
     }
   }
 
-  static enum Action {
+  enum Action {
     rename,          // <java Demo rename zipfile src dst>
     // rename entry src to dst inside zipfile
 

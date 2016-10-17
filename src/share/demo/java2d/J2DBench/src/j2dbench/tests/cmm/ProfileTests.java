@@ -67,9 +67,9 @@ public class ProfileTests extends CMMTests {
 
   protected static class Context {
 
-    ICC_Profile profile;
-    TestEnvironment env;
-    Result res;
+    final ICC_Profile profile;
+    final TestEnvironment env;
+    final Result res;
 
     public Context(ICC_Profile profile, TestEnvironment env, Result res) {
       this.profile = profile;
@@ -86,20 +86,20 @@ public class ProfileTests extends CMMTests {
 
     @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ICC_Profile profile = ictx.profile;
+      Context ictx = (Context) ctx;
+      ICC_Profile profile = ictx.profile;
 
       byte[] data = null;
+      --numReps;
       do {
         try {
           data = profile.getData(ICC_Profile.icSigHead);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
-  }  @Override
-  public void cleanupTest(TestEnvironment env, Object o) {
   }
 
   private static class GetNumComponentsTest extends ProfileTests {
@@ -110,17 +110,21 @@ public class ProfileTests extends CMMTests {
 
     @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ICC_Profile profile = ictx.profile;
+      Context ictx = (Context) ctx;
+      ICC_Profile profile = ictx.profile;
 
+      --numReps;
       do {
         try {
           int num = profile.getNumComponents();
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object o) {
   }
 
 

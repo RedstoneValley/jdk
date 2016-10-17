@@ -32,10 +32,10 @@ final class ChainEnd {
   int etag;
 
   public ChainEnd(CurveLink first, ChainEnd partner) {
-    this.head = first;
-    this.tail = first;
+    head = first;
+    tail = first;
     this.partner = partner;
-    this.etag = first.getEdgeTag();
+    etag = first.getEdgeTag();
   }
 
   public CurveLink getChain() {
@@ -106,10 +106,6 @@ final class ChainEnd {
   }
 
   public double getX() {
-    if (etag == AreaOp.ETAG_ENTER) {
-      return tail.getXBot();
-    } else {
-      return head.getXBot();
-    }
+    return etag == AreaOp.ETAG_ENTER ? tail.getXBot() : head.getXBot();
   }
 }

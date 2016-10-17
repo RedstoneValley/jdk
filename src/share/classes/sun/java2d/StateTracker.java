@@ -25,6 +25,8 @@
 
 package sun.java2d;
 
+import sun.java2d.StateTrackable.State;
+
 /**
  * This interface is used to track changes to the complex data of an
  * object that implements the StateTrackable interface.
@@ -46,18 +48,18 @@ package sun.java2d;
  *     }
  * </pre>
  * Note that the sample code above works correctly regardless of the
- * {@link StateTrackable.State State} of the complex data of the object,
+ * {@link State State} of the complex data of the object,
  * but it may be inefficient to store precalculated information about
- * an object whose current {@link StateTrackable.State State} is
- * {@link StateTrackable.State#UNTRACKABLE UNTRACKABLE}
+ * an object whose current {@link State State} is
+ * {@link State#UNTRACKABLE UNTRACKABLE}
  * and it is unnecessary to perform the {@link #isCurrent} test for
- * data whose current {@link StateTrackable.State State} is
- * {@link StateTrackable.State#IMMUTABLE IMMUTABLE}.
+ * data whose current {@link State State} is
+ * {@link State#IMMUTABLE IMMUTABLE}.
  * Optimizations to the sample code for either or both of those terminal
  * States may be of benefit for some use cases, but is left out of the
  * example to reduce its complexity.
  *
- * @see StateTrackable.State
+ * @see State
  * @since 1.7
  */
 public interface StateTracker {
@@ -65,12 +67,13 @@ public interface StateTracker {
    * An implementation of the StateTracker interface which
    * always returns true.
    * This implementation is useful for objects whose current
-   * {@link StateTrackable.State State} is
-   * {@link StateTrackable.State#IMMUTABLE IMMUTABLE}.
+   * {@link State State} is
+   * {@link State#IMMUTABLE IMMUTABLE}.
    *
    * @since 1.7
    */
-  public StateTracker ALWAYS_CURRENT = new StateTracker() {
+  StateTracker ALWAYS_CURRENT = new StateTracker() {
+    @Override
     public boolean isCurrent() {
       return true;
     }
@@ -80,15 +83,16 @@ public interface StateTracker {
    * An implementation of the StateTracker interface which
    * always returns false.
    * This implementation is useful for objects whose current
-   * {@link StateTrackable.State State} is
-   * {@link StateTrackable.State#UNTRACKABLE UNTRACKABLE}.
+   * {@link State State} is
+   * {@link State#UNTRACKABLE UNTRACKABLE}.
    * This implementation may also be useful for some objects
-   * whose current {@link StateTrackable.State State} is
-   * {@link StateTrackable.State#DYNAMIC DYNAMIC}.
+   * whose current {@link State State} is
+   * {@link State#DYNAMIC DYNAMIC}.
    *
    * @since 1.7
    */
-  public StateTracker NEVER_CURRENT = new StateTracker() {
+  StateTracker NEVER_CURRENT = new StateTracker() {
+    @Override
     public boolean isCurrent() {
       return false;
     }
@@ -103,5 +107,5 @@ public interface StateTracker {
    * @see StateTrackable
    * @since 1.7
    */
-  public boolean isCurrent();
+  boolean isCurrent();
 }

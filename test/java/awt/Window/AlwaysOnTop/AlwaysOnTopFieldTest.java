@@ -32,7 +32,8 @@ import sun.awt.SunToolkit;
  * @summary Windows owned by an always-on-top window DO NOT automatically become always-on-top
  * @run main AlwaysOnTopFieldTest
  */
-public class AlwaysOnTopFieldTest {
+@SuppressWarnings("MagicNumber")
+public final class AlwaysOnTopFieldTest {
 
     public static void main(String[] args) {
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();

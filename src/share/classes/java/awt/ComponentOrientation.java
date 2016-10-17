@@ -36,6 +36,7 @@
 
 package java.awt;
 
+import java.io.Serializable;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -72,8 +73,8 @@ import java.util.ResourceBundle;
  * <li>TL - Mongolian
  * </ul>
  * Components whose view and controller code depends on orientation
- * should use the <code>isLeftToRight()</code> and
- * <code>isHorizontal()</code> methods to
+ * should use the {@code isLeftToRight()} and
+ * {@code isHorizontal()} methods to
  * determine their behavior. They should not include switch-like
  * code that keys off of the constants, such as:
  * <pre>
@@ -88,7 +89,7 @@ import java.util.ResourceBundle;
  * This is unsafe, since more constants may be added in the future and
  * since it is not guaranteed that orientation objects will be unique.
  */
-public final class ComponentOrientation implements java.io.Serializable {
+public final class ComponentOrientation implements Serializable {
   /*
    * serialVersionUID
    */
@@ -116,7 +117,7 @@ public final class ComponentOrientation implements java.io.Serializable {
    */
   public static final ComponentOrientation UNKNOWN = new ComponentOrientation(
       HORIZ_BIT | LTR_BIT | UNK_BIT);
-  private int orientation;
+  private final int orientation;
 
   private ComponentOrientation(int value) {
     orientation = value;
@@ -133,11 +134,8 @@ public final class ComponentOrientation implements java.io.Serializable {
     // are introduced however, the flexiblity isn't really needed.
     // So we choose efficiency instead.
     String lang = locale.getLanguage();
-    if ("iw".equals(lang) || "ar".equals(lang) || "fa".equals(lang) || "ur".equals(lang)) {
-      return RIGHT_TO_LEFT;
-    } else {
-      return LEFT_TO_RIGHT;
-    }
+    return "iw".equals(lang) || "ar".equals(lang) || "fa".equals(lang) || "ur".equals(lang)
+        ? RIGHT_TO_LEFT : LEFT_TO_RIGHT;
   }
 
   /**
@@ -151,7 +149,7 @@ public final class ComponentOrientation implements java.io.Serializable {
    * <li>Return the default locale's orientation.
    * </ol>
    *
-   * @deprecated As of J2SE 1.4, use {@link #getOrientation(java.util.Locale)}.
+   * @deprecated As of J2SE 1.4, use {@link #getOrientation(Locale)}.
    */
   @Deprecated
   public static ComponentOrientation getOrientation(ResourceBundle bdl) {

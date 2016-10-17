@@ -44,14 +44,13 @@
 //  be changed to the name of the test.
 
 
-/**
- * NoFormatsCrashTest.java
- *
- * summary: tests that a drop target JVM doesn't crash if the source doesn't export
- *          data in native formats.
+/*
+  NoFormatsCrashTest.java
+
+  summary: tests that a drop target JVM doesn't crash if the source doesn't export
+           data in native formats.
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
@@ -70,6 +69,7 @@ import java.io.*;
 // tests...
 
 
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
 public class NoFormatsCrashTest extends Applet {
 
     final Frame frame = new Frame();
@@ -82,7 +82,55 @@ public class NoFormatsCrashTest extends Applet {
         test.run(args);
     }
 
-    public void run(String[] args) {
+  /**
+   * Method to perform a "wait" for a process and return its exit value.
+   * This is a workaround for {@code Process.waitFor()} never returning.
+   */
+  public static ProcessResults doWaitFor(Process p) {
+      ProcessResults pres = new ProcessResults();
+
+      InputStream in = null;
+      InputStream err = null;
+
+      try {
+          in = p.getInputStream();
+          err = p.getErrorStream();
+
+          boolean finished = false;
+
+          while (!finished) {
+              try {
+                  while (in.available() > 0) {
+                      pres.stdout += (char)in.read();
+                  }
+                  while (err.available() > 0) {
+                      pres.stderr += (char)err.read();
+                  }
+                  // Ask the process for its exitValue. If the process
+                  // is not finished, an IllegalThreadStateException
+                  // is thrown. If it is finished, we fall through and
+                  // the variable finished is set to true.
+                  pres.exitValue = p.exitValue();
+                  finished  = true;
+              }
+              catch (IllegalThreadStateException e) {
+                  // Process is not finished yet;
+                  // Sleep a little to save on CPU cycles
+                  Thread.sleep(500);
+              }
+          }
+        in.close();
+        err.close();
+      }
+      catch (Throwable e) {
+          System.err.println("doWaitFor(): unexpected exception");
+          e.printStackTrace();
+          throw new RuntimeException(e);
+      }
+      return pres;
+  }
+
+  public void run(String[] args) {
         try {
             if (args.length != 4) {
                 throw new RuntimeException("Incorrect command line arguments.");
@@ -95,11 +143,11 @@ public class NoFormatsCrashTest extends Applet {
 
             Panel panel = new DragSourcePanel();
 
-            frame.setTitle("Drag source frame");
-            frame.setLocation(500, 200);
-            frame.add(panel);
-            frame.pack();
-            frame.setVisible(true);
+          frame.setTitle("Drag source frame");
+          frame.setLocation(500, 200);
+          frame.add(panel);
+          frame.pack();
+          frame.setVisible(true);
 
             Thread.sleep(FRAME_ACTIVATION_TIMEOUT);
 
@@ -125,7 +173,7 @@ public class NoFormatsCrashTest extends Applet {
             Thread.sleep(FRAME_ACTIVATION_TIMEOUT);
 
             if (process.isAlive()) {
-                process.destroy();
+              process.destroy();
             }
         } catch (Throwable e) {
             e.printStackTrace();
@@ -146,16 +194,16 @@ public class NoFormatsCrashTest extends Applet {
         Sysout.createDialog( );
         Sysout.printInstructions( instructions );
 
-        frame.setTitle("Drop target frame");
-        frame.setLocation(200, 200);
+      frame.setTitle("Drop target frame");
+      frame.setLocation(200, 200);
 
     } // init()
 
     public void start() {
         DropTargetPanel panel = new DropTargetPanel();
-        frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
+      frame.add(panel);
+      frame.pack();
+      frame.setVisible(true);
 
         try {
             Thread.sleep(FRAME_ACTIVATION_TIMEOUT);
@@ -169,17 +217,17 @@ public class NoFormatsCrashTest extends Applet {
                 " NoFormatsCrashTest " +
                 p.x + " " + p.y + " " + d.width + " " + d.height;
 
-            process = Runtime.getRuntime().exec(command);
-            ProcessResults pres = ProcessResults.doWaitFor(process);
+          process = Runtime.getRuntime().exec(command);
+            ProcessResults pres = doWaitFor(process);
             System.err.println("Child VM return code: " + pres.exitValue);
 
-            if (pres.stderr != null && pres.stderr.length() > 0) {
+            if (pres.stderr != null && !pres.stderr.isEmpty()) {
                 System.err.println("========= Child VM System.err ========");
                 System.err.print(pres.stderr);
                 System.err.println("======================================");
             }
 
-            if (pres.stdout != null && pres.stdout.length() > 0) {
+            if (pres.stdout != null && !pres.stdout.isEmpty()) {
                 System.err.println("========= Child VM System.out ========");
                 System.err.print(pres.stdout);
                 System.err.println("======================================");
@@ -202,11 +250,11 @@ public class NoFormatsCrashTest extends Applet {
 
 class TestTransferable implements Transferable {
 
-    public static DataFlavor dataFlavor = null;
+    public static final DataFlavor dataFlavor;
     static final Object data = new Object();
 
     static {
-        DataFlavor df = null;
+        DataFlavor df;
         try {
             df = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType +
                                 "; class=java.lang.Object");
@@ -216,14 +264,17 @@ class TestTransferable implements Transferable {
         dataFlavor = df;
     }
 
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
         return new DataFlavor[] { dataFlavor };
     }
 
+    @Override
     public boolean isDataFlavorSupported(DataFlavor df) {
         return dataFlavor.equals(df);
     }
 
+    @Override
     public Object getTransferData(DataFlavor df)
       throws UnsupportedFlavorException, IOException {
         if (!isDataFlavorSupported(df)) {
@@ -234,9 +285,12 @@ class TestTransferable implements Transferable {
 }
 
 class DragSourcePanel extends Panel {
-    public DragSourcePanel() {
-        final Transferable t = new TestTransferable();
-        final DragSourceListener dsl = new DragSourceAdapter() {
+  private static final long serialVersionUID = -483414061816972408L;
+
+  public DragSourcePanel() {
+        Transferable t = new TestTransferable();
+        DragSourceListener dsl = new DragSourceAdapter() {
+                @Override
                 public void dragDropEnd(DragSourceDropEvent dtde) {
                     try {
                         Thread.sleep(100);
@@ -247,45 +301,51 @@ class DragSourcePanel extends Panel {
                     System.exit(0);
                 }
             };
-        final DragGestureListener dgl = new DragGestureListener() {
+        DragGestureListener dgl = new DragGestureListener() {
+                @Override
                 public void dragGestureRecognized(DragGestureEvent dge) {
                     dge.startDrag(null, t, dsl);
                 }
             };
-        final DragSource ds = DragSource.getDefaultDragSource();
-        final DragGestureRecognizer dgr =
+        DragSource ds = DragSource.getDefaultDragSource();
+        DragGestureRecognizer dgr =
             ds.createDefaultDragGestureRecognizer(this, DnDConstants.ACTION_COPY,
                                                   dgl);
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(100, 100);
     }
 }
 
 class DropTargetPanel extends Panel {
-    private boolean testFailed = false;
+  private static final long serialVersionUID = -3830613426665861654L;
+  boolean testFailed;
     public DropTargetPanel() {
-        final DropTargetListener dtl = new DropTargetAdapter() {
+        DropTargetListener dtl = new DropTargetAdapter() {
+                @Override
                 public void dragOver(DropTargetDragEvent dtde) {
                     try {
                         dtde.getCurrentDataFlavorsAsList();
                     } catch (Exception e) {
-                        testFailed = true;
+                      testFailed = true;
                         e.printStackTrace();
                     }
                 }
+                @Override
                 public void drop(DropTargetDropEvent dtde) {
                     dtde.rejectDrop();
                 }
             };
-        final DropTarget dt = new DropTarget(this, dtl);
+        DropTarget dt = new DropTarget(this, dtl);
     }
 
     public boolean isTestFailed() {
         return testFailed;
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(100, 100);
     }
@@ -297,67 +357,19 @@ class ProcessResults {
     public String stderr;
 
     public ProcessResults() {
-        exitValue = -1;
-        stdout = "";
-        stderr = "";
-    }
-
-    /**
-     * Method to perform a "wait" for a process and return its exit value.
-     * This is a workaround for <code>Process.waitFor()</code> never returning.
-     */
-    public static ProcessResults doWaitFor(Process p) {
-        ProcessResults pres = new ProcessResults();
-
-        InputStream in = null;
-        InputStream err = null;
-
-        try {
-            in = p.getInputStream();
-            err = p.getErrorStream();
-
-            boolean finished = false;
-
-            while (!finished) {
-                try {
-                    while (in.available() > 0) {
-                        pres.stdout += (char)in.read();
-                    }
-                    while (err.available() > 0) {
-                        pres.stderr += (char)err.read();
-                    }
-                    // Ask the process for its exitValue. If the process
-                    // is not finished, an IllegalThreadStateException
-                    // is thrown. If it is finished, we fall through and
-                    // the variable finished is set to true.
-                    pres.exitValue = p.exitValue();
-                    finished  = true;
-                }
-                catch (IllegalThreadStateException e) {
-                    // Process is not finished yet;
-                    // Sleep a little to save on CPU cycles
-                    Thread.currentThread().sleep(500);
-                }
-            }
-            if (in != null) in.close();
-            if (err != null) err.close();
-        }
-        catch (Throwable e) {
-            System.err.println("doWaitFor(): unexpected exception");
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-        return pres;
+      exitValue = -1;
+      stdout = "";
+      stderr = "";
     }
 }
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -371,9 +383,12 @@ class ProcessResults {
   as standalone.
  */
 
-class Sysout
+final class Sysout
  {
    private static TestDialog dialog;
+
+   private Sysout() {
+   }
 
    public static void createDialogWithInstructions( String[] instructions )
     {
@@ -417,9 +432,10 @@ class Sysout
 class TestDialog extends Dialog
  {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+   private static final long serialVersionUID = 4421905612345965770L;
+   final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -427,10 +443,10 @@ class TestDialog extends Dialog
       super( frame, name );
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-      add("South", messageText);
+      add(BorderLayout.SOUTH, messageText);
 
       pack();
 
@@ -446,36 +462,32 @@ class TestDialog extends Dialog
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

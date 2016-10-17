@@ -43,11 +43,16 @@
  *    injections of all class files.
  */
 
-public class HeapTracker {
+public final class HeapTracker {
 
-  private static int engaged = 0;
+  private static final int engaged;
 
-  private static native void _newobj(Object thread, Object o);
+  private HeapTracker() {
+  }
+
+  private static void _newobj(Object thread, Object o) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   public static void newobj(Object o) {
     if (engaged != 0) {
@@ -55,7 +60,9 @@ public class HeapTracker {
     }
   }
 
-  private static native void _newarr(Object thread, Object a);
+  private static void _newarr(Object thread, Object a) {
+    // TODO: Native in OpenJDK AWT
+  }
 
   public static void newarr(Object a) {
     if (engaged != 0) {

@@ -44,9 +44,6 @@ import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.im.InputMethodRequests;
 import java.text.AttributedCharacterIterator;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
 
 /**
  * A composition area is used to display text that's being composed
@@ -59,17 +56,15 @@ import javax.swing.border.LineBorder;
 // This class is final due to the 6607310 fix. Refer to the CR for details.
 public final class CompositionArea extends JPanel implements InputMethodListener {
 
-  private final static int TEXT_ORIGIN_X = 5;
-  private final static int TEXT_ORIGIN_Y = 15;
-  private final static int PASSIVE_WIDTH = 480;
-  private final static int WIDTH_MARGIN = 10;
-  private final static int HEIGHT_MARGIN = 3;
-  // Proclaim serial compatibility with 1.7.0
-  private static final long serialVersionUID = -1057247068746557444L;
+  private static final int TEXT_ORIGIN_X = 5;
+  private static final int TEXT_ORIGIN_Y = 15;
+  private static final int PASSIVE_WIDTH = 480;
+  private static final int WIDTH_MARGIN = 10;
+  private static final int HEIGHT_MARGIN = 3;
+  private final JFrame compositionWindow;
   private CompositionAreaHandler handler;
   private TextLayout composedTextLayout;
-  private TextHitInfo caret = null;
-  private JFrame compositionWindow;
+  private TextHitInfo caret;
 
   CompositionArea() {
     // create composition window with localized title
@@ -94,7 +89,7 @@ public final class CompositionArea extends JPanel implements InputMethodListener
     compositionWindow.enableInputMethods(false);
     compositionWindow.pack();
     Dimension windowSize = compositionWindow.getSize();
-    Dimension screenSize = (getToolkit()).getScreenSize();
+    Dimension screenSize = getToolkit().getScreenSize();
     compositionWindow.setLocation(screenSize.width - windowSize.width - 20,
         screenSize.height - windowSize.height - 100);
     compositionWindow.setVisible(false);
@@ -162,10 +157,12 @@ public final class CompositionArea extends JPanel implements InputMethodListener
   }
 
   // InputMethodListener methods - just forward to the current handler
+  @Override
   public void inputMethodTextChanged(InputMethodEvent event) {
     handler.inputMethodTextChanged(event);
   }
 
+  @Override
   public void caretPositionChanged(InputMethodEvent event) {
     handler.caretPositionChanged(event);
   }
@@ -211,7 +208,7 @@ public final class CompositionArea extends JPanel implements InputMethodListener
             + compositionWindow.getInsets().bottom;
         // If it's a passive client, set the width always to PASSIVE_WIDTH (480px)
         InputMethodRequests req = handler.getClientInputMethodRequests();
-        int newWidth = (req == null) ? PASSIVE_WIDTH : (int) bounds.getWidth() + WIDTH_MARGIN;
+        int newWidth = req == null ? PASSIVE_WIDTH : (int) bounds.getWidth() + WIDTH_MARGIN;
         int newFrameWidth = newWidth + compositionWindow.getInsets().left
             + compositionWindow.getInsets().right;
         setPreferredSize(new Dimension(newWidth, newHeight));
@@ -258,19 +255,14 @@ public final class CompositionArea extends JPanel implements InputMethodListener
     Rectangle caretRect = req.getTextLocation(null);
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     Dimension windowSize = compositionWindow.getSize();
-    final int SPACING = 2;
+    int SPACING = 2;
 
-    if (caretRect.x + windowSize.width > screenSize.width) {
-      windowLocation.x = screenSize.width - windowSize.width;
-    } else {
-      windowLocation.x = caretRect.x;
-    }
+    windowLocation.x = caretRect.x + windowSize.width > screenSize.width ? screenSize.width
+        - windowSize.width : caretRect.x;
 
-    if (caretRect.y + caretRect.height + SPACING + windowSize.height > screenSize.height) {
-      windowLocation.y = caretRect.y - SPACING - windowSize.height;
-    } else {
-      windowLocation.y = caretRect.y + caretRect.height + SPACING;
-    }
+    windowLocation.y =
+        caretRect.y + caretRect.height + SPACING + windowSize.height > screenSize.height ?
+            caretRect.y - SPACING - windowSize.height : caretRect.y + caretRect.height + SPACING;
 
     compositionWindow.setLocation(windowLocation);
   }
@@ -291,11 +283,7 @@ public final class CompositionArea extends JPanel implements InputMethodListener
       Point location = getLocationOnScreen();
       x -= location.x + TEXT_ORIGIN_X;
       y -= location.y + TEXT_ORIGIN_Y;
-      if (layout.getBounds().contains(x, y)) {
-        return layout.hitTestChar(x, y);
-      } else {
-        return null;
-      }
+      return layout.getBounds().contains(x, y) ? layout.hitTestChar(x, y) : null;
     }
   }
 
@@ -310,6 +298,7 @@ public final class CompositionArea extends JPanel implements InputMethodListener
 
   // workaround for the Solaris focus lost problem
   class FrameWindowAdapter extends WindowAdapter {
+    @Override
     public void windowActivated(WindowEvent e) {
       requestFocus();
     }

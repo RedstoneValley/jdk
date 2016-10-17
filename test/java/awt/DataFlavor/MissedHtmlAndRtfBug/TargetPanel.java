@@ -31,12 +31,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TargetPanel extends Panel implements DropTargetListener {
-
+    private static final long serialVersionUID = -7414439572700107723L;
 
     //private final CustomDropTargetListener dropTargetListener = new CustomDropTargetListener();
 
-    private Frame frame;
-    DataFlavor dataFlavor;
+    private final Frame frame;
+    final DataFlavor dataFlavor;
 
     public TargetPanel(Frame frame, DataFlavor dataFlavor) {
         this.dataFlavor = dataFlavor;
@@ -46,28 +46,33 @@ public class TargetPanel extends Panel implements DropTargetListener {
         setDropTarget(new DropTarget(this, this));
     }
 
+    @Override
     public void dragEnter(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(dataFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(dataFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent dtde) {
         if (dtde.isDataFlavorSupported(dataFlavor)) {
             dtde.acceptDrag(DnDConstants.ACTION_COPY_OR_MOVE);
         }
     }
 
+    @Override
     public void dragExit(DropTargetEvent dte) {
 
     }
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
         dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);
         if (dtde.isDataFlavorSupported(dataFlavor)) {
@@ -77,9 +82,7 @@ public class TargetPanel extends Panel implements DropTargetListener {
                 byte[] data = (byte[]) dtde.getTransferable().getTransferData(dataFlavor);
                 result = new String(data, "UTF-16");
                 repaint();
-            } catch (UnsupportedFlavorException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (UnsupportedFlavorException | IOException e) {
                 e.printStackTrace();
             }
             dtde.dropComplete(true);

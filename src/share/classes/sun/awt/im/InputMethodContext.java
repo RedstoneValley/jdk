@@ -27,8 +27,6 @@ package sun.awt.im;
 
 import java.awt.AWTEvent;
 import java.awt.Component;
-import java.awt.GraphicsEnvironment;
-import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -42,9 +40,7 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.AttributedString;
 import java.text.CharacterIterator;
-import javax.swing.JFrame;
 import sun.awt.InputMethodSupport;
-import sun.security.action.GetPropertyAction;
 
 /**
  * The InputMethodContext class provides methods that input methods
@@ -55,10 +51,9 @@ import sun.security.action.GetPropertyAction;
  * @author JavaSoft International
  */
 
-public class InputMethodContext extends sun.awt.im.InputContext
-    implements java.awt.im.spi.InputMethodContext {
+public class InputMethodContext extends InputContext implements java.awt.im.spi.InputMethodContext {
 
-  static private boolean belowTheSpotInputRequested;
+  private static final boolean belowTheSpotInputRequested;
 
   static {
     // check whether we should use below-the-spot input
@@ -72,31 +67,26 @@ public class InputMethodContext extends sun.awt.im.InputContext
     belowTheSpotInputRequested = "below-the-spot".equals(inputStyle);
   }
 
+  private final Object compositionAreaHandlerLock = new Object();
   private boolean dispatchingCommittedText;
   // Creation of the context's composition area handler is
   // delayed until we really need a composition area.
   private CompositionAreaHandler compositionAreaHandler;
-  private Object compositionAreaHandlerLock = new Object();
   private boolean inputMethodSupportsBelowTheSpot;
 
   /**
    * Constructs an InputMethodContext.
    */
   public InputMethodContext() {
-    super();
   }
 
   static Window createInputMethodWindow(String title, InputContext context, boolean isSwing) {
-    if (GraphicsEnvironment.isHeadless()) {
-      throw new HeadlessException();
-    }
     if (isSwing) {
       return new InputMethodJFrame(title, context);
-    } else {
-      Toolkit toolkit = Toolkit.getDefaultToolkit();
-      if (toolkit instanceof InputMethodSupport) {
-        return ((InputMethodSupport) toolkit).createInputMethodWindow(title, context);
-      }
+    }
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    if (toolkit instanceof InputMethodSupport) {
+      return ((InputMethodSupport) toolkit).createInputMethodWindow(title, context);
     }
     throw new InternalError("Input methods must be supported");
   }
@@ -115,6 +105,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   }
 
   // implements java.awt.im.spi.InputMethodContext.dispatchInputMethodEvent
+  @Override
   public void dispatchInputMethodEvent(
       int id, AttributedCharacterIterator text, int committedCharacterCount, TextHitInfo caret,
       TextHitInfo visiblePosition) {
@@ -141,12 +132,14 @@ public class InputMethodContext extends sun.awt.im.InputContext
   }
 
   // implements java.awt.im.spi.InputMethodContext.createInputMethodWindow
+  @Override
   public Window createInputMethodWindow(String title, boolean attachToInputContext) {
     InputContext context = attachToInputContext ? this : null;
     return createInputMethodWindow(title, context, false);
   }
 
   // implements java.awt.im.spi.InputMethodContext.createInputMethodJFrame
+  @Override
   public JFrame createInputMethodJFrame(String title, boolean attachToInputContext) {
     InputContext context = attachToInputContext ? this : null;
     return (JFrame) createInputMethodWindow(title, context, true);
@@ -177,9 +170,9 @@ public class InputMethodContext extends sun.awt.im.InputContext
       if (req != null) {
         // active client -> send text as InputMethodEvent
         int beginIndex = text.getBeginIndex();
-        AttributedCharacterIterator toBeCommitted = (new AttributedString(text,
+        AttributedCharacterIterator toBeCommitted = new AttributedString(text,
             beginIndex,
-            beginIndex + committedCharacterCount)).getIterator();
+            beginIndex + committedCharacterCount).getIterator();
 
         InputMethodEvent inputEvent = new InputMethodEvent(client,
             InputMethodEvent.INPUT_METHOD_TEXT_CHANGED,
@@ -192,7 +185,8 @@ public class InputMethodContext extends sun.awt.im.InputContext
       } else {
         // passive client -> send text as KeyEvents
         char keyChar = text.first();
-        while (committedCharacterCount-- > 0 && keyChar != CharacterIterator.DONE) {
+        while (committedCharacterCount > 0 && keyChar != CharacterIterator.DONE) {
+          committedCharacterCount--;
           KeyEvent keyEvent = new KeyEvent(client,
               KeyEvent.KEY_TYPED,
               time,
@@ -202,12 +196,14 @@ public class InputMethodContext extends sun.awt.im.InputContext
           client.dispatchEvent(keyEvent);
           keyChar = text.next();
         }
+        committedCharacterCount--;
       }
     } finally {
       dispatchingCommittedText = false;
     }
   }
 
+  @Override
   public void dispatchEvent(AWTEvent event) {
     // some host input method adapters may dispatch input method events
     // through the Java event queue. If the component that the event is
@@ -217,8 +213,8 @@ public class InputMethodContext extends sun.awt.im.InputContext
     // current client component, since we may have switched clients while
     // the event was in the queue.
     if (event instanceof InputMethodEvent) {
-      if (((Component) event.getSource()).getInputMethodRequests() == null || (
-          useBelowTheSpotInput() && !dispatchingCommittedText)) {
+      if (((Component) event.getSource()).getInputMethodRequests() == null
+          || useBelowTheSpotInput() && !dispatchingCommittedText) {
         getCompositionAreaHandler(true).processInputMethodEvent((InputMethodEvent) event);
       }
     } else {
@@ -229,10 +225,8 @@ public class InputMethodContext extends sun.awt.im.InputContext
     }
   }
 
-  /**
-   * @see java.awt.im.spi.InputMethodContext#enableClientWindowNotification
-   */
-  public void enableClientWindowNotification(InputMethod inputMethod, boolean enable) {
+  @Override
+  public synchronized void enableClientWindowNotification(InputMethod inputMethod, boolean enable) {
     super.enableClientWindowNotification(inputMethod, enable);
   }
 
@@ -313,6 +307,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getTextLocation.
    */
+  @Override
   public Rectangle getTextLocation(TextHitInfo offset) {
     return getReq().getTextLocation(offset);
   }
@@ -320,6 +315,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getLocationOffset.
    */
+  @Override
   public TextHitInfo getLocationOffset(int x, int y) {
     return getReq().getLocationOffset(x, y);
   }
@@ -327,6 +323,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getInsertPositionOffset.
    */
+  @Override
   public int getInsertPositionOffset() {
     return getReq().getInsertPositionOffset();
   }
@@ -334,6 +331,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getCommittedText.
    */
+  @Override
   public AttributedCharacterIterator getCommittedText(
       int beginIndex, int endIndex, Attribute[] attributes) {
     return getReq().getCommittedText(beginIndex, endIndex, attributes);
@@ -342,6 +340,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getCommittedTextLength.
    */
+  @Override
   public int getCommittedTextLength() {
     return getReq().getCommittedTextLength();
   }
@@ -349,6 +348,7 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of cancelLatestCommittedText.
    */
+  @Override
   public AttributedCharacterIterator cancelLatestCommittedText(Attribute[] attributes) {
     return getReq().cancelLatestCommittedText(attributes);
   }
@@ -356,16 +356,14 @@ public class InputMethodContext extends sun.awt.im.InputContext
   /**
    * Calls the current client component's implementation of getSelectedText.
    */
+  @Override
   public AttributedCharacterIterator getSelectedText(Attribute[] attributes) {
     return getReq().getSelectedText(attributes);
   }
 
   private InputMethodRequests getReq() {
-    if (haveActiveClient() && !useBelowTheSpotInput()) {
-      return getClientComponent().getInputMethodRequests();
-    } else {
-      return getCompositionAreaHandler(false);
-    }
+    return haveActiveClient() && !useBelowTheSpotInput()
+        ? getClientComponent().getInputMethodRequests() : getCompositionAreaHandler(false);
   }
 
   /**

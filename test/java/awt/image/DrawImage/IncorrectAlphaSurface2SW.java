@@ -30,9 +30,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import static java.awt.Transparency.TRANSLUCENT;
 import static java.awt.image.BufferedImage.TYPE_4BYTE_ABGR;
@@ -56,8 +53,10 @@ public final class IncorrectAlphaSurface2SW {
             TYPE_4BYTE_ABGR, TYPE_4BYTE_ABGR_PRE};
     private static final int[] srcTypes = {TRANSLUCENT};
 
+    private IncorrectAlphaSurface2SW() {
+    }
 
-    public static void main(final String[] args) throws IOException {
+    public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -67,10 +66,10 @@ public final class IncorrectAlphaSurface2SW {
         BufferedImage sourceBI;
         VolatileImage sourceVI;
 
-        for (final int s : SIZES) {
-            for (final int srcType : srcTypes) {
-                for (final int dstType : dstTypes) {
-                    for (final int scale : SCALES) {
+        for (int s : SIZES) {
+            for (int srcType : srcTypes) {
+                for (int dstType : dstTypes) {
+                    for (int scale : SCALES) {
                         int sw = s * scale;
                         destVI = new BufferedImage(sw, sw, dstType);
                         destBI = new BufferedImage(sw, sw, dstType);
@@ -105,7 +104,7 @@ public final class IncorrectAlphaSurface2SW {
             if (vi.validate(gc) != VolatileImage.IMAGE_OK) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }
@@ -118,7 +117,7 @@ public final class IncorrectAlphaSurface2SW {
             if (vi.contentsLost()) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }
@@ -126,8 +125,7 @@ public final class IncorrectAlphaSurface2SW {
         }
     }
 
-    private static void validate(BufferedImage bi, BufferedImage gold)
-            throws IOException {
+    private static void validate(BufferedImage bi, BufferedImage gold) {
         for (int x = 0; x < bi.getWidth(); ++x) {
             for (int y = 0; y < bi.getHeight(); ++y) {
                 if (gold.getRGB(x, y) != bi.getRGB(x, y)) {
@@ -146,7 +144,7 @@ public final class IncorrectAlphaSurface2SW {
      *
      * @param image to fill
      */
-    private static void fill(final Image image, final int size) {
+    private static void fill(Image image, int size) {
         Graphics2D graphics = (Graphics2D) image.getGraphics();
         graphics.setComposite(AlphaComposite.Src);
         graphics.setColor(Color.GREEN);

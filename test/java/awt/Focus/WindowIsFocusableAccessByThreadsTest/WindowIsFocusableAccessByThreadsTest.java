@@ -31,17 +31,17 @@
   @run      main WindowIsFocusableAccessByThreadsTest
 */
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class WindowIsFocusableAccessByThreadsTest {
-    private static AtomicBoolean testPassed = new AtomicBoolean(true);
+public final class WindowIsFocusableAccessByThreadsTest {
+    private static final AtomicBoolean testPassed = new AtomicBoolean(true);
     private static volatile TestFrame frame;
     private static volatile TestWindow window;
     private static volatile Button openWindowBtn;
+
+    private WindowIsFocusableAccessByThreadsTest() {
+    }
 
     public static void main(String[] args) {
         frame = new TestFrame("Test EDT access to Window components");
@@ -75,13 +75,15 @@ public class WindowIsFocusableAccessByThreadsTest {
         frame.setVisible(true);
     }
 
-    private static void testThread() {
+    static void testThread() {
         if (!SwingUtilities.isEventDispatchThread()) {
             testPassed.set(false);
         }
     }
 
     private static class TestWindow extends Window {
+        private static final long serialVersionUID = 1328719948312321286L;
+
         public TestWindow(Frame owner) {
             super(owner);
         }
@@ -97,7 +99,9 @@ public class WindowIsFocusableAccessByThreadsTest {
     }
 
     private static class TestFrame extends Frame {
-        private TestFrame(String title) throws HeadlessException {
+        private static final long serialVersionUID = 5742206965325985746L;
+
+        TestFrame(String title) throws HeadlessException {
             super(title);
         }
 

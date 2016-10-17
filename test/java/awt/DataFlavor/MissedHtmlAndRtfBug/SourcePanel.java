@@ -29,6 +29,7 @@ import java.awt.*;
 
 public class SourcePanel extends Panel {
 
+    private static final long serialVersionUID = 2771433780325196270L;
     private final MyDragGestureListener dragGestureListener =
             new MyDragGestureListener();
 
@@ -42,6 +43,10 @@ public class SourcePanel extends Panel {
     }
 
     private class MyDragGestureListener implements DragGestureListener {
+      MyDragGestureListener() {
+      }
+
+      @Override
         public void dragGestureRecognized(DragGestureEvent dge) {
             dge.startDrag(null, new MyTransferable());
         }

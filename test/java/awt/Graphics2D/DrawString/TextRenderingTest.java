@@ -43,12 +43,15 @@ import java.awt.image.VolatileImage;
  * @run main TextRenderingTest
  */
 
-public class TextRenderingTest {
+public final class TextRenderingTest {
 
     private static final int width  = 450;
     private static final int height = 150;
 
-    public static void main(final String[] args) {
+    private TextRenderingTest() {
+    }
+
+    public static void main(String[] args) {
 
         GraphicsEnvironment ge =
             GraphicsEnvironment.getLocalGraphicsEnvironment();

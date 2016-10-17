@@ -58,43 +58,43 @@ class MimeType implements Externalizable, Cloneable {
   /**
    * Constructor for externalization; this constructor should not be
    * called directly by an application, since the result will be an
-   * uninitialized, immutable <code>MimeType</code> object.
+   * uninitialized, immutable {@code MimeType} object.
    */
   public MimeType() {
   }
 
   /**
-   * Builds a <code>MimeType</code> from a <code>String</code>.
+   * Builds a {@code MimeType} from a {@code String}.
    *
-   * @param rawdata text used to initialize the <code>MimeType</code>
-   * @throws NullPointerException if <code>rawdata</code> is null
+   * @param rawdata text used to initialize the {@code MimeType}
+   * @throws NullPointerException if {@code rawdata} is null
    */
   public MimeType(String rawdata) throws MimeTypeParseException {
     parse(rawdata);
   }
 
   /**
-   * Builds a <code>MimeType</code> with the given primary and sub
+   * Builds a {@code MimeType} with the given primary and sub
    * type but has an empty parameter list.
    *
-   * @param primary the primary type of this <code>MimeType</code>
-   * @param sub     the subtype of this <code>MimeType</code>
-   * @throws NullPointerException if either <code>primary</code> or
-   *                              <code>sub</code> is null
+   * @param primary the primary type of this {@code MimeType}
+   * @param sub     the subtype of this {@code MimeType}
+   * @throws NullPointerException if either {@code primary} or
+   *                              {@code sub} is null
    */
   public MimeType(String primary, String sub) throws MimeTypeParseException {
     this(primary, sub, new MimeTypeParameterList());
   }
 
   /**
-   * Builds a <code>MimeType</code> with a pre-defined
+   * Builds a {@code MimeType} with a pre-defined
    * and valid (or empty) parameter list.
    *
-   * @param primary the primary type of this <code>MimeType</code>
-   * @param sub     the subtype of this <code>MimeType</code>
+   * @param primary the primary type of this {@code MimeType}
+   * @param sub     the subtype of this {@code MimeType}
    * @param mtpl    the requested parameter list
-   * @throws NullPointerException if either <code>primary</code>,
-   *                              <code>sub</code> or <code>mtpl</code> is null
+   * @throws NullPointerException if either {@code primary},
+   *                              {@code sub} or {@code mtpl} is null
    */
   public MimeType(String primary, String sub, MimeTypeParameterList mtpl)
       throws MimeTypeParseException {
@@ -119,9 +119,10 @@ class MimeType implements Externalizable, Cloneable {
    * Determines whether or not a given character belongs to a legal token.
    */
   private static boolean isTokenChar(char c) {
-    return ((c > 040) && (c < 0177)) && (TSPECIALS.indexOf(c) < 0);
+    return c > 32 && c < 127 && TSPECIALS.indexOf(c) < 0;
   }
 
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
 
     // We sum up the hash codes for all of the strings. This
@@ -134,24 +135,24 @@ class MimeType implements Externalizable, Cloneable {
   } // hashCode()
 
   /**
-   * <code>MimeType</code>s are equal if their primary types,
+   * {@code MimeType}s are equal if their primary types,
    * subtypes, and  parameters are all equal. No default values
    * are taken into account.
    *
    * @param thatObject the object to be evaluated as a
-   *                   <code>MimeType</code>
-   * @return <code>true</code> if <code>thatObject</code> is
-   * a <code>MimeType</code>; otherwise returns <code>false</code>
+   *                   {@code MimeType}
+   * @return {@code true} if {@code thatObject} is
+   * a {@code MimeType}; otherwise returns {@code false}
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object thatObject) {
     if (!(thatObject instanceof MimeType)) {
       return false;
     }
     MimeType that = (MimeType) thatObject;
-    boolean isIt = ((this.primaryType.equals(that.primaryType)) &&
-                        (this.subType.equals(that.subType)) &&
-                        (this.parameters.equals(that.parameters)));
-    return isIt;
+    return primaryType.equals(that.primaryType) &&
+        subType.equals(that.subType) &&
+        parameters.equals(that.parameters);
   } // equals()
 
   /**
@@ -160,6 +161,7 @@ class MimeType implements Externalizable, Cloneable {
    * @return a clone of this object
    */
 
+  @Override
   public Object clone() {
     MimeType newObj = null;
     try {
@@ -174,26 +176,28 @@ class MimeType implements Externalizable, Cloneable {
    * Return the String representation of this object.
    */
   public String toString() {
-    return getBaseType() + parameters.toString();
+    return getBaseType() + parameters;
   }
 
   /**
    * A routine for parsing the MIME type out of a String.
    *
-   * @throws NullPointerException if <code>rawdata</code> is null
+   * @throws NullPointerException if {@code rawdata} is null
    */
   private void parse(String rawdata) throws MimeTypeParseException {
     int slashIndex = rawdata.indexOf('/');
     int semIndex = rawdata.indexOf(';');
-    if ((slashIndex < 0) && (semIndex < 0)) {
+    if (slashIndex < 0 && semIndex < 0) {
       //    neither character is present, so treat it
       //    as an error
       throw new MimeTypeParseException("Unable to find a sub type.");
-    } else if ((slashIndex < 0) && (semIndex >= 0)) {
+    }
+    if (slashIndex < 0 && semIndex >= 0) {
       //    we have a ';' (and therefore a parameter list),
       //    but no '/' indicating a sub type is present
       throw new MimeTypeParseException("Unable to find a sub type.");
-    } else if ((slashIndex >= 0) && (semIndex < 0)) {
+    }
+    if (slashIndex >= 0 && semIndex < 0) {
       //    we have a primary and sub type but no parameter list
       primaryType = rawdata.substring(0, slashIndex).
           trim().toLowerCase(Locale.ENGLISH);
@@ -282,37 +286,37 @@ class MimeType implements Externalizable, Cloneable {
   }
 
   /**
-   * Returns <code>true</code> if the primary type and the
+   * Returns {@code true} if the primary type and the
    * subtype of this object are the same as the specified
-   * <code>type</code>; otherwise returns <code>false</code>.
+   * {@code type}; otherwise returns {@code false}.
    *
-   * @param type the type to compare to <code>this</code>'s type
-   * @return <code>true</code> if the primary type and the
+   * @param type the type to compare to {@code this}'s type
+   * @return {@code true} if the primary type and the
    * subtype of this object are the same as the
-   * specified <code>type</code>; otherwise returns
-   * <code>false</code>
+   * specified {@code type}; otherwise returns
+   * {@code false}
    */
   public boolean match(MimeType type) {
     if (type == null) {
       return false;
     }
-    return primaryType.equals(type.getPrimaryType()) && (subType.equals("*") || type
-        .getSubType()
-        .equals("*") || (subType.equals(type.getSubType())));
+    return primaryType.equals(type.getPrimaryType()) && ("*".equals(subType)
+                                                             || "*".equals(type.getSubType())
+                                                             || subType.equals(type.getSubType()));
   }
 
   /**
-   * Returns <code>true</code> if the primary type and the
+   * Returns {@code true} if the primary type and the
    * subtype of this object are the same as the content type
-   * described in <code>rawdata</code>; otherwise returns
-   * <code>false</code>.
+   * described in {@code rawdata}; otherwise returns
+   * {@code false}.
    *
    * @param rawdata the raw data to be examined
-   * @return <code>true</code> if the primary type and the
+   * @return {@code true} if the primary type and the
    * subtype of this object are the same as the content type
-   * described in <code>rawdata</code>; otherwise returns
-   * <code>false</code>; if <code>rawdata</code> is
-   * <code>null</code>, returns <code>false</code>
+   * described in {@code rawdata}; otherwise returns
+   * {@code false}; if {@code rawdata} is
+   * {@code null}, returns {@code false}
    */
   public boolean match(String rawdata) throws MimeTypeParseException {
     if (rawdata == null) {
@@ -331,6 +335,7 @@ class MimeType implements Externalizable, Cloneable {
    *
    * @throws IOException Includes any I/O exceptions that may occur
    */
+  @Override
   public void writeExternal(ObjectOutput out) throws IOException {
     String s = toString(); // contains ASCII chars only
     // one-to-one correspondence between ASCII char and byte in UTF string
@@ -354,9 +359,10 @@ class MimeType implements Externalizable, Cloneable {
    * @throws ClassNotFoundException If the class for an object being
    *                                restored cannot be found.
    */
+  @Override
   public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
     String s = in.readUTF();
-    if (s == null || s.length() == 0) { // long mime type
+    if (s.isEmpty()) { // long mime type
       byte[] ba = new byte[in.readInt()];
       in.readFully(ba);
       s = new String(ba);
@@ -371,7 +377,7 @@ class MimeType implements Externalizable, Cloneable {
   /**
    * Determines whether or not a given string is a legal token.
    *
-   * @throws NullPointerException if <code>s</code> is null
+   * @throws NullPointerException if {@code s} is null
    */
   private boolean isValidToken(String s) {
     int len = s.length();

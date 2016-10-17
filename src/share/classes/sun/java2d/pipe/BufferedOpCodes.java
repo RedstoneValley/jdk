@@ -25,9 +25,7 @@
 
 package sun.java2d.pipe;
 
-import java.lang.annotation.Native;
-
-public class BufferedOpCodes {
+public final class BufferedOpCodes {
   // draw ops
   @Native public static final int DRAW_LINE = 10;
   @Native public static final int DRAW_RECT = 11;

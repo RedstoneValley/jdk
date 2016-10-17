@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6357858
  * @summary Job must reports the number of copies set in the dialog.
  * @run main/manual DialogCopies
@@ -30,9 +30,9 @@
 
 import java.awt.print.*;
 
-public class DialogCopies {
+public final class DialogCopies {
 
-  static String[] instructions = {
+  static final String[] instructions = {
      "This test assumes and requires that you have a printer installed",
      "When the dialog appears, increment the number of copies then press OK.",
      "The test will throw an exception if you fail to do this, since",
@@ -40,11 +40,14 @@ public class DialogCopies {
      ""
   };
 
+  private DialogCopies() {
+  }
+
   public static void main(String[] args) {
 
-      for (int i=0;i<instructions.length;i++) {
-         System.out.println(instructions[i]);
-      }
+    for (String instruction : instructions) {
+      System.out.println(instruction);
+    }
 
       PrinterJob job = PrinterJob.getPrinterJob();
       if (job.getPrintService() == null || !job.printDialog()) {

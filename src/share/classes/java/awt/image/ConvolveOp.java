@@ -25,10 +25,10 @@
 
 package java.awt.image;
 
+import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.lang.annotation.Native;
 import sun.awt.image.ImagingLib;
 
 /**
@@ -62,8 +62,8 @@ import sun.awt.image.ImagingLib;
  * Note that the Source and the Destination may not be the same object.
  *
  * @see Kernel
- * @see java.awt.RenderingHints#KEY_COLOR_RENDERING
- * @see java.awt.RenderingHints#KEY_DITHERING
+ * @see RenderingHints#KEY_COLOR_RENDERING
+ * @see RenderingHints#KEY_DITHERING
  */
 public class ConvolveOp implements BufferedImageOp, RasterOp {
   /**
@@ -77,28 +77,28 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * the corresponding pixels in the destination without modification.
    */
   @Native public static final int EDGE_NO_OP = 1;
-  Kernel kernel;
+  final Kernel kernel;
   /**
    * Edge condition constants.
    */
-  int edgeHint;
+  final int edgeHint;
   RenderingHints hints;
 
   /**
    * Constructs a ConvolveOp given a Kernel, an edge condition, and a
    * RenderingHints object (which may be null).
    *
-   * @param kernel        the specified <code>Kernel</code>
+   * @param kernel        the specified {@code Kernel}
    * @param edgeCondition the specified edge condition
-   * @param hints         the specified <code>RenderingHints</code> object
+   * @param hints         the specified {@code RenderingHints} object
    * @see Kernel
    * @see #EDGE_NO_OP
    * @see #EDGE_ZERO_FILL
-   * @see java.awt.RenderingHints
+   * @see RenderingHints
    */
   public ConvolveOp(Kernel kernel, int edgeCondition, RenderingHints hints) {
     this.kernel = kernel;
-    this.edgeHint = edgeCondition;
+    edgeHint = edgeCondition;
     this.hints = hints;
   }
 
@@ -106,19 +106,19 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * Constructs a ConvolveOp given a Kernel.  The edge condition
    * will be EDGE_ZERO_FILL.
    *
-   * @param kernel the specified <code>Kernel</code>
+   * @param kernel the specified {@code Kernel}
    * @see Kernel
    * @see #EDGE_ZERO_FILL
    */
   public ConvolveOp(Kernel kernel) {
     this.kernel = kernel;
-    this.edgeHint = EDGE_ZERO_FILL;
+    edgeHint = EDGE_ZERO_FILL;
   }
 
   /**
    * Returns the edge condition.
    *
-   * @return the edge condition of this <code>ConvolveOp</code>.
+   * @return the edge condition of this {@code ConvolveOp}.
    * @see #EDGE_NO_OP
    * @see #EDGE_ZERO_FILL
    */
@@ -129,7 +129,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
   /**
    * Returns the Kernel.
    *
-   * @return the <code>Kernel</code> of this <code>ConvolveOp</code>.
+   * @return the {@code Kernel} of this {@code ConvolveOp}.
    */
   public final Kernel getKernel() {
     return (Kernel) kernel.clone();
@@ -146,15 +146,16 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * The IllegalArgumentException may be thrown if the source is the
    * same as the destination.
    *
-   * @param src the source <code>BufferedImage</code> to filter
-   * @param dst the destination <code>BufferedImage</code> for the
-   *            filtered <code>src</code>
-   * @return the filtered <code>BufferedImage</code>
-   * @throws NullPointerException     if <code>src</code> is <code>null</code>
-   * @throws IllegalArgumentException if <code>src</code> equals
-   *                                  <code>dst</code>
-   * @throws ImagingOpException       if <code>src</code> cannot be filtered
+   * @param src the source {@code BufferedImage} to filter
+   * @param dst the destination {@code BufferedImage} for the
+   *            filtered {@code src}
+   * @return the filtered {@code BufferedImage}
+   * @throws NullPointerException     if {@code src} is {@code null}
+   * @throws IllegalArgumentException if {@code src} equals
+   *                                  {@code dst}
+   * @throws ImagingOpException       if {@code src} cannot be filtered
    */
+  @Override
   public final BufferedImage filter(BufferedImage src, BufferedImage dst) {
     if (src == null) {
       throw new NullPointerException("src image is null");
@@ -177,17 +178,14 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
 
     if (dst == null) {
       dst = createCompatibleDestImage(src, null);
-      dstCM = srcCM;
       origDst = dst;
     } else {
       dstCM = dst.getColorModel();
       if (srcCM.getColorSpace().getType() != dstCM.getColorSpace().getType()) {
         needToConvert = true;
         dst = createCompatibleDestImage(src, null);
-        dstCM = dst.getColorModel();
       } else if (dstCM instanceof IndexColorModel) {
         dst = createCompatibleDestImage(src, null);
-        dstCM = dst.getColorModel();
       }
     }
 
@@ -199,7 +197,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
       ColorConvertOp ccop = new ColorConvertOp(hints);
       ccop.filter(dst, origDst);
     } else if (origDst != dst) {
-      java.awt.Graphics2D g = origDst.createGraphics();
+      Graphics2D g = origDst.createGraphics();
       try {
         g.drawImage(dst, 0, 0, null);
       } finally {
@@ -215,6 +213,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * this is not a geometric operation, the bounding box does not
    * change.
    */
+  @Override
   public final Rectangle2D getBounds2D(BufferedImage src) {
     return getBounds2D(src.getRaster());
   }
@@ -225,9 +224,10 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    *
    * @param src    Source image for the filter operation.
    * @param destCM ColorModel of the destination.  Can be null.
-   * @return a destination <code>BufferedImage</code> with the correct
+   * @return a destination {@code BufferedImage} with the correct
    * size and number of bands.
    */
+  @Override
   public BufferedImage createCompatibleDestImage(BufferedImage src, ColorModel destCM) {
     BufferedImage image;
 
@@ -270,6 +270,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * be used to hold the return value.  Since this is not a geometric
    * operation, the srcPt will equal the dstPt.
    */
+  @Override
   public final Point2D getPoint2D(Point2D srcPt, Point2D dstPt) {
     if (dstPt == null) {
       dstPt = new Point2D.Float();
@@ -282,6 +283,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
   /**
    * Returns the rendering hints for this op.
    */
+  @Override
   public final RenderingHints getRenderingHints() {
     return hints;
   }
@@ -294,17 +296,18 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * The IllegalArgumentException may be thrown if the source is
    * the same as the destination.
    *
-   * @param src the source <code>Raster</code> to filter
-   * @param dst the destination <code>WritableRaster</code> for the
-   *            filtered <code>src</code>
-   * @return the filtered <code>WritableRaster</code>
-   * @throws NullPointerException     if <code>src</code> is <code>null</code>
-   * @throws ImagingOpException       if <code>src</code> and <code>dst</code>
+   * @param src the source {@code Raster} to filter
+   * @param dst the destination {@code WritableRaster} for the
+   *            filtered {@code src}
+   * @return the filtered {@code WritableRaster}
+   * @throws NullPointerException     if {@code src} is {@code null}
+   * @throws ImagingOpException       if {@code src} and {@code dst}
    *                                  do not have the same number of bands
-   * @throws ImagingOpException       if <code>src</code> cannot be filtered
-   * @throws IllegalArgumentException if <code>src</code> equals
-   *                                  <code>dst</code>
+   * @throws ImagingOpException       if {@code src} cannot be filtered
+   * @throws IllegalArgumentException if {@code src} equals
+   *                                  {@code dst}
    */
+  @Override
   public final WritableRaster filter(Raster src, WritableRaster dst) {
     if (dst == null) {
       dst = createCompatibleDestRaster(src);
@@ -326,6 +329,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * this is not a geometric operation, the bounding box does not
    * change.
    */
+  @Override
   public final Rectangle2D getBounds2D(Raster src) {
     return src.getBounds();
   }
@@ -334,6 +338,7 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * Creates a zeroed destination Raster with the correct size and number
    * of bands, given this source.
    */
+  @Override
   public WritableRaster createCompatibleDestRaster(Raster src) {
     return src.createCompatibleWritableRaster();
   }

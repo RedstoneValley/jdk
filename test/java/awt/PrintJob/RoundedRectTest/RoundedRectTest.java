@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4061440
  * @summary Checks that rounded rectangles print correctly.
  * @author dpm
@@ -41,26 +41,28 @@ public class RoundedRectTest {
 }
 
 class RoundedRectTestFrame extends Frame implements ActionListener {
-    PrintCanvas canvas;
+    private static final long serialVersionUID = -2939935440204201813L;
+    final PrintCanvas canvas;
 
     public RoundedRectTestFrame () {
         super("RoundedRectTest");
         canvas = new PrintCanvas ();
-        add("Center", canvas);
+        add(BorderLayout.CENTER, canvas);
 
         Button b = new Button("Print");
         b.setActionCommand ("print");
         b.addActionListener (this);
-        add("South", b);
+        add(BorderLayout.SOUTH, b);
 
         pack();
         setVisible(true);
     }
 
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         String cmd = e.getActionCommand();
-        if (cmd.equals("print")) {
+        if ("print".equals(cmd)) {
             PrintJob pjob = getToolkit().getPrintJob(this, "RoundedRectTest",
                                                      null);
             if (pjob != null) {
@@ -78,10 +80,14 @@ class RoundedRectTestFrame extends Frame implements ActionListener {
 }
 
 class PrintCanvas extends Canvas {
+    private static final long serialVersionUID = -4192228041956579930L;
+
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(659, 792);
     }
 
+    @Override
     public void paint (Graphics g) {
         setBackground(Color.white);
         g.setColor(Color.blue);

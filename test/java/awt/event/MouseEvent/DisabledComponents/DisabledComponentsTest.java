@@ -31,28 +31,27 @@
   @run main DisabledComponentsTest
 */
 
-/**
- * DisabledComponentsTest.java
- *
- * summary: java.awt.button behaves differently under Win32/Solaris
- * Disabled component should not receive events. This is what this
- * test checks out.
+/*
+  DisabledComponentsTest.java
+
+  summary: java.awt.button behaves differently under Win32/Solaris
+  Disabled component should not receive events. This is what this
+  test checks out.
  */
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
-
-public class DisabledComponentsTest {
+public final class DisabledComponentsTest {
 
     private static Frame frame;
-    private static Button b = new Button("Button");
-    private static final AtomicBoolean pressed = new AtomicBoolean(false);
-    private static final AtomicBoolean entered = new AtomicBoolean(false);
+    static Button b = new Button("Button");
+    static final AtomicBoolean pressed = new AtomicBoolean(false);
+    static final AtomicBoolean entered = new AtomicBoolean(false);
+
+    private DisabledComponentsTest() {
+    }
 
     private static void init() {
         frame = new Frame("Test");
@@ -60,6 +59,7 @@ public class DisabledComponentsTest {
         b = new Button("Test");
         b.setEnabled(false);
         b.addMouseListener(new MouseAdapter() {
+            @Override
             public void mousePressed(MouseEvent e) {
                 System.err.println("Mouse pressed. target=" + e.getSource());
                 if (!b.isEnabled()) {
@@ -67,10 +67,12 @@ public class DisabledComponentsTest {
                     pressed.set(true);
                 }
             }
+            @Override
             public void mouseEntered(MouseEvent e) {
                 System.out.println("Mouse entered. target=" + e.getSource());
-                if (!b.isEnabled())
+                if (!b.isEnabled()) {
                     System.err.println("TEST FAILED: BUTTON RECEIVED AN EVENT WHEN DISABLED!");
+                }
                 entered.set(true);
             }
         });

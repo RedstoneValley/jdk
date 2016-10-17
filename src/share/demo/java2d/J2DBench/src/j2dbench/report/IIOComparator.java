@@ -41,6 +41,7 @@ package j2dbench.report;
 
 import j2dbench.report.J2DAnalyzer.ResultHolder;
 import j2dbench.report.J2DAnalyzer.ResultSetHolder;
+import j2dbench.tests.iio.IIOTests;
 import java.text.DecimalFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -51,20 +52,29 @@ import java.util.Vector;
  * compares the performance of various image loading routines (relative
  * to the core Image I/O plugins).
  */
-public class IIOComparator {
+@SuppressWarnings("UseOfSystemOutOrSystemErr")
+public final class IIOComparator {
 
-  private static final DecimalFormat decimalFormat = new DecimalFormat("0.0");
+  private static final ThreadLocal<DecimalFormat> decimalFormat = new ThreadLocal<DecimalFormat>() {
+    @Override
+    protected DecimalFormat initialValue() {
+      return new DecimalFormat("0.0");
+    }
+  };
 
   /**
    * List of methods, given in the order we want them to appear in
    * the printed columns.
    */
-  private static final String[] methodKeys = new String[]{
+  private static final String[] methodKeys = {
       "IIO-Core", "IIO-Ext", "Toolkit", "JPEGCodec", "GdkPixBuf"};
 
   private static final Hashtable allResults = new Hashtable();
 
   private static boolean wikiStyle;
+
+  private IIOComparator() {
+  }
 
   private static void printIIOTable(String resultsFile) {
     try {
@@ -82,8 +92,7 @@ public class IIOComparator {
     String[] keys = toSortedArray(basekeys, false);
 
     // build results table
-    for (int k = 0; k < keys.length; k++) {
-      String key = keys[k];
+    for (String key : keys) {
       ResultHolder rh = base.getResultByKey(key);
       double score = rh.getScore();
       Hashtable opts = rh.getOptions();
@@ -92,24 +101,24 @@ public class IIOComparator {
       String content = (String) opts.get("imageio.opts.content");
       String testname = "size=" + imgsize + ",content=" + content;
 
-      String format = null;
-      String method = null;
+      String format;
+      String method;
       String name = rh.getName();
-      if (name.equals("imageio.input.image.imageio.reader.tests.read")) {
+      if ("imageio.input.image.imageio.reader.tests.read".equals(name)) {
         format = (String) opts.get("imageio.input.image.imageio.opts.format");
         String type = format.substring(0, format.indexOf('-'));
         format = format.substring(format.indexOf('-') + 1);
-        if (format.equals("jpeg")) {
+        if ("jpeg".equals(format)) {
           format = "jpg";
         }
-        method = "IIO-" + (type.equals("core") ? "Core" : "Ext");
-      } else if (name.equals("imageio.input.image.toolkit.tests.createImage")) {
+        method = "IIO-" + ("core".equals(type) ? "Core" : "Ext");
+      } else if ("imageio.input.image.toolkit.tests.createImage".equals(name)) {
         format = (String) opts.get("imageio.input.image.toolkit.opts.format");
         method = "Toolkit";
-      } else if (name.equals("imageio.input.image.toolkit.tests.gdkLoadImage")) {
+      } else if ("imageio.input.image.toolkit.tests.gdkLoadImage".equals(name)) {
         format = (String) opts.get("imageio.input.image.toolkit.opts.format");
         method = "GdkPixBuf";
-      } else if (name.equals("imageio.input.image.jpegcodec.tests.decodeAsBufferedImage")) {
+      } else if ("imageio.input.image.jpegcodec.tests.decodeAsBufferedImage".equals(name)) {
         format = "jpg";
         method = "JPEGCodec";
       } else {
@@ -128,7 +137,7 @@ public class IIOComparator {
         testResults = new Hashtable();
         fmtResults.put(testname, testResults);
       }
-      testResults.put(method, new Double(score));
+      testResults.put(method, score);
     }
 
     if (wikiStyle) {
@@ -139,6 +148,7 @@ public class IIOComparator {
   }
 
   private static void printWikiTable() {
+    DecimalFormat f = decimalFormat.get();
     // print a table for each format
     Enumeration allKeys = allResults.keys();
     while (allKeys.hasMoreElements()) {
@@ -154,7 +164,8 @@ public class IIOComparator {
       String[] methods = new String[testResults.keySet().size()];
       for (int k = 0, i = 0; i < methodKeys.length; i++) {
         if (testResults.containsKey(methodKeys[i])) {
-          methods[k++] = methodKeys[i];
+          methods[k] = methodKeys[i];
+          k++;
         }
       }
       System.out.print("| |");
@@ -167,26 +178,21 @@ public class IIOComparator {
       System.out.println("");
 
       // print all rows in the table
-      for (int i = 0; i < tests.length; i++) {
-        String testname = tests[i];
+      for (String testname : tests) {
         testResults = (Hashtable) fmtResults.get(testname);
         System.out.print("| " + testname + " |");
         double baseres = 0.0;
         for (int j = 0; j < methods.length; j++) {
           Double result = (Double) testResults.get(methods[j]);
-          double res = result.doubleValue();
+          double res = result;
 
-          System.out.print("   " +
-              decimalFormat.format(res) +
-              " | ");
+          System.out.print("   " + f.format(res) + " | ");
 
           if (j == 0) {
             baseres = res;
           } else {
-            double diff = ((res - baseres) / baseres) * 100.0;
-            System.out.print("   " +
-                decimalFormat.format(diff) +
-                " |");
+            double diff = (res - baseres) / baseres * 100.0;
+            System.out.print("   " + f.format(diff) + " |");
           }
         }
         System.out.println("");
@@ -196,6 +202,7 @@ public class IIOComparator {
   }
 
   private static void printHtmlTable() {
+    DecimalFormat f = decimalFormat.get();
     System.out.println("<html><body>\n");
 
     // print a table for each format
@@ -214,7 +221,8 @@ public class IIOComparator {
       String[] methods = new String[testResults.keySet().size()];
       for (int k = 0, i = 0; i < methodKeys.length; i++) {
         if (testResults.containsKey(methodKeys[i])) {
-          methods[k++] = methodKeys[i];
+          methods[k] = methodKeys[i];
+          k++;
         }
       }
       System.out.print("<tr><td></td>");
@@ -228,7 +236,7 @@ public class IIOComparator {
 
       // print all rows in the table
       for (int i = 0; i < tests.length; i++) {
-        String rowcolor = (i % 2 == 0) ? "#FFFFCC" : "#FFFFFF";
+        String rowcolor = i % 2 == 0 ? "#FFFFCC" : "#FFFFFF";
         String testname = tests[i];
         testResults = (Hashtable) fmtResults.get(testname);
         System.out.print("<tr>");
@@ -236,14 +244,14 @@ public class IIOComparator {
         double baseres = 0.0;
         for (int j = 0; j < methods.length; j++) {
           Double result = (Double) testResults.get(methods[j]);
-          double res = result.doubleValue();
+          double res = result;
 
-          printHtmlCell(decimalFormat.format(res), rowcolor, "right");
+          printHtmlCell(f.format(res), rowcolor, "right");
 
           if (j == 0) {
             baseres = res;
           } else {
-            double diff = ((res - baseres) / baseres) * 100.0;
+            double diff = (res - baseres) / baseres * 100.0;
             String cellcolor;
             if (Math.abs(diff) <= 5.0) {
               cellcolor = "#CFCFFF";
@@ -252,7 +260,7 @@ public class IIOComparator {
             } else {
               cellcolor = "#FFCFCF";
             }
-            String difftext = decimalFormat.format(diff);
+            String difftext = f.format(diff);
             if (diff > 0.0) {
               difftext = "+" + difftext;
             }
@@ -280,7 +288,7 @@ public class IIOComparator {
       String key = (String) e.nextElement();
       keylist.add(key);
     }
-    String keys[] = new String[keylist.size()];
+    String[] keys = new String[keylist.size()];
     keylist.copyInto(keys);
     if (special) {
       sort2(keys);
@@ -290,7 +298,7 @@ public class IIOComparator {
     return keys;
   }
 
-  public static void sort(String strs[]) {
+  public static void sort(String[] strs) {
     for (int i = 1; i < strs.length; i++) {
       for (int j = i; j > 0; j--) {
         if (strs[j].compareTo(strs[j - 1]) >= 0) {
@@ -303,7 +311,7 @@ public class IIOComparator {
     }
   }
 
-  public static void sort2(String strs[]) {
+  public static void sort2(String[] strs) {
     for (int i = 1; i < strs.length; i++) {
       for (int j = i; j > 0; j--) {
         if (compare(strs[j - 1], strs[j])) {
@@ -317,11 +325,11 @@ public class IIOComparator {
   }
 
   private static int magic(String s) {
-    if (s.endsWith("random")) {
+    if (s.endsWith(IIOTests.CONTENT_RANDOM)) {
       return 3;
-    } else if (s.endsWith("photo")) {
+    } else if (s.endsWith(IIOTests.CONTENT_PHOTO)) {
       return 2;
-    } else if (s.endsWith("vector")) {
+    } else if (s.endsWith(IIOTests.CONTENT_VECTOR)) {
       return 1;
     } else {
       return 0;
@@ -333,11 +341,7 @@ public class IIOComparator {
     String sizestr2 = s2.substring(s2.indexOf('=') + 1, s2.indexOf(','));
     int size1 = Integer.parseInt(sizestr1);
     int size2 = Integer.parseInt(sizestr2);
-    if (size1 == size2) {
-      return (magic(s1) < magic(s2));
-    } else {
-      return (size1 < size2);
-    }
+    return size1 == size2 ? magic(s1) < magic(s2) : size1 < size2;
   }
 
   private static void printUsage() {
@@ -348,7 +352,7 @@ public class IIOComparator {
 
   public static void main(String[] args) {
     if (args.length == 2) {
-      if (args[0].equals("-wiki")) {
+      if ("-wiki".equals(args[0])) {
         wikiStyle = true;
         printIIOTable(args[1]);
       } else {

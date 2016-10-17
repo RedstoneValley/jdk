@@ -34,9 +34,12 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-public class DrawImageCoordsTest {
+public final class DrawImageCoordsTest {
 
-    public static void main(String[] args) {
+  private DrawImageCoordsTest() {
+  }
+
+  public static void main(String[] args) {
 
         /* Create an image to draw, filled in solid red. */
         BufferedImage srcImg =

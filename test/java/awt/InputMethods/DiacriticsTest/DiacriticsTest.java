@@ -30,15 +30,12 @@
 */
 
 
-import java.applet.Applet;
 import java.awt.*;
-import javax.swing.JPanel;
-
 
 public class DiacriticsTest extends Applet {
 
     public void init() {
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
     }
 
     public void start() {

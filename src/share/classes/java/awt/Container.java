@@ -3351,7 +3351,8 @@ public class Container extends Component {
     long time = Toolkit.getEventQueue().getMostRecentKeyEventTime();
     Component predictedFocusOwner = null;
     try {
-      Class<?> jInternalFrameClass = Class.forName("javax.swing.JInternalFrame");
+      Class<?> jInternalFrameClass
+          = Class.forName(EventDispatchThread.HierarchyEventFilter.JINTERNAL_FRAME_CLASS);
       if (jInternalFrameClass.isInstance(this)) {
         Method getMostRecentFocusOwner = jInternalFrameClass.getDeclaredMethod(
             "getMostRecentFocusOwner");
@@ -4129,7 +4130,7 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
    * The windowed container that might be hosting events for
    * subcomponents.
    */
-  private Container nativeContainer;
+  private final Container nativeContainer;
   /**
    * This variable is not used, but kept for serialization compatibility
    */

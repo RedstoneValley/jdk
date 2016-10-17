@@ -32,22 +32,21 @@
 */
 
 
-/**
- * JButtonInGlassPane.java
- *
- * summary:  Tests whether a LW menu correctly overlaps a HW button
+/*
+  JButtonInGlassPane.java
+
+  summary:  Tests whether a LW menu correctly overlaps a HW button
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
 
-
-
-public class JButtonInGlassPane
+public final class JButtonInGlassPane
 {
-    static volatile boolean failed = false;
+    static volatile boolean failed;
+
+    private JButtonInGlassPane() {
+    }
 
     private static void init()
     {
@@ -65,11 +64,12 @@ public class JButtonInGlassPane
         JFrame frame = new JFrame("Glass Pane children test");
         frame.setLayout(null);
 
-        final Button button = new Button("AWT Button");
+        Button button = new Button("AWT Button");
         button.setBounds(100,100,100,100);
         frame.add(button);
 
         button.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 failed = true;
             }
@@ -79,7 +79,7 @@ public class JButtonInGlassPane
         Container glassPane = (Container) frame.getGlassPane();
         glassPane.setLayout(null);
 
-        final JButton jbutton = new JButton("JButton");
+        JButton jbutton = new JButton("JButton");
         jbutton.setBounds(50,50,100,100);
         glassPane.add(jbutton);
 
@@ -118,9 +118,9 @@ public class JButtonInGlassPane
         Util.waitForIdle(robot);
 
         if (failed) {
-            JButtonInGlassPane.fail("The LW button did not receive the click.");
+            fail("The LW button did not receive the click.");
         } else {
-            JButtonInGlassPane.pass();
+            pass();
         }
     }//End  init()
 
@@ -138,11 +138,11 @@ public class JButtonInGlassPane
      * There is a section following this for test-
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
@@ -150,7 +150,7 @@ public class JButtonInGlassPane
     //  instantiated in the same VM.  Being static (and using
     //  static vars), it aint gonna work.  Not worrying about
     //  it for now.
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -179,12 +179,14 @@ public class JButtonInGlassPane
         {
             //The test harness may have interrupted the test.  If so, rethrow the exception
             // so that the harness gets it and deals with it.
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
 
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -244,6 +246,7 @@ public class JButtonInGlassPane
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
@@ -286,16 +289,13 @@ class NewClass implements anInterface
 
 //************** End classes defined for the test *******************
 
-
-
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -309,9 +309,12 @@ class NewClass implements anInterface
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -356,9 +359,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -366,10 +370,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -385,35 +389,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

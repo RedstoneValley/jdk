@@ -8,6 +8,53 @@ import java.awt.font.LineMetrics;
 public class CoreMetrics {
   public final float ascent;
   public final float descent;
+  public final float leading;
+  public final int baselineIndex;
+  public final float[] baselineOffsets;
+  public final float ssOffset;
+  public final float italicAngle;
+  private final float height;
+  private final float strikethroughOffset;
+  private final float strikethroughThickness;
+  private final float underlineOffset;
+  private final float underlineThickness;
+
+  public CoreMetrics(
+      float ascent, float descent, float leading, float height, int baselineIndex,
+      float[] baselineOffsets, float strikethroughOffset, float strikethroughThickness,
+      float underlineOffset, float underlineThickness, float ssOffset, float italicAngle) {
+    this.ascent = ascent;
+    this.descent = descent;
+    this.leading = leading;
+    this.height = height;
+    this.baselineIndex = baselineIndex;
+    this.baselineOffsets = baselineOffsets;
+    this.strikethroughOffset = strikethroughOffset;
+    this.strikethroughThickness = strikethroughThickness;
+    this.underlineOffset = underlineOffset;
+    this.underlineThickness = underlineThickness;
+    this.ssOffset = ssOffset;
+    this.italicAngle = italicAngle;
+  }
+
+  public CoreMetrics(CoreMetrics toCopy) {
+    this(toCopy.getAscent(),
+        toCopy.getDescent(),
+        toCopy.getLeading(),
+        toCopy.getHeight(),
+        toCopy.getBaselineIndex(),
+        toCopy.getBaselineOffsets(),
+        toCopy.getStrikethroughOffset(),
+        toCopy.getStrikethroughThickness(),
+        toCopy.getUnderlineOffset(),
+        toCopy.getUnderlineThickness(),
+        toCopy.getSsOffset(),
+        toCopy.getItalicAngle());
+  }
+
+  public static CoreMetrics get(LineMetrics lineMetrics) {
+    return new CoreMetrics(lineMetrics);
+  }
 
   /**
    * Returns the ascent of the text.  The ascent
@@ -77,10 +124,10 @@ public class CoreMetrics {
    * relative to the baseline of the text.  The
    * offsets are indexed by baseline index.  For
    * example, if the baseline index is
-   * <code>CENTER_BASELINE</code> then
-   * <code>offsets[HANGING_BASELINE]</code> is usually
-   * negative, <code>offsets[CENTER_BASELINE]</code>
-   * is zero, and <code>offsets[ROMAN_BASELINE]</code>
+   * {@code CENTER_BASELINE} then
+   * {@code offsets[HANGING_BASELINE]} is usually
+   * negative, {@code offsets[CENTER_BASELINE]}
+   * is zero, and {@code offsets[ROMAN_BASELINE]}
    * is usually positive.
    *
    * @return the baseline offsets of the text.
@@ -126,41 +173,6 @@ public class CoreMetrics {
     return italicAngle;
   }
 
-  public final float leading;
-  private final float height;
-  public final int baselineIndex;
-  public final float[] baselineOffsets;
-  private final float strikethroughOffset;
-  private final float strikethroughThickness;
-  private final float underlineOffset;
-  private final float underlineThickness;
-  public final float ssOffset;
-  public final float italicAngle;
-
-  public CoreMetrics(
-      float ascent, float descent, float leading, float height, int baselineIndex,
-      float[] baselineOffsets, float strikethroughOffset, float strikethroughThickness,
-      float underlineOffset, float underlineThickness, float ssOffset, float italicAngle) {
-    this.ascent = ascent;
-    this.descent = descent;
-    this.leading = leading;
-    this.height = height;
-    this.baselineIndex = baselineIndex;
-    this.baselineOffsets = baselineOffsets;
-    this.strikethroughOffset = strikethroughOffset;
-    this.strikethroughThickness = strikethroughThickness;
-    this.underlineOffset = underlineOffset;
-    this.underlineThickness = underlineThickness;
-    this.ssOffset = ssOffset;
-    this.italicAngle = italicAngle;
-  }
-
-  public CoreMetrics(CoreMetrics toCopy) {
-    this(toCopy.getAscent(), toCopy.getDescent(), toCopy.getLeading(), toCopy.getHeight(), toCopy.getBaselineIndex(),
-        toCopy.getBaselineOffsets(), toCopy.getStrikethroughOffset(), toCopy.getStrikethroughThickness(),
-        toCopy.getUnderlineOffset(), toCopy.getUnderlineThickness(), toCopy.getSsOffset(), toCopy.getItalicAngle());
-  }
-
   /**
    * Returns the thickness of the underline.
    *
@@ -173,9 +185,5 @@ public class CoreMetrics {
   public float effectiveBaselineOffset(float[] fBaselineOffsets) {
     // TODO
     return 0;
-  }
-
-  public static CoreMetrics get(LineMetrics lineMetrics) {
-    return new CoreMetrics(lineMetrics);
   }
 }

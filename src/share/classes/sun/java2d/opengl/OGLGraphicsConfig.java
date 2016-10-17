@@ -25,7 +25,7 @@
 
 package sun.java2d.opengl;
 
-import sun.awt.image.SurfaceManager;
+import sun.awt.image.SurfaceManager.ProxiedGraphicsConfig;
 import sun.java2d.SurfaceData;
 import sun.java2d.pipe.hw.AccelGraphicsConfig;
 
@@ -34,7 +34,8 @@ import sun.java2d.pipe.hw.AccelGraphicsConfig;
  * GLXGraphicsConfig and WGLGraphicsConfig, making it easier to invoke these
  * methods directly from OGLSurfaceData.
  */
-interface OGLGraphicsConfig extends AccelGraphicsConfig, SurfaceManager.ProxiedGraphicsConfig {
+interface OGLGraphicsConfig extends AccelGraphicsConfig, ProxiedGraphicsConfig {
+  @Override
   OGLContext getContext();
 
   long getNativeConfigInfo();

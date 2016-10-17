@@ -31,10 +31,10 @@
   @run main DisabledComponent
 */
 
-/**
- * DisabledComponent.java
- *
- * summary: Tests that wheel events aren't coming on disabled component
+/*
+  DisabledComponent.java
+
+  summary: Tests that wheel events aren't coming on disabled component
  */
 
 import java.awt.*;
@@ -42,12 +42,13 @@ import java.awt.event.*;
 
 import sun.awt.SunToolkit;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class DisabledComponent
+public final class DisabledComponent
 {
 
-    private static volatile boolean passed = true;
+    static volatile boolean passed = true;
+
+    private DisabledComponent() {
+    }
 
     public static void main(String []s) throws Exception
     {

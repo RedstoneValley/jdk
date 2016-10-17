@@ -38,19 +38,20 @@ public class BufImgSurfaceManager extends SurfaceManager {
   /**
    * A reference to the BufferedImage whose contents are being managed.
    */
-  protected BufferedImage bImg;
+  protected final BufferedImage bImg;
 
   /**
    * The default (software) surface containing the contents of the
    * BufferedImage.
    */
-  protected SurfaceData sdDefault;
+  protected final SurfaceData sdDefault;
 
   public BufImgSurfaceManager(BufferedImage bImg) {
     this.bImg = bImg;
-    this.sdDefault = BufImgSurfaceData.createData(bImg);
+    sdDefault = BufImgSurfaceData.createData(bImg);
   }
 
+  @Override
   public SurfaceData getPrimarySurfaceData() {
     return sdDefault;
   }
@@ -59,6 +60,7 @@ public class BufImgSurfaceManager extends SurfaceManager {
    * Called from platform-specific SurfaceData objects to attempt to
    * auto-restore the contents of an accelerated surface that has been lost.
    */
+  @Override
   public SurfaceData restoreContents() {
     return sdDefault;
   }

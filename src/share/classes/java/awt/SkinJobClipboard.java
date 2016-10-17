@@ -1,8 +1,10 @@
 package java.awt;
 
 import android.content.ClipData;
+import android.content.ClipData.Item;
 import android.content.ClipDescription;
 import android.content.ClipboardManager;
+import android.content.ClipboardManager.OnPrimaryClipChangedListener;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,8 +27,7 @@ import java.net.URI;
  * class will convert a {@link URI} to a {@link Uri} when copying (but not vice-versa when pasting,
  * since it doesn't know which class is actually desired).</p>
  */
-public class SkinJobClipboard extends Clipboard
-    implements ClipboardManager.OnPrimaryClipChangedListener {
+public class SkinJobClipboard extends Clipboard implements OnPrimaryClipChangedListener {
   private final ClipboardManager clipboardManager;
   private final ContentResolver contentResolver;
 
@@ -38,7 +39,7 @@ public class SkinJobClipboard extends Clipboard
     contentResolver = androidContext.getContentResolver();
   }
 
-  protected static Object pasteItem(ClipData.Item item) {
+  protected static Object pasteItem(Item item) {
     if (item == null) {
       return null;
     }
@@ -146,11 +147,9 @@ public class SkinJobClipboard extends Clipboard
     } else {
       chosenPlainTextFallback = transferable.toString();
     }
-    if (htmlFallback != null) {
-      return ClipData.newHtmlText(chosenPlainTextFallback, chosenPlainTextFallback, htmlFallback);
-    } else {
-      return ClipData.newPlainText(chosenPlainTextFallback, chosenPlainTextFallback);
-    }
+    return htmlFallback != null ? ClipData.newHtmlText(chosenPlainTextFallback,
+        chosenPlainTextFallback,
+        htmlFallback) : ClipData.newPlainText(chosenPlainTextFallback, chosenPlainTextFallback);
   }
 
   @Override
@@ -186,9 +185,8 @@ public class SkinJobClipboard extends Clipboard
         }
 
         @Override
-        public Object getTransferData(DataFlavor desiredFlavor)
-            throws UnsupportedFlavorException, IOException {
-          if (!(desiredFlavor.equals(flavor))) {
+        public Object getTransferData(DataFlavor desiredFlavor) throws UnsupportedFlavorException {
+          if (!desiredFlavor.equals(flavor)) {
             throw new UnsupportedFlavorException(desiredFlavor);
           }
           int itemCount = externalClipboard.getItemCount();
@@ -201,7 +199,7 @@ public class SkinJobClipboard extends Clipboard
             case ClipDescription.MIMETYPE_TEXT_PLAIN:
               StringBuilder unpackedText = new StringBuilder();
               for (int i = 0; i < itemCount; i++) {
-                ClipData.Item item = externalClipboard.getItemAt(i);
+                Item item = externalClipboard.getItemAt(i);
                 CharSequence unpackedSubstring = null;
                 if (outputHtml) {
                   unpackedSubstring = item.getHtmlText();
@@ -247,7 +245,7 @@ public class SkinJobClipboard extends Clipboard
 
   @Override
   public synchronized void onPrimaryClipChanged() {
-    if (!(lastExported.equals(clipboardManager.getPrimaryClip()))) {
+    if (!lastExported.equals(clipboardManager.getPrimaryClip())) {
       super.setContents(null, null);
     }
   }

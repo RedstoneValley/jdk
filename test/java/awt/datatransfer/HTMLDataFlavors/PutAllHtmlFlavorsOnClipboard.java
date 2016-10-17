@@ -24,8 +24,11 @@
 
 import java.awt.*;
 
-public class PutAllHtmlFlavorsOnClipboard {
-    public static void main(String[] args) {
+public final class PutAllHtmlFlavorsOnClipboard {
+  private PutAllHtmlFlavorsOnClipboard() {
+  }
+
+  public static void main(String[] args) {
         System.out.println("PutAllHtmlFlavorsOnClipboard has been started.");
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                 new HtmlTransferable(HtmlTransferable.htmlDataFlavors), null);

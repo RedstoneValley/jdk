@@ -28,6 +28,7 @@ package sun.awt.shell;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.concurrent.Callable;
+import sun.awt.shell.ShellFolder.Invoker;
 
 /**
  * @author Michael Martak
@@ -44,28 +45,28 @@ class ShellFolderManager {
   }
 
   /**
-   * @param key a <code>String</code>
+   * @param key a {@code String}
    *            "fileChooserDefaultFolder":
-   *            Returns a <code>File</code> - the default shellfolder for a new filechooser
+   *            Returns a {@code File} - the default shellfolder for a new filechooser
    *            "roots":
-   *            Returns a <code>File[]</code> - containing the root(s) of the displayable
+   *            Returns a {@code File[]} - containing the root(s) of the displayable
    *            hierarchy
    *            "fileChooserComboBoxFolders":
-   *            Returns a <code>File[]</code> - an array of shellfolders representing the list to
+   *            Returns a {@code File[]} - an array of shellfolders representing the list to
    *            show by default in the file chooser's combobox
    *            "fileChooserShortcutPanelFolders":
-   *            Returns a <code>File[]</code> - an array of shellfolders representing well-known
+   *            Returns a {@code File[]} - an array of shellfolders representing well-known
    *            folders, such as Desktop, Documents, History, Network, Home, etc.
    *            This is used in the shortcut panel of the filechooser on Windows 2000
    *            and Windows Me.
    *            "fileChooserIcon <icon>":
-   *            Returns an <code>Image</code> - icon can be ListView, DetailsView, UpFolder,
+   *            Returns an {@code Image} - icon can be ListView, DetailsView, UpFolder,
    *            NewFolder or
    *            ViewMenu (Windows only).
    * @return An Object matching the key string.
    */
   public Object get(String key) {
-    if (key.equals("fileChooserDefaultFolder")) {
+    if ("fileChooserDefaultFolder".equals(key)) {
       // Return the default shellfolder for a new filechooser
       File homeDir = new File(System.getProperty("user.home"));
       try {
@@ -73,14 +74,17 @@ class ShellFolderManager {
       } catch (FileNotFoundException e) {
         return homeDir;
       }
-    } else if (key.equals("roots")) {
+    }
+    if ("roots".equals(key)) {
       // The root(s) of the displayable hierarchy
       return File.listRoots();
-    } else if (key.equals("fileChooserComboBoxFolders")) {
+    }
+    if ("fileChooserComboBoxFolders".equals(key)) {
       // Return an array of ShellFolders representing the list to
       // show by default in the file chooser's combobox
       return get("roots");
-    } else if (key.equals("fileChooserShortcutPanelFolders")) {
+    }
+    if ("fileChooserShortcutPanelFolders".equals(key)) {
       // Return an array of ShellFolders representing well-known
       // folders, such as Desktop, Documents, History, Network, Home, etc.
       // This is used in the shortcut panel of the filechooser on Windows 2000
@@ -91,7 +95,7 @@ class ShellFolderManager {
   }
 
   /**
-   * Does <code>dir</code> represent a "computer" such as a node on the network, or
+   * Does {@code dir} represent a "computer" such as a node on the network, or
    * "My Computer" on the desktop.
    */
   public boolean isComputerNode(File dir) {
@@ -102,14 +106,18 @@ class ShellFolderManager {
     if (dir instanceof ShellFolder && !((ShellFolder) dir).isFileSystem()) {
       return false;
     }
-    return (dir.getParentFile() == null);
+    return dir.getParentFile() == null;
   }
 
-  protected ShellFolder.Invoker createInvoker() {
+  protected Invoker createInvoker() {
     return new DirectInvoker();
   }
 
-  private static class DirectInvoker implements ShellFolder.Invoker {
+  private static class DirectInvoker implements Invoker {
+    DirectInvoker() {
+    }
+
+    @Override
     public <T> T invoke(Callable<T> task) throws Exception {
       return task.call();
     }

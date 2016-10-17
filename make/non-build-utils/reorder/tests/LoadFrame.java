@@ -26,9 +26,12 @@
 
 import java.awt.Frame;
 
-public class LoadFrame {
+public final class LoadFrame {
 
-    public static void main(String[] args) {
+  private LoadFrame() {
+  }
+
+  public static void main(String[] args) {
         new Frame().show();
         // This starts a thread which never exits - so we suicide.
         try {

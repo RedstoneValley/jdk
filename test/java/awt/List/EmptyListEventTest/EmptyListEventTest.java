@@ -30,14 +30,14 @@
  */
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import sun.awt.SunToolkit;
 
-public class EmptyListEventTest {
+public final class EmptyListEventTest {
 
-    private static List list;
+    static List list;
+
+    private EmptyListEventTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -97,7 +97,7 @@ public class EmptyListEventTest {
     }
 
     private static Point getClickPoint() throws Exception {
-        final Point[] result = new Point[1];
+        Point[] result = new Point[1];
 
         SwingUtilities.invokeAndWait(new Runnable() {
 
@@ -115,7 +115,7 @@ public class EmptyListEventTest {
 
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
         JFrame frame = new JFrame();
         frame.setSize(200, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -124,6 +124,7 @@ public class EmptyListEventTest {
 
         frame.getToolkit().addAWTEventListener(new AWTEventListener() {
 
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.out.println(e);
             }
@@ -145,11 +146,13 @@ public class EmptyListEventTest {
 
     static class MyListener implements ActionListener, ItemListener {
 
+        @Override
         public void actionPerformed(ActionEvent ae) {
             System.err.println(ae);
             throw new RuntimeException("Test failed - list is empty so event is redundant");
         }
 
+        @Override
         public void itemStateChanged(ItemEvent ie) {
             System.err.println(ie);
             throw new RuntimeException("Test failed - list is empty so event is redundant");

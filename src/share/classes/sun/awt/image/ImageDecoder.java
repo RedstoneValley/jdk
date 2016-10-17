@@ -29,14 +29,16 @@ import java.awt.image.ColorModel;
 import java.awt.image.ImageConsumer;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
 public abstract class ImageDecoder {
+  final InputStreamImageSource source;
   protected boolean aborted;
   protected boolean finished;
-  InputStreamImageSource source;
   InputStream input;
-  Thread feeder;
+  final Thread feeder;
   ImageConsumerQueue queue;
   ImageDecoder next;
 
@@ -62,7 +64,7 @@ public abstract class ImageDecoder {
       if (aborted) {
         return null;
       }
-      cq = ((cq == null) ? queue : cq.next);
+      cq = cq == null ? queue : cq.next;
       while (cq != null) {
         if (cq.interested) {
           return cq;
@@ -118,7 +120,7 @@ public abstract class ImageDecoder {
   }
 
   protected int setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pix[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, byte[] pix, int off, int scansize) {
     source.latchConsumers(this);
     ImageConsumerQueue cq = null;
     int count = 0;
@@ -130,7 +132,7 @@ public abstract class ImageDecoder {
   }
 
   protected int setPixels(
-      int x, int y, int w, int h, ColorModel model, int pix[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, int[] pix, int off, int scansize) {
     source.latchConsumers(this);
     ImageConsumerQueue cq = null;
     int count = 0;
@@ -162,7 +164,8 @@ public abstract class ImageDecoder {
     aborted = true;
     source.doneDecoding(this);
     close();
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction() {
+    AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         feeder.interrupt();
         return null;

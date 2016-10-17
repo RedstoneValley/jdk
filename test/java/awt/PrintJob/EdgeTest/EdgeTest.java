@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4092755
  * @summary Verifies that (0, 0) is the upper-left corner of the page, not
  *          the upper-left corner adjusted for the margins.
@@ -31,13 +31,17 @@
  */
 
 import java.awt.*;
+import java.awt.JobAttributes.DialogType;
 import java.awt.event.*;
 
 public class EdgeTest extends Panel {
+    private static final long serialVersionUID = 5396125917156378813L;
+
     public void init() {
         Frame f = new Frame("EdgeTest");
         f.setSize(50, 50);
         f.addWindowListener( new WindowAdapter() {
+                                    @Override
                                     public void windowClosing(WindowEvent ev) {
                                         System.exit(0);
                                     }
@@ -45,13 +49,13 @@ public class EdgeTest extends Panel {
                             );
         f.setVisible(true);
         JobAttributes job = new JobAttributes();
-        job.setDialog(JobAttributes.DialogType.NONE);
+        job.setDialog(DialogType.NONE);
         PrintJob pj = getToolkit().getPrintJob(f, "EdgeTest", job, null);
         if (pj != null) {
             Graphics g = pj.getGraphics();
             Dimension d = pj.getPageDimension();
             g.setColor(Color.black);
-            g.setFont(new Font("Serif", Font.PLAIN, 12));
+            g.setFont(new Font(Font.SERIF, Font.PLAIN, 12));
 
             //top
             g.drawLine(0, 0, d.width, 0);

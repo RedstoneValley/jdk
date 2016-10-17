@@ -31,7 +31,6 @@ package sun.java2d.loops;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import sun.java2d.SunGraphics2D;
 
 /**
  * GraphicsComponentMgr provides services to
@@ -41,42 +40,31 @@ import sun.java2d.SunGraphics2D;
 public final class GraphicsPrimitiveMgr {
 
   private static final boolean debugTrace = false;
-  private static GraphicsPrimitive primitives[];
-  private static GraphicsPrimitive generalPrimitives[];
-  private static boolean needssort = true;
-  private static Comparator primSorter = new Comparator() {
+  private static final Comparator primSorter = new Comparator() {
+    @Override
     public int compare(Object o1, Object o2) {
       int id1 = ((GraphicsPrimitive) o1).getUniqueID();
       int id2 = ((GraphicsPrimitive) o2).getUniqueID();
 
-      return (id1 == id2 ? 0 : (id1 < id2 ? -1 : 1));
+      return id1 == id2 ? 0 : id1 < id2 ? -1 : 1;
     }
   };
-  private static Comparator primFinder = new Comparator() {
+  private static final Comparator primFinder = new Comparator() {
+    @Override
     public int compare(Object o1, Object o2) {
       int id1 = ((GraphicsPrimitive) o1).getUniqueID();
       int id2 = ((PrimitiveSpec) o2).uniqueID;
 
-      return (id1 == id2 ? 0 : (id1 < id2 ? -1 : 1));
+      return id1 == id2 ? 0 : id1 < id2 ? -1 : 1;
     }
   };
+  private static GraphicsPrimitive[] primitives;
+  private static GraphicsPrimitive[] generalPrimitives;
+  private static boolean needssort = true;
 
   static {
-    initIDs(
-        GraphicsPrimitive.class,
-        SurfaceType.class,
-        CompositeType.class,
-        SunGraphics2D.class,
-        java.awt.Color.class,
-        java.awt.geom.AffineTransform.class,
-        XORComposite.class,
-        java.awt.AlphaComposite.class,
-        java.awt.geom.Path2D.class,
-        java.awt.geom.Path2D.Float.class,
-        sun.awt.SunHints.class);
     CustomComponent.register();
     GeneralRenderer.register();
-    registerNativeLoops();
   }
 
   /**
@@ -85,20 +73,14 @@ public final class GraphicsPrimitiveMgr {
   private GraphicsPrimitiveMgr() {
   }
 
-  private static native void initIDs(
-      Class GP, Class ST, Class CT, Class SG2D, Class Color, Class AT, Class XORComp,
-      Class AlphaComp, Class Path2D, Class Path2DFloat, Class SHints);
-
-  private static native void registerNativeLoops();
-
-  public synchronized static void register(GraphicsPrimitive[] newPrimitives) {
+  public static synchronized void register(GraphicsPrimitive[] newPrimitives) {
     GraphicsPrimitive[] devCollection = primitives;
     int oldSize = 0;
     int newSize = newPrimitives.length;
     if (debugTrace) {
       writeLog("Registering " + newSize + " primitives");
-      for (int i = 0; i < newSize; i++) {
-        writeLog(newPrimitives[i].toString());
+      for (GraphicsPrimitive newPrimitive : newPrimitives) {
+        writeLog(newPrimitive.toString());
       }
     }
     if (devCollection != null) {
@@ -113,7 +95,7 @@ public final class GraphicsPrimitiveMgr {
     primitives = temp;
   }
 
-  public synchronized static void registerGeneral(GraphicsPrimitive gen) {
+  public static synchronized void registerGeneral(GraphicsPrimitive gen) {
     if (generalPrimitives == null) {
       generalPrimitives = new GraphicsPrimitive[]{gen};
       return;
@@ -125,11 +107,11 @@ public final class GraphicsPrimitiveMgr {
     generalPrimitives = newGen;
   }
 
-  public synchronized static GraphicsPrimitive locate(int primTypeID, SurfaceType dsttype) {
+  public static synchronized GraphicsPrimitive locate(int primTypeID, SurfaceType dsttype) {
     return locate(primTypeID, SurfaceType.OpaqueColor, CompositeType.Src, dsttype);
   }
 
-  public synchronized static GraphicsPrimitive locate(
+  public static synchronized GraphicsPrimitive locate(
       int primTypeID, SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
           System.out.println("Looking for:");
@@ -153,7 +135,7 @@ public final class GraphicsPrimitiveMgr {
     return prim;
   }
 
-  public synchronized static GraphicsPrimitive locatePrim(
+  public static synchronized GraphicsPrimitive locatePrim(
       int primTypeID, SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
           System.out.println("Looking for:");
@@ -194,8 +176,7 @@ public final class GraphicsPrimitiveMgr {
     if (generalPrimitives == null) {
       return null;
     }
-    for (int i = 0; i < generalPrimitives.length; i++) {
-      GraphicsPrimitive prim = generalPrimitives[i];
+    for (GraphicsPrimitive prim : generalPrimitives) {
       if (prim.getPrimTypeID() == primTypeID) {
         return prim;
       }
@@ -263,8 +244,8 @@ public final class GraphicsPrimitiveMgr {
     int resolved = 0;
     int unresolved = 0;
     GraphicsPrimitive[] prims = primitives;
-    for (int j = 0; j < prims.length; j++) {
-      GraphicsPrimitive p = prims[j];
+    for (GraphicsPrimitive prim : prims) {
+      GraphicsPrimitive p = prim;
       if (p instanceof GraphicsPrimitiveProxy) {
         GraphicsPrimitive r = ((GraphicsPrimitiveProxy) p).instantiate();
         if (!r.getSignature().equals(p.getSignature()) || r.getUniqueID() != p.getUniqueID()) {
@@ -294,7 +275,7 @@ public final class GraphicsPrimitiveMgr {
         " total graphics primitives");
   }
 
-  public static void main(String argv[]) {
+  public static void main(String[] argv) {
     // REMIND: Should trigger loading of platform primitives somehow...
     if (needssort) {
       Arrays.sort(primitives, primSorter);
@@ -305,5 +286,8 @@ public final class GraphicsPrimitiveMgr {
 
   private static class PrimitiveSpec {
     public int uniqueID;
+
+    PrimitiveSpec() {
+    }
   }
 }

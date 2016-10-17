@@ -29,24 +29,24 @@ import static sun.java2d.pipe.BufferedOpCodes.DRAW_GLYPH_LIST;
 
 import java.awt.AlphaComposite;
 import java.awt.Composite;
-import java.lang.annotation.Native;
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 
 public abstract class BufferedTextPipe extends GlyphListPipe {
 
-  @Native private static final int BYTES_PER_GLYPH_IMAGE = 8;
-  @Native private static final int BYTES_PER_GLYPH_POSITION = 8;
-
+  protected static final int MAX_CONTRAST = 0xff;
+  protected static final int OPSIZE_DRAW_GLYPH_LIST = 24;
+  protected static final int OPALIGN_DRAW_GLYPH_LIST = 20;
+  private static final int BYTES_PER_GLYPH_IMAGE = 8;
+  private static final int BYTES_PER_GLYPH_POSITION = 8;
   /**
    * The following offsets are used to pack the parameters in
    * createPackedParams().  (They are also used at the native level when
    * unpacking the params.)
    */
-  @Native private static final int OFFSET_CONTRAST = 8;
-  @Native private static final int OFFSET_RGBORDER = 2;
-  @Native private static final int OFFSET_SUBPIXPOS = 1;
-  @Native private static final int OFFSET_POSITIONS = 0;
+  private static final int OFFSET_CONTRAST = 8;
+  private static final int OFFSET_RGBORDER = 2;
+  private static final int OFFSET_SUBPIXPOS = 1;
+  private static final int OFFSET_POSITIONS = 0;
   protected final RenderQueue rq;
 
   protected BufferedTextPipe(RenderQueue rq) {
@@ -61,10 +61,10 @@ public abstract class BufferedTextPipe extends GlyphListPipe {
    * those parameters even in the non-LCD case.
    */
   private static int createPackedParams(SunGraphics2D sg2d, GlyphList gl) {
-    return (((gl.usePositions() ? 1 : 0) << OFFSET_POSITIONS) |
-                ((gl.isSubPixPos() ? 1 : 0) << OFFSET_SUBPIXPOS) |
-                ((gl.isRGBOrder() ? 1 : 0) << OFFSET_RGBORDER) |
-                ((sg2d.lcdTextContrast & 0xff) << OFFSET_CONTRAST));
+    return (gl.usePositions() ? 1 : 0) |
+        (gl.isSubPixPos() ? 1 : 0) << OFFSET_SUBPIXPOS |
+        (gl.isRGBOrder() ? 1 : 0) << OFFSET_RGBORDER |
+        (sg2d.lcdTextContrast & MAX_CONTRAST) << OFFSET_CONTRAST;
   }
 
   @Override
@@ -96,17 +96,18 @@ public abstract class BufferedTextPipe extends GlyphListPipe {
     }
   }
 
-  private void enqueueGlyphList(final SunGraphics2D sg2d, final GlyphList gl) {
+  @SuppressWarnings("MagicNumber")
+  private void enqueueGlyphList(SunGraphics2D sg2d, GlyphList gl) {
     // assert rq.lock.isHeldByCurrentThread();
     RenderBuffer buf = rq.getBuffer();
-    final int totalGlyphs = gl.getNumGlyphs();
+    int totalGlyphs = gl.getNumGlyphs();
     int glyphBytesRequired = totalGlyphs * BYTES_PER_GLYPH_IMAGE;
     int posBytesRequired = gl.usePositions() ? totalGlyphs * BYTES_PER_GLYPH_POSITION : 0;
-    int totalBytesRequired = 24 + glyphBytesRequired + posBytesRequired;
+    int totalBytesRequired = OPSIZE_DRAW_GLYPH_LIST + glyphBytesRequired + posBytesRequired;
 
-    final long[] images = gl.getImages();
-    final float glyphListOrigX = gl.getX() + 0.5f;
-    final float glyphListOrigY = gl.getY() + 0.5f;
+    long[] images = gl.getImages();
+    float glyphListOrigX = gl.getX() + 0.5f;
+    float glyphListOrigY = gl.getY() + 0.5f;
 
     // make sure the RenderQueue keeps a hard reference to the FontStrike
     // so that the associated glyph images are not disposed while enqueued
@@ -117,7 +118,7 @@ public abstract class BufferedTextPipe extends GlyphListPipe {
         // process the queue first and then enqueue the glyphs
         rq.flushNow();
       }
-      rq.ensureAlignment(20);
+      rq.ensureAlignment(OPALIGN_DRAW_GLYPH_LIST);
       buf.putInt(DRAW_GLYPH_LIST);
       // enqueue parameters
       buf.putInt(totalGlyphs);
@@ -134,6 +135,7 @@ public abstract class BufferedTextPipe extends GlyphListPipe {
       // queue is too small to accommodate glyphs; perform
       // the operation directly on the queue flushing thread
       rq.flushAndInvokeNow(new Runnable() {
+        @Override
         public void run() {
           drawGlyphList(
               totalGlyphs,

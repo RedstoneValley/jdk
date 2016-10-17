@@ -37,7 +37,7 @@ import java.util.EventListener;
 import java.util.Vector;
 
 /**
- * The <code>List</code> component presents the user with a
+ * The {@code List} component presents the user with a
  * scrolling list of text items. The list can be set up so that
  * the user can choose either one item or multiple items.
  * <p>
@@ -58,7 +58,7 @@ import java.util.Vector;
  * cnt.add(lst);
  * </pre></blockquote><hr>
  * <p>
- * where <code>cnt</code> is a container, produces the following
+ * where {@code cnt} is a container, produces the following
  * scrolling list:
  * <p>
  * <img src="doc-files/List-1.gif"
@@ -69,32 +69,32 @@ import java.util.Vector;
  * an item that is already selected deselects it. In the preceding
  * example, only one item from the scrolling list can be selected
  * at a time, since the second argument when creating the new scrolling
- * list is <code>false</code>. If the List does not allow multiple
+ * list is {@code false}. If the List does not allow multiple
  * selections, selecting an item causes any other selected item
  * to be deselected.
  * <p>
  * Note that the list in the example shown was created with four visible
  * rows.  Once the list has been created, the number of visible rows
- * cannot be changed.  A default <code>List</code> is created with
- * four rows, so that <code>lst = new List()</code> is equivalent to
- * <code>list = new List(4, false)</code>.
+ * cannot be changed.  A default {@code List} is created with
+ * four rows, so that {@code lst = new List()} is equivalent to
+ * {@code list = new List(4, false)}.
  * <p>
  * Beginning with Java&nbsp;1.1, the Abstract Window Toolkit
- * sends the <code>List</code> object all mouse, keyboard, and focus events
+ * sends the {@code List} object all mouse, keyboard, and focus events
  * that occur over it. (The old AWT event model is being maintained
  * only for backwards compatibility, and its use is discouraged.)
  * <p>
  * When an item is selected or deselected by the user, AWT sends an instance
- * of <code>ItemEvent</code> to the list.
+ * of {@code ItemEvent} to the list.
  * When the user double-clicks on an item in a scrolling list,
- * AWT sends an instance of <code>ActionEvent</code> to the
+ * AWT sends an instance of {@code ActionEvent} to the
  * list following the item event. AWT also generates an action event
  * when the user presses the return key while an item in the
  * list is selected.
  * <p>
  * If an application wants to perform some action based on an item
  * in this list being selected or activated by the user, it should implement
- * <code>ItemListener</code> or <code>ActionListener</code>
+ * {@code ItemListener} or {@code ActionListener}
  * as appropriate and register the new listener to receive
  * events from this list.
  * <p>
@@ -103,10 +103,10 @@ import java.util.Vector;
  * button) to trigger the action.
  *
  * @author Sami Shaio
- * @see java.awt.event.ItemEvent
- * @see java.awt.event.ItemListener
- * @see java.awt.event.ActionEvent
- * @see java.awt.event.ActionListener
+ * @see ItemEvent
+ * @see ItemListener
+ * @see ActionEvent
+ * @see ActionListener
  * @since JDK1.0
  */
 public class List extends Component implements ItemSelectable {
@@ -114,13 +114,20 @@ public class List extends Component implements ItemSelectable {
    * The default number of visible rows is 4.  A list with
    * zero rows is unusable and unsightly.
    */
-  final static int DEFAULT_VISIBLE_ROWS = 4;
+  static final int DEFAULT_VISIBLE_ROWS = 4;
   private static final String base = "list";
   /*
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = -3304312411574666869L;
-  private static int nameCounter = 0;
+  private static int nameCounter;
+  /**
+   * The {@code List} component's
+   * Serialized Data Version.
+   *
+   * @serial
+   */
+  private final int listSerializedDataVersion = 1;
   /**
    * A vector created to contain items which will become
    * part of the List Component.
@@ -132,20 +139,20 @@ public class List extends Component implements ItemSelectable {
   Vector<String> items = new Vector<>();
   /**
    * This field will represent the number of visible rows in the
-   * <code>List</code> Component.  It is specified only once, and
+   * {@code List} Component.  It is specified only once, and
    * that is when the list component is actually
    * created.  It will never change.
    *
    * @serial
    * @see #getRows()
    */
-  int rows = 0;
+  final int rows;
   /**
-   * <code>multipleMode</code> is a variable that will
-   * be set to <code>true</code> if a list component is to be set to
+   * {@code multipleMode} is a variable that will
+   * be set to {@code true} if a list component is to be set to
    * multiple selection mode, that is where the user can
    * select more than one item in a list at one time.
-   * <code>multipleMode</code> will be set to false if the
+   * {@code multipleMode} will be set to false if the
    * list component is set to single selection, that is where
    * the user can only select one item on the list at any
    * one time.
@@ -154,16 +161,16 @@ public class List extends Component implements ItemSelectable {
    * @see #isMultipleMode()
    * @see #setMultipleMode(boolean)
    */
-  boolean multipleMode = false;
+  boolean multipleMode;
   /**
-   * <code>selected</code> is an array that will contain
+   * {@code selected} is an array that will contain
    * the indices of items that have been selected.
    *
    * @serial
    * @see #getSelectedIndexes()
    * @see #getSelectedIndex()
    */
-  int selected[] = new int[0];
+  int[] selected = new int[0];
   /**
    * This variable contains the value that will be used
    * when trying to make a particular list item visible.
@@ -174,24 +181,17 @@ public class List extends Component implements ItemSelectable {
   int visibleIndex = -1;
   transient ActionListener actionListener;
   transient ItemListener itemListener;
-  /**
-   * The <code>List</code> component's
-   * Serialized Data Version.
-   *
-   * @serial
-   */
-  private int listSerializedDataVersion = 1;
 
   /**
    * Creates a new scrolling list.
    * By default, there are four visible lines and multiple selections are
    * not allowed.  Note that this is a convenience method for
-   * <code>List(0, false)</code>.  Also note that the number of visible
+   * {@code List(0, false)}.  Also note that the number of visible
    * lines in the list cannot be changed after it has been created.
    *
    * @throws HeadlessException if GraphicsEnvironment.isHeadless()
    *                           returns true.
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   public List() throws HeadlessException {
     this(0, false);
@@ -201,14 +201,14 @@ public class List extends Component implements ItemSelectable {
    * Creates a new scrolling list initialized with the specified
    * number of visible lines. By default, multiple selections are
    * not allowed.  Note that this is a convenience method for
-   * <code>List(rows, false)</code>.  Also note that the number
+   * {@code List(rows, false)}.  Also note that the number
    * of visible rows in the list cannot be changed after it has
    * been created.
    *
    * @param rows the number of items to show.
    * @throws HeadlessException if GraphicsEnvironment.isHeadless()
    *                           returns true.
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @since JDK1.1
    */
   public List(int rows) throws HeadlessException {
@@ -221,33 +221,36 @@ public class List extends Component implements ItemSelectable {
    * the list will be created with a default of four rows.
    * Also note that the number of visible rows in the list cannot
    * be changed after it has been created.
-   * If the value of <code>multipleMode</code> is
-   * <code>true</code>, then the user can select multiple items from
-   * the list. If it is <code>false</code>, only one item at a time
+   * If the value of {@code multipleMode} is
+   * {@code true}, then the user can select multiple items from
+   * the list. If it is {@code false}, only one item at a time
    * can be selected.
    *
    * @param rows         the number of items to show.
-   * @param multipleMode if <code>true</code>,
+   * @param multipleMode if {@code true},
    *                     then multiple selections are allowed;
    *                     otherwise, only one item can be selected at a time.
    * @throws HeadlessException if GraphicsEnvironment.isHeadless()
    *                           returns true.
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   public List(int rows, boolean multipleMode) throws HeadlessException {
     super(Spinner.class);
     GraphicsEnvironment.checkHeadless();
-    this.rows = (rows != 0) ? rows : DEFAULT_VISIBLE_ROWS;
+    this.rows = rows == 0 ? DEFAULT_VISIBLE_ROWS : rows;
     this.multipleMode = multipleMode;
   }
 
   /**
    * Construct a name for this component.  Called by
-   * <code>getName</code> when the name is <code>null</code>.
+   * {@code getName} when the name is {@code null}.
    */
+  @Override
   String constructComponentName() {
     synchronized (List.class) {
-      return base + nameCounter++;
+      String result = base + nameCounter;
+      nameCounter++;
+      return result;
     }
   }
 
@@ -255,21 +258,22 @@ public class List extends Component implements ItemSelectable {
    * Gets the preferred size of this scrolling list.
    *
    * @return the preferred dimensions for displaying this scrolling list
-   * @see java.awt.Component#getPreferredSize
    * @since JDK1.1
    */
+  @Override
   public Dimension getPreferredSize() {
     return preferredSize();
   }
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getPreferredSize()</code>.
+   * replaced by {@code getPreferredSize()}.
    */
+  @Override
   @Deprecated
   public Dimension preferredSize() {
     synchronized (getTreeLock()) {
-      return (rows > 0) ? preferredSize(rows) : super.preferredSize();
+      return rows > 0 ? preferredSize(rows) : super.preferredSize();
     }
   }
 
@@ -278,37 +282,33 @@ public class List extends Component implements ItemSelectable {
    *
    * @return the minimum dimensions needed
    * to display this scrolling list
-   * @see java.awt.Component#getMinimumSize()
    * @since JDK1.1
    */
+  @Override
   public Dimension getMinimumSize() {
     return minimumSize();
   }
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getMinimumSize()</code>.
+   * replaced by {@code getMinimumSize()}.
    */
+  @Override
   @Deprecated
   public Dimension minimumSize() {
     synchronized (getTreeLock()) {
-      return (rows > 0) ? minimumSize(rows) : super.minimumSize();
+      return rows > 0 ? minimumSize(rows) : super.minimumSize();
     }
   }
 
   // REMIND: remove when filtering is done at lower level
+  @Override
   boolean eventEnabled(AWTEvent e) {
     switch (e.id) {
       case ActionEvent.ACTION_PERFORMED:
-        if ((eventMask & AWTEvent.ACTION_EVENT_MASK) != 0 || actionListener != null) {
-          return true;
-        }
-        return false;
+        return (eventMask & AWTEvent.ACTION_EVENT_MASK) != 0 || actionListener != null;
       case ItemEvent.ITEM_STATE_CHANGED:
-        if ((eventMask & AWTEvent.ITEM_EVENT_MASK) != 0 || itemListener != null) {
-          return true;
-        }
-        return false;
+        return (eventMask & AWTEvent.ITEM_EVENT_MASK) != 0 || itemListener != null;
       default:
         break;
     }
@@ -318,16 +318,16 @@ public class List extends Component implements ItemSelectable {
   /**
    * Returns an array of all the objects currently registered
    * as <code><em>Foo</em>Listener</code>s
-   * upon this <code>List</code>.
+   * upon this {@code List}.
    * <code><em>Foo</em>Listener</code>s are registered using the
    * <code>add<em>Foo</em>Listener</code> method.
    * <p>
    * <p>
-   * You can specify the <code>listenerType</code> argument
+   * You can specify the {@code listenerType} argument
    * with a class literal, such as
    * <code><em>Foo</em>Listener.class</code>.
    * For example, you can query a
-   * <code>List</code> <code>l</code>
+   * {@code List} {@code l}
    * for its item listeners with the following code:
    * <p>
    * <pre>ItemListener[] ils = (ItemListener[])(l.getListeners(ItemListener.class));</pre>
@@ -336,19 +336,20 @@ public class List extends Component implements ItemSelectable {
    *
    * @param listenerType the type of listeners requested; this parameter
    *                     should specify an interface that descends from
-   *                     <code>java.util.EventListener</code>
+   *                     {@code java.util.EventListener}
    * @return an array of all objects registered as
    * <code><em>Foo</em>Listener</code>s on this list,
    * or an empty array if no such
    * listeners have been added
-   * @throws ClassCastException if <code>listenerType</code>
+   * @throws ClassCastException if {@code listenerType}
    *                            doesn't specify a class or interface that implements
-   *                            <code>java.util.EventListener</code>
+   *                            {@code java.util.EventListener}
    * @see #getItemListeners
    * @since 1.3
    */
+  @Override
   public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
-    EventListener l = null;
+    EventListener l;
     if (listenerType == ActionListener.class) {
       l = actionListener;
     } else if (listenerType == ItemListener.class) {
@@ -361,28 +362,30 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * Processes events on this scrolling list. If an event is
-   * an instance of <code>ItemEvent</code>, it invokes the
-   * <code>processItemEvent</code> method. Else, if the
-   * event is an instance of <code>ActionEvent</code>,
-   * it invokes <code>processActionEvent</code>.
+   * an instance of {@code ItemEvent}, it invokes the
+   * {@code processItemEvent} method. Else, if the
+   * event is an instance of {@code ActionEvent},
+   * it invokes {@code processActionEvent}.
    * If the event is not an item event or an action event,
-   * it invokes <code>processEvent</code> on the superclass.
-   * <p>Note that if the event parameter is <code>null</code>
+   * it invokes {@code processEvent} on the superclass.
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the event
-   * @see java.awt.event.ActionEvent
-   * @see java.awt.event.ItemEvent
+   * @see ActionEvent
+   * @see ItemEvent
    * @see #processActionEvent
    * @see #processItemEvent
    * @since JDK1.1
    */
+  @Override
   protected void processEvent(AWTEvent e) {
     if (e instanceof ItemEvent) {
       processItemEvent((ItemEvent) e);
       return;
-    } else if (e instanceof ActionEvent) {
+    }
+    if (e instanceof ActionEvent) {
       processActionEvent((ActionEvent) e);
       return;
     }
@@ -393,6 +396,7 @@ public class List extends Component implements ItemSelectable {
    * Creates the peer for the list.  The peer allows us to modify the
    * list's appearance without changing its functionality.
    */
+  @Override
   public void addNotify() {
     synchronized (getTreeLock()) {
       if (peer == null) {
@@ -406,6 +410,7 @@ public class List extends Component implements ItemSelectable {
    * Removes the peer for this list.  The peer allows us to modify the
    * list's appearance without changing its functionality.
    */
+  @Override
   public void removeNotify() {
     synchronized (getTreeLock()) {
       ListPeer peer = (ListPeer) this.peer;
@@ -422,6 +427,7 @@ public class List extends Component implements ItemSelectable {
    *
    * @return the parameter string of this scrolling list
    */
+  @Override
   protected String paramString() {
     return super.paramString() + ",selected=" + getSelectedItem();
   }
@@ -439,7 +445,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getItemCount()</code>.
+   * replaced by {@code getItemCount()}.
    */
   @Deprecated
   public int countItems() {
@@ -476,7 +482,7 @@ public class List extends Component implements ItemSelectable {
    * @since JDK1.1
    */
   public synchronized String[] getItems() {
-    String itemCopies[] = new String[items.size()];
+    String[] itemCopies = new String[items.size()];
     items.copyInto(itemCopies);
     return itemCopies;
   }
@@ -492,7 +498,7 @@ public class List extends Component implements ItemSelectable {
   }
 
   /**
-   * @deprecated replaced by <code>add(String)</code>.
+   * @deprecated replaced by {@code add(String)}.
    */
   @Deprecated
   public void addItem(String item) {
@@ -508,8 +514,8 @@ public class List extends Component implements ItemSelectable {
    * to the end of the list.
    *
    * @param item  the item to be added;
-   *              if this parameter is <code>null</code> then the item is
-   *              treated as an empty string, <code>""</code>
+   *              if this parameter is {@code null} then the item is
+   *              treated as an empty string, {@code ""}
    * @param index the position at which to add the item
    * @since JDK1.1
    */
@@ -518,7 +524,7 @@ public class List extends Component implements ItemSelectable {
   }
 
   /**
-   * @deprecated replaced by <code>add(String, int)</code>.
+   * @deprecated replaced by {@code add(String, int)}.
    */
   @Deprecated
   public synchronized void addItem(String item, int index) {
@@ -548,7 +554,7 @@ public class List extends Component implements ItemSelectable {
    *
    * @param newValue a new string to replace an existing item
    * @param index    the position of the item to replace
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is out of range
    */
   public synchronized void replaceItem(String newValue, int index) {
@@ -569,7 +575,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>removeAll()</code>.
+   * replaced by {@code removeAll()}.
    */
   @Deprecated
   public synchronized void clear() {
@@ -607,8 +613,8 @@ public class List extends Component implements ItemSelectable {
    * only selected item in the list, the list is set to have no selection.
    *
    * @param position the index of the item to delete
-   * @throws ArrayIndexOutOfBoundsException if the <code>position</code> is less than 0 or
-   *                                        greater than <code>getItemCount()-1</code>
+   * @throws ArrayIndexOutOfBoundsException if the {@code position} is less than 0 or
+   *                                        greater than {@code getItemCount()-1}
    * @see #add(String, int)
    * @since JDK1.1
    */
@@ -617,8 +623,8 @@ public class List extends Component implements ItemSelectable {
   }
 
   /**
-   * @deprecated replaced by <code>remove(String)</code>
-   * and <code>remove(int)</code>.
+   * @deprecated replaced by {@code remove(String)}
+   * and {@code remove(int)}.
    */
   @Deprecated
   public void delItem(int position) {
@@ -630,14 +636,14 @@ public class List extends Component implements ItemSelectable {
    *
    * @return the index of the selected item;
    * if no item is selected, or if multiple items are
-   * selected, <code>-1</code> is returned.
+   * selected, {@code -1} is returned.
    * @see #select
    * @see #deselect
    * @see #isIndexSelected
    */
   public synchronized int getSelectedIndex() {
-    int sel[] = getSelectedIndexes();
-    return (sel.length == 1) ? sel[0] : -1;
+    int[] sel = getSelectedIndexes();
+    return sel.length == 1 ? sel[0] : -1;
   }
 
   /**
@@ -662,14 +668,14 @@ public class List extends Component implements ItemSelectable {
    *
    * @return the selected item on the list;
    * if no item is selected, or if multiple items are
-   * selected, <code>null</code> is returned.
+   * selected, {@code null} is returned.
    * @see #select
    * @see #deselect
    * @see #isIndexSelected
    */
   public synchronized String getSelectedItem() {
     int index = getSelectedIndex();
-    return (index < 0) ? null : getItem(index);
+    return index < 0 ? null : getItem(index);
   }
 
   /**
@@ -682,8 +688,8 @@ public class List extends Component implements ItemSelectable {
    * @see #isIndexSelected
    */
   public synchronized String[] getSelectedItems() {
-    int sel[] = getSelectedIndexes();
-    String str[] = new String[sel.length];
+    int[] sel = getSelectedIndexes();
+    String[] str = new String[sel.length];
     for (int i = 0; i < sel.length; i++) {
       str[i] = getItem(sel[i]);
     }
@@ -693,12 +699,13 @@ public class List extends Component implements ItemSelectable {
   /**
    * Gets the selected items on this scrolling list in an array of Objects.
    *
-   * @return an array of <code>Object</code>s representing the
+   * @return an array of {@code Object}s representing the
    * selected items on this scrolling list;
    * if no item is selected, a zero-length array is returned.
    * @see #getSelectedItems
    * @see ItemSelectable
    */
+  @Override
   public Object[] getSelectedObjects() {
     return getSelectedItems();
   }
@@ -706,8 +713,8 @@ public class List extends Component implements ItemSelectable {
   /**
    * Adds the specified item listener to receive item events from
    * this list.  Item events are sent in response to user input, but not
-   * in response to calls to <code>select</code> or <code>deselect</code>.
-   * If listener <code>l</code> is <code>null</code>,
+   * in response to calls to {@code select} or {@code deselect}.
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
@@ -717,10 +724,11 @@ public class List extends Component implements ItemSelectable {
    * @see #getItemListeners
    * @see #select
    * @see #deselect
-   * @see java.awt.event.ItemEvent
-   * @see java.awt.event.ItemListener
+   * @see ItemEvent
+   * @see ItemListener
    * @since JDK1.1
    */
+  @Override
   public synchronized void addItemListener(ItemListener l) {
     if (l == null) {
       return;
@@ -732,7 +740,7 @@ public class List extends Component implements ItemSelectable {
   /**
    * Removes the specified item listener so that it no longer
    * receives item events from this list.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
@@ -740,10 +748,11 @@ public class List extends Component implements ItemSelectable {
    * @param l the item listener
    * @see #addItemListener
    * @see #getItemListeners
-   * @see java.awt.event.ItemEvent
-   * @see java.awt.event.ItemListener
+   * @see ItemEvent
+   * @see ItemListener
    * @since JDK1.1
    */
+  @Override
   public synchronized void removeItemListener(ItemListener l) {
     if (l == null) {
       return;
@@ -760,8 +769,8 @@ public class List extends Component implements ItemSelectable {
    * <p>Note that this method should be primarily used to
    * initially select an item in this component.
    * Programmatically calling this method will <i>not</i> trigger
-   * an <code>ItemEvent</code>.  The only way to trigger an
-   * <code>ItemEvent</code> is by user interaction.
+   * an {@code ItemEvent}.  The only way to trigger an
+   * {@code ItemEvent} is by user interaction.
    *
    * @param index the position of the item to select
    * @see #getSelectedItem
@@ -786,8 +795,8 @@ public class List extends Component implements ItemSelectable {
       synchronized (this) {
         boolean alreadySelected = false;
 
-        for (int i = 0; i < selected.length; i++) {
-          if (selected[i] == index) {
+        for (int aSelected : selected) {
+          if (aSelected == index) {
             alreadySelected = true;
             break;
           }
@@ -798,14 +807,14 @@ public class List extends Component implements ItemSelectable {
             selected = new int[1];
             selected[0] = index;
           } else {
-            int newsel[] = new int[selected.length + 1];
+            int[] newsel = new int[selected.length + 1];
             System.arraycopy(selected, 0, newsel, 0, selected.length);
             newsel[selected.length] = index;
             selected = newsel;
           }
         }
       }
-    } while (peer != this.peer);
+    } while (null != this.peer);
   }
 
   /**
@@ -825,14 +834,14 @@ public class List extends Component implements ItemSelectable {
   public synchronized void deselect(int index) {
     ListPeer peer = (ListPeer) this.peer;
     if (peer != null) {
-      if (isMultipleMode() || (getSelectedIndex() == index)) {
+      if (isMultipleMode() || getSelectedIndex() == index) {
         peer.deselect(index);
       }
     }
 
     for (int i = 0; i < selected.length; i++) {
       if (selected[i] == index) {
-        int newsel[] = new int[selected.length - 1];
+        int[] newsel = new int[selected.length - 1];
         System.arraycopy(selected, 0, newsel, 0, i);
         System.arraycopy(selected, i + 1, newsel, i, selected.length - (i + 1));
         selected = newsel;
@@ -846,8 +855,8 @@ public class List extends Component implements ItemSelectable {
    * selected.
    *
    * @param index the item to be checked
-   * @return <code>true</code> if the specified item has been
-   * selected; <code>false</code> otherwise
+   * @return {@code true} if the specified item has been
+   * selected; {@code false} otherwise
    * @see #select
    * @see #deselect
    * @since JDK1.1
@@ -858,13 +867,13 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>isIndexSelected(int)</code>.
+   * replaced by {@code isIndexSelected(int)}.
    */
   @Deprecated
   public boolean isSelected(int index) {
-    int sel[] = getSelectedIndexes();
-    for (int i = 0; i < sel.length; i++) {
-      if (sel[i] == index) {
+    int[] sel = getSelectedIndexes();
+    for (int aSel : sel) {
+      if (aSel == index) {
         return true;
       }
     }
@@ -873,7 +882,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * Gets the number of visible lines in this list.  Note that
-   * once the <code>List</code> has been created, this number
+   * once the {@code List} has been created, this number
    * will never change.
    *
    * @return the number of visible lines in this scrolling list
@@ -885,8 +894,8 @@ public class List extends Component implements ItemSelectable {
   /**
    * Determines whether this list allows multiple selections.
    *
-   * @return <code>true</code> if this list allows multiple
-   * selections; otherwise, <code>false</code>
+   * @return {@code true} if this list allows multiple
+   * selections; otherwise, {@code false}
    * @see #setMultipleMode
    * @since JDK1.1
    */
@@ -903,7 +912,7 @@ public class List extends Component implements ItemSelectable {
    * item will remain selected.  If no selected item has the
    * location cursor, all items will be deselected.
    *
-   * @param b if <code>true</code> then multiple selections
+   * @param b if {@code true} then multiple selections
    *          are allowed; otherwise, only one item from
    *          the list can be selected at once
    * @see #isMultipleMode
@@ -915,7 +924,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>isMultipleMode()</code>.
+   * replaced by {@code isMultipleMode()}.
    */
   @Deprecated
   public boolean allowsMultipleSelections() {
@@ -924,7 +933,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>setMultipleMode(boolean)</code>.
+   * replaced by {@code setMultipleMode(boolean)}.
    */
   @Deprecated
   public synchronized void setMultipleSelections(boolean b) {
@@ -939,7 +948,7 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * Gets the index of the item that was last made visible by
-   * the method <code>makeVisible</code>.
+   * the method {@code makeVisible}.
    *
    * @return the index of the item that was last made visible
    * @see #makeVisible
@@ -969,7 +978,7 @@ public class List extends Component implements ItemSelectable {
    * @param rows number of rows in the list
    * @return the preferred dimensions for displaying this scrolling list
    * given that the specified number of rows must be visible
-   * @see java.awt.Component#getPreferredSize
+   * @see Component#getPreferredSize
    * @since JDK1.1
    */
   public Dimension getPreferredSize(int rows) {
@@ -978,13 +987,13 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getPreferredSize(int)</code>.
+   * replaced by {@code getPreferredSize(int)}.
    */
   @Deprecated
   public Dimension preferredSize(int rows) {
     synchronized (getTreeLock()) {
       ListPeer peer = (ListPeer) this.peer;
-      return (peer != null) ? peer.getPreferredSize(rows) : super.preferredSize();
+      return peer != null ? peer.getPreferredSize(rows) : super.preferredSize();
     }
   }
 
@@ -995,7 +1004,7 @@ public class List extends Component implements ItemSelectable {
    * @param rows number of rows in the list
    * @return the minimum dimensions for displaying this scrolling list
    * given that the specified number of rows must be visible
-   * @see java.awt.Component#getMinimumSize
+   * @see Component#getMinimumSize
    * @since JDK1.1
    */
   public Dimension getMinimumSize(int rows) {
@@ -1004,13 +1013,13 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>getMinimumSize(int)</code>.
+   * replaced by {@code getMinimumSize(int)}.
    */
   @Deprecated
   public Dimension minimumSize(int rows) {
     synchronized (getTreeLock()) {
       ListPeer peer = (ListPeer) this.peer;
-      return (peer != null) ? peer.getMinimumSize(rows) : super.minimumSize();
+      return peer != null ? peer.getMinimumSize(rows) : super.minimumSize();
     }
   }
 
@@ -1018,13 +1027,13 @@ public class List extends Component implements ItemSelectable {
    * Returns an array of all the item listeners
    * registered on this list.
    *
-   * @return all of this list's <code>ItemListener</code>s
+   * @return all of this list's {@code ItemListener}s
    * or an empty array if no item
    * listeners are currently registered
    * @see #addItemListener
    * @see #removeItemListener
-   * @see java.awt.event.ItemEvent
-   * @see java.awt.event.ItemListener
+   * @see ItemEvent
+   * @see ItemListener
    * @since 1.4
    */
   public synchronized ItemListener[] getItemListeners() {
@@ -1037,7 +1046,7 @@ public class List extends Component implements ItemSelectable {
    * on a list item or types Enter when the list has the keyboard
    * focus.
    * <p>
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
@@ -1045,8 +1054,8 @@ public class List extends Component implements ItemSelectable {
    * @param l the action listener
    * @see #removeActionListener
    * @see #getActionListeners
-   * @see java.awt.event.ActionEvent
-   * @see java.awt.event.ActionListener
+   * @see ActionEvent
+   * @see ActionListener
    * @since JDK1.1
    */
   public synchronized void addActionListener(ActionListener l) {
@@ -1061,7 +1070,7 @@ public class List extends Component implements ItemSelectable {
    * Removes the specified action listener so that it no longer
    * receives action events from this list. Action events
    * occur when a user double-clicks on a list item.
-   * If listener <code>l</code> is <code>null</code>,
+   * If listener {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    * <p>Refer to <a href="doc-files/AWTThreadIssues.html#ListenersThreads"
    * >AWT Threading Issues</a> for details on AWT's threading model.
@@ -1069,8 +1078,8 @@ public class List extends Component implements ItemSelectable {
    * @param l the action listener
    * @see #addActionListener
    * @see #getActionListeners
-   * @see java.awt.event.ActionEvent
-   * @see java.awt.event.ActionListener
+   * @see ActionEvent
+   * @see ActionListener
    * @since JDK1.1
    */
   public synchronized void removeActionListener(ActionListener l) {
@@ -1084,13 +1093,13 @@ public class List extends Component implements ItemSelectable {
    * Returns an array of all the action listeners
    * registered on this list.
    *
-   * @return all of this list's <code>ActionListener</code>s
+   * @return all of this list's {@code ActionListener}s
    * or an empty array if no action
    * listeners are currently registered
    * @see #addActionListener
    * @see #removeActionListener
-   * @see java.awt.event.ActionEvent
-   * @see java.awt.event.ActionListener
+   * @see ActionEvent
+   * @see ActionListener
    * @since 1.4
    */
   public synchronized ActionListener[] getActionListeners() {
@@ -1100,25 +1109,25 @@ public class List extends Component implements ItemSelectable {
   /**
    * Processes item events occurring on this list by
    * dispatching them to any registered
-   * <code>ItemListener</code> objects.
+   * {@code ItemListener} objects.
    * <p>
    * This method is not called unless item events are
    * enabled for this component. Item events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>An <code>ItemListener</code> object is registered
-   * via <code>addItemListener</code>.
-   * <li>Item events are enabled via <code>enableEvents</code>.
+   * <li>An {@code ItemListener} object is registered
+   * via {@code addItemListener}.
+   * <li>Item events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the item event
-   * @see java.awt.event.ItemEvent
-   * @see java.awt.event.ItemListener
+   * @see ItemEvent
+   * @see ItemListener
    * @see #addItemListener
-   * @see java.awt.Component#enableEvents
+   * @see Component#enableEvents
    * @since JDK1.1
    */
   protected void processItemEvent(ItemEvent e) {
@@ -1131,25 +1140,25 @@ public class List extends Component implements ItemSelectable {
   /**
    * Processes action events occurring on this component
    * by dispatching them to any registered
-   * <code>ActionListener</code> objects.
+   * {@code ActionListener} objects.
    * <p>
    * This method is not called unless action events are
    * enabled for this component. Action events are enabled
    * when one of the following occurs:
    * <ul>
-   * <li>An <code>ActionListener</code> object is registered
-   * via <code>addActionListener</code>.
-   * <li>Action events are enabled via <code>enableEvents</code>.
+   * <li>An {@code ActionListener} object is registered
+   * via {@code addActionListener}.
+   * <li>Action events are enabled via {@code enableEvents}.
    * </ul>
-   * <p>Note that if the event parameter is <code>null</code>
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the action event
-   * @see java.awt.event.ActionEvent
-   * @see java.awt.event.ActionListener
+   * @see ActionEvent
+   * @see ActionListener
    * @see #addActionListener
-   * @see java.awt.Component#enableEvents
+   * @see Component#enableEvents
    * @since JDK1.1
    */
   protected void processActionEvent(ActionEvent e) {
@@ -1184,24 +1193,24 @@ public class List extends Component implements ItemSelectable {
 
   /**
    * Writes default serializable fields to stream.  Writes
-   * a list of serializable <code>ItemListeners</code>
-   * and <code>ActionListeners</code> as optional data.
+   * a list of serializable {@code ItemListeners}
+   * and {@code ActionListeners} as optional data.
    * The non-serializable listeners are detected and
    * no attempt is made to serialize them.
    *
-   * @param s the <code>ObjectOutputStream</code> to write
-   * @serialData <code>null</code> terminated sequence of 0
-   * or more pairs; the pair consists of a <code>String</code>
-   * and an <code>Object</code>; the <code>String</code>
+   * @param s the {@code ObjectOutputStream} to write
+   * @serialData {@code null} terminated sequence of 0
+   * or more pairs; the pair consists of a {@code String}
+   * and an {@code Object}; the {@code String}
    * indicates the type of object and is one of the
    * following:
-   * <code>itemListenerK</code> indicating an
-   * <code>ItemListener</code> object;
-   * <code>actionListenerK</code> indicating an
-   * <code>ActionListener</code> object
+   * {@code itemListenerK} indicating an
+   * {@code ItemListener} object;
+   * {@code actionListenerK} indicating an
+   * {@code ActionListener} object
    * @see AWTEventMulticaster#save(ObjectOutputStream, String, EventListener)
-   * @see java.awt.Component#itemListenerK
-   * @see java.awt.Component#actionListenerK
+   * @see Component#itemListenerK
+   * @see Component#actionListenerK
    * @see #readObject(ObjectInputStream)
    */
   private void writeObject(ObjectOutputStream s) throws IOException {
@@ -1219,20 +1228,20 @@ public class List extends Component implements ItemSelectable {
   }
 
   /**
-   * Reads the <code>ObjectInputStream</code> and if it
-   * isn't <code>null</code> adds a listener to receive
+   * Reads the {@code ObjectInputStream} and if it
+   * isn't {@code null} adds a listener to receive
    * both item events and action events (as specified
    * by the key stored in the stream) fired by the
-   * <code>List</code>.
+   * {@code List}.
    * Unrecognized keys or values will be ignored.
    *
-   * @param s the <code>ObjectInputStream</code> to write
+   * @param s the {@code ObjectInputStream} to write
    * @throws HeadlessException if
-   *                           <code>GraphicsEnvironment.isHeadless</code> returns
-   *                           <code>true</code>
+   *                           {@code GraphicsEnvironment.isHeadless} returns
+   *                           {@code true}
    * @see #removeItemListener(ItemListener)
    * @see #addItemListener(ItemListener)
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    * @see #writeObject(ObjectOutputStream)
    */
   private void readObject(ObjectInputStream s)
@@ -1245,9 +1254,9 @@ public class List extends Component implements ItemSelectable {
       String key = ((String) keyOrNull).intern();
 
       if (itemListenerK == key) {
-        addItemListener((ItemListener) (s.readObject()));
+        addItemListener((ItemListener) s.readObject());
       } else if (actionListenerK == key) {
-        addActionListener((ActionListener) (s.readObject()));
+        addActionListener((ActionListener) s.readObject());
       } else // skip value for unrecognized key
       {
         s.readObject();

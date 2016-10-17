@@ -29,10 +29,10 @@
   @run main CtorTest
 */
 
-/**
- * CtorRobot.java
- *
- * summary: creates Robot using one parameter constructor
+/*
+  CtorRobot.java
+
+  summary: creates Robot using one parameter constructor
  */
 
 import java.awt.*;
@@ -40,7 +40,7 @@ import java.awt.event.*;
 
 import sun.awt.SunToolkit;
 
-public class CtorTest
+public final class CtorTest
 {
     public static void main(String []s) throws Exception
     {

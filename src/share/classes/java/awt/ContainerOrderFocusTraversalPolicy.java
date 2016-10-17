@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,18 +34,18 @@ import java.util.List;
  * of child Components in a Container. From a particular focus cycle root, the
  * policy makes a pre-order traversal of the Component hierarchy, and traverses
  * a Container's children according to the ordering of the array returned by
- * <code>Container.getComponents()</code>. Portions of the hierarchy that are
+ * {@code Container.getComponents()}. Portions of the hierarchy that are
  * not visible and displayable will not be searched.
  * <p>
  * By default, ContainerOrderFocusTraversalPolicy implicitly transfers focus
  * down-cycle. That is, during normal forward focus traversal, the Component
  * traversed after a focus cycle root will be the focus-cycle-root's default
  * Component to focus. This behavior can be disabled using the
- * <code>setImplicitDownCycleTraversal</code> method.
+ * {@code setImplicitDownCycleTraversal} method.
  * <p>
  * By default, methods of this class will return a Component only if it is
  * visible, displayable, enabled, and focusable. Subclasses can modify this
- * behavior by overriding the <code>accept</code> method.
+ * behavior by overriding the {@code accept} method.
  * <p>
  * This policy takes into account <a
  * href="doc-files/FocusSpec.html#FocusTraversalPolicyProviders">focus traversal
@@ -57,14 +58,14 @@ import java.util.List;
  * @since 1.4
  */
 public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
-    implements java.io.Serializable {
+    implements Serializable {
   private static final String TAG = "CtnrOrderFocusTravPol";
   /*
    * JDK 1.4 serialVersionUID
    */
   private static final long serialVersionUID = 486933713763926351L;
-  final private int FORWARD_TRAVERSAL = 0;
-  final private int BACKWARD_TRAVERSAL = 1;
+  private final int FORWARD_TRAVERSAL = 0;
+  private final int BACKWARD_TRAVERSAL = 1;
   private boolean implicitDownCycleTraversal = true;
 
   /**
@@ -79,8 +80,8 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * that they need to invoke getFirstComponent or getLastComponent, the
    * list should be reused if possible.
    */
-  transient private Container cachedRoot;
-  transient private List<Component> cachedCycle;
+  private transient Container cachedRoot;
+  private transient List<Component> cachedCycle;
 
   /*
    * We suppose to use getFocusTraversalCycle & getComponentIndex methods in order
@@ -99,7 +100,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    */
     /*protected*/
   private List<Component> getFocusTraversalCycle(Container aContainer) {
-    List<Component> cycle = new ArrayList<Component>();
+    List<Component> cycle = new ArrayList<>();
     enumerateCycle(aContainer, cycle);
     return cycle;
   }
@@ -117,8 +118,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
     cycle.add(container);
 
     Component[] components = container.getComponents();
-    for (int i = 0; i < components.length; i++) {
-      Component comp = components[i];
+    for (Component comp : components) {
       if (comp instanceof Container) {
         Container cont = (Container) comp;
 
@@ -163,7 +163,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
         if (getImplicitDownCycleTraversal()) {
           retComp = cont.getFocusTraversalPolicy().getDefaultComponent(cont);
 
-          if (retComp != null && true) {
+          if (retComp != null) {
             Log.d(TAG, "### Transfered focus down-cycle to " + retComp +
                 " in the focus cycle root " + cont);
           }
@@ -171,11 +171,11 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
           return null;
         }
       } else if (cont.isFocusTraversalPolicyProvider()) {
-        retComp = (traversalDirection == FORWARD_TRAVERSAL ? cont
+        retComp = traversalDirection == FORWARD_TRAVERSAL ? cont
             .getFocusTraversalPolicy()
-            .getDefaultComponent(cont) : cont.getFocusTraversalPolicy().getLastComponent(cont));
+            .getDefaultComponent(cont) : cont.getFocusTraversalPolicy().getLastComponent(cont);
 
-        if (retComp != null && true) {
+        if (retComp != null) {
           Log.d(TAG, "### Transfered focus to " + retComp + " in the FTP provider " + cont);
         }
       }
@@ -191,7 +191,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * focus down-cycle. That is, during normal forward focus traversal, the
    * Component traversed after a focus cycle root will be the focus-cycle-
    * root's default Component to focus. This behavior can be disabled using
-   * the <code>setImplicitDownCycleTraversal</code> method.
+   * the {@code setImplicitDownCycleTraversal} method.
    * <p>
    * If aContainer is <a href="doc-files/FocusSpec.html#FocusTraversalPolicyProviders">focus
    * traversal policy provider</a>, the focus is always transferred down-cycle.
@@ -206,6 +206,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    *                                  if either aContainer or
    *                                  aComponent is null
    */
+  @Override
   public Component getComponentAfter(Container aContainer, Component aComponent) {
     Log.d(TAG, "### Searching in " + aContainer + " for component after " + aComponent);
 
@@ -215,7 +216,8 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
     if (!aContainer.isFocusTraversalPolicyProvider() && !aContainer.isFocusCycleRoot()) {
       throw new IllegalArgumentException(
           "aContainer should be focus cycle root or focus traversal policy provider");
-    } else if (aContainer.isFocusCycleRoot() && !aComponent.isFocusCycleRoot(aContainer)) {
+    }
+    if (aContainer.isFocusCycleRoot() && !aComponent.isFocusCycleRoot(aContainer)) {
       throw new IllegalArgumentException("aContainer is not a focus cycle root of aComponent");
     }
 
@@ -271,13 +273,13 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
       }
 
       if (aContainer.isFocusCycleRoot()) {
-        this.cachedRoot = aContainer;
-        this.cachedCycle = cycle;
+        cachedRoot = aContainer;
+        cachedCycle = cycle;
 
         comp = getFirstComponent(aContainer);
 
-        this.cachedRoot = null;
-        this.cachedCycle = null;
+        cachedRoot = null;
+        cachedCycle = null;
 
         return comp;
       }
@@ -301,6 +303,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    *                                  if either aContainer or
    *                                  aComponent is null
    */
+  @Override
   public Component getComponentBefore(Container aContainer, Component aComponent) {
     if (aContainer == null || aComponent == null) {
       throw new IllegalArgumentException("aContainer and aComponent cannot be null");
@@ -308,7 +311,8 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
     if (!aContainer.isFocusTraversalPolicyProvider() && !aContainer.isFocusCycleRoot()) {
       throw new IllegalArgumentException(
           "aContainer should be focus cycle root or focus traversal policy provider");
-    } else if (aContainer.isFocusCycleRoot() && !aComponent.isFocusCycleRoot(aContainer)) {
+    }
+    if (aContainer.isFocusCycleRoot() && !aComponent.isFocusCycleRoot(aContainer)) {
       throw new IllegalArgumentException("aContainer is not a focus cycle root of aComponent");
     }
 
@@ -321,9 +325,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
       // See if the component is inside of policy provider.
       Container provider = getTopmostProvider(aContainer, aComponent);
       if (provider != null) {
-        if (true) {
-          Log.d(TAG, "### Asking FTP " + provider + " for component after " + aComponent);
-        }
+        Log.d(TAG, "### Asking FTP " + provider + " for component after " + aComponent);
 
         // FTP knows how to find component after the given. We don't.
         FocusTraversalPolicy policy = provider.getFocusTraversalPolicy();
@@ -332,9 +334,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
         // Null result means that we overstepped the limit of the FTP's cycle.
         // In that case we must quit the cycle, otherwise return the component found.
         if (beforeComp != null) {
-          if (true) {
-            Log.d(TAG, "### FTP returned " + beforeComp);
-          }
+          Log.d(TAG, "### FTP returned " + beforeComp);
           return beforeComp;
         }
         aComponent = provider;
@@ -347,21 +347,17 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
 
       List<Component> cycle = getFocusTraversalCycle(aContainer);
 
-      if (true) {
-        Log.d(TAG, "### Cycle is " + cycle + ", component is " + aComponent);
-      }
+      Log.d(TAG, "### Cycle is " + cycle + ", component is " + aComponent);
 
       int index = getComponentIndex(cycle, aComponent);
 
       if (index < 0) {
-        if (true) {
-          Log.d(TAG, "### Didn't find component " + aComponent + " in a cycle " + aContainer);
-        }
+        Log.d(TAG, "### Didn't find component " + aComponent + " in a cycle " + aContainer);
         return getLastComponent(aContainer);
       }
 
-      Component comp = null;
-      Component tryComp = null;
+      Component comp;
+      Component tryComp;
 
       for (index--; index >= 0; index--) {
         comp = cycle.get(index);
@@ -374,13 +370,13 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
       }
 
       if (aContainer.isFocusCycleRoot()) {
-        this.cachedRoot = aContainer;
-        this.cachedCycle = cycle;
+        cachedRoot = aContainer;
+        cachedCycle = cycle;
 
         comp = getLastComponent(aContainer);
 
-        this.cachedRoot = null;
-        this.cachedCycle = null;
+        cachedRoot = null;
+        cachedCycle = null;
 
         return comp;
       }
@@ -399,12 +395,11 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * or null if no suitable Component can be found
    * @throws IllegalArgumentException if aContainer is null
    */
+  @Override
   public Component getFirstComponent(Container aContainer) {
     List<Component> cycle;
 
-    if (true) {
-      Log.d(TAG, "### Getting first component in " + aContainer);
-    }
+    Log.d(TAG, "### Getting first component in " + aContainer);
     if (aContainer == null) {
       throw new IllegalArgumentException("aContainer cannot be null");
     }
@@ -415,21 +410,13 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
         return null;
       }
 
-      if (this.cachedRoot == aContainer) {
-        cycle = this.cachedCycle;
-      } else {
-        cycle = getFocusTraversalCycle(aContainer);
-      }
+      cycle = cachedRoot == aContainer ? cachedCycle : getFocusTraversalCycle(aContainer);
 
-      if (cycle.size() == 0) {
-        if (true) {
-          Log.d(TAG, "### Cycle is empty");
-        }
+      if (cycle.isEmpty()) {
+        Log.d(TAG, "### Cycle is empty");
         return null;
       }
-      if (true) {
-        Log.d(TAG, "### Cycle is " + cycle);
-      }
+      Log.d(TAG, "### Cycle is " + cycle);
 
       for (Component comp : cycle) {
         if (accept(comp)) {
@@ -454,11 +441,10 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * or null if no suitable Component can be found
    * @throws IllegalArgumentException if aContainer is null
    */
+  @Override
   public Component getLastComponent(Container aContainer) {
     List<Component> cycle;
-    if (true) {
-      Log.d(TAG, "### Getting last component in " + aContainer);
-    }
+    Log.d(TAG, "### Getting last component in " + aContainer);
 
     if (aContainer == null) {
       throw new IllegalArgumentException("aContainer cannot be null");
@@ -470,21 +456,13 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
         return null;
       }
 
-      if (this.cachedRoot == aContainer) {
-        cycle = this.cachedCycle;
-      } else {
-        cycle = getFocusTraversalCycle(aContainer);
-      }
+      cycle = cachedRoot == aContainer ? cachedCycle : getFocusTraversalCycle(aContainer);
 
-      if (cycle.size() == 0) {
-        if (true) {
-          Log.d(TAG, "### Cycle is empty");
-        }
+      if (cycle.isEmpty()) {
+        Log.d(TAG, "### Cycle is empty");
         return null;
       }
-      if (true) {
-        Log.d(TAG, "### Cycle is " + cycle);
-      }
+      Log.d(TAG, "### Cycle is " + cycle);
 
       for (int i = cycle.size() - 1; i >= 0; i--) {
         Component comp = cycle.get(i);
@@ -505,7 +483,7 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * Returns the default Component to focus. This Component will be the first
    * to receive focus when traversing down into a new focus traversal cycle
    * rooted at aContainer. The default implementation of this method
-   * returns the same Component as <code>getFirstComponent</code>.
+   * returns the same Component as {@code getFirstComponent}.
    *
    * @param aContainer the focus cycle root or focus traversal policy provider whose default
    *                   Component is to be returned
@@ -514,15 +492,16 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    * @throws IllegalArgumentException if aContainer is null
    * @see #getFirstComponent
    */
+  @Override
   public Component getDefaultComponent(Container aContainer) {
     return getFirstComponent(aContainer);
   }
 
   /**
    * Returns whether this ContainerOrderFocusTraversalPolicy transfers focus
-   * down-cycle implicitly. If <code>true</code>, during normal forward focus
+   * down-cycle implicitly. If {@code true}, during normal forward focus
    * traversal, the Component traversed after a focus cycle root will be the
-   * focus-cycle-root's default Component to focus. If <code>false</code>,
+   * focus-cycle-root's default Component to focus. If {@code false},
    * the next Component in the focus traversal cycle rooted at the specified
    * focus cycle root will be traversed instead.
    *
@@ -537,12 +516,12 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
 
   /**
    * Sets whether this ContainerOrderFocusTraversalPolicy transfers focus
-   * down-cycle implicitly. If <code>true</code>, during normal forward focus
+   * down-cycle implicitly. If {@code true}, during normal forward focus
    * traversal, the Component traversed after a focus cycle root will be the
-   * focus-cycle-root's default Component to focus. If <code>false</code>,
+   * focus-cycle-root's default Component to focus. If {@code false},
    * the next Component in the focus traversal cycle rooted at the specified
    * focus cycle root will be traversed instead. The default value for this
-   * property is <code>true</code>.
+   * property is {@code true}.
    *
    * @param implicitDownCycleTraversal whether this
    *                                   ContainerOrderFocusTraversalPolicy transfers focus down-cycle
@@ -561,8 +540,8 @@ public class ContainerOrderFocusTraversalPolicy extends FocusTraversalPolicy
    *
    * @param aComponent the Component whose fitness as a focus owner is to
    *                   be tested
-   * @return <code>true</code> if aComponent is visible, displayable,
-   * enabled, and focusable; <code>false</code> otherwise
+   * @return {@code true} if aComponent is visible, displayable,
+   * enabled, and focusable; {@code false} otherwise
    */
   protected boolean accept(Component aComponent) {
     if (!aComponent.canBeFocusOwner()) {

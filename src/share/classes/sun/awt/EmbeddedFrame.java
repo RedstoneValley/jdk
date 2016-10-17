@@ -25,7 +25,6 @@
 
 package sun.awt;
 
-import java.applet.Applet;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
 import java.awt.Container;
@@ -45,6 +44,7 @@ import java.awt.peer.ComponentPeer;
 import java.awt.peer.FramePeer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -75,8 +75,8 @@ public abstract class EmbeddedFrame extends Frame
   protected static final boolean BACKWARD = false;
   // JDK 1.1 compatibility
   private static final long serialVersionUID = 2967042741780317130L;
+  private final boolean supportsXEmbed;
   private boolean isCursorAllowed = true;
-  private boolean supportsXEmbed = false;
   private KeyboardFocusManager appletKFM;
 
   protected EmbeddedFrame(boolean supportsXEmbed) {
@@ -116,12 +116,9 @@ public abstract class EmbeddedFrame extends Frame
     Container parent = comp.getParent();
     Applet applet = null;
     while (parent != null && !(parent instanceof EmbeddedFrame)) {
-      if (parent instanceof Applet) {
-        applet = (Applet) parent;
-      }
       parent = parent.getParent();
     }
-    return parent == null ? null : applet;
+    return parent == null ? null : null;
   }
 
   public boolean supportsXEmbed() {
@@ -131,22 +128,24 @@ public abstract class EmbeddedFrame extends Frame
   /**
    * Block introspection of a parent window by this child.
    */
+  @Override
   public Container getParent() {
     return null;
   }
 
+  @Override
   public Cursor getCursor() {
-    return (isCursorAllowed) ? super.getCursor()
-        : Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+    return isCursorAllowed ? super.getCursor() : Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
   }
 
   /**
    * Needed to track which KeyboardFocusManager is current. We want to avoid memory
    * leaks, so when KFM stops being current, we remove ourselves as listeners.
    */
+  @Override
   public void propertyChange(PropertyChangeEvent evt) {
     // We don't handle any other properties. Skip it.
-    if (!evt.getPropertyName().equals("managingFocus")) {
+    if (!"managingFocus".equals(evt.getPropertyName())) {
       return;
     }
 
@@ -206,6 +205,7 @@ public abstract class EmbeddedFrame extends Frame
    * from DefaultKeyboardFocusManager.processKeyEvent with some minor
    * modifications.
    */
+  @Override
   public boolean dispatchKeyEvent(KeyEvent e) {
 
     Container currentRoot = AWTAccessor
@@ -275,20 +275,17 @@ public abstract class EmbeddedFrame extends Frame
    * @return true, if the EmbeddedFrame wants to get focus, false otherwise.
    */
   public boolean traverseIn(boolean direction) {
-    Component comp = null;
+    Component comp;
 
-    if (direction == FORWARD) {
-      comp = getFocusTraversalPolicy().getFirstComponent(this);
-    } else {
-      comp = getFocusTraversalPolicy().getLastComponent(this);
-    }
+    comp = direction == FORWARD ? getFocusTraversalPolicy().getFirstComponent(this)
+        : getFocusTraversalPolicy().getLastComponent(this);
     if (comp != null) {
       // comp.requestFocus(); - Leads to a hung.
 
       AWTAccessor.getKeyboardFocusManagerAccessor().setMostRecentFocusOwner(this, comp);
       synthesizeWindowActivation(true);
     }
-    return (null != comp);
+    return null != comp;
   }
 
   /**
@@ -318,6 +315,7 @@ public abstract class EmbeddedFrame extends Frame
    * reference to our EmbeddedFrame forever if the Frame is no longer in use, so we
    * add listeners in show() and remove them in hide().
    */
+  @Override
   @SuppressWarnings("deprecation")
   public void show() {
     if (appletKFM != null) {
@@ -332,6 +330,7 @@ public abstract class EmbeddedFrame extends Frame
    * reference to our EmbeddedFrame forever if the Frame is no longer in use, so we
    * add listeners in show() and remove them in hide().
    */
+  @Override
   @SuppressWarnings("deprecation")
   public void hide() {
     if (appletKFM != null) {
@@ -340,12 +339,15 @@ public abstract class EmbeddedFrame extends Frame
     super.hide();
   }
 
-  public void setIconImages(java.util.List<? extends Image> icons) {
+  @Override
+  public synchronized void setIconImages(List<? extends Image> icons) {
   }
 
+  @Override
   public void toFront() {
   }
 
+  @Override
   public void toBack() {
   }
 
@@ -353,12 +355,15 @@ public abstract class EmbeddedFrame extends Frame
    * Block modifying any frame attributes, since they aren't applicable
    * for EmbeddedFrames.
    */
+  @Override
   public void setTitle(String title) {
   }
 
+  @Override
   public void setIconImage(Image image) {
   }
 
+  @Override
   @SuppressWarnings("deprecation")
   public void addNotify() {
     synchronized (getTreeLock()) {
@@ -369,20 +374,22 @@ public abstract class EmbeddedFrame extends Frame
     }
   }
 
+  @Override
   public void setMenuBar(MenuBar mb) {
   }
 
+  @Override
   public boolean isResizable() {
     return true;
   }
 
+  @Override
   public void setResizable(boolean resizable) {
   }
 
+  @Override
   public void remove(MenuComponent m) {
   }
-
-  ;
 
   public boolean isCursorAllowed() {
     return isCursorAllowed;
@@ -396,17 +403,17 @@ public abstract class EmbeddedFrame extends Frame
   }
 
   @SuppressWarnings("deprecation")
-  protected void setPeer(final ComponentPeer p) {
-    AWTAccessor.getComponentAccessor().setPeer(EmbeddedFrame.this, p);
+  protected void setPeer(ComponentPeer p) {
+    AWTAccessor.getComponentAccessor().setPeer(this, p);
   }
 
   /**
    * Synthesize native message to activate or deactivate EmbeddedFrame window
-   * depending on the value of parameter <code>b</code>.
+   * depending on the value of parameter {@code b}.
    * Peers should override this method if they are to implement
    * this functionality.
    *
-   * @param doActivate if <code>true</code>, activates the window;
+   * @param doActivate if {@code true}, activates the window;
    *                   otherwise, deactivates the window
    */
   public void synthesizeWindowActivation(boolean doActivate) {
@@ -414,7 +421,7 @@ public abstract class EmbeddedFrame extends Frame
 
   /**
    * Moves this embedded frame to a new location. The top-left corner of
-   * the new location is specified by the <code>x</code> and <code>y</code>
+   * the new location is specified by the {@code x} and {@code y}
    * parameters relative to the native parent component.
    * <p>
    * setLocation() and setBounds() for EmbeddedFrame really don't move it
@@ -433,7 +440,7 @@ public abstract class EmbeddedFrame extends Frame
    *
    * @param x the new <i>x</i>-coordinate relative to the parent component
    * @param y the new <i>y</i>-coordinate relative to the parent component
-   * @see java.awt.Component#setLocation
+   * @see Component#setLocation
    * @see #getLocationPrivate
    * @see #setBoundsPrivate
    * @see #getBoundsPrivate
@@ -463,7 +470,7 @@ public abstract class EmbeddedFrame extends Frame
    * </p>
    *
    * @return a point indicating this embedded frame's top-left corner
-   * @see java.awt.Component#getLocation
+   * @see Component#getLocation
    * @see #setLocationPrivate
    * @see #setBoundsPrivate
    * @see #getBoundsPrivate
@@ -476,9 +483,9 @@ public abstract class EmbeddedFrame extends Frame
 
   /**
    * Moves and resizes this embedded frame. The new location of the top-left
-   * corner is specified by <code>x</code> and <code>y</code> parameters
+   * corner is specified by {@code x} and {@code y} parameters
    * relative to the native parent component. The new size is specified by
-   * <code>width</code> and <code>height</code>.
+   * {@code width} and {@code height}.
    * <p>
    * setLocation() and setBounds() for EmbeddedFrame really don't move it
    * within the native parent. These methods always put embedded frame to
@@ -496,9 +503,9 @@ public abstract class EmbeddedFrame extends Frame
    *
    * @param x      the new <i>x</i>-coordinate relative to the parent component
    * @param y      the new <i>y</i>-coordinate relative to the parent component
-   * @param width  the new <code>width</code> of this embedded frame
-   * @param height the new <code>height</code> of this embedded frame
-   * @see java.awt.Component#setBounds
+   * @param width  the new {@code width} of this embedded frame
+   * @param height the new {@code height} of this embedded frame
+   * @see Component#setBounds
    * @see #setLocationPrivate
    * @see #getLocationPrivate
    * @see #getBoundsPrivate
@@ -506,7 +513,7 @@ public abstract class EmbeddedFrame extends Frame
    */
   @SuppressWarnings("deprecation")
   protected void setBoundsPrivate(int x, int y, int width, int height) {
-    final FramePeer peer = (FramePeer) getPeer();
+    FramePeer peer = (FramePeer) getPeer();
     if (peer != null) {
       peer.setBoundsPrivate(x, y, width, height);
     }
@@ -531,7 +538,7 @@ public abstract class EmbeddedFrame extends Frame
    * </p>
    *
    * @return a rectangle indicating this embedded frame's bounds
-   * @see java.awt.Component#getBounds
+   * @see Component#getBounds
    * @see #setLocationPrivate
    * @see #getLocationPrivate
    * @see #setBoundsPrivate
@@ -539,12 +546,8 @@ public abstract class EmbeddedFrame extends Frame
    */
   @SuppressWarnings("deprecation")
   protected Rectangle getBoundsPrivate() {
-    final FramePeer peer = (FramePeer) getPeer();
-    if (peer != null) {
-      return peer.getBoundsPrivate();
-    } else {
-      return getBounds();
-    }
+    FramePeer peer = (FramePeer) getPeer();
+    return peer != null ? peer.getBoundsPrivate() : getBounds();
   }
 
   public abstract void registerAccelerator(AWTKeyStroke stroke);
@@ -560,69 +563,92 @@ public abstract class EmbeddedFrame extends Frame
   }
 
   private static class NullEmbeddedFramePeer extends NullComponentPeer implements FramePeer {
+    NullEmbeddedFramePeer() {
+    }
+
+    @Override
     public void setTitle(String title) {
     }
 
+    @Override
     public void setMenuBar(MenuBar mb) {
     }
 
+    @Override
     public void setResizable(boolean resizeable) {
     }
 
+    @Override
     public int getState() {
       return Frame.NORMAL;
     }
 
+    @Override
     public void setState(int state) {
     }
 
+    @Override
     public void setMaximizedBounds(Rectangle b) {
     }
 
+    @Override
     public void setBoundsPrivate(int x, int y, int width, int height) {
       setBounds(x, y, width, height, SET_BOUNDS);
     }
 
+    @Override
     public Rectangle getBoundsPrivate() {
       return getBounds();
     }
 
+    @Override
     public void emulateActivation(boolean activate) {
     }
 
     public void setIconImage(Image im) {
     }
 
+    @Override
     public void toFront() {
     }
 
+    @Override
     public void toBack() {
     }
 
+    @Override
     public void updateAlwaysOnTopState() {
     }
 
+    @Override
     public void updateFocusableWindowState() {
     }
 
+    @Override
     public void setModalBlocked(Dialog blocker, boolean blocked) {
     }
 
+    @Override
     public void updateMinimumSize() {
     }
 
+    @Override
     public void updateIconImages() {
     }
 
+    @Override
     public void setOpacity(float opacity) {
     }
 
+    @Override
     public void setOpaque(boolean isOpaque) {
     }
 
+    @Override
     public void updateWindow() {
     }
 
+    @Override
     public void repositionSecurityWarning() {
     }
 
@@ -634,14 +660,12 @@ public abstract class EmbeddedFrame extends Frame
     }
 
     /**
-     * @see java.awt.peer.ContainerPeer#restack
      */
     public void restack() {
       throw new UnsupportedOperationException();
     }
 
     /**
-     * @see java.awt.peer.ContainerPeer#isRestackSupported
      */
     public boolean isRestackSupported() {
       return false;

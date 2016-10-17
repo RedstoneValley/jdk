@@ -33,11 +33,10 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class LayoutExtraGaps extends Frame {
-    final static int compCount = 30;
+    static final int compCount = 30;
+    private static final long serialVersionUID = -7926717872772156037L;
 
     public LayoutExtraGaps() {
         super("GridLayoutTest");
@@ -87,7 +86,7 @@ public class LayoutExtraGaps extends Frame {
         add(redPanel);
         add(blackPanel);
         pack();
-        setSize((int)getPreferredSize().getWidth() + 50, (int)getPreferredSize().getHeight() + 50);
+        setSize((int) getPreferredSize().getWidth() + 50, (int) getPreferredSize().getHeight() + 50);
         setVisible(true);
 
         Util.waitForIdle(Util.createRobot());

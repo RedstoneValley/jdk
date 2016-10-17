@@ -49,10 +49,10 @@ package java.awt.font;
 
 class TextJustifier {
   public static final int MAX_PRIORITY = 3;
-  static boolean DEBUG = false;
-  private GlyphJustificationInfo[] info;
-  private int start;
-  private int limit;
+  static boolean DEBUG;
+  private final GlyphJustificationInfo[] info;
+  private final int start;
+  private final int limit;
 
   /**
    * Initialize the justifier with an array of infos corresponding to each
@@ -83,7 +83,7 @@ class TextJustifier {
    * Delta should be positive to expand the line, and negative to compress it.
    */
   public float[] justify(float delta) {
-    float[] deltas = new float[info.length * 2];
+    float[] deltas = new float[(info.length << 1)];
 
     boolean grow = delta > 0;
 
@@ -151,7 +151,7 @@ class TextJustifier {
       if (!grow) {
         gslimit = -gslimit; // negative for negative deltas
       }
-      boolean hitLimit = (weight == 0) || (!lastPass && ((delta < 0) == (delta < gslimit)));
+      boolean hitLimit = weight == 0 || !lastPass && delta < 0 == delta < gslimit;
       boolean absorbing = hitLimit && absorbweight > 0;
 
       // predivide delta by weight
@@ -174,7 +174,7 @@ class TextJustifier {
       }
 
       // now allocate this based on ratio of weight to total weight
-      int n = start * 2;
+      int n = start << 1;
       for (int i = start; i < limit; i++) {
         GlyphJustificationInfo gi = info[i];
         if ((grow ? gi.growPriority : gi.shrinkPriority) == p) {

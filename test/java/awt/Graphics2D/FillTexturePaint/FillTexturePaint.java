@@ -37,9 +37,9 @@ import java.awt.image.VolatileImage;
  * @summary TexturePaint areas shouldn't separates.
  * @author Sergey Bylokhov
  */
-public class FillTexturePaint {
+public final class FillTexturePaint {
 
-    private static TexturePaint shape;
+    private static final TexturePaint shape;
     private static final int size = 400;
 
     static {
@@ -51,7 +51,10 @@ public class FillTexturePaint {
         shape = new TexturePaint(bi, new Rectangle(0, 0, 50, 50));
     }
 
-    public static void main(final String[] args) {
+    private FillTexturePaint() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge =
                 GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsConfiguration gc =

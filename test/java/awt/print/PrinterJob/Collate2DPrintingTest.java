@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6362683 8012381
  * @summary Collation should work.
  * @run main/manual Collate2DPrintingTest
@@ -30,66 +30,63 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.print.*;
-import javax.print.attribute.standard.*;
-import javax.print.attribute.*;
-import javax.print.*;
 import java.io.*;
 
 public class Collate2DPrintingTest
     extends Frame implements Doc, Printable, ActionListener {
 
-        Button print2D = new Button("2D Print");
-        Button printMerlin = new Button("PrintService");
-        PrinterJob pj = PrinterJob.getPrinterJob();
-        PrintService defService = null;
-        HashPrintRequestAttributeSet prSet = new HashPrintRequestAttributeSet();
+  private static final long serialVersionUID = -7717564129069545724L;
+  final Button print2D = new Button("2D Print");
+        final Button printMerlin = new Button("PrintService");
+        final PrinterJob pj = PrinterJob.getPrinterJob();
+        PrintService defService;
+        final HashPrintRequestAttributeSet prSet = new HashPrintRequestAttributeSet();
 
     public Collate2DPrintingTest() {
 
         Panel butPanel = new Panel();
         butPanel.add(print2D);
         butPanel.add(printMerlin);
-        print2D.addActionListener(this);
-        printMerlin.addActionListener(this);
-        addWindowListener (new WindowAdapter() {
+      print2D.addActionListener(this);
+      printMerlin.addActionListener(this);
+      addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing (WindowEvent e) {
-                dispose();
+              dispose();
             }
         });
-        add("South", butPanel);
+      add(BorderLayout.SOUTH, butPanel);
 
-        defService = PrintServiceLookup.lookupDefaultPrintService();
+      defService = PrintServiceLookup.lookupDefaultPrintService();
         PrintService[] pservice;
         if (defService == null) {
             pservice = PrintServiceLookup.lookupPrintServices(null, null);
             if (pservice.length == 0) {
                 throw new RuntimeException("No printer found.  TEST ABORTED");
             }
-            defService = pservice[0];
+          defService = pservice[0];
         }
-        prSet.add(SheetCollate.COLLATED);
-        prSet.add(new Copies(2));
-        pj.setPrintable(Collate2DPrintingTest.this);
-        setSize(300, 200);
-        setVisible(true);
+      prSet.add(SheetCollate.COLLATED);
+      prSet.add(new Copies(2));
+      pj.setPrintable(this);
+      setSize(300, 200);
+      setVisible(true);
     }
 
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex)
           throws PrinterException {
         g.drawString("Page: " + pageIndex, 100, 100);
-        if (pageIndex == 2) {
-            return Printable.NO_SUCH_PAGE;
-        } else {
-            return Printable.PAGE_EXISTS;
-        }
+      return pageIndex == 2 ? Printable.NO_SUCH_PAGE : Printable.PAGE_EXISTS;
     }
 
+    @Override
     public void actionPerformed (ActionEvent ae) {
         try {
             if (ae.getSource() == print2D) {
                 if (pj.printDialog(prSet)) {
-                    pj.print(prSet);
+                  pj.print(prSet);
                 }
             } else {
                 DocPrintJob pj = defService.createPrintJob();
@@ -106,8 +103,7 @@ public class Collate2DPrintingTest
     }
 
     public DocFlavor getDocFlavor() {
-        DocFlavor flavor = DocFlavor.SERVICE_FORMATTED.PRINTABLE;
-        return flavor;
+      return DocFlavor.SERVICE_FORMATTED.PRINTABLE;
     }
 
     public Object getPrintData() {
@@ -137,7 +133,7 @@ public class Collate2DPrintingTest
 }
 
 
-class Sysout {
+final class Sysout {
    private static TestDialog dialog;
 
    public static void createDialogWithInstructions( String[] instructions )
@@ -181,9 +177,10 @@ class Sysout {
   */
 class TestDialog extends Dialog {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+  private static final long serialVersionUID = -175121528743417031L;
+  final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -191,10 +188,10 @@ class TestDialog extends Dialog {
       super( frame, name );
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-      add("Center", messageText);
+      add(BorderLayout.CENTER, messageText);
 
       pack();
 
@@ -210,36 +207,32 @@ class TestDialog extends Dialog {
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

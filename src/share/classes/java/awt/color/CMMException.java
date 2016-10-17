@@ -44,7 +44,9 @@ package java.awt.color;
  * This exception is thrown if the native CMM returns an error.
  */
 
-public class CMMException extends java.lang.RuntimeException {
+public class CMMException extends RuntimeException {
+
+  private static final long serialVersionUID = 5775558044142994965L;
 
   /**
    * Constructs a CMMException with the specified detail message.

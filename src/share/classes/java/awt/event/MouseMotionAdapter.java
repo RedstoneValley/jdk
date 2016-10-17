@@ -34,16 +34,16 @@ package java.awt.event;
  * (Many such events will be generated in a normal program.
  * To track clicks and other mouse events, use the MouseAdapter.)
  * <p>
- * Extend this class to create a <code>MouseEvent</code> listener
+ * Extend this class to create a {@code MouseEvent} listener
  * and override the methods for the events of interest. (If you implement the
- * <code>MouseMotionListener</code> interface, you have to define all of
+ * {@code MouseMotionListener} interface, you have to define all of
  * the methods in it. This abstract class defines null methods for them
  * all, so you can only have to define methods for events you care about.)
  * <p>
  * Create a listener object using the extended class and then register it with
- * a component using the component's <code>addMouseMotionListener</code>
+ * a component using the component's {@code addMouseMotionListener}
  * method. When the mouse is moved or dragged, the relevant method in the
- * listener object is invoked and the <code>MouseEvent</code> is passed to it.
+ * listener object is invoked and the {@code MouseEvent} is passed to it.
  *
  * @author Amy Fowler
  * @see MouseEvent
@@ -60,6 +60,7 @@ public abstract class MouseMotionAdapter implements MouseMotionListener {
    * released (regardless of whether the mouse position is within the
    * bounds of the component).
    */
+  @Override
   public void mouseDragged(MouseEvent e) {
   }
 
@@ -67,6 +68,7 @@ public abstract class MouseMotionAdapter implements MouseMotionListener {
    * Invoked when the mouse button has been moved on a component
    * (with no buttons no down).
    */
+  @Override
   public void mouseMoved(MouseEvent e) {
   }
 }

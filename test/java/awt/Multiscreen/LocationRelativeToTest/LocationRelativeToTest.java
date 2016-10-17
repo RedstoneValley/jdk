@@ -33,16 +33,14 @@ for different multiscreen configurations
 */
 
 import java.awt.*;
-import java.awt.event.*;
 
-import javax.swing.*;
-
-import test.java.awt.regtesthelpers.Util;
-
-public class LocationRelativeToTest
+public final class LocationRelativeToTest
 {
-    private static int FRAME_WIDTH = 400;
-    private static int FRAME_HEIGHT = 300;
+    private static final int FRAME_WIDTH = 400;
+    private static final int FRAME_HEIGHT = 300;
+
+    private LocationRelativeToTest() {
+    }
 
     public static void main(String[] args)
     {

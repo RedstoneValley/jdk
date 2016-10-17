@@ -30,9 +30,13 @@
 
 import java.awt.*;
 
-public class GE_init6 {
-    private static boolean passed = false;
-    public static void main(String[] args) {
+public final class GE_init6 {
+    private static boolean passed;
+
+  private GE_init6() {
+  }
+
+  public static void main(String[] args) {
          try {
              new Frame("Test3").setVisible(true);
          } catch (HeadlessException e){

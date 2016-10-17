@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4645692
  * @summary Verifies that SolveCubic doesn't miss any roots.
  * @run main SolveCubicTest
@@ -30,9 +30,12 @@
 
 import static java.awt.geom.CubicCurve2D.solveCubic;
 
-public class SolveCubicTest {
+public final class SolveCubicTest {
 
-    public static void main(String[] args) throws Exception {
+  private SolveCubicTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         double[] eqn = {0, 0, 1, 1};
         int numRoots = solveCubic(eqn, eqn);

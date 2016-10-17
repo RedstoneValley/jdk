@@ -39,10 +39,13 @@ import sun.awt.SunToolkit;
  * @run main SelectionInvisibleTest
  */
 
-public class SelectionInvisibleTest {
+public final class SelectionInvisibleTest {
 
     private static final String TEXT = "One Two Three Four Five Six Seven Eight Nine ";
     private static final String LAST_WORD = "Ten";
+
+    private SelectionInvisibleTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 

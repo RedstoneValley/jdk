@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.CardLayout;
@@ -56,7 +55,7 @@ import java.awt.event.ItemListener;
 @SuppressWarnings("serial")
 final class CardPanel extends Panel {
 
-  ActionListener listener;
+  final ActionListener listener;
 
   CardPanel(ActionListener actionListener) {
     listener = actionListener;
@@ -70,14 +69,14 @@ final class CardPanel extends Panel {
   }
 
   Panel create(LayoutManager layout) {
-    Button b = null;
+    Button b;
     Panel p = new Panel();
 
     p.setLayout(layout);
 
     b = new Button("one");
     b.addActionListener(listener);
-    p.add("North", b);
+    p.add(BorderLayout.NORTH, b);
 
     b = new Button("two");
     b.addActionListener(listener);
@@ -85,7 +84,7 @@ final class CardPanel extends Panel {
 
     b = new Button("three");
     b.addActionListener(listener);
-    p.add("South", b);
+    p.add(BorderLayout.SOUTH, b);
 
     b = new Button("four");
     b.addActionListener(listener);
@@ -93,11 +92,11 @@ final class CardPanel extends Panel {
 
     b = new Button("five");
     b.addActionListener(listener);
-    p.add("Center", b);
+    p.add(BorderLayout.CENTER, b);
 
     b = new Button("six");
     b.addActionListener(listener);
-    p.add("Center", b);
+    p.add(BorderLayout.CENTER, b);
 
     return p;
   }
@@ -111,15 +110,15 @@ final class CardPanel extends Panel {
 @SuppressWarnings("serial")
 public class CardTest extends Applet implements ActionListener, ItemListener {
 
-  CardPanel cards;
+  final CardPanel cards;
 
   @SuppressWarnings("LeakingThisInConstructor")
   public CardTest() {
     setLayout(new BorderLayout());
-    add("Center", cards = new CardPanel(this));
+    add(BorderLayout.CENTER, cards = new CardPanel(this));
     Panel p = new Panel();
     p.setLayout(new FlowLayout());
-    add("South", p);
+    add(BorderLayout.SOUTH, p);
 
     Button b = new Button("first");
     b.addActionListener(this);
@@ -148,20 +147,20 @@ public class CardTest extends Applet implements ActionListener, ItemListener {
     p.add(c);
   }
 
-  public static void main(String args[]) {
+  public static void main(String[] args) {
     Frame f = new Frame("CardTest");
     CardTest cardTest = new CardTest();
     cardTest.init();
     cardTest.start();
 
-    f.add("Center", cardTest);
+    f.add(BorderLayout.CENTER, cardTest);
     f.setSize(300, 300);
     f.setVisible(true);
   }
 
   @Override
   public void itemStateChanged(ItemEvent e) {
-    ((CardLayout) cards.getLayout()).show(cards, (String) (e.getItem()));
+    ((CardLayout) cards.getLayout()).show(cards, (String) e.getItem());
   }
 
   @Override

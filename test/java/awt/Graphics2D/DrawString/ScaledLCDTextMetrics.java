@@ -21,29 +21,32 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6685312
  * @summary Check advance of LCD text on a scaled graphics.
  */
 
-import javax.swing.*;
 import java.awt.*;
 import static java.awt.RenderingHints.*;
 
 public class ScaledLCDTextMetrics extends Component {
 
-    public static void main(String[] args) {
+  private static final long serialVersionUID = -3627077430346640046L;
+
+  public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add("Center", new ScaledLCDTextMetrics());
+        f.add(BorderLayout.CENTER, new ScaledLCDTextMetrics());
         f.pack();
         f.setVisible(true);
     }
 
+    @Override
     public Dimension getPreferredSize() {
       return new Dimension(200,100);
     }
+    @Override
     public void paint(Graphics g) {
        Graphics2D g2 = (Graphics2D)g;
 

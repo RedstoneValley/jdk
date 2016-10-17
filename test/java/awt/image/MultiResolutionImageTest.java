@@ -30,15 +30,14 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
-import javax.imageio.ImageIO;
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunHints;
 import java.awt.MediaTracker;
 import java.awt.geom.AffineTransform;
 import java.awt.image.ImageObserver;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JPanel;
 import sun.awt.SunToolkit;
 import sun.awt.image.MultiResolutionImage;
 
@@ -52,14 +51,17 @@ import sun.awt.image.MultiResolutionImage;
  * @run main MultiResolutionImageTest TOOLKIT_LOAD
  * @run main MultiResolutionImageTest TOOLKIT
  */
-public class MultiResolutionImageTest {
+public final class MultiResolutionImageTest {
 
     private static final int IMAGE_WIDTH = 300;
     private static final int IMAGE_HEIGHT = 200;
-    private static final Color COLOR_1X = Color.GREEN;
-    private static final Color COLOR_2X = Color.BLUE;
-    private static final String IMAGE_NAME_1X = "image.png";
-    private static final String IMAGE_NAME_2X = "image@2x.png";
+    static final Color COLOR_1X = Color.GREEN;
+    static final Color COLOR_2X = Color.BLUE;
+    private static final String IMAGE_NAME_1X = MultiResolutionToolkitImageTest.IMAGE_NAME_1X;
+    private static final String IMAGE_NAME_2X = MultiResolutionToolkitImageTest.IMAGE_NAME_2X;
+
+    private MultiResolutionImageTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -97,7 +99,7 @@ public class MultiResolutionImageTest {
     }
 
     static boolean checkOS() {
-        return OSInfo.getOSType() == OSInfo.OSType.MACOSX;
+        return OSInfo.getOSType() == OSType.MACOSX;
     }
 
     public static void testCustomMultiResolutionImage() {
@@ -184,7 +186,7 @@ public class MultiResolutionImageTest {
     static class MultiResolutionBufferedImage extends BufferedImage
             implements MultiResolutionImage {
 
-        Image highResolutionImage;
+        final Image highResolutionImage;
 
         public MultiResolutionBufferedImage() {
             super(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -197,13 +199,13 @@ public class MultiResolutionImageTest {
         void draw(Graphics graphics, float resolution) {
             Graphics2D g2 = (Graphics2D) graphics;
             g2.scale(resolution, resolution);
-            g2.setColor((resolution == 1) ? COLOR_1X : COLOR_2X);
+            g2.setColor(resolution == 1 ? COLOR_1X : COLOR_2X);
             g2.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
         }
 
         @Override
         public Image getResolutionVariant(int width, int height) {
-            return ((width <= getWidth() && height <= getHeight()))
+            return width <= getWidth() && height <= getHeight()
                     ? this : highResolutionImage;
         }
 
@@ -283,7 +285,7 @@ public class MultiResolutionImageTest {
 
     static class LoadImageObserver implements ImageObserver {
 
-        Image image;
+        final Image image;
 
         public LoadImageObserver(Image image) {
             this.image = image;
@@ -366,7 +368,7 @@ public class MultiResolutionImageTest {
             throw new RuntimeException("Error during image loading");
         }
 
-        final BufferedImage bufferedImage1x = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
+        BufferedImage bufferedImage1x = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
                 BufferedImage.TYPE_INT_RGB);
         Graphics2D g1x = (Graphics2D) bufferedImage1x.getGraphics();
         setImageScalingHint(g1x, false);
@@ -387,29 +389,26 @@ public class MultiResolutionImageTest {
             throw new RuntimeException("Error during scalable image loading");
         }
 
-        final BufferedImage bufferedImage2x = new BufferedImage(2 * IMAGE_WIDTH,
+        BufferedImage bufferedImage2x = new BufferedImage(2 * IMAGE_WIDTH,
                 2 * IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2x = (Graphics2D) bufferedImage2x.getGraphics();
         setImageScalingHint(g2x, enableImageScaling);
         g2x.drawImage(image, 0, 0, 2 * IMAGE_WIDTH, 2 * IMAGE_HEIGHT, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, null);
         checkColor(bufferedImage2x.getRGB(3 * IMAGE_WIDTH / 2, 3 * IMAGE_HEIGHT / 2), enableImageScaling);
 
-        if (!(image instanceof MultiResolutionImage)) {
-            throw new RuntimeException("Not a MultiResolutionImage");
-        }
 
         MultiResolutionImage multiResolutionImage = (MultiResolutionImage) image;
 
         Image image1x = multiResolutionImage.getResolutionVariant(IMAGE_WIDTH, IMAGE_HEIGHT);
         Image image2x = multiResolutionImage.getResolutionVariant(2 * IMAGE_WIDTH, 2 * IMAGE_HEIGHT);
 
-        if (image1x.getWidth(null) * 2 != image2x.getWidth(null)
-                || image1x.getHeight(null) * 2 != image2x.getHeight(null)) {
+        if (image1x.getWidth(null) << 1 != image2x.getWidth(null)
+                || image1x.getHeight(null) << 1 != image2x.getHeight(null)) {
             throw new RuntimeException("Wrong resolution variant size");
         }
     }
 
-    static void testToolkitImageObserver(final Image image) {
+    static void testToolkitImageObserver(Image image) {
 
         ImageObserver observer = new ImageObserver() {
 
@@ -429,7 +428,7 @@ public class MultiResolutionImageTest {
             }
         };
 
-        final BufferedImage bufferedImage2x = new BufferedImage(2 * IMAGE_WIDTH,
+        BufferedImage bufferedImage2x = new BufferedImage(2 * IMAGE_WIDTH,
                 2 * IMAGE_HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2x = (Graphics2D) bufferedImage2x.getGraphics();
         setImageScalingHint(g2x, true);
@@ -440,8 +439,8 @@ public class MultiResolutionImageTest {
 
     static void setImageScalingHint(Graphics2D g2d, boolean enableImageScaling) {
         g2d.setRenderingHint(SunHints.KEY_RESOLUTION_VARIANT, enableImageScaling
-                ? SunHints.VALUE_RESOLUTION_VARIANT_ON
-                : SunHints.VALUE_RESOLUTION_VARIANT_OFF);
+                ? SunHints.Value.VALUE_RESOLUTION_VARIANT_ON
+                : SunHints.Value.VALUE_RESOLUTION_VARIANT_OFF);
     }
 
     static void checkColor(int rgb, boolean isImageScaled) {
@@ -524,7 +523,10 @@ public class MultiResolutionImageTest {
     }
 
     private static boolean isValidPath(String path) {
-        return !path.isEmpty() && !path.endsWith("/") && !path.endsWith(".")
+        return !path.isEmpty() && !(path.length() > 0 && path.charAt(path.length() - 1) == '/')
+            && !(path.length() > 0
+                                                               && path.charAt(path.length() - 1)
+            == '.')
                 && !path.contains("@2x");
     }
 

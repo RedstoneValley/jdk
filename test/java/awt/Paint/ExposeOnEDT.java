@@ -35,8 +35,10 @@ import java.awt.*;
 public final class ExposeOnEDT {
 
     private static final Button buttonStub = new Button() {
+        private static final long serialVersionUID = -4743986035967015033L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             buttonPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -44,8 +46,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Canvas canvasStub = new Canvas() {
+        private static final long serialVersionUID = 5732646970257682437L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             canvasPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -53,8 +57,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Checkbox checkboxStub = new Checkbox() {
+        private static final long serialVersionUID = -41582990038994293L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             checkboxPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -62,8 +68,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Choice choiceStub = new Choice() {
+        private static final long serialVersionUID = -8759485038495261077L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             choicePainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -71,8 +79,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Component lwComponentStub = new Component() {
+        private static final long serialVersionUID = 7282716688496605431L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             lwPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -80,8 +90,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Container containerStub = new Container() {
+        private static final long serialVersionUID = 2200997310761766160L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             containerPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -89,8 +101,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Frame frame = new Frame() {
+        private static final long serialVersionUID = -6327440091782737735L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             super.paint(g);
             framePainted = true;
             if (!EventQueue.isDispatchThread()) {
@@ -99,8 +113,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Label labelStub = new Label() {
+        private static final long serialVersionUID = 7310712807759787263L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             labelPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -108,8 +124,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final List listStub = new List() {
+        private static final long serialVersionUID = 1359117189150937098L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             listPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -117,8 +135,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Panel panelStub = new Panel() {
+        private static final long serialVersionUID = -1583370072912567353L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             panelPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -126,8 +146,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final Scrollbar scrollbarStub = new Scrollbar() {
+        private static final long serialVersionUID = -4089405787449653471L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             scrollbarPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -135,8 +157,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final ScrollPane scrollPaneStub = new ScrollPane() {
+        private static final long serialVersionUID = 287842786390684915L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             scrollPanePainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -144,8 +168,10 @@ public final class ExposeOnEDT {
         }
     };
     private static final TextArea textAreaStub = new TextArea() {
+        private static final long serialVersionUID = -3354190101437831523L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             textAreaPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
@@ -153,30 +179,35 @@ public final class ExposeOnEDT {
         }
     };
     private static final TextField textFieldStub = new TextField() {
+        private static final long serialVersionUID = -725466496110884248L;
+
         @Override
-        public void paint(final Graphics g) {
+        public void paint(Graphics g) {
             textFieldPainted = true;
             if (!EventQueue.isDispatchThread()) {
                 throw new RuntimeException("Wrong thread");
             }
         }
     };
-    private static volatile boolean lwPainted;
-    private static volatile boolean buttonPainted;
-    private static volatile boolean canvasPainted;
-    private static volatile boolean checkboxPainted;
-    private static volatile boolean choicePainted;
-    private static volatile boolean containerPainted;
-    private static volatile boolean framePainted;
-    private static volatile boolean labelPainted;
-    private static volatile boolean listPainted;
-    private static volatile boolean panelPainted;
-    private static volatile boolean scrollbarPainted;
-    private static volatile boolean scrollPanePainted;
-    private static volatile boolean textAreaPainted;
-    private static volatile boolean textFieldPainted;
+    static volatile boolean lwPainted;
+    static volatile boolean buttonPainted;
+    static volatile boolean canvasPainted;
+    static volatile boolean checkboxPainted;
+    static volatile boolean choicePainted;
+    static volatile boolean containerPainted;
+    static volatile boolean framePainted;
+    static volatile boolean labelPainted;
+    static volatile boolean listPainted;
+    static volatile boolean panelPainted;
+    static volatile boolean scrollbarPainted;
+    static volatile boolean scrollPanePainted;
+    static volatile boolean textAreaPainted;
+    static volatile boolean textFieldPainted;
 
-    public static void main(final String[] args) throws Exception {
+    private ExposeOnEDT() {
+    }
+
+    public static void main(String[] args) throws Exception {
         //Frame initialisation
         frame.setLayout(new GridLayout());
         frame.setSize(new Dimension(200, 200));
@@ -282,7 +313,7 @@ public final class ExposeOnEDT {
         }
     }
 
-    private static void fail(final String message) {
+    private static void fail(String message) {
         cleanup();
         throw new RuntimeException(message);
     }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6358034
  * @bug 6568560
  * @summary Tests that no exception is thrown when display mode is changed
@@ -39,17 +39,25 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 
-public class UninitializedDisplayModeChangeTest {
-    public static volatile boolean failed = false;
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
+public final class UninitializedDisplayModeChangeTest {
+    public static volatile boolean failed;
+
+    private UninitializedDisplayModeChangeTest() {
+    }
+
     public static void main(String[] args) {
         Toolkit.getDefaultToolkit();
         try {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
-                    Thread.currentThread().setDefaultUncaughtExceptionHandler(
-                        new Thread.UncaughtExceptionHandler() {
+                    Thread.setDefaultUncaughtExceptionHandler(
+                        new UncaughtExceptionHandler() {
+                            @Override
                             public void uncaughtException(Thread t,
                                                           Throwable e)
                             {
@@ -61,20 +69,18 @@ public class UninitializedDisplayModeChangeTest {
                     );
                 }
             });
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        } catch (InvocationTargetException ex) {
+        } catch (InterruptedException | InvocationTargetException ex) {
             ex.printStackTrace();
         }
 
         Process childProc;
         String classPath = System.getProperty("java.class.path" , ".");
-        String cmd = new String(System.getProperty("java.home") +
-                File.separator +
-                "bin" +
-                File.separator +
-                "java -cp " + classPath +
-                " DisplayModeChanger");
+        String cmd = System.getProperty("java.home") +
+            File.separator +
+            "bin" +
+            File.separator +
+            "java -cp " + classPath +
+            " DisplayModeChanger";
 
         System.out.println("Launching the display mode changer process");
         System.out.println("cmd="+cmd);
@@ -100,19 +106,20 @@ public class UninitializedDisplayModeChangeTest {
     }
 
     static class StreamProcessor extends Thread {
-        InputStream is;
-        String inputType;
+        final InputStream is;
+        final String inputType;
         StreamProcessor(String inputType, InputStream is) {
             this.inputType = inputType;
             this.is = is;
         }
+        @Override
         public void run() {
             try {
                 InputStreamReader isr = new InputStreamReader(is);
                 BufferedReader br = new BufferedReader(isr);
-                String line = null;
+                String line;
                 while ( (line = br.readLine()) != null) {
-                    System.out.println("Display Changer "+inputType+
+                    System.out.println("Display Changer "+ inputType +
                                        " output > " + line);
                 }
             } catch (IOException ioe) {

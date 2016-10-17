@@ -24,9 +24,12 @@
  */
 
 
-public class Exit {
+public final class Exit {
 
-    public static void main(String[] args) {
+  private Exit() {
+  }
+
+  public static void main(String[] args) {
         System.exit(0);
     }
 }

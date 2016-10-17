@@ -25,13 +25,15 @@
 
 package sun.awt.image;
 
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketPermission;
 import java.net.URL;
 import java.net.URLConnection;
-import sun.net.util.URLUtil;
+import java.security.Permission;
 
 public class URLImageSource extends InputStreamImageSource {
   URL url;
@@ -43,29 +45,28 @@ public class URLImageSource extends InputStreamImageSource {
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       try {
-        java.security.Permission perm = URLUtil.getConnectPermission(u);
+        Permission perm = URLUtil.getConnectPermission(u);
         if (perm != null) {
           try {
             sm.checkPermission(perm);
           } catch (SecurityException se) {
             // fallback to checkRead/checkConnect for pre 1.2
             // security managers
-            if ((perm instanceof java.io.FilePermission)
-                && perm.getActions().indexOf("read") != -1) {
+            if (perm instanceof FilePermission && perm.getActions().contains("read")) {
               sm.checkRead(perm.getName());
-            } else if ((perm instanceof java.net.SocketPermission)
-                && perm.getActions().indexOf("connect") != -1) {
+            } else if (perm instanceof SocketPermission
+                && perm.getActions().contains("connect")) {
               sm.checkConnect(u.getHost(), u.getPort());
             } else {
               throw se;
             }
           }
         }
-      } catch (java.io.IOException ioe) {
+      } catch (IOException ioe) {
         sm.checkConnect(u.getHost(), u.getPort());
       }
     }
-    this.url = u;
+    url = u;
   }
 
   public URLImageSource(String href) throws MalformedURLException {
@@ -81,6 +82,7 @@ public class URLImageSource extends InputStreamImageSource {
     this(uc.getURL(), uc);
   }
 
+  @Override
   final boolean checkSecurity(Object context, boolean quiet) {
     // If actualHost is not null, then the host/port parameters that
     // the image was actually fetched from were different than the
@@ -104,9 +106,10 @@ public class URLImageSource extends InputStreamImageSource {
     return true;
   }
 
+  @Override
   protected ImageDecoder getDecoder() {
-    InputStream is = null;
-    String type = null;
+    InputStream is;
+    String type;
     URLConnection c = null;
     try {
       c = getConnection();
@@ -125,12 +128,7 @@ public class URLImageSource extends InputStreamImageSource {
         actualPort = u.getPort();
       }
     } catch (IOException e) {
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException e2) {
-        }
-      } else if (c instanceof HttpURLConnection) {
+      if (c instanceof HttpURLConnection) {
         ((HttpURLConnection) c).disconnect();
       }
       return null;

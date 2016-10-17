@@ -45,6 +45,7 @@ import java.awt.geom.Path2D;
 import java.awt.geom.RoundRectangle2D;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.loops.ProcessPath;
+import sun.java2d.loops.ProcessPath.DrawHandler;
 
 /**
  * Base class for enqueuing rendering operations in a single-threaded
@@ -60,18 +61,29 @@ import sun.java2d.loops.ProcessPath;
  */
 public abstract class BufferedRenderPipe
     implements PixelDrawPipe, PixelFillPipe, ShapeDrawPipe, ParallelogramPipe {
+  protected static final int OPSIZE_DRAW_LINE = 20;
+  protected static final int OPSIZE_DRAW_RECT = 20;
+  protected static final int OPSIZE_FILL_RECT = 20;
+  protected static final int OPSIZE_DRAW_POLY_HEADER = 20;
+  protected static final int OPSIZE_FILL_SPANS = 24;
+  protected static final int OPSIZE_FILL_PARALLELOGRAM = 28;
+  protected static final int OPSIZE_DRAW_PIXEL = 12;
+  protected static final int OPSIZE_START_FILL_PATH = 20;
+  protected static final int OPSIZE_DRAW_PARALLELOGRAM = 36;
+  protected static final int OPSIZE_FILL_AAPARALLELOGRAM = OPSIZE_FILL_PARALLELOGRAM;
+  protected static final int OPSIZE_DRAW_AAPARALLELOGRAM = OPSIZE_DRAW_PARALLELOGRAM;
   static final int BYTES_PER_POLY_POINT = 8;
   static final int BYTES_PER_SCANLINE = 12;
   static final int BYTES_PER_SPAN = 16;
-  protected RenderQueue rq;
-  protected RenderBuffer buf;
-  ParallelogramPipe aapgrampipe = new AAParallelogramPipe();
-  private BufferedDrawHandler drawHandler;
+  private final BufferedDrawHandler drawHandler;
+  protected final RenderQueue rq;
+  protected final RenderBuffer buf;
+  final ParallelogramPipe aapgrampipe = new AAParallelogramPipe();
 
   public BufferedRenderPipe(RenderQueue rq) {
     this.rq = rq;
-    this.buf = rq.getBuffer();
-    this.drawHandler = new BufferedDrawHandler();
+    buf = rq.getBuffer();
+    drawHandler = new BufferedDrawHandler();
   }
 
   public ParallelogramPipe getAAParallelogramPipe() {
@@ -87,13 +99,14 @@ public abstract class BufferedRenderPipe
 
   protected abstract void validateContextAA(SunGraphics2D sg2d);
 
+  @Override
   public void drawLine(SunGraphics2D sg2d, int x1, int y1, int x2, int y2) {
     int transx = sg2d.transX;
     int transy = sg2d.transY;
     rq.lock();
     try {
       validateContext(sg2d);
-      rq.ensureCapacity(20);
+      rq.ensureCapacity(OPSIZE_DRAW_LINE);
       buf.putInt(DRAW_LINE);
       buf.putInt(x1 + transx);
       buf.putInt(y1 + transy);
@@ -104,11 +117,12 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void drawRect(SunGraphics2D sg2d, int x, int y, int width, int height) {
     rq.lock();
     try {
       validateContext(sg2d);
-      rq.ensureCapacity(20);
+      rq.ensureCapacity(OPSIZE_DRAW_RECT);
       buf.putInt(DRAW_RECT);
       buf.putInt(x + sg2d.transX);
       buf.putInt(y + sg2d.transY);
@@ -119,33 +133,39 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void drawRoundRect(
       SunGraphics2D sg2d, int x, int y, int width, int height, int arcWidth, int arcHeight) {
     draw(sg2d, new RoundRectangle2D.Float(x, y, width, height, arcWidth, arcHeight));
   }
 
+  @Override
   public void drawOval(SunGraphics2D sg2d, int x, int y, int width, int height) {
     draw(sg2d, new Ellipse2D.Float(x, y, width, height));
   }
 
+  @Override
   public void drawArc(
       SunGraphics2D sg2d, int x, int y, int width, int height, int startAngle, int arcAngle) {
     draw(sg2d, new Arc2D.Float(x, y, width, height, startAngle, arcAngle, Arc2D.OPEN));
   }
 
+  @Override
   public void drawPolyline(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
     drawPoly(sg2d, xPoints, yPoints, nPoints, false);
   }
 
+  @Override
   public void drawPolygon(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
     drawPoly(sg2d, xPoints, yPoints, nPoints, true);
   }
 
+  @Override
   public void fillRect(SunGraphics2D sg2d, int x, int y, int width, int height) {
     rq.lock();
     try {
       validateContext(sg2d);
-      rq.ensureCapacity(20);
+      rq.ensureCapacity(OPSIZE_FILL_RECT);
       buf.putInt(FILL_RECT);
       buf.putInt(x + sg2d.transX);
       buf.putInt(y + sg2d.transY);
@@ -156,27 +176,30 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void fillRoundRect(
       SunGraphics2D sg2d, int x, int y, int width, int height, int arcWidth, int arcHeight) {
     fill(sg2d, new RoundRectangle2D.Float(x, y, width, height, arcWidth, arcHeight));
   }
 
+  @Override
   public void fillOval(SunGraphics2D sg2d, int x, int y, int width, int height) {
     fill(sg2d, new Ellipse2D.Float(x, y, width, height));
   }
 
+  @Override
   public void fillArc(
       SunGraphics2D sg2d, int x, int y, int width, int height, int startAngle, int arcAngle) {
     fill(sg2d, new Arc2D.Float(x, y, width, height, startAngle, arcAngle, Arc2D.PIE));
   }
 
+  @Override
   public void fillPolygon(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
     fill(sg2d, new Polygon(xPoints, yPoints, nPoints));
   }
 
   protected void drawPoly(
-      final SunGraphics2D sg2d, final int[] xPoints, final int[] yPoints, final int nPoints,
-      final boolean isClosed) {
+      SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints, boolean isClosed) {
     if (xPoints == null || yPoints == null) {
       throw new NullPointerException("coordinate array");
     }
@@ -187,7 +210,8 @@ public abstract class BufferedRenderPipe
     if (nPoints < 2) {
       // render nothing
       return;
-    } else if (nPoints == 2 && !isClosed) {
+    }
+    if (nPoints == 2 && !isClosed) {
       // render a simple line
       drawLine(sg2d, xPoints[0], yPoints[0], xPoints[1], yPoints[1]);
       return;
@@ -198,7 +222,7 @@ public abstract class BufferedRenderPipe
       validateContext(sg2d);
 
       int pointBytesRequired = nPoints * BYTES_PER_POLY_POINT;
-      int totalBytesRequired = 20 + pointBytesRequired;
+      int totalBytesRequired = OPSIZE_DRAW_POLY_HEADER + pointBytesRequired;
 
       if (totalBytesRequired <= buf.capacity()) {
         if (totalBytesRequired > buf.remaining()) {
@@ -218,6 +242,7 @@ public abstract class BufferedRenderPipe
         // queue is too small to accommodate all points; perform the
         // operation directly on the queue flushing thread
         rq.flushAndInvokeNow(new Runnable() {
+          @Override
           public void run() {
             drawPoly(xPoints, yPoints, nPoints, isClosed, sg2d.transX, sg2d.transY);
           }
@@ -255,17 +280,19 @@ public abstract class BufferedRenderPipe
     }
   }
 
-  private native int fillSpans(
+  private int fillSpans(
       RenderQueue rq, long buf, int pos, int limit, SpanIterator si, long iterator, int transx,
-      int transy);
+      int transy) {
+    // TODO: In OpenJDK AWT, this is native
+    return 0;
+  }
 
   protected void fillSpans(SunGraphics2D sg2d, SpanIterator si, int transx, int transy) {
     rq.lock();
     try {
       validateContext(sg2d);
-      rq.ensureCapacity(24); // so that we have room for at least a span
-      int newpos = fillSpans(
-          rq,
+      rq.ensureCapacity(OPSIZE_FILL_SPANS); // so that we have room for at least a span
+      int newpos = fillSpans(rq,
           buf.getAddress(),
           buf.position(),
           buf.capacity(),
@@ -279,13 +306,14 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void fillParallelogram(
       SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2) {
     rq.lock();
     try {
       validateContext(sg2d);
-      rq.ensureCapacity(28);
+      rq.ensureCapacity(OPSIZE_FILL_PARALLELOGRAM);
       buf.putInt(FILL_PARALLELOGRAM);
       buf.putFloat((float) x);
       buf.putFloat((float) y);
@@ -298,6 +326,7 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void draw(SunGraphics2D sg2d, Shape s) {
     if (sg2d.strokeState == SunGraphics2D.STROKE_THIN) {
       if (s instanceof Polygon) {
@@ -310,11 +339,7 @@ public abstract class BufferedRenderPipe
       Path2D.Float p2df;
       int transx, transy;
       if (sg2d.transformState <= SunGraphics2D.TRANSFORM_INT_TRANSLATE) {
-        if (s instanceof Path2D.Float) {
-          p2df = (Path2D.Float) s;
-        } else {
-          p2df = new Path2D.Float(s);
-        }
+        p2df = s instanceof Path2D.Float ? (Path2D.Float) s : new Path2D.Float(s);
         transx = sg2d.transX;
         transy = sg2d.transY;
       } else {
@@ -335,6 +360,7 @@ public abstract class BufferedRenderPipe
     }
   }
 
+  @Override
   public void fill(SunGraphics2D sg2d, Shape s) {
     int transx, transy;
 
@@ -343,11 +369,7 @@ public abstract class BufferedRenderPipe
       // high-quality fills.
       Path2D.Float p2df;
       if (sg2d.transformState <= SunGraphics2D.TRANSFORM_INT_TRANSLATE) {
-        if (s instanceof Path2D.Float) {
-          p2df = (Path2D.Float) s;
-        } else {
-          p2df = new Path2D.Float(s);
-        }
+        p2df = s instanceof Path2D.Float ? (Path2D.Float) s : new Path2D.Float(s);
         transx = sg2d.transX;
         transy = sg2d.transY;
       } else {
@@ -379,8 +401,7 @@ public abstract class BufferedRenderPipe
       // Subtract transx/y from the SSI clip to match the
       // (potentially untranslated) geometry fed to it
       Region clip = sg2d.getCompClip();
-      ssi.setOutputAreaXYXY(
-          clip.getLoX() - transx,
+      ssi.setOutputAreaXYXY(clip.getLoX() - transx,
           clip.getLoY() - transy,
           clip.getHiX() - transx,
           clip.getHiY() - transy);
@@ -391,7 +412,7 @@ public abstract class BufferedRenderPipe
     }
   }
 
-  private class BufferedDrawHandler extends ProcessPath.DrawHandler {
+  private class BufferedDrawHandler extends DrawHandler {
     /**
      * fillPath() support...
      */
@@ -419,9 +440,10 @@ public abstract class BufferedRenderPipe
      * drawPath() support...
      */
 
+    @Override
     public void drawLine(int x1, int y1, int x2, int y2) {
       // assert rq.lock.isHeldByCurrentThread();
-      rq.ensureCapacity(20);
+      rq.ensureCapacity(OPSIZE_DRAW_LINE);
       buf.putInt(DRAW_LINE);
       buf.putInt(x1);
       buf.putInt(y1);
@@ -429,14 +451,16 @@ public abstract class BufferedRenderPipe
       buf.putInt(y2);
     }
 
+    @Override
     public void drawPixel(int x, int y) {
       // assert rq.lock.isHeldByCurrentThread();
-      rq.ensureCapacity(12);
+      rq.ensureCapacity(OPSIZE_DRAW_PIXEL);
       buf.putInt(DRAW_PIXEL);
       buf.putInt(x);
       buf.putInt(y);
     }
 
+    @Override
     public void drawScanline(int x1, int x2, int y) {
       if (remainingScanlines == 0) {
         updateScanlineCount();
@@ -467,7 +491,7 @@ public abstract class BufferedRenderPipe
      * start issuing drawScanline() calls.
      */
     public void startFillPath() {
-      rq.ensureCapacity(20); // to ensure room for at least a scanline
+      rq.ensureCapacity(OPSIZE_START_FILL_PATH); // to ensure room for at least a scanline
       resetFillPath();
     }
 
@@ -478,35 +502,20 @@ public abstract class BufferedRenderPipe
     public void endFillPath() {
       updateScanlineCount();
     }
-  }  public void drawParallelogram(
-      SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
-      double dx1, double dy1, double dx2, double dy2, double lw1, double lw2) {
-    rq.lock();
-    try {
-      validateContext(sg2d);
-      rq.ensureCapacity(36);
-      buf.putInt(DRAW_PARALLELOGRAM);
-      buf.putFloat((float) x);
-      buf.putFloat((float) y);
-      buf.putFloat((float) dx1);
-      buf.putFloat((float) dy1);
-      buf.putFloat((float) dx2);
-      buf.putFloat((float) dy2);
-      buf.putFloat((float) lw1);
-      buf.putFloat((float) lw2);
-    } finally {
-      rq.unlock();
-    }
   }
 
   private class AAParallelogramPipe implements ParallelogramPipe {
+    AAParallelogramPipe() {
+    }
+
+    @Override
     public void fillParallelogram(
         SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
         double dx1, double dy1, double dx2, double dy2) {
       rq.lock();
       try {
         validateContextAA(sg2d);
-        rq.ensureCapacity(28);
+        rq.ensureCapacity(OPSIZE_FILL_AAPARALLELOGRAM);
         buf.putInt(FILL_AAPARALLELOGRAM);
         buf.putFloat((float) x);
         buf.putFloat((float) y);
@@ -519,13 +528,14 @@ public abstract class BufferedRenderPipe
       }
     }
 
+    @Override
     public void drawParallelogram(
         SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
         double dx1, double dy1, double dx2, double dy2, double lw1, double lw2) {
       rq.lock();
       try {
         validateContextAA(sg2d);
-        rq.ensureCapacity(36);
+        rq.ensureCapacity(OPSIZE_DRAW_AAPARALLELOGRAM);
         buf.putInt(DRAW_AAPARALLELOGRAM);
         buf.putFloat((float) x);
         buf.putFloat((float) y);
@@ -538,6 +548,26 @@ public abstract class BufferedRenderPipe
       } finally {
         rq.unlock();
       }
+    }
+  }  @Override
+  public void drawParallelogram(
+      SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
+      double dx1, double dy1, double dx2, double dy2, double lw1, double lw2) {
+    rq.lock();
+    try {
+      validateContext(sg2d);
+      rq.ensureCapacity(OPSIZE_DRAW_PARALLELOGRAM);
+      buf.putInt(DRAW_PARALLELOGRAM);
+      buf.putFloat((float) x);
+      buf.putFloat((float) y);
+      buf.putFloat((float) dx1);
+      buf.putFloat((float) dy1);
+      buf.putFloat((float) dx2);
+      buf.putFloat((float) dy2);
+      buf.putFloat((float) lw1);
+      buf.putFloat((float) lw2);
+    } finally {
+      rq.unlock();
     }
   }
 

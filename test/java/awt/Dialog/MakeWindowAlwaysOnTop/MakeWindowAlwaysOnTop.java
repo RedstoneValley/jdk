@@ -32,14 +32,16 @@
 */
 
 import java.awt.*;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class MakeWindowAlwaysOnTop
+public final class MakeWindowAlwaysOnTop
 {
     private static Frame f;
-    private static Dialog d;
+    static Dialog d;
+
+    private MakeWindowAlwaysOnTop() {
+    }
 
     public static void main(String[] args) throws Exception
     {
@@ -55,11 +57,12 @@ public class MakeWindowAlwaysOnTop
         Util.waitForIdle(r);
 
         // Dialog
-        d = new Dialog(null, "Modal dialog", Dialog.ModalityType.APPLICATION_MODAL);
+        d = new Dialog(null, "Modal dialog", ModalityType.APPLICATION_MODAL);
         d.setBounds(500, 500, 160, 160);
         d.setAlwaysOnTop(true);
         EventQueue.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 d.setVisible(true);
@@ -68,6 +71,7 @@ public class MakeWindowAlwaysOnTop
         // Wait until the dialog is shown
         EventQueue.invokeAndWait(new Runnable()
         {
+            @Override
             public void run()
             {
                 // Empty
@@ -114,15 +118,12 @@ public class MakeWindowAlwaysOnTop
         {
             throw new RuntimeException("Test FAILED: the frame is always-on-top");
         }
-        else if (!Color.BLUE.equals(c))
+        if (!Color.BLUE.equals(c))
         {
             throw new RuntimeException("Test FAILED: unknown window is on top of the frame");
         }
-        else
-        {
-            System.out.println("Test PASSED");
-            System.out.flush();
-        }
+        System.out.println("Test PASSED");
+        System.out.flush();
 
         // Dispose all the windows
         t.dispose();

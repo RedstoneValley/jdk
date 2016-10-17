@@ -21,9 +21,9 @@
  * questions.
  */
 
-/**
- *
- * @bug 4023283
+/*
+
+  @bug 4023283
  * @summary Checks that an Error which propogate up to the EventDispatch
  * loop does not crash AWT.
  * @author Andrei Dmitriev: area=awt.event
@@ -37,16 +37,17 @@ import java.awt.event.*;
 
 import sun.awt.SunToolkit;
 
-import test.java.awt.regtesthelpers.Util;
+public final class LoopRobustness {
 
-public class LoopRobustness {
+    static final long TIMEOUT = 5000;
+    static final Object LOCK = new Object();
 
-    final static long TIMEOUT = 5000;
-    final static Object LOCK = new Object();
+    public static int clicks;
+    public static volatile boolean notifyOccured;
+    public static volatile boolean otherExceptionsCaught;
 
-    public static int clicks = 0;
-    public static volatile boolean notifyOccured = false;
-    public static volatile boolean otherExceptionsCaught = false;
+    private LoopRobustness() {
+    }
 
     public static void main(String [] args) throws Exception {
         SunToolkit.createNewAppContext();
@@ -55,12 +56,12 @@ public class LoopRobustness {
 
         long at;
         //wait for a TIMEOUT giving a chance to a new Thread above to accomplish its stuff.
-        synchronized (LoopRobustness.LOCK) {
+        synchronized (LOCK) {
             new Thread(new TestThreadGroup(mainThreadGroup, "TestGroup"), new Impl()).start();
             at = System.currentTimeMillis();
             try {
-                while (!notifyOccured && (System.currentTimeMillis() - at < TIMEOUT)) {
-                    LoopRobustness.LOCK.wait(1000);
+                while (!notifyOccured && System.currentTimeMillis() - at < TIMEOUT) {
+                    LOCK.wait(1000);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException("Test interrupted.", e);
@@ -92,6 +93,7 @@ public class LoopRobustness {
 
 class Impl implements Runnable{
     static Robot robot;
+    @Override
     public void run() {
         SunToolkit.createNewAppContext();
 
@@ -99,6 +101,7 @@ class Impl implements Runnable{
         Frame lr = new Frame("ROBUST FRAME");
         lr.setBounds(100, 100, 300, 100);
         b.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     LoopRobustness.clicks++;
                     //throwing an exception in Static Initializer
@@ -139,12 +142,12 @@ class TestThreadGroup extends ThreadGroup {
         super(threadGroup, name);
     }
 
+    @Override
     public void uncaughtException(Thread thread, Throwable e) {
         System.out.println("Exception caught: " + e);
         e.printStackTrace(System.out);
         System.out.flush();
-        if ((e instanceof ExceptionInInitializerError) ||
-            (e instanceof NoClassDefFoundError))
+        if (e instanceof ExceptionInInitializerError || e instanceof NoClassDefFoundError)
         {
             // These two are expected
             return;
@@ -153,12 +156,16 @@ class TestThreadGroup extends ThreadGroup {
     }
 }
 
-class HostileCrasher {
+final class HostileCrasher {
     static {
         if (Math.random() >= 0.0) {
             throw new RuntimeException("Die, AWT-Event Queue thread!");
         }
     }
+
+    private HostileCrasher() {
+    }
+
     public static String aStaticMethod() {
         return "hello, world";
     }

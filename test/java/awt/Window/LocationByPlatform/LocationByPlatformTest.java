@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 7092283
  * @author Alexander Scherbatiy
  * @summary Property Window.locationByPlatform is not cleared by calling
@@ -31,9 +31,12 @@
  */
 import java.awt.Window;
 
-public class LocationByPlatformTest {
+public final class LocationByPlatformTest {
 
-    public static void main(String[] args) {
+  private LocationByPlatformTest() {
+  }
+
+  public static void main(String[] args) {
 
         Window window = new Window(null);
         window.setSize(100, 100);

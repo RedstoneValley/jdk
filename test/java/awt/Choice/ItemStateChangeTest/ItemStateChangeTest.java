@@ -31,7 +31,7 @@
   @run main ItemStateChangeTest
 */
 
-import test.java.awt.regtesthelpers.Util;
+import sun.awt.OSInfo.OSType;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -39,21 +39,22 @@ import sun.awt.OSInfo;
 
 public class ItemStateChangeTest extends Frame {
 
-    int events = 0;
+    private static final long serialVersionUID = -4470770084004993791L;
+    int events;
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         new ItemStateChangeTest();
     }
 
     public ItemStateChangeTest() {
 
-        if (OSInfo.getOSType() != OSInfo.OSType.WINDOWS) {
+        if (OSInfo.getOSType() != OSType.WINDOWS) {
             return;
         }
 
         try {
 
-            final Robot robot = new Robot();
+            Robot robot = new Robot();
             robot.setAutoDelay(20);
             Util.waitForIdle(robot);
 
@@ -64,7 +65,7 @@ public class ItemStateChangeTest extends Frame {
                 }
             });
 
-            final Choice choice = new Choice();
+            Choice choice = new Choice();
             choice.add("A");
             choice.add("B");
             choice.addItemListener(new ItemListener() {

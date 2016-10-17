@@ -31,13 +31,12 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.security.AccessController;
 import sun.awt.DisplayChangedListener;
-import sun.awt.image.SurfaceManager;
+import sun.awt.image.SurfaceManager.FlushableCacheData;
 import sun.java2d.StateTrackable.State;
 import sun.java2d.loops.Blit;
 import sun.java2d.loops.BlitBg;
 import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.SurfaceType;
-import sun.security.action.GetPropertyAction;
 
 /**
  * The proxy class encapsulates the logic for managing alternate
@@ -60,8 +59,7 @@ import sun.security.action.GetPropertyAction;
  * By default the parent class will transfer the pixels using a
  * standard Blit operation between the two SurfaceData objects.
  */
-public abstract class SurfaceDataProxy
-    implements DisplayChangedListener, SurfaceManager.FlushableCacheData {
+public abstract class SurfaceDataProxy implements DisplayChangedListener, FlushableCacheData {
   /**
    * This instance is for cases where a caching implementation
    * determines that a particular source image will never need
@@ -72,7 +70,7 @@ public abstract class SurfaceDataProxy
    * This class optimally implements NOP variants of all necessary
    * methods to avoid caching with a minimum of fuss.
    */
-  public static SurfaceDataProxy UNCACHED = new SurfaceDataProxy(0) {
+  public static final SurfaceDataProxy UNCACHED = new SurfaceDataProxy(0) {
     @Override
     public boolean isSupportedOperation(
         SurfaceData srcData, int txtype, CompositeType comp, Color bgColor) {
@@ -104,7 +102,7 @@ public abstract class SurfaceDataProxy
     cachingAllowed = true;
     String manimg
         = AccessController.doPrivileged(new GetPropertyAction("sun.java2d.managedimages"));
-    if (manimg != null && manimg.equals("false")) {
+    if ("false".equals(manimg)) {
       cachingAllowed = false;
       System.out.println("Disabling managed images");
     }
@@ -126,7 +124,7 @@ public abstract class SurfaceDataProxy
 
   // The number of attempts to copy from a STABLE source before
   // a cached copy is created or updated.
-  private int threshold;
+  private final int threshold;
   /*
    * Source tracking data
    *
@@ -180,11 +178,11 @@ public abstract class SurfaceDataProxy
   public SurfaceDataProxy(int threshold) {
     this.threshold = threshold;
 
-    this.srcTracker = StateTracker.NEVER_CURRENT;
+    srcTracker = StateTracker.NEVER_CURRENT;
     // numtries will be reset on first use
-    this.cacheTracker = StateTracker.NEVER_CURRENT;
+    cacheTracker = StateTracker.NEVER_CURRENT;
 
-    this.valid = true;
+    valid = true;
   }
 
   public static boolean isCachingAllowed() {
@@ -241,7 +239,7 @@ public abstract class SurfaceDataProxy
    * the code in SurfaceData knows to replace the proxy first.
    */
   public void invalidate() {
-    this.valid = false;
+    valid = false;
   }
 
   /**
@@ -253,6 +251,7 @@ public abstract class SurfaceDataProxy
    * Returns a boolean that indicates if the cached object is
    * no longer needed and should be removed from the cache.
    */
+  @Override
   public boolean flush(boolean deaccelerated) {
     if (deaccelerated) {
       invalidate();
@@ -266,9 +265,9 @@ public abstract class SurfaceDataProxy
    * so that it can be reclaimed quickly.
    */
   public synchronized void flush() {
-    SurfaceData csd = this.cachedSD;
-    this.cachedSD = null;
-    this.cacheTracker = StateTracker.NEVER_CURRENT;
+    SurfaceData csd = cachedSD;
+    cachedSD = null;
+    cacheTracker = StateTracker.NEVER_CURRENT;
     if (csd != null) {
       csd.flush();
     }
@@ -280,9 +279,9 @@ public abstract class SurfaceDataProxy
    * valid and current.
    */
   public boolean isAccelerated() {
-    return (isValid() &&
-                srcTracker.isCurrent() &&
-                cacheTracker.isCurrent());
+    return isValid() &&
+        srcTracker.isCurrent() &&
+        cacheTracker.isCurrent();
   }
 
   /**
@@ -305,6 +304,7 @@ public abstract class SurfaceDataProxy
    * Invoked when the display mode has changed.
    * This method will invalidate and drop the internal cachedSD object.
    */
+  @Override
   public void displayChanged() {
     flush();
   }
@@ -312,6 +312,7 @@ public abstract class SurfaceDataProxy
   /**
    * Invoked when the palette has changed.
    */
+  @Override
   public void paletteChanged() {
     // We could potentially get away with just resetting cacheTracker
     // here but there is a small window of vulnerability in the
@@ -325,7 +326,7 @@ public abstract class SurfaceDataProxy
     // The downside is having to go through a full threshold count
     // before we can update and use our cache again, but palette
     // changes should be relatively rare...
-    this.srcTracker = StateTracker.NEVER_CURRENT;
+    srcTracker = StateTracker.NEVER_CURRENT;
   }
 
   /**
@@ -362,9 +363,9 @@ public abstract class SurfaceDataProxy
       // First deal with tracking the source.
       if (!srcTracker.isCurrent()) {
         synchronized (this) {
-          this.numtries = threshold;
-          this.srcTracker = srcData.getStateTracker();
-          this.cacheTracker = StateTracker.NEVER_CURRENT;
+          numtries = threshold;
+          srcTracker = srcData.getStateTracker();
+          cacheTracker = StateTracker.NEVER_CURRENT;
         }
 
         if (!srcTracker.isCurrent()) {
@@ -386,7 +387,7 @@ public abstract class SurfaceDataProxy
       }
 
       // Then deal with checking the validity of the cached SurfaceData
-      SurfaceData csd = this.cachedSD;
+      SurfaceData csd = cachedSD;
       if (!cacheTracker.isCurrent()) {
         // Next make sure the dust has settled
         synchronized (this) {
@@ -408,8 +409,8 @@ public abstract class SurfaceDataProxy
         if (csd == null) {
           synchronized (this) {
             if (curTracker == srcTracker) {
-              this.cacheTracker = getRetryTracker(srcData);
-              this.cachedSD = null;
+              cacheTracker = getRetryTracker(srcData);
+              cachedSD = null;
             }
           }
           return srcData;
@@ -427,8 +428,8 @@ public abstract class SurfaceDataProxy
           // from before the update process to make sure that we
           // do not lose some pixel changes in the shuffle.
           if (curTracker == srcTracker && curTracker.isCurrent()) {
-            this.cacheTracker = csd.getStateTracker();
-            this.cachedSD = csd;
+            cacheTracker = csd.getStateTracker();
+            cachedSD = csd;
           }
         }
       }
@@ -480,11 +481,13 @@ public abstract class SurfaceDataProxy
     private int countdown;
 
     public CountdownTracker(int threshold) {
-      this.countdown = threshold;
+      countdown = threshold;
     }
 
+    @Override
     public synchronized boolean isCurrent() {
-      return (--countdown >= 0);
+      --countdown;
+      return countdown >= 0;
     }
   }
 }

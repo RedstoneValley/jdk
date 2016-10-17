@@ -43,7 +43,7 @@ import sun.awt.SunHints;
  * ProcessPath.c
  */
 
-public class ProcessPath {
+public final class ProcessPath {
 
     /* Public interfaces and methods for drawing and filling general paths */
 
@@ -61,20 +61,20 @@ public class ProcessPath {
   /* Precision (in bits) used for the rounding in the midpoint test */
   private static final int MDP_PREC = 10;
   private static final int MDP_MULT = 1 << MDP_PREC;
-  public static final float EPSF = ((float) EPSFX) / MDP_MULT;
+  public static final float EPSF = (float) EPSFX / MDP_MULT;
 
   /* Private implementation of the rendering process */
   private static final int MDP_HALF_MULT = MDP_MULT >> 1;
   /* Boundaries used for clipping large path segments (those are inside
    * [UPPER/LOWER]_BND boundaries)
    */
-  private static final int UPPER_OUT_BND = 1 << (30 - MDP_PREC);
+  private static final int UPPER_OUT_BND = 1 << 30 - MDP_PREC;
   private static final int LOWER_OUT_BND = -UPPER_OUT_BND;
   /* Calculation boundaries. They are used for switching to the more slow but
    * allowing larger input values method of calculation of the initial values
    * of the scan converted line segments inside the FillPolygon
    */
-  private static final float CALC_UBND = 1 << (30 - MDP_PREC);
+  private static final float CALC_UBND = 1 << 30 - MDP_PREC;
   private static final float CALC_LBND = -CALC_UBND;
   /* Bit mask used to separate whole part from the fraction part of the
    * number
@@ -102,35 +102,35 @@ public class ProcessPath {
    * rounding
    */
   private static final int DF_CUB_SHIFT = FWD_PREC + DF_CUB_STEPS * 3 - MDP_PREC;
-  private static final int DF_QUAD_SHIFT = FWD_PREC + DF_QUAD_STEPS * 2 - MDP_PREC;
+  private static final int DF_QUAD_SHIFT = FWD_PREC + (DF_QUAD_STEPS << 1) - MDP_PREC;
   /* Default amount of steps of the forward differencing */
-  private static final int DF_CUB_COUNT = (1 << DF_CUB_STEPS);
+  private static final int DF_CUB_COUNT = 1 << DF_CUB_STEPS;
 
   /*
    *                  Constants for the forward differencing
    *                      of the cubic and quad curves
    */
-  private static final int DF_QUAD_COUNT = (1 << DF_QUAD_STEPS);
+  private static final int DF_QUAD_COUNT = 1 << DF_QUAD_STEPS;
   /* Default boundary constants used to check the necessity of the restepping
    */
   private static final int DF_CUB_DEC_BND = 1 << DF_CUB_STEPS * 3 + FWD_PREC + 2;
   private static final int DF_CUB_INC_BND = 1 << DF_CUB_STEPS * 3 + FWD_PREC - 1;
-  private static final int DF_QUAD_DEC_BND = 1 << DF_QUAD_STEPS * 2 +
+  private static final int DF_QUAD_DEC_BND = 1 << (DF_QUAD_STEPS << 1) +
       FWD_PREC + 2;
-  private static final int DF_QUAD_INC_BND = 1 << DF_QUAD_STEPS * 2 + FWD_PREC - 1;
+  private static final int DF_QUAD_INC_BND = 1 << (DF_QUAD_STEPS << 1) + FWD_PREC - 1;
   /* Multipliers for the coefficients of the polynomial form of the cubic and
    * quad curves representation
    */
   private static final int CUB_A_SHIFT = FWD_PREC;
-  private static final int CUB_B_SHIFT = (DF_CUB_STEPS + FWD_PREC + 1);
-  private static final int CUB_C_SHIFT = (DF_CUB_STEPS * 2 + FWD_PREC);
-  private static final int CUB_A_MDP_MULT = (1 << CUB_A_SHIFT);
-  private static final int CUB_B_MDP_MULT = (1 << CUB_B_SHIFT);
-  private static final int CUB_C_MDP_MULT = (1 << CUB_C_SHIFT);
+  private static final int CUB_B_SHIFT = DF_CUB_STEPS + FWD_PREC + 1;
+  private static final int CUB_C_SHIFT = (DF_CUB_STEPS << 1) + FWD_PREC;
+  private static final int CUB_A_MDP_MULT = 1 << CUB_A_SHIFT;
+  private static final int CUB_B_MDP_MULT = 1 << CUB_B_SHIFT;
+  private static final int CUB_C_MDP_MULT = 1 << CUB_C_SHIFT;
   private static final int QUAD_A_SHIFT = FWD_PREC;
-  private static final int QUAD_B_SHIFT = (DF_QUAD_STEPS + FWD_PREC);
-  private static final int QUAD_A_MDP_MULT = (1 << QUAD_A_SHIFT);
-  private static final int QUAD_B_MDP_MULT = (1 << QUAD_B_SHIFT);
+  private static final int QUAD_B_SHIFT = DF_QUAD_STEPS + FWD_PREC;
+  private static final int QUAD_A_MDP_MULT = 1 << QUAD_A_SHIFT;
+  private static final int QUAD_B_MDP_MULT = 1 << QUAD_B_SHIFT;
   private static final int CRES_MIN_CLIPPED = 0;
   private static final int CRES_MAX_CLIPPED = 1;
   private static final int CRES_NOT_CLIPPED = 3;
@@ -139,10 +139,14 @@ public class ProcessPath {
    * replaced with heap allocated in case of large paths.
    */
   private static final int DF_MAX_POINT = 256;
-  public static EndSubPathHandler noopEndSubPathHandler = new EndSubPathHandler() {
+  public static final EndSubPathHandler noopEndSubPathHandler = new EndSubPathHandler() {
+    @Override
     public void processEndSubPath() {
     }
   };
+
+  private ProcessPath() {
+  }
 
   public static boolean fillPath(DrawHandler dhnd, Path2D.Float p2df, int transX, int transY) {
     FillProcessHandler fhnd = new FillProcessHandler(dhnd);
@@ -164,14 +168,14 @@ public class ProcessPath {
 
   /* Clipping macros for drawing and filling algorithms */
   private static float CLIP(float a1, float b1, float a2, float b2, double t) {
-    return (float) (b1 + (double) (t - a1) * (b2 - b1) / (a2 - a1));
+    return (float) (b1 + (t - a1) * (b2 - b1) / (a2 - a1));
   }
 
   private static int CLIP(int a1, int b1, int a2, int b2, double t) {
-    return (int) (b1 + (double) (t - a1) * (b2 - b1) / (a2 - a1));
+    return (int) (b1 + (t - a1) * (b2 - b1) / (a2 - a1));
   }
 
-  private static boolean IS_CLIPPED(int res) {
+  static boolean IS_CLIPPED(int res) {
     return res == CRES_MIN_CLIPPED || res == CRES_MAX_CLIPPED;
   }
 
@@ -183,21 +187,19 @@ public class ProcessPath {
       float LINE_MIN, float LINE_MAX, float[] c, int a1, int b1, int a2, int b2) {
     double t;
     int res = CRES_NOT_CLIPPED;
-    if (c[a1] < (LINE_MIN) || c[a1] > (LINE_MAX)) {
-      if (c[a1] < (LINE_MIN)) {
-        if (c[a2] < (LINE_MIN)) {
+    if (c[a1] < LINE_MIN || c[a1] > LINE_MAX) {
+      if (c[a1] < LINE_MIN) {
+        if (c[a2] < LINE_MIN) {
           return CRES_INVISIBLE;
         }
-        ;
         res = CRES_MIN_CLIPPED;
-        t = (LINE_MIN);
+        t = LINE_MIN;
       } else {
-        if (c[a2] > (LINE_MAX)) {
+        if (c[a2] > LINE_MAX) {
           return CRES_INVISIBLE;
         }
-        ;
         res = CRES_MAX_CLIPPED;
-        t = (LINE_MAX);
+        t = LINE_MAX;
       }
       c[b1] = CLIP(c[a1], c[b1], c[a2], c[b2], t);
       c[a1] = (float) t;
@@ -206,25 +208,23 @@ public class ProcessPath {
   }
 
   /* Integer version of the method above */
-  private static int TESTANDCLIP(
+  static int TESTANDCLIP(
       int LINE_MIN, int LINE_MAX, int[] c, int a1, int b1, int a2, int b2) {
     double t;
     int res = CRES_NOT_CLIPPED;
-    if (c[a1] < (LINE_MIN) || c[a1] > (LINE_MAX)) {
-      if (c[a1] < (LINE_MIN)) {
-        if (c[a2] < (LINE_MIN)) {
+    if (c[a1] < LINE_MIN || c[a1] > LINE_MAX) {
+      if (c[a1] < LINE_MIN) {
+        if (c[a2] < LINE_MIN) {
           return CRES_INVISIBLE;
         }
-        ;
         res = CRES_MIN_CLIPPED;
-        t = (LINE_MIN);
+        t = LINE_MIN;
       } else {
-        if (c[a2] > (LINE_MAX)) {
+        if (c[a2] > LINE_MAX) {
           return CRES_INVISIBLE;
         }
-        ;
         res = CRES_MAX_CLIPPED;
-        t = (LINE_MAX);
+        t = LINE_MAX;
       }
       c[b1] = CLIP(c[a1], c[b1], c[a2], c[b2], t);
       c[a1] = (int) t;
@@ -280,7 +280,7 @@ public class ProcessPath {
   }
 
   /* Integer version of the method above */
-  private static int CLIPCLAMP(
+  static int CLIPCLAMP(
       int LINE_MIN, int LINE_MAX, int[] c, int a1, int b1, int a2, int b2, int a3, int b3) {
     c[a3] = c[a1];
     c[b3] = c[b1];
@@ -317,8 +317,8 @@ public class ProcessPath {
     int ye = (int) (coords[5] * MDP_MULT);
 
         /* Extracting fractional part of coordinates of first control point */
-    int px = (x0 & (~MDP_W_MASK)) << DF_QUAD_SHIFT;
-    int py = (y0 & (~MDP_W_MASK)) << DF_QUAD_SHIFT;
+    int px = (x0 & ~MDP_W_MASK) << DF_QUAD_SHIFT;
+    int py = (y0 & ~MDP_W_MASK) << DF_QUAD_SHIFT;
 
         /* Setting default amount of steps */
     int count = DF_QUAD_COUNT;
@@ -367,7 +367,8 @@ public class ProcessPath {
       shift += 2;
     }
 
-    while (count-- > 1) {
+    while (count > 1) {
+      count--;
       px += dpx;
       py += dpy;
 
@@ -387,17 +388,18 @@ public class ProcessPath {
              */
 
             /* Bounding x2 by xe */
-      if (((xe - x2) ^ dx) < 0) {
+      if ((xe - x2 ^ dx) < 0) {
         x2 = xe;
       }
 
             /* Bounding y2 by ye */
-      if (((ye - y2) ^ dy) < 0) {
+      if ((ye - y2 ^ dy) < 0) {
         y2 = ye;
       }
 
       hnd.processFixedLine(x1, y1, x2, y2, pixelInfo, checkBounds, false);
     }
+    count--;
 
         /* We are performing one step less than necessary and use actual
          * (xe,ye) endpoint of the curve instead of calculated. This prevent us
@@ -422,10 +424,10 @@ public class ProcessPath {
     xMin = xMax = coords[0];
     yMin = yMax = coords[1];
     for (int i = 2; i < 6; i += 2) {
-      xMin = (xMin > coords[i]) ? coords[i] : xMin;
-      xMax = (xMax < coords[i]) ? coords[i] : xMax;
-      yMin = (yMin > coords[i + 1]) ? coords[i + 1] : yMin;
-      yMax = (yMax < coords[i + 1]) ? coords[i + 1] : yMax;
+      xMin = xMin > coords[i] ? coords[i] : xMin;
+      xMax = xMax < coords[i] ? coords[i] : xMax;
+      yMin = yMin > coords[i + 1] ? coords[i + 1] : yMin;
+      yMax = yMax < coords[i + 1] ? coords[i + 1] : yMax;
     }
 
     if (hnd.clipMode == PH_MODE_DRAW_CLIP) {
@@ -493,7 +495,7 @@ public class ProcessPath {
         /* Temporary array for holding parameters corresponding to the extreme
          * in X and Y points
          */
-    double params[] = new double[2];
+    double[] params = new double[2];
     int cnt = 0;
     double param;
 
@@ -518,7 +520,8 @@ public class ProcessPath {
 
         param = bx / ax;
         if (param < 1.0 && param > 0.0) {
-          params[cnt++] = param;
+          params[cnt] = param;
+          cnt++;
         }
       }
     }
@@ -550,13 +553,16 @@ public class ProcessPath {
                          * already stored
                          */
             if (params[0] > param) {
-              params[cnt++] = params[0];
+              params[cnt] = params[0];
+              cnt++;
               params[0] = param;
             } else if (params[0] < param) {
-              params[cnt++] = param;
+              params[cnt] = param;
+              cnt++;
             }
           } else {
-            params[cnt++] = param;
+            params[cnt] = param;
+            cnt++;
           }
         }
       }
@@ -599,8 +605,8 @@ public class ProcessPath {
     coords1[1] = coords[1];
     coords1[2] = coords[0] + t * (coords[2] - coords[0]);
     coords1[3] = coords[1] + t * (coords[3] - coords[1]);
-    coords[2] = coords[2] + t * (coords[4] - coords[2]);
-    coords[3] = coords[3] + t * (coords[5] - coords[3]);
+    coords[2] += t * (coords[4] - coords[2]);
+    coords[3] += t * (coords[5] - coords[3]);
     coords[0] = coords1[4] = coords1[2] + t * (coords[2] - coords1[2]);
     coords[1] = coords1[5] = coords1[3] + t * (coords[3] - coords1[3]);
 
@@ -621,8 +627,8 @@ public class ProcessPath {
     int ye = (int) (coords[7] * MDP_MULT);
 
         /* Extracting fractional part of coordinates of first control point */
-    int px = (x0 & (~MDP_W_MASK)) << DF_CUB_SHIFT;
-    int py = (y0 & (~MDP_W_MASK)) << DF_CUB_SHIFT;
+    int px = (x0 & ~MDP_W_MASK) << DF_CUB_SHIFT;
+    int py = (y0 & ~MDP_W_MASK) << DF_CUB_SHIFT;
 
         /* Setting default boundary values for checking first and second forward
          * difference for the necessity of the restepping. See comments to the
@@ -643,8 +649,8 @@ public class ProcessPath {
     int bx = (int) ((3 * coords[0] - 6 * coords[2] + 3 * coords[4]) * CUB_B_MDP_MULT);
     int by = (int) ((3 * coords[1] - 6 * coords[3] + 3 * coords[5]) * CUB_B_MDP_MULT);
 
-    int cx = (int) ((-3 * coords[0] + 3 * coords[2]) * (CUB_C_MDP_MULT));
-    int cy = (int) ((-3 * coords[1] + 3 * coords[3]) * (CUB_C_MDP_MULT));
+    int cx = (int) ((-3 * coords[0] + 3 * coords[2]) * CUB_C_MDP_MULT);
+    int cy = (int) ((-3 * coords[1] + 3 * coords[3]) * CUB_C_MDP_MULT);
 
     int dddpx = 6 * ax;
     int dddpy = 6 * ay;
@@ -691,8 +697,8 @@ public class ProcessPath {
           Math.abs(dpy) <= incStepBnd) {
         dpx = (dpx >> 2) + (ddpx >> 3);
         dpy = (dpy >> 2) + (ddpy >> 3);
-        ddpx = (ddpx + dddpx) >> 1;
-        ddpy = (ddpy + dddpy) >> 1;
+        ddpx = ddpx + dddpx >> 1;
+        ddpy = ddpy + dddpy >> 1;
         count >>= 1;
         decStepBnd >>= 3;
         incStepBnd >>= 3;
@@ -730,12 +736,12 @@ public class ProcessPath {
                  */
 
                 /* Bounding x2 by xe */
-        if (((xe - x2) ^ dx) < 0) {
+        if ((xe - x2 ^ dx) < 0) {
           x2 = xe;
         }
 
                 /* Bounding y2 by ye */
-        if (((ye - y2) ^ dy) < 0) {
+        if ((ye - y2 ^ dy) < 0) {
           y2 = ye;
         }
 
@@ -762,10 +768,10 @@ public class ProcessPath {
     yMin = yMax = coords[1];
 
     for (int i = 2; i < 8; i += 2) {
-      xMin = (xMin > coords[i]) ? coords[i] : xMin;
-      xMax = (xMax < coords[i]) ? coords[i] : xMax;
-      yMin = (yMin > coords[i + 1]) ? coords[i + 1] : yMin;
-      yMax = (yMax < coords[i + 1]) ? coords[i + 1] : yMax;
+      xMin = xMin > coords[i] ? coords[i] : xMin;
+      xMax = xMax < coords[i] ? coords[i] : xMax;
+      yMin = yMin > coords[i + 1] ? coords[i + 1] : yMin;
+      yMax = yMax < coords[i + 1] ? coords[i + 1] : yMax;
     }
 
     if (hnd.clipMode == PH_MODE_DRAW_CLIP) {
@@ -839,9 +845,9 @@ public class ProcessPath {
         /* Temporary array for holding parameters corresponding to the extreme
          * in X and Y points
          */
-    double params[] = new double[4];
-    double eqn[] = new double[3];
-    double res[] = new double[2];
+    double[] params = new double[4];
+    double[] eqn = new double[3];
+    double[] res = new double[2];
     int cnt = 0;
 
         /* Simple check for monotonicity in X before searching for the extreme
@@ -869,7 +875,8 @@ public class ProcessPath {
              */
       for (int i = 0; i < nr; i++) {
         if (res[i] > 0 && res[i] < 1) {
-          params[cnt++] = res[i];
+          params[cnt] = res[i];
+          cnt++;
         }
       }
     }
@@ -899,7 +906,8 @@ public class ProcessPath {
              */
       for (int i = 0; i < nr; i++) {
         if (res[i] > 0 && res[i] < 1) {
-          params[cnt++] = res[i];
+          params[cnt] = res[i];
+          cnt++;
         }
       }
     }
@@ -944,8 +952,8 @@ public class ProcessPath {
     coords1[3] = coords[1] + t * (coords[3] - coords[1]);
     coords1[4] = coords1[2] + t * (tx - coords1[2]);
     coords1[5] = coords1[3] + t * (ty - coords1[3]);
-    coords[4] = coords[4] + t * (coords[6] - coords[4]);
-    coords[5] = coords[5] + t * (coords[7] - coords[5]);
+    coords[4] += t * (coords[6] - coords[4]);
+    coords[5] += t * (coords[7] - coords[5]);
     coords[2] = tx + t * (coords[4] - tx);
     coords[3] = ty + t * (coords[5] - ty);
     coords[0] = coords1[6] = coords1[4] + t * (coords[2] - coords1[4]);
@@ -963,9 +971,9 @@ public class ProcessPath {
       ProcessHandler hnd, float x1, float y1, float x2, float y2, int[] pixelInfo) {
     float xMin, yMin, xMax, yMax;
     int X1, Y1, X2, Y2, X3, Y3, res;
-    boolean clipped = false;
+    boolean clipped;
     float x3, y3;
-    float c[] = new float[]{x1, y1, x2, y2, 0, 0};
+    float[] c = {x1, y1, x2, y2, 0, 0};
 
     boolean lastClipped;
 
@@ -1053,7 +1061,7 @@ public class ProcessPath {
       res = CLIPCLAMP(xMin, xMax, c, 2, 3, 0, 1, 4, 5);
 
             /* Checking if there was a clip by right boundary */
-      lastClipped = lastClipped || (res == CRES_MAX_CLIPPED);
+      lastClipped = lastClipped || res == CRES_MAX_CLIPPED;
 
       X2 = (int) (c[2] * MDP_MULT);
       Y2 = (int) (c[3] * MDP_MULT);
@@ -1070,11 +1078,11 @@ public class ProcessPath {
 
   private static boolean doProcessPath(
       ProcessHandler hnd, Path2D.Float p2df, float transXf, float transYf) {
-    float coords[] = new float[8];
-    float tCoords[] = new float[8];
-    float closeCoord[] = new float[]{0.0f, 0.0f};
-    float firstCoord[] = new float[2];
-    int pixelInfo[] = new int[5];
+    float[] coords = new float[8];
+    float[] tCoords = new float[8];
+    float[] closeCoord = {0.0f, 0.0f};
+    float[] firstCoord = new float[2];
+    int[] pixelInfo = new int[5];
     boolean subpathStarted = false;
     boolean skip = false;
     float lastX, lastY;
@@ -1266,7 +1274,7 @@ public class ProcessPath {
     }
 
         /* Performing closing of the unclosed segments */
-    if (subpathStarted & !skip) {
+    if (subpathStarted && !skip) {
       if (hnd.clipMode == PH_MODE_FILL_CLIP) {
         if (tCoords[0] != closeCoord[0] || tCoords[1] != closeCoord[1]) {
           ProcessLine(hnd, tCoords[0], tCoords[1], closeCoord[0], closeCoord[1], pixelInfo);
@@ -1285,18 +1293,18 @@ public class ProcessPath {
     FillData fd = hnd.fd;
     int yMin = fd.plgYMin;
     int yMax = fd.plgYMax;
-    int hashSize = ((yMax - yMin) >> MDP_PREC) + 4;
+    int hashSize = (yMax - yMin >> MDP_PREC) + 4;
 
         /* Because of support of the KEY_STROKE_CONTROL hint we are performing
          * shift of the coordinates at the higher level
          */
-    int hashOffset = ((yMin - 1) & MDP_W_MASK);
+    int hashOffset = yMin - 1 & MDP_W_MASK;
 
         /* Winding counter */
     int counter;
 
         /* Calculating mask to be applied to the winding counter */
-    int counterMask = (fillRule == PathIterator.WIND_NON_ZERO) ? -1 : 1;
+    int counterMask = fillRule == PathIterator.WIND_NON_ZERO ? -1 : 1;
 
     int pntOffset;
     List<Point> pnts = fd.plgPnts;
@@ -1318,7 +1326,7 @@ public class ProcessPath {
     for (int i = 0; i < n - 1; i++) {
       curpt = pnts.get(i);
       Point nextpt = pnts.get(i + 1);
-      int curHashInd = (curpt.y - hashOffset - 1) >> MDP_PREC;
+      int curHashInd = curpt.y - hashOffset - 1 >> MDP_PREC;
       curpt.nextByY = yHash[curHashInd];
       yHash[curHashInd] = curpt;
       curpt.next = nextpt;
@@ -1326,7 +1334,7 @@ public class ProcessPath {
     }
 
     Point ept = pnts.get(n - 1);
-    int curHashInd = (ept.y - hashOffset - 1) >> MDP_PREC;
+    int curHashInd = ept.y - hashOffset - 1 >> MDP_PREC;
     ept.nextByY = yHash[curHashInd];
     yHash[curHashInd] = ept;
 
@@ -1365,17 +1373,17 @@ public class ProcessPath {
       counter = 0;
       drawing = false;
       int xl, xr;
-      xl = xr = hnd.dhnd.xMin;
+      xl = hnd.dhnd.xMin;
       Edge curEdge = activeList.head;
       while (curEdge != null) {
         counter += curEdge.dir;
         if ((counter & counterMask) != 0 && !drawing) {
-          xl = (curEdge.x + MDP_MULT - 1) >> MDP_PREC;
+          xl = curEdge.x + MDP_MULT - 1 >> MDP_PREC;
           drawing = true;
         }
 
         if ((counter & counterMask) == 0 && drawing) {
-          xr = (curEdge.x - 1) >> MDP_PREC;
+          xr = curEdge.x - 1 >> MDP_PREC;
           if (xl <= xr) {
             hnd.dhnd.drawScanline(xl, xr, y >> MDP_PREC);
           }
@@ -1400,10 +1408,10 @@ public class ProcessPath {
   }
 
   public interface EndSubPathHandler {
-    public void processEndSubPath();
+    void processEndSubPath();
   }
 
-  public static abstract class DrawHandler {
+  public abstract static class DrawHandler {
     public int xMin;
     public int yMin;
     public int xMax;
@@ -1474,9 +1482,9 @@ public class ProcessPath {
     public abstract void drawScanline(int x0, int x1, int y0);
   }
 
-  public static abstract class ProcessHandler implements EndSubPathHandler {
+  public abstract static class ProcessHandler implements EndSubPathHandler {
     DrawHandler dhnd;
-    int clipMode;
+    final int clipMode;
 
     public ProcessHandler(DrawHandler dhnd, int clipMode) {
       this.dhnd = dhnd;
@@ -1487,11 +1495,9 @@ public class ProcessPath {
         int x1, int y1, int x2, int y2, int[] pixelInfo, boolean checkBounds, boolean endSubPath);
   }
 
-  ;
-
   private static class DrawProcessHandler extends ProcessHandler {
 
-    EndSubPathHandler processESP;
+    final EndSubPathHandler processESP;
 
     public DrawProcessHandler(DrawHandler dhnd, EndSubPathHandler processESP) {
       super(dhnd, PH_MODE_DRAW_CLIP);
@@ -1506,7 +1512,7 @@ public class ProcessPath {
       int Y1 = fY1 >> MDP_PREC;
 
            /* Handling lines having just one pixel */
-      if (((X0 ^ X1) | (Y0 ^ Y1)) == 0) {
+      if ((X0 ^ X1 | Y0 ^ Y1) == 0) {
         if (checkBounds && (dhnd.yMin > Y0 ||
                                 dhnd.yMax <= Y0 ||
                                 dhnd.xMin > X0 ||
@@ -1530,14 +1536,13 @@ public class ProcessPath {
         return;
       }
 
-      if (!checkBounds || (dhnd.yMin <= Y0 &&
-                               dhnd.yMax > Y0 &&
-                               dhnd.xMin <= X0 &&
-                               dhnd.xMax > X0)) {
+      if (!checkBounds || dhnd.yMin <= Y0 &&
+          dhnd.yMax > Y0 &&
+          dhnd.xMin <= X0 &&
+          dhnd.xMax > X0) {
                 /* Switch off first pixel of the line before drawing */
-        if (pixelInfo[0] == 1 && ((pixelInfo[1] == X0 && pixelInfo[2] == Y0) || (pixelInfo[3] == X0
-                                                                                     && pixelInfo[4]
-            == Y0))) {
+        if (pixelInfo[0] == 1 && (pixelInfo[1] == X0 && pixelInfo[2] == Y0
+                                      || pixelInfo[3] == X0 && pixelInfo[4] == Y0)) {
           dhnd.drawPixel(X0, Y0);
         }
       }
@@ -1555,8 +1560,7 @@ public class ProcessPath {
             /* Switch on last pixel of the line if it was already
              * drawn during rendering of the previous segments
              */
-      if ((pixelInfo[1] == X1 && pixelInfo[2] == Y1) || (pixelInfo[3] == X1
-                                                             && pixelInfo[4] == Y1)) {
+      if (pixelInfo[1] == X1 && pixelInfo[2] == Y1 || pixelInfo[3] == X1 && pixelInfo[4] == Y1) {
         if (checkBounds && (dhnd.yMin > Y1 ||
                                 dhnd.yMax <= Y1 ||
                                 dhnd.xMin > X1 ||
@@ -1601,8 +1605,6 @@ public class ProcessPath {
         pixelInfo[3] = _X;
         pixelInfo[4] = _Y;
       }
-    }    public void processEndSubPath() {
-      processESP.processEndSubPath();
     }
 
     /*                  Drawing line with subpixel endpoints
@@ -1629,11 +1631,12 @@ public class ProcessPath {
      * checkBounds        - flag showing necessity of checking the clip
      *
      */
+    @Override
     public void processFixedLine(
         int x1, int y1, int x2, int y2, int[] pixelInfo, boolean checkBounds, boolean endSubPath) {
 
             /* Checking if line is inside a (X,Y),(X+MDP_MULT,Y+MDP_MULT) box */
-      int c = ((x1 ^ x2) | (y1 ^ y2));
+      int c = x1 ^ x2 | y1 ^ y2;
       int rx1, ry1, rx2, ry2;
       if ((c & MDP_W_MASK) == 0) {
                 /* Checking for the segments with integer coordinates having
@@ -1670,17 +1673,17 @@ public class ProcessPath {
           ry1 = y1 + MDP_HALF_MULT;
         } else {
                     /* Boundary at the direction from (x1,y1) to (x2,y2) */
-          int bx1 = (x1 < x2) ? fx1 + MDP_MULT : fx1;
-          int by1 = (y1 < y2) ? fy1 + MDP_MULT : fy1;
+          int bx1 = x1 < x2 ? fx1 + MDP_MULT : fx1;
+          int by1 = y1 < y2 ? fy1 + MDP_MULT : fy1;
 
                     /* intersection with column bx1 */
-          int cross = y1 + ((bx1 - x1) * dy) / dx;
+          int cross = y1 + (bx1 - x1) * dy / dx;
           if (cross >= fy1 && cross <= fy1 + MDP_MULT) {
             rx1 = bx1;
             ry1 = cross + MDP_HALF_MULT;
           } else {
                         /* intersection with row by1 */
-            cross = x1 + ((by1 - y1) * dx) / dy;
+            cross = x1 + (by1 - y1) * dx / dy;
             rx1 = cross + MDP_HALF_MULT;
             ry1 = by1;
           }
@@ -1695,33 +1698,34 @@ public class ProcessPath {
           ry2 = y2 + MDP_HALF_MULT;
         } else {
                     /* Boundary at the direction from (x2,y2) to (x1,y1) */
-          int bx2 = (x1 > x2) ? fx2 + MDP_MULT : fx2;
-          int by2 = (y1 > y2) ? fy2 + MDP_MULT : fy2;
+          int bx2 = x1 > x2 ? fx2 + MDP_MULT : fx2;
+          int by2 = y1 > y2 ? fy2 + MDP_MULT : fy2;
 
                     /* intersection with column bx2 */
-          int cross = y2 + ((bx2 - x2) * dy) / dx;
+          int cross = y2 + (bx2 - x2) * dy / dx;
           if (cross >= fy2 && cross <= fy2 + MDP_MULT) {
             rx2 = bx2;
             ry2 = cross + MDP_HALF_MULT;
           } else {
                         /* intersection with row by2 */
-            cross = x2 + ((by2 - y2) * dx) / dy;
+            cross = x2 + (by2 - y2) * dx / dy;
             rx2 = cross + MDP_HALF_MULT;
             ry2 = by2;
           }
         }
       }
       PROCESS_LINE(rx1, ry1, rx2, ry2, checkBounds, pixelInfo);
+    }    @Override
+    public void processEndSubPath() {
+      processESP.processEndSubPath();
     }
 
 
   }
 
-  ;
-
   private static class Point {
-    public int x;
-    public int y;
+    public final int x;
+    public final int y;
     public boolean lastPoint;
     public Point prev;
     public Point next;
@@ -1737,9 +1741,9 @@ public class ProcessPath {
 
   private static class Edge {
     int x;
-    int dx;
-    Point p;
-    int dir;
+    final int dx;
+    final Point p;
+    final int dir;
     Edge prev;
     Edge next;
 
@@ -1759,25 +1763,25 @@ public class ProcessPath {
   private static class FillData {
     public int plgYMin;
     public int plgYMax;
-    List<Point> plgPnts;
+    final List<Point> plgPnts;
 
     public FillData() {
-      plgPnts = new Vector<Point>(DF_MAX_POINT);
+      plgPnts = new Vector<>(DF_MAX_POINT);
     }
 
     public void addPoint(int x, int y, boolean lastPoint) {
-      if (plgPnts.size() == 0) {
+      if (plgPnts.isEmpty()) {
         plgYMin = plgYMax = y;
       } else {
-        plgYMin = (plgYMin > y) ? y : plgYMin;
-        plgYMax = (plgYMax < y) ? y : plgYMax;
+        plgYMin = plgYMin > y ? y : plgYMin;
+        plgYMax = plgYMax < y ? y : plgYMax;
       }
 
       plgPnts.add(new Point(x, y, lastPoint));
     }
 
     public boolean isEmpty() {
-      return plgPnts.size() == 0;
+      return plgPnts.isEmpty();
     }
 
     public boolean isEnded() {
@@ -1792,8 +1796,11 @@ public class ProcessPath {
   private static class ActiveEdgeList {
     Edge head;
 
+    ActiveEdgeList() {
+    }
+
     public boolean isEmpty() {
-      return (head == null);
+      return head == null;
     }
 
     public void insert(Point pnt, int cy) {
@@ -1804,36 +1811,35 @@ public class ProcessPath {
       if (Y1 == Y2) {
                 /* Skipping horizontal segments */
         return;
-      } else {
-        int dX = X2 - X1;
-        int dY = Y2 - Y1;
-        int stepx, x0, dy, dir;
+      }
+      int dX = X2 - X1;
+      int dY = Y2 - Y1;
+      int stepx, x0, dy, dir;
 
-        if (Y1 < Y2) {
-          x0 = X1;
-          dy = cy - Y1;
-          dir = -1;
-        } else { // (Y1 > Y2)
-          x0 = X2;
-          dy = cy - Y2;
-          dir = 1;
-        }
+      if (Y1 < Y2) {
+        x0 = X1;
+        dy = cy - Y1;
+        dir = -1;
+      } else { // (Y1 > Y2)
+        x0 = X2;
+        dy = cy - Y2;
+        dir = 1;
+      }
 
                 /* We need to worry only about dX because dY is in denominator
                  * and abs(dy) < MDP_MULT (cy is a first scanline of the scan
                  * converted segment and we subtract y coordinate of the
                  * nearest segment's end from it to obtain dy)
                  */
-        if (dX > CALC_UBND || dX < CALC_LBND) {
-          stepx = (int) ((((double) dX) * MDP_MULT) / dY);
-          x0 = x0 + (int) ((((double) dX) * dy) / dY);
-        } else {
-          stepx = (dX << MDP_PREC) / dY;
-          x0 += (dX * dy) / dY;
-        }
-
-        ne = new Edge(pnt, x0, stepx, dir);
+      if (dX > CALC_UBND || dX < CALC_LBND) {
+        stepx = (int) ((double) dX * MDP_MULT / dY);
+        x0 += (int) ((double) dX * dy / dY);
+      } else {
+        stepx = (dX << MDP_PREC) / dY;
+        x0 += dX * dy / dY;
       }
+
+      ne = new Edge(pnt, x0, stepx, dir);
 
       ne.next = head;
       ne.prev = null;
@@ -1916,16 +1922,17 @@ public class ProcessPath {
 
   private static class FillProcessHandler extends ProcessHandler {
 
-    FillData fd;
+    final FillData fd;
 
     FillProcessHandler(DrawHandler dhnd) {
       super(dhnd, PH_MODE_FILL_CLIP);
-      this.fd = new FillData();
+      fd = new FillData();
     }    /* Note: For more easy reading of the code below each java version of
      * the macros from the ProcessPath.c preceded by the commented
      * origin call containing verbose names of the parameters
      */
 
+    @Override
     public void processFixedLine(
         int x1, int y1, int x2, int y2, int[] pixelInfo, boolean checkBounds, boolean endSubPath) {
       int outXMin, outXMax, outYMin, outYMax;
@@ -1943,7 +1950,7 @@ public class ProcessPath {
                 /* This function is used only for filling shapes, so there is no
                  * check for the type of clipping
                  */
-        int c[] = new int[]{x1, y1, x2, y2, 0, 0};
+        int[] c = {x1, y1, x2, y2, 0, 0};
         outXMin = (int) (dhnd.xMinf * MDP_MULT);
         outXMax = (int) (dhnd.xMaxf * MDP_MULT);
         outYMin = (int) (dhnd.yMinf * MDP_MULT);
@@ -1988,7 +1995,7 @@ public class ProcessPath {
         res = CLIPCLAMP(outXMin, outXMax, c, 2, 3, 0, 1, 4, 5);
 
                 /* Checking if there was a clip by right boundary */
-        lastClipped = lastClipped || (res == CRES_MAX_CLIPPED);
+        lastClipped = lastClipped || res == CRES_MAX_CLIPPED;
 
         processFixedLine(c[0], c[1], c[2], c[3], pixelInfo, false, lastClipped);
 
@@ -2014,6 +2021,7 @@ public class ProcessPath {
       }
     }
 
+    @Override
     public void processEndSubPath() {
       if (!fd.isEmpty()) {
         fd.setEnded();

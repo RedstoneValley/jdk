@@ -30,18 +30,20 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
-public class TextAreaMixing {
+public final class TextAreaMixing {
 
-    private static volatile boolean menuClicked = false;
+    static volatile boolean menuClicked;
     private static JMenuItem menuItem;
+
+    private TextAreaMixing() {
+    }
 
     public static void main(String[] args) throws Exception {
         // The bug is only reproducible on X11, but there's no reason
         // for this test to not pass on any platofrm
 
-        final JFrame frame = new JFrame("JFrame");
+        JFrame frame = new JFrame("JFrame");
         frame.setLayout(new GridLayout(0, 1));
         frame.setSize(200, 200);
 

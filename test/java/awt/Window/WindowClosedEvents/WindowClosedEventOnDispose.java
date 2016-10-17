@@ -34,22 +34,21 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-
 /**
  * WindowClosedEventOnDispose.java
  * Summary: tests that Window don't multiplies the WINDOW_CLOSED event
  * on dispose.
  * Test fails if fire more events that expected;
  */
-public class WindowClosedEventOnDispose {
+public final class WindowClosedEventOnDispose {
 
-    private static int N_LOOPS = 5;
-    private static int N_DIALOGS = 2;
+    private static final int N_LOOPS = 5;
+    private static final int N_DIALOGS = 2;
 
-    public static void main(String args[]) throws Exception {
+  private WindowClosedEventOnDispose() {
+  }
+
+  public static void main(String[] args) throws Exception {
         tesWithFrame();
         testWithoutFrame();
         testHidenChildDispose();
@@ -128,31 +127,28 @@ public class WindowClosedEventOnDispose {
      * @param useFrame true if use a owner frame
      * @throws Exception
      */
-    private static void doTest(final boolean useFrame) throws Exception {
-        final Listener l  = new Listener();
-        final JFrame f = new JFrame();
+    private static void doTest(boolean useFrame) throws Exception {
+        Listener l  = new Listener();
+        JFrame f = new JFrame();
 
         for (int i = 0; i < N_LOOPS; i++) {
 
             SwingUtilities.invokeLater(new Runnable() {
 
+                @Override
                 public void run() {
                     JDialog[] dialogs = new JDialog[N_DIALOGS];
                     for (int i = 0; i < N_DIALOGS; i++) {
-                        if (useFrame) {
-                            dialogs[i]= new JDialog(f);
-                        }
-                        else {
-                            dialogs[i] = new JDialog();
-                        }
+                        dialogs[i] = useFrame ? new JDialog(f) : new JDialog();
 
                         dialogs[i].addWindowListener(l);
                         dialogs[i].setVisible(true);
                     }
 
                     // Dispose all
-                    for (JDialog d : dialogs)
+                    for (JDialog d : dialogs) {
                         d.dispose();
+                    }
 
                     f.dispose();
                 }
@@ -166,8 +162,9 @@ public class WindowClosedEventOnDispose {
 
     private static void waitEvents() throws InterruptedException {
         // Wait until events are dispatched
-        while (Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent() != null)
+        while (Toolkit.getDefaultToolkit().getSystemEventQueue().peekEvent() != null) {
             Thread.sleep(100);
+        }
     }
 
     /**
@@ -187,8 +184,9 @@ public class WindowClosedEventOnDispose {
  */
 class Listener extends WindowAdapter {
 
-    private volatile int count = 0;
+    private volatile int count;
 
+    @Override
     public void windowClosed(WindowEvent e) {
         count++;
     }

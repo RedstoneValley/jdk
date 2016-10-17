@@ -29,16 +29,15 @@
   @run applet SelectionAutoscrollTest.html
 */
 
-/**
- * SelectionAutoscrollTest.java
- *
- * summary: TextArea should be auto-scrolled and text should be selected to
- *   the end, if mouse is dragged from inside box-for-text to outside it, and
- *   is hold pressed there.
+/*
+  SelectionAutoscrollTest.java
+
+  summary: TextArea should be auto-scrolled and text should be selected to
+    the end, if mouse is dragged from inside box-for-text to outside it, and
+    is hold pressed there.
  */
 
 
-import java.applet.Applet;
 import java.awt.Frame;
 import java.awt.Panel;
 import java.awt.GridLayout;
@@ -49,14 +48,12 @@ import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.Robot;
 import java.awt.Toolkit;
-import test.java.awt.regtesthelpers.Util;
-
 
 public class SelectionAutoscrollTest extends Applet {
     TextArea textArea;
     Robot robot;
-    final int desiredSelectionEnd = ('z'-'a'+1)*2;  // 52
-    final static int SCROLL_DELAY = 10; // ms
+    final int desiredSelectionEnd = ('z' - 'a' + 1) << 1;  // 52
+    static final int SCROLL_DELAY = 10; // ms
 
     public void start () {
         createObjects();
@@ -74,7 +71,7 @@ public class SelectionAutoscrollTest extends Applet {
         for( int y=0; y<3; ++y ) {
             for( int x=0; x<3; ++x ) {
                 if( x==1 && y==1 ) {
-                    panel.add( textArea );
+                    panel.add(textArea);
                 } else {
                     panel.add( new Panel() );
                 }
@@ -97,10 +94,10 @@ public class SelectionAutoscrollTest extends Applet {
 
     void manipulateMouse() {
         moveMouseToCenterOfTextArea();
-        Util.waitForIdle( robot );
+        Util.waitForIdle(robot);
 
         robot.mousePress( MouseEvent.BUTTON1_MASK );
-        Util.waitForIdle( robot );
+        Util.waitForIdle(robot);
 
         for( int tremble=0; tremble < desiredSelectionEnd; ++tremble ) {
             // Mouse is moved repeatedly here (with conservatively chosen
@@ -126,13 +123,13 @@ public class SelectionAutoscrollTest extends Applet {
             //   all events received will be mouse-dragged events.
 
             moveMouseBelowTextArea( tremble%2!=0 );
-            Util.waitForIdle( robot );
+            Util.waitForIdle(robot);
             // it is needed to add some small delay on Gnome
             waitUntilScrollIsPerformed(robot);
         }
 
         robot.mouseRelease( MouseEvent.BUTTON1_MASK );
-        Util.waitForIdle( robot );
+        Util.waitForIdle(robot);
     }
 
     void moveMouseToCenterOfTextArea() {
@@ -146,7 +143,9 @@ public class SelectionAutoscrollTest extends Applet {
         Point l = textArea.getLocationOnScreen();
         int x = (int)(l.x+d.width*.5);
         int y = (int)(l.y+d.height*1.5);
-        if( shift ) y+=15;
+        if( shift ) {
+            y += 15;
+        }
         robot.mouseMove( x, y );
     }
 
@@ -163,7 +162,7 @@ public class SelectionAutoscrollTest extends Applet {
         //try { Thread.sleep( 30*1000 ); }
         //catch( Exception e ) { throw new RuntimeException( e ); }
 
-        final int currentSelectionEnd = textArea.getSelectionEnd();
+        int currentSelectionEnd = textArea.getSelectionEnd();
 
         System.out.println(
             "TEST: Selection range after test is: ( "
@@ -171,16 +170,16 @@ public class SelectionAutoscrollTest extends Applet {
             + currentSelectionEnd + " )"
         );
 
-        boolean resultOk = ( currentSelectionEnd == desiredSelectionEnd );
+        boolean resultOk = currentSelectionEnd == desiredSelectionEnd;
         String desiredSelectionEndString = "" + desiredSelectionEnd;
 
         // On Windows, last empty line is surprisingly not selected.
         // Even if it's a bug, it's not for this test.
         // So, we have 2 acceptable results in this case.
         String toolkitName = Toolkit.getDefaultToolkit().getClass().getName();
-        if( toolkitName.equals("sun.awt.windows.WToolkit") ) {
-            final int desiredSelectionEnd2 = desiredSelectionEnd-1;  // 51
-            resultOk |= ( currentSelectionEnd == desiredSelectionEnd2 );
+        if("sun.awt.windows.WToolkit".equals(toolkitName)) {
+            int desiredSelectionEnd2 = desiredSelectionEnd -1;  // 51
+            resultOk |= currentSelectionEnd == desiredSelectionEnd2;
             desiredSelectionEndString += " or " + desiredSelectionEnd2;
         }
 

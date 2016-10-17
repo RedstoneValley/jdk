@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6543815
  * @summary Image should be sent to printer, no exceptions thrown.
  *    The 2 printouts should have a rectangle which is the minimum
@@ -35,7 +35,7 @@ import java.awt.print.*;
 
 public class Margins implements Printable {
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         PrinterJob job = PrinterJob.getPrinterJob();
         PageFormat pageFormat = job.defaultPage();
         Paper paper = pageFormat.getPaper();
@@ -61,6 +61,7 @@ public class Margins implements Printable {
         }
    }
 
+   @Override
    public int print(Graphics g, PageFormat pf, int page)
        throws PrinterException {
 
@@ -72,7 +73,7 @@ public class Margins implements Printable {
        int iw = (int)pf.getImageableWidth();
        int ih = (int)pf.getImageableHeight();
        System.out.println("ix="+ix+" iy="+iy+" iw="+iw+" ih="+ih);
-       if ((ix < 0) || (iy < 0)) {
+       if (ix < 0 || iy < 0) {
            throw new RuntimeException("Imageable x or y is a negative value.");
        }
 
@@ -80,7 +81,7 @@ public class Margins implements Printable {
        double wid = paper.getWidth();
        double hgt = paper.getHeight();
 
-       if ((ix+iw > wid) || (iy+ih > hgt)) {
+       if (ix+iw > wid || iy+ih > hgt) {
            throw new RuntimeException("Printable width or height exceeds paper width or height.");
        }
 

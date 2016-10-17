@@ -35,8 +35,11 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
 
-public class TranslatedOutlineTest {
-   public static void main(String a[]) {
+public final class TranslatedOutlineTest {
+  private TranslatedOutlineTest() {
+  }
+
+  public static void main(String[] a) {
         /* prepare blank image */
         BufferedImage bi = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2 = (Graphics2D) bi.getGraphics();

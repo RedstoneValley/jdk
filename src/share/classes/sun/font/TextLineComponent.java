@@ -81,9 +81,8 @@ public class TextLineComponent {
   }
 
   public TextLineComponent applyJustificationDeltas(float[] deltas, int i, boolean[] flags) {
-    TextLineComponent modified = new TextLineComponent();
     // TODO
-    return modified;
+    return new TextLineComponent();
   }
 
   public Rectangle2D getItalicBounds() {

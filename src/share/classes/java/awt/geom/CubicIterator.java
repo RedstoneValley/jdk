@@ -34,13 +34,13 @@ import java.util.NoSuchElementException;
  * @author Jim Graham
  */
 class CubicIterator implements PathIterator {
-  CubicCurve2D cubic;
-  AffineTransform affine;
+  final CubicCurve2D cubic;
+  final AffineTransform affine;
   int index;
 
   CubicIterator(CubicCurve2D q, AffineTransform at) {
-    this.cubic = q;
-    this.affine = at;
+    cubic = q;
+    affine = at;
   }
 
   /**
@@ -50,6 +50,7 @@ class CubicIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -59,8 +60,9 @@ class CubicIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
-    return (index > 1);
+    return index > 1;
   }
 
   /**
@@ -68,6 +70,7 @@ class CubicIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -91,6 +94,7 @@ class CubicIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("cubic iterator iterator out of bounds");
@@ -134,6 +138,7 @@ class CubicIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("cubic iterator iterator out of bounds");

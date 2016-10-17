@@ -42,21 +42,24 @@ package j2dbench;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
+import sun.awt.FontConfiguration;
+import sun.awt.OSInfo;
 
 public class ResultSet {
-  static Hashtable preferprops;
-  static Hashtable ignoreprops;
+  static final Hashtable preferprops;
+  static final Map ignoreprops;
 
   // Preferred props - will be listed even if undefined
-  static String preferredkeys[] = {
+  static final String[] preferredkeys = {
       "java.version", "java.runtime.version", "java.class.version", "java.vm.version",
       "java.vm.name", "java.vm.info", "java.home", "java.compiler", "os.arch", "os.name",
-      "os.version", "user.name", "sun.cpu.endian", "sun.cpu.isalist",};
+      OSInfo.OS_VERSION, "user.name", "sun.cpu.endian", "sun.cpu.isalist",};
 
   // Ignored props - will not be copied to results file
-  static String ignoredkeys[] = {
+  static final String[] ignoredkeys = {
       "user.dir", "user.home", "user.timezone", "path.separator", "line.separator",
       "file.separator", "file.encoding", "file.encoding.pkg", "java.class.path",
       "java.library.path", "java.io.tmpdir", "java.ext.dirs", "java.endorsed.dirs",
@@ -86,22 +89,22 @@ public class ResultSet {
      * sun.io.unicode.encoding
      */
 
-  static String unknown = "unknown";
+  static final String unknown = FontConfiguration.UNDEFINED_COMPONENT_FONT;
 
   static {
     preferprops = new Hashtable();
-    for (int i = 0; i < preferredkeys.length; i++) {
-      preferprops.put(preferredkeys[i], unknown);
+    for (String preferredkey : preferredkeys) {
+      preferprops.put(preferredkey, unknown);
     }
     ignoreprops = new Hashtable();
-    for (int i = 0; i < ignoredkeys.length; i++) {
-      ignoreprops.put(ignoredkeys[i], unknown);
+    for (String ignoredkey : ignoredkeys) {
+      ignoreprops.put(ignoredkey, unknown);
     }
   }
 
-  Hashtable props;
-  Vector results;
-  long start;
+  final Hashtable props;
+  final Vector results;
+  final long start;
   long end;
   String title;
   String description;
@@ -125,7 +128,7 @@ public class ResultSet {
   }
 
   public void setDescription(String desc) {
-    this.description = desc;
+    description = desc;
   }
 
   public void record(Result result) {
@@ -143,8 +146,7 @@ public class ResultSet {
     pw.println("<result-set version=\"0.1\" name=\"" + title + "\">");
     pw.println("  <test-desc>" + description + "</test-desc>");
     pw.println("  <test-date start=\"" + start + "\" end=\"" + end + "\"/>");
-    for (int i = 0; i < preferredkeys.length; i++) {
-      String key = preferredkeys[i];
+    for (String key : preferredkeys) {
       pw.println("  <sys-prop key=\"" + key +
           "\" value=\"" + props.get(key) + "\"/>");
     }

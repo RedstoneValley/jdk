@@ -37,18 +37,13 @@ import java.awt.TextArea;
 import java.awt.Toolkit;
 import java.lang.reflect.Field;
 
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import javax.swing.text.DefaultCaret;
-
 import sun.awt.SunToolkit;
 
-public class bug7129742 {
+public final class bug7129742 {
 
-    public static DefaultCaret caret = null;
-    public static JFrame frame = null;
-    public static boolean fastreturn = false;
+    public static DefaultCaret caret;
+    public static JFrame frame;
+    public static boolean fastreturn;
 
     public static void main(String[] args) throws Exception {
         SunToolkit toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
@@ -67,7 +62,7 @@ public class bug7129742 {
                 try {
                     Class XTextAreaPeerClzz  = textArea.getPeer().getClass();
                     System.out.println(XTextAreaPeerClzz.getName());
-                    if (!XTextAreaPeerClzz.getName().equals("sun.awt.X11.XTextAreaPeer")) {
+                    if (!"sun.awt.X11.XTextAreaPeer".equals(XTextAreaPeerClzz.getName())) {
                         fastreturn = true;
                         return;
                     }

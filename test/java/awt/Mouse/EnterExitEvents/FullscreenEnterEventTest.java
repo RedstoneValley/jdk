@@ -21,10 +21,6 @@
 * questions.
 */
 
-import sun.misc.OSEnvironment;
-import test.java.awt.regtesthelpers.Util;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -43,16 +39,19 @@ import java.lang.reflect.Proxy;
  * @author Petr Pchelko area=awt.event
  * @run main FullscreenEnterEventTest
  */
-public class FullscreenEnterEventTest {
+public final class FullscreenEnterEventTest {
 
-    private static String OS = System.getProperty("os.name").toLowerCase();
+    private static final String OS = System.getProperty("os.name").toLowerCase();
 
-    private static JFrame frame;
+    static JFrame frame;
 
-    private static volatile int mouseEnterCount = 0;
+    static volatile int mouseEnterCount;
 
-    private static volatile boolean windowEnteringFullScreen = false;
-    private static volatile boolean windowEnteredFullScreen = false;
+    static volatile boolean windowEnteringFullScreen;
+    static volatile boolean windowEnteredFullScreen;
+
+    private FullscreenEnterEventTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -109,13 +108,19 @@ public class FullscreenEnterEventTest {
             r.mousePress(InputEvent.BUTTON1_MASK);
             r.mouseRelease(InputEvent.BUTTON1_MASK);
             Thread.sleep(100);
-            if (waitCount++ > 10) throw new RuntimeException("Can't enter full screen mode. Failed");
+            if (waitCount > 10) {
+                throw new RuntimeException("Can't enter full screen mode. Failed");
+            }
+            waitCount++;
         }
 
         waitCount = 0;
         while (!windowEnteredFullScreen) {
             Thread.sleep(200);
-            if (waitCount++ > 10) throw new RuntimeException("Can't enter full screen mode. Failed");
+            if (waitCount > 10) {
+                throw new RuntimeException("Can't enter full screen mode. Failed");
+            }
+            waitCount++;
         }
 
         if (mouseEnterCount != 1) {
@@ -123,7 +128,7 @@ public class FullscreenEnterEventTest {
         }
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
         frame = new JFrame(" Fullscreen OSX Bug ");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         enableFullScreen(frame);

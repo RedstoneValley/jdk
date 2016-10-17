@@ -106,7 +106,7 @@ class Matrix3D {
    * rotate theta degrees about the y axis
    */
   void yrot(double theta) {
-    theta *= (pi / 180);
+    theta *= pi / 180;
     double ct = Math.cos(theta);
     double st = Math.sin(theta);
 
@@ -134,7 +134,7 @@ class Matrix3D {
    * rotate theta degrees about the x axis
    */
   void xrot(double theta) {
-    theta *= (pi / 180);
+    theta *= pi / 180;
     double ct = Math.cos(theta);
     double st = Math.sin(theta);
 
@@ -162,7 +162,7 @@ class Matrix3D {
    * rotate theta degrees about the z axis
    */
   void zrot(double theta) {
-    theta *= (pi / 180);
+    theta *= pi / 180;
     double ct = Math.cos(theta);
     double st = Math.sin(theta);
 
@@ -245,7 +245,7 @@ class Matrix3D {
    * the array constitute a point.  tv ends up holding the transformed
    * points as integers; three successive entries per point
    */
-  void transform(float v[], int tv[], int nvert) {
+  void transform(float[] v, int[] tv, int nvert) {
     float lxx = xx, lxy = xy, lxz = xz, lxo = xo;
     float lyx = yx, lyy = yy, lyz = yz, lyo = yo;
     float lzx = zx, lzy = zy, lzz = zz, lzo = zo;
@@ -261,7 +261,7 @@ class Matrix3D {
 
   @Override
   public String toString() {
-    return ("[" + xo + "," + xx + "," + xy + "," + xz + ";" + yo + "," + yx + "," + yy + "," + yz
-                + ";" + zo + "," + zx + "," + zy + "," + zz + "]");
+    return "[" + xo + "," + xx + "," + xy + "," + xz + ";" + yo + "," + yx + "," + yy + "," + yz
+        + ";" + zo + "," + zx + "," + zy + "," + zz + "]";
   }
 }

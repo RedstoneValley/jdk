@@ -23,9 +23,8 @@
 
 
 import sun.awt.OSInfo;
-import test.java.awt.regtesthelpers.Sysout;
+import sun.awt.OSInfo.OSType;
 
-import java.applet.Applet;
 import java.awt.Button;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -39,7 +38,7 @@ public class FileDialogForDirectories extends Applet implements ActionListener {
 
     @Override
     public void init() {
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             Sysout.createDialogWithInstructions(new String[]{
                     "Press PASS, this test is for MacOS X only."});
             return;

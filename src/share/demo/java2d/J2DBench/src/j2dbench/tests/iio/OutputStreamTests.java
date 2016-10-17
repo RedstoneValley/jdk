@@ -43,12 +43,11 @@ import j2dbench.Group;
 import j2dbench.Result;
 import j2dbench.TestEnvironment;
 import java.io.IOException;
-import javax.imageio.stream.ImageOutputStream;
 
 abstract class OutputStreamTests extends OutputTests {
 
   private static Group streamRoot;
-  private static Group streamTestRoot;
+  static Group streamTestRoot;
 
   protected OutputStreamTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
@@ -74,19 +73,19 @@ abstract class OutputStreamTests extends OutputTests {
 
   private static class Context extends OutputTests.Context {
     ImageOutputStream outputStream;
-    int scanlineStride; // width of a scanline (in bytes)
-    int length; // length of the entire stream (in bytes)
-    byte[] byteBuf;
+    final int scanlineStride; // width of a scanline (in bytes)
+    final int length; // length of the entire stream (in bytes)
+    final byte[] byteBuf;
 
     Context(TestEnvironment env, Result result) {
       super(env, result);
 
       // 4 bytes per "pixel"
-      scanlineStride = size * 4;
+      scanlineStride = size << 2;
 
       // tack on an extra 4 bytes, so that in the 1x1 case we can
       // call writeLong() or writeDouble() before resetting
-      length = (scanlineStride * size) + 4;
+      length = scanlineStride * size + 4;
 
       // big enough for one scanline
       byteBuf = new byte[scanlineStride];
@@ -100,6 +99,7 @@ abstract class OutputStreamTests extends OutputTests {
       }
     }
 
+    @Override
     void cleanup(TestEnvironment env) {
       super.cleanup(env);
       if (outputStream != null) {
@@ -111,9 +111,6 @@ abstract class OutputStreamTests extends OutputTests {
         outputStream = null;
       }
     }
-  }  public void cleanupTest(TestEnvironment env, Object ctx) {
-    Context iioctx = (Context) ctx;
-    iioctx.cleanup(env);
   }
 
   private static class IOSConstruct extends OutputStreamTests {
@@ -121,6 +118,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "construct", "Construct");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -128,18 +126,25 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
+      Context octx = (Context) ctx;
       try {
+        --numReps;
         do {
           ImageOutputStream ios = octx.createImageOutputStream();
           ios.close();
           octx.closeOriginalStream();
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object ctx) {
+    Context iioctx = (Context) ctx;
+    iioctx.cleanup(env);
   }
 
   private static class IOSWrite extends OutputStreamTests {
@@ -147,6 +152,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "write", "write()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -154,13 +160,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos >= length) {
             ios.reset();
@@ -169,7 +177,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.write(0);
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -186,6 +195,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeByteArray", "write(byte[]) (one \"scanline\" at a time)");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(ctx.scanlineStride);
@@ -193,15 +203,17 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final byte[] buf = octx.byteBuf;
-      final int scanlineStride = octx.scanlineStride;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      byte[] buf = octx.byteBuf;
+      int scanlineStride = octx.scanlineStride;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + scanlineStride > length) {
             ios.reset();
@@ -210,7 +222,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.write(buf);
           pos += scanlineStride;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -227,6 +240,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeBit", "writeBit()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -234,13 +248,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length * 8; // measured in bits
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length * 8; // measured in bits
       int pos = 0; // measured in bits
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos >= length) {
             ios.reset();
@@ -249,7 +265,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeBit(0);
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -266,6 +283,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeByte", "writeByte()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(1);
@@ -273,13 +291,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos >= length) {
             ios.reset();
@@ -288,7 +308,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeByte(0);
           pos++;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -305,6 +326,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeShort", "writeShort()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(2);
@@ -312,13 +334,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + 2 > length) {
             ios.reset();
@@ -327,7 +351,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeShort(0);
           pos += 2;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -344,6 +369,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeInt", "writeInt()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(4);
@@ -351,13 +377,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + 4 > length) {
             ios.reset();
@@ -366,7 +394,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeInt(0);
           pos += 4;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -383,6 +412,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeFloat", "writeFloat()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(4);
@@ -390,13 +420,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + 4 > length) {
             ios.reset();
@@ -405,7 +437,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeFloat(0.0f);
           pos += 4;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -422,6 +455,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeLong", "writeLong()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(8);
@@ -429,13 +463,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + 8 > length) {
             ios.reset();
@@ -444,7 +480,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeLong(0L);
           pos += 8;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
@@ -461,6 +498,7 @@ abstract class OutputStreamTests extends OutputTests {
       super(streamTestRoot, "writeDouble", "writeDouble()");
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = new Context(env, result);
       result.setUnits(8);
@@ -468,13 +506,15 @@ abstract class OutputStreamTests extends OutputTests {
       return ctx;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context octx = (Context) ctx;
-      final ImageOutputStream ios = octx.outputStream;
-      final int length = octx.length;
+      Context octx = (Context) ctx;
+      ImageOutputStream ios = octx.outputStream;
+      int length = octx.length;
       int pos = 0;
       try {
         ios.mark();
+        --numReps;
         do {
           if (pos + 8 > length) {
             ios.reset();
@@ -483,7 +523,8 @@ abstract class OutputStreamTests extends OutputTests {
           }
           ios.writeDouble(0.0);
           pos += 8;
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } catch (IOException e) {
         e.printStackTrace();
       } finally {

@@ -31,22 +31,14 @@
     @run        main FrameJumpingToMouse
 */
 
-import java.applet.Applet;
-import java.awt.BorderLayout;
-import java.awt.Dialog;
-import java.awt.Frame;
 import java.awt.Point;
 import java.awt.Robot;
-import java.awt.TextArea;
-import java.awt.Toolkit;
 import java.awt.event.InputEvent;
-import javax.swing.JFrame;
-import test.java.awt.regtesthelpers.Util;
 
 public class FrameJumpingToMouse extends Applet
 {
-    JFrame frame = new JFrame("Test jumping frame");
-    Robot robot = Util.createRobot();
+    final JFrame frame = new JFrame("Test jumping frame");
+    final Robot robot = Util.createRobot();
 
     public static void main(String[] args) {
         FrameJumpingToMouse test = new FrameJumpingToMouse();
@@ -78,7 +70,7 @@ public class FrameJumpingToMouse extends Applet
         robot.mouseMove(loc.x + frame.getWidth() / 2, loc.y + frame.getHeight() / 2);
         Util.waitForIdle(robot);
 
-        if (!(frame.getLocation().equals(loc))) {
+        if (!frame.getLocation().equals(loc)) {
             throw new RuntimeException("Test failed: frame is moving to mouse with grab!");
         }
         System.out.println("Test passed.");

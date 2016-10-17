@@ -33,16 +33,23 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import test.java.awt.regtesthelpers.Util;
 
 /*
  * The bug is not reproducible on Windows.
  */
 public class RestoreFocusOnDisabledComponentTest extends Applet {
-    Frame frame = new Frame("Frame") {public String toString() {return "FRAME";}};
-    Button b0 = new Button("button0") {public String toString() {return "B-0";}};
-    Button b1 = new Button("button1") {public String toString() {return "B-1";}};
+    final Frame frame = new Frame("Frame") {
+        private static final long serialVersionUID = 8315022443987169807L;
+
+        public String toString() {return "FRAME";}};
+    final Button b0 = new Button("button0") {
+        private static final long serialVersionUID = -159716841733806064L;
+
+        public String toString() {return "B-0";}};
+    final Button b1 = new Button("button1") {
+        private static final long serialVersionUID = 5550450948413255674L;
+
+        public String toString() {return "B-1";}};
     volatile int nFocused;
     Robot robot;
 
@@ -66,6 +73,7 @@ public class RestoreFocusOnDisabledComponentTest extends Applet {
 
         Util.waitForIdle(robot);
         KeyboardFocusManager.setCurrentKeyboardFocusManager(new DefaultKeyboardFocusManager() {
+            @Override
             public boolean dispatchEvent(AWTEvent e) {
                 if (e.getID() == FocusEvent.FOCUS_GAINED) {
                     // Trying to emulate timings. b1 should be disabled just by the time it gets
@@ -75,7 +83,8 @@ public class RestoreFocusOnDisabledComponentTest extends Applet {
                         b1.setEnabled(false);
 
                     } else if (e.getSource() == b0) {
-                        if (++nFocused > 10) {
+                        ++nFocused;
+                        if (nFocused > 10) {
                             nFocused = -1;
                             throw new TestFailedException("Focus went into busy loop!");
                         }
@@ -101,6 +110,8 @@ public class RestoreFocusOnDisabledComponentTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }

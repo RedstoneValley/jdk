@@ -42,20 +42,17 @@
 //  be changed to the name of the test.
 
 
-/**
- * InterJVMGetDropSuccessTest.java
- *
- * summary: verifies that getDropSuccess() returns correct value for inter-JVM DnD
+/*
+  InterJVMGetDropSuccessTest.java
+
+  summary: verifies that getDropSuccess() returns correct value for inter-JVM DnD
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.*;
-import javax.swing.*;
-
 
 //Automated tests should run as applet tests if possible because they
 // get their environments cleaned up, including AWT threads, any
@@ -68,19 +65,21 @@ import javax.swing.*;
 // tests...
 
 
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
 public class InterJVMGetDropSuccessTest extends Applet {
 
     private int returnCode = Util.CODE_NOT_RETURNED;
-    private boolean successCodes[] = { true, false };
-    private int dropCount = 0;
+    final boolean[] successCodes = { true, false };
+    int dropCount;
 
     final Frame frame = new Frame("Target Frame");
 
     final DropTargetListener dropTargetListener = new DropTargetAdapter() {
+            @Override
             public void drop(DropTargetDropEvent dtde) {
                 dtde.acceptDrop(DnDConstants.ACTION_COPY);
                 dtde.dropComplete(successCodes[dropCount]);
-                dropCount++;
+              dropCount++;
             }
         };
     final DropTarget dropTarget = new DropTarget(frame, dropTargetListener);
@@ -98,13 +97,13 @@ public class InterJVMGetDropSuccessTest extends Applet {
         Sysout.createDialog( );
         Sysout.printInstructions( instructions );
 
-        frame.setTitle("Test frame");
-        frame.setBounds(100, 100, 150, 150);
+      frame.setTitle("Test frame");
+      frame.setBounds(100, 100, 150, 150);
     } // init()
 
     public void start() {
 
-        frame.setVisible(true);
+      frame.setVisible(true);
 
         try {
             Thread.sleep(Util.FRAME_ACTIVATION_TIMEOUT);
@@ -119,7 +118,7 @@ public class InterJVMGetDropSuccessTest extends Applet {
                 p.x + " " + p.y + " " + d.width + " " + d.height;
 
             Process process = Runtime.getRuntime().exec(command);
-            returnCode = process.waitFor();
+          returnCode = process.waitFor();
 
             InputStream errorStream = process.getErrorStream();
             int count = errorStream.available();
@@ -161,7 +160,7 @@ public class InterJVMGetDropSuccessTest extends Applet {
                 if (expectedRetCode != returnCode) {
                     throw new RuntimeException("The test failed. Expected:" +
                                                expectedRetCode + ". Returned:" +
-                                               returnCode);
+                        returnCode);
                 }
             }
             break;
@@ -186,26 +185,20 @@ final class Util implements AWTEventListener {
         Toolkit.getDefaultToolkit().addAWTEventListener(theInstance, AWTEvent.MOUSE_EVENT_MASK);
     }
 
-    public static Point getCenterLocationOnScreen(Component c) {
-        Point p = c.getLocationOnScreen();
-        Dimension d = c.getSize();
-        p.translate(d.width / 2, d.height / 2);
-        return p;
-    }
-
-    public static int sign(int n) {
+  public static int sign(int n) {
         return n < 0 ? -1 : n == 0 ? 0 : 1;
     }
 
-    private Component clickedComponent = null;
+    private Component clickedComponent;
 
     private void reset() {
-        clickedComponent = null;
+      clickedComponent = null;
     }
 
+    @Override
     public void eventDispatched(AWTEvent e) {
         if (e.getID() == MouseEvent.MOUSE_RELEASED) {
-            clickedComponent = (Component)e.getSource();
+          clickedComponent = (Component)e.getSource();
             synchronized (SYNC_LOCK) {
                 SYNC_LOCK.notifyAll();
             }
@@ -220,7 +213,7 @@ final class Util implements AWTEventListener {
     private boolean pointInComponentImpl(Robot robot, Point p, Component comp)
       throws InterruptedException {
         robot.waitForIdle();
-        reset();
+      reset();
         robot.mouseMove(p.x, p.y);
         robot.mousePress(InputEvent.BUTTON1_MASK);
         synchronized (SYNC_LOCK) {
@@ -239,13 +232,20 @@ final class Util implements AWTEventListener {
 }
 
 class Child {
-    static class DragSourceDropListener extends DragSourceAdapter {
-        private boolean finished = false;
-        private boolean dropSuccess = false;
+  public static Point getCenterLocationOnScreen(Component c) {
+      Point p = c.getLocationOnScreen();
+      Dimension d = c.getSize();
+      p.translate(d.width / 2, d.height / 2);
+      return p;
+  }
+
+  static class DragSourceDropListener extends DragSourceAdapter {
+        private boolean finished;
+        private boolean dropSuccess;
 
         public void reset() {
-            finished = false;
-            dropSuccess = false;
+          finished = false;
+          dropSuccess = false;
         }
 
         public boolean isDropFinished() {
@@ -256,9 +256,10 @@ class Child {
             return dropSuccess;
         }
 
+        @Override
         public void dragDropEnd(DragSourceDropEvent dsde) {
-            finished = true;
-            dropSuccess = dsde.getDropSuccess();
+          finished = true;
+          dropSuccess = dsde.getDropSuccess();
             synchronized (Util.SYNC_LOCK) {
                 Util.SYNC_LOCK.notifyAll();
             }
@@ -270,13 +271,14 @@ class Child {
     final DragSourceDropListener dragSourceListener = new DragSourceDropListener();
     final Transferable transferable = new StringSelection("TEXT");
     final DragGestureListener dragGestureListener = new DragGestureListener() {
+            @Override
             public void dragGestureRecognized(DragGestureEvent dge) {
                 dge.startDrag(null, transferable, dragSourceListener);
             }
         };
-    final DragGestureRecognizer dragGestureRecognizer =
-        dragSource.createDefaultDragGestureRecognizer(frame, DnDConstants.ACTION_COPY,
-                                                      dragGestureListener);
+    final DragGestureRecognizer dragGestureRecognizer = dragSource.createDefaultDragGestureRecognizer(frame, DnDConstants.ACTION_COPY,
+
+        dragGestureListener);
 
     public static void main(String[] args) {
         Child child = new Child();
@@ -294,12 +296,12 @@ class Child {
             int w = Integer.parseInt(args[2]);
             int h = Integer.parseInt(args[3]);
 
-            frame.setBounds(300, 200, 150, 150);
-            frame.setVisible(true);
+          frame.setBounds(300, 200, 150, 150);
+          frame.setVisible(true);
 
             Thread.sleep(Util.FRAME_ACTIVATION_TIMEOUT);
 
-            Point sourcePoint = Util.getCenterLocationOnScreen(frame);
+            Point sourcePoint = getCenterLocationOnScreen(frame);
 
             Point targetPoint = new Point(x + w / 2, y + h / 2);
 
@@ -324,7 +326,7 @@ class Child {
 
             boolean success1 = dragSourceListener.getDropSuccess();
 
-            dragSourceListener.reset();
+          dragSourceListener.reset();
             robot.mouseMove(sourcePoint.x, sourcePoint.y);
             robot.mousePress(InputEvent.BUTTON1_MASK);
             for (Point p = new Point(sourcePoint); !p.equals(targetPoint);
@@ -362,13 +364,13 @@ class Child {
     } // run()
 } // class child
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -382,9 +384,12 @@ class Child {
   as standalone.
  */
 
-class Sysout
+final class Sysout
  {
    private static TestDialog dialog;
+
+   private Sysout() {
+   }
 
    public static void createDialogWithInstructions( String[] instructions )
     {
@@ -428,9 +433,10 @@ class Sysout
 class TestDialog extends Dialog
  {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+   private static final long serialVersionUID = 4421905612345965770L;
+   final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -438,10 +444,10 @@ class TestDialog extends Dialog
       super( frame, name );
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-      add("South", messageText);
+      add(BorderLayout.SOUTH, messageText);
 
       pack();
 
@@ -457,36 +463,32 @@ class TestDialog extends Dialog
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

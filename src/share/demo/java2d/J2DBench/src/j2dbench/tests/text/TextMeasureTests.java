@@ -110,6 +110,7 @@ public abstract class TextMeasureTests extends TextTests {
     }
   }
 
+  @Override
   public Context createContext() {
     return new SWContext();
   }
@@ -117,6 +118,7 @@ public abstract class TextMeasureTests extends TextTests {
   static class SWContext extends TextContext {
     FontMetrics fm;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
       fm = graphics.getFontMetrics(font);
@@ -128,14 +130,17 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "stringWidth", "Measuring String Width");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       SWContext swctx = (SWContext) ctx;
       String text = swctx.text;
       FontMetrics fm = swctx.fm;
       int wid = 0;
+      --numReps;
       do {
         wid += fm.stringWidth(text);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -144,20 +149,22 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "stringBounds", "Measuring String Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       SWContext swctx = (SWContext) ctx;
       String text = swctx.text;
       FontMetrics fm = swctx.fm;
       int wid = 0;
       Rectangle r = null;
+      --numReps;
       do {
-        r = null;
         int dx = fm.stringWidth(text);
         int dy = fm.getAscent() + fm.getDescent() + fm.getLeading();
         int x = 0;
         int y = -fm.getAscent();
         r = new Rectangle(x, y, dx, dy);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -166,14 +173,17 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "charsWidth", "Measuring Chars Width");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       SWContext swctx = (SWContext) ctx;
       FontMetrics fm = swctx.fm;
       char[] chars = swctx.chars;
       int wid = 0;
+      --numReps;
       do {
         wid += fm.charsWidth(chars, 0, chars.length);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -182,20 +192,22 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "charsBounds", "Measuring Chars Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       SWContext swctx = (SWContext) ctx;
       FontMetrics fm = swctx.fm;
       char[] chars = swctx.chars;
       int wid = 0;
       Rectangle r = null;
+      --numReps;
       do {
-        r = null;
         int dx = fm.charsWidth(chars, 0, chars.length);
         int dy = fm.getAscent() + fm.getDescent() + fm.getLeading();
         int x = 0;
         int y = -fm.getAscent();
         r = new Rectangle(x, y, dx, dy);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -204,20 +216,24 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "fontcandisplay", "Font canDisplay(char)");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       Font font = ((TextContext) ctx).font;
       boolean b = false;
+      --numReps;
       do {
         for (int i = 0; i < 0x10000; i += 0x64) {
           b ^= font.canDisplay((char) i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class GVContext extends G2DContext {
     GlyphVector gv;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
@@ -231,11 +247,12 @@ public abstract class TextMeasureTests extends TextTests {
     }
   }
 
-  public static abstract class GVMeasureTest extends TextMeasureTests {
+  public abstract static class GVMeasureTest extends TextMeasureTests {
     protected GVMeasureTest(Group parent, String nodeName, String description) {
       super(parent, nodeName, description);
     }
 
+    @Override
     public Context createContext() {
       return new GVContext();
     }
@@ -246,13 +263,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvWidth", "Measuring GV Width");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       double wid = 0;
+      --numReps;
       do {
         wid += gv.getGlyphPosition(gv.getNumGlyphs()).getX();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -261,13 +281,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvLogicalBounds", "Measuring GV Logical Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Rectangle2D r;
+      --numReps;
       do {
         r = gv.getLogicalBounds();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -276,13 +299,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvVisualBounds", "Measuring GV Visual Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Rectangle2D r;
+      --numReps;
       do {
         r = gv.getVisualBounds();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -291,13 +317,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvPixelBounds", "Measuring GV Pixel Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Rectangle2D r;
+      --numReps;
       do {
         r = gv.getPixelBounds(null, 0, 0); // !!! add opt to provide different frc?
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -306,13 +335,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvOutline", "Getting GV Outline");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Shape s;
+      --numReps;
       do {
         s = gv.getOutline();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -321,15 +353,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphLogicalBounds", "Measuring GV Glyph Logical Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Shape s;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           s = gv.getGlyphLogicalBounds(i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -338,15 +373,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphVisualBounds", "Measuring GV Glyph Visual Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Shape s;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           s = gv.getGlyphVisualBounds(i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -355,15 +393,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphPixelBounds", "Measuring GV Glyph Pixel Bounds");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Rectangle2D r;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           r = gv.getGlyphPixelBounds(i, null, 0, 0); // !!! add opt to provide different frc?
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -372,15 +413,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphOutline", "Getting GV Glyph Outline");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       Shape s;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           s = gv.getGlyphOutline(i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -389,15 +433,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphTransform", "Getting GV Glyph Transform");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       AffineTransform tx;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           tx = gv.getGlyphTransform(i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -406,21 +453,25 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "gvGlyphMetrics", "Getting GV Glyph Metrics");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       GVContext gvctx = (GVContext) ctx;
       GlyphVector gv = gvctx.gv;
       GlyphMetrics gm;
+      --numReps;
       do {
         for (int i = 0, e = gv.getNumGlyphs(); i < e; ++i) {
           gm = gv.getGlyphMetrics(i);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
   public static class TLContext extends G2DContext {
     TextLayout tl;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
@@ -429,11 +480,12 @@ public abstract class TextMeasureTests extends TextTests {
     }
   }
 
-  public static abstract class TLMeasureTest extends TextMeasureTests {
+  public abstract static class TLMeasureTest extends TextMeasureTests {
     protected TLMeasureTest(Group parent, String nodeName, String description) {
       super(parent, nodeName, description);
     }
 
+    @Override
     public Context createContext() {
       return new TLContext();
     }
@@ -444,13 +496,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlAdvance", "Measuring TL advance");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLContext tlctx = (TLContext) ctx;
       TextLayout tl = tlctx.tl;
       double wid = 0;
+      --numReps;
       do {
         wid += tl.getAdvance();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -459,13 +514,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlAscent", "Measuring TL ascent");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLContext tlctx = (TLContext) ctx;
       TextLayout tl = tlctx.tl;
       float ht = 0;
+      --numReps;
       do {
         ht += tl.getAscent();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -474,13 +532,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlBounds", "Measuring TL advance");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLContext tlctx = (TLContext) ctx;
       TextLayout tl = tlctx.tl;
       Rectangle2D r;
+      --numReps;
       do {
         r = tl.getBounds();
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -488,10 +549,11 @@ public abstract class TextMeasureTests extends TextTests {
     TextHitInfo[] hits;
     Rectangle2D lb;
 
+    @Override
     public void init(TestEnvironment env, Result results) {
       super.init(env, results);
 
-      ArrayList list = new ArrayList(text.length() * 2 + 2);
+      ArrayList list = new ArrayList((text.length() << 1) + 2);
       TextHitInfo hit = TextHitInfo.trailing(-1);
       do {
         list.add(hit);
@@ -504,11 +566,12 @@ public abstract class TextMeasureTests extends TextTests {
     }
   }
 
-  public static abstract class TLExtendedMeasureTest extends TLMeasureTest {
+  public abstract static class TLExtendedMeasureTest extends TLMeasureTest {
     protected TLExtendedMeasureTest(Group parent, String nodeName, String description) {
       super(parent, nodeName, description);
     }
 
+    @Override
     public Context createContext() {
       return new TLExContext();
     }
@@ -519,15 +582,18 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlGetCaretInfo", "Measuring TL caret info");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
       TextHitInfo[] hits = tlctx.hits;
+      --numReps;
       do {
-        for (int i = 0; i < hits.length; ++i) {
-          tl.getCaretInfo(hits[i]);
+        for (TextHitInfo hit : hits) {
+          tl.getCaretInfo(hit);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -536,16 +602,19 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlGetNextHit", "Measuring TL getNextRight/LeftHit");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
       TextHitInfo[] hits = tlctx.hits;
       TextHitInfo hit;
+      --numReps;
       do {
-        for (int i = 0; i < hits.length; ++i) {
-          hit = tl.getNextLeftHit(hits[i]);
+        for (TextHitInfo hit1 : hits) {
+          hit = tl.getNextLeftHit(hit1);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -554,16 +623,19 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlGetCaretShape", "Measuring TL getCaretShape");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
       TextHitInfo[] hits = tlctx.hits;
       Shape s;
+      --numReps;
       do {
-        for (int i = 0; i < hits.length; ++i) {
-          s = tl.getCaretShape(hits[i]);
+        for (TextHitInfo hit : hits) {
+          s = tl.getCaretShape(hit);
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -572,6 +644,7 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlGetLogicalHighlightShape", "Measuring TL getLogicalHighlightShape");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
@@ -579,15 +652,19 @@ public abstract class TextMeasureTests extends TextTests {
       Rectangle2D lb = tlctx.lb;
       Shape s;
       if (len < 3) {
+        --numReps;
         do {
           s = tl.getLogicalHighlightShape(0, len, lb);
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } else {
+        --numReps;
         do {
           for (int i = 3; i < len; ++i) {
             s = tl.getLogicalHighlightShape(i - 3, i, lb);
           }
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       }
     }
   }
@@ -597,6 +674,7 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlGetVisualHighlightShape", "Measuring TL getVisualHighlightShape");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
@@ -604,15 +682,19 @@ public abstract class TextMeasureTests extends TextTests {
       Rectangle2D lb = tlctx.lb;
       Shape s;
       if (hits.length < 3) {
+        --numReps;
         do {
           s = tl.getVisualHighlightShape(hits[0], hits[hits.length - 1], lb);
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       } else {
+        --numReps;
         do {
           for (int i = 3; i < hits.length; ++i) {
             s = tl.getVisualHighlightShape(hits[i - 3], hits[i], lb);
           }
-        } while (--numReps >= 0);
+          --numReps;
+        } while (numReps >= 0);
       }
     }
   }
@@ -622,6 +704,7 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlHitTest", "Measuring TL hitTest");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLExContext tlctx = (TLExContext) ctx;
       TextLayout tl = tlctx.tl;
@@ -641,13 +724,16 @@ public abstract class TextMeasureTests extends TextTests {
       super(measuretestroot, "tlOutline", "Measuring TL outline");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
       TLContext tlctx = (TLContext) ctx;
       TextLayout tl = tlctx.tl;
       Shape s;
+      --numReps;
       do {
         s = tl.getOutline(null);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 }

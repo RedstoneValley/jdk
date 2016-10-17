@@ -33,7 +33,7 @@ class NextFramePositionCalculator {
     }
 
     public int getNextLocationX() {
-        return currentFrame.getX()+currentFrame.getWidth();
+        return currentFrame.getX()+ currentFrame.getWidth();
     }
 
     public int getNextLocationY() {

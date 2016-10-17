@@ -34,13 +34,13 @@ import java.util.NoSuchElementException;
  * @author Jim Graham
  */
 class LineIterator implements PathIterator {
-  Line2D line;
-  AffineTransform affine;
+  final Line2D line;
+  final AffineTransform affine;
   int index;
 
   LineIterator(Line2D l, AffineTransform at) {
-    this.line = l;
-    this.affine = at;
+    line = l;
+    affine = at;
   }
 
   /**
@@ -50,6 +50,7 @@ class LineIterator implements PathIterator {
    * @see #WIND_EVEN_ODD
    * @see #WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return WIND_NON_ZERO;
   }
@@ -59,8 +60,9 @@ class LineIterator implements PathIterator {
    *
    * @return true if there are more points to read
    */
+  @Override
   public boolean isDone() {
-    return (index > 1);
+    return index > 1;
   }
 
   /**
@@ -68,6 +70,7 @@ class LineIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     index++;
   }
@@ -91,6 +94,7 @@ class LineIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("line iterator out of bounds");
@@ -130,6 +134,7 @@ class LineIterator implements PathIterator {
    * @see #SEG_CUBICTO
    * @see #SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("line iterator out of bounds");

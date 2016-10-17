@@ -47,19 +47,6 @@ import java.awt.event.ItemListener;
 import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
 
 public abstract class Option extends Node implements Modifier {
   public Option(Group parent, String nodeName, String description) {
@@ -68,14 +55,13 @@ public abstract class Option extends Node implements Modifier {
 
   public abstract boolean isDefault();
 
-  public abstract String getValString();  public void modifyTest(TestEnvironment env, Object val) {
-    env.setModifier(this, val);
-  }
+  public abstract String getValString();
 
   public String getValString(Object v) {
     return v.toString();
-  }  public void restoreTest(TestEnvironment env, Object val) {
-    env.removeModifier(this);
+  }  @Override
+  public void modifyTest(TestEnvironment env, Object val) {
+    env.setModifier(this, val);
   }
 
   public String getOptionString() {
@@ -84,6 +70,9 @@ public abstract class Option extends Node implements Modifier {
 
   public String getOptionString(Object value) {
     return getTreeName() + "=" + getValString(value);
+  }  @Override
+  public void restoreTest(TestEnvironment env, Object val) {
+    env.removeModifier(this);
   }
 
   public abstract String setValueFromString(String value);
@@ -97,8 +86,8 @@ public abstract class Option extends Node implements Modifier {
     public static final int On = 1;
     public static final int Both = 2;
 
-    private static final String valnames[] = {"Off", "On", "Both"};
-    private static final Boolean valuelist[][] = {
+    private static final String[] valnames = {"Off", "On", "Both"};
+    private static final Boolean[][] valuelist = {
         BooleanIterator.FalseList, BooleanIterator.TrueList, BooleanIterator.FalseTrueList,};
 
     int defaultvalue;
@@ -113,28 +102,32 @@ public abstract class Option extends Node implements Modifier {
           defaultvalue != Both) {
         throw new IllegalArgumentException("bad default");
       }
-      this.defaultvalue = this.value = defaultvalue;
+      this.defaultvalue = value = defaultvalue;
     }
 
     public void updateGUI() {
       if (jcb != null) {
         jcb.setSelectedIndex(value);
       }
-    }    public void restoreDefault() {
+    }
+
+    @Override
+    public boolean isDefault() {
+      return value == defaultvalue;
+    }    @Override
+    public void restoreDefault() {
       if (value != defaultvalue) {
         value = defaultvalue;
         updateGUI();
       }
     }
 
-    public boolean isDefault() {
-      return (value == defaultvalue);
-    }
-
+    @Override
     public Modifier.Iterator getIterator(TestEnvironment env) {
       return new BooleanIterator(valuelist[value]);
     }
 
+    @Override
     public JComponent getJComponent() {
       if (jp == null) {
         jp = new JPanel();
@@ -144,6 +137,7 @@ public abstract class Option extends Node implements Modifier {
         jcb = new JComboBox(valnames);
         updateGUI();
         jcb.addItemListener(new ItemListener() {
+          @Override
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               JComboBox jcb = (JComboBox) e.getItemSelectable();
@@ -161,6 +155,7 @@ public abstract class Option extends Node implements Modifier {
 
 
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       String ret = getNodeName();
       if (value.equals(Boolean.FALSE)) {
@@ -169,10 +164,12 @@ public abstract class Option extends Node implements Modifier {
       return ret;
     }
 
+    @Override
     public String getValString() {
       return valnames[value];
     }
 
+    @Override
     public String setValueFromString(String value) {
       for (int i = 0; i < valnames.length; i++) {
         if (valnames[i].equalsIgnoreCase(value)) {
@@ -185,18 +182,16 @@ public abstract class Option extends Node implements Modifier {
       }
       return "Bad value";
     }
-  }  public String getAbbreviatedModifierDescription(Object value) {
-    return getNodeName() + "=" + getValString(value);
   }
 
   public static class Enable extends Option {
-    boolean defaultvalue;
+    final boolean defaultvalue;
     boolean value;
     JCheckBox jcb;
 
     public Enable(Group parent, String nodeName, String description, boolean defaultvalue) {
       super(parent, nodeName, description);
-      this.defaultvalue = this.value = defaultvalue;
+      this.defaultvalue = value = defaultvalue;
     }
 
     public boolean isEnabled() {
@@ -215,30 +210,35 @@ public abstract class Option extends Node implements Modifier {
       if (jcb != null) {
         jcb.setSelected(value);
       }
-    }    public void restoreDefault() {
+    }
+
+    @Override
+    public void restoreDefault() {
       if (value != defaultvalue) {
         value = defaultvalue;
         updateGUI();
       }
     }
 
-
-
+    @Override
     public boolean isDefault() {
-      return (value == defaultvalue);
+      return value == defaultvalue;
     }
 
+    @Override
     public Modifier.Iterator getIterator(TestEnvironment env) {
       return new BooleanIterator(value);
     }
 
+    @Override
     public JComponent getJComponent() {
       if (jcb == null) {
         jcb = new JCheckBox(getDescription());
         updateGUI();
         jcb.addItemListener(new ItemListener() {
+          @Override
           public void itemStateChanged(ItemEvent e) {
-            value = (e.getStateChange() == ItemEvent.SELECTED);
+            value = e.getStateChange() == ItemEvent.SELECTED;
             if (J2DBench.verbose.isEnabled()) {
               System.out.println(getOptionString());
             }
@@ -248,6 +248,7 @@ public abstract class Option extends Node implements Modifier {
       return jcb;
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       String ret = getNodeName();
       if (value.equals(Boolean.FALSE)) {
@@ -256,15 +257,17 @@ public abstract class Option extends Node implements Modifier {
       return ret;
     }
 
+    @Override
     public String getValString() {
-      return (value ? "enabled" : "disabled");
+      return value ? "enabled" : "disabled";
     }
 
+    @Override
     public String setValueFromString(String value) {
       boolean newval;
-      if (value.equalsIgnoreCase("enabled")) {
+      if ("enabled".equalsIgnoreCase(value)) {
         newval = true;
-      } else if (value.equalsIgnoreCase("disabled")) {
+      } else if ("disabled".equalsIgnoreCase(value)) {
         newval = false;
       } else {
         return "Bad Value";
@@ -275,13 +278,11 @@ public abstract class Option extends Node implements Modifier {
       }
       return null;
     }
-  }  public String getModifierValueName(Object val) {
-    return getValString(val);
   }
 
   public static class Int extends Option {
-    int minvalue;
-    int maxvalue;
+    final int minvalue;
+    final int maxvalue;
     int defaultvalue;
     int value;
     JPanel jp;
@@ -296,7 +297,7 @@ public abstract class Option extends Node implements Modifier {
       if (defaultvalue < minvalue || defaultvalue > maxvalue) {
         throw new RuntimeException("bad value string: " + value);
       }
-      this.defaultvalue = this.value = defaultvalue;
+      this.defaultvalue = value = defaultvalue;
     }
 
     public int getIntValue() {
@@ -307,23 +308,27 @@ public abstract class Option extends Node implements Modifier {
       if (jtf != null) {
         jtf.setText(getValString());
       }
-    }    public void restoreDefault() {
+    }
+
+    @Override
+    public void restoreDefault() {
       if (value != defaultvalue) {
         value = defaultvalue;
         updateGUI();
       }
     }
 
-
-
+    @Override
     public boolean isDefault() {
-      return (value == defaultvalue);
+      return value == defaultvalue;
     }
 
+    @Override
     public Modifier.Iterator getIterator(TestEnvironment env) {
       return new SwitchIterator(new Object[]{new Integer(value)}, 1);
     }
 
+    @Override
     public JComponent getJComponent() {
       if (jp == null) {
         jp = new JPanel();
@@ -332,14 +337,13 @@ public abstract class Option extends Node implements Modifier {
         jtf = new JTextField(10);
         updateGUI();
         jtf.setDocument(new PlainDocument() {
-          public void insertString(int offs, String str, AttributeSet a)
-              throws BadLocationException {
+          public void insertString(int offs, String str, AttributeSet a) {
             if (str == null) {
               return;
             }
             for (int i = 0; i < str.length(); i++) {
               char c = str.charAt(i);
-              if (c < '0' || c > '9') {
+              if (!Character.isDigit(c)) {
                 Toolkit.getDefaultToolkit().beep();
                 return;
               }
@@ -364,10 +368,12 @@ public abstract class Option extends Node implements Modifier {
       return jp;
     }
 
+    @Override
     public String getValString() {
       return Integer.toString(value);
     }
 
+    @Override
     public String setValueFromString(String value) {
       int val;
       try {
@@ -384,29 +390,25 @@ public abstract class Option extends Node implements Modifier {
       }
       return null;
     }
-  }  public String setOption(String key, String value) {
-    if (key.length() != 0) {
-      return "Option name too specific";
-    }
-    return setValueFromString(value);
   }
 
   public static class ObjectList extends Option {
-    int size;
-    String optionnames[];
-    Object optionvalues[];
-    String abbrevnames[];
-    String descnames[];
-    int defaultenabled;
+    final int size;
+    final String[] optionnames;
+    final Object[] optionvalues;
+    final String[] abbrevnames;
+    final String[] descnames;
+    final int defaultenabled;
     int enabled;
     JPanel jp;
     JList jlist;
     int numrows;
 
     public ObjectList(
-        Group parent, String nodeName, String description, String optionnames[],
-        Object optionvalues[], String abbrevnames[], String descnames[], int defaultenabled) {
-      this(parent,
+        Group parent, String nodeName, String description, String[] optionnames,
+        Object[] optionvalues, String[] abbrevnames, String[] descnames, int defaultenabled) {
+      this(
+          parent,
           nodeName,
           description,
           Math.min(Math.min(optionnames.length, optionvalues.length),
@@ -419,31 +421,31 @@ public abstract class Option extends Node implements Modifier {
     }
 
     public ObjectList(
-        Group parent, String nodeName, String description, int size, String optionnames[],
-        Object optionvalues[], String abbrevnames[], String descnames[], int defaultenabled) {
+        Group parent, String nodeName, String description, int size, String[] optionnames,
+        Object[] optionvalues, String[] abbrevnames, String[] descnames, int defaultenabled) {
       super(parent, nodeName, description);
       this.size = size;
       this.optionnames = trim(optionnames, size);
       this.optionvalues = trim(optionvalues, size);
       this.abbrevnames = trim(abbrevnames, size);
       this.descnames = trim(descnames, size);
-      this.enabled = this.defaultenabled = defaultenabled;
+      enabled = this.defaultenabled = defaultenabled;
     }
 
-    private static String[] trim(String list[], int size) {
+    private static String[] trim(String[] list, int size) {
       if (list.length == size) {
         return list;
       }
-      String newlist[] = new String[size];
+      String[] newlist = new String[size];
       System.arraycopy(list, 0, newlist, 0, size);
       return newlist;
     }
 
-    private static Object[] trim(Object list[], int size) {
+    private static Object[] trim(Object[] list, int size) {
       if (list.length == size) {
         return list;
       }
-      Object newlist[] = new Object[size];
+      Object[] newlist = new Object[size];
       System.arraycopy(list, 0, newlist, 0, size);
       return newlist;
     }
@@ -453,20 +455,21 @@ public abstract class Option extends Node implements Modifier {
         int enabled = this.enabled;
         jlist.clearSelection();
         for (int curindex = 0; curindex < size; curindex++) {
-          if ((enabled & (1 << curindex)) != 0) {
+          if ((enabled & 1 << curindex) != 0) {
             jlist.addSelectionInterval(curindex, curindex);
           }
         }
-      }
-    }    public void restoreDefault() {
-      if (enabled != defaultenabled) {
-        enabled = defaultenabled;
-        updateGUI();
       }
     }
 
     public void setNumRows(int numrows) {
       this.numrows = numrows;
+    }    @Override
+    public void restoreDefault() {
+      if (enabled != defaultenabled) {
+        enabled = defaultenabled;
+        updateGUI();
+      }
     }
 
     int findValueIndex(Object value) {
@@ -476,16 +479,21 @@ public abstract class Option extends Node implements Modifier {
         }
       }
       return -1;
-    }    public boolean isDefault() {
-      return (enabled == defaultenabled);
     }
 
+
+
+    @Override
+    public boolean isDefault() {
+      return enabled == defaultenabled;
+    }
+
+    @Override
     public Modifier.Iterator getIterator(TestEnvironment env) {
       return new SwitchIterator(optionvalues, enabled);
     }
 
-
-
+    @Override
     public JComponent getJComponent() {
       if (jp == null) {
         jp = new JPanel();
@@ -507,7 +515,7 @@ public abstract class Option extends Node implements Modifier {
             for (int curindex = 0; curindex < size; curindex++) {
               JList list = (JList) e.getSource();
               if (list.isSelectedIndex(curindex)) {
-                flags |= (1 << curindex);
+                flags |= 1 << curindex;
               }
             }
             enabled = flags;
@@ -521,10 +529,11 @@ public abstract class Option extends Node implements Modifier {
       return jp;
     }
 
+    @Override
     public String getValString() {
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (int i = 0; i < size; i++) {
-        if ((enabled & (1 << i)) != 0) {
+        if ((enabled & 1 << i) != 0) {
           if (sb.length() > 0) {
             sb.append(',');
           }
@@ -534,16 +543,17 @@ public abstract class Option extends Node implements Modifier {
       return sb.toString();
     }
 
-
-
+    @Override
     public String getValString(Object value) {
       return optionnames[findValueIndex(value)];
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return abbrevnames[findValueIndex(value)];
     }
 
+    @Override
     public String setValueFromString(String value) {
       int enabled = 0;
       StringTokenizer st = new StringTokenizer(value, ",");
@@ -552,7 +562,7 @@ public abstract class Option extends Node implements Modifier {
         try {
           for (int i = 0; i < size; i++) {
             if (optionnames[i].equals(s)) {
-              enabled |= (1 << i);
+              enabled |= 1 << i;
               s = null;
               break;
             }
@@ -567,13 +577,17 @@ public abstract class Option extends Node implements Modifier {
       updateGUI();
       return null;
     }
+  }  @Override
+  public String getAbbreviatedModifierDescription(Object value) {
+    return getNodeName() + "=" + getValString(value);
   }
 
   public static class IntList extends ObjectList {
     public IntList(
-        Group parent, String nodeName, String description, int values[], String abbrevnames[],
-        String descnames[], int defaultenabled) {
-      super(parent,
+        Group parent, String nodeName, String description, int[] values, String[] abbrevnames,
+        String[] descnames, int defaultenabled) {
+      super(
+          parent,
           nodeName,
           description,
           makeNames(values),
@@ -583,42 +597,39 @@ public abstract class Option extends Node implements Modifier {
           defaultenabled);
     }
 
-    private static String[] makeNames(int intvalues[]) {
-      String names[] = new String[intvalues.length];
+    private static String[] makeNames(int[] intvalues) {
+      String[] names = new String[intvalues.length];
       for (int i = 0; i < intvalues.length; i++) {
         names[i] = Integer.toString(intvalues[i]);
       }
       return names;
     }
 
-    private static Object[] makeValues(int intvalues[]) {
-      Object values[] = new Object[intvalues.length];
+    private static Object[] makeValues(int[] intvalues) {
+      Object[] values = new Object[intvalues.length];
       for (int i = 0; i < intvalues.length; i++) {
-        values[i] = new Integer(intvalues[i]);
+        values[i] = intvalues[i];
       }
       return values;
     }
-  }  public void write(PrintWriter pw) {
-    //if (!isDefault()) {
-    pw.println(getOptionString());
-    //}
   }
 
   public static class ObjectChoice extends Option {
-    int size;
-    String optionnames[];
-    Object optionvalues[];
-    String abbrevnames[];
-    String descnames[];
-    int defaultselected;
+    final int size;
+    final String[] optionnames;
+    final Object[] optionvalues;
+    final String[] abbrevnames;
+    final String[] descnames;
+    final int defaultselected;
     int selected;
     JPanel jp;
     JComboBox jcombo;
 
     public ObjectChoice(
-        Group parent, String nodeName, String description, String optionnames[],
-        Object optionvalues[], String abbrevnames[], String descnames[], int defaultselected) {
-      this(parent,
+        Group parent, String nodeName, String description, String[] optionnames,
+        Object[] optionvalues, String[] abbrevnames, String[] descnames, int defaultselected) {
+      this(
+          parent,
           nodeName,
           description,
           Math.min(Math.min(optionnames.length, optionvalues.length),
@@ -631,60 +642,57 @@ public abstract class Option extends Node implements Modifier {
     }
 
     public ObjectChoice(
-        Group parent, String nodeName, String description, int size, String optionnames[],
-        Object optionvalues[], String abbrevnames[], String descnames[], int defaultselected) {
+        Group parent, String nodeName, String description, int size, String[] optionnames,
+        Object[] optionvalues, String[] abbrevnames, String[] descnames, int defaultselected) {
       super(parent, nodeName, description);
       this.size = size;
       this.optionnames = trim(optionnames, size);
       this.optionvalues = trim(optionvalues, size);
       this.abbrevnames = trim(abbrevnames, size);
       this.descnames = trim(descnames, size);
-      this.selected = this.defaultselected = defaultselected;
+      selected = this.defaultselected = defaultselected;
     }
 
-    private static String[] trim(String list[], int size) {
+    private static String[] trim(String[] list, int size) {
       if (list.length == size) {
         return list;
       }
-      String newlist[] = new String[size];
+      String[] newlist = new String[size];
       System.arraycopy(list, 0, newlist, 0, size);
       return newlist;
     }
 
-    private static Object[] trim(Object list[], int size) {
+    private static Object[] trim(Object[] list, int size) {
       if (list.length == size) {
         return list;
       }
-      Object newlist[] = new Object[size];
+      Object[] newlist = new Object[size];
       System.arraycopy(list, 0, newlist, 0, size);
       return newlist;
     }
 
     public void updateGUI() {
       if (jcombo != null) {
-        jcombo.setSelectedIndex(this.selected);
+        jcombo.setSelectedIndex(selected);
       }
-    }    public void restoreDefault() {
+    }
+
+    public Object getValue() {
+      return optionvalues[selected];
+    }    @Override
+    public void restoreDefault() {
       if (selected != defaultselected) {
         selected = defaultselected;
         updateGUI();
       }
     }
 
-    public Object getValue() {
-      return optionvalues[selected];
-    }
-
     public int getIntValue() {
-      return ((Integer) optionvalues[selected]).intValue();
-    }    public boolean isDefault() {
-      return (selected == defaultselected);
+      return (Integer) optionvalues[selected];
     }
 
     public boolean getBooleanValue() {
-      return ((Boolean) optionvalues[selected]).booleanValue();
-    }    public Modifier.Iterator getIterator(TestEnvironment env) {
-      return new SwitchIterator(optionvalues, 1 << selected);
+      return (Boolean) optionvalues[selected];
     }
 
     int findValueIndex(Object value) {
@@ -694,7 +702,35 @@ public abstract class Option extends Node implements Modifier {
         }
       }
       return -1;
-    }    public JComponent getJComponent() {
+    }    @Override
+    public boolean isDefault() {
+      return selected == defaultselected;
+    }
+
+    public String setValue(int v) {
+      return setValue(new Integer(v));
+    }
+
+    public String setValue(boolean v) {
+      return setValue((Boolean) v);
+    }    @Override
+    public Modifier.Iterator getIterator(TestEnvironment env) {
+      return new SwitchIterator(optionvalues, 1 << selected);
+    }
+
+    public String setValue(Object value) {
+      for (int i = 0; i < size; i++) {
+        if (optionvalues[i].equals(value)) {
+          selected = i;
+          updateGUI();
+          return null;
+        }
+      }
+      return "Bad value";
+    }
+
+    @Override
+    public JComponent getJComponent() {
       if (jp == null) {
         jp = new JPanel();
         jp.setLayout(new BorderLayout());
@@ -702,6 +738,7 @@ public abstract class Option extends Node implements Modifier {
         jcombo = new JComboBox(descnames);
         updateGUI();
         jcombo.addItemListener(new ItemListener() {
+          @Override
           public void itemStateChanged(ItemEvent e) {
             if (e.getStateChange() == ItemEvent.SELECTED) {
               selected = jcombo.getSelectedIndex();
@@ -716,92 +753,82 @@ public abstract class Option extends Node implements Modifier {
       return jp;
     }
 
-    public String setValue(int v) {
-      return setValue(new Integer(v));
-    }
 
-    public String setValue(boolean v) {
-      return setValue(new Boolean(v));
-    }
 
-    public String setValue(Object value) {
-      for (int i = 0; i < size; i++) {
-        if (optionvalues[i].equals(value)) {
-          this.selected = i;
-          updateGUI();
-          return null;
-        }
-      }
-      return "Bad value";
-    }
 
+
+
+
+    @Override
     public String getValString() {
       return optionnames[selected];
     }
 
-
-
+    @Override
     public String getValString(Object value) {
       return optionnames[findValueIndex(value)];
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object value) {
       return abbrevnames[findValueIndex(value)];
     }
 
-
-
-
-
-
-
+    @Override
     public String setValueFromString(String value) {
       for (int i = 0; i < size; i++) {
         if (optionnames[i].equals(value)) {
-          this.selected = i;
+          selected = i;
           updateGUI();
           return null;
         }
       }
       return "Bad value";
     }
+  }  @Override
+  public String getModifierValueName(Object val) {
+    return getValString(val);
   }
 
   public static class BooleanIterator implements Modifier.Iterator {
-    public static final Boolean FalseList[] = {Boolean.FALSE};
-    public static final Boolean TrueList[] = {Boolean.TRUE};
-    public static final Boolean FalseTrueList[] = {Boolean.FALSE, Boolean.TRUE};
-    public static final Boolean TrueFalseList[] = {Boolean.TRUE, Boolean.FALSE};
-    private Boolean list[];
+    public static final Boolean[] FalseList = {Boolean.FALSE};
+    public static final Boolean[] TrueList = {Boolean.TRUE};
+    public static final Boolean[] FalseTrueList = {Boolean.FALSE, Boolean.TRUE};
+    public static final Boolean[] TrueFalseList = {Boolean.TRUE, Boolean.FALSE};
+    private final Boolean[] list;
     private int index;
 
     public BooleanIterator(boolean v) {
       this(v ? TrueList : FalseList);
     }
 
-    public BooleanIterator(Boolean list[]) {
+    public BooleanIterator(Boolean[] list) {
       this.list = list;
     }
 
+    @Override
     public boolean hasNext() {
-      return (index < list.length);
+      return index < list.length;
     }
 
     public void remove() {
       throw new UnsupportedOperationException();
-    }    public Object next() {
+    }
+
+    @Override
+    public Object next() {
       if (index >= list.length) {
         throw new NoSuchElementException();
       }
-      return list[index++];
+      Boolean result = list[index];
+      index++;
+      return result;
     }
-
-
   }
 
   public static class SwitchIterator implements Modifier.Iterator {
-    private Object list[];
-    private int enabled;
+    private final Object[] list;
+    private final int enabled;
     private int index;
 
     public SwitchIterator(Object[] list, int enabled) {
@@ -811,28 +838,43 @@ public abstract class Option extends Node implements Modifier {
 
     public void remove() {
       throw new UnsupportedOperationException();
-    }    public boolean hasNext() {
-      return ((1 << index) <= enabled);
     }
 
+    @Override
+    public boolean hasNext() {
+      return 1 << index <= enabled;
+    }
+
+    @Override
     public Object next() {
-      while ((enabled & (1 << index)) == 0) {
+      while ((enabled & 1 << index) == 0) {
         index++;
         if (index >= list.length) {
           throw new NoSuchElementException();
         }
       }
-      return list[index++];
+      Object result = list[index];
+      index++;
+      return result;
     }
-
-
+  }  @Override
+  public String setOption(String key, String value) {
+    if (!key.isEmpty()) {
+      return "Option name too specific";
+    }
+    return setValueFromString(value);
   }
 
 
 
 
 
-
+  @Override
+  public void write(PrintWriter pw) {
+    //if (!isDefault()) {
+    pw.println(getOptionString());
+    //}
+  }
 
 
 

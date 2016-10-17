@@ -26,11 +26,11 @@
 package sun.awt.datatransfer;
 
 public interface ToolkitThreadBlockedHandler {
-  public void lock();
+  void lock();
 
-  public void unlock();
+  void unlock();
 
-  public void enter();
+  void enter();
 
-  public void exit();
+  void exit();
 }

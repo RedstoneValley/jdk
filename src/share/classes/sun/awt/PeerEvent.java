@@ -34,7 +34,7 @@ public class PeerEvent extends InvocationEvent {
   public static final long ULTIMATE_PRIORITY_EVENT = 0x02;
   public static final long LOW_PRIORITY_EVENT = 0x04;
 
-  private long flags;
+  private final long flags;
 
   public PeerEvent(Object source, Runnable runnable, long flags) {
     this(source, runnable, null, false, flags);

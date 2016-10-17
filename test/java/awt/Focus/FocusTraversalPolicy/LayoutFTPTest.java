@@ -32,10 +32,7 @@
 */
 
 import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
 import java.util.*;
-import test.java.awt.regtesthelpers.AbstractPolicyTest;
 
 /*
 
@@ -114,8 +111,8 @@ public class LayoutFTPTest {
 
     public void start() {
         try {
-            Class clazz = null;
-            AbstractPolicyTest test = null;
+            Class clazz;
+            AbstractPolicyTest test;
 
             for (int i = 1; i <= TESTS_NUMBER; i++) {
                 clazz = Class.forName("PolicyTest" + i);
@@ -158,7 +155,7 @@ class PolicyTest1 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 0", "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 100");
@@ -176,7 +173,7 @@ class PolicyTest1 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 0", "btn 202");
         order.put("btn 1", "btn 0");
         order.put("btn 2", "btn 1");
@@ -238,7 +235,7 @@ class PolicyTest2 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("jframe", "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 3");
@@ -249,7 +246,7 @@ class PolicyTest2 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 3");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "btn 1");
@@ -264,7 +261,8 @@ class PolicyTest2 extends AbstractPolicyTest {
     protected String getDefaultComp(String focusCycleRoot_id) {
         if ("jframe".equals(focusCycleRoot_id)) {
             return "btn 1";
-        } else if ("jpanel".equals(focusCycleRoot_id)) {
+        }
+        if ("jpanel".equals(focusCycleRoot_id)) {
             return "btn 2";
         }
         return null;
@@ -277,7 +275,8 @@ class PolicyTest2 extends AbstractPolicyTest {
     protected String getLastComp(String focusCycleRoot_id) {
         if ("jframe".equals(focusCycleRoot_id)) {
             return "btn 4";
-        } else if ("jpanel".equals(focusCycleRoot_id)) {
+        }
+        if ("jpanel".equals(focusCycleRoot_id)) {
             return "btn 3";
         }
         return null;
@@ -312,7 +311,7 @@ class PolicyTest3 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("jframe", "btn 1");
         order.put("btn 1", "btn 2");
         order.put("btn 2", "btn 3");
@@ -323,7 +322,7 @@ class PolicyTest3 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "btn 3");
@@ -338,7 +337,8 @@ class PolicyTest3 extends AbstractPolicyTest {
     protected String getDefaultComp(String focusCycleRoot_id) {
         if ("jframe".equals(focusCycleRoot_id)) {
             return "btn 1";
-        } else if ("jpanel".equals(focusCycleRoot_id)) {
+        }
+        if ("jpanel".equals(focusCycleRoot_id)) {
             return "btn 2";
         }
         return null;
@@ -351,7 +351,8 @@ class PolicyTest3 extends AbstractPolicyTest {
     protected String getLastComp(String focusCycleRoot_id) {
         if ("jframe".equals(focusCycleRoot_id)) {
             return "btn 4";
-        } else if ("jpanel".equals(focusCycleRoot_id)) {
+        }
+        if ("jpanel".equals(focusCycleRoot_id)) {
             return "btn 3";
         }
         return null;
@@ -386,7 +387,7 @@ class PolicyTest4 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 2", "btn 1");
         order.put("btn 1", "btn 4");
@@ -439,7 +440,7 @@ class PolicyTest5 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 1");
         order.put("btn 2", "btn 1");
         order.put("btn 1", "btn 2");
@@ -498,7 +499,7 @@ class PolicyTest6 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("jframe", "btn 1");
         order.put("btn 1", "jpanel");
         order.put("btn 2", "btn 3");
@@ -509,7 +510,7 @@ class PolicyTest6 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 3");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "jpanel");
@@ -569,7 +570,7 @@ class PolicyTest7 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("jframe", "btn 1");
         order.put("btn 1", "jpanel");
         order.put("btn 2", "btn 3");
@@ -580,7 +581,7 @@ class PolicyTest7 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn 4", "btn 2");
         order.put("btn 3", "btn 2");
         order.put("btn 2", "jpanel");
@@ -613,7 +614,7 @@ class PolicyTest7 extends AbstractPolicyTest {
 class PolicyTest8 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        JFrame jframe = (JFrame) registerComponent("frame", new JFrame("Test Frame"));
+        JFrame jframe = (JFrame) registerComponent(Frame.base, new JFrame("Test Frame"));
         jframe.setLayout(new FlowLayout());
 
         jframe.add(registerComponent("btn-1", new JButton("jbutton")));
@@ -652,8 +653,8 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-4");
         order.put("btn-3", "btn-4");
@@ -668,7 +669,7 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-5");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-2");
@@ -681,37 +682,43 @@ class PolicyTest8 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-4";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-7";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-6";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-8";
         }
         return null;
@@ -725,7 +732,7 @@ class PolicyTest8 extends AbstractPolicyTest {
 class PolicyTest9 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        JFrame jframe = (JFrame) registerComponent("frame", new JFrame("Test Frame"));
+        JFrame jframe = (JFrame) registerComponent(Frame.base, new JFrame("Test Frame"));
         jframe.setLayout(new FlowLayout());
 
         jframe.add(registerComponent("btn-1", new JButton("jbutton")));
@@ -764,8 +771,8 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-4");
         order.put("btn-3", "btn-4");
@@ -780,7 +787,7 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-8");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-5");
@@ -793,37 +800,43 @@ class PolicyTest9 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-4";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-7";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-6";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-8";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-5";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-8";
         }
         return null;
@@ -837,7 +850,7 @@ class PolicyTest9 extends AbstractPolicyTest {
 class PolicyTest10 extends AbstractPolicyTest {
 
     protected Frame createFrame() {
-        JFrame jframe = (JFrame) registerComponent("frame", new JFrame("Test Frame"));
+        JFrame jframe = (JFrame) registerComponent(Frame.base, new JFrame("Test Frame"));
         jframe.setLayout(new GridLayout(2, 1));
 
         Container cont0 = new JPanel();
@@ -871,8 +884,8 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
-        order.put("frame", "btn-1");
+        Map<String, String> order = new HashMap<>();
+        order.put(Frame.base, "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "panel-2");
         order.put("btn-3", "btn-4");
@@ -885,7 +898,7 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-1");
         order.put("btn-3", "btn-6");
@@ -896,37 +909,37 @@ class PolicyTest10 extends AbstractPolicyTest {
     }
 
     protected String[] getContainersToTest() {
-        return new String[] {"frame", "panel-1", "panel-2"};
+        return new String[] {Frame.base, "panel-1", "panel-2"};
     }
 
     protected String getDefaultComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "panel-2";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-5";
         }
         return null;
     }
 
     protected String getFirstComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
+        if (Frame.base.equals(focusCycleRoot_id)) {
             return "btn-1";
-        } else if ("panel-1".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-1".equals(focusCycleRoot_id)) {
             return "btn-3";
-        } else if ("panel-2".equals(focusCycleRoot_id)) {
+        }
+        if ("panel-2".equals(focusCycleRoot_id)) {
             return "btn-5";
         }
         return null;
     }
 
     protected String getLastComp(String focusCycleRoot_id) {
-        if ("frame".equals(focusCycleRoot_id)) {
-            return "btn-2";
-        } else {
-            return "btn-6";
-        }
+        return Frame.base.equals(focusCycleRoot_id) ? "btn-2" : "btn-6";
     }
 }
 
@@ -956,7 +969,7 @@ class PolicyTest11 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getForwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("jframe", "btn-1");
         order.put("btn-1", "btn-2");
         order.put("btn-2", "btn-1");
@@ -965,7 +978,7 @@ class PolicyTest11 extends AbstractPolicyTest {
     }
 
     protected Map<String, String> getBackwardOrder() {
-        Map<String, String> order = new HashMap<String, String>();
+        Map<String, String> order = new HashMap<>();
         order.put("btn-3", "btn-1");
         order.put("btn-2", "btn-1");
         order.put("btn-1", "btn-2");

@@ -39,8 +39,6 @@
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 
 /**
  * This class listens for UISwitches, and updates a given component.
@@ -50,15 +48,16 @@ import javax.swing.SwingUtilities;
  */
 public class UISwitchListener implements PropertyChangeListener {
 
-  JComponent componentToSwitch;
+  final JComponent componentToSwitch;
 
   public UISwitchListener(JComponent c) {
     componentToSwitch = c;
   }
 
+  @Override
   public void propertyChange(PropertyChangeEvent e) {
     String name = e.getPropertyName();
-    if (name.equals("lookAndFeel")) {
+    if ("lookAndFeel".equals(name)) {
       SwingUtilities.updateComponentTreeUI(componentToSwitch);
       componentToSwitch.invalidate();
       componentToSwitch.validate();

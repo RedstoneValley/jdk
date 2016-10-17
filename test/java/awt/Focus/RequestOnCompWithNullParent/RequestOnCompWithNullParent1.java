@@ -31,10 +31,10 @@
   @run main RequestOnCompWithNullParent1
 */
 
-/**
- * RequestOnCompWithNullParent1.java
- *
- * summary: java/awt/Focus/RequestOnCompWithNullParent/RequestOnCompWithNullParent_Barrier.java fails
+/*
+  RequestOnCompWithNullParent1.java
+
+  summary: java/awt/Focus/RequestOnCompWithNullParent/RequestOnCompWithNullParent_Barrier.java fails
  */
 
 import java.awt.*;
@@ -46,12 +46,14 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import test.java.awt.regtesthelpers.Util;
 
 //*** global search and replace RequestOnCompWithNullParent1 with name of the test ***
 
-public class RequestOnCompWithNullParent1
+public final class RequestOnCompWithNullParent1
 {
+
+    private RequestOnCompWithNullParent1() {
+    }
 
     private static void init() {
         //*** Create instructions for the user here ***
@@ -86,7 +88,7 @@ public class RequestOnCompWithNullParent1
         btn2.requestFocusInWindow();
         btn2.restorePeer();
         frame.dispose();
-        RequestOnCompWithNullParent1.pass();
+        pass();
     }//End  init()
 
 
@@ -103,11 +105,11 @@ public class RequestOnCompWithNullParent1
      * There is a section following this for test-
      * classes
      ******************************************************/
-    private static boolean theTestPassed = false;
-    private static boolean testGeneratedInterrupt = false;
+    private static boolean theTestPassed;
+    private static boolean testGeneratedInterrupt;
     private static String failureMessage = "";
 
-    private static Thread mainThread = null;
+    private static Thread mainThread;
 
     private static int sleepTime = 300000;
 
@@ -115,7 +117,7 @@ public class RequestOnCompWithNullParent1
     //  instantiated in the same VM.  Being static (and using
     //  static vars), it aint gonna work.  Not worrying about
     //  it for now.
-    public static void main( String args[] ) throws InterruptedException
+    public static void main(String[] args ) throws InterruptedException
     {
         mainThread = Thread.currentThread();
         try
@@ -144,12 +146,14 @@ public class RequestOnCompWithNullParent1
         {
             //The test harness may have interrupted the test.  If so, rethrow the exception
             // so that the harness gets it and deals with it.
-            if( ! testGeneratedInterrupt ) throw e;
+            if( ! testGeneratedInterrupt ) {
+                throw e;
+            }
 
             //reset flag in case hit this code more than once for some reason (just safety)
             testGeneratedInterrupt = false;
 
-            if ( theTestPassed == false )
+            if (!theTestPassed)
             {
                 throw new RuntimeException( failureMessage );
             }
@@ -209,6 +213,7 @@ public class RequestOnCompWithNullParent1
 // end the test.
 class TestPassedException extends RuntimeException
 {
+    private static final long serialVersionUID = -6943661403316731039L;
 }
 
 //*********** End Standard Test Machinery Section **********
@@ -217,6 +222,7 @@ class TestPassedException extends RuntimeException
 //************ Begin classes defined for the test ****************
 
 class TestButton extends Button {
+    private static final long serialVersionUID = -7064843835655900997L;
     ButtonPeer origPeer;
     ButtonPeer proxiedPeer;
 
@@ -228,21 +234,20 @@ class TestButton extends Button {
     public void instrumentPeer() {
         origPeer = (ButtonPeer) getPeer();
         InvocationHandler handler = new InvocationHandler() {
+            @Override
             public Object invoke(Object proxy, Method method, Object[] args) {
-                if (method.getName().equals("requestFocus")) {
+                if ("requestFocus".equals(method.getName())) {
                     Container parent = getParent();
                     parent.remove(TestButton.this);
                     System.err.println("parent = " + parent);
                     System.err.println("target = " + TestButton.this);
-                    System.err.println("new parent = " + TestButton.this.getParent());
+                    System.err.println("new parent = " + getParent());
                 }
-                Object ret = null;
+                Object ret;
                 try {
                     ret = method.invoke(origPeer, args);
-                } catch (IllegalAccessException iae) {
+                } catch (IllegalAccessException | InvocationTargetException iae) {
                     throw new Error("Test error.", iae);
-                } catch (InvocationTargetException ita) {
-                    throw new Error("Test error.", ita);
                 }
                 return ret;
             }
@@ -252,18 +257,12 @@ class TestButton extends Button {
         setPeer(proxiedPeer);
     }
 
-    private void setPeer(final ComponentPeer newPeer) {
+    private void setPeer(ComponentPeer newPeer) {
         try {
             Field peer_field = Component.class.getDeclaredField("peer");
             peer_field.setAccessible(true);
             peer_field.set(this, newPeer);
-        } catch (IllegalArgumentException ex) {
-            throw new Error("Test error.", ex);
-        } catch (SecurityException ex) {
-            throw new Error("Test error.", ex);
-        } catch (IllegalAccessException ex) {
-            throw new Error("Test error.", ex);
-        } catch (NoSuchFieldException ex) {
+        } catch (IllegalArgumentException | NoSuchFieldException | IllegalAccessException | SecurityException ex) {
             throw new Error("Test error.", ex);
         }
     }
@@ -277,16 +276,13 @@ class TestButton extends Button {
 }
 //************** End classes defined for the test *******************
 
-
-
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -300,9 +296,12 @@ class TestButton extends Button {
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -347,9 +346,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -357,10 +357,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -376,35 +376,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

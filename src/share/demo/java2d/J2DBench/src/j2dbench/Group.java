@@ -39,18 +39,14 @@
 
 package j2dbench;
 
+import j2dbench.Option.Enable;
 import j2dbench.ui.CompactLayout;
 import j2dbench.ui.EnableButton;
 import java.io.PrintWriter;
 import java.util.NoSuchElementException;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
 
 public class Group extends Node {
-  public static Group root = new Group();
+  public static final Group root = new Group();
 
   private Node children;
   private boolean tabbed;
@@ -71,33 +67,6 @@ public class Group extends Node {
     super(parent, nodeName, description);
   }
 
-  public static void restoreAllDefaults() {
-    root.traverse(new Visitor() {
-      public void visit(Node node) {
-        node.restoreDefault();
-      }
-    });
-  }
-
-  public static void writeAll(final PrintWriter pw) {
-    root.traverse(new Visitor() {
-      public void visit(Node node) {
-        node.write(pw);
-      }
-    });
-    pw.flush();
-  }
-
-  public static String setOption(String s) {
-    int index = s.indexOf('=');
-    if (index < 0) {
-      return "No value specified";
-    }
-    String key = s.substring(0, index);
-    String value = s.substring(index + 1);
-    return root.setOption(key, value);
-  }
-
   public void addChild(Node child) {
     Node prev = null;
     for (Node node = children; node != null; node = node.getNext()) {
@@ -113,11 +82,11 @@ public class Group extends Node {
     }
   }
 
-  public Node.Iterator getChildIterator() {
+  public Iterator getChildIterator() {
     return new ChildIterator();
   }
 
-  public Node.Iterator getRecursiveChildIterator() {
+  public Iterator getRecursiveChildIterator() {
     return new RecursiveChildIterator();
   }
 
@@ -127,9 +96,9 @@ public class Group extends Node {
 
   public boolean isBordered() {
     if (bordered == null) {
-      return (getParent() == null || !getParent().isTabbed());
+      return getParent() == null || !getParent().isTabbed();
     }
-    return bordered.booleanValue();
+    return bordered;
   }
 
   public void setBordered(boolean b) {
@@ -141,7 +110,7 @@ public class Group extends Node {
   }
 
   public void setTabbed(int tabPlacement) {
-    this.tabbed = true;
+    tabbed = true;
     this.tabPlacement = tabPlacement;
   }
 
@@ -165,6 +134,7 @@ public class Group extends Node {
     horizontal = true;
   }
 
+  @Override
   public JComponent getJComponent() {
     if (isHidden()) {
       return null;
@@ -195,6 +165,7 @@ public class Group extends Node {
     }
   }
 
+  @Override
   public void traverse(Visitor v) {
     super.traverse(v);
     for (Node node = children; node != null; node = node.getNext()) {
@@ -202,12 +173,15 @@ public class Group extends Node {
     }
   }
 
+  @Override
   public void restoreDefault() {
   }
 
+  @Override
   public void write(PrintWriter pw) {
   }
 
+  @Override
   public String setOption(String key, String value) {
     int index = key.indexOf('.');
     String subkey;
@@ -238,49 +212,54 @@ public class Group extends Node {
 
   public static class EnableSet extends Group implements Modifier {
     public EnableSet() {
-      super();
     }
 
     public EnableSet(Group parent, String nodeName, String description) {
       super(parent, nodeName, description);
     }
 
+    @Override
     public Modifier.Iterator getIterator(TestEnvironment env) {
       return new EnableIterator();
     }
 
+    @Override
     public void modifyTest(TestEnvironment env, Object val) {
-      ((Option.Enable) val).modifyTest(env);
+      ((Enable) val).modifyTest(env);
       env.setModifier(this, val);
     }
 
+    @Override
     public void restoreTest(TestEnvironment env, Object val) {
-      ((Option.Enable) val).restoreTest(env);
+      ((Enable) val).restoreTest(env);
       env.removeModifier(this);
     }
 
+    @Override
     public String getAbbreviatedModifierDescription(Object val) {
-      Option.Enable oe = (Option.Enable) val;
+      Enable oe = (Enable) val;
       return oe.getAbbreviatedModifierDescription(Boolean.TRUE);
     }
 
+    @Override
     public String getModifierValueName(Object val) {
-      Option.Enable oe = (Option.Enable) val;
+      Enable oe = (Enable) val;
       return oe.getModifierValueName(Boolean.TRUE);
     }
 
     public class EnableIterator implements Modifier.Iterator {
-      Node.Iterator childiterator = getRecursiveChildIterator();
-      Option.Enable curval;
+      final Node.Iterator childiterator = getRecursiveChildIterator();
+      Enable curval;
 
+      @Override
       public boolean hasNext() {
         if (curval != null) {
           return true;
         }
         while (childiterator.hasNext()) {
           Node node = childiterator.next();
-          if (node instanceof Option.Enable) {
-            curval = (Option.Enable) node;
+          if (node instanceof Enable) {
+            curval = (Enable) node;
             if (curval.isEnabled()) {
               return true;
             }
@@ -290,6 +269,7 @@ public class Group extends Node {
         return false;
       }
 
+      @Override
       public Object next() {
         if (curval == null) {
           if (!hasNext()) {
@@ -303,13 +283,15 @@ public class Group extends Node {
     }
   }
 
-  public class ChildIterator implements Node.Iterator {
+  public class ChildIterator implements Iterator {
     protected Node cur = getFirstChild();
 
+    @Override
     public boolean hasNext() {
-      return (cur != null);
+      return cur != null;
     }
 
+    @Override
     public Node next() {
       Node ret = cur;
       if (ret == null) {
@@ -321,8 +303,9 @@ public class Group extends Node {
   }
 
   public class RecursiveChildIterator extends ChildIterator {
-    Node.Iterator subiterator;
+    Iterator subiterator;
 
+    @Override
     public boolean hasNext() {
       while (true) {
         if (subiterator != null && subiterator.hasNext()) {
@@ -338,12 +321,9 @@ public class Group extends Node {
       }
     }
 
+    @Override
     public Node next() {
-      if (subiterator != null) {
-        return subiterator.next();
-      } else {
-        return super.next();
-      }
+      return subiterator != null ? subiterator.next() : super.next();
     }
   }
 }

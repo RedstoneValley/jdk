@@ -46,11 +46,11 @@ import sun.java2d.pipe.Region;
  */
 
 public class MaskBlit extends GraphicsPrimitive {
-  public static final String methodSignature = "MaskBlit(...)".toString();
+  public static final String methodSignature = "MaskBlit(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache blitcache = new RenderCache(20);
+  private static final RenderCache blitcache = new RenderCache(20);
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new MaskBlit(null, null, null));
@@ -89,10 +89,13 @@ public class MaskBlit extends GraphicsPrimitive {
   /**
    * All MaskBlit implementors must have this invoker method
    */
-  public native void MaskBlit(
+  public void MaskBlit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
-      int dsty, int width, int height, byte[] mask, int maskoff, int maskscan);
+      int dsty, int width, int height, byte[] mask, int maskoff, int maskscan) {
+    // TODO: Native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
@@ -112,6 +115,7 @@ public class MaskBlit extends GraphicsPrimitive {
     return ob;
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceMaskBlit(this);
   }
@@ -129,17 +133,19 @@ public class MaskBlit extends GraphicsPrimitive {
       super(srctype, comptype, dsttype);
     }
 
+    @Override
     public void setPrimitives(
         Blit srcconverter, Blit dstconverter, GraphicsPrimitive genericop, Blit resconverter) {
-      this.convertsrc = srcconverter;
-      this.convertdst = dstconverter;
-      this.performop = (MaskBlit) genericop;
-      this.convertresult = resconverter;
+      convertsrc = srcconverter;
+      convertdst = dstconverter;
+      performop = (MaskBlit) genericop;
+      convertresult = resconverter;
     }
 
+    @Override
     public synchronized void MaskBlit(
         SurfaceData srcData, SurfaceData dstData, Composite comp, Region clip, int srcx, int srcy,
-        int dstx, int dsty, int width, int height, byte mask[], int offset, int scan) {
+        int dstx, int dsty, int width, int height, byte[] mask, int offset, int scan) {
       SurfaceData src, dst;
       Region opclip;
       int sx, sy, dx, dy;
@@ -191,7 +197,7 @@ public class MaskBlit extends GraphicsPrimitive {
   }
 
   private static class TraceMaskBlit extends MaskBlit {
-    MaskBlit target;
+    final MaskBlit target;
 
     public TraceMaskBlit(MaskBlit target) {
       // We need to have the same NativePrim as our
@@ -203,10 +209,12 @@ public class MaskBlit extends GraphicsPrimitive {
       this.target = target;
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }
 
+    @Override
     public void MaskBlit(
         SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
         int dsty, int width, int height, byte[] mask, int maskoff, int maskscan) {

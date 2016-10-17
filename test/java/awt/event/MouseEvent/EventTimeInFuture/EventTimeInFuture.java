@@ -33,13 +33,13 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
-import test.java.awt.regtesthelpers.Util;
 
-public class EventTimeInFuture {
+public final class EventTimeInFuture {
 
-    public static void main(String []s) {
+  private EventTimeInFuture() {
+  }
+
+  public static void main(String []s) {
         Frame frame = new SensibleFrame();
 
         frame.pack();
@@ -73,7 +73,9 @@ public class EventTimeInFuture {
 class SensibleFrame extends Frame implements MouseListener,
     MouseMotionListener{
 
-    public SensibleFrame(){
+  private static final long serialVersionUID = 7585626818879498347L;
+
+  public SensibleFrame(){
         super("Is event time in future");
         setPreferredSize(new Dimension(100,100));
         setBackground(Color.white);
@@ -93,25 +95,32 @@ class SensibleFrame extends Frame implements MouseListener,
         }
     }
 
+    @Override
     public void mouseMoved(MouseEvent e){
         traceMouse("moved",e);
     }
 
+    @Override
     public void mouseEntered(MouseEvent e){
         traceMouse("entered",e);
     }
+    @Override
     public void mouseExited(MouseEvent e){
         traceMouse("exited",e);
     }
+    @Override
     public void mouseClicked(MouseEvent e){
         traceMouse("clicked",e);
     }
+    @Override
     public void mousePressed(MouseEvent e){
         traceMouse("pressed",e);
     }
+    @Override
     public void mouseReleased(MouseEvent e){
         traceMouse("released",e);
     }
+    @Override
     public void mouseDragged(MouseEvent e){
         traceMouse("dragged",e);
     }

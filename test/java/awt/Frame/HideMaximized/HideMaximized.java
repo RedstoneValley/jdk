@@ -31,8 +31,11 @@
 
 import java.awt.*;
 
-public class HideMaximized {
-    public static void main(String[] args) {
+public final class HideMaximized {
+  private HideMaximized() {
+  }
+
+  public static void main(String[] args) {
         if (!Toolkit.getDefaultToolkit().isFrameStateSupported(Frame.MAXIMIZED_BOTH)) {
             // Nothing to test
             return;

@@ -38,7 +38,6 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.Set;
 import sun.awt.AppContext;
 import sun.awt.EventListenerAggregate;
@@ -56,17 +55,17 @@ import sun.awt.SunToolkit;
 public abstract class SunClipboard extends Clipboard implements PropertyChangeListener {
 
   private final Object CLIPBOARD_FLAVOR_LISTENER_KEY;
-  private AppContext contentsContext = null;
+  AppContext contentsContext;
   /**
-   * A number of <code>FlavorListener</code>s currently registered
-   * on this clipboard across all <code>AppContext</code>s.
+   * A number of {@code FlavorListener}s currently registered
+   * on this clipboard across all {@code AppContext}s.
    */
-  private volatile int numberOfFlavorListeners = 0;
+  private volatile int numberOfFlavorListeners;
 
   /**
-   * A set of <code>DataFlavor</code>s that is available on
+   * A set of {@code DataFlavor}s that is available on
    * this clipboard. It is used for tracking changes
-   * of <code>DataFlavor</code>s available on this clipboard.
+   * of {@code DataFlavor}s available on this clipboard.
    */
   private volatile Set currentDataFlavors;
 
@@ -76,7 +75,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   private static Set formatArrayAsDataFlavorSet(long[] formats) {
-    return (formats == null) ? null : DataTransferer.getInstance().
+    return formats == null ? null : DataTransferer.getInstance().
         getFlavorsForFormatsAsSet(formats, getDefaultFlavorTable());
   }
 
@@ -84,6 +83,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
     return (FlavorTable) SystemFlavorMap.getDefaultFlavorMap();
   }
 
+  @Override
   public synchronized void setContents(Transferable contents, ClipboardOwner owner) {
     // 4378007 : Toolkit.getSystemClipboard().setContents(null, null)
     // should throw NPE
@@ -93,8 +93,8 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
 
     initContext();
 
-    final ClipboardOwner oldOwner = this.owner;
-    final Transferable oldContents = this.contents;
+    ClipboardOwner oldOwner = this.owner;
+    Transferable oldContents = this.contents;
 
     try {
       this.owner = owner;
@@ -104,6 +104,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
     } finally {
       if (oldOwner != null && oldOwner != owner) {
         EventQueue.invokeLater(new Runnable() {
+          @Override
           public void run() {
             oldOwner.lostOwnership(SunClipboard.this, oldContents);
           }
@@ -112,6 +113,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
     }
   }
 
+  @Override
   public synchronized Transferable getContents(Object requestor) {
     if (contents != null) {
       return contents;
@@ -120,9 +122,9 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   /**
-   * @see java.awt.Clipboard#getAvailableDataFlavors
    * @since 1.5
    */
+  @Override
   public DataFlavor[] getAvailableDataFlavors() {
     Transferable cntnts = getContextContents();
     if (cntnts != null) {
@@ -136,9 +138,9 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   /**
-   * @see java.awt.Clipboard#isDataFlavorAvailable
    * @since 1.5
    */
+  @Override
   public boolean isDataFlavorAvailable(DataFlavor flavor) {
     if (flavor == null) {
       throw new NullPointerException("flavor");
@@ -155,9 +157,9 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   /**
-   * @see java.awt.Clipboard#getData
    * @since 1.5
    */
+  @Override
   public Object getData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
     if (flavor == null) {
       throw new NullPointerException("flavor");
@@ -183,7 +185,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
         throw new UnsupportedFlavorException(flavor);
       }
 
-      format = lFormat.longValue();
+      format = lFormat;
       data = getClipboardData(format);
 
       if (DataTransferer.getInstance().isLocaleDependentTextFormat(format)) {
@@ -197,6 +199,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
         translateBytes(data, flavor, format, localeTransferable);
   }
 
+  @Override
   public synchronized void addFlavorListener(FlavorListener listener) {
     if (listener == null) {
       return;
@@ -210,7 +213,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
     }
     contextFlavorListeners.add(listener);
 
-    if (numberOfFlavorListeners++ == 0) {
+    if (numberOfFlavorListeners == 0) {
       long[] currentFormats = null;
       try {
         openClipboard(null);
@@ -223,8 +226,10 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
 
       registerClipboardViewerChecked();
     }
+    numberOfFlavorListeners++;
   }
 
+  @Override
   public synchronized void removeFlavorListener(FlavorListener listener) {
     if (listener == null) {
       return;
@@ -236,12 +241,14 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
       //else we throw NullPointerException, but it is forbidden
       return;
     }
-    if (contextFlavorListeners.remove(listener) && --numberOfFlavorListeners == 0) {
+    --numberOfFlavorListeners;
+    if (contextFlavorListeners.remove(listener) && numberOfFlavorListeners == 0) {
       unregisterClipboardViewerChecked();
       currentDataFlavors = null;
     }
   }
 
+  @Override
   public synchronized FlavorListener[] getFlavorListeners() {
     EventListenerAggregate contextFlavorListeners = (EventListenerAggregate) AppContext
         .getAppContext()
@@ -251,7 +258,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   private synchronized void initContext() {
-    final AppContext context = AppContext.getAppContext();
+    AppContext context = AppContext.getAppContext();
 
     if (contentsContext != context) {
       // Need to synchronize on the AppContext to guarantee that it cannot
@@ -276,7 +283,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
    */
   private synchronized Transferable getContextContents() {
     AppContext context = AppContext.getAppContext();
-    return (context == contentsContext) ? contents : null;
+    return context == contentsContext ? contents : null;
   }
 
   /**
@@ -299,10 +306,11 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
 
   public abstract long getID();
 
+  @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if (AppContext.DISPOSED_PROPERTY_NAME.equals(evt.getPropertyName())
         && Boolean.TRUE.equals(evt.getNewValue())) {
-      final AppContext disposedContext = (AppContext) evt.getSource();
+      AppContext disposedContext = (AppContext) evt.getSource();
       lostOwnershipLater(disposedContext);
     }
   }
@@ -314,40 +322,43 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   /**
    * Clears the clipboard state (contents, owner and contents context) and
    * notifies the current owner that ownership is lost. Does nothing if the
-   * argument is not <code>null</code> and is not equal to the current
+   * argument is not {@code null} and is not equal to the current
    * contents context.
    *
    * @param disposedContext the AppContext that is disposed or
-   *                        <code>null</code> if the ownership is lost because another
+   *                        {@code null} if the ownership is lost because another
    *                        application acquired ownership.
    */
-  protected void lostOwnershipLater(final AppContext disposedContext) {
-    final AppContext context = this.contentsContext;
+  protected void lostOwnershipLater(AppContext disposedContext) {
+    AppContext context = contentsContext;
     if (context == null) {
       return;
     }
 
-    final Runnable runnable = new Runnable() {
+    Runnable runnable = new Runnable() {
+      @Override
       public void run() {
-        final SunClipboard sunClipboard = SunClipboard.this;
-        ClipboardOwner owner = null;
-        Transferable contents = null;
+        SunClipboard sunClipboard = SunClipboard.this;
+        ClipboardOwner owner;
+        Transferable contents;
 
         synchronized (sunClipboard) {
-          final AppContext context = sunClipboard.contentsContext;
+          AppContext contextAtRunnableRunTime = sunClipboard.contentsContext;
 
-          if (context == null) {
+          if (contextAtRunnableRunTime == null) {
             return;
           }
 
-          if (disposedContext == null || context == disposedContext) {
+          if (disposedContext == null || contextAtRunnableRunTime == disposedContext) {
             owner = sunClipboard.owner;
             contents = sunClipboard.contents;
             sunClipboard.contentsContext = null;
             sunClipboard.owner = null;
             sunClipboard.contents = null;
             sunClipboard.clearNativeContext();
-            context.removePropertyChangeListener(AppContext.DISPOSED_PROPERTY_NAME, sunClipboard);
+            contextAtRunnableRunTime.removePropertyChangeListener(
+                AppContext.DISPOSED_PROPERTY_NAME,
+                sunClipboard);
           } else {
             return;
           }
@@ -387,7 +398,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   protected abstract byte[] getClipboardData(long format) throws IOException;
 
   public boolean areFlavorListenersRegistered() {
-    return (numberOfFlavorListeners > 0);
+    return numberOfFlavorListeners > 0;
   }
 
   protected abstract void registerClipboardViewerChecked();
@@ -395,10 +406,10 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   protected abstract void unregisterClipboardViewerChecked();
 
   /**
-   * Checks change of the <code>DataFlavor</code>s and, if necessary,
-   * posts notifications on <code>FlavorEvent</code>s to the
+   * Checks change of the {@code DataFlavor}s and, if necessary,
+   * posts notifications on {@code FlavorEvent}s to the
    * AppContexts' EDTs.
-   * The parameter <code>formats</code> is null iff we have just
+   * The parameter {@code formats} is null iff we have just
    * failed to get formats available on the clipboard.
    *
    * @param formats data formats that have just been retrieved from
@@ -408,7 +419,7 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
     Set prevDataFlavors = currentDataFlavors;
     currentDataFlavors = formatArrayAsDataFlavorSet(formats);
 
-    if ((prevDataFlavors != null) && (currentDataFlavors != null) &&
+    if (prevDataFlavors != null && currentDataFlavors != null &&
         prevDataFlavors.equals(currentDataFlavors)) {
       // we've been able to successfully get available on the clipboard
       // DataFlavors this and previous time and they are coincident;
@@ -423,16 +434,15 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
         this.flavorListener = flavorListener;
       }
 
+      @Override
       public void run() {
         if (flavorListener != null) {
           flavorListener.flavorsChanged(new FlavorEvent(SunClipboard.this));
         }
       }
     }
-    ;
 
-    for (Iterator it = AppContext.getAppContexts().iterator(); it.hasNext(); ) {
-      AppContext appContext = (AppContext) it.next();
+    for (AppContext appContext : AppContext.getAppContexts()) {
       if (appContext == null || appContext.isDisposed()) {
         continue;
       }
@@ -441,10 +451,11 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
       if (flavorListeners != null) {
         FlavorListener[] flavorListenerArray
             = (FlavorListener[]) flavorListeners.getListenersInternal();
-        for (int i = 0; i < flavorListenerArray.length; i++) {
-          SunToolkit.postEvent(appContext, new PeerEvent(this,
-              new SunFlavorChangeNotifier(flavorListenerArray[i]),
-              PeerEvent.PRIORITY_EVENT));
+        for (FlavorListener aFlavorListenerArray : flavorListenerArray) {
+          SunToolkit.postEvent(appContext,
+              new PeerEvent(this,
+                  new SunFlavorChangeNotifier(aFlavorListenerArray),
+                  PeerEvent.PRIORITY_EVENT));
         }
       }
     }

@@ -22,6 +22,6 @@
  */
 
 public interface InterprocessMessages {
-    final static int EXECUTION_IS_SUCCESSFULL = 0;
-    final static int WRONG_FILES_NUMBER_ON_TARGET = 212;
+    int EXECUTION_IS_SUCCESSFULL = 0;
+    int WRONG_FILES_NUMBER_ON_TARGET = 212;
 }

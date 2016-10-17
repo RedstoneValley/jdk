@@ -25,6 +25,7 @@
 
 package sun.java2d;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -41,7 +42,7 @@ public class Spans {
   /**
    * This class will sort and collapse its span
    * entries after this many span additions via
-   * the <code>add</code> method.
+   * the {@code add} method.
    */
   private static final int kMaxAddsSinceSort = 256;
 
@@ -52,12 +53,12 @@ public class Spans {
   private List mSpans = new Vector(kMaxAddsSinceSort);
 
   /**
-   * The number of <code>Span</code>
+   * The number of {@code Span}
    * instances that have been added
    * to this object without a sort
    * and collapse taking place.
    */
-  private int mAddsSinceSort = 0;
+  private int mAddsSinceSort;
 
   public Spans() {
 
@@ -65,15 +66,16 @@ public class Spans {
 
   /**
    * Add a span covering the half open interval
-   * including <code>start</code> up to
-   * but not including <code>end</code>.
+   * including {@code start} up to
+   * but not including {@code end}.
    */
   public void add(float start, float end) {
 
     if (mSpans != null) {
       mSpans.add(new Span(start, end));
 
-      if (++mAddsSinceSort >= kMaxAddsSinceSort) {
+      ++mAddsSinceSort;
+      if (mAddsSinceSort >= kMaxAddsSinceSort) {
         sortAndCollapse();
       }
     }
@@ -82,10 +84,10 @@ public class Spans {
   /**
    * Add a span which covers the entire range.
    * This call is logically equivalent to
-   * <code>add(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY)</code>
+   * {@code add(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY)}
    * The result of making this call is that
-   * all future <code>add</code> calls are ignored
-   * and the <code>intersects</code> method always
+   * all future {@code add} calls are ignored
+   * and the {@code intersects} method always
    * returns true.
    */
   public void addInfinite() {
@@ -94,8 +96,8 @@ public class Spans {
 
   /**
    * Returns true if the span defined by the half-open
-   * interval from <code>start</code> up to,
-   * but not including, <code>end</code> intersects
+   * interval from {@code start} up to,
+   * but not including, {@code end} intersects
    * any of the spans defined by this instance.
    */
   public boolean intersects(float start, float end) {
@@ -229,8 +231,8 @@ public class Spans {
 
     /**
      * Create a half-open interval including
-     * <code>start</code> but not including
-     * <code>end</code>.
+     * {@code start} but not including
+     * {@code end}.
      */
     Span(float start, float end) {
       mStart = start;
@@ -238,7 +240,7 @@ public class Spans {
     }
 
     /**
-     * Return the start of the <code>Span</code>.
+     * Return the start of the {@code Span}.
      * The start is considered part of the
      * half-open interval.
      */
@@ -248,14 +250,14 @@ public class Spans {
 
     /**
      * Change the initial position of the
-     * <code>Span</code>.
+     * {@code Span}.
      */
     final void setStart(float start) {
       mStart = start;
     }
 
     /**
-     * Return the end of the <code>Span</code>.
+     * Return the end of the {@code Span}.
      * The end is not considered part of the
      * half-open interval.
      */
@@ -265,18 +267,18 @@ public class Spans {
 
     /**
      * Change the terminal position of the
-     * <code>Span</code>.
+     * {@code Span}.
      */
     final void setEnd(float end) {
       mEnd = end;
     }
 
     /**
-     * Attempt to alter this <code>Span</code>
-     * to include <code>otherSpan</code> without
+     * Attempt to alter this {@code Span}
+     * to include {@code otherSpan} without
      * altering this span's starting position.
-     * If <code>otherSpan</code> can be so consumed
-     * by this <code>Span</code> then <code>true</code>
+     * If {@code otherSpan} can be so consumed
+     * by this {@code Span} then {@code true}
      * is returned.
      */
     boolean subsume(Span otherSpan) {
@@ -302,7 +304,7 @@ public class Spans {
     /**
      * Return true if the passed in position
      * lies in the half-open interval defined
-     * by this <code>Span</code>.
+     * by this {@code Span}.
      */
     boolean contains(float pos) {
       return mStart <= pos && pos < mEnd;
@@ -313,6 +315,8 @@ public class Spans {
      * position. The end position is ignored
      * in this ranking.
      */
+    @SuppressWarnings("CompareToUsesNonFinalVariable")
+    @Override
     public int compareTo(Object o) {
       Span otherSpan = (Span) o;
       float otherStart = otherSpan.getStart();
@@ -332,23 +336,48 @@ public class Spans {
     public String toString() {
       return "Span: " + mStart + " to " + mEnd;
     }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof Span)) {
+        return false;
+      }
+
+      Span span = (Span) o;
+
+      if (Float.compare(span.mStart, mStart) != 0) {
+        return false;
+      }
+      return Float.compare(span.mEnd, mEnd) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = mStart == +0.0f ? 0 : Float.floatToIntBits(mStart);
+      result = 31 * result + (mEnd == +0.0f ? 0 : Float.floatToIntBits(mEnd));
+      return result;
+    }
   }
 
   /**
-   * This class ranks a pair of <code>Span</code>
+   * This class ranks a pair of {@code Span}
    * instances. If the instances intersect they
    * are deemed equal otherwise they are ranked
    * by their relative position. Use
-   * <code>SpanIntersection.instance</code> to
+   * {@code SpanIntersection.instance} to
    * get the single instance of this class.
    */
-  static class SpanIntersection implements Comparator {
+  static class SpanIntersection implements Comparator, Serializable {
 
     /**
      * This class is a Singleton and the following
      * is the single instance.
      */
     static final SpanIntersection instance = new SpanIntersection();
+    private static final long serialVersionUID = 6887166716046253281L;
 
     /**
      * Only this class can create instances of itself.
@@ -357,6 +386,7 @@ public class Spans {
 
     }
 
+    @Override
     public int compare(Object o1, Object o2) {
       int result;
       Span span1 = (Span) o1;

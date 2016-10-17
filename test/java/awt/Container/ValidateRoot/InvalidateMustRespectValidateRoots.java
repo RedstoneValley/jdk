@@ -29,26 +29,30 @@
   @run main/othervm -Djava.awt.smartInvalidate=true InvalidateMustRespectValidateRoots
 */
 
-import javax.swing.*;
 import java.awt.event.*;
 
-public class InvalidateMustRespectValidateRoots {
-    private static volatile JRootPane rootPane;
+public final class InvalidateMustRespectValidateRoots {
+    static volatile JRootPane rootPane;
 
-    public static void main(String args[]) throws Exception {
+    private InvalidateMustRespectValidateRoots() {
+    }
+
+    public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 // The JRootPane is a validate root. We'll check if
                 // invalidate() stops on the root pane, or goes further
                 // up to the frame.
                 JFrame frame = new JFrame();
-                final JButton button = new JButton();
+                JButton button = new JButton();
 
                 frame.add(button);
 
                 // To enable running the test manually: use the Ctrl-Shift-F1
                 // to print the component hierarchy to the console
                 button.addActionListener(new ActionListener() {
+                    @Override
                     public void actionPerformed(ActionEvent ev) {
                         if (button.isValid()) {
                             button.invalidate();
@@ -102,6 +106,7 @@ public class InvalidateMustRespectValidateRoots {
         Thread.sleep(1000);
 
         SwingUtilities.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 // Check if the root pane finally became valid
                 if (!rootPane.isValid()) {

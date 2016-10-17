@@ -31,35 +31,29 @@
   @run applet InfiniteRecursion_2.html
 */
 
-/**
- * InfiniteRecursion_2.java
- *
- * summary: put a JButton into JPanel and then put JPanel into Applet.
- * Add MouseWheelListener to Applet.
- * Add MouseListener to JPanel.
- * Rotating a wheel over the JButton would result in stack overflow.
+/*
+  InfiniteRecursion_2.java
 
- * summary: put a JButton into JApplet.
- * Add MouseWheelListener to JApplet.
- * Rotating a wheel over the JButton would result in stack overflow.
+  summary: put a JButton into JPanel and then put JPanel into Applet.
+  Add MouseWheelListener to Applet.
+  Add MouseListener to JPanel.
+  Rotating a wheel over the JButton would result in stack overflow.
+
+  summary: put a JButton into JApplet.
+  Add MouseWheelListener to JApplet.
+  Rotating a wheel over the JButton would result in stack overflow.
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.AbstractTest;
-import test.java.awt.regtesthelpers.Sysout;
-
-import java.applet.Applet;
 
 public class InfiniteRecursion_2 extends Applet {
-    final static Robot robot = Util.createRobot();
-    final static int MOVE_COUNT = 5;
+    static final Robot robot = Util.createRobot();
+    static final int MOVE_COUNT = 5;
     //*2 for both rotation directions,
     //*2 as Java sends the wheel event to every for nested component in hierarchy under cursor
-    final static int EXPECTED_COUNT = MOVE_COUNT * 2 * 2;
-    static int actualEvents = 0;
+    static final int EXPECTED_COUNT = MOVE_COUNT * 2 * 2;
+    static int actualEvents;
 
     public void init()
     {
@@ -71,8 +65,9 @@ public class InfiniteRecursion_2 extends Applet {
         JPanel outputBox = new JPanel();
         JButton jButton = new JButton();
 
-        this.setSize(200, 200);
-        this.addMouseWheelListener(new MouseWheelListener() {
+        setSize(200, 200);
+        addMouseWheelListener(new MouseWheelListener() {
+                @Override
                 public void mouseWheelMoved(MouseWheelEvent e)
                 {
                     System.out.println("Wheel moved on APPLET : "+e);
@@ -81,17 +76,18 @@ public class InfiniteRecursion_2 extends Applet {
             });
 
         outputBox.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e)
                 {
                     System.out.println("MousePressed on OUTBOX : "+e);
                 }
 
             });
-        this.add(outputBox);
+        add(outputBox);
         outputBox.add(jButton);
 
-        this.setVisible(true);
-        this.validate();
+        setVisible(true);
+        validate();
 
 
         Util.waitForIdle(robot);

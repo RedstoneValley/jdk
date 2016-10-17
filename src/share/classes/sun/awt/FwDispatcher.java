@@ -53,7 +53,7 @@ public interface FwDispatcher {
   void scheduleDispatch(Runnable r);
 
   /**
-   * Delegates the {@link java.awt.EventQueue#createSecondaryLoop()} method
+   * Delegates the {@link EventQueue#createSecondaryLoop()} method
    */
   SecondaryLoop createSecondaryLoop();
 }

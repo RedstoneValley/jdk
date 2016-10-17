@@ -37,23 +37,12 @@ import sun.java2d.loops.CompositeType;
  * the accelerated surfaces.
  */
 public class OGLSurfaceDataProxy extends SurfaceDataProxy {
-  OGLGraphicsConfig oglgc;
-  int transparency;
+  final OGLGraphicsConfig oglgc;
+  final int transparency;
 
   public OGLSurfaceDataProxy(OGLGraphicsConfig oglgc, int transparency) {
     this.oglgc = oglgc;
     this.transparency = transparency;
-  }
-
-  public static SurfaceDataProxy createProxy(
-      SurfaceData srcData, OGLGraphicsConfig dstConfig) {
-    if (srcData instanceof OGLSurfaceData) {
-      // srcData must be a VolatileImage which either matches
-      // our pixel format or not - either way we do not cache it...
-      return UNCACHED;
-    }
-
-    return new OGLSurfaceDataProxy(dstConfig, srcData.getTransparency());
   }
 
   @Override

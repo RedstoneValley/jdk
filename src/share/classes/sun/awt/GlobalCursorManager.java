@@ -82,7 +82,7 @@ public abstract class GlobalCursorManager {
   public void updateCursorImmediately(InputEvent e) {
     boolean shouldUpdate;
     synchronized (lastUpdateLock) {
-      shouldUpdate = (e.getWhen() >= lastUpdateMillis);
+      shouldUpdate = e.getWhen() >= lastUpdateMillis;
     }
     if (shouldUpdate) {
       _updateCursor(true);
@@ -129,7 +129,7 @@ public abstract class GlobalCursorManager {
    * updates:<p>
    * <p>
    * (1) InputEvent updates which are outdated are discarded by
-   * <code>updateCursorImmediately(InputEvent)</code>.<p>
+   * {@code updateCursorImmediately(InputEvent)}.<p>
    * <p>
    * (2) If 'useCache' is true, the native code is free to use a cached
    * value to determine the most specific, visible, enabled heavyweight
@@ -141,13 +141,13 @@ public abstract class GlobalCursorManager {
    * heavyweight, we use findComponentAt to find the most specific, visible,
    * enabled Component.
    */
-  private void _updateCursor(boolean useCache) {
+  void _updateCursor(boolean useCache) {
 
     synchronized (lastUpdateLock) {
       lastUpdateMillis = System.currentTimeMillis();
     }
 
-    Point queryPos = null, p = null;
+    Point queryPos, p = null;
     Component comp;
 
     try {
@@ -189,8 +189,9 @@ public abstract class GlobalCursorManager {
   }
 
   class NativeUpdater implements Runnable {
-    boolean pending = false;
+    boolean pending;
 
+    @Override
     public void run() {
       boolean shouldUpdate = false;
       synchronized (this) {

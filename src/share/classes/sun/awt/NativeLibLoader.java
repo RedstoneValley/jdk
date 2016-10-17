@@ -25,7 +25,13 @@
 
 package sun.awt;
 
-class NativeLibLoader {
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+final class NativeLibLoader {
+
+  private NativeLibLoader() {
+  }
 
   /**
    * This is copied from java.awt.Toolkit since we need the library
@@ -53,7 +59,8 @@ class NativeLibLoader {
    * that the name of the library is "awt".  -br.
    */
   static void loadLibraries() {
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         System.loadLibrary("awt");
         return null;

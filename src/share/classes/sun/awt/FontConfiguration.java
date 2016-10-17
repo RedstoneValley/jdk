@@ -26,6 +26,7 @@
 package sun.awt;
 
 import android.util.Log;
+import java.awt.Dialog;
 import java.awt.Font;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,11 +44,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import sun.font.CompositeFontDescriptor;
 import sun.font.SunFontManager;
 
 /**
@@ -57,18 +58,17 @@ import sun.font.SunFontManager;
  */
 public abstract class FontConfiguration {
 
-  private static final String TAG = "sun.awt.FontConfig";
-
   /////////////////////////////////////////////////////////////////////
   // Methods for handling font and style names                       //
   /////////////////////////////////////////////////////////////////////
   protected static final int NUM_FONTS = 5;
   protected static final int NUM_STYLES = 4;
   protected static final String[] fontNames = {
-      "serif", "sansserif", "monospaced", "dialog", "dialoginput"};
+      "serif", "sansserif", "monospaced", Dialog.base, "dialoginput"};
   protected static final String[] publicFontNames = {
       Font.SERIF, Font.SANS_SERIF, Font.MONOSPACED, Font.DIALOG, Font.DIALOG_INPUT};
   protected static final String[] styleNames = {"plain", "bold", "italic", "bolditalic"};
+  private static final String TAG = "sun.awt.FontConfig";
   //////////////////////////////////////////////////////////////////////
   // FontConfig data tables and the index constants in binary file    //
   //////////////////////////////////////////////////////////////////////
@@ -151,59 +151,69 @@ public abstract class FontConfiguration {
   private static final int INDEX_appendedfontpath = 16;
   private static final int INDEX_version = 17;
   //utility "empty" objects
-  private static final int[] EMPTY_INT_ARRAY = new int[0];
-  private static final String[] EMPTY_STRING_ARRAY = new String[0];
-  private static final short[] EMPTY_SHORT_ARRAY = new short[0];
-  private static final String UNDEFINED_COMPONENT_FONT = "unknown";
+  static final int[] EMPTY_INT_ARRAY = new int[0];
+  static final String[] EMPTY_STRING_ARRAY = new String[0];
+  static final short[] EMPTY_SHORT_ARRAY = new short[0];
+  private static final String UNDEFINED_COMPONENT_FONT = ResultSet.unknown;
   public static boolean verbose;
   //static global runtime env
   protected static String osVersion;
   protected static String osName;
   protected static String encoding; // canonical name of default nio charset
-  protected static Locale startupLocale = null;
+  protected static Locale startupLocale;
 
   /////////////////////////////////////////////////////////////////////
   // methods for initializing the FontConfig                         //
   /////////////////////////////////////////////////////////////////////
-  protected static Hashtable localeMap = null;
+  protected static Hashtable localeMap;
   protected static boolean isProperties = true;
-  protected static String[] installedFallbackFontFiles = null;
+  protected static String[] installedFallbackFontFiles;
   protected static short[] table_awtfontpaths;
   private static FontConfiguration fontConfig;
   //private static boolean loadingProperties;
-  private static short stringIDNum;
-  private static short[] stringIDs;
-  private static StringBuilder stringTable;
-  private static short[] head;
-  private static short[] table_scriptIDs;
-  private static short[] table_scriptFonts;
-  private static short[] table_elcIDs;
-  private static short[] table_sequences;
-  private static short[] table_fontfileNameIDs;
-  private static short[] table_componentFontNameIDs;
-  private static short[] table_filenames;
-  private static short[] table_exclusions;
-  private static short[] table_proportionals;
-  private static short[] table_scriptFontsMotif;
-  private static short[] table_alphabeticSuffix;
-  private static short[] table_stringIDs;
-  private static char[] table_stringTable;
+  static short stringIDNum;
+  static short[] stringIDs;
+  static StringBuilder stringTable;
+  static short[] head;
+  static short[] table_scriptIDs;
+  static short[] table_scriptFonts;
+  static short[] table_elcIDs;
+  static short[] table_sequences;
+  static short[] table_fontfileNameIDs;
+  static short[] table_componentFontNameIDs;
+  static short[] table_filenames;
+  static short[] table_exclusions;
+  static short[] table_proportionals;
+  static short[] table_scriptFontsMotif;
+  static short[] table_alphabeticSuffix;
+  static short[] table_stringIDs;
+  static char[] table_stringTable;
   //runtime cache
-  private static String[] stringCache;
-  protected SunFontManager fontManager;
+  static String[] stringCache;
+  private final short[][][] compFontNameIDs = new short[NUM_FONTS][NUM_STYLES][];
+  private final int[][][] compExclusions = new int[NUM_FONTS][][];
+  private final int[] compCoreNum = new int[NUM_FONTS];
+  private final Set<Short> coreFontNameIDs = new HashSet<>();
+  private final Set<Short> fallbackFontNameIDs = new HashSet<>();
+  ////////////////////////////////////////////////////////////////////////
+  // Methods for extracting information from the fontconfig data for AWT//
+  ////////////////////////////////////////////////////////////////////////
+  private final Hashtable charsetRegistry = new Hashtable(5);
+  private final FontDescriptor[][][] fontDescriptors = new FontDescriptor[NUM_FONTS][NUM_STYLES][];
+  protected final SunFontManager fontManager;
   protected boolean preferLocaleFonts;
   protected boolean preferPropFonts;
   /* Mappings from file encoding to font config name for font supporting
    * the corresponding language. This is filled in by initReorderMap()
    */
-  protected HashMap reorderMap = null;
+  protected HashMap reorderMap;
   /* Used on Linux to test if a file referenced in a font configuration
    * file exists in the location that is expected. If it does, no need
    * to search for it. If it doesn't then unless its a fallback font,
    * return that expensive code should be invoked to search for the font.
    */ HashMap<String, Boolean> existsMap;
-  HashMap<String, String> filenamesMap = new HashMap<String, String>();
-  HashSet<String> coreFontFileNames = new HashSet<String>();
+  final Map<String, String> filenamesMap = new HashMap<>();
+  final Set<String> coreFontFileNames = new HashSet<>();
   private File fontConfigFile;
   private boolean foundOsSpecificFile;
   private boolean inited;
@@ -211,23 +221,12 @@ public abstract class FontConfiguration {
   private short initELC = -1;
   private Locale initLocale;
   private String initEncoding;
-
   //////////////////////////////////////////////////////////////////////
   //  reordering                                                      //
   //////////////////////////////////////////////////////////////////////
   private String alphabeticSuffix;
-  private short[][][] compFontNameIDs = new short[NUM_FONTS][NUM_STYLES][];
-  private int[][][] compExclusions = new int[NUM_FONTS][][];
-  private int[] compCoreNum = new int[NUM_FONTS];
-  private Set<Short> coreFontNameIDs = new HashSet<Short>();
-  private Set<Short> fallbackFontNameIDs = new HashSet<Short>();
-  ////////////////////////////////////////////////////////////////////////
-  // Methods for extracting information from the fontconfig data for AWT//
-  ////////////////////////////////////////////////////////////////////////
-  private Hashtable charsetRegistry = new Hashtable(5);
-  private FontDescriptor[][][] fontDescriptors = new FontDescriptor[NUM_FONTS][NUM_STYLES][];
   private int numCoreFonts = -1;
-  private String[] componentFonts = null;
+  private String[] componentFonts;
   private HashMap<String, Short> reorderScripts;
 
   /* A default FontConfiguration must be created before an alternate
@@ -285,12 +284,15 @@ public abstract class FontConfiguration {
     stringCache = new String[table_stringIDs.length + 1];
 
     int len = tableSizes[INDEX_stringTable];
-    byte[] bb = new byte[len * 2];
+    byte[] bb = new byte[(len << 1)];
     table_stringTable = new char[len];
     in.read(bb);
     int i = 0, j = 0;
     while (i < len) {
-      table_stringTable[i++] = (char) (bb[j++] << 8 | (bb[j++] & 0xff));
+      table_stringTable[i] = (char) (bb[j] << 8 | bb[j] & 0xff);
+      i++;
+      j++;
+      j++;
     }
     if (verbose) {
       dump();
@@ -361,8 +363,8 @@ public abstract class FontConfiguration {
    * The check is case sensitive.
    */
   public static boolean isLogicalFontFamilyNameLC(String fontName) {
-    for (int i = 0; i < fontNames.length; i++) {
-      if (fontName.equals(fontNames[i])) {
+    for (String fontName1 : fontNames) {
+      if (fontName.equals(fontName1)) {
         return true;
       }
     }
@@ -373,8 +375,8 @@ public abstract class FontConfiguration {
    * Checks whether the given style name is a valid logical font style name.
    */
   private static boolean isLogicalFontStyleName(String styleName) {
-    for (int i = 0; i < styleNames.length; i++) {
-      if (styleName.equals(styleNames[i])) {
+    for (String styleName1 : styleNames) {
+      if (styleName.equals(styleName1)) {
         return true;
       }
     }
@@ -499,7 +501,7 @@ public abstract class FontConfiguration {
     return val;
   }
 
-  private static Vector splitSequence(String sequence) {
+  static Vector splitSequence(String sequence) {
     //String.split would be more convenient, but incurs big performance penalty
     Vector parts = new Vector();
     int start = 0;
@@ -529,9 +531,8 @@ public abstract class FontConfiguration {
 
     //This method will only be called during build time, do we
     //need do PrivilegedAction?
-    String osName
-        = (String) java.security.AccessController.doPrivileged(new java.security.PrivilegedAction
-        () {
+    String osName = (String) AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         return System.getProperty("os.name");
       }
@@ -642,10 +643,10 @@ public abstract class FontConfiguration {
     printTable(table_elcIDs, 0);
     System.out.println("\n----sequences-------------");
     for (int ii = 0; ii < table_elcIDs.length; ii++) {
-      System.out.println("  " + ii + "/" + getString((short) table_elcIDs[ii]));
-      short[] ss = getShortArray(table_sequences[ii * NUM_FONTS + 0]);
-      for (int jj = 0; jj < ss.length; jj++) {
-        System.out.println("     " + getString((short) table_scriptIDs[ss[jj]]));
+      System.out.println("  " + ii + "/" + getString(table_elcIDs[ii]));
+      short[] ss = getShortArray(table_sequences[ii * NUM_FONTS]);
+      for (short s : ss) {
+        System.out.println("     " + getString(table_scriptIDs[s]));
       }
     }
     System.out.println("\n----fontfileNameIDs-------");
@@ -670,24 +671,27 @@ public abstract class FontConfiguration {
     System.out.println("\n----proportionals--------");
     for (int ii = 0; ii < table_proportionals.length; ii++) {
       System.out.println(
-          "  " + getString((short) table_componentFontNameIDs[table_proportionals[ii++]]) + " -> "
-              + getString((short) table_componentFontNameIDs[table_proportionals[ii]]));
+          "  " + getString(table_componentFontNameIDs[table_proportionals[ii]]) + " -> "
+              + getString(table_componentFontNameIDs[table_proportionals[ii]]));
+      ii++;
     }
     int i = 0;
     System.out.println("\n----alphabeticSuffix----");
     while (i < table_alphabeticSuffix.length) {
       System.out.println(
-          "    " + getString(table_elcIDs[table_alphabeticSuffix[i++]]) + " -> " + getString(
-              table_alphabeticSuffix[i++]));
+          "    " + getString(table_elcIDs[table_alphabeticSuffix[i]]) + " -> " + getString(
+              table_alphabeticSuffix[i]));
+      i++;
+      i++;
     }
     System.out.println("\n----String Table---------");
     System.out.println("    stringID:    Num =" + table_stringIDs.length);
-    System.out.println("    stringTable: Size=" + table_stringTable.length * 2);
+    System.out.println("    stringTable: Size=" + (table_stringTable.length << 1));
 
     System.out.println("\n----fallbackScriptIDs---");
     short[] fbsIDs = getShortArray(head[INDEX_fallbackScripts]);
-    for (int ii = 0; ii < fbsIDs.length; ii++) {
-      System.out.println("  " + getString(table_scriptIDs[fbsIDs[ii]]));
+    for (short fbsID : fbsIDs) {
+      System.out.println("  " + getString(table_scriptIDs[fbsID]));
     }
     System.out.println("\n----appendedfontpath-----");
     System.out.println("  " + getString(head[INDEX_appendedfontpath]));
@@ -703,12 +707,7 @@ public abstract class FontConfiguration {
     short fid = table_scriptFonts[scriptID];
     //System.out.println("fid=" + fid + "/ scriptID=" + scriptID + ", fi=" + fontIndex + ", si="
     // + styleIndex);
-    if (fid >= 0) {
-      //"allfonts"
-      return fid;
-    } else {
-      return table_scriptFonts[-fid + fontIndex * NUM_STYLES + styleIndex];
-    }
+    return fid >= 0 ? fid : table_scriptFonts[-fid + fontIndex * NUM_STYLES + styleIndex];
   }
 
   /* Same as getCompoentFontID() except this method returns the fontID define by
@@ -719,12 +718,7 @@ public abstract class FontConfiguration {
       return 0;
     }
     short fid = table_scriptFontsMotif[scriptID];
-    if (fid >= 0) {
-      //"allfonts" > 0 or "not defined" == 0
-      return fid;
-    } else {
-      return table_scriptFontsMotif[-fid + fontIndex * NUM_STYLES + styleIndex];
-    }
+    return fid >= 0 ? fid : table_scriptFontsMotif[-fid + fontIndex * NUM_STYLES + styleIndex];
   }
 
   private static int[] getExclusionRanges(short scriptID) {
@@ -736,13 +730,15 @@ public abstract class FontConfiguration {
       int[] exInt = new int[exChar.length / 2];
       int i = 0;
       for (int j = 0; j < exInt.length; j++) {
-        exInt[j] = (exChar[i++] << 16) + (exChar[i++] & 0xffff);
+        exInt[j] = (exChar[i] << 16) + (exChar[i] & 0xffff);
+        i++;
+        i++;
       }
       return exInt;
     }
   }
 
-  private static boolean contains(short IDs[], short id, int limit) {
+  private static boolean contains(short[] IDs, short id, int limit) {
     for (int i = 0; i < limit; i++) {
       if (IDs[i] == id) {
         return true;
@@ -790,11 +786,14 @@ public abstract class FontConfiguration {
       return EMPTY_SHORT_ARRAY;
     }
     short[] data = new short[len];
-    byte[] bb = new byte[len * 2];
+    byte[] bb = new byte[(len << 1)];
     in.read(bb);
     int i = 0, j = 0;
     while (i < len) {
-      data[i++] = (short) (bb[j++] << 8 | (bb[j++] & 0xff));
+      data[i] = (short) (bb[j] << 8 | bb[j] & 0xff);
+      i++;
+      j++;
+      j++;
     }
     return data;
   }
@@ -805,7 +804,7 @@ public abstract class FontConfiguration {
     }
   }
 
-  private static short[] toList(HashMap<String, Short> map) {
+  static short[] toList(HashMap<String, Short> map) {
     short[] list = new short[map.size()];
     Arrays.fill(list, (short) -1);
     for (Entry<String, Short> entry : map.entrySet()) {
@@ -843,7 +842,7 @@ public abstract class FontConfiguration {
     return ss;
   }
 
-  private static short getStringID(String s) {
+  static short getStringID(String s) {
     if (s == null) {
       return (short) 0;
     }
@@ -862,7 +861,7 @@ public abstract class FontConfiguration {
     return (short) (stringIDNum - 1);
   }
 
-  private static short getShortArrayID(short sa[]) {
+  static short getShortArrayID(short[] sa) {
     char[] cc = new char[sa.length];
     for (int i = 0; i < sa.length; i++) {
       cc[i] = (char) sa[i];
@@ -873,8 +872,8 @@ public abstract class FontConfiguration {
 
   public synchronized boolean init() {
     if (!inited) {
-      this.preferLocaleFonts = false;
-      this.preferPropFonts = false;
+      preferLocaleFonts = false;
+      preferPropFonts = false;
       setFontConfiguration();
       readFontConfigFile(fontConfigFile);
       initFontConfig();
@@ -890,7 +889,7 @@ public abstract class FontConfiguration {
    */
   protected void setOsNameAndVersion() {
     osName = System.getProperty("os.name");
-    osVersion = System.getProperty("os.version");
+    osVersion = System.getProperty(OSInfo.OS_VERSION);
   }
 
   private void setEncoding() {
@@ -909,20 +908,19 @@ public abstract class FontConfiguration {
     init();
     short fontNameID = compFontNameIDs[0][0][0];
     short fileNameID = getComponentFileID(fontNameID);
-    final String fileName = mapFileName(getComponentFileName(fileNameID));
-    Boolean exists
-        = (Boolean) java.security.AccessController.doPrivileged(new java.security
-        .PrivilegedAction() {
+    String fileName = mapFileName(getComponentFileName(fileNameID));
+    Boolean exists = (Boolean) AccessController.doPrivileged(new PrivilegedAction() {
+      @Override
       public Object run() {
         try {
           File f = new File(fileName);
-          return Boolean.valueOf(f.exists());
+          return f.exists();
         } catch (Exception e) {
           return false;
         }
       }
     });
-    return exists.booleanValue();
+    return exists;
   }
 
   private void findFontConfigFile() {
@@ -934,11 +932,8 @@ public abstract class FontConfiguration {
     }
     javaLib = javaHome + File.separator + "lib";
     String userConfigFile = System.getProperty("sun.awt.fontconfig");
-    if (userConfigFile != null) {
-      fontConfigFile = new File(userConfigFile);
-    } else {
-      fontConfigFile = findFontConfigFile(javaLib);
-    }
+    fontConfigFile = userConfigFile != null ? new File(userConfigFile)
+        : findFontConfigFile(javaLib);
   }
 
   private void readFontConfigFile(File f) {
@@ -958,13 +953,9 @@ public abstract class FontConfiguration {
           loadBinary(in);
         }
         in.close();
-        if (true) {
-          Log.d(TAG, "Read logical font configuration from " + f);
-        }
+        Log.d(TAG, "Read logical font configuration from " + f);
       } catch (IOException e) {
-        if (true) {
-          Log.d(TAG, "Failed to read logical font configuration from " + f);
-        }
+        Log.d(TAG, "Failed to read logical font configuration from " + f);
       }
     }
     String version = getVersion();
@@ -981,8 +972,8 @@ public abstract class FontConfiguration {
     if (fallbackDir.exists() && fallbackDir.isDirectory()) {
       String[] ttfs = fallbackDir.list(fontManager.getTrueTypeFilter());
       String[] t1s = fallbackDir.list(fontManager.getType1Filter());
-      int numTTFs = (ttfs == null) ? 0 : ttfs.length;
-      int numT1s = (t1s == null) ? 0 : t1s.length;
+      int numTTFs = ttfs == null ? 0 : ttfs.length;
+      int numT1s = t1s == null ? 0 : t1s.length;
       int len = numTTFs + numT1s;
       if (numTTFs + numT1s == 0) {
         return;
@@ -1079,20 +1070,17 @@ public abstract class FontConfiguration {
     if (initELC != -1) {
       return initELC;
     }
-    HashMap<String, Integer> elcIDs = new HashMap<String, Integer>();
+    HashMap<String, Integer> elcIDs = new HashMap<>();
     for (int i = 0; i < table_elcIDs.length; i++) {
       elcIDs.put(getString(table_elcIDs[i]), i);
     }
     String language = initLocale.getLanguage();
     String country = initLocale.getCountry();
     String elc;
-    if (elcIDs.containsKey(elc = initEncoding + "." + language + "." + country)
+    initELC = elcIDs.containsKey(elc = initEncoding + "." + language + "." + country)
         || elcIDs.containsKey(elc = initEncoding + "." + language) || elcIDs.containsKey(
-        elc = initEncoding)) {
-      initELC = elcIDs.get(elc).shortValue();
-    } else {
-      initELC = elcIDs.get("NULL.NULL.NULL").shortValue();
-    }
+        elc = initEncoding) ? elcIDs.get(elc).shortValue()
+        : elcIDs.get("NULL.NULL.NULL").shortValue();
     int i = 0;
     while (i < table_alphabeticSuffix.length) {
       if (initELC == table_alphabeticSuffix[i]) {
@@ -1142,11 +1130,11 @@ public abstract class FontConfiguration {
           coreFontNameIDs.add(nameIDs[index]);
         }
         //fallback
-        for (int i = 0; i < fallbackScripts.length; i++) {
-          short id = getComponentFontID(fallbackScripts[i], fontIndex, styleIndex);
+        for (short fallbackScript : fallbackScripts) {
+          short id = getComponentFontID(fallbackScript, fontIndex, styleIndex);
           if (preferLocaleFonts && localeMap != null &&
               fontManager.usingAlternateFontforJALocales()) {
-            id = remapLocaleMap(fontIndex, styleIndex, fallbackScripts[i], id);
+            id = remapLocaleMap(fontIndex, styleIndex, fallbackScript, id);
           }
           if (preferPropFonts) {
             id = remapProportional(fontIndex, id);
@@ -1159,7 +1147,8 @@ public abstract class FontConfiguration {
                            + ", fbIndex=" + i + ",fbS=" + fallbackScripts[i] + ", id=" + id);
                     */
           fallbackFontNameIDs.add(id);
-          nameIDs[index++] = id;
+          nameIDs[index] = id;
+          index++;
         }
         if (index < nameIDs.length) {
           short[] newNameIDs = new short[index];
@@ -1225,11 +1214,13 @@ public abstract class FontConfiguration {
    */
   protected String getCompatibilityFamilyName(String fontName) {
     fontName = fontName.toLowerCase(Locale.ENGLISH);
-    if (fontName.equals("timesroman")) {
+    if ("timesroman".equals(fontName)) {
       return "serif";
-    } else if (fontName.equals("helvetica")) {
+    }
+    if ("helvetica".equals(fontName)) {
       return "sansserif";
-    } else if (fontName.equals("courier")) {
+    }
+    if ("courier".equals(fontName)) {
       return "monospaced";
     }
     return null;
@@ -1258,9 +1249,7 @@ public abstract class FontConfiguration {
       return;
     }
     String tmp = seq[src];
-    for (int i = src; i > dst; i--) {
-      seq[i] = seq[i - 1];
-    }
+    System.arraycopy(seq, dst, seq, dst + 1, src - dst);
     seq[dst] = tmp;
   }
 
@@ -1374,22 +1363,20 @@ public abstract class FontConfiguration {
    */
   protected abstract String getEncoding(String awtFontName, String characterSubsetName);
 
-  private CharsetEncoder getFontCharsetEncoder(final String charsetName, String fontName) {
+  private CharsetEncoder getFontCharsetEncoder(String charsetName, String fontName) {
 
-    Charset fc = null;
-    if (charsetName.equals("default")) {
-      fc = (Charset) charsetRegistry.get(fontName);
-    } else {
-      fc = (Charset) charsetRegistry.get(charsetName);
-    }
+    Charset fc;
+    fc = "default".equals(charsetName) ? (Charset) charsetRegistry.get(fontName)
+        : (Charset) charsetRegistry.get(charsetName);
     if (fc != null) {
       return fc.newEncoder();
     }
 
-    if (!charsetName.startsWith("sun.awt.") && !charsetName.equals("default")) {
+    if (!charsetName.startsWith("sun.awt.") && !"default".equals(charsetName)) {
       fc = Charset.forName(charsetName);
     } else {
       Class fcc = (Class) AccessController.doPrivileged(new PrivilegedAction() {
+        @Override
         public Object run() {
           try {
             return Class.forName(charsetName, true, ClassLoader.getSystemClassLoader());
@@ -1410,7 +1397,7 @@ public abstract class FontConfiguration {
       fc = getDefaultFontCharset(fontName);
     }
 
-    if (charsetName.equals("default")) {
+    if ("default".equals(charsetName)) {
       charsetRegistry.put(fontName, fc);
     } else {
       charsetRegistry.put(charsetName, fc);
@@ -1462,9 +1449,9 @@ public abstract class FontConfiguration {
         }
         filenamesMap.put(componentFonts[i], mapFileName(compFileName));
       }
-      for (int j = 0; j < fallback.length; j++) {
-        if (fallback[j] != null) {
-          short fontid = fallback[j];
+      for (Short aFallback : fallback) {
+        if (aFallback != null) {
+          short fontid = aFallback;
           short fileid = getComponentFileID(fontid);
           componentFonts[i] = getComponentFontName(fontid);
           filenamesMap.put(componentFonts[i], mapFileName(getComponentFileName(fileid)));
@@ -1531,7 +1518,7 @@ public abstract class FontConfiguration {
     short[] scripts = getShortArray(table_sequences[elc * NUM_FONTS + fontIndex]);
     if (preferLocaleFonts) {
       if (reorderScripts == null) {
-        reorderScripts = new HashMap<String, Short>();
+        reorderScripts = new HashMap<>();
       }
       String[] ss = new String[scripts.length];
       for (int i = 0; i < ss.length; i++) {
@@ -1620,11 +1607,8 @@ public abstract class FontConfiguration {
         table_scriptFonts[entry.getKey().intValue()] = (short) -off;
         Short[] v = entry.getValue();
         for (int i = 0; i < 20; i++) {
-          if (v[i] != null) {
-            table_scriptFonts[off++] = v[i];
-          } else {
-            table_scriptFonts[off++] = 0;
-          }
+          table_scriptFonts[off] = v[i] != null ? v[i] : 0;
+          off++;
         }
       }
 
@@ -1652,9 +1636,7 @@ public abstract class FontConfiguration {
             table_sequences[k * NUM_FONTS + i] = v[0];
           }
         } else {
-          for (int i = 0; i < NUM_FONTS; i++) {
-            table_sequences[k * NUM_FONTS + i] = v[i];
-          }
+          System.arraycopy(v, 0, table_sequences, k * 5, NUM_FONTS);
         }
       }
       //(4)
@@ -1689,32 +1671,36 @@ public abstract class FontConfiguration {
       table_exclusions = new short[scriptIDs.size()];
       for (Entry<Short, int[]> entry : exclusions.entrySet()) {
         int[] exI = entry.getValue();
-        char[] exC = new char[exI.length * 2];
+        char[] exC = new char[(exI.length << 1)];
         int j = 0;
-        for (int i = 0; i < exI.length; i++) {
-          exC[j++] = (char) (exI[i] >> 16);
-          exC[j++] = (char) (exI[i] & 0xffff);
+        for (int anExI : exI) {
+          exC[j] = (char) (anExI >> 16);
+          j++;
+          exC[j] = (char) (anExI & 0xffff);
+          j++;
         }
         table_exclusions[entry.getKey()] = getStringID(new String(exC));
       }
       //(9)proportionals
       head[INDEX_proportionals] = (short) (head[INDEX_exclusions] + table_exclusions.length);
-      table_proportionals = new short[proportionals.size() * 2];
+      table_proportionals = new short[(proportionals.size() << 1)];
       int j = 0;
       for (Entry<Short, Short> entry : proportionals.entrySet()) {
-        table_proportionals[j++] = entry.getKey();
-        table_proportionals[j++] = entry.getValue();
+        table_proportionals[j] = entry.getKey();
+        j++;
+        table_proportionals[j] = entry.getValue();
+        j++;
       }
 
       //(10) see (1) for info, the only difference is "xxx.motif"
       head[INDEX_scriptFontsMotif] = (short) (head[INDEX_proportionals]
                                                   + table_proportionals.length);
-      if (scriptAllfontsMotif.size() != 0 || scriptFontsMotif.size() != 0) {
+      if (!scriptAllfontsMotif.isEmpty() || !scriptFontsMotif.isEmpty()) {
         len = table_scriptIDs.length + scriptFontsMotif.size() * 20;
         table_scriptFontsMotif = new short[len];
 
         for (Entry<Short, Short> entry : scriptAllfontsMotif.entrySet()) {
-          table_scriptFontsMotif[entry.getKey().intValue()] = (short) entry.getValue();
+          table_scriptFontsMotif[entry.getKey().intValue()] = entry.getValue();
         }
         off = table_scriptIDs.length;
         for (Entry<Short, Short[]> entry : scriptFontsMotif.entrySet()) {
@@ -1722,11 +1708,8 @@ public abstract class FontConfiguration {
           Short[] v = entry.getValue();
           int i = 0;
           while (i < 20) {
-            if (v[i] != null) {
-              table_scriptFontsMotif[off++] = v[i];
-            } else {
-              table_scriptFontsMotif[off++] = 0;
-            }
+            table_scriptFontsMotif[off] = v[i] != null ? v[i] : 0;
+            off++;
             i++;
           }
         }
@@ -1737,11 +1720,13 @@ public abstract class FontConfiguration {
       //(11)short[] alphabeticSuffix
       head[INDEX_alphabeticSuffix] = (short) (head[INDEX_scriptFontsMotif]
                                                   + table_scriptFontsMotif.length);
-      table_alphabeticSuffix = new short[alphabeticSuffix.size() * 2];
+      table_alphabeticSuffix = new short[(alphabeticSuffix.size() << 1)];
       j = 0;
       for (Entry<Short, Short> entry : alphabeticSuffix.entrySet()) {
-        table_alphabeticSuffix[j++] = entry.getKey();
-        table_alphabeticSuffix[j++] = entry.getValue();
+        table_alphabeticSuffix[j] = entry.getKey();
+        j++;
+        table_alphabeticSuffix[j] = entry.getValue();
+        j++;
       }
 
       //(15)short[] fallbackScriptIDs; just put the ID in head
@@ -1770,12 +1755,12 @@ public abstract class FontConfiguration {
     }
 
     private void initLogicalNameStyle() {
-      logicalFontIDs = new HashMap<String, Integer>();
-      fontStyleIDs = new HashMap<String, Integer>();
+      logicalFontIDs = new HashMap<>();
+      fontStyleIDs = new HashMap<>();
       logicalFontIDs.put("serif", 0);
       logicalFontIDs.put("sansserif", 1);
       logicalFontIDs.put("monospaced", 2);
-      logicalFontIDs.put("dialog", 3);
+      logicalFontIDs.put(Dialog.base, 3);
       logicalFontIDs.put("dialoginput", 4);
       fontStyleIDs.put("plain", 0);
       fontStyleIDs.put("bold", 1);
@@ -1784,25 +1769,25 @@ public abstract class FontConfiguration {
     }
 
     private void initHashMaps() {
-      scriptIDs = new HashMap<String, Short>();
-      elcIDs = new HashMap<String, Short>();
-      componentFontNameIDs = new HashMap<String, Short>();
+      scriptIDs = new HashMap<>();
+      elcIDs = new HashMap<>();
+      componentFontNameIDs = new HashMap<>();
             /*Init these tables to allow componentFontNameID, fontfileNameIDs
               to start from "1".
             */
       componentFontNameIDs.put("", (short) 0);
 
-      fontfileNameIDs = new HashMap<String, Short>();
-      filenames = new HashMap<Short, Short>();
-      sequences = new HashMap<Short, short[]>();
-      scriptFonts = new HashMap<Short, Short[]>();
-      scriptAllfonts = new HashMap<Short, Short>();
-      exclusions = new HashMap<Short, int[]>();
-      awtfontpaths = new HashMap<Short, Short>();
-      proportionals = new HashMap<Short, Short>();
-      scriptFontsMotif = new HashMap<Short, Short[]>();
-      scriptAllfontsMotif = new HashMap<Short, Short>();
-      alphabeticSuffix = new HashMap<Short, Short>();
+      fontfileNameIDs = new HashMap<>();
+      filenames = new HashMap<>();
+      sequences = new HashMap<>();
+      scriptFonts = new HashMap<>();
+      scriptAllfonts = new HashMap<>();
+      exclusions = new HashMap<>();
+      awtfontpaths = new HashMap<>();
+      proportionals = new HashMap<>();
+      scriptFontsMotif = new HashMap<>();
+      scriptAllfontsMotif = new HashMap<>();
+      alphabeticSuffix = new HashMap<>();
       fallbackScriptIDs = EMPTY_SHORT_ARRAY;
             /*
               version
@@ -1821,12 +1806,12 @@ public abstract class FontConfiguration {
         numExclusions++;
         pos++;
       }
-      int[] exclusionRanges = new int[numExclusions * 2];
+      int[] exclusionRanges = new int[(numExclusions << 1)];
       pos = 0;
-      int newPos = 0;
-      for (int j = 0; j < numExclusions * 2; ) {
+      int newPos;
+      for (int j = 0; j < numExclusions << 1; ) {
         String lower, upper;
-        int lo = 0, up = 0;
+        int lo, up;
         try {
           newPos = exclusions.indexOf('-', pos);
           lower = exclusions.substring(pos, newPos);
@@ -1849,11 +1834,13 @@ public abstract class FontConfiguration {
           }
         } catch (Exception e) {
           Log.d(TAG, "Failed parsing " + key +
-                " property of font configuration.");
+              " property of font configuration.");
           return EMPTY_INT_ARRAY;
         }
-        exclusionRanges[j++] = lo;
-        exclusionRanges[j++] = up;
+        exclusionRanges[j] = lo;
+        j++;
+        exclusionRanges[j] = up;
+        j++;
       }
       return exclusionRanges;
     }
@@ -1867,7 +1854,7 @@ public abstract class FontConfiguration {
       return ret;
     }
 
-    private void parseProperty(String key, String value) {
+    void parseProperty(String key, String value) {
       if (key.startsWith("filename.")) {
         //the only special case is "MingLiu_HKSCS" which has "_" in its
         //facename, we don't want to replace the "_" with " "
@@ -1901,12 +1888,12 @@ public abstract class FontConfiguration {
             ss[i] = "alphabetic";
             has1252 = true;
           }
-          sa[i] = getID(scriptIDs, ss[i]).shortValue();
+          sa[i] = getID(scriptIDs, ss[i]);
           //System.out.println("scriptID=" + si[i] + "/" + ss[i]);
         }
         //convert the "short[] -> string -> stringID"
         short scriptArrayID = getShortArrayID(sa);
-        Short elcID = null;
+        Short elcID;
         int dot = key.indexOf('.');
         if (dot == -1) {
           if ("fallback".equals(key)) {
@@ -1924,7 +1911,7 @@ public abstract class FontConfiguration {
           //System.out.println("elcID=" + elcID + "/" + key.substring(dot + 1));
           key = key.substring(0, dot);
         }
-        short[] scriptArrayIDs = null;
+        short[] scriptArrayIDs;
         if ("allfonts".equals(key)) {
           scriptArrayIDs = new short[1];
           scriptArrayIDs[0] = scriptArrayID;
@@ -1939,7 +1926,7 @@ public abstract class FontConfiguration {
             return;
           }
           //System.out.println("sequence." + key + "/" + id);
-          scriptArrayIDs[fid.intValue()] = scriptArrayID;
+          scriptArrayIDs[fid] = scriptArrayID;
         }
         sequences.put(elcID, scriptArrayIDs);
         if (hasDefault) {
@@ -1976,13 +1963,13 @@ public abstract class FontConfiguration {
         dot1 = key.indexOf('.');
         if (dot1 == -1) {
           Log.d(TAG, "Failed parsing " + key +
-                " property of font configuration.");
+              " property of font configuration.");
           return;
         }
         dot2 = key.indexOf('.', dot1 + 1);
         if (dot2 == -1) {
           Log.d(TAG, "Failed parsing " + key +
-                " property of font configuration.");
+              " property of font configuration.");
           return;
         }
         if (key.endsWith(".motif")) {
@@ -1998,15 +1985,11 @@ public abstract class FontConfiguration {
           return;
         }
         Short[] pnids;
-        if (isMotif) {
-          pnids = scriptFontsMotif.get(scriptID);
-        } else {
-          pnids = scriptFonts.get(scriptID);
-        }
+        pnids = isMotif ? scriptFontsMotif.get(scriptID) : scriptFonts.get(scriptID);
         if (pnids == null) {
           pnids = new Short[20];
         }
-        pnids[nameID.intValue() * NUM_STYLES + styleID.intValue()] = getID(componentFontNameIDs,
+        pnids[nameID * NUM_STYLES + styleID] = getID(componentFontNameIDs,
             value);
                 /*
                 System.out.println("key=" + key + "/<" + nameID + "><" + styleID
@@ -2022,6 +2005,9 @@ public abstract class FontConfiguration {
     }
 
     class FontProperties extends Properties {
+      private static final long serialVersionUID = 7320930642167795783L;
+
+      @Override
       public synchronized Object put(Object k, Object v) {
         parseProperty((String) k, (String) v);
         return null;

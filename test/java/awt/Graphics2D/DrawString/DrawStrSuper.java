@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6684056
  * @summary Super-scripted text needs to be positioned the same with
  *          drawString and TextLayout.
@@ -38,16 +38,18 @@ import java.util.HashMap;
 
 public class DrawStrSuper extends Component {
 
-    int angle = 0;
-    static boolean interactive = false;
+    private static final long serialVersionUID = 202163462775033606L;
+    int angle;
+    static boolean interactive;
 
-    int wid=400, hgt=400;
-    BufferedImage bi = null;
+    final int wid=400;
+    final int hgt=400;
+    BufferedImage bi;
 
     void paintImage() {
 
         if (bi == null) {
-             bi = new BufferedImage(wid, hgt, BufferedImage.TYPE_INT_RGB);
+            bi = new BufferedImage(wid, hgt, BufferedImage.TYPE_INT_RGB);
         }
         Graphics2D g2d = bi.createGraphics();
         g2d.setColor(Color.white);
@@ -80,8 +82,8 @@ public class DrawStrSuper extends Component {
 
         // Test BI: should be no blue
         int blue = Color.blue.getRGB();
-        for (int px=0;px<wid;px++) {
-            for (int py=0;py<hgt;py++) {
+        for (int px=0;px< wid;px++) {
+            for (int py=0;py< hgt;py++) {
                 int rgb = bi.getRGB(px, py);
                 if (rgb == blue) {
                     throw new RuntimeException
@@ -101,12 +103,13 @@ public class DrawStrSuper extends Component {
 
     static class Runner extends Thread {
 
-        DrawStrSuper dss;
+        final DrawStrSuper dss;
 
         Runner(DrawStrSuper dss) {
             this.dss = dss;
         }
 
+        @Override
         public void run() {
             while (true) {
                 if (!interactive && dss.angle > 360) {
@@ -129,8 +132,10 @@ public class DrawStrSuper extends Component {
         return new Dimension(400, 400);
     }
 
-    public static void main(String argv[]) throws InterruptedException {
-        if (argv.length > 0) interactive = true;
+    public static void main(String[] argv) throws InterruptedException {
+        if (argv.length > 0) {
+            interactive = true;
+        }
 
         Frame f = new Frame("Text bounds test");
         f.addWindowListener(new WindowAdapter() {

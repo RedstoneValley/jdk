@@ -39,8 +39,8 @@ import static sun.java2d.StateTrackable.State.STABLE;
 import static sun.java2d.StateTrackable.State.UNTRACKABLE;
 
 /**
- * This class extends <CODE>DataBuffer</CODE> and stores data internally as
- * shorts.  Values stored in the short array(s) of this <CODE>DataBuffer</CODE>
+ * This class extends {@code DataBuffer} and stores data internally as
+ * shorts.  Values stored in the short array(s) of this {@code DataBuffer}
  * are treated as unsigned values.
  * <p>
  * <a name="optimizations">
@@ -62,18 +62,18 @@ public final class DataBufferUShort extends DataBuffer {
   /**
    * The default data bank.
    */
-  short data[];
+  short[] data;
 
   /**
    * All data banks
    */
-  short bankdata[][];
+  short[][] bankdata;
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with a single bank and the
+   * Constructs an unsigned-short based {@code DataBuffer} with a single bank and the
    * specified size.
    *
-   * @param size The size of the <CODE>DataBuffer</CODE>.
+   * @param size The size of the {@code DataBuffer}.
    */
   public DataBufferUShort(int size) {
     super(STABLE, TYPE_USHORT, size);
@@ -83,11 +83,11 @@ public final class DataBufferUShort extends DataBuffer {
   }
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with the specified number of
+   * Constructs an unsigned-short based {@code DataBuffer} with the specified number of
    * banks, all of which are the specified size.
    *
-   * @param size     The size of the banks in the <CODE>DataBuffer</CODE>.
-   * @param numBanks The number of banks in the a<CODE>DataBuffer</CODE>.
+   * @param size     The size of the banks in the {@code DataBuffer}.
+   * @param numBanks The number of banks in the a{@code DataBuffer}.
    */
   public DataBufferUShort(int size, int numBanks) {
     super(STABLE, TYPE_USHORT, size, numBanks);
@@ -99,21 +99,21 @@ public final class DataBufferUShort extends DataBuffer {
   }
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with a single bank
+   * Constructs an unsigned-short based {@code DataBuffer} with a single bank
    * using the specified array.
-   * Only the first <CODE>size</CODE> elements should be used by accessors of
-   * this <CODE>DataBuffer</CODE>.  <CODE>dataArray</CODE> must be large enough to
-   * hold <CODE>size</CODE> elements.
+   * Only the first {@code size} elements should be used by accessors of
+   * this {@code DataBuffer}.  {@code dataArray} must be large enough to
+   * hold {@code size} elements.
    * <p>
    * Note that {@code DataBuffer} objects created by this constructor
    * may be incompatible with <a href="#optimizations">performance
    * optimizations</a> used by some implementations (such as caching
    * an associated image in video memory).
    *
-   * @param dataArray The unsigned-short array for the <CODE>DataBuffer</CODE>.
-   * @param size      The size of the <CODE>DataBuffer</CODE> bank.
+   * @param dataArray The unsigned-short array for the {@code DataBuffer}.
+   * @param size      The size of the {@code DataBuffer} bank.
    */
-  public DataBufferUShort(short dataArray[], int size) {
+  public DataBufferUShort(short[] dataArray, int size) {
     super(UNTRACKABLE, TYPE_USHORT, size);
     if (dataArray == null) {
       throw new NullPointerException("dataArray is null");
@@ -124,27 +124,27 @@ public final class DataBufferUShort extends DataBuffer {
   }
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with a single bank
-   * using the specified array, size, and offset.  <CODE>dataArray</CODE> must have at
-   * least <CODE>offset</CODE> + <CODE>size</CODE> elements.  Only elements
-   * <CODE>offset</CODE> through <CODE>offset</CODE> + <CODE>size</CODE> - 1 should
-   * be used by accessors of this <CODE>DataBuffer</CODE>.
+   * Constructs an unsigned-short based {@code DataBuffer} with a single bank
+   * using the specified array, size, and offset.  {@code dataArray} must have at
+   * least {@code offset} + {@code size} elements.  Only elements
+   * {@code offset} through {@code offset} + {@code size} - 1 should
+   * be used by accessors of this {@code DataBuffer}.
    * <p>
    * Note that {@code DataBuffer} objects created by this constructor
    * may be incompatible with <a href="#optimizations">performance
    * optimizations</a> used by some implementations (such as caching
    * an associated image in video memory).
    *
-   * @param dataArray The unsigned-short array for the <CODE>DataBuffer</CODE>.
-   * @param size      The size of the <CODE>DataBuffer</CODE> bank.
-   * @param offset    The offset into the <CODE>dataArray</CODE>.
+   * @param dataArray The unsigned-short array for the {@code DataBuffer}.
+   * @param size      The size of the {@code DataBuffer} bank.
+   * @param offset    The offset into the {@code dataArray}.
    */
-  public DataBufferUShort(short dataArray[], int size, int offset) {
+  public DataBufferUShort(short[] dataArray, int size, int offset) {
     super(UNTRACKABLE, TYPE_USHORT, size, 1, offset);
     if (dataArray == null) {
       throw new NullPointerException("dataArray is null");
     }
-    if ((size + offset) > dataArray.length) {
+    if (size + offset > dataArray.length) {
       throw new IllegalArgumentException("Length of dataArray is less " + " than size+offset.");
     }
     data = dataArray;
@@ -153,69 +153,63 @@ public final class DataBufferUShort extends DataBuffer {
   }
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with the specified arrays.
-   * The number of banks will be equal to <CODE>dataArray.length</CODE>.
-   * Only the first <CODE>size</CODE> elements of each array should be used by
-   * accessors of this <CODE>DataBuffer</CODE>.
+   * Constructs an unsigned-short based {@code DataBuffer} with the specified arrays.
+   * The number of banks will be equal to {@code dataArray.length}.
+   * Only the first {@code size} elements of each array should be used by
+   * accessors of this {@code DataBuffer}.
    * <p>
    * Note that {@code DataBuffer} objects created by this constructor
    * may be incompatible with <a href="#optimizations">performance
    * optimizations</a> used by some implementations (such as caching
    * an associated image in video memory).
    *
-   * @param dataArray The unsigned-short arrays for the <CODE>DataBuffer</CODE>.
-   * @param size      The size of the banks in the <CODE>DataBuffer</CODE>.
+   * @param dataArray The unsigned-short arrays for the {@code DataBuffer}.
+   * @param size      The size of the banks in the {@code DataBuffer}.
    */
-  public DataBufferUShort(short dataArray[][], int size) {
+  public DataBufferUShort(short[][] dataArray, int size) {
     super(UNTRACKABLE, TYPE_USHORT, size, dataArray.length);
-    if (dataArray == null) {
-      throw new NullPointerException("dataArray is null");
-    }
     for (int i = 0; i < dataArray.length; i++) {
       if (dataArray[i] == null) {
         throw new NullPointerException("dataArray[" + i + "] is null");
       }
     }
 
-    bankdata = (short[][]) dataArray.clone();
+    bankdata = dataArray.clone();
     data = bankdata[0];
   }
 
   /**
-   * Constructs an unsigned-short based <CODE>DataBuffer</CODE> with specified arrays,
+   * Constructs an unsigned-short based {@code DataBuffer} with specified arrays,
    * size, and offsets.
-   * The number of banks is equal to <CODE>dataArray.length</CODE>.  Each array must
-   * be at least as large as <CODE>size</CODE> + the corresponding offset.   There must
-   * be an entry in the offset array for each <CODE>dataArray</CODE> entry.  For each
-   * bank, only elements <CODE>offset</CODE> through
-   * <CODE>offset</CODE> + <CODE>size</CODE> - 1 should be
-   * used by accessors of this <CODE>DataBuffer</CODE>.
+   * The number of banks is equal to {@code dataArray.length}.  Each array must
+   * be at least as large as {@code size} + the corresponding offset.   There must
+   * be an entry in the offset array for each {@code dataArray} entry.  For each
+   * bank, only elements {@code offset} through
+   * {@code offset} + {@code size} - 1 should be
+   * used by accessors of this {@code DataBuffer}.
    * <p>
    * Note that {@code DataBuffer} objects created by this constructor
    * may be incompatible with <a href="#optimizations">performance
    * optimizations</a> used by some implementations (such as caching
    * an associated image in video memory).
    *
-   * @param dataArray The unsigned-short arrays for the <CODE>DataBuffer</CODE>.
-   * @param size      The size of the banks in the <CODE>DataBuffer</CODE>.
+   * @param dataArray The unsigned-short arrays for the {@code DataBuffer}.
+   * @param size      The size of the banks in the {@code DataBuffer}.
    * @param offsets   The offsets into each array.
    */
-  public DataBufferUShort(short dataArray[][], int size, int offsets[]) {
+  public DataBufferUShort(short[][] dataArray, int size, int[] offsets) {
     super(UNTRACKABLE, TYPE_USHORT, size, dataArray.length, offsets);
-    if (dataArray == null) {
-      throw new NullPointerException("dataArray is null");
-    }
     for (int i = 0; i < dataArray.length; i++) {
       if (dataArray[i] == null) {
         throw new NullPointerException("dataArray[" + i + "] is null");
       }
-      if ((size + offsets[i]) > dataArray[i].length) {
+      if (size + offsets[i] > dataArray[i].length) {
         throw new IllegalArgumentException("Length of dataArray[" + i +
             "] is less than size+" +
             "offsets[" + i + "].");
       }
     }
-    bankdata = (short[][]) dataArray.clone();
+    bankdata = dataArray.clone();
     data = bankdata[0];
   }
 
@@ -262,7 +256,7 @@ public final class DataBufferUShort extends DataBuffer {
    */
   public short[][] getBankData() {
     theTrackable.setUntrackable();
-    return (short[][]) bankdata.clone();
+    return bankdata.clone();
   }
 
   /**
@@ -273,8 +267,9 @@ public final class DataBufferUShort extends DataBuffer {
    * @see #setElem(int, int)
    * @see #setElem(int, int, int)
    */
+  @Override
   public int getElem(int i) {
-    return (int) (data[i + offset] & 0xffff);
+    return data[i + offset] & 0xffff;
   }
 
   /**
@@ -286,8 +281,9 @@ public final class DataBufferUShort extends DataBuffer {
    * @see #setElem(int, int)
    * @see #setElem(int, int, int)
    */
+  @Override
   public int getElem(int bank, int i) {
-    return (int) (bankdata[bank][i + offsets[bank]] & 0xffff);
+    return bankdata[bank][i + offsets[bank]] & 0xffff;
   }
 
   /**
@@ -299,6 +295,7 @@ public final class DataBufferUShort extends DataBuffer {
    * @see #getElem(int)
    * @see #getElem(int, int)
    */
+  @Override
   public void setElem(int i, int val) {
     data[i + offset] = (short) (val & 0xffff);
     theTrackable.markDirty();
@@ -314,6 +311,7 @@ public final class DataBufferUShort extends DataBuffer {
    * @see #getElem(int)
    * @see #getElem(int, int)
    */
+  @Override
   public void setElem(int bank, int i, int val) {
     bankdata[bank][i + offsets[bank]] = (short) (val & 0xffff);
     theTrackable.markDirty();

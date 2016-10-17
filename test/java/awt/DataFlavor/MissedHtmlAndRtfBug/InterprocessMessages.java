@@ -22,8 +22,8 @@
  */
 
 interface InterprocessMessages {
-    final static int EXECUTION_IS_SUCCESSFULL = 0;
-    final static int DATA_IS_CORRUPTED = 212;
-    final static int NO_DROP_HAPPENED = 112;
+    int EXECUTION_IS_SUCCESSFULL = 0;
+    int DATA_IS_CORRUPTED = 212;
+    int NO_DROP_HAPPENED = 112;
 }
 

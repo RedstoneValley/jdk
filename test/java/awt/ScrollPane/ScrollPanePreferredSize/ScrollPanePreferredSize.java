@@ -35,17 +35,20 @@ import sun.awt.SunToolkit;
  */
 public final class ScrollPanePreferredSize {
 
-    public static void main(final String[] args) {
-        final Dimension expected = new Dimension(300, 300);
-        final Frame frame = new Frame();
-        final ScrollPane sp = new ScrollPane();
+  private ScrollPanePreferredSize() {
+  }
+
+  public static void main(String[] args) {
+        Dimension expected = new Dimension(300, 300);
+        Frame frame = new Frame();
+        ScrollPane sp = new ScrollPane();
         sp.setSize(expected);
         frame.add(sp);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         sleep();
-        final Dimension size = frame.getSize();
+        Dimension size = frame.getSize();
         if (size.width < expected.width || size.height < expected.height) {
             throw new RuntimeException(
                     "Expected size: >= " + expected + ", actual size: " + size);

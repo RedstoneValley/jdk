@@ -30,9 +30,6 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 /**
  * @test
@@ -42,7 +39,10 @@ import javax.imageio.ImageIO;
  */
 public final class IncorrectSourceOffset {
 
-    public static void main(final String[] args) throws IOException {
+  private IncorrectSourceOffset() {
+  }
+
+  public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
@@ -59,7 +59,7 @@ public final class IncorrectSourceOffset {
             if (vi.validate(gc) != VolatileImage.IMAGE_OK) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }
@@ -70,7 +70,7 @@ public final class IncorrectSourceOffset {
             if (vi.contentsLost()) {
                 try {
                     Thread.sleep(100);
-                } catch (final InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 continue;
             }

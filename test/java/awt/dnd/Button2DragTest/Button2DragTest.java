@@ -32,25 +32,22 @@
 */
 
 
-/**
- * Button2DragTest.java
- *
- * summary: tests that DragSourceDragEvent.getDropAction() accords to its new spec
- *          (does not depend on the user drop action)
- *
+/*
+  Button2DragTest.java
+
+  summary: tests that DragSourceDragEvent.getDropAction() accords to its new spec
+           (does not depend on the user drop action)
+
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
-import test.java.awt.regtesthelpers.Util;
-
 
 public class Button2DragTest extends Applet {
 
-    private volatile boolean dropSuccess;
+    volatile boolean dropSuccess;
 
     private Frame frame;
 
@@ -62,13 +59,15 @@ public class Button2DragTest extends Applet {
 
         frame = new Frame();
 
-        final DragSourceListener dragSourceListener = new DragSourceAdapter() {
+        DragSourceListener dragSourceListener = new DragSourceAdapter() {
+            @Override
             public void dragDropEnd(DragSourceDropEvent e) {
                 dropSuccess = e.getDropSuccess();
                 System.err.println("Drop was successful: " + dropSuccess);
             }
         };
         DragGestureListener dragGestureListener = new DragGestureListener() {
+            @Override
             public void dragGestureRecognized(DragGestureEvent dge) {
                 dge.startDrag(null, new StringSelection("OK"), dragSourceListener);
             }
@@ -77,6 +76,7 @@ public class Button2DragTest extends Applet {
                                                             dragGestureListener);
 
         DropTargetAdapter dropTargetListener = new DropTargetAdapter() {
+            @Override
             public void drop(DropTargetDropEvent dtde) {
                 dtde.acceptDrop(DnDConstants.ACTION_MOVE);
                 dtde.dropComplete(true);

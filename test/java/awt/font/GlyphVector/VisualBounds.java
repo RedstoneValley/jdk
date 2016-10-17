@@ -31,14 +31,17 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 
-public class VisualBounds {
+public final class VisualBounds {
 
-    public static void main(String args[]) {
+  private VisualBounds() {
+  }
+
+  public static void main(String[] args) {
 
         String s1 = "a";
         String s2 = s1+" ";
         String s3 = " "+s1;
-        Font f = new Font("Dialog", Font.PLAIN, 12);
+        Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12);
         FontRenderContext frc = new FontRenderContext(null, false, false);
         GlyphVector gv1 = f.createGlyphVector(frc, s1);
         GlyphVector gv2 = f.createGlyphVector(frc, s2);

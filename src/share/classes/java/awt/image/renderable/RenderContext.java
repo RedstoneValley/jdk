@@ -129,10 +129,10 @@ public class RenderContext implements Cloneable {
   }
 
   /**
-   * Gets the rendering hints of this <code>RenderContext</code>.
+   * Gets the rendering hints of this {@code RenderContext}.
    *
-   * @return a <code>RenderingHints</code> object that represents
-   * the rendering hints of this <code>RenderContext</code>.
+   * @return a {@code RenderingHints} object that represents
+   * the rendering hints of this {@code RenderContext}.
    * @see #setRenderingHints(RenderingHints)
    */
   public RenderingHints getRenderingHints() {
@@ -140,10 +140,10 @@ public class RenderContext implements Cloneable {
   }
 
   /**
-   * Sets the rendering hints of this <code>RenderContext</code>.
+   * Sets the rendering hints of this {@code RenderContext}.
    *
-   * @param hints a <code>RenderingHints</code> object that represents
-   *              the rendering hints to assign to this <code>RenderContext</code>.
+   * @param hints a {@code RenderingHints} object that represents
+   *              the rendering hints to assign to this {@code RenderContext}.
    * @see #getRenderingHints
    */
   public void setRenderingHints(RenderingHints hints) {
@@ -162,7 +162,7 @@ public class RenderContext implements Cloneable {
    * @since 1.3
    */
   public void preConcatenateTransform(AffineTransform modTransform) {
-    this.preConcetenateTransform(modTransform);
+    preConcetenateTransform(modTransform);
   }
 
   /**
@@ -178,7 +178,7 @@ public class RenderContext implements Cloneable {
    * @param modTransform the AffineTransform to prepend to the
    *                     current usr2dev transform.
    * @deprecated replaced by
-   * <code>preConcatenateTransform(AffineTransform)</code>.
+   * {@code preConcatenateTransform(AffineTransform)}.
    */
   @Deprecated
   public void preConcetenateTransform(AffineTransform modTransform) {
@@ -197,7 +197,7 @@ public class RenderContext implements Cloneable {
    * @since 1.3
    */
   public void concatenateTransform(AffineTransform modTransform) {
-    this.concetenateTransform(modTransform);
+    concetenateTransform(modTransform);
   }
 
   /**
@@ -213,7 +213,7 @@ public class RenderContext implements Cloneable {
    * @param modTransform the AffineTransform to append to the
    *                     current usr2dev transform.
    * @deprecated replaced by
-   * <code>concatenateTransform(AffineTransform)</code>.
+   * {@code concatenateTransform(AffineTransform)}.
    */
   @Deprecated
   public void concetenateTransform(AffineTransform modTransform) {
@@ -270,8 +270,9 @@ public class RenderContext implements Cloneable {
    *
    * @return the new cloned RenderContext.
    */
+  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @Override
   public Object clone() {
-    RenderContext newRenderContext = new RenderContext(usr2dev, aoi, hints);
-    return newRenderContext;
+    return new RenderContext(usr2dev, aoi, hints);
   }
 }

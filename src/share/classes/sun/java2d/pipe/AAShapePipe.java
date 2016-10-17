@@ -40,12 +40,13 @@ import sun.java2d.SunGraphics2D;
  * and then passes them on to a CompositePipe object for painting.
  */
 public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
-  static RenderingEngine renderengine = RenderingEngine.getInstance();
+  protected static final int OPAQUE = 0xff;
+  static final RenderingEngine renderingEngine = RenderingEngine.getInstance();
   private static byte[] theTile;
-  CompositePipe outpipe;
+  final CompositePipe outPipe;
 
   public AAShapePipe(CompositePipe pipe) {
-    outpipe = pipe;
+    outPipe = pipe;
   }
 
   private static Rectangle2D computeBBox(double ux1, double uy1, double ux2, double uy2) {
@@ -60,7 +61,7 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
     return new Rectangle2D.Double(ux1, uy1, ux2, uy2);
   }
 
-  private synchronized static byte[] getAlphaTile(int len) {
+  private static synchronized byte[] getAlphaTile(int len) {
     byte[] t = theTile;
     if (t == null || t.length < len) {
       t = new byte[len];
@@ -70,10 +71,11 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
     return t;
   }
 
-  private synchronized static void dropAlphaTile(byte[] t) {
+  private static synchronized void dropAlphaTile(byte[] t) {
     theTile = t;
   }
 
+  @Override
   public void draw(SunGraphics2D sg, Shape s) {
     BasicStroke bs;
 
@@ -87,16 +89,18 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
     renderPath(sg, s, bs);
   }
 
+  @Override
   public void fill(SunGraphics2D sg, Shape s) {
     renderPath(sg, s, null);
   }
 
+  @Override
   public void fillParallelogram(
       SunGraphics2D sg, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2) {
     Region clip = sg.getCompClip();
-    int abox[] = new int[4];
-    AATileGenerator aatg = renderengine.getAATileGenerator(x,
+    int[] aBox = new int[4];
+    AATileGenerator aaTileGenerator = renderingEngine.getAATileGenerator(x,
         y,
         dx1,
         dy1,
@@ -105,21 +109,22 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
         0,
         0,
         clip,
-        abox);
-    if (aatg == null) {
+        aBox);
+    if (aaTileGenerator == null) {
       // Nothing to render
       return;
     }
 
-    renderTiles(sg, computeBBox(ux1, uy1, ux2, uy2), aatg, abox);
+    renderTiles(sg, computeBBox(ux1, uy1, ux2, uy2), aaTileGenerator, aBox);
   }
 
+  @Override
   public void drawParallelogram(
       SunGraphics2D sg, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2, double lw1, double lw2) {
     Region clip = sg.getCompClip();
-    int abox[] = new int[4];
-    AATileGenerator aatg = renderengine.getAATileGenerator(x,
+    int[] abox = new int[4];
+    AATileGenerator aatg = renderingEngine.getAATileGenerator(x,
         y,
         dx1,
         dy1,
@@ -140,12 +145,12 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
   }
 
   public void renderPath(SunGraphics2D sg, Shape s, BasicStroke bs) {
-    boolean adjust = (bs != null && sg.strokeHint != SunHints.INTVAL_STROKE_PURE);
-    boolean thin = (sg.strokeState <= SunGraphics2D.STROKE_THINDASHED);
+    boolean adjust = bs != null && sg.strokeHint != SunHints.INTVAL_STROKE_PURE;
+    boolean thin = sg.strokeState <= SunGraphics2D.STROKE_THINDASHED;
 
     Region clip = sg.getCompClip();
-    int abox[] = new int[4];
-    AATileGenerator aatg = renderengine.getAATileGenerator(s,
+    int[] abox = new int[4];
+    AATileGenerator aatg = renderingEngine.getAATileGenerator(s,
         sg.transform,
         clip,
         bs,
@@ -160,11 +165,11 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
     renderTiles(sg, s, aatg, abox);
   }
 
-  public void renderTiles(SunGraphics2D sg, Shape s, AATileGenerator aatg, int abox[]) {
+  public void renderTiles(SunGraphics2D sg, Shape s, AATileGenerator aatg, int[] abox) {
     Object context = null;
-    byte alpha[] = null;
+    byte[] alpha = null;
     try {
-      context = outpipe.startSequence(sg,
+      context = outPipe.startSequence(sg,
           s,
           new Rectangle(abox[0], abox[1], abox[2] - abox[0], abox[3] - abox[1]),
           abox);
@@ -181,12 +186,12 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
           int h = Math.min(th, abox[3] - y);
 
           int a = aatg.getTypicalAlpha();
-          if (a == 0x00 || outpipe.needTile(context, x, y, w, h) == false) {
+          if (a == 0x00 || !outPipe.needTile(context, x, y, w, h)) {
             aatg.nextTile();
-            outpipe.skipTile(context, x, y);
+            outPipe.skipTile(context, x, y);
             continue;
           }
-          if (a == 0xff) {
+          if (a == OPAQUE) {
             atile = null;
             aatg.nextTile();
           } else {
@@ -194,13 +199,13 @@ public class AAShapePipe implements ShapeDrawPipe, ParallelogramPipe {
             aatg.getAlpha(alpha, 0, tw);
           }
 
-          outpipe.renderPathTile(context, atile, 0, tw, x, y, w, h);
+          outPipe.renderPathTile(context, atile, 0, tw, x, y, w, h);
         }
       }
     } finally {
       aatg.dispose();
       if (context != null) {
-        outpipe.endSequence(context);
+        outPipe.endSequence(context);
       }
       if (alpha != null) {
         dropAlphaTile(alpha);

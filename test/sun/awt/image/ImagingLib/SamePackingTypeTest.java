@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug     8019201
  * @summary Test verifies that medialib glue code does not throw
  *          an ImagingOpException for certain pairs of source and
@@ -45,9 +45,12 @@ import java.awt.image.Kernel;
 import java.util.Arrays;
 
 
-public class SamePackingTypeTest {
+public final class SamePackingTypeTest {
 
-    public static void main(String[] args) {
+  private SamePackingTypeTest() {
+  }
+
+  public static void main(String[] args) {
         BufferedImageOp op = createTestOp();
 
         try {
@@ -64,16 +67,16 @@ public class SamePackingTypeTest {
     }
 
     private static void doTest(BufferedImageOp op, int stype, int dtype) {
-        final int size = 100;
+        int size = 100;
 
-        final BufferedImage src = new BufferedImage(size, size, stype);
+        BufferedImage src = new BufferedImage(size, size, stype);
         Graphics2D g = src.createGraphics();
         g.setColor(Color.red);
         g.fillRect(0, 0, size, size);
         g.dispose();
 
 
-        final BufferedImage dst = new BufferedImage(size, size, dtype);
+        BufferedImage dst = new BufferedImage(size, size, dtype);
         g = dst.createGraphics();
         g.setColor(Color.blue);
         g.fillRect(0, 0, size, size);
@@ -81,7 +84,7 @@ public class SamePackingTypeTest {
 
         op.filter(src, dst);
 
-        final int rgb = dst.getRGB(size - 1, size - 1);
+        int rgb = dst.getRGB(size - 1, size - 1);
         System.out.printf("dst: 0x%X ", rgb);
 
         if (rgb != 0xFFFF0000) {
@@ -90,9 +93,9 @@ public class SamePackingTypeTest {
     }
 
     private static BufferedImageOp createTestOp() {
-        final int size = 1;
-        final float v = 1f / (size * size);
-        final float[] k_data = new float[size * size];
+        int size = 1;
+        float v = 1f / (size * size);
+        float[] k_data = new float[size * size];
         Arrays.fill(k_data, v);
 
         Kernel k = new Kernel(size, size, k_data);

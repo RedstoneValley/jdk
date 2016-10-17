@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test PostEventOrderingTest.java
+/*
+  @test PostEventOrderingTest.java
  * @bug 4171596 6699589
  * @summary Checks that the posting of events between the PostEventQueue
  * @summary and the EventQueue maintains proper ordering.
@@ -35,8 +35,11 @@ import java.awt.event.*;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
-public class PostEventOrderingTest {
+public final class PostEventOrderingTest {
     static boolean testPassed = true;
+
+    private PostEventOrderingTest() {
+    }
 
     public static void main(String[] args) throws Throwable {
         EventQueue q = Toolkit.getDefaultToolkit().getSystemEventQueue();
@@ -53,11 +56,12 @@ public class PostEventOrderingTest {
         }
 
         for (;;) {
-            Thread.currentThread().sleep(100);
+            Thread.sleep(100);
             if (q.peekEvent() == null) {
-                Thread.currentThread().sleep(100);
-                if (q.peekEvent() == null)
+                Thread.sleep(100);
+                if (q.peekEvent() == null) {
                     break;
+                }
             }
         }
 
@@ -70,20 +74,24 @@ public class PostEventOrderingTest {
 }
 
 class PostActionEvent extends ActionEvent implements ActiveEvent {
-    static int counter = 0;
+    private static final long serialVersionUID = 3857923697278237005L;
+    static int counter;
     static int mostRecent = -1;
 
-    int myval;
+    final int myval;
 
     public PostActionEvent() {
         super("", ACTION_PERFORMED, "" + counter);
-        myval = counter++;
+        myval = counter;
+        counter++;
     }
 
+    @Override
     public void dispatch() {
         //System.out.println("myval = "+myval+", mostRecent = "+mostRecent+", diff = "+(myval-mostRecent)+".");
-        if ((myval - mostRecent) != 1)
+        if (myval - mostRecent != 1) {
             PostEventOrderingTest.testPassed = false;
+        }
         mostRecent = myval;
     }
 }

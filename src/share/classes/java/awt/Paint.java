@@ -30,16 +30,16 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.ColorModel;
 
 /**
- * This <code>Paint</code> interface defines how color patterns
+ * This {@code Paint} interface defines how color patterns
  * can be generated for {@link Graphics2D} operations.  A class
- * implementing the <code>Paint</code> interface is added to the
- * <code>Graphics2D</code> context in order to define the color
- * pattern used by the <code>draw</code> and <code>fill</code> methods.
+ * implementing the {@code Paint} interface is added to the
+ * {@code Graphics2D} context in order to define the color
+ * pattern used by the {@code draw} and {@code fill} methods.
  * <p>
- * Instances of classes implementing <code>Paint</code> must be
- * read-only because the <code>Graphics2D</code> does not clone
+ * Instances of classes implementing {@code Paint} must be
+ * read-only because the {@code Graphics2D} does not clone
  * these objects when they are set as an attribute with the
- * <code>setPaint</code> method or when the <code>Graphics2D</code>
+ * {@code setPaint} method or when the {@code Graphics2D}
  * object is itself cloned.
  *
  * @version 1.36, 06/05/07
@@ -100,7 +100,7 @@ public interface Paint extends Transparency {
    * @see AffineTransform
    * @see RenderingHints
    */
-  public PaintContext createContext(
+  PaintContext createContext(
       ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform,
       RenderingHints hints);
 }

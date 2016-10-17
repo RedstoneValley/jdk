@@ -29,15 +29,15 @@
   @run main CtorTest
 */
 
-/**
- * CtorTest.java
- *
- * summary:  TrayIcon ctor throws IAE if image is null
+/*
+  CtorTest.java
+
+  summary:  TrayIcon ctor throws IAE if image is null
  */
 
 import java.awt.*;
 
-public class CtorTest
+public final class CtorTest
 {
     public static void main(String []s)
     {

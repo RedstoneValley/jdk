@@ -29,12 +29,12 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 
 final class Order1 extends Curve {
-  private double x0;
-  private double y0;
-  private double x1;
-  private double y1;
-  private double xmin;
-  private double xmax;
+  private final double x0;
+  private final double y0;
+  private final double x1;
+  private final double y1;
+  private final double xmin;
+  private final double xmax;
 
   public Order1(
       double x0, double y0, double x1, double y1, int direction) {
@@ -44,58 +44,70 @@ final class Order1 extends Curve {
     this.x1 = x1;
     this.y1 = y1;
     if (x0 < x1) {
-      this.xmin = x0;
-      this.xmax = x1;
+      xmin = x0;
+      xmax = x1;
     } else {
-      this.xmin = x1;
-      this.xmax = x0;
+      xmin = x1;
+      xmax = x0;
     }
   }
 
+  @Override
   public int getOrder() {
     return 1;
   }
 
+  @Override
   public double getXTop() {
     return x0;
   }
 
+  @Override
   public double getYTop() {
     return y0;
   }
 
+  @Override
   public double getXBot() {
     return x1;
   }
 
+  @Override
   public double getYBot() {
     return y1;
   }
 
+  @Override
   public double getXMin() {
     return xmin;
   }
 
+  @Override
   public double getXMax() {
     return xmax;
   }
 
+  @Override
   public double getX0() {
-    return (direction == INCREASING) ? x0 : x1;
+    return direction == INCREASING ? x0 : x1;
   }
 
+  @Override
   public double getY0() {
-    return (direction == INCREASING) ? y0 : y1;
+    return direction == INCREASING ? y0 : y1;
   }
 
+  @Override
   public double getX1() {
-    return (direction == DECREASING) ? x0 : x1;
+    return direction == DECREASING ? x0 : x1;
   }
 
+  @Override
   public double getY1() {
-    return (direction == DECREASING) ? y0 : y1;
+    return direction == DECREASING ? y0 : y1;
   }
 
+  @Override
   public double XforY(double y) {
     if (x0 == x1 || y <= y0) {
       return x0;
@@ -104,9 +116,10 @@ final class Order1 extends Curve {
       return x1;
     }
     // assert(y0 != y1); /* No horizontal lines... */
-    return (x0 + (y - y0) * (x1 - x0) / (y1 - y0));
+    return x0 + (y - y0) * (x1 - x0) / (y1 - y0);
   }
 
+  @Override
   public double TforY(double y) {
     if (y <= y0) {
       return 0;
@@ -117,40 +130,46 @@ final class Order1 extends Curve {
     return (y - y0) / (y1 - y0);
   }
 
+  @Override
   public double XforT(double t) {
     return x0 + t * (x1 - x0);
   }
 
+  @Override
   public double YforT(double t) {
     return y0 + t * (y1 - y0);
   }
 
+  @Override
   public double dXforT(double t, int deriv) {
     switch (deriv) {
       case 0:
         return x0 + t * (x1 - x0);
       case 1:
-        return (x1 - x0);
+        return x1 - x0;
       default:
         return 0;
     }
   }
 
+  @Override
   public double dYforT(double t, int deriv) {
     switch (deriv) {
       case 0:
         return y0 + t * (y1 - y0);
       case 1:
-        return (y1 - y0);
+        return y1 - y0;
       default:
         return 0;
     }
   }
 
+  @Override
   public double nextVertical(double t0, double t1) {
     return t1;
   }
 
+  @Override
   public boolean accumulateCrossings(Crossings c) {
     double xlo = c.getXLo();
     double ylo = c.getYLo();
@@ -190,15 +209,18 @@ final class Order1 extends Curve {
     return false;
   }
 
+  @Override
   public void enlarge(Rectangle2D r) {
     r.add(x0, y0);
     r.add(x1, y1);
   }
 
+  @Override
   public Curve getReversedCurve() {
     return new Order1(x0, y0, x1, y1, -direction);
   }
 
+  @Override
   public Curve getSubCurve(double ystart, double yend, int dir) {
     if (ystart == y0 && yend == y1) {
       return getWithDirection(dir);
@@ -208,12 +230,13 @@ final class Order1 extends Curve {
     }
     double num = x0 - x1;
     double denom = y0 - y1;
-    double xstart = (x0 + (ystart - y0) * num / denom);
-    double xend = (x0 + (yend - y0) * num / denom);
+    double xstart = x0 + (ystart - y0) * num / denom;
+    double xend = x0 + (yend - y0) * num / denom;
     return new Order1(xstart, ystart, xend, yend, dir);
   }
 
-  public int compareTo(Curve other, double yrange[]) {
+  @Override
+  public int compareTo(Curve other, double[] yrange) {
     if (!(other instanceof Order1)) {
       return super.compareTo(other, yrange);
     }
@@ -226,7 +249,7 @@ final class Order1 extends Curve {
       throw new InternalError("backstepping from " + yrange[0] + " to " + yrange[1]);
     }
     if (xmax <= c1.xmin) {
-      return (xmin == c1.xmax) ? 0 : -1;
+      return xmin == c1.xmax ? 0 : -1;
     }
     if (xmin >= c1.xmax) {
       return 1;
@@ -270,7 +293,7 @@ final class Order1 extends Curve {
     double denom = dxb * dya - dxa * dyb;
     double y;
     if (denom != 0) {
-      double num = ((x0 - c1.x0) * dya * dyb - y0 * dxa * dyb + c1.y0 * dxb * dya);
+      double num = (x0 - c1.x0) * dya * dyb - y0 * dxa * dyb + c1.y0 * dxb * dya;
       y = num / denom;
       if (y <= yrange[0]) {
         // intersection is above us
@@ -294,7 +317,8 @@ final class Order1 extends Curve {
     return orderof(XforY(y), c1.XforY(y));
   }
 
-  public int getSegment(double coords[]) {
+  @Override
+  public int getSegment(double[] coords) {
     if (direction == INCREASING) {
       coords[0] = x1;
       coords[1] = y1;

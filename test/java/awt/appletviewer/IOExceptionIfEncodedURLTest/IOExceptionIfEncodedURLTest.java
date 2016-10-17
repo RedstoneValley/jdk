@@ -31,10 +31,7 @@
   @run shell IOExceptionIfEncodedURLTest.sh
 */
 
-import java.applet.Applet;
-import sun.net.www.ParseUtil;
 import java.io.File;
-import java.net.MalformedURLException;
 
 public class IOExceptionIfEncodedURLTest extends Applet{
     public void init(){
@@ -47,16 +44,15 @@ public class IOExceptionIfEncodedURLTest extends Applet{
 
     // We expect that sun.net.www.ParseUtil.fileToEncodedURL works like following
     // if relative file URL, like this "file:index.html" is processed
-    static String url = "file:IOExceptionIfEncodedURLTest.java";
-    public static final void main(String args[])
-      throws MalformedURLException{
+    static final String url = "file:IOExceptionIfEncodedURLTest.java";
+    public static final void main(String[] args) {
         System.err.println("prior checking...");
         String prefix = "file:";
         String path = ParseUtil.fileToEncodedURL(new File(System.getProperty("user.dir"))).getPath();
         String filename = url.substring(prefix.length());
         System.err.println("url="+url+" -> path="+path+",filename="+filename);
 
-        if (!path.endsWith("/") && !filename.startsWith("/")) {
+        if (!(path.length() > 0 && path.charAt(path.length() - 1) == '/') && !(filename.length() > 0 && filename.charAt(0) == '/')) {
             throw new RuntimeException("Incorrect '/' processing");
         }
     }

@@ -37,13 +37,14 @@ public class ModalityEvent extends AWTEvent implements ActiveEvent {
   public static final int MODALITY_PUSHED = 1300;
   public static final int MODALITY_POPPED = 1301;
 
-  private ModalityListener listener;
+  private final ModalityListener listener;
 
   public ModalityEvent(Object source, ModalityListener listener, int id) {
     super(source, id);
     this.listener = listener;
   }
 
+  @Override
   public void dispatch() {
     switch (getID()) {
       case MODALITY_PUSHED:

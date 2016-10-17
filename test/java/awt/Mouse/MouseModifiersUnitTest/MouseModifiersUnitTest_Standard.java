@@ -32,8 +32,10 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import sun.awt.im.InputContext;
 
 //the test verifies:
 // 1) verifies that modifiers are correct for standard (1, 2, 3) mouse buttons
@@ -45,13 +47,13 @@ import java.util.Vector;
 // repeat all cases with SHIFT/ALT/CTRL modifiers verify that paramString() contains correct modifiers and exModifiers
 // I'm verifying button, modifiers and extModifiers for now.
 
-public class MouseModifiersUnitTest_Standard {
+public final class MouseModifiersUnitTest_Standard {
     static final int NONE = 0;
     static final int SHIFT = 1;
     static final int CTRL = 2;
     static final int ALT = 3;
     static boolean debug = true; //dump all errors (debug) or throw first(under jtreg) exception
-    static boolean autorun = false; //use robot or manual run
+    static boolean autorun; //use robot or manual run
     static int testModifier = NONE;
     //    static String testModifier = "NONE";
     static CheckingModifierAdapter adapterTest1;
@@ -59,47 +61,51 @@ public class MouseModifiersUnitTest_Standard {
     static CheckingModifierAdapter adapterTest3;
     static CheckingModifierAdapter adapterTest4;
     static Frame f;
-    final static int [] mouseButtons = new int [] {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON2_MASK, MouseEvent.BUTTON3_MASK};
+    static final int [] mouseButtons = {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON2_MASK, MouseEvent.BUTTON3_MASK};
     // BUTTON1, 2, 3 press-release.
-    final static int [] modifiersStandardTestNONE = new int[] {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK,
+    static final int [] modifiersStandardTestNONE = {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK,
     MouseEvent.BUTTON2_MASK, MouseEvent.BUTTON2_MASK, MouseEvent.BUTTON2_MASK,
     MouseEvent.BUTTON3_MASK, MouseEvent.BUTTON3_MASK, MouseEvent.BUTTON3_MASK };
-    final static int [] modifiersExStandardTestNONE = new int[] {MouseEvent.BUTTON1_DOWN_MASK, 0, 0,
+    static final int [] modifiersExStandardTestNONE = {MouseEvent.BUTTON1_DOWN_MASK, 0, 0,
     MouseEvent.BUTTON2_DOWN_MASK, 0, 0,
     MouseEvent.BUTTON3_DOWN_MASK, 0, 0};
     // BUTTON1, 2, 3 press-release with shift modifier
-    final static int [] modifiersStandardTestSHIFT = new int[] {MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK,
+    static final int [] modifiersStandardTestSHIFT = {MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.SHIFT_MASK,
     MouseEvent.BUTTON2_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.SHIFT_MASK,
     MouseEvent.BUTTON3_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON3_MASK|InputEvent.SHIFT_MASK, MouseEvent.BUTTON3_MASK|InputEvent.SHIFT_MASK };
-    final static int [] modifiersExStandardTestSHIFT = new int[] {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK,
+    static final int [] modifiersExStandardTestSHIFT = {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK,
     MouseEvent.BUTTON2_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK,
     MouseEvent.BUTTON3_DOWN_MASK|InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK, InputEvent.SHIFT_DOWN_MASK};
     // BUTTON1, 2, 3 press-release with CTRL modifier
-    final static int [] modifiersStandardTestCTRL = new int[] {MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK,
+    static final int [] modifiersStandardTestCTRL = {MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON1_MASK|InputEvent.CTRL_MASK,
     MouseEvent.BUTTON2_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON2_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON2_MASK|InputEvent.CTRL_MASK,
     MouseEvent.BUTTON3_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON3_MASK|InputEvent.CTRL_MASK, MouseEvent.BUTTON3_MASK|InputEvent.CTRL_MASK };
-    final static int [] modifiersExStandardTestCTRL = new int[] {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK,
+    static final int [] modifiersExStandardTestCTRL = {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK,
     MouseEvent.BUTTON2_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK,
     MouseEvent.BUTTON3_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK};
 
     // BUTTON1, 2, 3 press-release with ALT modifier
-    final static int [] modifiersStandardTestALT = new int[] {MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK,
+    static final int [] modifiersStandardTestALT = {MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK,
     MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK,
     MouseEvent.BUTTON3_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON3_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON3_MASK|InputEvent.ALT_MASK };
-    final static int [] modifiersExStandardTestALT = new int[] {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK,
+    static final int [] modifiersExStandardTestALT = {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK,
     MouseEvent.BUTTON2_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK,
     MouseEvent.BUTTON3_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK};
 
     static Robot robot;
 
-    public static void main(String s[]){
+    private MouseModifiersUnitTest_Standard() {
+    }
+
+    public static void main(String[] s){
         initParams(s);
         initAdapters();
         f = new Frame();
-        final int [] modifiers = {InputEvent.SHIFT_MASK, InputEvent.CTRL_MASK};
-        final String [] modifierNames = {"InputEvent.SHIFT_MASK", "InputEvent.CTRL_MASK"};
+        int [] modifiers = {InputEvent.SHIFT_MASK, InputEvent.CTRL_MASK};
+        String [] modifierNames = {"InputEvent.SHIFT_MASK", "InputEvent.CTRL_MASK"};
         f.setLayout(new FlowLayout());
         f.addMouseWheelListener(new MouseWheelListener() {
+            @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
                 System.out.println("WHEEL "+e);
             }
@@ -186,38 +192,31 @@ public class MouseModifiersUnitTest_Standard {
         checkExtModifiersOnPress(testModifier, paramStringElements, button);
     }
 
-    public static void checkButton(HashMap<String, String> h, int button){
-        if (h.get("button") == null) {
+    public static void checkButton(Map<String, String> h, int button){
+        if (h.get(Button.base) == null) {
             throw new RuntimeException("Test failed :  Clicked. button is absent in paramString()");
         }
-        if (Integer.parseInt(h.get("button")) != button) {
+        if (Integer.parseInt(h.get(Button.base)) != button) {
             throw new RuntimeException("Test failed :  Clicked. button in paramString() doesn't equal to button being pressed.");
         }
     }
 
-    public static void checkExtModifiersOnPress(int testModifier, HashMap h, int button){
-        String ethalon = "";
+    public static void checkExtModifiersOnPress(int testModifier, Map h, int button){
+        String ethalon;
         if (h.get("extModifiers") == null) {
             System.out.println("Test failed :  Pressed. extModifiers == null");
             throw new RuntimeException("Test failed :  Pressed. extModifiers == null");
         }
         switch (testModifier){
-            case SHIFT:{
-                ethalon = "Shift+";
+            case SHIFT:
                 break;
-            }
-            case ALT:{
-                ethalon = "Alt+";
+            case ALT:
                 break;
-            }
-            case CTRL:{
-                ethalon = "Ctrl+";
+            case CTRL:
                 break;
-            }
-            default: {
+            default:
                 ethalon = "";
-            }
-            ethalon = ethalon + "Button" +button;
+                ethalon = ethalon + "Button" +button;
 
             if (!h.get("extModifiers").equals(ethalon)) {
                 System.out.println("Test failed :  Pressed. extModifiers = " +h.get("extModifiers")+" instead of : "+ethalon);
@@ -228,20 +227,22 @@ public class MouseModifiersUnitTest_Standard {
 
 
 
-    public static void checkModifiers(int testModifier, HashMap<String, String> h, int button){
+    public static void checkModifiers(int testModifier, Map<String, String> h, int button){
         // none of modifiers should be null
-        if (h.get("modifiers") == null) {
+        if (h.get(InputContext.inputMethodSelectionKeyModifiersName) == null) {
             System.out.println("Test failed : modifiers == null");
             throw new RuntimeException("Test failed :  modifiers == null");
         }
-        Vector <String> modifierElements = tokenizeModifiers(h.get("modifiers"));
+        Vector <String> modifierElements = tokenizeModifiers(h.get(InputContext
+            .inputMethodSelectionKeyModifiersName));
         //check that ButtonX is there
         String buttonEthalon = "Button" + button;
         if (modifierElements.contains(buttonEthalon)){
             modifierElements.remove(buttonEthalon);
         } else {
-            System.out.println("Test failed :  modifiers doesn't contain Button "+h.get("modifiers"));
-            throw new RuntimeException("Test failed :  modifiers doesn't contain Button "+h.get("modifiers"));
+            System.out.println("Test failed :  modifiers doesn't contain Button "+h.get(InputContext.inputMethodSelectionKeyModifiersName));
+            throw new RuntimeException("Test failed :  modifiers doesn't contain Button "+h.get(
+                InputContext.inputMethodSelectionKeyModifiersName));
         }
 
 
@@ -250,26 +251,29 @@ public class MouseModifiersUnitTest_Standard {
         String excplicitModifier = "";
         boolean altIncluded = false;
         switch (testModifier){
-            case SHIFT:{
+            case SHIFT:
                 excplicitModifier = "Shift";
                 break;
-            }
-            case ALT:{
+            case ALT:
                 excplicitModifier = "Alt";
                 altIncluded = true; //there should be only on "Alt" for two modifiers. So check it.
                 break;
-            }
-            case CTRL:{
+            case CTRL:
                 excplicitModifier = "Ctrl";
                 break;
-            }
         }
-        if (!excplicitModifier.equals("")){
+        if (!"".equals(excplicitModifier)){
             if (modifierElements.contains(excplicitModifier)){
                 modifierElements.remove(excplicitModifier);
             } else {
-                System.out.println("Test failed :  modifiers doesn't contain explicit modifier "+excplicitModifier + " in "+ h.get("modifiers"));
-                throw new RuntimeException("Test failed :  modifiers doesn't contain explicit modifier "+excplicitModifier + " in "+ h.get("modifiers"));
+                System.out.println("Test failed :  modifiers doesn't contain explicit modifier "+excplicitModifier + " in "+ h.get(
+
+
+                    InputContext.inputMethodSelectionKeyModifiersName));
+                throw new RuntimeException("Test failed :  modifiers doesn't contain explicit modifier "+excplicitModifier + " in "+ h.get(
+
+
+                    InputContext.inputMethodSelectionKeyModifiersName));
             }
         }
 
@@ -280,7 +284,7 @@ public class MouseModifiersUnitTest_Standard {
         switch (button){
             //BUTTON1 with ALT reports about Alt+Button1+Button2.
             //We should fix this but I would not change this.
-            case 1: {
+            case 1:
                 //Alt+Button1+Button2:
                 // 1) we already handled "Alt" in excplicitModifier
                 // 2) we already took "Button1" in buttonEthalon
@@ -290,13 +294,11 @@ public class MouseModifiersUnitTest_Standard {
                     extraModifiers = "Button2";
                 }
                 break;
-            }
-            case 2: {
+            case 2:
                 //Alt+Button2 report about "Alt+Button2".
                 extraModifiers = "Alt";
                 break;
-            }
-            case 3: {
+            case 3:
                 //ALT+BUTTON3 reports about "Alt+Meta+Button2+Button3"
                 // This should only happen when ALT+Button3 is pressed
                 extraModifiers = "Meta";
@@ -304,54 +306,68 @@ public class MouseModifiersUnitTest_Standard {
                     extraModifiersButton3 = "Button2";
                 }
                 break;
-            }
         }//switch
 
-        if (!extraModifiers.equals("")){
+        if (!"".equals(extraModifiers)){
             if (modifierElements.contains(extraModifiers)){
                 modifierElements.remove(extraModifiers);
             } else {
                 //we may already removed "Alt" when filtered explicit modifiers.
                 //Here is no failure in this case.
                 if (!altIncluded) {
-                    System.out.println("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiers + " in "+ h.get("modifiers"));
-                    throw new RuntimeException("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiers + " in "+ h.get("modifiers"));
+                    System.out.println("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiers + " in "+ h.get(
+
+
+                        InputContext.inputMethodSelectionKeyModifiersName));
+                    throw new RuntimeException("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiers + " in "+ h.get(
+
+
+                        InputContext.inputMethodSelectionKeyModifiersName));
                 }
             }
         }
 
-        if (!extraModifiersButton3.equals("")){
+        if (!"".equals(extraModifiersButton3)){
             if (modifierElements.contains(extraModifiersButton3)){
                 modifierElements.remove(extraModifiersButton3);
             } else {
-                System.out.println("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiersButton3 + " in "+ h.get("modifiers"));
-                throw new RuntimeException("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiersButton3 + " in "+ h.get("modifiers"));
+                System.out.println("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiersButton3 + " in "+ h.get(
+
+
+                    InputContext.inputMethodSelectionKeyModifiersName));
+                throw new RuntimeException("Test failed :  modifiers doesn't contain a modifier from BUTTON2 or BUTTON3 "+extraModifiersButton3 + " in "+ h.get(
+
+
+                    InputContext.inputMethodSelectionKeyModifiersName));
             }
         }
 
         //the length of vector should now be zero
         if (!modifierElements.isEmpty()){
-            System.out.println("Test failed :  there is some more elements in modifiers that shouldn't be there: "+h.get("modifiers"));
-            throw new RuntimeException("Test failed :  there is some more elements in modifiers that shouldn't be there: "+h.get("modifiers"));
+            System.out.println("Test failed :  there is some more elements in modifiers that shouldn't be there: "+h.get(
+
+
+                InputContext.inputMethodSelectionKeyModifiersName));
+            throw new RuntimeException("Test failed :  there is some more elements in modifiers that shouldn't be there: "+h.get(
+
+
+                InputContext.inputMethodSelectionKeyModifiersName));
         }
     }
 
-    public static void checkExtModifiersOnReleaseClick(int testModifier, HashMap h, int button){
-        String ethalon = "";
+    public static void checkExtModifiersOnReleaseClick(int testModifier, Map h, int button){
+        String ethalon;
         switch (testModifier){
-            case SHIFT:{
+            case SHIFT:
                 ethalon = "Shift+";
                 break;
-            }
-            case ALT:{
+            case ALT:
                 ethalon = "Alt+";
                 break;
-            }
-            case CTRL:{
+            case CTRL:
                 ethalon = "Ctrl+";
                 break;
-            }
-            default: {
+            default:
                 if (h.get("extModifiers") != null) {
                     System.out.println("Test failed :  Released. extModifiers != null but no modifiers keys are pressed");
                     throw new RuntimeException("Test failed :  Released. extModifiers != null but no modifiers keys are pressed");
@@ -359,7 +375,6 @@ public class MouseModifiersUnitTest_Standard {
                     //no modifiers
                     return;
                 }
-            }
         }
         if (h.get("extModifiers").equals(ethalon)) {
             System.out.println("Test failed :  Released. extModifiers = "+ h.get("extModifiers") +" instead of : "+ethalon);
@@ -428,14 +443,14 @@ public class MouseModifiersUnitTest_Standard {
     /*======================================================================*/
 
     public static HashMap<String, String> tokenizeParamString(String param){
-        HashMap <String, String> params = new HashMap<String, String>();
+        HashMap <String, String> params = new HashMap<>();
         StringTokenizer st = new StringTokenizer(param, ",=");
         while (st.hasMoreTokens()){
             String tmp = st.nextToken();
 //            System.out.println("PARSER : "+tmp);
-            if (tmp.equals("button") ||
-                    tmp.equals("modifiers") ||
-                    tmp.equals("extModifiers")) {
+            if (Button.base.equals(tmp) ||
+                InputContext.inputMethodSelectionKeyModifiersName.equals(tmp) ||
+                "extModifiers".equals(tmp)) {
                 params.put(tmp, st.nextToken());
             }
         }
@@ -443,7 +458,7 @@ public class MouseModifiersUnitTest_Standard {
     }
 
     public static Vector<String> tokenizeModifiers(String modifierList){
-        Vector<String> modifiers = new Vector<String>();
+        Vector<String> modifiers = new Vector<>();
         StringTokenizer st = new StringTokenizer(modifierList, "+");
         while (st.hasMoreTokens()){
             String tmp = st.nextToken();
@@ -522,16 +537,16 @@ public class MouseModifiersUnitTest_Standard {
             autorun = Boolean.valueOf(s[0]);
             debug = Boolean.valueOf(s[1]);
 
-            if (s[2].equals("NONE")){
+            if ("NONE".equals(s[2])){
                 testModifier = NONE;
             }
-            if (s[2].equals("SHIFT")){
+            if ("SHIFT".equals(s[2])){
                 testModifier = SHIFT;
             }
-            if (s[2].equals("CTRL")){
+            if ("CTRL".equals(s[2])){
                 testModifier = CTRL;
             }
-            if (s[2].equals("ALT")){
+            if ("ALT".equals(s[2])){
                 testModifier = ALT;
             }
         }
@@ -588,11 +603,12 @@ public class MouseModifiersUnitTest_Standard {
  * routine with current modifier.
  */
 class CheckingModifierAdapter extends MouseAdapter{
-    int modifier;
+    final int modifier;
     public CheckingModifierAdapter(int modifier){
         this.modifier = modifier;
     }
 
+    @Override
     public void mousePressed(MouseEvent e) {
         System.out.println("PRESSED "+e);
         if (e.getButton() > MouseEvent.BUTTON3) {
@@ -601,6 +617,7 @@ class CheckingModifierAdapter extends MouseAdapter{
             MouseModifiersUnitTest_Standard.checkPressedModifiersTest(modifier, e); // e.getButton(), e.getModifiers(), e.getModifiersEx(),
         }
     }
+    @Override
     public void mouseReleased(MouseEvent e) {
         System.out.println("RELEASED "+e);
         if (e.getButton() > MouseEvent.BUTTON3) {
@@ -609,6 +626,7 @@ class CheckingModifierAdapter extends MouseAdapter{
             MouseModifiersUnitTest_Standard.checkReleasedModifiersTest(modifier, e); // e.getButton(), e.getModifiers(), e.getModifiersEx()
         }
     }
+    @Override
     public void mouseClicked(MouseEvent e) {
         System.out.println("CLICKED "+e);
         if (e.getButton() > MouseEvent.BUTTON3) {

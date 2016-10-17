@@ -75,10 +75,10 @@ public class InputContext extends java.awt.im.InputContext
   private static InputContext inputMethodWindowContext;
   // Previously active input method to decide whether we need to call
   // InputMethodAdapter.stopListening() on activateInputMethod()
-  private static InputMethod previousInputMethod = null;
+  private static InputMethod previousInputMethod;
   // Input Method selection hot key stuff
-  private static AWTKeyStroke inputMethodSelectionKey;
-  private static boolean inputMethodSelectionKeyInitialized = false;
+  static AWTKeyStroke inputMethodSelectionKey;
+  private static boolean inputMethodSelectionKeyInitialized;
   // The current input method is represented by two objects:
   // a locator is used to keep information about the selected
   // input method and locale until we actually need a real input
@@ -96,15 +96,15 @@ public class InputContext extends java.awt.im.InputContext
   private Component currentClientComponent;
   private Component awtFocussedComponent;
   private boolean isInputMethodActive;
-  private Subset[] characterSubsets = null;
+  private Subset[] characterSubsets;
   // true if composition area has been set to invisible when focus was lost
-  private boolean compositionAreaHidden = false;
+  private boolean compositionAreaHidden;
   // true if the current input method requires client window change notification
-  private boolean clientWindowNotificationEnabled = false;
+  private boolean clientWindowNotificationEnabled;
   // client window to which this input context is listening
   private Window clientWindowListened;
   // cache location notification
-  private Rectangle clientWindowLocation = null;
+  private Rectangle clientWindowLocation;
   // holding the state of clientWindowNotificationEnabled of only non-current input methods
   private HashMap<InputMethod, Boolean> perInputMethodState;
 
@@ -136,10 +136,7 @@ public class InputContext extends java.awt.im.InputContext
     }
   }
 
-  /**
-   * @throws NullPointerException when the locale is null.
-   * @see java.awt.im.InputContext#selectInputMethod
-   */
+  @Override
   public synchronized boolean selectInputMethod(Locale locale) {
     if (locale == null) {
       throw new NullPointerException();
@@ -179,9 +176,7 @@ public class InputContext extends java.awt.im.InputContext
     return false;
   }
 
-  /**
-   * @see java.awt.im.InputContext#getLocale
-   */
+  @Override
   public Locale getLocale() {
     if (inputMethod != null) {
       return inputMethod.getLocale();
@@ -192,9 +187,7 @@ public class InputContext extends java.awt.im.InputContext
     }
   }
 
-  /**
-   * @see java.awt.im.InputContext#setCharacterSubsets
-   */
+  @Override
   public void setCharacterSubsets(Subset[] subsets) {
     if (subsets == null) {
       characterSubsets = null;
@@ -207,10 +200,7 @@ public class InputContext extends java.awt.im.InputContext
     }
   }
 
-  /**
-   * @throws UnsupportedOperationException when input method is null
-   * @see java.awt.im.InputContext#isCompositionEnabled
-   */
+  @Override
   public boolean isCompositionEnabled() {
     InputMethod inputMethod = getInputMethod();
 
@@ -220,10 +210,7 @@ public class InputContext extends java.awt.im.InputContext
     return inputMethod.isCompositionEnabled();
   }
 
-  /**
-   * @throws UnsupportedOperationException when input method is null
-   * @see java.awt.im.InputContext#setCompositionEnabled(boolean)
-   */
+  @Override
   public void setCompositionEnabled(boolean enable) {
     InputMethod inputMethod = getInputMethod();
 
@@ -233,11 +220,7 @@ public class InputContext extends java.awt.im.InputContext
     inputMethod.setCompositionEnabled(enable);
   }
 
-  /**
-   * @throws UnsupportedOperationException when input method is null
-   * @see java.awt.im.InputContext#reconvert
-   * @since 1.3
-   */
+  @Override
   public synchronized void reconvert() {
     InputMethod inputMethod = getInputMethod();
     if (inputMethod == null) {
@@ -246,9 +229,7 @@ public class InputContext extends java.awt.im.InputContext
     inputMethod.reconvert();
   }
 
-  /**
-   * @see java.awt.im.InputContext#dispatchEvent
-   */
+  @Override
   @SuppressWarnings("fallthrough")
   public void dispatchEvent(AWTEvent event) {
 
@@ -260,9 +241,9 @@ public class InputContext extends java.awt.im.InputContext
     // This is a workaround.  Should be removed after 4452384 is fixed.
     if (event instanceof FocusEvent) {
       Component opposite = ((FocusEvent) event).getOppositeComponent();
-      if ((opposite != null) &&
-          (getComponentWindow(opposite) instanceof InputMethodWindow) &&
-          (opposite.getInputContext() == this)) {
+      if (opposite != null &&
+          getComponentWindow(opposite) instanceof InputMethodWindow &&
+          opposite.getInputContext() == this) {
         return;
       }
     }
@@ -291,16 +272,13 @@ public class InputContext extends java.awt.im.InputContext
         // fall through
 
       default:
-        if ((inputMethod != null) && (event instanceof InputEvent)) {
+        if (inputMethod != null && event instanceof InputEvent) {
           inputMethod.dispatchEvent(event);
         }
     }
   }
 
-  /**
-   * @throws NullPointerException when the component is null.
-   * @see java.awt.im.InputContext#removeNotify
-   */
+  @Override
   public synchronized void removeNotify(Component component) {
     if (component == null) {
       throw new NullPointerException();
@@ -341,6 +319,7 @@ public class InputContext extends java.awt.im.InputContext
         ((InputMethodContext) this).releaseCompositionArea();
       } else {
         EventQueue.invokeLater(new Runnable() {
+          @Override
           public void run() {
             ((InputMethodContext) InputContext.this).releaseCompositionArea();
           }
@@ -349,19 +328,14 @@ public class InputContext extends java.awt.im.InputContext
     }
   }
 
-  /**
-   * @see java.awt.im.InputContext#endComposition
-   */
+  @Override
   public synchronized void endComposition() {
     if (inputMethod != null) {
       inputMethod.endComposition();
     }
   }
 
-  /**
-   * @throws IllegalStateException when the currentClientComponent is not null
-   * @see java.awt.im.InputContext#dispose
-   */
+  @Override
   public synchronized void dispose() {
     if (currentClientComponent != null) {
       throw new IllegalStateException("Can't dispose InputContext while it's active");
@@ -406,17 +380,11 @@ public class InputContext extends java.awt.im.InputContext
     perInputMethodState = null;
   }
 
-  /**
-   * @see java.awt.im.InputContext#getInputMethodControlObject
-   */
+  @Override
   public synchronized Object getInputMethodControlObject() {
     InputMethod inputMethod = getInputMethod();
 
-    if (inputMethod != null) {
-      return inputMethod.getControlObject();
-    } else {
-      return null;
-    }
+    return inputMethod != null ? inputMethod.getControlObject() : null;
   }
 
   /**
@@ -435,6 +403,7 @@ public class InputContext extends java.awt.im.InputContext
    *
    * @param source the component gaining the focus
    */
+  @SuppressWarnings("NestedSynchronizedStatement")
   private void focusGained(Component source) {
 
         /*
@@ -494,7 +463,7 @@ public class InputContext extends java.awt.im.InputContext
 
         // If the client component is an active client with the below-the-spot
         // input style, then make the composition window undecorated without a title bar.
-        InputMethodContext inputContext = ((InputMethodContext) this);
+        InputMethodContext inputContext = (InputMethodContext) this;
         if (!inputContext.isCompositionAreaVisible()) {
           InputMethodRequests req = source.getInputMethodRequests();
           if (req != null && inputContext.useBelowTheSpotInput()) {
@@ -505,7 +474,7 @@ public class InputContext extends java.awt.im.InputContext
         }
         // restores the composition area if it was set to invisible
         // when focus got lost
-        if (compositionAreaHidden == true) {
+        if (compositionAreaHidden) {
           ((InputMethodContext) this).setCompositionAreaVisible(true);
           compositionAreaHidden = false;
         }
@@ -549,7 +518,7 @@ public class InputContext extends java.awt.im.InputContext
       if (perInputMethodState != null) {
         Boolean state = perInputMethodState.remove(inputMethod);
         if (state != null) {
-          clientWindowNotificationEnabled = state.booleanValue();
+          clientWindowNotificationEnabled = state;
         }
       }
       if (clientWindowNotificationEnabled) {
@@ -584,6 +553,7 @@ public class InputContext extends java.awt.im.InputContext
    * @param source the component losing the focus
    * @isTemporary whether the focus change is temporary
    */
+  @SuppressWarnings("NestedSynchronizedStatement")
   private void focusLost(Component source, boolean isTemporary) {
 
     // see the note on synchronization in focusGained
@@ -602,7 +572,7 @@ public class InputContext extends java.awt.im.InputContext
         }
 
         // hides the composition area if currently it is visible
-        InputMethodContext inputContext = ((InputMethodContext) this);
+        InputMethodContext inputContext = (InputMethodContext) this;
         if (inputContext.isCompositionAreaVisible()) {
           inputContext.setCompositionAreaVisible(false);
           compositionAreaHidden = true;
@@ -697,7 +667,7 @@ public class InputContext extends java.awt.im.InputContext
         perInputMethodState = new HashMap<>(5);
       }
       usedInputMethods.put(inputMethodLocator.deriveLocator(null), inputMethod);
-      perInputMethodState.put(inputMethod, Boolean.valueOf(clientWindowNotificationEnabled));
+      perInputMethodState.put(inputMethod, clientWindowNotificationEnabled);
       enableClientWindowNotification(inputMethod, false);
       if (this == inputMethodWindowContext) {
         inputMethod.hideWindows();
@@ -770,12 +740,12 @@ public class InputContext extends java.awt.im.InputContext
               getStartupLocale());
     }
 
-    if (inputMethodInfo != null && !inputMethodInfo.equals("")) {
+    if (inputMethodInfo != null && !"".equals(inputMethodInfo)) {
       return inputMethodInfo;
     }
 
     // do our best to return something useful.
-    return inputMethod.toString() + "-" + inputMethod.getLocale().toString();
+    return inputMethod + "-" + inputMethod.getLocale();
   }
 
   /**
@@ -816,9 +786,9 @@ public class InputContext extends java.awt.im.InputContext
    * instantiation failed.
    *
    * @return an InputMethod instance
-   * @see java.awt.im.spi.InputMethod#setInputMethodContext
-   * @see java.awt.im.spi.InputMethod#setLocale
-   * @see java.awt.im.spi.InputMethod#setCharacterSubsets
+   * @see InputMethod#setInputMethodContext
+   * @see InputMethod#setLocale
+   * @see InputMethod#setCharacterSubsets
    */
   private InputMethod getInputMethodInstance() {
     InputMethodLocator locator = inputMethodLocator;
@@ -840,10 +810,10 @@ public class InputContext extends java.awt.im.InputContext
         inputMethodInstance.setCharacterSubsets(characterSubsets);
         Boolean state = perInputMethodState.remove(inputMethodInstance);
         if (state != null) {
-          enableClientWindowNotification(inputMethodInstance, state.booleanValue());
+          enableClientWindowNotification(inputMethodInstance, state);
         }
         ((InputMethodContext) this).setInputMethodSupportsBelowTheSpot(
-            (!(inputMethodInstance instanceof InputMethodAdapter))
+            !(inputMethodInstance instanceof InputMethodAdapter)
                 || ((InputMethodAdapter) inputMethodInstance).supportsBelowTheSpot());
         return inputMethodInstance;
       }
@@ -856,7 +826,7 @@ public class InputContext extends java.awt.im.InputContext
       if (locale != null) {
         inputMethodInstance.setLocale(locale);
       }
-      inputMethodInstance.setInputMethodContext((InputMethodContext) this);
+      inputMethodInstance.setInputMethodContext((java.awt.im.spi.InputMethodContext) this);
       inputMethodInstance.setCharacterSubsets(characterSubsets);
     } catch (Exception e) {
       logCreationFailed(e);
@@ -878,21 +848,19 @@ public class InputContext extends java.awt.im.InputContext
       inputMethodCreationFailed = true;
     }
     ((InputMethodContext) this).setInputMethodSupportsBelowTheSpot(
-        (!(inputMethodInstance instanceof InputMethodAdapter))
+        !(inputMethodInstance instanceof InputMethodAdapter)
             || ((InputMethodAdapter) inputMethodInstance).supportsBelowTheSpot());
     return inputMethodInstance;
   }
 
   private void logCreationFailed(Throwable throwable) {
-    if (true) {
-      String errorTextFormat = Toolkit.getProperty("AWT.InputMethodCreationFailed",
-          "Could not create {0}. Reason: {1}");
-      Object[] args = {
-          inputMethodLocator.getDescriptor().getInputMethodDisplayName(null, Locale.getDefault()),
-          throwable.getLocalizedMessage()};
-      MessageFormat mf = new MessageFormat(errorTextFormat);
-      Log.d(TAG, mf.format(args));
-    }
+    String errorTextFormat = Toolkit.getProperty("AWT.InputMethodCreationFailed",
+        "Could not create {0}. Reason: {1}");
+    Object[] args = {
+        inputMethodLocator.getDescriptor().getInputMethodDisplayName(null, Locale.getDefault()),
+        throwable.getLocalizedMessage()};
+    MessageFormat mf = new MessageFormat(errorTextFormat);
+    Log.d(TAG, mf.format(args));
   }
 
   InputMethodLocator getInputMethodLocator() {
@@ -913,7 +881,7 @@ public class InputContext extends java.awt.im.InputContext
       if (perInputMethodState == null) {
         perInputMethodState = new HashMap<>(5);
       }
-      perInputMethodState.put(requester, Boolean.valueOf(enable));
+      perInputMethodState.put(requester, enable);
       return;
     }
 
@@ -942,8 +910,8 @@ public class InputContext extends java.awt.im.InputContext
     }
 
     // if the window is invisible or iconified, send null to the input method.
-    if (!window.isVisible() || ((window instanceof Frame)
-                                    && ((Frame) window).getState() == Frame.ICONIFIED)) {
+    if (!window.isVisible()
+        || window instanceof Frame && ((Frame) window).getState() == Frame.ICONIFIED) {
       clientWindowLocation = null;
       inputMethod.notifyClientWindowChange(null);
       return;
@@ -986,42 +954,53 @@ public class InputContext extends java.awt.im.InputContext
   /*
    * ComponentListener and WindowListener implementation
    */
+  @Override
   public void componentResized(ComponentEvent e) {
     notifyClientWindowChange((Window) e.getComponent());
   }
 
+  @Override
   public void componentMoved(ComponentEvent e) {
     notifyClientWindowChange((Window) e.getComponent());
   }
 
+  @Override
   public void componentShown(ComponentEvent e) {
     notifyClientWindowChange((Window) e.getComponent());
   }
 
+  @Override
   public void componentHidden(ComponentEvent e) {
     notifyClientWindowChange((Window) e.getComponent());
   }
 
+  @Override
   public void windowOpened(WindowEvent e) {
   }
 
+  @Override
   public void windowClosing(WindowEvent e) {
   }
 
+  @Override
   public void windowClosed(WindowEvent e) {
   }
 
+  @Override
   public void windowIconified(WindowEvent e) {
     notifyClientWindowChange(e.getWindow());
   }
 
+  @Override
   public void windowDeiconified(WindowEvent e) {
     notifyClientWindowChange(e.getWindow());
   }
 
+  @Override
   public void windowActivated(WindowEvent e) {
   }
 
+  @Override
   public void windowDeactivated(WindowEvent e) {
   }
 
@@ -1030,6 +1009,7 @@ public class InputContext extends java.awt.im.InputContext
    */
   private void initializeInputMethodSelectionKey() {
     AccessController.doPrivileged(new PrivilegedAction<Object>() {
+      @Override
       public Object run() {
         // Look in user's tree
         Preferences root = Preferences.userRoot();
@@ -1045,7 +1025,7 @@ public class InputContext extends java.awt.im.InputContext
     });
   }
 
-  private AWTKeyStroke getInputMethodSelectionKeyStroke(Preferences root) {
+  AWTKeyStroke getInputMethodSelectionKeyStroke(Preferences root) {
     try {
       if (root.nodeExists(inputMethodSelectionKeyPath)) {
         Preferences node = root.node(inputMethodSelectionKeyPath);

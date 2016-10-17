@@ -29,16 +29,18 @@
  * @run main bug8007006
  */
 
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunToolkit;
 import java.awt.*;
 import java.awt.event.*;
 
-public class bug8007006 {
+public final class bug8007006 {
     private static Frame frame1;
     private static Frame frame2;
 
     public static void main(String[] args) throws Exception {
-        if (sun.awt.OSInfo.getOSType() != sun.awt.OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             System.out.println("This test is for MacOS only. Automatically passed on other platforms.");
             return;
         }

@@ -46,8 +46,8 @@
 class BubbleSortAlgorithm extends SortAlgorithm {
 
   @Override
-  void sort(int a[]) throws Exception {
-    for (int i = a.length; --i >= 0; ) {
+  void sort(int[] a) throws Exception {
+    for (int i = a.length; i >= 0; ) {
       boolean swapped = false;
       for (int j = 0; j < i; j++) {
         if (stopRequested) {
@@ -64,6 +64,7 @@ class BubbleSortAlgorithm extends SortAlgorithm {
       if (!swapped) {
         return;
       }
+      --i;
     }
   }
 }

@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6366813 6459844
  * @summary Tests that no exception is thrown if a frame is resized just
  * before we create a bufferStrategy
@@ -33,11 +33,11 @@
 
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
+import java.awt.BufferCapabilities.FlipContents;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.ImageCapabilities;
@@ -52,7 +52,8 @@ import java.awt.image.BufferedImage;
  * We test both windowed and fullscreen mode, although the exception has
  * been observed in full screen mode only.
  */
-public class BufferStrategyExceptionTest {
+@SuppressWarnings("MagicNumber")
+public final class BufferStrategyExceptionTest {
     private static final int TEST_REPS = 20;
 
     public static void main(String[] args) {
@@ -91,10 +92,12 @@ public class BufferStrategyExceptionTest {
         }
     }
 
-    private static final BufferedImage bi =
+    static final BufferedImage bi =
         new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
 
     static class TestFrame extends Frame {
+        private static final long serialVersionUID = 6267112160680042950L;
+
         TestFrame() {
             setUndecorated(true);
             setIgnoreRepaint(true);
@@ -106,7 +109,7 @@ public class BufferStrategyExceptionTest {
             ImageCapabilities imgFrontBufCap = new ImageCapabilities(true);
             BufferCapabilities bufCap =
                 new BufferCapabilities(imgFrontBufCap,
-                    imgBackBufCap, BufferCapabilities.FlipContents.COPIED);
+                    imgBackBufCap, FlipContents.COPIED);
             try {
 
                 createBufferStrategy(2, bufCap);

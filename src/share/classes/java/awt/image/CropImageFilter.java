@@ -41,10 +41,10 @@ import java.util.Hashtable;
  * @see ImageFilter
  */
 public class CropImageFilter extends ImageFilter {
-  int cropX;
-  int cropY;
-  int cropW;
-  int cropH;
+  final int cropX;
+  final int cropY;
+  final int cropW;
+  final int cropH;
 
   /**
    * Constructs a CropImageFilter that extracts the absolute rectangular
@@ -68,7 +68,7 @@ public class CropImageFilter extends ImageFilter {
    * of the rectangular cropped region to the ImageConsumer.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose
+   * {@code ImageProducer} of the {@code Image} whose
    * pixels are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -76,6 +76,7 @@ public class CropImageFilter extends ImageFilter {
    *
    * @see ImageConsumer
    */
+  @Override
   public void setDimensions(int w, int h) {
     consumer.setDimensions(cropW, cropH);
   }
@@ -83,16 +84,17 @@ public class CropImageFilter extends ImageFilter {
   /**
    * Passes along  the properties from the source object after adding a
    * property indicating the cropped region.
-   * This method invokes <code>super.setProperties</code>,
+   * This method invokes {@code super.setProperties},
    * which might result in additional properties being added.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setProperties(Hashtable<?, ?> props) {
     Hashtable<Object, Object> p = (Hashtable<Object, Object>) props.clone();
     p.put("croprect", new Rectangle(cropX, cropY, cropW, cropH));
@@ -105,14 +107,15 @@ public class CropImageFilter extends ImageFilter {
    * appear in the output region.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose
+   * {@code ImageProducer} of the {@code Image} whose
    * pixels are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, byte[] pixels, int off, int scansize) {
     int x1 = x;
     if (x1 < cropX) {
       x1 = cropX;
@@ -136,11 +139,11 @@ public class CropImageFilter extends ImageFilter {
     consumer.setPixels(
         x1 - cropX,
         y1 - cropY,
-        (x2 - x1),
-        (y2 - y1),
+        x2 - x1,
+        y2 - y1,
         model,
         pixels,
-        off + (y1 - y) * scansize + (x1 - x),
+        off + (y1 - y) * scansize + x1 - x,
         scansize);
   }
 
@@ -150,14 +153,15 @@ public class CropImageFilter extends ImageFilter {
    * appear in the output region.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose
+   * {@code ImageProducer} of the {@code Image} whose
    * pixels are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, int pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, int[] pixels, int off, int scansize) {
     int x1 = x;
     if (x1 < cropX) {
       x1 = cropX;
@@ -181,11 +185,11 @@ public class CropImageFilter extends ImageFilter {
     consumer.setPixels(
         x1 - cropX,
         y1 - cropY,
-        (x2 - x1),
-        (y2 - y1),
+        x2 - x1,
+        y2 - y1,
         model,
         pixels,
-        off + (y1 - y) * scansize + (x1 - x),
+        off + (y1 - y) * scansize + x1 - x,
         scansize);
   }
 

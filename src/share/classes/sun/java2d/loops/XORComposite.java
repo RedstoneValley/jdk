@@ -39,17 +39,17 @@ import sun.java2d.SurfaceData;
 
 public final class XORComposite implements Composite {
 
-  Color xorColor;
-  int xorPixel;
-  int alphaMask;
+  final Color xorColor;
+  final int xorPixel;
+  final int alphaMask;
 
   public XORComposite(Color xorColor, SurfaceData sd) {
     this.xorColor = xorColor;
 
     SurfaceType sType = sd.getSurfaceType();
 
-    this.xorPixel = sd.pixelFor(xorColor.getRGB());
-    this.alphaMask = sType.getAlphaMask();
+    xorPixel = sd.pixelFor(xorColor.getRGB());
+    alphaMask = sType.getAlphaMask();
   }
 
   public Color getXorColor() {
@@ -64,6 +64,7 @@ public final class XORComposite implements Composite {
     return alphaMask;
   }
 
+  @Override
   public CompositeContext createContext(
       ColorModel srcColorModel, ColorModel dstColorModel, RenderingHints hints) {
     return new SunCompositeContext(this, srcColorModel, dstColorModel);

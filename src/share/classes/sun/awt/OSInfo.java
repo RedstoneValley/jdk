@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * @author Pavel Porvatov
  */
-public class OSInfo {
+public final class OSInfo {
   /*
      The map windowsVersionMap must contain all windows version constants except WINDOWS_UNKNOWN,
      and so the method getWindowsVersion() will return the constant for known OS.
@@ -54,9 +54,10 @@ public class OSInfo {
   public static final WindowsVersion WINDOWS_VISTA = new WindowsVersion(6, 0);
   private static final String OS_NAME = "os.name";
   private static final String OS_VERSION = "os.version";
-  private final static Map<String, WindowsVersion> windowsVersionMap
-      = new HashMap<String, OSInfo.WindowsVersion>();
+  private static final Map<String, WindowsVersion> windowsVersionMap
+      = new HashMap<>();
   private static final PrivilegedAction<OSType> osTypeAction = new PrivilegedAction<OSType>() {
+    @Override
     public OSType run() {
       return getOSType();
     }
@@ -140,7 +141,7 @@ public class OSInfo {
     }
   }
 
-  public static enum OSType {
+  public enum OSType {
     WINDOWS,
     LINUX,
     SOLARIS,
@@ -153,7 +154,7 @@ public class OSInfo {
 
     private final int minor;
 
-    private WindowsVersion(int major, int minor) {
+    WindowsVersion(int major, int minor) {
       this.major = major;
       this.minor = minor;
     }
@@ -166,6 +167,7 @@ public class OSInfo {
       return minor;
     }
 
+    @Override
     public int compareTo(WindowsVersion o) {
       int result = major - o.getMajor();
 

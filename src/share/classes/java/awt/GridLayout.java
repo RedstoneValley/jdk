@@ -25,8 +25,10 @@
 
 package java.awt;
 
+import java.io.Serializable;
+
 /**
- * The <code>GridLayout</code> class is a layout manager that
+ * The {@code GridLayout} class is a layout manager that
  * lays out a container's components in a rectangular grid.
  * The container is divided into equal-sized rectangles,
  * and one component is placed in each rectangle.
@@ -50,9 +52,9 @@ package java.awt;
  * }
  * </pre></blockquote><hr>
  *
- * If the container's <code>ComponentOrientation</code> property is horizontal
+ * If the container's {@code ComponentOrientation} property is horizontal
  * and left-to-right, the above example produces the output shown in Figure 1.
- * If the container's <code>ComponentOrientation</code> property is horizontal
+ * If the container's {@code ComponentOrientation} property is horizontal
  * and right-to-left, the example produces the output shown in Figure 2.
  *
  * <table style="float:center" WIDTH=600 summary="layout">
@@ -90,7 +92,7 @@ package java.awt;
  * @author Arthur van Hoff
  * @since JDK1.0
  */
-public class GridLayout implements LayoutManager, java.io.Serializable {
+public class GridLayout implements LayoutManager, Serializable {
   /*
    * serialVersionUID
    */
@@ -155,7 +157,7 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * Creates a grid layout with the specified number of rows and
    * columns. All components in the layout are given equal size.
    * <p>
-   * One, but not both, of <code>rows</code> and <code>cols</code> can
+   * One, but not both, of {@code rows} and {@code cols} can
    * be zero, which means that any number of objects can be placed in a
    * row or in a column.
    *
@@ -177,11 +179,11 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * of the columns. Vertical gaps are placed between each of
    * the rows.
    * <p>
-   * One, but not both, of <code>rows</code> and <code>cols</code> can
+   * One, but not both, of {@code rows} and {@code cols} can
    * be zero, which means that any number of objects can be placed in a
    * row or in a column.
    * <p>
-   * All <code>GridLayout</code> constructors defer to this one.
+   * All {@code GridLayout} constructors defer to this one.
    *
    * @param rows the rows, with the value zero meaning
    *             any number of rows
@@ -190,11 +192,11 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * @param hgap the horizontal gap
    * @param vgap the vertical gap
    * @throws IllegalArgumentException if the value of both
-   *                                  <code>rows</code> and <code>cols</code> is
+   *                                  {@code rows} and {@code cols} is
    *                                  set to zero
    */
   public GridLayout(int rows, int cols, int hgap, int vgap) {
-    if ((rows == 0) && (cols == 0)) {
+    if (rows == 0 && cols == 0) {
       throw new IllegalArgumentException("rows and cols cannot both be zero");
     }
     this.rows = rows;
@@ -218,11 +220,11 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    *
    * @param rows the number of rows in this layout
    * @throws IllegalArgumentException if the value of both
-   *                                  <code>rows</code> and <code>cols</code> is set to zero
+   *                                  {@code rows} and {@code cols} is set to zero
    * @since JDK1.1
    */
   public void setRows(int rows) {
-    if ((rows == 0) && (this.cols == 0)) {
+    if (rows == 0 && cols == 0) {
       throw new IllegalArgumentException("rows and cols cannot both be zero");
     }
     this.rows = rows;
@@ -248,11 +250,11 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    *
    * @param cols the number of columns in this layout
    * @throws IllegalArgumentException if the value of both
-   *                                  <code>rows</code> and <code>cols</code> is set to zero
+   *                                  {@code rows} and {@code cols} is set to zero
    * @since JDK1.1
    */
   public void setColumns(int cols) {
-    if ((cols == 0) && (this.rows == 0)) {
+    if (cols == 0 && rows == 0) {
       throw new IllegalArgumentException("rows and cols cannot both be zero");
     }
     this.cols = cols;
@@ -304,6 +306,7 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * @param name the name of the component
    * @param comp the component to be added
    */
+  @Override
   public void addLayoutComponent(String name, Component comp) {
   }
 
@@ -312,6 +315,7 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    *
    * @param comp the component to be removed
    */
+  @Override
   public void removeLayoutComponent(Component comp) {
   }
 
@@ -332,9 +336,10 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * @param parent the container in which to do the layout
    * @return the preferred dimensions to lay out the
    * subcomponents of the specified container
-   * @see java.awt.GridLayout#minimumLayoutSize
-   * @see java.awt.Container#getPreferredSize()
+   * @see GridLayout#minimumLayoutSize
+   * @see Container#getPreferredSize()
    */
+  @Override
   public Dimension preferredLayoutSize(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
@@ -382,9 +387,10 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * @param parent the container in which to do the layout
    * @return the minimum dimensions needed to lay out the
    * subcomponents of the specified container
-   * @see java.awt.GridLayout#preferredLayoutSize
-   * @see java.awt.Container#doLayout
+   * @see GridLayout#preferredLayoutSize
+   * @see Container#doLayout
    */
+  @Override
   public Dimension minimumLayoutSize(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
@@ -420,7 +426,7 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * <p>
    * This method reshapes the components in the specified target
    * container in order to satisfy the constraints of the
-   * <code>GridLayout</code> object.
+   * {@code GridLayout} object.
    * <p>
    * The grid layout manager determines the size of individual
    * components by dividing the free space in the container into
@@ -430,9 +436,10 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
    * gap. All components in a grid layout are given the same size.
    *
    * @param parent the container in which to do the layout
-   * @see java.awt.Container
-   * @see java.awt.Container#doLayout
+   * @see Container
+   * @see Container#doLayout
    */
+  @Override
   public void layoutContainer(Container parent) {
     synchronized (parent.getTreeLock()) {
       Insets insets = parent.getInsets();
@@ -476,7 +483,7 @@ public class GridLayout implements LayoutManager, java.io.Serializable {
           }
         }
       } else {
-        for (int c = 0, x = (parent.width - insets.right - widthOnComponent) - extraWidthAvailable;
+        for (int c = 0, x = parent.width - insets.right - widthOnComponent - extraWidthAvailable;
             c < ncols; c++, x -= widthOnComponent + hgap) {
           for (int r = 0, y = insets.top + extraHeightAvailable; r < nrows;
               r++, y += heightOnComponent + vgap) {

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import sun.awt.image.ImageCache.PixelsKey;
 
 public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
 
@@ -55,7 +56,7 @@ public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
       BiFunction<Integer, Integer, Image> mapper) {
     this.baseImageWidth = baseImageWidth;
     this.baseImageHeight = baseImageHeight;
-    this.sizes = (sizes == null) ? null : Arrays.copyOf(sizes, sizes.length);
+    this.sizes = sizes == null ? null : Arrays.copyOf(sizes, sizes.length);
     this.mapper = mapper;
   }
 
@@ -74,7 +75,7 @@ public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
         @Override
         public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
           flags &= ~infoflags;
-          return (flags != 0) && ((infoflags & (ImageObserver.ERROR | ImageObserver.ABORT)) == 0);
+          return flags != 0 && (infoflags & (ImageObserver.ERROR | ImageObserver.ABORT)) == 0;
         }
       });
     }
@@ -97,8 +98,7 @@ public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
   public List<Image> getResolutionVariants() {
     return Arrays
         .stream(sizes)
-        .map((Function<Dimension2D, Image>) size -> getResolutionVariant((int) size.getWidth(),
-            (int) size.getHeight()))
+        .map(size -> getResolutionVariant((int) size.getWidth(), (int) size.getHeight()))
         .collect(Collectors.toList());
   }
 
@@ -133,10 +133,10 @@ public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
   }
 
   private void updateInfo(ImageObserver observer, int info) {
-    availableInfo |= (observer == null) ? ImageObserver.ALLBITS : info;
+    availableInfo |= observer == null ? ImageObserver.ALLBITS : info;
   }
 
-  private static class ImageCacheKey implements ImageCache.PixelsKey {
+  private static class ImageCacheKey implements PixelsKey {
 
     private final int pixelCount;
     private final int hash;
@@ -145,11 +145,11 @@ public class MultiResolutionCachedImage extends AbstractMultiResolutionImage {
     private final int h;
     private final Image baseImage;
 
-    ImageCacheKey(final Image baseImage, final int w, final int h) {
+    ImageCacheKey(Image baseImage, int w, int h) {
       this.baseImage = baseImage;
       this.w = w;
       this.h = h;
-      this.pixelCount = w * h;
+      pixelCount = w * h;
       hash = hash();
     }
 

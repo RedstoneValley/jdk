@@ -40,13 +40,6 @@
 package com.sun.nio.zipfs;
 
 import java.io.IOException;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributeView;
-import java.nio.file.attribute.FileAttributeView;
-import java.nio.file.attribute.FileStoreAttributeView;
 
 /*
  *
@@ -58,12 +51,12 @@ public class ZipFileStore extends FileStore {
   private final ZipFileSystem zfs;
 
   ZipFileStore(ZipPath zpath) {
-    this.zfs = zpath.getFileSystem();
+    zfs = zpath.getFileSystem();
   }
 
   @Override
   public String name() {
-    return zfs.toString() + "/";
+    return zfs + "/";
   }
 
   @Override
@@ -78,12 +71,12 @@ public class ZipFileStore extends FileStore {
 
   @Override
   public boolean supportsFileAttributeView(Class<? extends FileAttributeView> type) {
-    return (type == BasicFileAttributeView.class || type == ZipFileAttributeView.class);
+    return type == BasicFileAttributeView.class || type == ZipFileAttributeView.class;
   }
 
   @Override
   public boolean supportsFileAttributeView(String name) {
-    return name.equals("basic") || name.equals("zip");
+    return "basic".equals(name) || "zip".equals(name);
   }
 
   @Override
@@ -92,7 +85,7 @@ public class ZipFileStore extends FileStore {
     if (type == null) {
       throw new NullPointerException();
     }
-    return (V) null;
+    return null;
   }
 
   @Override
@@ -112,13 +105,13 @@ public class ZipFileStore extends FileStore {
 
   @Override
   public Object getAttribute(String attribute) throws IOException {
-    if (attribute.equals("totalSpace")) {
+    if ("totalSpace".equals(attribute)) {
       return getTotalSpace();
     }
-    if (attribute.equals("usableSpace")) {
+    if ("usableSpace".equals(attribute)) {
       return getUsableSpace();
     }
-    if (attribute.equals("unallocatedSpace")) {
+    if ("unallocatedSpace".equals(attribute)) {
       return getUnallocatedSpace();
     }
     throw new UnsupportedOperationException("does not support the given attribute");
@@ -128,10 +121,10 @@ public class ZipFileStore extends FileStore {
     final FileStore fstore;
     final long size;
 
-    public ZipFileStoreAttributes(ZipFileStore fileStore) throws IOException {
+    public ZipFileStoreAttributes(ZipFileStore fileStore) {
       Path path = FileSystems.getDefault().getPath(fileStore.name());
-      this.size = Files.size(path);
-      this.fstore = Files.getFileStore(path);
+      size = Files.size(path);
+      fstore = Files.getFileStore(path);
     }
 
     public long totalSpace() {

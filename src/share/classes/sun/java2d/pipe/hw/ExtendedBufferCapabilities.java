@@ -47,7 +47,7 @@ import java.awt.ImageCapabilities;
  */
 public class ExtendedBufferCapabilities extends BufferCapabilities {
 
-  private VSyncType vsync;
+  private final VSyncType vsync;
 
   /**
    * Creates an ExtendedBufferCapabilities object with front/back/flip caps
@@ -59,7 +59,7 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
         caps.getBackBufferCapabilities(),
         caps.getFlipContents());
 
-    this.vsync = VSyncType.VSYNC_DEFAULT;
+    vsync = VSyncType.VSYNC_DEFAULT;
   }
 
   /**
@@ -70,7 +70,7 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
       ImageCapabilities front, ImageCapabilities back, FlipContents flip) {
     super(front, back, flip);
 
-    this.vsync = VSyncType.VSYNC_DEFAULT;
+    vsync = VSyncType.VSYNC_DEFAULT;
   }
 
   /**
@@ -81,7 +81,7 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
       ImageCapabilities front, ImageCapabilities back, FlipContents flip, VSyncType t) {
     super(front, back, flip);
 
-    this.vsync = t;
+    vsync = t;
   }
 
   /**
@@ -94,7 +94,7 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
         caps.getBackBufferCapabilities(),
         caps.getFlipContents());
 
-    this.vsync = t;
+    vsync = t;
   }
 
   /**
@@ -120,7 +120,7 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
   /**
    * Type of synchronization on vertical retrace.
    */
-  public static enum VSyncType {
+  public enum VSyncType {
     /**
      * Use the default v-sync mode appropriate for given BufferStrategy
      * and situation.
@@ -137,9 +137,9 @@ public class ExtendedBufferCapabilities extends BufferCapabilities {
      */
     VSYNC_OFF(2);
 
-    private int id;
+    private final int id;
 
-    private VSyncType(int id) {
+    VSyncType(int id) {
       this.id = id;
     }
 

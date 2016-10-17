@@ -38,10 +38,11 @@ import sun.java2d.SunGraphics2D;
 import sun.java2d.SurfaceData;
 import sun.java2d.loops.DrawParallelogram;
 import sun.java2d.loops.FillParallelogram;
+import sun.java2d.loops.FillSpans;
 
 public class LoopPipe
     implements PixelDrawPipe, PixelFillPipe, ParallelogramPipe, ShapeDrawPipe, LoopBasedPipe {
-  final static RenderingEngine RenderEngine = RenderingEngine.getInstance();
+  static final RenderingEngine RenderEngine = RenderingEngine.getInstance();
 
   /**
    * Return a ShapeSpanIterator instance that normalizes as
@@ -65,8 +66,8 @@ public class LoopPipe
    * </pre>
    */
   public static ShapeSpanIterator getFillSSI(SunGraphics2D sg2d) {
-    boolean adjust = ((sg2d.stroke instanceof BasicStroke)
-                          && sg2d.strokeHint != SunHints.INTVAL_STROKE_PURE);
+    boolean adjust = sg2d.stroke instanceof BasicStroke
+        && sg2d.strokeHint != SunHints.INTVAL_STROKE_PURE;
     return new ShapeSpanIterator(adjust);
   }
 
@@ -105,13 +106,12 @@ public class LoopPipe
       sr.setRule(PathIterator.WIND_NON_ZERO);
 
       BasicStroke bs = (BasicStroke) sg2d.stroke;
-      boolean thin = (sg2d.strokeState <= SunGraphics2D.STROKE_THINDASHED);
-      boolean normalize = (sg2d.strokeHint != SunHints.INTVAL_STROKE_PURE);
+      boolean thin = sg2d.strokeState <= SunGraphics2D.STROKE_THINDASHED;
+      boolean normalize = sg2d.strokeHint != SunHints.INTVAL_STROKE_PURE;
 
       RenderEngine.strokeTo(s, sg2d.transform, bs, thin, normalize, false, sr);
     } catch (Throwable t) {
       sr.dispose();
-      sr = null;
       throw new InternalError("Unable to Stroke shape (" +
           t.getMessage() + ")", t);
     }
@@ -127,13 +127,13 @@ public class LoopPipe
       // REMIND: Region.filter produces a Java-only iterator
       // with no native counterpart...
     } else {
-      sun.java2d.loops.FillSpans fs = sg2d.loops.fillSpansLoop;
+      FillSpans fs = sg2d.loops.fillSpansLoop;
       if (fs != null) {
         fs.FillSpans(sg2d, sg2d.getSurfaceData(), si);
         return;
       }
     }
-    int spanbox[] = new int[4];
+    int[] spanbox = new int[4];
     SurfaceData sd = sg2d.getSurfaceData();
     while (si.nextSpan(spanbox)) {
       int x = spanbox[0];
@@ -144,6 +144,7 @@ public class LoopPipe
     }
   }
 
+  @Override
   public void drawLine(SunGraphics2D sg2d, int x1, int y1, int x2, int y2) {
     int tX = sg2d.transX;
     int tY = sg2d.transY;
@@ -155,6 +156,7 @@ public class LoopPipe
         y2 + tY);
   }
 
+  @Override
   public void drawRect(SunGraphics2D sg2d, int x, int y, int width, int height) {
     sg2d.loops.drawRectLoop.DrawRect(sg2d,
         sg2d.getSurfaceData(),
@@ -164,23 +166,27 @@ public class LoopPipe
         height);
   }
 
+  @Override
   public void drawRoundRect(
       SunGraphics2D sg2d, int x, int y, int width, int height, int arcWidth, int arcHeight) {
     sg2d.shapepipe.draw(sg2d, new RoundRectangle2D.Float(x, y, width, height, arcWidth, arcHeight));
   }
 
+  @Override
   public void drawOval(SunGraphics2D sg2d, int x, int y, int width, int height) {
     sg2d.shapepipe.draw(sg2d, new Ellipse2D.Float(x, y, width, height));
   }
 
+  @Override
   public void drawArc(
       SunGraphics2D sg2d, int x, int y, int width, int height, int startAngle, int arcAngle) {
     sg2d.shapepipe.draw(sg2d,
         new Arc2D.Float(x, y, width, height, startAngle, arcAngle, Arc2D.OPEN));
   }
 
-  public void drawPolyline(SunGraphics2D sg2d, int xPoints[], int yPoints[], int nPoints) {
-    int nPointsArray[] = {nPoints};
+  @Override
+  public void drawPolyline(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
+    int[] nPointsArray = {nPoints};
     sg2d.loops.drawPolygonsLoop.DrawPolygons(sg2d,
         sg2d.getSurfaceData(),
         xPoints,
@@ -192,8 +198,9 @@ public class LoopPipe
         false);
   }
 
-  public void drawPolygon(SunGraphics2D sg2d, int xPoints[], int yPoints[], int nPoints) {
-    int nPointsArray[] = {nPoints};
+  @Override
+  public void drawPolygon(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
+    int[] nPointsArray = {nPoints};
     sg2d.loops.drawPolygonsLoop.DrawPolygons(sg2d,
         sg2d.getSurfaceData(),
         xPoints,
@@ -205,6 +212,7 @@ public class LoopPipe
         true);
   }
 
+  @Override
   public void fillRect(SunGraphics2D sg2d, int x, int y, int width, int height) {
     sg2d.loops.fillRectLoop.FillRect(sg2d,
         sg2d.getSurfaceData(),
@@ -214,22 +222,26 @@ public class LoopPipe
         height);
   }
 
+  @Override
   public void fillRoundRect(
       SunGraphics2D sg2d, int x, int y, int width, int height, int arcWidth, int arcHeight) {
     sg2d.shapepipe.fill(sg2d, new RoundRectangle2D.Float(x, y, width, height, arcWidth, arcHeight));
   }
 
+  @Override
   public void fillOval(SunGraphics2D sg2d, int x, int y, int width, int height) {
     sg2d.shapepipe.fill(sg2d, new Ellipse2D.Float(x, y, width, height));
   }
 
+  @Override
   public void fillArc(
       SunGraphics2D sg2d, int x, int y, int width, int height, int startAngle, int arcAngle) {
     sg2d.shapepipe.fill(sg2d,
         new Arc2D.Float(x, y, width, height, startAngle, arcAngle, Arc2D.PIE));
   }
 
-  public void fillPolygon(SunGraphics2D sg2d, int xPoints[], int yPoints[], int nPoints) {
+  @Override
+  public void fillPolygon(SunGraphics2D sg2d, int[] xPoints, int[] yPoints, int nPoints) {
     ShapeSpanIterator sr = getFillSSI(sg2d);
 
     try {
@@ -241,17 +253,14 @@ public class LoopPipe
     }
   }
 
+  @Override
   public void draw(SunGraphics2D sg2d, Shape s) {
     if (sg2d.strokeState == SunGraphics2D.STROKE_THIN) {
       Path2D.Float p2df;
       int transX;
       int transY;
       if (sg2d.transformState <= SunGraphics2D.TRANSFORM_INT_TRANSLATE) {
-        if (s instanceof Path2D.Float) {
-          p2df = (Path2D.Float) s;
-        } else {
-          p2df = new Path2D.Float(s);
-        }
+        p2df = s instanceof Path2D.Float ? (Path2D.Float) s : new Path2D.Float(s);
         transX = sg2d.transX;
         transY = sg2d.transY;
       } else {
@@ -277,17 +286,14 @@ public class LoopPipe
     }
   }
 
+  @Override
   public void fill(SunGraphics2D sg2d, Shape s) {
     if (sg2d.strokeState == SunGraphics2D.STROKE_THIN) {
       Path2D.Float p2df;
       int transX;
       int transY;
       if (sg2d.transformState <= SunGraphics2D.TRANSFORM_INT_TRANSLATE) {
-        if (s instanceof Path2D.Float) {
-          p2df = (Path2D.Float) s;
-        } else {
-          p2df = new Path2D.Float(s);
-        }
+        p2df = s instanceof Path2D.Float ? (Path2D.Float) s : new Path2D.Float(s);
         transX = sg2d.transX;
         transY = sg2d.transY;
       } else {
@@ -302,8 +308,8 @@ public class LoopPipe
     ShapeSpanIterator sr = getFillSSI(sg2d);
     try {
       sr.setOutputArea(sg2d.getCompClip());
-      AffineTransform at = ((sg2d.transformState == SunGraphics2D.TRANSFORM_ISIDENT) ? null
-                                : sg2d.transform);
+      AffineTransform at = sg2d.transformState == SunGraphics2D.TRANSFORM_ISIDENT ? null
+          : sg2d.transform;
       sr.appendPath(s.getPathIterator(at));
       fillSpans(sg2d, sr);
     } finally {
@@ -311,6 +317,7 @@ public class LoopPipe
     }
   }
 
+  @Override
   public void fillParallelogram(
       SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2) {
@@ -318,6 +325,7 @@ public class LoopPipe
     fp.FillParallelogram(sg2d, sg2d.getSurfaceData(), x, y, dx1, dy1, dx2, dy2);
   }
 
+  @Override
   public void drawParallelogram(
       SunGraphics2D sg2d, double ux1, double uy1, double ux2, double uy2, double x, double y,
       double dx1, double dy1, double dx2, double dy2, double lw1, double lw2) {

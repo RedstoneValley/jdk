@@ -51,12 +51,9 @@ import java.awt.PopupMenu;
 import java.awt.Rectangle;
 import java.awt.ScrollPaneAdjustable;
 import java.awt.Shape;
-import java.awt.SystemColor;
 import java.awt.SystemTray;
-import java.awt.Toolkit;
 import java.awt.TrayIcon;
 import java.awt.Window;
-import java.awt.event.InputEvent;
 import java.awt.event.InvocationEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Point2D;
@@ -67,7 +64,7 @@ import java.security.AccessControlContext;
 import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.accessibility.AccessibleContext;
-import sun.misc.Unsafe;
+import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * The AWTAccessor utility class.
@@ -76,9 +73,9 @@ import sun.misc.Unsafe;
  * different classes/packages. See sun.misc.SharedSecretes
  * for another example.
  */
+@SuppressWarnings("ClassWithTooManyFields")
 public final class AWTAccessor {
 
-  private static final Unsafe unsafe = Unsafe.getUnsafe();
   /*
    * Accessor instances are initialized in the static initializers of
    * corresponding AWT classes by using setters defined below.
@@ -124,7 +121,7 @@ public final class AWTAccessor {
    */
   public static ComponentAccessor getComponentAccessor() {
     if (componentAccessor == null) {
-      unsafe.ensureClassInitialized(Component.class);
+
     }
 
     return componentAccessor;
@@ -142,7 +139,7 @@ public final class AWTAccessor {
    */
   public static ContainerAccessor getContainerAccessor() {
     if (containerAccessor == null) {
-      unsafe.ensureClassInitialized(Container.class);
+
     }
 
     return containerAccessor;
@@ -160,7 +157,7 @@ public final class AWTAccessor {
    */
   public static WindowAccessor getWindowAccessor() {
     if (windowAccessor == null) {
-      unsafe.ensureClassInitialized(Window.class);
+
     }
     return windowAccessor;
   }
@@ -177,7 +174,7 @@ public final class AWTAccessor {
    */
   public static AWTEventAccessor getAWTEventAccessor() {
     if (awtEventAccessor == null) {
-      unsafe.ensureClassInitialized(AWTEvent.class);
+
     }
     return awtEventAccessor;
   }
@@ -194,7 +191,7 @@ public final class AWTAccessor {
    */
   public static InputEventAccessor getInputEventAccessor() {
     if (inputEventAccessor == null) {
-      unsafe.ensureClassInitialized(InputEvent.class);
+
     }
     return inputEventAccessor;
   }
@@ -211,7 +208,7 @@ public final class AWTAccessor {
    */
   public static FrameAccessor getFrameAccessor() {
     if (frameAccessor == null) {
-      unsafe.ensureClassInitialized(Frame.class);
+
     }
     return frameAccessor;
   }
@@ -228,7 +225,7 @@ public final class AWTAccessor {
    */
   public static KeyboardFocusManagerAccessor getKeyboardFocusManagerAccessor() {
     if (kfmAccessor == null) {
-      unsafe.ensureClassInitialized(KeyboardFocusManager.class);
+
     }
     return kfmAccessor;
   }
@@ -245,7 +242,7 @@ public final class AWTAccessor {
    */
   public static MenuComponentAccessor getMenuComponentAccessor() {
     if (menuComponentAccessor == null) {
-      unsafe.ensureClassInitialized(MenuComponent.class);
+
     }
     return menuComponentAccessor;
   }
@@ -262,7 +259,7 @@ public final class AWTAccessor {
    */
   public static EventQueueAccessor getEventQueueAccessor() {
     if (eventQueueAccessor == null) {
-      unsafe.ensureClassInitialized(EventQueue.class);
+
     }
     return eventQueueAccessor;
   }
@@ -279,7 +276,7 @@ public final class AWTAccessor {
    */
   public static PopupMenuAccessor getPopupMenuAccessor() {
     if (popupMenuAccessor == null) {
-      unsafe.ensureClassInitialized(PopupMenu.class);
+
     }
     return popupMenuAccessor;
   }
@@ -296,7 +293,7 @@ public final class AWTAccessor {
    */
   public static FileDialogAccessor getFileDialogAccessor() {
     if (fileDialogAccessor == null) {
-      unsafe.ensureClassInitialized(FileDialog.class);
+
     }
     return fileDialogAccessor;
   }
@@ -314,7 +311,7 @@ public final class AWTAccessor {
    */
   public static ScrollPaneAdjustableAccessor getScrollPaneAdjustableAccessor() {
     if (scrollPaneAdjustableAccessor == null) {
-      unsafe.ensureClassInitialized(ScrollPaneAdjustable.class);
+
     }
     return scrollPaneAdjustableAccessor;
   }
@@ -331,7 +328,7 @@ public final class AWTAccessor {
    */
   public static CheckboxMenuItemAccessor getCheckboxMenuItemAccessor() {
     if (checkboxMenuItemAccessor == null) {
-      unsafe.ensureClassInitialized(CheckboxMenuItemAccessor.class);
+
     }
     return checkboxMenuItemAccessor;
   }
@@ -348,7 +345,7 @@ public final class AWTAccessor {
    */
   public static CursorAccessor getCursorAccessor() {
     if (cursorAccessor == null) {
-      unsafe.ensureClassInitialized(CursorAccessor.class);
+
     }
     return cursorAccessor;
   }
@@ -365,7 +362,7 @@ public final class AWTAccessor {
    */
   public static MenuBarAccessor getMenuBarAccessor() {
     if (menuBarAccessor == null) {
-      unsafe.ensureClassInitialized(MenuBarAccessor.class);
+
     }
     return menuBarAccessor;
   }
@@ -382,7 +379,7 @@ public final class AWTAccessor {
    */
   public static MenuItemAccessor getMenuItemAccessor() {
     if (menuItemAccessor == null) {
-      unsafe.ensureClassInitialized(MenuItemAccessor.class);
+
     }
     return menuItemAccessor;
   }
@@ -399,7 +396,7 @@ public final class AWTAccessor {
    */
   public static MenuAccessor getMenuAccessor() {
     if (menuAccessor == null) {
-      unsafe.ensureClassInitialized(MenuAccessor.class);
+
     }
     return menuAccessor;
   }
@@ -416,7 +413,7 @@ public final class AWTAccessor {
    */
   public static KeyEventAccessor getKeyEventAccessor() {
     if (keyEventAccessor == null) {
-      unsafe.ensureClassInitialized(KeyEventAccessor.class);
+
     }
     return keyEventAccessor;
   }
@@ -433,7 +430,7 @@ public final class AWTAccessor {
    */
   public static ClientPropertyKeyAccessor getClientPropertyKeyAccessor() {
     if (clientPropertyKeyAccessor == null) {
-      unsafe.ensureClassInitialized(ClientPropertyKeyAccessor.class);
+
     }
     return clientPropertyKeyAccessor;
   }
@@ -450,7 +447,7 @@ public final class AWTAccessor {
    */
   public static SystemTrayAccessor getSystemTrayAccessor() {
     if (systemTrayAccessor == null) {
-      unsafe.ensureClassInitialized(SystemTrayAccessor.class);
+
     }
     return systemTrayAccessor;
   }
@@ -467,7 +464,7 @@ public final class AWTAccessor {
    */
   public static TrayIconAccessor getTrayIconAccessor() {
     if (trayIconAccessor == null) {
-      unsafe.ensureClassInitialized(TrayIconAccessor.class);
+
     }
     return trayIconAccessor;
   }
@@ -484,7 +481,7 @@ public final class AWTAccessor {
    */
   public static DefaultKeyboardFocusManagerAccessor getDefaultKeyboardFocusManagerAccessor() {
     if (defaultKeyboardFocusManagerAccessor == null) {
-      unsafe.ensureClassInitialized(DefaultKeyboardFocusManagerAccessor.class);
+
     }
     return defaultKeyboardFocusManagerAccessor;
   }
@@ -519,7 +516,7 @@ public final class AWTAccessor {
    */
   public static ToolkitAccessor getToolkitAccessor() {
     if (toolkitAccessor == null) {
-      unsafe.ensureClassInitialized(Toolkit.class);
+
     }
 
     return toolkitAccessor;
@@ -551,7 +548,7 @@ public final class AWTAccessor {
    */
   public static SystemColorAccessor getSystemColorAccessor() {
     if (systemColorAccessor == null) {
-      unsafe.ensureClassInitialized(SystemColor.class);
+
     }
 
     return systemColorAccessor;
@@ -569,7 +566,7 @@ public final class AWTAccessor {
    */
   public static AccessibleContextAccessor getAccessibleContextAccessor() {
     if (accessibleContextAccessor == null) {
-      unsafe.ensureClassInitialized(AccessibleContext.class);
+
     }
     return accessibleContextAccessor;
   }
@@ -578,7 +575,7 @@ public final class AWTAccessor {
    * Set the accessor object for the javax.accessibility.AccessibleContext class.
    */
   public static void setAccessibleContextAccessor(AccessibleContextAccessor accessor) {
-    AWTAccessor.accessibleContextAccessor = accessor;
+    accessibleContextAccessor = accessor;
   }
 
   /*
@@ -622,7 +619,7 @@ public final class AWTAccessor {
     /*
      * Requests focus to the component.
      */
-    boolean requestFocus(Component comp, CausedFocusEvent.Cause cause);
+    boolean requestFocus(Component comp, Cause cause);
 
     /*
      * Determines if the component can gain focus.
@@ -935,7 +932,7 @@ public final class AWTAccessor {
      */
     int shouldNativelyFocusHeavyweight(
         Component heavyweight, Component descendant, boolean temporary,
-        boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause);
+        boolean focusedWindowChangeAllowed, long time, Cause cause);
 
     /**
      * Delivers focus for the lightweight descendant of the heavyweight
@@ -1003,7 +1000,7 @@ public final class AWTAccessor {
     /**
      * Checks if the current thread is EDT for the given EQ.
      */
-    public boolean isDispatchThreadImpl(EventQueue eventQueue);
+    boolean isDispatchThreadImpl(EventQueue eventQueue);
 
     /**
      * Removes any pending events for the specified source object.
@@ -1055,7 +1052,7 @@ public final class AWTAccessor {
     /*
      * Sets the files the user selects
      */
-    void setFiles(FileDialog fileDialog, File files[]);
+    void setFiles(FileDialog fileDialog, File[] files);
 
     /*
      * Sets the file the user selects
@@ -1080,7 +1077,7 @@ public final class AWTAccessor {
     /*
      * Sets the value of this scrollbar to the specified value.
      */
-    void setTypedValue(final ScrollPaneAdjustable adj, final int v, final int type);
+    void setTypedValue(ScrollPaneAdjustable adj, int v, int type);
   }
 
   /**
@@ -1228,7 +1225,7 @@ public final class AWTAccessor {
    * An accessor for the DefaultKeyboardFocusManager class
    */
   public interface DefaultKeyboardFocusManagerAccessor {
-    public void consumeNextKeyTyped(DefaultKeyboardFocusManager dkfm, KeyEvent e);
+    void consumeNextKeyTyped(DefaultKeyboardFocusManager dkfm, KeyEvent e);
   }
 
   /*

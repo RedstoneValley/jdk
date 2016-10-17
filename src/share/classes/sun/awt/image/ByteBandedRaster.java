@@ -51,29 +51,25 @@ import java.awt.image.WritableRaster;
 public class ByteBandedRaster extends SunWritableRaster {
 
   /**
+   * A cached copy of minX + width for use in bounds checks.
+   */
+  private final int maxX;
+  /**
+   * A cached copy of minY + height for use in bounds checks.
+   */
+  private final int maxY;
+  /**
    * Data offsets for each band of image data.
    */
   int[] dataOffsets;
-
   /**
    * Scanline stride of the image data contained in this Raster.
    */
   int scanlineStride;
-
   /**
    * The image data array.
    */
   byte[][] data;
-
-  /**
-   * A cached copy of minX + width for use in bounds checks.
-   */
-  private int maxX;
-
-  /**
-   * A cached copy of minY + height for use in bounds checks.
-   */
-  private int maxY;
 
   /**
    * Constructs a ByteBandedRaster with the given sampleModel. The
@@ -86,8 +82,7 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param origin      The Point that specifies the origin.
    */
   public ByteBandedRaster(SampleModel sampleModel, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         sampleModel.createDataBuffer(),
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -106,8 +101,7 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param origin      The Point that specifies the origin.
    */
   public ByteBandedRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -138,8 +132,8 @@ public class ByteBandedRaster extends SunWritableRaster {
       ByteBandedRaster parent) {
 
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
 
     if (!(dataBuffer instanceof DataBufferByte)) {
       throw new RasterFormatException("ByteBandedRaster must have" + "byte DataBuffers");
@@ -148,10 +142,10 @@ public class ByteBandedRaster extends SunWritableRaster {
 
     if (sampleModel instanceof BandedSampleModel) {
       BandedSampleModel bsm = (BandedSampleModel) sampleModel;
-      this.scanlineStride = bsm.getScanlineStride();
-      int bankIndices[] = bsm.getBankIndices();
-      int bandOffsets[] = bsm.getBandOffsets();
-      int dOffsets[] = dbb.getOffsets();
+      scanlineStride = bsm.getScanlineStride();
+      int[] bankIndices = bsm.getBankIndices();
+      int[] bandOffsets = bsm.getBandOffsets();
+      int[] dOffsets = dbb.getOffsets();
       dataOffsets = new int[bankIndices.length];
       data = new byte[bankIndices.length][];
       int xOffset = aRegion.x - origin.x;
@@ -173,7 +167,7 @@ public class ByteBandedRaster extends SunWritableRaster {
    * of the band.
    */
   public int[] getDataOffsets() {
-    return (int[]) dataOffsets.clone();
+    return dataOffsets.clone();
   }
 
   /**
@@ -181,7 +175,6 @@ public class ByteBandedRaster extends SunWritableRaster {
    * is the index into the band's data array
    * in which the first sample of the first scanline is stored.
    *
-   * @param The band whose offset is returned.
    */
   public int getDataOffset(int band) {
     return dataOffsets[band];
@@ -231,8 +224,6 @@ public class ByteBandedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param band    The band to return.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
@@ -240,14 +231,14 @@ public class ByteBandedRaster extends SunWritableRaster {
    */
   public byte[] getByteData(int x, int y, int w, int h, int band, byte[] outData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
       outData = new byte[scanlineStride * h];
     }
-    int yoff = (y - minY) * scanlineStride + (x - minX) + dataOffsets[band];
+    int yoff = (y - minY) * scanlineStride + x - minX + dataOffsets[band];
 
     if (scanlineStride == w) {
       System.arraycopy(data[band], yoff, outData, 0, w * h);
@@ -278,21 +269,19 @@ public class ByteBandedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
    * @return Data array with data elements for all bands.
    */
   public byte[] getByteData(int x, int y, int w, int h, byte[] outData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
       outData = new byte[numDataElements * scanlineStride * h];
     }
-    int yoff = (y - minY) * scanlineStride + (x - minX);
+    int yoff = (y - minY) * scanlineStride + x - minX;
 
     for (int c = 0; c < numDataElements; c++) {
       int off = c;
@@ -304,7 +293,8 @@ public class ByteBandedRaster extends SunWritableRaster {
       for (int ystart = 0; ystart < h; ystart++, yoff2 += scanlineStride) {
         int xoff = dataOffset + yoff2;
         for (int xstart = 0; xstart < w; xstart++) {
-          outData[off] = bank[xoff++];
+          outData[off] = bank[xoff];
+          xoff++;
           off += numDataElements;
         }
       }
@@ -368,11 +358,11 @@ public class ByteBandedRaster extends SunWritableRaster {
    */
   public void putByteData(int x, int y, int w, int h, int band, byte[] inData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int yoff = (y - minY) * scanlineStride + (x - minX) + dataOffsets[band];
+    int yoff = (y - minY) * scanlineStride + x - minX + dataOffsets[band];
     int xoff;
     int off = 0;
     int xstart;
@@ -409,11 +399,11 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param inData The data elements to be stored.
    */
   public void putByteData(int x, int y, int w, int h, byte[] inData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    int yoff = (y - minY) * scanlineStride + (x - minX);
+    int yoff = (y - minY) * scanlineStride + x - minX;
 
     for (int c = 0; c < numDataElements; c++) {
       int off = c;
@@ -424,7 +414,8 @@ public class ByteBandedRaster extends SunWritableRaster {
       for (int ystart = 0; ystart < h; ystart++, yoff2 += scanlineStride) {
         int xoff = dataOffset + yoff2;
         for (int xstart = 0; xstart < w; xstart++) {
-          bank[xoff++] = inData[off];
+          bank[xoff] = inData[off];
+          xoff++;
           off += numDataElements;
         }
       }
@@ -452,35 +443,31 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public WritableRaster createWritableChild(
-      int x, int y, int width, int height, int x0, int y0, int bandList[]) {
+      int x, int y, int width, int height, int x0, int y0, int[] bandList) {
 
-    if (x < this.minX) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside raster");
     }
-    if ((x + width < x) || (x + width > this.width + this.minX)) {
+    if (x + width < x || x + width > this.width + minX) {
       throw new RasterFormatException("(x + width) is outside raster");
     }
-    if ((y + height < y) || (y + height > this.height + this.minY)) {
+    if (y + height < y || y + height > this.height + minY) {
       throw new RasterFormatException("(y + height) is outside raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
 
-    return new ByteBandedRaster(
-        sm,
+    return new ByteBandedRaster(sm,
         dataBuffer,
         new Rectangle(x0, y0, width, height),
         new Point(sampleModelTranslateX + deltaX, sampleModelTranslateY + deltaY),
@@ -496,17 +483,15 @@ public class ByteBandedRaster extends SunWritableRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte inData[] = (byte[]) obj;
-    int off = (y - minY) * scanlineStride + (x - minX);
+    byte[] inData = (byte[]) obj;
+    int off = (y - minY) * scanlineStride + x - minX;
     for (int i = 0; i < numDataElements; i++) {
       data[i][dataOffsets[i] + off] = inData[i];
     }
@@ -522,13 +507,14 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     int dstOffX = inRaster.getMinX() + x;
     int dstOffY = inRaster.getMinY() + y;
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
 
@@ -553,18 +539,15 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte inData[] = (byte[]) obj;
-    int yoff = (y - minY) * scanlineStride + (x - minX);
+    byte[] inData = (byte[]) obj;
+    int yoff = (y - minY) * scanlineStride + x - minX;
 
     for (int c = 0; c < numDataElements; c++) {
       int off = c;
@@ -575,7 +558,8 @@ public class ByteBandedRaster extends SunWritableRaster {
       for (int ystart = 0; ystart < h; ystart++, yoff2 += scanlineStride) {
         int xoff = dataOffset + yoff2;
         for (int xstart = 0; xstart < w; xstart++) {
-          bank[xoff++] = inData[off];
+          bank[xoff] = inData[off];
+          xoff++;
           off += numDataElements;
         }
       }
@@ -590,6 +574,7 @@ public class ByteBandedRaster extends SunWritableRaster {
    * the Raster is a subRaster, this will call
    * createCompatibleRaster(width, height).
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -598,9 +583,10 @@ public class ByteBandedRaster extends SunWritableRaster {
    * Creates a Raster with the same layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -627,7 +613,8 @@ public class ByteBandedRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
-  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int bandList[]) {
+  @Override
+  public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
     return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
@@ -641,25 +628,18 @@ public class ByteBandedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte outData[];
-    if (obj == null) {
-      outData = new byte[numDataElements];
-    } else {
-      outData = (byte[]) obj;
-    }
-    int off = (y - minY) * scanlineStride + (x - minX);
+    byte[] outData;
+    outData = obj == null ? new byte[numDataElements] : (byte[]) obj;
+    int off = (y - minY) * scanlineStride + x - minX;
 
     for (int band = 0; band < numDataElements; band++) {
       outData[band] = data[band][dataOffsets[band] + off];
@@ -686,27 +666,18 @@ public class ByteBandedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte outData[];
-    if (obj == null) {
-      outData = new byte[numDataElements * w * h];
-    } else {
-      outData = (byte[]) obj;
-    }
-    int yoff = (y - minY) * scanlineStride + (x - minX);
+    byte[] outData;
+    outData = obj == null ? new byte[numDataElements * w * h] : (byte[]) obj;
+    int yoff = (y - minY) * scanlineStride + x - minX;
 
     for (int c = 0; c < numDataElements; c++) {
       int off = c;
@@ -717,7 +688,8 @@ public class ByteBandedRaster extends SunWritableRaster {
       for (int ystart = 0; ystart < h; ystart++, yoff2 += scanlineStride) {
         int xoff = dataOffset + yoff2;
         for (int xstart = 0; xstart < w; xstart++) {
-          outData[off] = bank[xoff++];
+          outData[off] = bank[xoff];
+          xoff++;
           off += numDataElements;
         }
       }
@@ -739,11 +711,11 @@ public class ByteBandedRaster extends SunWritableRaster {
          * specified to the constructor
          */
     if (width <= 0 || height <= 0 ||
-        height > (Integer.MAX_VALUE / width)) {
+        height > Integer.MAX_VALUE / width) {
       throw new RasterFormatException("Invalid raster dimension");
     }
 
-    if (scanlineStride < 0 || scanlineStride > (Integer.MAX_VALUE / height)) {
+    if (scanlineStride < 0 || scanlineStride > Integer.MAX_VALUE / height) {
       // integer overflow
       throw new RasterFormatException("Incorrect scanline stride: " + scanlineStride);
     }
@@ -757,8 +729,8 @@ public class ByteBandedRaster extends SunWritableRaster {
 
     if (height > 1 || minY - sampleModelTranslateY > 0) {
       // buffer should contain at least one scanline
-      for (int i = 0; i < data.length; i++) {
-        if (scanlineStride > data[i].length) {
+      for (byte[] aData : data) {
+        if (scanlineStride > aData.length) {
           throw new RasterFormatException("Incorrect scanline stride: " + scanlineStride);
         }
       }
@@ -775,16 +747,16 @@ public class ByteBandedRaster extends SunWritableRaster {
 
     int lastScanOffset = (height - 1) * scanlineStride;
 
-    if ((width - 1) > (Integer.MAX_VALUE - lastScanOffset)) {
+    if (width - 1 > Integer.MAX_VALUE - lastScanOffset) {
       throw new RasterFormatException("Invalid raster dimension");
     }
-    int lastPixelOffset = lastScanOffset + (width - 1);
+    int lastPixelOffset = lastScanOffset + width - 1;
 
     int maxIndex = 0;
     int index;
 
     for (int i = 0; i < numDataElements; i++) {
-      if (dataOffsets[i] > (Integer.MAX_VALUE - lastPixelOffset)) {
+      if (dataOffsets[i] > Integer.MAX_VALUE - lastPixelOffset) {
         throw new RasterFormatException("Invalid raster dimension");
       }
       index = lastPixelOffset + dataOffsets[i];
@@ -798,7 +770,7 @@ public class ByteBandedRaster extends SunWritableRaster {
         throw new RasterFormatException("Data array too small " +
             "(it is " + data[0].length +
             " and should be > " +
-            (maxIndex * numDataElements) +
+            maxIndex * numDataElements +
             " )");
       }
     } else {
@@ -814,8 +786,7 @@ public class ByteBandedRaster extends SunWritableRaster {
   }
 
   public String toString() {
-    return new String(
-        "ByteBandedRaster: width = " + width + " height = " + height + " #bands " + numDataElements
-            + " minX = " + minX + " minY = " + minY);
+    return "ByteBandedRaster: width = " + width + " height = " + height + " #bands "
+        + numDataElements + " minX = " + minX + " minY = " + minY;
   }
 }

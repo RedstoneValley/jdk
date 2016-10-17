@@ -38,9 +38,9 @@ import sun.java2d.SurfaceData;
  * (as specified by an origin and 2 delta vectors)
  */
 public class FillParallelogram extends GraphicsPrimitive {
-  public final static String methodSignature = "FillParallelogram(...)".toString();
+  public static final String methodSignature = "FillParallelogram(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected FillParallelogram(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -59,10 +59,13 @@ public class FillParallelogram extends GraphicsPrimitive {
   /**
    * All FillParallelogram implementors must have this invoker method
    */
-  public native void FillParallelogram(
+  public void FillParallelogram(
       SunGraphics2D sg2d, SurfaceData dest, double x0, double y0, double dx1, double dy1,
-      double dx2, double dy2);
+      double dx2, double dy2) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: iterate with a FillRect primitive?
@@ -70,18 +73,20 @@ public class FillParallelogram extends GraphicsPrimitive {
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceFillParallelogram(this);
   }
 
   private static class TraceFillParallelogram extends FillParallelogram {
-    FillParallelogram target;
+    final FillParallelogram target;
 
     public TraceFillParallelogram(FillParallelogram target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void FillParallelogram(
         SunGraphics2D sg2d, SurfaceData dest, double x0, double y0, double dx1, double dy1,
         double dx2, double dy2) {
@@ -89,6 +94,7 @@ public class FillParallelogram extends GraphicsPrimitive {
       target.FillParallelogram(sg2d, dest, x0, y0, dx1, dy1, dx2, dy2);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

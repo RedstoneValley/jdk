@@ -33,29 +33,32 @@ import java.awt.geom.*;
 
 public class LCDScale extends Component {
 
-    public static void main(String args[]) {
+    private static final long serialVersionUID = 9198007784682440141L;
+
+    public static void main(String[] args) {
         Frame f = new Frame("TL TEST");
         LCDScale td = new LCDScale();
-        f.add("Center", td);
+        f.add(BorderLayout.CENTER, td);
         f.pack(); f.setVisible(true);
     }
 
 
     public LCDScale() {
-        super();
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(500,500);
     }
 
+    @Override
     public void paint(Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
         g2d.setRenderingHint(
                  RenderingHints.KEY_TEXT_ANTIALIASING,
                  RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-        Font f = new Font("Dialog", Font.PLAIN, 40);
+        Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 40);
         g.setFont(f);
         FontRenderContext frc = g2d.getFontRenderContext();
         GlyphVector gv = f.createGlyphVector(frc, "Help");

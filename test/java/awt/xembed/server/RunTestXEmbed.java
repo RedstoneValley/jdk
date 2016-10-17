@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4931668
  * @summary Tests XEmbed server/client functionality
  * @author Denis Mikhalkin: area=awt.xembed
@@ -30,56 +30,55 @@
  * @run main/timeout=6000 RunTestXEmbed
  */
 
+import android.util.Log;
 import java.awt.Rectangle;
 import java.lang.reflect.Method;
-import java.util.logging.*;
+import java.util.Map.Entry;
 import java.util.*;
 import java.io.*;
 
+@SuppressWarnings("CallToRuntimeExecWithNonConstantString")
 public class RunTestXEmbed extends TestXEmbedServer {
-    private static final Logger log = Logger.getLogger("test.xembed");
-    private Method test;
-    private boolean passed = false;
+    private static final String TAG = "test.xembed";
+    private final Method test;
+    private boolean passed;
     public RunTestXEmbed(Method test) {
         super(false);
         this.test = test;
     }
 
-    public Process startClient(Rectangle bounds[], long window) {
+    @Override
+    public Process startClient(Rectangle[] bounds, long window) {
         try {
             String java_home = System.getProperty("java.home");
             StringBuilder buf = new StringBuilder();
-            for (int i = 0; i < bounds.length; i++) {
-                buf.append(" " + bounds[i].x);
-                buf.append(" " + bounds[i].y);
-                buf.append(" " + bounds[i].width);
-                buf.append(" " + bounds[i].height);
+            for (Rectangle bound : bounds) {
+                buf.append(" ").append(bound.x);
+                buf.append(" ").append(bound.y);
+                buf.append(" ").append(bound.width);
+                buf.append(" ").append(bound.height);
             }
             Map envs = System.getenv();
-            String enva[] = new String[envs.size()];
+            String[] enva = new String[envs.size()];
             int ind = 0;
-            Iterator iter = envs.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry entry = (Map.Entry)iter.next();
-                if (!"AWT_TOOLKIT".equals(entry.getKey())) {
-                    enva[ind++] = entry.getKey() + "=" + entry.getValue();
-                } else {
-                    enva[ind++] = "AWT_TOOLKIT=sun.awt.X11.XToolkit";
-                }
+            for (Object o : envs.entrySet()) {
+                Entry entry = (Entry) o;
+                enva[ind] = !"AWT_TOOLKIT".equals(entry.getKey()) ? entry.getKey() + "="
+                    + entry.getValue() : "AWT_TOOLKIT=sun.awt.X11.XToolkit";
+                ind++;
             }
             Process proc = Runtime.getRuntime().exec(java_home +
                                                      "/bin/java -Dawt.toolkit=sun.awt.X11.XToolkit TesterClient "
                                                      + test.getName() + " " + window + buf,
                                                      enva);
-            System.err.println("Test for " + test.getName() + " has started.");
-            log.fine("Test for " + test.getName() + " has started.");
+            Log.d(TAG, "Test for " + test.getName() + " has started.");
             new InputReader(proc.getInputStream());
             new InputReader(proc.getErrorStream());
             try {
-                passed = (proc.waitFor() == 0);
+                passed = proc.waitFor() == 0;
             } catch (InterruptedException ie) {
             }
-            log.fine("Test for " + test.getName() + " has finished.");
+            Log.d(TAG, "Test for " + test.getName() + " has finished.");
             File logFile = new File("java3.txt");
             if (logFile.exists()) {
                 logFile.renameTo(new File(test.getName() + ".txt"));
@@ -101,7 +100,7 @@ public class RunTestXEmbed extends TestXEmbedServer {
 
         if (args.length == 1) {
             Class cl = Class.forName("sun.awt.X11.XEmbedServerTester");
-            Method meth = cl.getMethod(args[0], new Class[0]);
+            Method meth = cl.getMethod(args[0]);
             System.err.println("Performing single test " + args[0]);
             boolean res = performTest(meth);
             if (!res) {
@@ -113,9 +112,9 @@ public class RunTestXEmbed extends TestXEmbedServer {
             Class cl = Class.forName("sun.awt.X11.XEmbedServerTester");
             Method[] meths = cl.getMethods();
             LinkedList failed = new LinkedList();
-            for (int i = 0; i < meths.length; i++) {
-                Method meth = meths[i];
-                if (meth.getReturnType() == Void.TYPE && meth.getName().startsWith("test") && meth.getParameterTypes().length == 0) {
+            for (Method meth : meths) {
+                if (meth.getReturnType() == Void.TYPE && meth.getName().startsWith("test")
+                    && meth.getParameterTypes().length == 0) {
                     System.err.println("Performing " + meth.getName());
                     boolean res = performTest(meth);
                     if (!res) {
@@ -124,11 +123,10 @@ public class RunTestXEmbed extends TestXEmbedServer {
                 }
             }
             log.info("Testing finished.");
-            if (failed.size() != 0) {
+            if (!failed.isEmpty()) {
                 System.err.println("Some tests have failed:");
-                Iterator iter = failed.iterator();
-                while(iter.hasNext()) {
-                    Method meth = (Method)iter.next();
+                for (Object aFailed : failed) {
+                    Method meth = (Method) aFailed;
                     System.err.println(meth.getName());
                 }
                 throw new RuntimeException("TestFAILED: some of the testcases are failed");
@@ -145,17 +143,19 @@ public class RunTestXEmbed extends TestXEmbedServer {
         return test.isPassed();
     }
 
+    @Override
     public boolean isPassed() {
         return passed;
     }
 }
 
 class InputReader extends Thread {
-    private InputStream stream;
+    private final InputStream stream;
     public InputReader(InputStream stream) {
         this.stream = stream;
         start();
     }
+    @Override
     public void run() {
         while (!interrupted()) {
             try {

@@ -26,6 +26,8 @@
 package sun.awt.image;
 
 public class ImageAccessException extends Exception {
+  private static final long serialVersionUID = -1072770861863395965L;
+
   public ImageAccessException(String s) {
     super(s);
   }

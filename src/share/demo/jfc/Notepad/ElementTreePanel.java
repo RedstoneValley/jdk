@@ -45,28 +45,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.SwingConstants;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.Document;
-import javax.swing.text.Element;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.StyleConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 /**
  * Displays a tree showing all the elements in a text Document. Selecting
@@ -83,7 +61,7 @@ public class ElementTreePanel extends JPanel
   /**
    * Tree showing the documents element structure.
    */
-  protected JTree tree;
+  protected final JTree tree;
   /**
    * Text component showing elemenst for.
    */
@@ -112,9 +90,7 @@ public class ElementTreePanel extends JPanel
           Object value, boolean selected, boolean expanded, boolean leaf, int row,
           boolean hasFocus) {
         // Should only happen for the root
-        if (!(value instanceof Element)) {
-          return value.toString();
-        }
+        return value.toString();
 
         Element e = (Element) value;
         AttributeSet as = e.getAttributes().copyAttributes();
@@ -186,7 +162,7 @@ public class ElementTreePanel extends JPanel
     // Add a label above tree to describe what is being shown
     JLabel label = new JLabel("Elements that make up the current document", SwingConstants.CENTER);
 
-    label.setFont(new Font("Dialog", Font.BOLD, 14));
+    label.setFont(new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 14));
     add(label, BorderLayout.NORTH);
 
     setPreferredSize(new Dimension(400, 400));
@@ -196,8 +172,9 @@ public class ElementTreePanel extends JPanel
    * Invoked when a property changes. We are only interested in when the
    * Document changes to reset the DocumentListener.
    */
+  @Override
   public void propertyChange(PropertyChangeEvent e) {
-    if (e.getSource() == getEditor() && e.getPropertyName().equals("document")) {
+    if (e.getSource() == getEditor() && "document".equals(e.getPropertyName())) {
       Document oldDoc = (Document) e.getOldValue();
       Document newDoc = (Document) e.getNewValue();
 
@@ -307,15 +284,13 @@ public class ElementTreePanel extends JPanel
       TreePath selPath = tree.getSelectionPath();
       Object lastPathComponent = selPath.getLastPathComponent();
 
-      if (!(lastPathComponent instanceof DefaultMutableTreeNode)) {
-        Element selElement = (Element) lastPathComponent;
+      Element selElement = (Element) lastPathComponent;
 
-        updatingSelection = true;
-        try {
-          getEditor().select(selElement.getStartOffset(), selElement.getEndOffset());
-        } finally {
-          updatingSelection = false;
-        }
+      updatingSelection = true;
+      try {
+        getEditor().select(selElement.getStartOffset(), selElement.getEndOffset());
+      } finally {
+        updatingSelection = false;
       }
     }
   }
@@ -339,7 +314,7 @@ public class ElementTreePanel extends JPanel
   }
 
   /**
-   * Resets the JTextComponent to <code>editor</code>. This will update
+   * Resets the JTextComponent to {@code editor}. This will update
    * the tree accordingly.
    */
   public void setEditor(JTextComponent editor) {
@@ -453,7 +428,7 @@ public class ElementTreePanel extends JPanel
   }
 
   /**
-   * Returns a TreePath to the element at <code>position</code>.
+   * Returns a TreePath to the element at {@code position}.
    */
   protected TreePath getPathForIndex(int position, Object root, Element rootElement) {
     TreePath path = new TreePath(root);
@@ -484,7 +459,7 @@ public class ElementTreePanel extends JPanel
    */
   public static class ElementTreeModel extends DefaultTreeModel {
 
-    protected Element[] rootElements;
+    protected final Element[] rootElements;
 
     public ElementTreeModel(Document document) {
       super(new DefaultMutableTreeNode("root"), false);

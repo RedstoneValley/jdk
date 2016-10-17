@@ -36,20 +36,16 @@ import java.awt.image.WritableRaster;
 import java.util.Hashtable;
 
 public class OffScreenImageSource implements ImageProducer {
-  BufferedImage image;
-  int width;
-  int height;
-  Hashtable properties;
+  final BufferedImage image;
+  final int width;
+  final int height;
+  final Hashtable properties;
   // We can only have one consumer since we immediately return the data...
   private ImageConsumer theConsumer;
 
   public OffScreenImageSource(BufferedImage image, Hashtable properties) {
     this.image = image;
-    if (properties != null) {
-      this.properties = properties;
-    } else {
-      this.properties = new Hashtable();
-    }
+    this.properties = properties != null ? properties : new Hashtable();
     width = image.getWidth();
     height = image.getHeight();
   }
@@ -58,25 +54,30 @@ public class OffScreenImageSource implements ImageProducer {
     this(image, null);
   }
 
+  @Override
   public synchronized void addConsumer(ImageConsumer ic) {
     theConsumer = ic;
     produce();
   }
 
+  @Override
   public synchronized boolean isConsumer(ImageConsumer ic) {
-    return (ic == theConsumer);
+    return ic == theConsumer;
   }
 
+  @Override
   public synchronized void removeConsumer(ImageConsumer ic) {
     if (theConsumer == ic) {
       theConsumer = null;
     }
   }
 
+  @Override
   public void startProduction(ImageConsumer ic) {
     addConsumer(ic);
   }
 
+  @Override
   public void requestTopDownLeftRightResend(ImageConsumer ic) {
   }
 

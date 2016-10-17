@@ -21,22 +21,8 @@
  * questions.
  */
 
-import javax.swing.*;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
 import java.awt.*;
-import java.awt.FileDialog;
-import java.awt.Label;
-import java.awt.event.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.FileWriter;
-import java.lang.*;
-import java.lang.Override;
-import java.lang.String;
-import java.lang.System;
-import java.lang.Throwable;
-import java.util.Hashtable;
 
 /*
 @bug 8010009
@@ -54,7 +40,7 @@ public class KeyReleasedInAppletTest extends JApplet {
         //Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         try {
             String testFilePath = System.getProperty("test.classes");
@@ -99,13 +85,13 @@ public class KeyReleasedInAppletTest extends JApplet {
 
 /* Place other classes related to the test after this line */
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
  chunk of code whose purpose is to make user
  interaction uniform, and thereby make it simpler
  to read and understand someone else's test.
- ****************************************************/
+ */
 
 /**
  * This is part of the standard test machinery.
@@ -119,10 +105,13 @@ public class KeyReleasedInAppletTest extends JApplet {
  * as standalone.
  */
 
-class Sysout {
+final class Sysout {
     private static TestDialog dialog;
-    private static boolean numbering = false;
-    private static int messageNumber = 0;
+    private static boolean numbering;
+    private static int messageNumber;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions(String[] instructions) {
         dialog = new TestDialog(new Frame(), "Instructions");
@@ -169,19 +158,20 @@ class Sysout {
  */
 class TestDialog extends Dialog {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog(Frame frame, String name) {
         super(frame, name);
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea("", 15, maxStringLength, scrollBoth);
-        add("North", instructionsText);
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea("", 5, maxStringLength, scrollBoth);
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -196,17 +186,19 @@ class TestDialog extends Dialog {
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for (int i = 0; i < instructions.length; i++) {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[i];
-            while (remainingStr.length() > 0) {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
                 if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                            lastIndexOf(' ', maxStringLength - 1);
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if (posOfSpace <= 0) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
                     printStr = remainingStr.substring(0, posOfSpace + 1);
                     remainingStr = remainingStr.substring(posOfSpace + 1);
@@ -218,9 +210,7 @@ class TestDialog extends Dialog {
                 }
 
                 instructionsText.append(printStr + "\n");
-
             }// while
-
         }// for
 
     }//printInstructions()

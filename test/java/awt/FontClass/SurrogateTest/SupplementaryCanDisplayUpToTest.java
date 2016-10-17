@@ -30,11 +30,11 @@
 import java.awt.*;
 import java.text.*;
 
-public class SupplementaryCanDisplayUpToTest {
+public final class SupplementaryCanDisplayUpToTest {
     // Lists consisting of a font name, test text, and its expected
     // return value. Test text uses private area code point U+F0000
     // (\udb80\udc00).
-    private static String[][] DATA = {
+    private static final String[][] DATA = {
         // Windows
         { "Meiryo", "\ud87e\udd45\ud87e\udd47\udb80\udc00", "4" },
         { "Meiryo", "\ud87e\udd45\ud87e\udd47\udb80Z", "4" },
@@ -56,7 +56,10 @@ public class SupplementaryCanDisplayUpToTest {
         { "FZMingTi", "\ud87e\udc25\ud87e\udc3b\udc00", "4" },
         { "FZMingTi", "\ud87e\udc25\ud87e\udc3b", "-1" },
     };
-    private static int errorcount = 0;
+    private static int errorcount;
+
+    private SupplementaryCanDisplayUpToTest() {
+    }
 
     public static void main(String[] args) {
         for (String[] data : DATA) {

@@ -28,28 +28,28 @@ public class CharsetString {
   /**
    * chars for this string.  See also offset, length.
    */
-  public char[] charsetChars;
+  public final char[] charsetChars;
 
   /**
    * Offset within charsetChars of first character
    **/
-  public int offset;
+  public final int offset;
 
   /**
    * Length of the string we represent.
    **/
-  public int length;
+  public final int length;
 
   /**
    * This string's FontDescriptor.
    */
-  public FontDescriptor fontDescriptor;
+  public final FontDescriptor fontDescriptor;
 
   /**
    * Creates a new CharsetString
    */
   public CharsetString(
-      char charsetChars[], int offset, int length, FontDescriptor fontDescriptor) {
+      char[] charsetChars, int offset, int length, FontDescriptor fontDescriptor) {
 
     this.charsetChars = charsetChars;
     this.offset = offset;

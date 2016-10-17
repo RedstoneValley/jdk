@@ -34,8 +34,11 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class MouseEventTest {
-    static volatile boolean crossed = false;
+public final class MouseEventTest {
+    static volatile boolean crossed;
+
+    private MouseEventTest() {
+    }
 
     static void sleep() throws InterruptedException {
         ((SunToolkit) Toolkit.getDefaultToolkit()).realSync();
@@ -68,7 +71,7 @@ public class MouseEventTest {
 
             Point loc = frame.getLocationOnScreen();
             Dimension size = frame.getSize();
-            final Point point = new Point(
+            Point point = new Point(
                     loc.x + size.width / 2,
                     loc.y + size.height / 2);
 

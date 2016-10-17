@@ -21,24 +21,17 @@
  * questions.
  */
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.Color;
-import java.awt.Label;
-import java.awt.TextArea;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.lang.String;
-import java.lang.System;
-
 
 public class TestApplet extends JApplet {
 
     public void init() {
-        final TextArea log = new TextArea("Events:\n");
+        TextArea log = new TextArea("Events:\n");
         log.setEditable(false);
         log.setSize(400, 200);
-        this.add(log);
+      add(log);
         log.addKeyListener(
                 new KeyAdapter() {
                     @Override public void keyTyped(KeyEvent e) {

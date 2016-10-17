@@ -58,8 +58,8 @@ public class WritableRaster extends Raster {
    * @param sampleModel The SampleModel that specifies the layout.
    * @param origin      The Point that specifies the origin.
    * @throws RasterFormatException if computing either
-   *                               <code>origin.x + sampleModel.getWidth()</code> or
-   *                               <code>origin.y + sampleModel.getHeight()</code> results
+   *                               {@code origin.x + sampleModel.getWidth()} or
+   *                               {@code origin.y + sampleModel.getHeight()} results
    *                               in integer overflow
    */
   protected WritableRaster(SampleModel sampleModel, Point origin) {
@@ -80,8 +80,8 @@ public class WritableRaster extends Raster {
    * @param dataBuffer  The DataBuffer that contains the image data.
    * @param origin      The Point that specifies the origin.
    * @throws RasterFormatException if computing either
-   *                               <code>origin.x + sampleModel.getWidth()</code> or
-   *                               <code>origin.y + sampleModel.getHeight()</code> results
+   *                               {@code origin.x + sampleModel.getWidth()} or
+   *                               {@code origin.y + sampleModel.getHeight()} results
    *                               in integer overflow
    */
   protected WritableRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
@@ -110,10 +110,10 @@ public class WritableRaster extends Raster {
    * @param sampleModelTranslate The Point that specifies the translation
    *                             from SampleModel to Raster coordinates.
    * @param parent               The parent (if any) of this raster.
-   * @throws RasterFormatException if <code>aRegion</code> has width
+   * @throws RasterFormatException if {@code aRegion} has width
    *                               or height less than or equal to zero, or computing either
-   *                               <code>aRegion.x + aRegion.width</code> or
-   *                               <code>aRegion.y + aRegion.height</code> results in integer
+   *                               {@code aRegion.x + aRegion.width} or
+   *                               {@code aRegion.y + aRegion.height} results in integer
    *                               overflow
    */
   protected WritableRaster(
@@ -126,8 +126,8 @@ public class WritableRaster extends Raster {
    * Returns the parent WritableRaster (if any) of this WritableRaster,
    * or else null.
    *
-   * @return the parent of this <code>WritableRaster</code>, or
-   * <code>null</code>.
+   * @return the parent of this {@code WritableRaster}, or
+   * {@code null}.
    */
   public WritableRaster getWritableParent() {
     return (WritableRaster) parent;
@@ -141,11 +141,11 @@ public class WritableRaster extends Raster {
    *
    * @param childMinX X coord of the upper left corner of the new Raster.
    * @param childMinY Y coord of the upper left corner of the new Raster.
-   * @return a <code>WritableRaster</code> the same as this one except
+   * @return a {@code WritableRaster} the same as this one except
    * for the specified location.
    * @throws RasterFormatException if  computing either
-   *                               <code>childMinX + this.getWidth()</code> or
-   *                               <code>childMinY + this.getHeight()</code> results in integer
+   *                               {@code childMinX + this.getWidth()} or
+   *                               {@code childMinY + this.getHeight()} results in integer
    *                               overflow
    */
   public WritableRaster createWritableTranslatedChild(int childMinX, int childMinY) {
@@ -195,30 +195,30 @@ public class WritableRaster extends Raster {
    * @param childMinY Y coordinate of the upper left corner of
    *                  the returned WritableRaster.
    * @param bandList  Array of band indices, or null to use all bands.
-   * @return a <code>WritableRaster</code> sharing all or part of the
-   * <code>DataBuffer</code> of this <code>WritableRaster</code>.
+   * @return a {@code WritableRaster} sharing all or part of the
+   * {@code DataBuffer} of this {@code WritableRaster}.
    * @throws RasterFormatException if the subregion is outside of the
    *                               raster bounds.
-   * @throws RasterFormatException if <code>w</code> or
-   *                               <code>h</code>
+   * @throws RasterFormatException if {@code w} or
+   *                               {@code h}
    *                               is less than or equal to zero, or computing any of
-   *                               <code>parentX + w</code>, <code>parentY + h</code>,
-   *                               <code>childMinX + w</code>, or
-   *                               <code>childMinY + h</code> results in integer
+   *                               {@code parentX + w}, {@code parentY + h},
+   *                               {@code childMinX + w}, or
+   *                               {@code childMinY + h} results in integer
    *                               overflow
    */
   public WritableRaster createWritableChild(
-      int parentX, int parentY, int w, int h, int childMinX, int childMinY, int bandList[]) {
-    if (parentX < this.minX) {
+      int parentX, int parentY, int w, int h, int childMinX, int childMinY, int[] bandList) {
+    if (parentX < minX) {
       throw new RasterFormatException("parentX lies outside raster");
     }
-    if (parentY < this.minY) {
+    if (parentY < minY) {
       throw new RasterFormatException("parentY lies outside raster");
     }
-    if ((parentX + w < parentX) || (parentX + w > this.width + this.minX)) {
+    if (parentX + w < parentX || parentX + w > width + minX) {
       throw new RasterFormatException("(parentX + width) is outside raster");
     }
-    if ((parentY + h < parentY) || (parentY + h > this.height + this.minY)) {
+    if (parentY + h < parentY || parentY + h > height + minY) {
       throw new RasterFormatException("(parentY + height) is outside raster");
     }
 
@@ -228,11 +228,7 @@ public class WritableRaster extends Raster {
     // the physical layout of the pixel data.  The child Raster's width
     // and height represent a "virtual" view of the pixel data, so
     // they may be different than those of the SampleModel.
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = childMinX - parentX;
     int deltaY = childMinY - parentY;
@@ -265,7 +261,7 @@ public class WritableRaster extends Raster {
    *               containing the pixel data to place at x,y.
    * @throws ArrayIndexOutOfBoundsException if the coordinates are not
    *                                        in bounds, or if inData is too small to hold the input.
-   * @see java.awt.image.SampleModel#setDataElements(int, int, Object, DataBuffer)
+   * @see SampleModel#setDataElements(int, int, Object, DataBuffer)
    */
   public void setDataElements(int x, int y, Object inData) {
     sampleModel.setDataElements(x - sampleModelTranslateX,
@@ -297,9 +293,9 @@ public class WritableRaster extends Raster {
     int dstOffY = y + inRaster.getMinY();
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.minX + this.width) ||
-        (dstOffY + height > this.minY + this.height)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > minX + this.width ||
+        dstOffY + height > minY + this.height) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
 
@@ -338,7 +334,7 @@ public class WritableRaster extends Raster {
    * @throws NullPointerException           if inData is null.
    * @throws ArrayIndexOutOfBoundsException if the coordinates are not
    *                                        in bounds, or if inData is too small to hold the input.
-   * @see java.awt.image.SampleModel#setDataElements(int, int, int, int, Object, DataBuffer)
+   * @see SampleModel#setDataElements(int, int, int, int, Object, DataBuffer)
    */
   public void setDataElements(int x, int y, int w, int h, Object inData) {
     sampleModel.setDataElements(x - sampleModelTranslateX,
@@ -360,7 +356,7 @@ public class WritableRaster extends Raster {
    * If all samples of both source and destination Rasters are of
    * integral type and less than or equal to 32 bits in size, then calling
    * this method is equivalent to executing the following code for all
-   * <code>x,y</code> addresses valid in both Rasters.
+   * {@code x,y} addresses valid in both Rasters.
    * <pre>{@code
    *       Raster srcRaster;
    *       WritableRaster dstRaster;
@@ -418,23 +414,23 @@ public class WritableRaster extends Raster {
     int dstOffY = dy + srcOffY;
 
     // Clip to this raster
-    if (dstOffX < this.minX) {
-      int skipX = this.minX - dstOffX;
+    if (dstOffX < minX) {
+      int skipX = minX - dstOffX;
       width -= skipX;
       srcOffX += skipX;
-      dstOffX = this.minX;
+      dstOffX = minX;
     }
-    if (dstOffY < this.minY) {
-      int skipY = this.minY - dstOffY;
+    if (dstOffY < minY) {
+      int skipY = minY - dstOffY;
       height -= skipY;
       srcOffY += skipY;
-      dstOffY = this.minY;
+      dstOffY = minY;
     }
-    if (dstOffX + width > this.minX + this.width) {
-      width = this.minX + this.width - dstOffX;
+    if (dstOffX + width > minX + this.width) {
+      width = minX + this.width - dstOffX;
     }
-    if (dstOffY + height > this.minY + this.height) {
-      height = this.minY + this.height - dstOffY;
+    if (dstOffY + height > minY + this.height) {
+      height = minY + this.height - dstOffY;
     }
 
     if (width <= 0 || height <= 0) {
@@ -487,8 +483,10 @@ public class WritableRaster extends Raster {
    *                                        in bounds, or if iArray is too small to hold the
    *                                        input.
    */
-  public void setPixel(int x, int y, int iArray[]) {
-    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, iArray, dataBuffer);
+  public void setPixel(int x, int y, int[] iArray) {
+    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, iArray,
+
+        dataBuffer);
   }
 
   /**
@@ -505,8 +503,10 @@ public class WritableRaster extends Raster {
    *                                        in bounds, or if fArray is too small to hold the
    *                                        input.
    */
-  public void setPixel(int x, int y, float fArray[]) {
-    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, fArray, dataBuffer);
+  public void setPixel(int x, int y, float[] fArray) {
+    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, fArray,
+
+        dataBuffer);
   }
 
   /**
@@ -523,8 +523,10 @@ public class WritableRaster extends Raster {
    *                                        in bounds, or if dArray is too small to hold the
    *                                        input.
    */
-  public void setPixel(int x, int y, double dArray[]) {
-    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, dArray, dataBuffer);
+  public void setPixel(int x, int y, double[] dArray) {
+    sampleModel.setPixel(x - sampleModelTranslateX, y - sampleModelTranslateY, dArray,
+
+        dataBuffer);
   }
 
   /**
@@ -544,7 +546,7 @@ public class WritableRaster extends Raster {
    *                                        in bounds, or if iArray is too small to hold the
    *                                        input.
    */
-  public void setPixels(int x, int y, int w, int h, int iArray[]) {
+  public void setPixels(int x, int y, int w, int h, int[] iArray) {
     sampleModel.setPixels(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,
@@ -570,7 +572,7 @@ public class WritableRaster extends Raster {
    *                                        in bounds, or if fArray is too small to hold the
    *                                        input.
    */
-  public void setPixels(int x, int y, int w, int h, float fArray[]) {
+  public void setPixels(int x, int y, int w, int h, float[] fArray) {
     sampleModel.setPixels(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,
@@ -595,7 +597,7 @@ public class WritableRaster extends Raster {
    * @throws ArrayIndexOutOfBoundsException if the coordinates are not
    *                                        in bounds, or if dArray is too small to hold the input.
    */
-  public void setPixels(int x, int y, int w, int h, double dArray[]) {
+  public void setPixels(int x, int y, int w, int h, double[] dArray) {
     sampleModel.setPixels(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,
@@ -677,7 +679,7 @@ public class WritableRaster extends Raster {
    *                                        too small to
    *                                        hold the input.
    */
-  public void setSamples(int x, int y, int w, int h, int b, int iArray[]) {
+  public void setSamples(int x, int y, int w, int h, int b, int[] iArray) {
     sampleModel.setSamples(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,
@@ -706,7 +708,7 @@ public class WritableRaster extends Raster {
    *                                        too small to
    *                                        hold the input.
    */
-  public void setSamples(int x, int y, int w, int h, int b, float fArray[]) {
+  public void setSamples(int x, int y, int w, int h, int b, float[] fArray) {
     sampleModel.setSamples(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,
@@ -735,7 +737,7 @@ public class WritableRaster extends Raster {
    *                                        small to
    *                                        hold the input.
    */
-  public void setSamples(int x, int y, int w, int h, int b, double dArray[]) {
+  public void setSamples(int x, int y, int w, int h, int b, double[] dArray) {
     sampleModel.setSamples(x - sampleModelTranslateX,
         y - sampleModelTranslateY,
         w,

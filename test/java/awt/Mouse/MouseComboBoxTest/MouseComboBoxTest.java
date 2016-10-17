@@ -29,23 +29,21 @@
  */
 import sun.awt.SunToolkit;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboPopup;
-import javax.swing.plaf.basic.ComboPopup;
-import javax.swing.plaf.metal.MetalComboBoxUI;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
-public class MouseComboBoxTest {
-    private static final String[] items = {"One", "Two", "Three", "Four", "Five"};
+public final class MouseComboBoxTest {
+    static final String[] items = {"One", "Two", "Three", "Four", "Five"};
 
-    private static SunToolkit toolkit = null;
-    private static Robot robot = null;
-    private static JFrame frame = null;
-    private static JComboBox comboBox = null;
-    private static MyComboBoxUI comboBoxUI = null;
+    private static SunToolkit toolkit;
+    private static Robot robot;
+    private static JFrame frame;
+    static JComboBox comboBox;
+    static MyComboBoxUI comboBoxUI;
+
+    private MouseComboBoxTest() {
+    }
 
     public static void main(String[] args) throws Exception {
         toolkit = (SunToolkit) Toolkit.getDefaultToolkit();
@@ -80,8 +78,8 @@ public class MouseComboBoxTest {
         }
     }
 
-    private static Point getItemPointToClick(final int item) throws Exception {
-        final Point[] result = new Point[1];
+    private static Point getItemPointToClick(int item) throws Exception {
+        Point[] result = new Point[1];
 
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
@@ -100,7 +98,7 @@ public class MouseComboBoxTest {
     }
 
     private static int getSelectedIndex() throws Exception {
-        final int[] result = new int[1];
+        int[] result = new int[1];
 
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
@@ -111,7 +109,7 @@ public class MouseComboBoxTest {
         return result[0];
     }
 
-    private static void createAndShowGUI() {
+    static void createAndShowGUI() {
         frame = new JFrame("MouseComboBoxTest");
 
         comboBox = new JComboBox(items);
@@ -130,6 +128,9 @@ public class MouseComboBoxTest {
     }
 
     private static class MyComboBoxUI extends MetalComboBoxUI {
+        MyComboBoxUI() {
+        }
+
         public ComboPopup getComboPopup() {
             return popup;
         }

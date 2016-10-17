@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8061392
  * @summary Test no NPE when printing transparency with null clip.
  */
@@ -44,6 +44,7 @@ public class NullClipARGB implements Printable {
         }
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex)
                throws PrinterException{
 

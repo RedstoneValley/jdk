@@ -30,18 +30,16 @@
 */
 
 import java.awt.*;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
-import java.applet.Applet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.lang.reflect.InvocationTargetException;
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
 public class ModalBlockedStealsFocusTest extends Applet {
-    SunToolkit toolkit = (SunToolkit)Toolkit.getDefaultToolkit();
-    Frame frame = new Frame("Blocked Frame");
-    Dialog dialog = new Dialog(frame, "Modal Dialog", Dialog.ModalityType.TOOLKIT_MODAL);
-    AtomicBoolean lostFocus = new AtomicBoolean(false);
+    final SunToolkit toolkit = (SunToolkit)Toolkit.getDefaultToolkit();
+    final Frame frame = new Frame("Blocked Frame");
+    final Dialog dialog = new Dialog(frame, "Modal Dialog", ModalityType.TOOLKIT_MODAL);
+    final AtomicBoolean lostFocus = new AtomicBoolean(false);
 
     public static void main(String[] args) {
         ModalBlockedStealsFocusTest app = new ModalBlockedStealsFocusTest();
@@ -53,7 +51,7 @@ public class ModalBlockedStealsFocusTest extends Applet {
         // Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
         Sysout.createDialogWithInstructions(new String[]
             {"This is an automatic test. Simply wait until it is done."
             });
@@ -69,6 +67,7 @@ public class ModalBlockedStealsFocusTest extends Applet {
         frame.setBounds(800, 150, 200, 100);
 
         dialog.addWindowFocusListener(new WindowAdapter() {
+                @Override
                 public void windowLostFocus(WindowEvent e) {
                     Sysout.println(e.toString());
                     synchronized (lostFocus) {
@@ -79,6 +78,7 @@ public class ModalBlockedStealsFocusTest extends Applet {
             });
 
         new Thread(new Runnable() {
+                @Override
                 public void run() {
                     dialog.setVisible(true);
                 }
@@ -108,18 +108,20 @@ public class ModalBlockedStealsFocusTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
 }
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -133,9 +135,12 @@ class TestFailedException extends RuntimeException {
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -179,9 +184,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -189,10 +195,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -208,35 +214,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

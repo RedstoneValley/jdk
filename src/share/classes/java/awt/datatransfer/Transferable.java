@@ -48,7 +48,7 @@ public interface Transferable {
    *
    * @return an array of data flavors in which this data can be transferred
    */
-  public DataFlavor[] getTransferDataFlavors();
+  DataFlavor[] getTransferDataFlavors();
 
   /**
    * Returns whether or not the specified data flavor is supported for
@@ -57,7 +57,7 @@ public interface Transferable {
    * @param flavor the requested flavor for the data
    * @return boolean indicating whether or not the data flavor is supported
    */
-  public boolean isDataFlavorSupported(DataFlavor flavor);
+  boolean isDataFlavorSupported(DataFlavor flavor);
 
   /**
    * Returns an object which represents the data to be transferred.  The class
@@ -70,5 +70,5 @@ public interface Transferable {
    *                                    not supported.
    * @see DataFlavor#getRepresentationClass
    */
-  public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException;
+  Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException;
 }

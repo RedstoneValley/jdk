@@ -36,5 +36,5 @@ public interface PrintGraphics {
    * Returns the PrintJob object from which this PrintGraphics
    * object originated.
    */
-  public PrintJob getPrintJob();
+  PrintJob getPrintJob();
 }

@@ -69,7 +69,7 @@ public interface RenderableImage {
    * the value of the property will be a RenderingHints object
    * specifying which hints were observed in creating the rendering.
    */
-  static final String HINTS_OBSERVED = "HINTS_OBSERVED";
+  String HINTS_OBSERVED = "HINTS_OBSERVED";
 
   /**
    * Returns a vector of RenderableImages that are the sources of
@@ -106,9 +106,9 @@ public interface RenderableImage {
    * determine whether an existing rendering may be cached and
    * reused.  It is always safe to return true.
    *
-   * @return <code>true</code> if successive renderings with the
+   * @return {@code true} if successive renderings with the
    * same arguments might produce different results;
-   * <code>false</code> otherwise.
+   * {@code false} otherwise.
    */
   boolean isDynamic();
 

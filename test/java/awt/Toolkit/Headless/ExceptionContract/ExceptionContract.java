@@ -36,6 +36,10 @@ import android.content.Intent;
 import android.net.Uri;
 
 import java.awt.*;
+import java.awt.BufferCapabilities.FlipContents;
+import java.awt.Desktop.Action;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.PaintEvent;
 import java.awt.im.InputMethodRequests;
 import java.io.File;
@@ -45,8 +49,7 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.util.Properties;
 
-import sun.awt.CausedFocusEvent;
-import test.java.awt.regtesthelpers.Sysout;
+import sun.awt.CausedFocusEvent.Cause;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.dnd.*;
@@ -58,9 +61,13 @@ import java.awt.peer.*;
 import java.net.URL;
 import java.util.Map;
 
-public class ExceptionContract {
+public final class ExceptionContract {
 
-    private static boolean passed = false;
+    private static boolean passed;
+
+    private ExceptionContract() {
+    }
+
     public static void main(String[] args)  {
         //Case1
         try{
@@ -123,22 +130,27 @@ public class ExceptionContract {
             return;
         }
 
+        @Override
         protected DesktopPeer createDesktopPeer(Desktop target) throws HeadlessException {
             return null;
         }
 
+        @Override
         protected ButtonPeer createButton(Button target) throws HeadlessException {
             return null;
         }
 
+        @Override
         protected TextFieldPeer createTextField(TextField target) throws HeadlessException {
             return null;
         }
 
+        @Override
         protected LabelPeer createLabel(Label target) throws HeadlessException {
             return null;
         }
 
+        @Override
         protected ListPeer createList(List target) throws HeadlessException {
             return null;
         }
@@ -324,12 +336,12 @@ public class ExceptionContract {
         }
 
         @Override
-        public boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
+        public boolean isModalityTypeSupported(ModalityType modalityType) {
             return false;
         }
 
         @Override
-        public boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType modalExclusionType) {
+        public boolean isModalExclusionTypeSupported(ModalExclusionType modalExclusionType) {
             return false;
         }
 
@@ -348,7 +360,9 @@ public class ExceptionContract {
             FileInputStream fileInputStream = new FileInputStream(file);
             try {
                 String mime = URLConnection.guessContentTypeFromStream();
-                if (mime == null) mime = URLConnection.guessContentTypeFromName(file.getName());
+                if (mime == null) {
+                    mime = URLConnection.guessContentTypeFromName(file.getName());
+                }
                 intentToOpen.setDataAndType(fileUri, mime);
                 androidContext.startActivity(intentToOpen);
             } finally {
@@ -467,7 +481,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -522,7 +536,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -728,7 +742,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -783,7 +797,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -935,7 +949,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -990,7 +1004,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -1186,7 +1200,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, CausedFocusEvent.Cause cause) {
+            public boolean requestFocus(Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time, Cause cause) {
                 return false;
             }
 
@@ -1241,7 +1255,7 @@ public class ExceptionContract {
             }
 
             @Override
-            public void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction) {
+            public void flip(int x1, int y1, int x2, int y2, FlipContents flipAction) {
 
             }
 
@@ -1284,8 +1298,8 @@ public class ExceptionContract {
         private class DesktopPeerImpl implements DesktopPeer {
 
             @Override
-            public boolean isSupported(Desktop.Action action) {
-                return action != Desktop.Action.PRINT;
+            public boolean isSupported(Action action) {
+                return action != Action.PRINT;
             }
 
             @Override
@@ -1302,7 +1316,8 @@ public class ExceptionContract {
             public void print(File file) throws IOException {
                 throw new
                     UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
-                /**
+
+                /*
                 if (ContextCompat.checkSelfPermission(androidContext,
                         Manifest.permission.READ_CONTACTS)
                         != PackageManager.PERMISSION_GRANTED) {

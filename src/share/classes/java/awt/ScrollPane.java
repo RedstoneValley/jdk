@@ -31,7 +31,9 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.peer.ScrollPanePeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import sun.awt.ScrollPaneWheelScroller;
 import sun.awt.SunToolkit;
 
@@ -46,8 +48,8 @@ import sun.awt.SunToolkit;
  * </OL>
  * <p>
  * The state of the horizontal and vertical scrollbars is represented
- * by two <code>ScrollPaneAdjustable</code> objects (one for each
- * dimension) which implement the <code>Adjustable</code> interface.
+ * by two {@code ScrollPaneAdjustable} objects (one for each
+ * dimension) which implement the {@code Adjustable} interface.
  * The API provides methods to access those objects such that the
  * attributes on the Adjustable object (such as unitIncrement, value,
  * etc.) can be manipulated.
@@ -70,7 +72,7 @@ import sun.awt.SunToolkit;
  * be reset using setSize().
  * <p>
  * Scrolling with the wheel on a wheel-equipped mouse is enabled by default.
- * This can be disabled using <code>setWheelScrollingEnabled</code>.
+ * This can be disabled using {@code setWheelScrollingEnabled}.
  * Wheel scrolling can be customized by setting the block and
  * unit increment of the horizontal and vertical Adjustables.
  * For information on how mouse wheel events are dispatched, see
@@ -113,7 +115,7 @@ public class ScrollPane extends Container {
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = 7956609840827222915L;
-  private static int nameCounter = 0;
+  private static int nameCounter;
   /**
    * There are 3 ways in which a scroll bar can be displayed.
    * This integer will represent one of these 3 displays -
@@ -126,9 +128,9 @@ public class ScrollPane extends Container {
   /**
    * An adjustable vertical scrollbar.
    * It is important to note that you must <em>NOT</em> call 3
-   * <code>Adjustable</code> methods, namely:
-   * <code>setMinimum()</code>, <code>setMaximum()</code>,
-   * <code>setVisibleAmount()</code>.
+   * {@code Adjustable} methods, namely:
+   * {@code setMinimum()}, {@code setMaximum()},
+   * {@code setVisibleAmount()}.
    *
    * @serial
    * @see #getVAdjustable
@@ -137,9 +139,9 @@ public class ScrollPane extends Container {
   /**
    * An adjustable horizontal scrollbar.
    * It is important to note that you must <em>NOT</em> call 3
-   * <code>Adjustable</code> methods, namely:
-   * <code>setMinimum()</code>, <code>setMaximum()</code>,
-   * <code>setVisibleAmount()</code>.
+   * {@code Adjustable} methods, namely:
+   * {@code setMinimum()}, {@code setMaximum()},
+   * {@code setVisibleAmount()}.
    *
    * @serial
    * @see #getHAdjustable
@@ -160,7 +162,7 @@ public class ScrollPane extends Container {
    *
    * @throws HeadlessException if GraphicsEnvironment.isHeadless()
    *                           returns true
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   public ScrollPane() throws HeadlessException {
     this(SCROLLBARS_AS_NEEDED);
@@ -174,13 +176,13 @@ public class ScrollPane extends Container {
    *                                  display policy is invalid
    * @throws HeadlessException        if GraphicsEnvironment.isHeadless()
    *                                  returns true
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   * @see GraphicsEnvironment#isHeadless
    */
   public ScrollPane(int scrollbarDisplayPolicy) throws HeadlessException {
     GraphicsEnvironment.checkHeadless();
-    this.layoutMgr = null;
-    this.width = 100;
-    this.height = 100;
+    layoutMgr = null;
+    width = 100;
+    height = 100;
     switch (scrollbarDisplayPolicy) {
       case SCROLLBARS_NEVER:
       case SCROLLBARS_AS_NEEDED:
@@ -196,16 +198,31 @@ public class ScrollPane extends Container {
     setWheelScrollingEnabled(defaultWheelScroll);
   }
 
+  public static boolean isLightweightOrUnknown(Component comp) {
+    if (comp.isLightweight() || !(Toolkit.getDefaultToolkit() instanceof SunToolkit)) {
+      return true;
+    }
+    return !(comp instanceof Button || comp instanceof Canvas || comp instanceof Checkbox
+                 || comp instanceof Choice || comp instanceof Label || comp instanceof List
+                 || comp instanceof Panel || comp instanceof Scrollbar || comp instanceof ScrollPane
+                 || comp instanceof TextArea || comp instanceof TextField
+                 || comp instanceof Window);
+  }
+
   /**
    * Construct a name for this component.  Called by getName() when the
    * name is null.
    */
+  @Override
   String constructComponentName() {
     synchronized (ScrollPane.class) {
-      return base + nameCounter++;
+      String result = base + nameCounter;
+      nameCounter++;
+      return result;
     }
   }
 
+  @Override
   void autoProcessMouseWheel(MouseWheelEvent e) {
     processMouseWheelEvent(e);
   }
@@ -215,24 +232,23 @@ public class ScrollPane extends Container {
    *
    * @since 1.4
    */
+  @Override
   protected boolean eventTypeEnabled(int type) {
-    if (type == MouseEvent.MOUSE_WHEEL && isWheelScrollingEnabled()) {
-      return true;
-    } else {
-      return super.eventTypeEnabled(type);
-    }
+    return type == MouseEvent.MOUSE_WHEEL && isWheelScrollingEnabled() ? true
+        : super.eventTypeEnabled(type);
   }
 
   /**
    * Process mouse wheel events that are delivered to this
-   * <code>ScrollPane</code> by scrolling an appropriate amount.
-   * <p>Note that if the event parameter is <code>null</code>
+   * {@code ScrollPane} by scrolling an appropriate amount.
+   * <p>Note that if the event parameter is {@code null}
    * the behavior is unspecified and may result in an
    * exception.
    *
    * @param e the mouse wheel event
    * @since 1.4
    */
+  @Override
   protected void processMouseWheelEvent(MouseWheelEvent e) {
     if (isWheelScrollingEnabled()) {
       ScrollPaneWheelScroller.handleWheelScrolling(this, e);
@@ -308,24 +324,24 @@ public class ScrollPane extends Container {
   }
 
   /**
-   * Returns the <code>ScrollPaneAdjustable</code> object which
+   * Returns the {@code ScrollPaneAdjustable} object which
    * represents the state of the vertical scrollbar.
    * The declared return type of this method is
-   * <code>Adjustable</code> to maintain backward compatibility.
+   * {@code Adjustable} to maintain backward compatibility.
    *
-   * @see java.awt.ScrollPaneAdjustable
+   * @see ScrollPaneAdjustable
    */
   public Adjustable getVAdjustable() {
     return vAdjustable;
   }
 
   /**
-   * Returns the <code>ScrollPaneAdjustable</code> object which
+   * Returns the {@code ScrollPaneAdjustable} object which
    * represents the state of the horizontal scrollbar.
    * The declared return type of this method is
-   * <code>Adjustable</code> to maintain backward compatibility.
+   * {@code Adjustable} to maintain backward compatibility.
    *
-   * @see java.awt.ScrollPaneAdjustable
+   * @see ScrollPaneAdjustable
    */
   public Adjustable getHAdjustable() {
     return hAdjustable;
@@ -403,14 +419,16 @@ public class ScrollPane extends Container {
    *
    * @see Component#validate
    */
+  @Override
   public void doLayout() {
     layout();
   }
 
   /**
    * @deprecated As of JDK version 1.1,
-   * replaced by <code>doLayout()</code>.
+   * replaced by {@code doLayout()}.
    */
+  @Override
   @Deprecated
   public void layout() {
     if (getComponentCount() == 0) {
@@ -439,6 +457,7 @@ public class ScrollPane extends Container {
   /**
    * Creates the scroll pane's peer.
    */
+  @Override
   public void addNotify() {
     synchronized (getTreeLock()) {
 
@@ -471,14 +490,15 @@ public class ScrollPane extends Container {
 
   /**
    * Returns a string representing the state of this
-   * <code>ScrollPane</code>. This
+   * {@code ScrollPane}. This
    * method is intended to be used only for debugging purposes, and the
    * content and format of the returned string may vary between
    * implementations. The returned string may be empty but may not be
-   * <code>null</code>.
+   * {@code null}.
    *
    * @return the parameter string of this scroll pane
    */
+  @Override
   public String paramString() {
     String sdpStr;
     switch (scrollbarDisplayPolicy) {
@@ -494,7 +514,7 @@ public class ScrollPane extends Container {
       default:
         sdpStr = "invalid display policy";
     }
-    Point p = (getComponentCount() > 0) ? getScrollPosition() : new Point(0, 0);
+    Point p = getComponentCount() > 0 ? getScrollPosition() : new Point(0, 0);
     Insets i = getInsets();
     return super.paramString() + ",ScrollPosition=(" + p.x + "," + p.y + ")" +
         ",Insets=(" + i.top + "," + i.left + "," + i.bottom + "," + i.right + ")" +
@@ -511,6 +531,7 @@ public class ScrollPane extends Container {
    * @param constraints not applicable
    * @param index       position of child component (must be &lt;= 0)
    */
+  @Override
   protected final void addImpl(Component comp, Object constraints, int index) {
     synchronized (getTreeLock()) {
       if (getComponentCount() > 0) {
@@ -520,7 +541,7 @@ public class ScrollPane extends Container {
         throw new IllegalArgumentException("position greater than 0");
       }
 
-      if (!SunToolkit.isLightweightOrUnknown(comp)) {
+      if (!isLightweightOrUnknown(comp)) {
         super.addImpl(comp, constraints, index);
       } else {
         addToPanel(comp, constraints, index);
@@ -534,6 +555,7 @@ public class ScrollPane extends Container {
    *
    * @param mgr the specified layout manager
    */
+  @Override
   public final void setLayout(LayoutManager mgr) {
     throw new AWTError("ScrollPane controls layout");
   }
@@ -545,6 +567,7 @@ public class ScrollPane extends Container {
    * @see Component#print
    * @see Component#printAll
    */
+  @Override
   public void printComponents(Graphics g) {
     if (getComponentCount() == 0) {
       return;
@@ -579,8 +602,8 @@ public class ScrollPane extends Container {
     //
     Dimension size = getSize();
     Insets insets = getInsets();
-    int viewWidth = size.width - insets.left * 2;
-    int viewHeight = size.height - insets.top * 2;
+    int viewWidth = size.width - (insets.left << 1);
+    int viewHeight = size.height - (insets.top << 1);
 
     //
     // determine whether or not horz or vert scrollbars will be displayed
@@ -639,11 +662,11 @@ public class ScrollPane extends Container {
    * Enables/disables scrolling in response to movement of the mouse wheel.
    * Wheel scrolling is enabled by default.
    *
-   * @param handleWheel <code>true</code> if scrolling should be done
+   * @param handleWheel {@code true} if scrolling should be done
    *                    automatically for a MouseWheelEvent,
-   *                    <code>false</code> otherwise.
+   *                    {@code false} otherwise.
    * @see #isWheelScrollingEnabled
-   * @see java.awt.event.MouseWheelEvent
+   * @see MouseWheelEvent
    * @see java.awt.event.MouseWheelListener
    * @since 1.4
    */
@@ -665,16 +688,16 @@ public class ScrollPane extends Container {
    * Reads default serializable fields to stream.
    *
    * @throws HeadlessException if
-   *                           <code>GraphicsEnvironment.isHeadless()</code> returns
-   *                           <code>true</code>
-   * @see java.awt.GraphicsEnvironment#isHeadless
+   *                           {@code GraphicsEnvironment.isHeadless()} returns
+   *                           {@code true}
+   * @see GraphicsEnvironment#isHeadless
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
     GraphicsEnvironment.checkHeadless();
     // 4352819: Gotcha!  Cannot use s.defaultReadObject here and
     // then continue with reading optional data.  Use GetField instead.
-    ObjectInputStream.GetField f = s.readFields();
+    GetField f = s.readFields();
 
     // Old fields
     scrollbarDisplayPolicy = f.get("scrollbarDisplayPolicy", SCROLLBARS_AS_NEEDED);
@@ -698,9 +721,9 @@ public class ScrollPane extends Container {
     //      }
   }
 
-  class PeerFixer implements AdjustmentListener, java.io.Serializable {
+  class PeerFixer implements AdjustmentListener, Serializable {
     private static final long serialVersionUID = 1043664721353696630L;
-    private ScrollPane scroller;
+    private final ScrollPane scroller;
 
     PeerFixer(ScrollPane scroller) {
       this.scroller = scroller;
@@ -709,6 +732,7 @@ public class ScrollPane extends Container {
     /**
      * Invoked when the value of the adjustable has changed.
      */
+    @Override
     public void adjustmentValueChanged(AdjustmentEvent e) {
       Adjustable adj = e.getAdjustable();
       int value = e.getValue();
@@ -720,10 +744,10 @@ public class ScrollPane extends Container {
       Component c = scroller.getComponent(0);
       switch (adj.getOrientation()) {
         case Adjustable.VERTICAL:
-          c.move(c.getLocation().x, -(value));
+          c.move(c.getLocation().x, -value);
           break;
         case Adjustable.HORIZONTAL:
-          c.move(-(value), c.getLocation().y);
+          c.move(-value, c.getLocation().y);
           break;
         default:
           throw new IllegalArgumentException("Illegal adjustable orientation");

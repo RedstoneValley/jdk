@@ -31,13 +31,16 @@ import java.awt.Window;
  *     Window.setAlwaysOnTop() method
  * @run main SyncAlwaysOnTopFieldTest
  */
-public class SyncAlwaysOnTopFieldTest {
+public final class SyncAlwaysOnTopFieldTest {
 
     private static final int WINDOWS_COUNT = 200;
     private static final int STEPS_COUNT = 20;
 
-    public static void main(String[] args) throws Exception {
-        final Window rootWindow = createWindow(null);
+  private SyncAlwaysOnTopFieldTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
+        Window rootWindow = createWindow(null);
 
         new Thread(() -> {
             for (int i = 0; i < WINDOWS_COUNT; i++) {

@@ -39,13 +39,16 @@
 
 import java.awt.*;
 
-public class SystemPropTest_5 {
-    public static void main(String []s){
+public final class SystemPropTest_5 {
+  private SystemPropTest_5() {
+  }
+
+  public static void main(String []s){
         System.out.println("STAGE 1");
         System.setProperty("sun.awt.enableExtraMouseButtons", "false");
         boolean propValue = Boolean.parseBoolean(System.getProperty("sun.awt.enableExtraMouseButtons"));
         if (propValue){
-            throw new RuntimeException("TEST FAILED(1) : System property sun.awt.enableExtraMouseButtons = " + propValue);
+            throw new RuntimeException("TEST FAILED(1) : System property sun.awt.enableExtraMouseButtons = " + true);
         }
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()){
             throw new RuntimeException("TEST FAILED(1) : Toolkit.areExtraMouseButtonsEnabled() returns true");
@@ -55,7 +58,7 @@ public class SystemPropTest_5 {
         System.setProperty("sun.awt.enableExtraMouseButtons", "true");
         propValue = Boolean.parseBoolean(System.getProperty("sun.awt.enableExtraMouseButtons"));
         if (!propValue){
-            throw new RuntimeException("TEST FAILED(2) : System property sun.awt.enableExtraMouseButtons = " + propValue);
+            throw new RuntimeException("TEST FAILED(2) : System property sun.awt.enableExtraMouseButtons = " + false);
         }
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()){
             throw new RuntimeException("TEST FAILED(2) : Toolkit.areExtraMouseButtonsEnabled() returns true");

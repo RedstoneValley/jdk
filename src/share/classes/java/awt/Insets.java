@@ -25,19 +25,21 @@
 
 package java.awt;
 
+import java.io.Serializable;
+
 /**
- * An <code>Insets</code> object is a representation of the borders
+ * An {@code Insets} object is a representation of the borders
  * of a container. It specifies the space that a container must leave
  * at each of its edges. The space can be a border, a blank space, or
  * a title.
  *
  * @author Arthur van Hoff
  * @author Sami Shaio
- * @see java.awt.LayoutManager
- * @see java.awt.Container
+ * @see LayoutManager
+ * @see Container
  * @since JDK1.0
  */
-public class Insets implements Cloneable, java.io.Serializable {
+public class Insets implements Cloneable, Serializable {
 
   /*
    * JDK 1.1 serialVersionUID
@@ -47,9 +49,6 @@ public class Insets implements Cloneable, java.io.Serializable {
   static {
         /* ensure that the necessary native libraries are loaded */
     Toolkit.loadLibraries();
-    if (!GraphicsEnvironment.isHeadless()) {
-      initIDs();
-    }
   }
 
   /**
@@ -90,7 +89,7 @@ public class Insets implements Cloneable, java.io.Serializable {
   public int right;
 
   /**
-   * Creates and initializes a new <code>Insets</code> object with the
+   * Creates and initializes a new {@code Insets} object with the
    * specified top, left, bottom, and right insets.
    *
    * @param top    the inset from the top.
@@ -104,11 +103,6 @@ public class Insets implements Cloneable, java.io.Serializable {
     this.bottom = bottom;
     this.right = right;
   }
-
-  /**
-   * Initialize JNI field and method IDs
-   */
-  private static native void initIDs();
 
   /**
    * Set top, left, bottom, and right to the specified values
@@ -131,6 +125,7 @@ public class Insets implements Cloneable, java.io.Serializable {
    *
    * @return a hash code for this Insets.
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
     int sum1 = left + bottom;
     int sum2 = right + top;
@@ -142,19 +137,20 @@ public class Insets implements Cloneable, java.io.Serializable {
 
   /**
    * Checks whether two insets objects are equal. Two instances
-   * of <code>Insets</code> are equal if the four integer values
-   * of the fields <code>top</code>, <code>left</code>,
-   * <code>bottom</code>, and <code>right</code> are all equal.
+   * of {@code Insets} are equal if the four integer values
+   * of the fields {@code top}, {@code left},
+   * {@code bottom}, and {@code right} are all equal.
    *
-   * @return <code>true</code> if the two insets are equal;
-   * otherwise <code>false</code>.
+   * @return {@code true} if the two insets are equal;
+   * otherwise {@code false}.
    * @since JDK1.1
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object obj) {
     if (obj instanceof Insets) {
       Insets insets = (Insets) obj;
-      return ((top == insets.top) && (left == insets.left) &&
-                  (bottom == insets.bottom) && (right == insets.right));
+      return top == insets.top && left == insets.left &&
+          bottom == insets.bottom && right == insets.right;
     }
     return false;
   }
@@ -162,8 +158,9 @@ public class Insets implements Cloneable, java.io.Serializable {
   /**
    * Create a copy of this object.
    *
-   * @return a copy of this <code>Insets</code> object.
+   * @return a copy of this {@code Insets} object.
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();
@@ -174,13 +171,13 @@ public class Insets implements Cloneable, java.io.Serializable {
   }
 
   /**
-   * Returns a string representation of this <code>Insets</code> object.
+   * Returns a string representation of this {@code Insets} object.
    * This method is intended to be used only for debugging purposes, and
    * the content and format of the returned string may vary between
    * implementations. The returned string may be empty but may not be
-   * <code>null</code>.
+   * {@code null}.
    *
-   * @return a string representation of this <code>Insets</code> object.
+   * @return a string representation of this {@code Insets} object.
    */
   public String toString() {
     return getClass().getName() + "[top=" + top + ",left=" + left + ",bottom=" + bottom + ","

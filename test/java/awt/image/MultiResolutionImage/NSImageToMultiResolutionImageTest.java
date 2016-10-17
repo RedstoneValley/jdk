@@ -24,6 +24,7 @@
 import java.awt.Image;
 import java.awt.Toolkit;
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.image.MultiResolutionImage;
 /*
  * @test
@@ -33,16 +34,19 @@ import sun.awt.image.MultiResolutionImage;
  * @run main NSImageToMultiResolutionImageTest
  */
 
-public class NSImageToMultiResolutionImageTest {
+public final class NSImageToMultiResolutionImageTest {
 
-    public static void main(String[] args) throws Exception {
+  private NSImageToMultiResolutionImageTest() {
+  }
 
-        if (OSInfo.getOSType() != OSInfo.OSType.MACOSX) {
+  public static void main(String[] args) throws Exception {
+
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             return;
         }
 
         String icon = "NSImage://NSApplicationIcon";
-        final Image image = Toolkit.getDefaultToolkit().getImage(icon);
+        Image image = Toolkit.getDefaultToolkit().getImage(icon);
 
         if (!(image instanceof MultiResolutionImage)) {
             throw new RuntimeException("Icon does not have resolution variants!");

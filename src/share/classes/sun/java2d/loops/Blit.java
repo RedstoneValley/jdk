@@ -48,11 +48,11 @@ import sun.java2d.pipe.SpanIterator;
  */
 
 public class Blit extends GraphicsPrimitive {
-  public static final String methodSignature = "Blit(...)".toString();
+  public static final String methodSignature = "Blit(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache blitcache = new RenderCache(20);
+  private static final RenderCache blitcache = new RenderCache(20);
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new Blit(null, null, null));
@@ -91,10 +91,13 @@ public class Blit extends GraphicsPrimitive {
   /**
    * All Blit implementors must have this invoker method
    */
-  public native void Blit(
+  public void Blit(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
-      int dsty, int width, int height);
+      int dsty, int width, int height) {
+    // TODO: In OpenJDK AWT, this is native
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
@@ -115,17 +118,19 @@ public class Blit extends GraphicsPrimitive {
     }
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceBlit(this);
   }
 
   private static class AnyBlit extends Blit {
-    public static AnyBlit instance = new AnyBlit();
+    public static final AnyBlit instance = new AnyBlit();
 
     public AnyBlit() {
       super(SurfaceType.Any, CompositeType.Any, SurfaceType.Any);
     }
 
+    @Override
     public void Blit(
         SurfaceData srcData, SurfaceData dstData, Composite comp, Region clip, int srcx, int srcy,
         int dstx, int dsty, int width, int height) {
@@ -139,7 +144,7 @@ public class Blit extends GraphicsPrimitive {
       if (clip == null) {
         clip = Region.getInstanceXYWH(dstx, dsty, width, height);
       }
-      int span[] = {dstx, dsty, dstx + width, dsty + height};
+      int[] span = {dstx, dsty, dstx + width, dsty + height};
       SpanIterator si = clip.getSpanIterator(span);
       srcx -= dstx;
       srcy -= dsty;
@@ -155,13 +160,14 @@ public class Blit extends GraphicsPrimitive {
   }
 
   private static class GeneralMaskBlit extends Blit {
-    MaskBlit performop;
+    final MaskBlit performop;
 
     public GeneralMaskBlit(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
       super(srctype, comptype, dsttype);
       performop = MaskBlit.locate(srctype, comptype, dsttype);
     }
 
+    @Override
     public void Blit(
         SurfaceData srcData, SurfaceData dstData, Composite comp, Region clip, int srcx, int srcy,
         int dstx, int dsty, int width, int height) {
@@ -194,14 +200,16 @@ public class Blit extends GraphicsPrimitive {
       super(srctype, comptype, dsttype);
     }
 
+    @Override
     public void setPrimitives(
         Blit srcconverter, Blit dstconverter, GraphicsPrimitive genericop, Blit resconverter) {
-      this.convertsrc = srcconverter;
-      this.convertdst = dstconverter;
-      this.performop = (Blit) genericop;
-      this.convertresult = resconverter;
+      convertsrc = srcconverter;
+      convertdst = dstconverter;
+      performop = (Blit) genericop;
+      convertresult = resconverter;
     }
 
+    @Override
     public synchronized void Blit(
         SurfaceData srcData, SurfaceData dstData, Composite comp, Region clip, int srcx, int srcy,
         int dstx, int dsty, int width, int height) {
@@ -256,17 +264,19 @@ public class Blit extends GraphicsPrimitive {
   }
 
   private static class TraceBlit extends Blit {
-    Blit target;
+    final Blit target;
 
     public TraceBlit(Blit target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }
 
+    @Override
     public void Blit(
         SurfaceData src, SurfaceData dst, Composite comp, Region clip, int srcx, int srcy, int dstx,
         int dsty, int width, int height) {

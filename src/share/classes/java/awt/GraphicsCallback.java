@@ -31,7 +31,7 @@ import sun.awt.SunGraphicsCallback;
 abstract class GraphicsCallback extends SunGraphicsCallback {
 
   static final class PaintCallback extends GraphicsCallback {
-    private static PaintCallback instance = new PaintCallback();
+    private static final PaintCallback instance = new PaintCallback();
 
     private PaintCallback() {
     }
@@ -40,13 +40,14 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.paint(cg);
     }
   }
 
   static final class PrintCallback extends GraphicsCallback {
-    private static PrintCallback instance = new PrintCallback();
+    private static final PrintCallback instance = new PrintCallback();
 
     private PrintCallback() {
     }
@@ -55,13 +56,14 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.print(cg);
     }
   }
 
   static final class PaintAllCallback extends GraphicsCallback {
-    private static PaintAllCallback instance = new PaintAllCallback();
+    private static final PaintAllCallback instance = new PaintAllCallback();
 
     private PaintAllCallback() {
     }
@@ -70,13 +72,14 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.paintAll(cg);
     }
   }
 
   static final class PrintAllCallback extends GraphicsCallback {
-    private static PrintAllCallback instance = new PrintAllCallback();
+    private static final PrintAllCallback instance = new PrintAllCallback();
 
     private PrintAllCallback() {
     }
@@ -85,13 +88,14 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.printAll(cg);
     }
   }
 
   static final class PeerPaintCallback extends GraphicsCallback {
-    private static PeerPaintCallback instance = new PeerPaintCallback();
+    private static final PeerPaintCallback instance = new PeerPaintCallback();
 
     private PeerPaintCallback() {
     }
@@ -100,6 +104,7 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.validate();
       if (comp.peer instanceof LightweightPeer) {
@@ -111,7 +116,7 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
   }
 
   static final class PeerPrintCallback extends GraphicsCallback {
-    private static PeerPrintCallback instance = new PeerPrintCallback();
+    private static final PeerPrintCallback instance = new PeerPrintCallback();
 
     private PeerPrintCallback() {
     }
@@ -120,6 +125,7 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       comp.validate();
       if (comp.peer instanceof LightweightPeer) {
@@ -131,16 +137,17 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
   }
 
   static final class PaintHeavyweightComponentsCallback extends GraphicsCallback {
-    private static GraphicsCallback.PaintHeavyweightComponentsCallback instance
-        = new GraphicsCallback.PaintHeavyweightComponentsCallback();
+    private static final PaintHeavyweightComponentsCallback instance
+        = new PaintHeavyweightComponentsCallback();
 
     private PaintHeavyweightComponentsCallback() {
     }
 
-    static GraphicsCallback.PaintHeavyweightComponentsCallback getInstance() {
+    static PaintHeavyweightComponentsCallback getInstance() {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       if (comp.peer instanceof LightweightPeer) {
         comp.paintHeavyweightComponents(cg);
@@ -151,16 +158,17 @@ abstract class GraphicsCallback extends SunGraphicsCallback {
   }
 
   static final class PrintHeavyweightComponentsCallback extends GraphicsCallback {
-    private static GraphicsCallback.PrintHeavyweightComponentsCallback instance
-        = new GraphicsCallback.PrintHeavyweightComponentsCallback();
+    private static final PrintHeavyweightComponentsCallback instance
+        = new PrintHeavyweightComponentsCallback();
 
     private PrintHeavyweightComponentsCallback() {
     }
 
-    static GraphicsCallback.PrintHeavyweightComponentsCallback getInstance() {
+    static PrintHeavyweightComponentsCallback getInstance() {
       return instance;
     }
 
+    @Override
     public void run(Component comp, Graphics cg) {
       if (comp.peer instanceof LightweightPeer) {
         comp.printHeavyweightComponents(cg);

@@ -67,19 +67,19 @@ public class ReplicateScaleFilter extends ImageFilter {
   protected int destHeight;
 
   /**
-   * An <code>int</code> array containing information about a
+   * An {@code int} array containing information about a
    * row of pixels.
    */
-  protected int srcrows[];
+  protected int[] srcrows;
 
   /**
-   * An <code>int</code> array containing information about a
+   * An {@code int} array containing information about a
    * column of pixels.
    */
-  protected int srccols[];
+  protected int[] srccols;
 
   /**
-   * A <code>byte</code> array initialized with a size of
+   * A {@code byte} array initialized with a size of
    * {@link #destWidth} and used to deliver a row of pixel
    * data to the {@link ImageConsumer}.
    */
@@ -91,8 +91,8 @@ public class ReplicateScaleFilter extends ImageFilter {
    *
    * @param width  the target width to scale the image
    * @param height the target height to scale the image
-   * @throws IllegalArgumentException if <code>width</code> equals
-   *                                  zero or <code>height</code> equals zero
+   * @throws IllegalArgumentException if {@code width} equals
+   *                                  zero or {@code height} equals zero
    */
   public ReplicateScaleFilter(int width, int height) {
     if (width == 0 || height == 0) {
@@ -109,7 +109,7 @@ public class ReplicateScaleFilter extends ImageFilter {
    * of the new scaled size to the ImageConsumer.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -117,6 +117,7 @@ public class ReplicateScaleFilter extends ImageFilter {
    *
    * @see ImageConsumer
    */
+  @Override
   public void setDimensions(int w, int h) {
     srcWidth = w;
     srcHeight = h;
@@ -136,23 +137,24 @@ public class ReplicateScaleFilter extends ImageFilter {
   /**
    * Passes along the properties from the source object after adding a
    * property indicating the scale applied.
-   * This method invokes <code>super.setProperties</code>,
+   * This method invokes {@code super.setProperties},
    * which might result in additional properties being added.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setProperties(Hashtable<?, ?> props) {
     Hashtable<Object, Object> p = (Hashtable<Object, Object>) props.clone();
     String key = "rescale";
     String val = destWidth + "x" + destHeight;
     Object o = p.get(key);
     if (o != null && o instanceof String) {
-      val = ((String) o) + ", " + val;
+      val = o + ", " + val;
     }
     p.put(key, val);
     super.setProperties(p);
@@ -164,21 +166,22 @@ public class ReplicateScaleFilter extends ImageFilter {
    * those rows and columns that are needed, replicated as necessary.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, byte[] pixels, int off, int scansize) {
     if (srcrows == null || srccols == null) {
       calculateMaps();
     }
     int sx, sy;
     int dx1 = (2 * x * destWidth + srcWidth - 1) / (2 * srcWidth);
     int dy1 = (2 * y * destHeight + srcHeight - 1) / (2 * srcHeight);
-    byte outpix[];
+    byte[] outpix;
     if (outpixbuf != null && outpixbuf instanceof byte[]) {
       outpix = (byte[]) outpixbuf;
     } else {
@@ -203,21 +206,22 @@ public class ReplicateScaleFilter extends ImageFilter {
    * those rows and columns that are needed, replicated as necessary.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose pixels
+   * {@code ImageProducer} of the {@code Image} whose pixels
    * are being filtered. Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
    * with the filtering operation.
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, int pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, int[] pixels, int off, int scansize) {
     if (srcrows == null || srccols == null) {
       calculateMaps();
     }
     int sx, sy;
     int dx1 = (2 * x * destWidth + srcWidth - 1) / (2 * srcWidth);
     int dy1 = (2 * y * destHeight + srcHeight - 1) / (2 * srcHeight);
-    int outpix[];
+    int[] outpix;
     if (outpixbuf != null && outpixbuf instanceof int[]) {
       outpix = (int[]) outpixbuf;
     } else {

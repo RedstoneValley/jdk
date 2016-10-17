@@ -31,43 +31,28 @@
 import java.awt.*;
 import java.awt.image.*;
 
-public class SystemBgColorTest {
+public final class SystemBgColorTest {
     public static final int TESTW = 10;
     public static final int TESTH = 10;
 
-    static SystemColor systemColorObjects [] = {
-        SystemColor.desktop,
-        SystemColor.activeCaption,
-        SystemColor.activeCaptionText,
-        SystemColor.activeCaptionBorder,
-        SystemColor.inactiveCaption,
-        SystemColor.inactiveCaptionText,
-        SystemColor.inactiveCaptionBorder,
-        SystemColor.window,
-        SystemColor.windowBorder,
-        SystemColor.windowText,
-        SystemColor.menu,
-        SystemColor.menuText,
-        SystemColor.text,
-        SystemColor.textText,
-        SystemColor.textHighlight,
-        SystemColor.textHighlightText,
-        SystemColor.textInactiveText,
-        SystemColor.control,
-        SystemColor.controlText,
-        SystemColor.controlHighlight,
-        SystemColor.controlLtHighlight,
-        SystemColor.controlShadow,
-        SystemColor.controlDkShadow,
-        SystemColor.scrollbar,
-        SystemColor.info,
-        SystemColor.infoText
-    };
+    static final SystemColor[] systemColorObjects = {
+        SystemColor.desktop, SystemColor.activeCaption, SystemColor.activeCaptionText,
+        SystemColor.activeCaptionBorder, SystemColor.inactiveCaption,
+        SystemColor.inactiveCaptionText, SystemColor.inactiveCaptionBorder, SystemColor.window,
+        SystemColor.windowBorder, SystemColor.windowText, SystemColor.menu, SystemColor.menuText,
+        SystemColor.text, SystemColor.textText, SystemColor.textHighlight,
+        SystemColor.textHighlightText, SystemColor.textInactiveText, SystemColor.control,
+        SystemColor.controlText, SystemColor.controlHighlight, SystemColor.controlLtHighlight,
+        SystemColor.controlShadow, SystemColor.controlDkShadow, SystemColor.scrollbar,
+        SystemColor.info, SystemColor.infoText};
 
     static boolean counterrors;
     static int errcount;
 
-    public static void error(String problem) {
+  private SystemBgColorTest() {
+  }
+
+  public static void error(String problem) {
         if (counterrors) {
             errcount++;
         } else {
@@ -75,8 +60,8 @@ public class SystemBgColorTest {
         }
     }
 
-    public static void main(String argv[]) {
-        counterrors = (argv.length > 0);
+    public static void main(String[] argv) {
+        counterrors = argv.length > 0;
         test(BufferedImage.TYPE_INT_ARGB);
         test(BufferedImage.TYPE_INT_RGB);
         if (errcount > 0) {
@@ -84,10 +69,8 @@ public class SystemBgColorTest {
         }
     }
 
-    static int cmap[] = {
-        0x00000000,
-        0xffffffff,
-    };
+    static final int[] cmap = {
+        0x00000000, 0xffffffff,};
 
     public static void test(int dsttype) {
         BufferedImage src =
@@ -103,9 +86,9 @@ public class SystemBgColorTest {
     public static void test(Image src, int dsttype) {
         BufferedImage dst =
             new BufferedImage(TESTW, TESTH, dsttype);
-        for (int i = 0; i < systemColorObjects.length; i++) {
-            test(src, dst, systemColorObjects[i]);
-        }
+      for (SystemColor systemColorObject : systemColorObjects) {
+        test(src, dst, systemColorObject);
+      }
     }
 
     public static void test(Image src, BufferedImage dst, Color bg) {

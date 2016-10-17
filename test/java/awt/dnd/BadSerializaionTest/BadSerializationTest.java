@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 8030050
  * @summary Validate fields on DnD class deserialization
  * @author petr.pchelko@oracle.com
@@ -35,9 +35,9 @@ import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
 import java.util.stream.Stream;
 
-public class BadSerializationTest {
+public final class BadSerializationTest {
 
-    private static final String[] badSerialized = new String[] {
+    private static final String[] badSerialized = {
             "badAction",
             "noEvents",
             "nullComponent",

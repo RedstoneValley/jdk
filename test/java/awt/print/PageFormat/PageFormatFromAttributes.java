@@ -28,13 +28,13 @@
  * @run main PageFormatFromAttributes
  */
 import java.awt.print.*;
-import javax.print.*;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.*;
 
-public class PageFormatFromAttributes {
+public final class PageFormatFromAttributes {
 
-    public static void main(String args[]) {
+  private PageFormatFromAttributes() {
+  }
+
+  public static void main(String[] args) {
         PrinterJob job = PrinterJob.getPrinterJob();
         PrintService service = job.getPrintService();
         if (service == null) {

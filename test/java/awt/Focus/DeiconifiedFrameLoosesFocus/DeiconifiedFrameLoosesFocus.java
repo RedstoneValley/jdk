@@ -30,8 +30,6 @@
 */
 
 import java.awt.*;
-import java.applet.Applet;
-import test.java.awt.regtesthelpers.Util;
 
 public class DeiconifiedFrameLoosesFocus extends Applet {
     Robot robot;
@@ -49,7 +47,7 @@ public class DeiconifiedFrameLoosesFocus extends Applet {
         // Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
     }
 
     public void start() {
@@ -95,6 +93,8 @@ public class DeiconifiedFrameLoosesFocus extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }

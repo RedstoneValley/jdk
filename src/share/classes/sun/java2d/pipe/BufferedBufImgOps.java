@@ -46,7 +46,10 @@ import java.awt.image.RescaleOp;
 import java.awt.image.ShortLookupTable;
 import sun.java2d.SurfaceData;
 
-public class BufferedBufImgOps {
+public final class BufferedBufImgOps {
+
+  protected static final int LOOKUP_TABLE_MAX_SIZE = 256;
+  protected static final int SIZEOF_LOOKUP_OP = 4 + 8 + 20;
 
   public static void enableBufImgOp(
       RenderQueue rq, SurfaceData srcData, BufferedImage srcImg, BufferedImageOp biop) {
@@ -73,23 +76,7 @@ public class BufferedBufImgOps {
     }
   }
 
-  /****************************
-   * ConvolveOp support
-   ****************************/
-
-  public static boolean isConvolveOpValid(ConvolveOp cop) {
-    Kernel kernel = cop.getKernel();
-    int kw = kernel.getWidth();
-    int kh = kernel.getHeight();
-    // REMIND: we currently can only handle 3x3 and 5x5 kernels,
-    //         but hopefully this is just a temporary restriction;
-    //         see native shader comments for more details
-    if (!(kw == 3 && kh == 3) && !(kw == 5 && kh == 5)) {
-      return false;
-    }
-    return true;
-  }
-
+  @SuppressWarnings("MagicNumber")
   private static void enableConvolveOp(
       RenderQueue rq, SurfaceData srcData, ConvolveOp cop) {
     // assert rq.lock.isHeldByCurrentThread();
@@ -99,7 +86,7 @@ public class BufferedBufImgOps {
     int kernelHeight = kernel.getHeight();
     int kernelSize = kernelWidth * kernelHeight;
     int sizeofFloat = 4;
-    int totalBytesRequired = 4 + 8 + 12 + (kernelSize * sizeofFloat);
+    int totalBytesRequired = 4 + 8 + 12 + kernelSize * sizeofFloat;
 
     RenderBuffer buf = rq.getBuffer();
     rq.ensureCapacityAndAlignment(totalBytesRequired, 4);
@@ -116,41 +103,6 @@ public class BufferedBufImgOps {
     RenderBuffer buf = rq.getBuffer();
     rq.ensureCapacity(4);
     buf.putInt(DISABLE_CONVOLVE_OP);
-  }
-
-  /****************************
-   * RescaleOp support
-   *****************************/
-
-  public static boolean isRescaleOpValid(
-      RescaleOp rop, BufferedImage srcImg) {
-    int numFactors = rop.getNumFactors();
-    ColorModel srcCM = srcImg.getColorModel();
-
-    if (srcCM instanceof IndexColorModel) {
-      throw new IllegalArgumentException("Rescaling cannot be " + "performed on an indexed image");
-    }
-    if (numFactors != 1 &&
-        numFactors != srcCM.getNumColorComponents() &&
-        numFactors != srcCM.getNumComponents()) {
-      throw new IllegalArgumentException("Number of scaling constants " +
-          "does not equal the number of" +
-          " of color or color/alpha " +
-          " components");
-    }
-
-    int csType = srcCM.getColorSpace().getType();
-    if (csType != ColorSpace.TYPE_RGB && csType != ColorSpace.TYPE_GRAY) {
-      // Not prepared to deal with other color spaces
-      return false;
-    }
-
-    if (numFactors == 2 || numFactors > 4) {
-      // Not really prepared to handle this at the native level, so...
-      return false;
-    }
-
-    return true;
   }
 
   private static void enableRescaleOp(
@@ -229,7 +181,7 @@ public class BufferedBufImgOps {
     }
 
     int sizeofFloat = 4;
-    int totalBytesRequired = 4 + 8 + 4 + (4 * sizeofFloat * 2);
+    int totalBytesRequired = 4 + 8 + 4 + 4 * sizeofFloat * 2;
 
     RenderBuffer buf = rq.getBuffer();
     rq.ensureCapacityAndAlignment(totalBytesRequired, 4);
@@ -289,14 +241,14 @@ public class BufferedBufImgOps {
     if (table instanceof ByteLookupTable) {
       byte[][] data = ((ByteLookupTable) table).getTable();
       for (int i = 1; i < data.length; i++) {
-        if (data[i].length > 256 || data[i].length != data[i - 1].length) {
+        if (data[i].length > LOOKUP_TABLE_MAX_SIZE || data[i].length != data[i - 1].length) {
           return false;
         }
       }
     } else if (table instanceof ShortLookupTable) {
       short[][] data = ((ShortLookupTable) table).getTable();
       for (int i = 1; i < data.length; i++) {
-        if (data[i].length > 256 || data[i].length != data[i - 1].length) {
+        if (data[i].length > LOOKUP_TABLE_MAX_SIZE || data[i].length != data[i - 1].length) {
           return false;
         }
       }
@@ -333,9 +285,9 @@ public class BufferedBufImgOps {
 
     // Adjust the LUT length so that it ends on a 4-byte boundary
     int totalLutBytes = numBands * bandLength * bytesPerElem;
-    int paddedLutBytes = (totalLutBytes + 3) & (~3);
+    int paddedLutBytes = totalLutBytes + 3 & ~3;
     int padding = paddedLutBytes - totalLutBytes;
-    int totalBytesRequired = 4 + 8 + 20 + paddedLutBytes;
+    int totalBytesRequired = SIZEOF_LOOKUP_OP + paddedLutBytes;
 
     RenderBuffer buf = rq.getBuffer();
     rq.ensureCapacityAndAlignment(totalBytesRequired, 4);

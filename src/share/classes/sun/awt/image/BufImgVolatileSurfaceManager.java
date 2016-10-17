@@ -51,6 +51,7 @@ public class BufImgVolatileSurfaceManager extends VolatileSurfaceManager {
    * Returns false to indicate that this surface manager cannot accelerate
    * the image.
    */
+  @Override
   protected boolean isAccelerationEnabled() {
     return false;
   }
@@ -62,6 +63,7 @@ public class BufImgVolatileSurfaceManager extends VolatileSurfaceManager {
    * isAccelerationEnabled() method.  But we need to override this method
    * since it is abstract in our parent class.
    */
+  @Override
   protected SurfaceData initAcceleratedSurface() {
     return null;
   }

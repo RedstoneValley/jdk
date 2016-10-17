@@ -38,10 +38,6 @@
  */
 
 import java.awt.Color;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 /**
  * SampleTreeModel extends JTreeModel to extends valueForPathChanged.

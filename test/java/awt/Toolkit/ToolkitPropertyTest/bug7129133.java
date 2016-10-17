@@ -30,10 +30,12 @@
  */
 
 import java.awt.*;
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 
-public class bug7129133 {
+public final class bug7129133 {
     public static void main(String[] args) throws Exception {
-        if (sun.awt.OSInfo.getOSType() != sun.awt.OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             System.out.println("This test is for MacOS only. Automatically passed on other platforms.");
             return;
         }

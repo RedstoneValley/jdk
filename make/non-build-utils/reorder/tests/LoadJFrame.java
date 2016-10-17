@@ -23,12 +23,12 @@
  * questions.
  */
 
+public final class LoadJFrame {
 
-import javax.swing.JFrame;
+  private LoadJFrame() {
+  }
 
-public class LoadJFrame {
-
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         new JFrame().show();
         // This starts a thread which never exits - so we suicide.
         try {

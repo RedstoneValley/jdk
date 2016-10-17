@@ -27,26 +27,26 @@
  * @ignore Requires a special font installed.
  */
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
+import java.io.File;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class TestOldHangul {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TestOldHangul().run();
             }
         });
     }
-    public static boolean AUTOMATIC_TEST=true;  // true; run test automatically, else manually at button push
+    public static final boolean AUTOMATIC_TEST=true;  // true; run test automatically, else manually at button push
 
-    private void run()  {
-        Font ourFont = null;
-        final String fontName = "UnBatangOdal.ttf";  // download from http://chem.skku.ac.kr/~wkpark/project/font/GSUB/UnbatangOdal/  and place in {user.home}/fonts/
+    void run()  {
+        Font ourFont;
+        String fontName = "UnBatangOdal.ttf";  // download from http://chem.skku.ac.kr/~wkpark/project/font/GSUB/UnbatangOdal/  and place in {user.home}/fonts/
         try {
-            ourFont = Font.createFont(Font.TRUETYPE_FONT, new java.io.File(new java.io.File(System.getProperty("user.home"),"fonts"), fontName));
+            ourFont = Font.createFont(Font.TRUETYPE_FONT, new File(new File(System.getProperty("user.home"),"fonts"), fontName));
             ourFont = ourFont.deriveFont((float)48.0);
         } catch(Throwable t) {
             t.printStackTrace();
@@ -56,11 +56,11 @@ public class TestOldHangul {
         JFrame frame = new JFrame(System.getProperty("java.version"));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
-        final JTextArea label = new JTextArea("(empty)");
+        JTextArea label = new JTextArea("(empty)");
         label.setSize(400, 300);
         label.setBorder(new LineBorder(Color.black));
         label.setFont(ourFont);
-        final String str = "\u110A\u119E\u11B7\u0020\u1112\u119E\u11AB\uAE00\u0020\u1100\u119E\u11F9\u0020\u112B\u119E\u11BC\n";
+        String str = "\u110A\u119E\u11B7\u0020\u1112\u119E\u11AB\uAE00\u0020\u1100\u119E\u11F9\u0020\u112B\u119E\u11BC\n";
 
         if(AUTOMATIC_TEST) {  /* run the test automatically (else, manually) */
             label.setText(str);

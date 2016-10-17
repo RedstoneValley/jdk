@@ -51,7 +51,7 @@ public class QSortAlgorithm extends SortAlgorithm {
    * exactly the right number of times.
    */
   private boolean pauseTrue(int lo, int hi) throws Exception {
-    super.pause(lo, hi);
+    pause(lo, hi);
     return true;
   }
 
@@ -70,7 +70,7 @@ public class QSortAlgorithm extends SortAlgorithm {
    * @param lo0 left boundary of array partition
    * @param hi0 right boundary of array partition
    */
-  void QuickSort(int a[], int lo0, int hi0) throws Exception {
+  void QuickSort(int[] a, int lo0, int hi0) throws Exception {
     int lo = lo0;
     int hi = hi0;
     int mid;
@@ -87,14 +87,14 @@ public class QSortAlgorithm extends SortAlgorithm {
                 /* find the first element that is greater than or equal to
                  * the partition element starting from the left Index.
                  */
-        while ((lo < hi0) && pauseTrue(lo0, hi0) && (a[lo] < mid)) {
+        while (lo < hi0 && pauseTrue(lo0, hi0) && a[lo] < mid) {
           ++lo;
         }
 
                 /* find an element that is smaller than or equal to
                  * the partition element starting from the right Index.
                  */
-        while ((hi > lo0) && pauseTrue(lo0, hi0) && (a[hi] > mid)) {
+        while (hi > lo0 && pauseTrue(lo0, hi0) && a[hi] > mid) {
           --hi;
         }
 
@@ -122,7 +122,7 @@ public class QSortAlgorithm extends SortAlgorithm {
     }
   }
 
-  private void swap(int a[], int i, int j) {
+  private void swap(int[] a, int i, int j) {
     int T;
     T = a[i];
     a[i] = a[j];
@@ -130,7 +130,7 @@ public class QSortAlgorithm extends SortAlgorithm {
   }
 
   @Override
-  public void sort(int a[]) throws Exception {
+  public void sort(int[] a) throws Exception {
     QuickSort(a, 0, a.length - 1);
   }
 }

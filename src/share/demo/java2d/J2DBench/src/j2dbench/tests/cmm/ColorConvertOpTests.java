@@ -53,7 +53,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
-import javax.imageio.ImageIO;
 
 public class ColorConvertOpTests extends ColorConversionTests {
 
@@ -63,6 +62,7 @@ public class ColorConvertOpTests extends ColorConversionTests {
   protected static Option contentList;
   protected static Option sourceType;
   protected static Option destinationType;
+
   public ColorConvertOpTests(Group parent, String nodeName, String description) {
     super(parent, nodeName, description);
     addDependencies(opOptionsRoot, true);
@@ -89,7 +89,7 @@ public class ColorConvertOpTests extends ColorConversionTests {
       descr[i] = t[i].descr;
     }
 
-    Option list = new Option.ObjectList(opOptionsRoot,
+    return new ObjectList(opOptionsRoot,
         listType.name,
         listType.description,
         names,
@@ -97,7 +97,6 @@ public class ColorConvertOpTests extends ColorConversionTests {
         abbrev,
         descr,
         1);
-    return list;
   }
 
   public static void init() {
@@ -106,20 +105,14 @@ public class ColorConvertOpTests extends ColorConversionTests {
     opOptionsRoot = new Group(opConvRoot, "ccopOptions", "Options");
 
     // size list
-    int[] sizes = new int[]{1, 20, 250, 1000, 4000};
-    String[] sizeStrs = new String[]{
+    int[] sizes = {1, 20, 250, 1000, 4000};
+    String[] sizeStrs = {
         "1x1", "20x20", "250x250", "1000x1000", "4000x4000"};
-    String[] sizeDescs = new String[]{
+    String[] sizeDescs = {
         "Tiny Images (1x1)", "Small Images (20x20)", "Medium Images (250x250)",
         "Large Images (1000x1000)", "Huge Images (4000x4000)",};
-    sizeList = new Option.IntList(opOptionsRoot,
-        "size",
-        "Image Size",
-        sizes,
-        sizeStrs,
-        sizeDescs,
-        0x4);
-    ((Option.ObjectList) sizeList).setNumRows(5);
+    sizeList = new IntList(opOptionsRoot, "size", "Image Size", sizes, sizeStrs, sizeDescs, 0x4);
+    ((ObjectList) sizeList).setNumRows(5);
 
     // image content
     ImageContent[] c = ImageContent.values();
@@ -131,9 +124,8 @@ public class ColorConvertOpTests extends ColorConversionTests {
       contentStrs[i] = c[i].name;
       contentDescs[i] = c[i].descr;
     }
-    ;
 
-    contentList = new Option.ObjectList(opOptionsRoot,
+    contentList = new ObjectList(opOptionsRoot,
         "content",
         "Image Content",
         contentStrs,
@@ -192,7 +184,7 @@ public class ColorConvertOpTests extends ColorConversionTests {
         g.dispose();
         break;
       }
-      case PHOTO: {
+      case PHOTO:
         Image photo = null;
         try {
           photo = ImageIO.read(IIOTests.class.getResourceAsStream("images/photo.jpg"));
@@ -207,7 +199,6 @@ public class ColorConvertOpTests extends ColorConversionTests {
         g.drawImage(photo, 0, 0, width, height, null);
         g.dispose();
         break;
-      }
       default:
         break;
     }
@@ -215,26 +206,27 @@ public class ColorConvertOpTests extends ColorConversionTests {
     return image;
   }
 
+  @Override
   public Object initTest(TestEnvironment env, Result res) {
     return new Context(env, res);
   }
 
-  private static enum ImageContent {
+  private enum ImageContent {
     BLANK("bank", "Blank (opaque black)"),
-    RANDOM("random", "Random"),
-    VECTOR("vector", "Vector Art"),
-    PHOTO("photo", "Photograph");
+    RANDOM(IIOTests.CONTENT_RANDOM, "Random"),
+    VECTOR(IIOTests.CONTENT_VECTOR, "Vector Art"),
+    PHOTO(IIOTests.CONTENT_PHOTO, "Photograph");
 
     public final String name;
     public final String descr;
 
-    private ImageContent(String name, String descr) {
+    ImageContent(String name, String descr) {
       this.name = name;
       this.descr = descr;
     }
   }
 
-  private static enum ImageType {
+  private enum ImageType {
     INT_ARGB(BufferedImage.TYPE_INT_ARGB, "INT_ARGB", "TYPE_INT_ARGB"),
     INT_RGB(BufferedImage.TYPE_INT_RGB, "INT_RGB", "TYPE_INT_RGB"),
     INT_BGR(BufferedImage.TYPE_INT_BGR, "INT_BGR", "TYPE_INT_BGR"),
@@ -245,31 +237,25 @@ public class ColorConvertOpTests extends ColorConversionTests {
     public final int type;
     public final String abbrev;
     public final String descr;
-    private ImageType(int type, String abbr, String descr) {
+
+    ImageType(int type, String abbr, String descr) {
       this.type = type;
-      this.abbrev = abbr;
+      abbrev = abbr;
       this.descr = descr;
     }
   }
 
-  private static enum ListType {
+  private enum ListType {
     SRC("srcType", "Source Images"),
     DST("dstType", "Destination Images");
 
     public final String name;
     public final String description;
-    private ListType(String name, String description) {
+
+    ListType(String name, String description) {
       this.name = name;
       this.description = description;
     }
-  }  public void cleanupTest(TestEnvironment env, Object o) {
-    Context ctx = (Context) o;
-    ctx.cs = null;
-    ctx.op_img = null;
-    ctx.op_rst = null;
-    ctx.dst = null;
-    ctx.src = null;
-    ctx.graphics = null;
   }
 
   private static class Context {
@@ -281,8 +267,8 @@ public class ColorConvertOpTests extends ColorConversionTests {
     BufferedImage src;
     BufferedImage dst;
 
-    WritableRaster rsrc;
-    WritableRaster rdst;
+    final WritableRaster rsrc;
+    final WritableRaster rdst;
 
     public Context(TestEnvironment env, Result res) {
 
@@ -303,14 +289,20 @@ public class ColorConvertOpTests extends ColorConversionTests {
       rsrc = src.getRaster();
 
       ImageType dstType = (ImageType) env.getModifier(destinationType);
-      if (dstType == ImageType.COMPATIBLE_DST) {
-        dst = op_img.createCompatibleDestImage(src, null);
-      } else {
-        dst = createBufferedImage(size, size, content, dstType.type);
-      }
+      dst = dstType == ImageType.COMPATIBLE_DST ? op_img.createCompatibleDestImage(src, null)
+          : createBufferedImage(size, size, content, dstType.type);
       // raster always has to be comatible
       rdst = op_rst.createCompatibleDestRaster(rsrc);
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object o) {
+    Context ctx = (Context) o;
+    ctx.cs = null;
+    ctx.op_img = null;
+    ctx.op_rst = null;
+    ctx.dst = null;
+    ctx.src = null;
+    ctx.graphics = null;
   }
 
   private static class ConvertImageTest extends ColorConvertOpTests {
@@ -318,19 +310,22 @@ public class ColorConvertOpTests extends ColorConversionTests {
       super(opConvRoot, "op_img", "op.filetr(BufferedImage)");
     }
 
+    @Override
     public void runTest(Object octx, int numReps) {
-      final Context ctx = (Context) octx;
-      final ColorConvertOp op = ctx.op_img;
+      Context ctx = (Context) octx;
+      ColorConvertOp op = ctx.op_img;
 
-      final BufferedImage src = ctx.src;
+      BufferedImage src = ctx.src;
       BufferedImage dst = ctx.dst;
+      --numReps;
       do {
         try {
           dst = op.filter(src, dst);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -339,19 +334,22 @@ public class ColorConvertOpTests extends ColorConversionTests {
       super(opConvRoot, "op_rst", "op.filetr(Raster)");
     }
 
+    @Override
     public void runTest(Object octx, int numReps) {
-      final Context ctx = (Context) octx;
-      final ColorConvertOp op = ctx.op_rst;
+      Context ctx = (Context) octx;
+      ColorConvertOp op = ctx.op_rst;
 
-      final Raster src = ctx.rsrc;
+      Raster src = ctx.rsrc;
       WritableRaster dst = ctx.rdst;
+      --numReps;
       do {
         try {
           dst = op.filter(src, dst);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -360,17 +358,20 @@ public class ColorConvertOpTests extends ColorConversionTests {
       super(opConvRoot, "op_draw", "drawImage(ColorConvertOp)");
     }
 
+    @Override
     public void runTest(Object octx, int numReps) {
-      final Context ctx = (Context) octx;
-      final ColorConvertOp op = ctx.op_img;
+      Context ctx = (Context) octx;
+      ColorConvertOp op = ctx.op_img;
 
-      final Graphics2D g = ctx.graphics;
+      Graphics2D g = ctx.graphics;
 
-      final BufferedImage src = ctx.src;
+      BufferedImage src = ctx.src;
 
+      --numReps;
       do {
         g.drawImage(src, op, 0, 0);
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 

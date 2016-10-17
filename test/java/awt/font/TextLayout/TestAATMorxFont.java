@@ -27,10 +27,7 @@
  * @bug 8031462
  */
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 public class TestAATMorxFont extends JComponent {
     public static void main(String[] args) {
@@ -41,6 +38,7 @@ public class TestAATMorxFont extends JComponent {
             return;
         }
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 JFrame frame = new JFrame("Test Morx");
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

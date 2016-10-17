@@ -29,13 +29,13 @@
  */
 
 import sun.awt.EventQueueDelegate;
-import com.sun.java.swing.SwingUtilities3;
 
 import java.util.*;
 import java.util.concurrent.*;
 import java.awt.*;
+import sun.awt.EventQueueDelegate.Delegate;
 
-public class bug6638195 {
+public final class bug6638195 {
     public static void main(String[] args) throws Exception {
         MyEventQueueDelegate delegate = new MyEventQueueDelegate();
         EventQueueDelegate.setDelegate(delegate);
@@ -52,6 +52,7 @@ public class bug6638195 {
         // for details
         EventQueue.invokeLater(
             new Runnable() {
+                @Override
                 public void run() {
                 }
             });
@@ -59,13 +60,15 @@ public class bug6638195 {
         // the EventQueueDelegate instance
         EventQueue.invokeLater(
             new Runnable() {
+                @Override
                 public void run() {
                 }
             });
         // Finally, proceed on the main thread
-        final CountDownLatch latch = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
         EventQueue.invokeLater(
             new Runnable() {
+                @Override
                 public void run() {
                     latch.countDown();
                 }
@@ -77,15 +80,15 @@ public class bug6638195 {
     }
 
     static Map<String, Map<String, Object>> getObjectMap(
-          final EventQueueDelegate.Delegate delegate) {
-        Map<String, Map<String, Object>> objectMap =
-            new HashMap<String, Map<String, Object>>();
+          Delegate delegate) {
+        Map<String, Map<String, Object>> objectMap = new HashMap<>();
         Map<String, Object> methodMap;
 
-        final AWTEvent[] afterDispatchEventArgument = new AWTEvent[1];
-        final Object[] afterDispatchHandleArgument = new Object[1];
+        AWTEvent[] afterDispatchEventArgument = new AWTEvent[1];
+        Object[] afterDispatchHandleArgument = new Object[1];
         Callable<Void> afterDispatchCallable =
             new Callable<Void>() {
+                @Override
                 public Void call() {
                     try {
                         delegate.afterDispatch(afterDispatchEventArgument[0],
@@ -97,15 +100,16 @@ public class bug6638195 {
                     return null;
                 }
             };
-        methodMap = new HashMap<String, Object>();
+        methodMap = new HashMap<>();
         methodMap.put("event", afterDispatchEventArgument);
         methodMap.put("handle", afterDispatchHandleArgument);
         methodMap.put("method", afterDispatchCallable);
         objectMap.put("afterDispatch", methodMap);
 
-        final AWTEvent[] beforeDispatchEventArgument = new AWTEvent[1];
+        AWTEvent[] beforeDispatchEventArgument = new AWTEvent[1];
         Callable<Object> beforeDispatchCallable =
             new Callable<Object>() {
+                @Override
                 public Object call() {
                     try {
                         return delegate.beforeDispatch(
@@ -116,20 +120,21 @@ public class bug6638195 {
                     }
                 }
             };
-        methodMap = new HashMap<String, Object>();
+        methodMap = new HashMap<>();
         methodMap.put("event", beforeDispatchEventArgument);
         methodMap.put("method", beforeDispatchCallable);
         objectMap.put("beforeDispatch", methodMap);
 
-        final EventQueue[] getNextEventEventQueueArgument = new EventQueue[1];
+        EventQueue[] getNextEventEventQueueArgument = new EventQueue[1];
         Callable<AWTEvent> getNextEventCallable =
             new Callable<AWTEvent>() {
+                @Override
                 public AWTEvent call() throws Exception {
                     return delegate.getNextEvent(
                         getNextEventEventQueueArgument[0]);
                 }
             };
-        methodMap = new HashMap<String, Object>();
+        methodMap = new HashMap<>();
         methodMap.put("eventQueue", getNextEventEventQueueArgument);
         methodMap.put("method", getNextEventCallable);
         objectMap.put("getNextEvent", methodMap);
@@ -137,23 +142,26 @@ public class bug6638195 {
         return objectMap;
     }
 
-    static class MyEventQueueDelegate implements EventQueueDelegate.Delegate {
-        private volatile boolean getNextEventInvoked = false;
-        private volatile boolean beforeDispatchInvoked = false;
-        private volatile boolean afterDispatchInvoked = false;
+    static class MyEventQueueDelegate implements Delegate {
+        private volatile boolean getNextEventInvoked;
+        private volatile boolean beforeDispatchInvoked;
+        private volatile boolean afterDispatchInvoked;
+        @Override
         public AWTEvent getNextEvent(EventQueue eventQueue)
               throws InterruptedException {
             getNextEventInvoked = true;
             return eventQueue.getNextEvent();
         }
+        @Override
         public Object beforeDispatch(AWTEvent event) {
             beforeDispatchInvoked = true;
             return null;
         }
+        @Override
         public void afterDispatch(AWTEvent event, Object handle) {
             afterDispatchInvoked = true;
         }
-        private boolean allInvoked() {
+        boolean allInvoked() {
             return getNextEventInvoked && beforeDispatchInvoked && afterDispatchInvoked;
         }
     }

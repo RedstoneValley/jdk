@@ -42,17 +42,16 @@ test
 //  be changed to the name of the test.
 
 
-/**
- * TestDialogTypeAhead.java
- *
- * summary:
+/*
+  TestDialogTypeAhead.java
+
+  summary:
  */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.InvocationTargetException;
-import test.java.awt.regtesthelpers.Util;
+import sun.awt.SunToolkit;
 
 //Automated tests should run as applet tests if possible because they
 // get their environments cleaned up, including AWT threads, any
@@ -72,9 +71,9 @@ public class TestDialogTypeAhead extends Applet
     static Button b;
     static Dialog d;
     static Button ok;
-    static Semaphore pressSema = new Semaphore();
-    static Semaphore robotSema = new Semaphore();
-    static volatile boolean gotFocus = false;
+    static final Semaphore pressSema = new Semaphore();
+    static final Semaphore robotSema = new Semaphore();
+    static volatile boolean gotFocus;
     static Robot robot;
     public void init()
     {
@@ -83,23 +82,25 @@ public class TestDialogTypeAhead extends Applet
         // etc.
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+                @Override
                 public void eventDispatched(AWTEvent e) {
-                    System.err.println(e.toString());
+                    System.err.println(e);
                 }
             }, AWTEvent.KEY_EVENT_MASK);
 
         KeyboardFocusManager.setCurrentKeyboardFocusManager(new TestKFM());
 
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
 
-        f = new Frame("frame");
+        f = new Frame(Frame.base);
         b = new Button("press");
-        d = new Dialog(f, "dialog", true);
+        d = new Dialog(f, Dialog.base, true);
         ok = new Button("ok");
         d.add(ok);
         d.pack();
 
         ok.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyPressed(KeyEvent e) {
                     System.err.println("OK pressed");
                     d.dispose();
@@ -112,6 +113,7 @@ public class TestDialogTypeAhead extends Applet
                 }
             });
         ok.addFocusListener(new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
                     gotFocus = true;
                     System.err.println("Ok got focus");
@@ -120,14 +122,16 @@ public class TestDialogTypeAhead extends Applet
         f.add(b);
         f.pack();
         b.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     System.err.println("B pressed");
 
                     EventQueue.invokeLater(new Runnable() {
+                            @Override
                             public void run() {
                                 waitTillShown(d);
-                                TestDialogTypeAhead.this.d.toFront();
-                                TestDialogTypeAhead.this.moveMouseOver(d);
+                                d.toFront();
+                                moveMouseOver(d);
                             }
                         });
 
@@ -185,7 +189,7 @@ public class TestDialogTypeAhead extends Applet
 
     }// start()
 
-    private void moveMouseOver(Container c) {
+    void moveMouseOver(Container c) {
         Point p = c.getLocationOnScreen();
         Dimension d = c.getSize();
         robot.mouseMove(p.x + (int)(d.getWidth()/2), p.y + (int)(d.getHeight()/2));
@@ -193,22 +197,20 @@ public class TestDialogTypeAhead extends Applet
     private void waitForIdle() {
         try {
             Toolkit.getDefaultToolkit().sync();
-            sun.awt.SunToolkit.flushPendingEvents();
+            SunToolkit.flushPendingEvents();
             EventQueue.invokeAndWait( new Runnable() {
+                                            @Override
                                             public void run() {
                                                 // dummy implementation
                                             }
                                         } );
-        } catch(InterruptedException ite) {
+        } catch(InterruptedException | InvocationTargetException ite) {
             System.err.println("Robot.waitForIdle, non-fatal exception caught:");
             ite.printStackTrace();
-        } catch(InvocationTargetException ine) {
-            System.err.println("Robot.waitForIdle, non-fatal exception caught:");
-            ine.printStackTrace();
         }
     }
 
-    private void waitTillShown(Component c) {
+    void waitTillShown(Component c) {
         while (true) {
             try {
                 Thread.sleep(100);
@@ -225,8 +227,9 @@ public class TestDialogTypeAhead extends Applet
         if (comp.isFocusOwner()) {
             return;
         }
-        final Semaphore sema = new Semaphore();
-        final FocusAdapter fa = new FocusAdapter() {
+        Semaphore sema = new Semaphore();
+        FocusAdapter fa = new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent fe) {
                     sema.raise();
                 }
@@ -248,8 +251,8 @@ public class TestDialogTypeAhead extends Applet
     }
 
     static class Semaphore {
-        boolean state = false;
-        int waiting = 0;
+        boolean state;
+        int waiting;
         public Semaphore() {
         }
         public synchronized void doWait() throws InterruptedException {
@@ -280,26 +283,26 @@ public class TestDialogTypeAhead extends Applet
     }
 
     class TestKFM extends DefaultKeyboardFocusManager {
+        @Override
         protected synchronized void enqueueKeyEvents(long after,
                                                      Component untilFocused)
         {
             super.enqueueKeyEvents(after, untilFocused);
 
-            if (untilFocused == TestDialogTypeAhead.this.ok) {
-                TestDialogTypeAhead.this.robotSema.raise();
+            if (untilFocused == ok) {
+                robotSema.raise();
             }
         }
     }
 }// class TestDialogTypeAhead
 
-
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -313,9 +316,12 @@ public class TestDialogTypeAhead extends Applet
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -359,9 +365,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -369,10 +376,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -388,35 +395,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

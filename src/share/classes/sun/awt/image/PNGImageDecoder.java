@@ -34,6 +34,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.GregorianCalendar;
+import java.util.Hashtable;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
@@ -76,7 +77,7 @@ public class PNGImageDecoder extends ImageDecoder {
       (byte) 137, (byte) 80, (byte) 78, (byte) 71, (byte) 13, (byte) 10, (byte) 26, (byte) 10};
   /* Table of CRCs of all 8-bit messages. */
   private static final int[] crc_table = new int[256];
-  private static ColorModel greyModels[] = new ColorModel[4];
+  private static final ColorModel[] greyModels = new ColorModel[4];
   //abstract protected boolean handleChunk(int key, byte[] buf, int st, int len)
   //    throws IOException;
   private static boolean checkCRC = true;
@@ -86,11 +87,7 @@ public class PNGImageDecoder extends ImageDecoder {
     for (int n = 0; n < 256; n++) {
       int c = n;
       for (int k = 0; k < 8; k++) {
-        if ((c & 1) != 0) {
-          c = 0xedb88320 ^ (c >>> 1);
-        } else {
-          c = c >>> 1;
-        }
+        c = (c & 1) != 0 ? 0xedb88320 ^ c >>> 1 : c >>> 1;
       }
       crc_table[n] = c;
     }
@@ -103,8 +100,8 @@ public class PNGImageDecoder extends ImageDecoder {
   /* this is not needed
      PNGImageDecoder next;
      */ boolean seenEOF;
-  PNGFilterInputStream inputStream;
-  InputStream underlyingInputStream;
+  final PNGFilterInputStream inputStream;
+  final InputStream underlyingInputStream;
   /* code changed to make it work with ImageDecoder architecture
     static int ThreadLimit = 10;
     private synchronized static void waitTurn() {
@@ -126,19 +123,19 @@ public class PNGImageDecoder extends ImageDecoder {
   private int filterMethod;
   private int interlaceMethod;
   private int gamma = 100000;
-  private java.util.Hashtable properties;
+  private Hashtable properties;
   /* this is not needed
     ImageConsumer target;
     */
   private ColorModel cm;
   private byte[] red_map, green_map, blue_map, alpha_map;
   private int transparentPixel = -1;
-  private byte[] transparentPixel_16 = null; // we need 6 bytes to store 16bpp value
+  private byte[] transparentPixel_16; // we need 6 bytes to store 16bpp value
 
   /* code changed
     public PNGImageDecoder(InputStream in, ImageConsumer t) throws IOException {
     */
-  public PNGImageDecoder(InputStreamImageSource src, InputStream input) throws IOException {
+  public PNGImageDecoder(InputStreamImageSource src, InputStream input) {
     // code added
     super(src, input);
     inputStream = new PNGFilterInputStream(this, input);
@@ -160,17 +157,20 @@ public class PNGImageDecoder extends ImageDecoder {
     checkCRC = c;
   }
 
-  static private int update_crc(int crc, byte[] buf, int offset, int len) {
+  private static int update_crc(int crc, byte[] buf, int offset, int len) {
     int c = crc;
-    while (--len >= 0) {
-      c = crc_table[(c ^ buf[offset++]) & 0xff] ^ (c >>> 8);
+    --len;
+    while (len >= 0) {
+      c = crc_table[(c ^ buf[offset]) & 0xff] ^ c >>> 8;
+      offset++;
+      --len;
     }
     return c;
   }
 
   /* Return the CRC of the bytes buf[0..len-1]. */
-  static private int crc(byte[] buf, int offset, int len) {
-    return update_crc(0xffffffff, buf, offset, len) ^ 0xffffffff;
+  private static int crc(byte[] buf, int offset, int len) {
+    return ~update_crc(0xffffffff, buf, offset, len);
   }
 
   private void property(String key, Object value) {
@@ -178,7 +178,7 @@ public class PNGImageDecoder extends ImageDecoder {
       return;
     }
     if (properties == null) {
-      properties = new java.util.Hashtable();
+      properties = new Hashtable();
     }
     properties.put(key, value);
   }
@@ -213,7 +213,7 @@ public class PNGImageDecoder extends ImageDecoder {
             c = new Color(red_map[ix] & 0xff, green_map[ix] & 0xff, blue_map[ix] & 0xff);
             break;
           case GRAY:
-          case GRAY | ALPHA:
+          case ALPHA:
             pngassert(len == 2);
             int t = buf[st] & 0xFF;
             c = new Color(t, t, t);
@@ -261,7 +261,7 @@ public class PNGImageDecoder extends ImageDecoder {
                   if(target!=null) target.setDimensions(width,height);
                   */
         break;
-      case PLTEChunk: {
+      case PLTEChunk:
         int tsize = len / 3;
         red_map = new byte[tsize];
         green_map = new byte[tsize];
@@ -271,8 +271,7 @@ public class PNGImageDecoder extends ImageDecoder {
           green_map[i] = buf[j + 1];
           blue_map[i] = buf[j + 2];
         }
-      }
-      break;
+        break;
       case pHYsChunk:
         break;
       case sBITChunk:
@@ -289,7 +288,7 @@ public class PNGImageDecoder extends ImageDecoder {
         }
         break;
       case tIMEChunk:
-        property("modtime", new GregorianCalendar(getShort(st + 0),
+        property("modtime", new GregorianCalendar(getShort(st),
             getByte(st + 2) - 1,
             getByte(st + 3),
             getByte(st + 4),
@@ -306,8 +305,10 @@ public class PNGImageDecoder extends ImageDecoder {
             }
             alpha_map = new byte[alen];
             System.arraycopy(buf, st, alpha_map, 0, len < alen ? len : alen);
-            while (--alen >= len) {
+            --alen;
+            while (alen >= len) {
               alpha_map[alen] = (byte) 0xFF;
+              --alen;
             }
             break;
           case COLOR: // doesn't deal with 16 bit colors properly
@@ -319,21 +320,20 @@ public class PNGImageDecoder extends ImageDecoder {
                 transparentPixel_16[i] = (byte) getByte(st + i);
               }
             } else {
-              transparentPixel = ((getShort(st + 0) & 0xFF) << 16) | ((getShort(st + 2) & 0xFF)
-                                                                          << 8) | ((getShort(st + 4)
-                                                                                        & 0xFF));
+              transparentPixel = (getShort(st) & 0xFF) << 16 | (getShort(st + 2) & 0xFF) << 8
+                  | getShort(st + 4) & 0xFF;
             }
             break;
           case GRAY:  // doesn't deal with 16 bit colors properly
-          case GRAY | ALPHA:  // doesn't deal with 16 bit colors properly
+          case ALPHA:  // doesn't deal with 16 bit colors properly
             pngassert(len == 2);
                         /* REMIND: Discarding the LSB for 16 bit depth here
                          * means that the all pixels which match the MSB
                          * will be treated as transparent.
                          */
             int t = getShort(st);
-            t = 0xFF & ((bitDepth == 16) ? (t >> 8) : t);
-            transparentPixel = (t << 16) | (t << 8) | t;
+            t = 0xFF & (bitDepth == 16 ? t >> 8 : t);
+            transparentPixel = t << 16 | t << 8 | t;
             break;
         }
         break;
@@ -346,14 +346,15 @@ public class PNGImageDecoder extends ImageDecoder {
   /* this is changed
      public void run() {
      */
+  @Override
   public void produceImage() throws IOException, ImageFormatException {
     /* this is not needed
        ImageConsumer t = target;
        if(t!=null) try {
        */
     try {
-      for (int i = 0; i < signature.length; i++) {
-        if ((signature[i] & 0xFF) != underlyingInputStream.read()) {
+      for (byte aSignature : signature) {
+        if ((aSignature & 0xFF) != underlyingInputStream.read()) {
           throw new PNGException("Chunk signature mismatch");
         }
       }
@@ -367,7 +368,7 @@ public class PNGImageDecoder extends ImageDecoder {
       int[] wPixels = null;
       int pixSize = width;
       int rowStride;
-      int logDepth = 0;
+      int logDepth;
       switch (bitDepth) {
         case 1:
           logDepth = 0;
@@ -393,7 +394,7 @@ public class PNGImageDecoder extends ImageDecoder {
       } else {
         rowStride = 0;
       }
-      int combinedType = colorType | (bitDepth << 3);
+      int combinedType = colorType | bitDepth << 3;
       int bitMask = (1 << (bitDepth >= 8 ? 8 : bitDepth)) - 1;
       //Figure out the color model
       switch (colorType) {
@@ -402,46 +403,43 @@ public class PNGImageDecoder extends ImageDecoder {
           if (red_map == null) {
             throw new PNGException("palette expected");
           }
-          if (alpha_map == null) {
-            cm = new IndexColorModel(bitDepth, red_map.length, red_map, green_map, blue_map);
-          } else {
-            cm = new IndexColorModel(bitDepth,
-                red_map.length,
-                red_map,
-                green_map,
-                blue_map,
-                alpha_map);
-          }
+          cm = alpha_map == null ? new IndexColorModel(bitDepth, red_map.length, red_map, green_map,
+
+              blue_map) : new IndexColorModel(bitDepth,
+              red_map.length,
+              red_map,
+              green_map,
+              blue_map,
+              alpha_map);
           bPixels = new byte[pixSize];
           break;
-        case GRAY: {
+        case GRAY:
           int llog = logDepth >= 4 ? 3 : logDepth;
           if ((cm = greyModels[llog]) == null) {
             int size = 1 << (1 << llog);
 
-            byte ramp[] = new byte[size];
+            byte[] ramp = new byte[size];
             for (int i = 0; i < size; i++) {
               ramp[i] = (byte) (255 * i / (size - 1));
             }
 
-            if (transparentPixel == -1) {
-              cm = new IndexColorModel(bitDepth, ramp.length, ramp, ramp, ramp);
-            } else {
-              cm = new IndexColorModel(bitDepth,
-                  ramp.length,
-                  ramp,
-                  ramp,
-                  ramp,
-                  (transparentPixel & 0xFF));
-            }
+            cm = transparentPixel == -1 ? new IndexColorModel(bitDepth,
+                ramp.length,
+                ramp,
+                ramp,
+                ramp) : new IndexColorModel(bitDepth,
+                ramp.length,
+                ramp,
+                ramp,
+                ramp,
+                transparentPixel & 0xFF);
             greyModels[llog] = cm;
           }
-        }
-        bPixels = new byte[pixSize];
-        break;
+          bPixels = new byte[pixSize];
+          break;
         case COLOR:
         case COLOR | ALPHA:
-        case GRAY | ALPHA:
+        case ALPHA:
           cm = ColorModel.getRGBdefault();
           wPixels = new int[pixSize];
           break;
@@ -458,19 +456,18 @@ public class PNGImageDecoder extends ImageDecoder {
       // code added to make it work with ImageDecoder architecture
       setDimensions(width, height);
       setColorModel(cm);
-      int flags = (interlaceMethod != 0 ? ImageConsumer.TOPDOWNLEFTRIGHT
-          | ImageConsumer.COMPLETESCANLINES
-                       : ImageConsumer.TOPDOWNLEFTRIGHT | ImageConsumer.COMPLETESCANLINES |
-                           ImageConsumer.SINGLEPASS | ImageConsumer.SINGLEFRAME);
+      int flags = interlaceMethod == 0 ? ImageConsumer.TOPDOWNLEFTRIGHT
+          | ImageConsumer.COMPLETESCANLINES |
+          ImageConsumer.SINGLEPASS | ImageConsumer.SINGLEFRAME
+          : ImageConsumer.TOPDOWNLEFTRIGHT | ImageConsumer.COMPLETESCANLINES;
       setHints(flags);
       headerComplete();
       // end of adding
 
-      int samplesPerPixel = ((colorType & PALETTE) != 0 ? 1
-                                 : ((colorType & COLOR) != 0 ? 3 : 1) + ((colorType & ALPHA) != 0
-                                                                             ? 1 : 0));
+      int samplesPerPixel = (colorType & PALETTE) == 0 ? ((colorType & COLOR) == 0 ? 1 : 3) + (
+          (colorType & ALPHA) == 0 ? 0 : 1) : 1;
       int bitsPerPixel = samplesPerPixel * bitDepth;
-      int bytesPerPixel = (bitsPerPixel + 7) >> 3;
+      int bytesPerPixel = bitsPerPixel + 7 >> 3;
       int pass, passLimit;
       if (interlaceMethod == 0) {
         pass = -1;
@@ -484,15 +481,16 @@ public class PNGImageDecoder extends ImageDecoder {
             /* code changed. target not needed here
                while(++pass<=passLimit && (t=target)!=null) {
                */
-      while (++pass <= passLimit) {
+      ++pass;
+      while (pass <= passLimit) {
         int row = startingRow[pass];
         int rowInc = rowIncrement[pass];
         int colInc = colIncrement[pass];
         int bWidth = blockWidth[pass];
         int bHeight = blockHeight[pass];
         int sCol = startingCol[pass];
-        int rowPixelWidth = (width - sCol + (colInc - 1)) / colInc;
-        int rowByteWidth = ((rowPixelWidth * bitsPerPixel) + 7) >> 3;
+        int rowPixelWidth = (width - sCol + colInc - 1) / colInc;
+        int rowByteWidth = rowPixelWidth * bitsPerPixel + 7 >> 3;
         if (rowByteWidth == 0) {
           continue;
         }
@@ -521,41 +519,39 @@ public class PNGImageDecoder extends ImageDecoder {
               bytesPerPixel);
           int col = sCol;
           int spos = 0;
-          int pixel = 0;
+          int pixel;
           while (col < width) {
             if (wPixels != null) {
               switch (combinedType) {
-                case COLOR | ALPHA | (8 << 3):
-                  wPixels[col + rowOffset] = ((rowByteBuffer[spos] & 0xFF) << 16) | (
-                      (rowByteBuffer[spos + 1] & 0xFF) << 8) | ((rowByteBuffer[spos + 2] & 0xFF))
-                      | ((rowByteBuffer[spos + 3] & 0xFF) << 24);
+                case COLOR | ALPHA | 8 << 3:
+                  wPixels[col + rowOffset] = (rowByteBuffer[spos] & 0xFF) << 16 |
+                      (rowByteBuffer[spos + 1] & 0xFF) << 8 | rowByteBuffer[spos + 2] & 0xFF
+                      | (rowByteBuffer[spos + 3] & 0xFF) << 24;
                   spos += 4;
                   break;
-                case COLOR | ALPHA | (16 << 3):
-                  wPixels[col + rowOffset] = ((rowByteBuffer[spos] & 0xFF) << 16) | (
-                      (rowByteBuffer[spos + 2] & 0xFF) << 8) | ((rowByteBuffer[spos + 4] & 0xFF))
-                      | ((rowByteBuffer[spos + 6] & 0xFF) << 24);
+                case COLOR | ALPHA | 16 << 3:
+                  wPixels[col + rowOffset] = (rowByteBuffer[spos] & 0xFF) << 16 |
+                      (rowByteBuffer[spos + 2] & 0xFF) << 8 | rowByteBuffer[spos + 4] & 0xFF
+                      | (rowByteBuffer[spos + 6] & 0xFF) << 24;
                   spos += 8;
                   break;
-                case COLOR | (8 << 3):
-                  pixel = ((rowByteBuffer[spos] & 0xFF) << 16) | ((rowByteBuffer[spos + 1] & 0xFF)
-                                                                      << 8) | ((rowByteBuffer[spos
-                      + 2] & 0xFF));
+                case COLOR | 8 << 3:
+                  pixel = (rowByteBuffer[spos] & 0xFF) << 16 | (rowByteBuffer[spos + 1] & 0xFF) << 8
+                      | rowByteBuffer[spos + 2] & 0xFF;
                   if (pixel != transparentPixel) {
                     pixel |= 0xff000000;
                   }
                   wPixels[col + rowOffset] = pixel;
                   spos += 3;
                   break;
-                case COLOR | (16 << 3):
-                  pixel = ((rowByteBuffer[spos] & 0xFF) << 16) | ((rowByteBuffer[spos + 2] & 0xFF)
-                                                                      << 8) | ((rowByteBuffer[spos
-                      + 4] & 0xFF));
+                case COLOR | 16 << 3:
+                  pixel = (rowByteBuffer[spos] & 0xFF) << 16 | (rowByteBuffer[spos + 2] & 0xFF) << 8
+                      | rowByteBuffer[spos + 4] & 0xFF;
 
-                  boolean isTransparent = (transparentPixel_16 != null);
-                  for (int i = 0; isTransparent && (i < 6); i++) {
-                    isTransparent &= (rowByteBuffer[spos + i] & 0xFF) == (transparentPixel_16[i]
-                                                                              & 0xFF);
+                  boolean isTransparent = transparentPixel_16 != null;
+                  for (int i = 0; isTransparent && i < 6; i++) {
+                    isTransparent = (rowByteBuffer[spos + i] & 0xFF) == (transparentPixel_16[i]
+                                                                             & 0xFF);
                   }
                   if (!isTransparent) {
                     pixel |= 0xff000000;
@@ -563,42 +559,42 @@ public class PNGImageDecoder extends ImageDecoder {
                   wPixels[col + rowOffset] = pixel;
                   spos += 6;
                   break;
-                case GRAY | ALPHA | (8 << 3): {
+                case ALPHA | 8 << 3: {
                   int tx = rowByteBuffer[spos] & 0xFF;
-                  wPixels[col + rowOffset] = (tx << 16) | (tx << 8) | tx | (
-                      (rowByteBuffer[spos + 1] & 0xFF) << 24);
+                  wPixels[col + rowOffset] = tx << 16 | tx << 8 | tx |
+                      (rowByteBuffer[spos + 1] & 0xFF) << 24;
                 }
                 spos += 2;
                 break;
-                case GRAY | ALPHA | (16 << 3): {
+                case ALPHA | 16 << 3:
                   int tx = rowByteBuffer[spos] & 0xFF;
-                  wPixels[col + rowOffset] = (tx << 16) | (tx << 8) | tx | (
-                      (rowByteBuffer[spos + 2] & 0xFF) << 24);
-                }
-                spos += 4;
-                break;
+                  wPixels[col + rowOffset] = tx << 16 | tx << 8 | tx |
+                      (rowByteBuffer[spos + 2] & 0xFF) << 24;
+                  spos += 4;
+                  break;
                 default:
                   throw new PNGException("illegal type/depth");
               }
             } else {
               switch (bitDepth) {
                 case 1:
-                  bPixels[col + rowOffset] = (byte) ((rowByteBuffer[spos >> 3] >> (7 - (spos & 7)))
+                  bPixels[col + rowOffset] = (byte) (rowByteBuffer[spos >> 3] >> 7 - (spos & 7)
                                                          & 1);
                   spos++;
                   break;
                 case 2:
                   bPixels[col + rowOffset] = (byte) (
-                      (rowByteBuffer[spos >> 2] >> ((3 - (spos & 3)) * 2)) & 3);
+                      rowByteBuffer[spos >> 2] >> ((3 - (spos & 3)) << 1) & 3);
                   spos++;
                   break;
                 case 4:
                   bPixels[col + rowOffset] = (byte) (
-                      (rowByteBuffer[spos >> 1] >> ((1 - (spos & 1)) * 4)) & 15);
+                      rowByteBuffer[spos >> 1] >> ((1 - (spos & 1)) << 2) & 15);
                   spos++;
                   break;
                 case 8:
-                  bPixels[col + rowOffset] = rowByteBuffer[spos++];
+                  bPixels[col + rowOffset] = rowByteBuffer[spos];
+                  spos++;
                   break;
                 case 16:
                   bPixels[col + rowOffset] = rowByteBuffer[spos];
@@ -654,6 +650,7 @@ public class PNGImageDecoder extends ImageDecoder {
             //end of adding
           }
         }
+        ++pass;
       }
 
    /* Here, the function "visit(row,column,height,width)" obtains the
@@ -716,7 +713,7 @@ public class PNGImageDecoder extends ImageDecoder {
   }
 
   private void filterRow(
-      byte rowByteBuffer[], byte[] prevRow, int rowFilter, int rowByteWidth, int bytesPerSample)
+      byte[] rowByteBuffer, byte[] prevRow, int rowFilter, int rowByteWidth, int bytesPerSample)
       throws IOException {
     int x = 0;
     switch (rowFilter) {
@@ -740,7 +737,7 @@ public class PNGImageDecoder extends ImageDecoder {
             rowByteBuffer[x] += (0xff & prevRow[x]) >> 1;
           }
           for (; x < rowByteWidth; x++) {
-            rowByteBuffer[x] += ((prevRow[x] & 0xFF) + (rowByteBuffer[x - bytesPerSample] & 0xFF))
+            rowByteBuffer[x] += (prevRow[x] & 0xFF) + (rowByteBuffer[x - bytesPerSample] & 0xFF)
                 >> 1;
           }
         } else {
@@ -763,7 +760,7 @@ public class PNGImageDecoder extends ImageDecoder {
             pa = p > a ? p - a : a - p;
             pb = p > b ? p - b : b - p;
             pc = p > c ? p - c : c - p;
-            rowByteBuffer[x] += (pa <= pb) && (pa <= pc) ? a : pb <= pc ? b : c;
+            rowByteBuffer[x] += pa <= pb && pa <= pc ? a : pb <= pc ? b : c;
           }
         } else {
           for (x = bytesPerSample; x < rowByteWidth; x++) {
@@ -780,7 +777,7 @@ public class PNGImageDecoder extends ImageDecoder {
     if (!seenEOF) {
       if (pos > 0 && pos < limit) {
         System.arraycopy(inbuf, pos, inbuf, 0, limit - pos);
-        limit = limit - pos;
+        limit -= pos;
         pos = 0;
       } else if (pos >= limit) {
         pos = 0;
@@ -809,9 +806,9 @@ public class PNGImageDecoder extends ImageDecoder {
     if (seenEOF) {
       return false;
     }
-    byte nin[] = new byte[n + 100];
+    byte[] nin = new byte[n + 100];
     System.arraycopy(inbuf, pos, nin, 0, limit - pos);
-    limit = limit - pos;
+    limit -= pos;
     pos = 0;
     inbuf = nin;
     fill();
@@ -819,13 +816,12 @@ public class PNGImageDecoder extends ImageDecoder {
   }
 
   private final int getInt(int pos) {
-    return ((inbuf[pos] & 0xFF) << 24) | ((inbuf[pos + 1] & 0xFF) << 16) | ((inbuf[pos + 2] & 0xFF)
-                                                                                << 8) | ((inbuf[pos
-        + 3] & 0xFF));
+    return (inbuf[pos] & 0xFF) << 24 | (inbuf[pos + 1] & 0xFF) << 16 | (inbuf[pos + 2] & 0xFF) << 8
+        | inbuf[pos + 3] & 0xFF;
   }
 
   private final int getShort(int pos) {
-    return (short) (((inbuf[pos] & 0xFF) << 8) | ((inbuf[pos + 1] & 0xFF)));
+    return (short) ((inbuf[pos] & 0xFF) << 8 | inbuf[pos + 1] & 0xFF);
   }
 
   private final int getByte(int pos) {
@@ -871,7 +867,7 @@ public class PNGImageDecoder extends ImageDecoder {
   }
 
   protected void wrc(int c) {
-    c = c & 0xFF;
+    c &= 0xFF;
     if (c <= ' ' || c > 'z') {
       c = '?';
     }
@@ -896,7 +892,14 @@ public class PNGImageDecoder extends ImageDecoder {
   }
 
   public static class Chromaticities {
-    public float whiteX, whiteY, redX, redY, greenX, greenY, blueX, blueY;
+    public final float whiteX;
+    public final float whiteY;
+    public final float redX;
+    public final float redY;
+    public final float greenX;
+    public final float greenY;
+    public final float blueX;
+    public final float blueY;
 
     Chromaticities(int wx, int wy, int rx, int ry, int gx, int gy, int bx, int by) {
       whiteX = wx / 100000.0f;
@@ -918,6 +921,8 @@ public class PNGImageDecoder extends ImageDecoder {
   }
 
   public class PNGException extends IOException {
+    private static final long serialVersionUID = 8982870496517364382L;
+
     PNGException(String s) {
       super(s);
     }
@@ -927,8 +932,8 @@ public class PNGImageDecoder extends ImageDecoder {
 // the following class are added to make it work with ImageDecoder architecture
 
 class PNGFilterInputStream extends FilterInputStream {
-  public InputStream underlyingInputStream;
-  PNGImageDecoder owner;
+  public final InputStream underlyingInputStream;
+  final PNGImageDecoder owner;
 
   public PNGFilterInputStream(PNGImageDecoder owner, InputStream is) {
     super(is);
@@ -936,6 +941,7 @@ class PNGFilterInputStream extends FilterInputStream {
     this.owner = owner;
   }
 
+  @Override
   public int read() throws IOException {
     if (owner.chunkLength <= 0) {
       if (!owner.getData()) {
@@ -943,13 +949,17 @@ class PNGFilterInputStream extends FilterInputStream {
       }
     }
     owner.chunkLength--;
-    return owner.inbuf[owner.chunkStart++] & 0xFF;
+    int result = owner.inbuf[owner.chunkStart] & 0xFF;
+    owner.chunkStart++;
+    return result;
   }
 
+  @Override
   public int read(byte[] b) throws IOException {
     return read(b, 0, b.length);
   }
 
+  @Override
   public int read(byte[] b, int st, int len) throws IOException {
     if (owner.chunkLength <= 0) {
       if (!owner.getData()) {
@@ -965,18 +975,20 @@ class PNGFilterInputStream extends FilterInputStream {
     return len;
   }
 
+  @Override
   public long skip(long n) throws IOException {
     int i;
     for (i = 0; i < n && read() >= 0; i++) {
-      ;
     }
     return i;
   }
 
+  @Override
   public int available() throws IOException {
     return owner.limit - owner.pos + in.available();
   }
 
+  @Override
   public boolean markSupported() {
     return false;
   }

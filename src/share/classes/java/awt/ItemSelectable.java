@@ -38,29 +38,29 @@ import java.awt.event.ItemListener;
 public interface ItemSelectable {
 
   /**
-   * Returns the selected items or <code>null</code> if no
+   * Returns the selected items or {@code null} if no
    * items are selected.
    */
-  public Object[] getSelectedObjects();
+  Object[] getSelectedObjects();
 
   /**
    * Adds a listener to receive item events when the state of an item is
    * changed by the user. Item events are not sent when an item's
-   * state is set programmatically.  If <code>l</code> is
-   * <code>null</code>, no exception is thrown and no action is performed.
+   * state is set programmatically.  If {@code l} is
+   * {@code null}, no exception is thrown and no action is performed.
    *
    * @param l the listener to receive events
    * @see ItemEvent
    */
-  public void addItemListener(ItemListener l);
+  void addItemListener(ItemListener l);
 
   /**
    * Removes an item listener.
-   * If <code>l</code> is <code>null</code>,
+   * If {@code l} is {@code null},
    * no exception is thrown and no action is performed.
    *
    * @param l the listener being removed
    * @see ItemEvent
    */
-  public void removeItemListener(ItemListener l);
+  void removeItemListener(ItemListener l);
 }

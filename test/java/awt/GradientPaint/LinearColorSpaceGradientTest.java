@@ -34,8 +34,9 @@ import java.awt.image.*;
  * @author ceisserer
  */
 public class LinearColorSpaceGradientTest extends Frame {
-    BufferedImage srcImg;
-    Image dstImg;
+    private static final long serialVersionUID = -1370532666256987351L;
+    final BufferedImage srcImg;
+    final Image dstImg;
 
     public LinearColorSpaceGradientTest() {
         srcImg = createSrcImage();
@@ -58,6 +59,7 @@ public class LinearColorSpaceGradientTest extends Frame {
         g.fillRect(-10, -10, 30, 30);
     }
 
+    @Override
     public void paint(Graphics g1) {
         Graphics2D g = (Graphics2D) g1;
         renderToVI(createSrcImage(), dstImg);
@@ -97,11 +99,12 @@ public class LinearColorSpaceGradientTest extends Frame {
     }
 
     public static void main(String[] args) throws Exception {
-        boolean show = (args.length > 0 && "-show".equals(args[0]));
+        boolean show = args.length > 0 && "-show".equals(args[0]);
 
-        final LinearColorSpaceGradientTest t = new LinearColorSpaceGradientTest();
+        LinearColorSpaceGradientTest t = new LinearColorSpaceGradientTest();
         if (show) {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     t.showFrame();
                 }

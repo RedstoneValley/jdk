@@ -39,36 +39,32 @@ public class PaintEventDispatcher {
   private static PaintEventDispatcher dispatcher;
 
   /**
-   * Returns the currently active <code>PaintEventDispatcher</code>.  This
+   * Returns the currently active {@code PaintEventDispatcher}.  This
    * will never return null.
    *
    * @return PaintEventDispatcher
    */
-  public static PaintEventDispatcher getPaintEventDispatcher() {
-    synchronized (PaintEventDispatcher.class) {
-      if (dispatcher == null) {
-        dispatcher = new PaintEventDispatcher();
-      }
-      return dispatcher;
+  public static synchronized PaintEventDispatcher getPaintEventDispatcher() {
+    if (dispatcher == null) {
+      dispatcher = new PaintEventDispatcher();
     }
+    return dispatcher;
   }
 
   /**
-   * Sets the current <code>PaintEventDispatcher</code>.
+   * Sets the current {@code PaintEventDispatcher}.
    *
    * @param dispatcher PaintEventDispatcher
    */
-  public static void setPaintEventDispatcher(
+  public static synchronized void setPaintEventDispatcher(
       PaintEventDispatcher dispatcher) {
-    synchronized (PaintEventDispatcher.class) {
-      PaintEventDispatcher.dispatcher = dispatcher;
-    }
+    PaintEventDispatcher.dispatcher = dispatcher;
   }
 
   /**
-   * Creates and returns the <code>PaintEvent</code> that should be
+   * Creates and returns the {@code PaintEvent} that should be
    * dispatched for the specified component.  If this returns null
-   * no <code>PaintEvent</code> is dispatched.
+   * no {@code PaintEvent} is dispatched.
    * <p>
    * <b>WARNING:</b> This is invoked from the native thread, be careful
    * what methods you end up invoking here.

@@ -38,6 +38,7 @@
  */
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -46,7 +47,6 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.table.AbstractTableModel;
 
 /**
  * An adaptor, transforming the JDBC interface to the TableModel interface.
@@ -60,7 +60,7 @@ public class JDBCAdapter extends AbstractTableModel {
   Statement statement;
   ResultSet resultSet;
   String[] columnNames = {};
-  List<List<Object>> rows = new ArrayList<List<Object>>();
+  List<List<Object>> rows = new ArrayList<>();
   ResultSetMetaData metaData;
 
   public JDBCAdapter(String url, String driverName, String user, String passwd) {
@@ -97,9 +97,9 @@ public class JDBCAdapter extends AbstractTableModel {
       }
 
       // Get all rows.
-      rows = new ArrayList<List<Object>>();
+      rows = new ArrayList<>();
       while (resultSet.next()) {
-        List<Object> newRow = new ArrayList<Object>();
+        List<Object> newRow = new ArrayList<>();
         for (int i = 1; i <= getColumnCount(); i++) {
           newRow.add(resultSet.getObject(i));
         }
@@ -135,11 +135,7 @@ public class JDBCAdapter extends AbstractTableModel {
   // MetaData
   @Override
   public String getColumnName(int column) {
-    if (columnNames[column] != null) {
-      return columnNames[column];
-    } else {
-      return "";
-    }
+    return columnNames[column] != null ? columnNames[column] : "";
   }
 
   @Override
@@ -173,7 +169,7 @@ public class JDBCAdapter extends AbstractTableModel {
         return Double.class;
 
       case Types.DATE:
-        return java.sql.Date.class;
+        return Date.class;
 
       default:
         return Object.class;
@@ -222,11 +218,11 @@ public class JDBCAdapter extends AbstractTableModel {
       case Types.FLOAT:
         return value.toString();
       case Types.BIT:
-        return ((Boolean) value).booleanValue() ? "1" : "0";
+        return (Boolean) value ? "1" : "0";
       case Types.DATE:
         return value.toString(); // This will need some conversion.
       default:
-        return "\"" + value.toString() + "\"";
+        return "\"" + value + "\"";
     }
   }
 
@@ -239,19 +235,18 @@ public class JDBCAdapter extends AbstractTableModel {
         System.out.println("Table name returned null.");
       }
       String columnName = getColumnName(column);
-      String query = "update " + tableName + " set " + columnName + " = " + dbRepresentation(
-          column,
+      String query = "update " + tableName + " set " + columnName + " = " + dbRepresentation(column,
           value) + " where ";
       // We don't have a model of the schema so we don't know the
       // primary keys or which columns to lock on. To demonstrate
       // that editing is possible, we'll just lock on everything.
       for (int col = 0; col < getColumnCount(); col++) {
         String colName = getColumnName(col);
-        if (colName.equals("")) {
+        if ("".equals(colName)) {
           continue;
         }
         if (col != 0) {
-          query = query + " and ";
+          query += " and ";
         }
         query = query + colName + " = " + dbRepresentation(col, getValueAt(row, col));
       }

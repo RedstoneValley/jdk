@@ -37,16 +37,19 @@ import sun.awt.SunToolkit;
  */
 public final class TextAreaTwicePack {
 
-    public static void main(final String[] args) {
-        final Frame frame = new Frame();
-        final TextArea ta = new TextArea();
+  private TextAreaTwicePack() {
+  }
+
+  public static void main(String[] args) {
+        Frame frame = new Frame();
+        TextArea ta = new TextArea();
         frame.add(ta);
         frame.pack();
         frame.setVisible(true);
         sleep();
-        final Dimension before = frame.getSize();
+        Dimension before = frame.getSize();
         frame.pack();
-        final Dimension after = frame.getSize();
+        Dimension after = frame.getSize();
         if (!after.equals(before)) {
             throw new RuntimeException(
                     "Expected size: " + before + ", actual size: " + after);

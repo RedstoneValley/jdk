@@ -37,7 +37,7 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
   ImageDecoder decoder;
   ImageDecoder decoders;
 
-  boolean awaitingFetch = false;
+  boolean awaitingFetch;
 
   abstract boolean checkSecurity(Object context, boolean quiet);
 
@@ -60,10 +60,12 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
     return i;
   }
 
+  @Override
   public void addConsumer(ImageConsumer ic) {
     addConsumer(ic, false);
   }
 
+  @Override
   public synchronized boolean isConsumer(ImageConsumer ic) {
     for (ImageDecoder id = decoders; id != null; id = id.next) {
       if (id.isConsumer(ic)) {
@@ -73,6 +75,7 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
     return ImageConsumerQueue.isConsumer(consumers, ic);
   }
 
+  @Override
   public synchronized void removeConsumer(ImageConsumer ic) {
     for (ImageDecoder id = decoders; id != null; id = id.next) {
       id.removeConsumer(ic);
@@ -80,10 +83,12 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
     consumers = ImageConsumerQueue.removeConsumer(consumers, ic, false);
   }
 
+  @Override
   public void startProduction(ImageConsumer ic) {
     addConsumer(ic, true);
   }
 
+  @Override
   public void requestTopDownLeftRightResend(ImageConsumer ic) {
   }
 
@@ -275,6 +280,7 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
     return null;
   }
 
+  @Override
   public void doFetch() {
     synchronized (this) {
       if (consumers == null) {
@@ -289,10 +295,7 @@ public abstract class InputStreamImageSource implements ImageProducer, ImageFetc
       setDecoder(imgd);
       try {
         imgd.produceImage();
-      } catch (IOException e) {
-        e.printStackTrace();
-        // the finally clause will send an error.
-      } catch (ImageFormatException e) {
+      } catch (IOException | ImageFormatException e) {
         e.printStackTrace();
         // the finally clause will send an error.
       } finally {

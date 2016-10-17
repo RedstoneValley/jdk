@@ -33,10 +33,10 @@ import sun.awt.SunToolkit;
 import sun.awt.AppContext;
 
 public class Test8012933 {
-    private AppContext appContext = null;
+    AppContext appContext;
     final ThreadGroup threadGroup = new ThreadGroup("test thread group");
     final Object lock = new Object();
-    boolean isCreated = false;
+    boolean isCreated;
 
     public static void main(String[] args) throws Exception {
         SunToolkit.createNewAppContext();
@@ -53,14 +53,15 @@ public class Test8012933 {
         // dispatch thread running fails to create it, so it takes
         // almost 10 sec to return from dispose(), which is spent
         // waiting on the notificationLock.
-        if ((endTime - startTime) > 9000) {
+        if (endTime - startTime > 9000) {
             throw new RuntimeException("Returning from dispose() took too much time, probably a bug");
         }
     }
 
     private void createAppContext() {
         isCreated = false;
-        final Runnable runnable = new Runnable() {
+        Runnable runnable = new Runnable() {
+                @Override
                 public void run() {
                     appContext = SunToolkit.createNewAppContext();
                     synchronized (lock) {
@@ -70,7 +71,7 @@ public class Test8012933 {
                 }
             };
 
-        final Thread thread = new Thread(threadGroup, runnable, "creates app context");
+        Thread thread = new Thread(threadGroup, runnable, "creates app context");
         synchronized (lock) {
             thread.start();
             while (!isCreated) {

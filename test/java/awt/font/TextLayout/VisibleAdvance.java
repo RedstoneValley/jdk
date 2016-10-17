@@ -40,14 +40,19 @@ Left-to-right (Multiple styles): Advance = 127.30078, Visible advance = 118.3007
 Right-to-left (Multiple styles): Advance = 127.30078, Visible advance = 118.30078
 */
 
-public class VisibleAdvance
+public final class VisibleAdvance
 {
-    public static void main (String [] args)
+  private VisibleAdvance() {
+  }
+
+  public static void main (String [] args)
     {
         System.out.println ("java.version = " + System.getProperty ("java.version"));
 
-        float advances[] = null;
-        advances = showAndCalculateAdvance ("Left-to-right (One style): ", getString (TextAttribute.RUN_DIRECTION_LTR, false), advances);
+        float[] advances;
+        advances = showAndCalculateAdvance ("Left-to-right (One style): ", getString (TextAttribute.RUN_DIRECTION_LTR, false),
+
+            null);
         advances = showAndCalculateAdvance ("Right-to-left (One style): ", getString (TextAttribute.RUN_DIRECTION_RTL, false), advances);
 
         advances = showAndCalculateAdvance ("Left-to-right (Multiple styles): ", getString (TextAttribute.RUN_DIRECTION_LTR, true), advances);
@@ -62,7 +67,7 @@ public class VisibleAdvance
     private static final int startOfTextB = textA.length ();
     private static final int endOfTextB = startOfTextB + textB.length ();
 
-    private static final Font font = new Font ("Serif", Font.PLAIN, 12);
+    private static final Font font = new Font (Font.SERIF, Font.PLAIN, 12);
 
     private static AttributedString getString (Boolean direction,
                                                boolean multipleStyles)
@@ -71,13 +76,14 @@ public class VisibleAdvance
         as.addAttribute (TextAttribute.FONT, font);
         as.addAttribute (TextAttribute.RUN_DIRECTION, direction);
 
-        if (multipleStyles)
-            as.addAttribute (TextAttribute.FOREGROUND, Color.RED, startOfTextB, endOfTextB);
+        if (multipleStyles) {
+            as.addAttribute(TextAttribute.FOREGROUND, Color.RED, startOfTextB, endOfTextB);
+        }
 
         return as;
     }
 
-    private static FontRenderContext fontRenderContext =
+    private static final FontRenderContext fontRenderContext =
         new FontRenderContext (new AffineTransform (), true, true);
 
     /*
@@ -85,8 +91,7 @@ public class VisibleAdvance
      * @param return new float array
      */
     private static float[] showAndCalculateAdvance (String what,
-                                     AttributedString as,
-                                     float advances[])
+                                     AttributedString as, float[] advances)
     {
         TextLayout layout = new TextLayout (as.getIterator (), fontRenderContext);
 

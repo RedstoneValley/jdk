@@ -26,23 +26,24 @@
 package java.awt;
 
 import java.awt.image.ColorModel;
+import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
 /**
- * The <code>GraphicsDevice</code> class describes the graphics devices
+ * The {@code GraphicsDevice} class describes the graphics devices
  * that might be available in a particular graphics environment.  These
  * include screen and printer devices. Note that there can be many screens
  * and many printers in an instance of {@link GraphicsEnvironment}. Each
  * graphics device has one or more {@link GraphicsConfiguration} objects
  * associated with it.  These objects specify the different configurations
- * in which the <code>GraphicsDevice</code> can be used.
+ * in which the {@code GraphicsDevice} can be used.
  * <p>
- * In a multi-screen environment, the <code>GraphicsConfiguration</code>
+ * In a multi-screen environment, the {@code GraphicsConfiguration}
  * objects can be used to render components on multiple screens.  The
- * following code sample demonstrates how to create a <code>JFrame</code>
- * object for each <code>GraphicsConfiguration</code> on each screen
- * device in the <code>GraphicsEnvironment</code>:
+ * following code sample demonstrates how to create a {@code JFrame}
+ * object for each {@code GraphicsConfiguration} on each screen
+ * device in the {@code GraphicsEnvironment}:
  * <pre>{@code
  *   GraphicsEnvironment ge = GraphicsEnvironment.
  *   getLocalGraphicsEnvironment();
@@ -77,16 +78,16 @@ public abstract class GraphicsDevice {
   /**
    * Device is a raster screen.
    */
-  public final static int TYPE_RASTER_SCREEN = 0;
+  public static final int TYPE_RASTER_SCREEN = 0;
   /**
    * Device is a printer.
    */
-  public final static int TYPE_PRINTER = 1;
+  public static final int TYPE_PRINTER = 1;
   /**
    * Device is an image buffer.  This buffer can reside in device
    * or system memory but it is not physically viewable by the user.
    */
-  public final static int TYPE_IMAGE_BUFFER = 2;
+  public static final int TYPE_IMAGE_BUFFER = 2;
   // created the FS window
   // this lock is used for making synchronous changes to the AppContext's
   // current full screen window
@@ -136,10 +137,24 @@ public abstract class GraphicsDevice {
     return ((SunToolkit) curToolkit).isWindowOpacitySupported();
   }
 
+  /*
+     * Returns true if the calling thread is the event dispatch thread
+     * contained within AppContext which associated with the given target.
+     * Use this call to ensure that a given task is being executed
+     * (or not being) on the event dispatch thread for the given target.
+     */
+  public static boolean isDispatchThreadForAppContext(Object target) {
+    AppContext appContext = SunToolkit.targetToAppContext(target);
+    EventQueue eq = (EventQueue) appContext.get(AppContext.EVENT_QUEUE_KEY);
+
+    AWTAccessor.EventQueueAccessor accessor = AWTAccessor.getEventQueueAccessor();
+    return accessor.isDispatchThreadImpl(eq);
+  }
+
   /**
-   * Returns the type of this <code>GraphicsDevice</code>.
+   * Returns the type of this {@code GraphicsDevice}.
    *
-   * @return the type of this <code>GraphicsDevice</code>, which can
+   * @return the type of this {@code GraphicsDevice}, which can
    * either be TYPE_RASTER_SCREEN, TYPE_PRINTER or TYPE_IMAGE_BUFFER.
    * @see #TYPE_RASTER_SCREEN
    * @see #TYPE_PRINTER
@@ -149,44 +164,44 @@ public abstract class GraphicsDevice {
 
   /**
    * Returns the identification string associated with this
-   * <code>GraphicsDevice</code>.
+   * {@code GraphicsDevice}.
    * <p>
    * A particular program might use more than one
-   * <code>GraphicsDevice</code> in a <code>GraphicsEnvironment</code>.
-   * This method returns a <code>String</code> identifying a
-   * particular <code>GraphicsDevice</code> in the local
-   * <code>GraphicsEnvironment</code>.  Although there is
-   * no public method to set this <code>String</code>, a programmer can
-   * use the <code>String</code> for debugging purposes.  Vendors of
+   * {@code GraphicsDevice} in a {@code GraphicsEnvironment}.
+   * This method returns a {@code String} identifying a
+   * particular {@code GraphicsDevice} in the local
+   * {@code GraphicsEnvironment}.  Although there is
+   * no public method to set this {@code String}, a programmer can
+   * use the {@code String} for debugging purposes.  Vendors of
    * the Java&trade; Runtime Environment can
-   * format the return value of the <code>String</code>.  To determine
-   * how to interpret the value of the <code>String</code>, contact the
+   * format the return value of the {@code String}.  To determine
+   * how to interpret the value of the {@code String}, contact the
    * vendor of your Java Runtime.  To find out who the vendor is, from
    * your program, call the
    * {@link System#getProperty(String) getProperty} method of the
    * System class with "java.vendor".
    *
-   * @return a <code>String</code> that is the identification
-   * of this <code>GraphicsDevice</code>.
+   * @return a {@code String} that is the identification
+   * of this {@code GraphicsDevice}.
    */
   public abstract String getIDstring();
 
   /**
-   * Returns all of the <code>GraphicsConfiguration</code>
-   * objects associated with this <code>GraphicsDevice</code>.
+   * Returns all of the {@code GraphicsConfiguration}
+   * objects associated with this {@code GraphicsDevice}.
    *
-   * @return an array of <code>GraphicsConfiguration</code>
+   * @return an array of {@code GraphicsConfiguration}
    * objects that are associated with this
-   * <code>GraphicsDevice</code>.
+   * {@code GraphicsDevice}.
    */
   public abstract GraphicsConfiguration[] getConfigurations();
 
   /**
-   * Returns the default <code>GraphicsConfiguration</code>
-   * associated with this <code>GraphicsDevice</code>.
+   * Returns the default {@code GraphicsConfiguration}
+   * associated with this {@code GraphicsDevice}.
    *
-   * @return the default <code>GraphicsConfiguration</code>
-   * of this <code>GraphicsDevice</code>.
+   * @return the default {@code GraphicsConfiguration}
+   * of this {@code GraphicsDevice}.
    */
   public abstract GraphicsConfiguration getDefaultConfiguration();
 
@@ -194,11 +209,11 @@ public abstract class GraphicsDevice {
    * Returns the "best" configuration possible that passes the
    * criteria defined in the {@link GraphicsConfigTemplate}.
    *
-   * @param gct the <code>GraphicsConfigTemplate</code> object
-   *            used to obtain a valid <code>GraphicsConfiguration</code>
-   * @return a <code>GraphicsConfiguration</code> that passes
+   * @param gct the {@code GraphicsConfigTemplate} object
+   *            used to obtain a valid {@code GraphicsConfiguration}
+   * @return a {@code GraphicsConfiguration} that passes
    * the criteria defined in the specified
-   * <code>GraphicsConfigTemplate</code>.
+   * {@code GraphicsConfigTemplate}.
    * @see GraphicsConfigTemplate
    */
   public GraphicsConfiguration getBestConfiguration(GraphicsConfigTemplate gct) {
@@ -207,17 +222,17 @@ public abstract class GraphicsDevice {
   }
 
   /**
-   * Returns <code>true</code> if this <code>GraphicsDevice</code>
+   * Returns {@code true} if this {@code GraphicsDevice}
    * supports full-screen exclusive mode.
    * If a SecurityManager is installed, its
-   * <code>checkPermission</code> method will be called
-   * with <code>AWTPermission("fullScreenExclusive")</code>.
-   * <code>isFullScreenSupported</code> returns true only if
+   * {@code checkPermission} method will be called
+   * with {@code AWTPermission("fullScreenExclusive")}.
+   * {@code isFullScreenSupported} returns true only if
    * that permission is granted.
    *
    * @return whether full-screen exclusive mode is available for
    * this graphics device
-   * @see java.awt.AWTPermission
+   * @see AWTPermission
    * @since 1.4
    */
   public boolean isFullScreenSupported() {
@@ -225,10 +240,10 @@ public abstract class GraphicsDevice {
   }
 
   /**
-   * Returns the <code>Window</code> object representing the
+   * Returns the {@code Window} object representing the
    * full-screen window if the device is in full-screen mode.
    *
-   * @return the full-screen window, or <code>null</code> if the device is
+   * @return the full-screen window, or {@code null} if the device is
    * not in full-screen mode.
    * @see #setFullScreenWindow(Window)
    * @since 1.4
@@ -248,8 +263,8 @@ public abstract class GraphicsDevice {
   /**
    * Enter full-screen mode, or return to windowed mode.  The entered
    * full-screen mode may be either exclusive or simulated.  Exclusive
-   * mode is only available if <code>isFullScreenSupported</code>
-   * returns <code>true</code>.
+   * mode is only available if {@code isFullScreenSupported}
+   * returns {@code true}.
    * <p>
    * Exclusive mode implies:
    * <ul>
@@ -260,7 +275,7 @@ public abstract class GraphicsDevice {
    * will cause the existing full-screen window to
    * return to windowed mode.
    * <li>Input method windows are disabled.  It is advisable to call
-   * <code>Component.enableInputMethods(false)</code> to make a component
+   * {@code Component.enableInputMethods(false)} to make a component
    * a non-client of the input method framework.
    * </ul>
    * <p>
@@ -315,7 +330,7 @@ public abstract class GraphicsDevice {
         w.setBackground(bgColor);
       }
       // Check if this window is in fullscreen mode on another device.
-      final GraphicsConfiguration gc = w.getGraphicsConfiguration();
+      GraphicsConfiguration gc = w.getGraphicsConfiguration();
       if (gc != null && gc.getDevice() != this && gc.getDevice().getFullScreenWindow() == w) {
         gc.getDevice().setFullScreenWindow(null);
       }
@@ -334,11 +349,7 @@ public abstract class GraphicsDevice {
     // Set the full screen window
     synchronized (fsAppContextLock) {
       // Associate fullscreen window with current AppContext
-      if (w == null) {
-        fullScreenAppContext = null;
-      } else {
-        fullScreenAppContext = AppContext.getAppContext();
-      }
+      fullScreenAppContext = w == null ? null : AppContext.getAppContext();
       fullScreenWindow = w;
     }
     if (fullScreenWindow != null) {
@@ -346,9 +357,9 @@ public abstract class GraphicsDevice {
       // Note that we use the graphics configuration of the device,
       // not the window's, because we're setting the fs window for
       // this device.
-      final GraphicsConfiguration gc = getDefaultConfiguration();
-      final Rectangle screenBounds = gc.getBounds();
-      if (SunToolkit.isDispatchThreadForAppContext(fullScreenWindow)) {
+      GraphicsConfiguration gc = getDefaultConfiguration();
+      Rectangle screenBounds = gc.getBounds();
+      if (isDispatchThreadForAppContext(fullScreenWindow)) {
         // Update graphics configuration here directly and do not wait
         // asynchronous notification from the peer. Note that
         // setBounds() will reset a GC, if it was set incorrectly.
@@ -364,7 +375,7 @@ public abstract class GraphicsDevice {
   }
 
   /**
-   * Returns <code>true</code> if this <code>GraphicsDevice</code>
+   * Returns {@code true} if this {@code GraphicsDevice}
    * supports low-level display changes.
    * On some platforms low-level display changes may only be allowed in
    * full-screen exclusive mode (i.e., if {@link #isFullScreenSupported()}
@@ -384,7 +395,7 @@ public abstract class GraphicsDevice {
 
   /**
    * Returns the current display mode of this
-   * <code>GraphicsDevice</code>.
+   * {@code GraphicsDevice}.
    * The returned display mode is allowed to have a refresh rate
    * {@link DisplayMode#REFRESH_RATE_UNKNOWN} if it is indeterminate.
    * Likewise, the returned display mode is allowed to have a bit depth
@@ -421,7 +432,7 @@ public abstract class GraphicsDevice {
    * {@link #getDisplayModes()}.
    * <p>
    * Example code:
-   * <pre><code>
+   * <pre>{@code
    * Frame frame;
    * DisplayMode newDisplayMode;
    * GraphicsDevice gd;
@@ -440,16 +451,16 @@ public abstract class GraphicsDevice {
    * if (gd.isDisplayChangeSupported()) {
    *     gd.setDisplayMode(newDisplayMode);
    * }
-   * </code></pre>
+   * }</pre>
    *
    * @param dm The new display mode of this graphics device.
-   * @throws IllegalArgumentException      if the <code>DisplayMode</code>
-   *                                       supplied is <code>null</code>, or is not available in
+   * @throws IllegalArgumentException      if the {@code DisplayMode}
+   *                                       supplied is {@code null}, or is not available in
    *                                       the array returned
-   *                                       by <code>getDisplayModes</code>
+   *                                       by {@code getDisplayModes}
    * @throws UnsupportedOperationException if
-   *                                       <code>isDisplayChangeSupported</code> returns
-   *                                       <code>false</code>
+   *                                       {@code isDisplayChangeSupported} returns
+   *                                       {@code false}
    * @see #getDisplayMode
    * @see #getDisplayModes
    * @see #isDisplayChangeSupported
@@ -461,7 +472,7 @@ public abstract class GraphicsDevice {
 
   /**
    * Returns all display modes available for this
-   * <code>GraphicsDevice</code>.
+   * {@code GraphicsDevice}.
    * The returned display modes are allowed to have a refresh rate
    * {@link DisplayMode#REFRESH_RATE_UNKNOWN} if it is indeterminate.
    * Likewise, the returned display modes are allowed to have a bit depth
@@ -560,9 +571,9 @@ public abstract class GraphicsDevice {
 
     // ... otherwise iterate through all the GCs.
     GraphicsConfiguration[] configs = getConfigurations();
-    for (int j = 0; j < configs.length; j++) {
-      if (configs[j].isTranslucencyCapable()) {
-        return configs[j];
+    for (GraphicsConfiguration config : configs) {
+      if (config.isTranslucencyCapable()) {
+        return config;
       }
     }
 
@@ -575,7 +586,7 @@ public abstract class GraphicsDevice {
    * @see #isWindowTranslucencySupported
    * @since 1.7
    */
-  public static enum WindowTranslucency {
+  public enum WindowTranslucency {
     /**
      * Represents support in the underlying system for windows each pixel
      * of which is guaranteed to be either completely opaque, with
@@ -594,6 +605,6 @@ public abstract class GraphicsDevice {
      * contain or might contain pixels with arbitrary alpha values
      * between and including 0.0 and 1.0.
      */
-    PERPIXEL_TRANSLUCENT;
+    PERPIXEL_TRANSLUCENT
   }
 }

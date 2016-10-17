@@ -29,10 +29,8 @@
   @run applet FrameMouseEventAbsoluteCoordsTest.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 // Part II
 // Create Frame.
@@ -42,15 +40,15 @@ import test.java.awt.regtesthelpers.Util;
 public class FrameMouseEventAbsoluteCoordsTest extends Applet implements MouseListener
 {
     Robot robot;
-    Frame frame = new Frame("MouseEvent Test Frame II");
-    Button button = new Button("Just Button");
+    final Frame frame = new Frame("MouseEvent Test Frame II");
+    final Button button = new Button("Just Button");
     Point mousePositionAbsolute;
     Point mousePosition;
 
     public void init()
     {
 
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
         button.addMouseListener(this);
         frame.add(button);
         frame.pack();
@@ -66,12 +64,11 @@ public class FrameMouseEventAbsoluteCoordsTest extends Applet implements MouseLi
         try {
             robot = new Robot();
             robot.setAutoWaitForIdle(true);
-            mousePositionAbsolute = new Point(button.getLocationOnScreen().x + button.getWidth()/2,
-                                              button.getLocationOnScreen().y + button.getHeight()/2);
-            mousePosition = new Point(button.getWidth()/2,
-                                      button.getHeight()/2);
-            robot.mouseMove(mousePositionAbsolute.x,
-                            mousePositionAbsolute.y );
+            mousePositionAbsolute = new Point(
+                button.getLocationOnScreen().x + button.getWidth()/2,
+                button.getLocationOnScreen().y + button.getHeight()/2);
+            mousePosition = new Point(button.getWidth()/2, button.getHeight()/2);
+            robot.mouseMove(mousePositionAbsolute.x, mousePositionAbsolute.y );
             //            robot.delay(1000);
             robot.mousePress(InputEvent.BUTTON1_MASK);
             robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -80,35 +77,46 @@ public class FrameMouseEventAbsoluteCoordsTest extends Applet implements MouseLi
         }
     }// start()
 
+    @Override
     public void mousePressed(MouseEvent e){
         checkEventAbsolutePosition(e, "MousePressed OK");
-    };
+    }
+
+    @Override
     public void mouseReleased(MouseEvent e){
         checkEventAbsolutePosition(e, "MouseReleased OK");
-    };
+    }
+
+    @Override
     public void mouseClicked(MouseEvent e){
         checkEventAbsolutePosition(e, "MouseClicked OK");
-    };
+    }
+
+    @Override
     public void mouseEntered(MouseEvent e){
         System.out.println("mouse entered");
-    };
+    }
+
+    @Override
     public void mouseExited(MouseEvent e){
         System.out.println("mouse exited");
-    };
+    }
 
     public void checkEventAbsolutePosition(MouseEvent evt, String message){
         if (evt.getXOnScreen() != mousePositionAbsolute.x ||
             evt.getYOnScreen() != mousePositionAbsolute.y ||
-            !evt.getLocationOnScreen().equals( mousePositionAbsolute )  ){
+            !evt.getLocationOnScreen().equals(mousePositionAbsolute)  ){
             throw new RuntimeException("get(X|Y)OnScreen() or getLocationOnScreen() works incorrectly: expected"+
-                                       mousePositionAbsolute.x+":"+mousePositionAbsolute.y+
+
+                mousePositionAbsolute.x+":"+ mousePositionAbsolute.y+
                                        "\n Got:"+ evt.getXOnScreen()+":"+evt.getYOnScreen());
         }
         if (evt.getX() != mousePosition.x ||
             evt.getY() != mousePosition.y ||
-            !evt.getPoint().equals( mousePosition )  ){
+            !evt.getPoint().equals(mousePosition)  ){
             throw new RuntimeException("get(X|Y)() or getLocationOnScreen() works incorrectly: expected"+
-                                       mousePositionAbsolute.x+":"+mousePositionAbsolute.y+"\n Got:"
+
+                mousePositionAbsolute.x+":"+ mousePositionAbsolute.y+"\n Got:"
                                        +evt.getX()+":"+evt.getY());
         }
         System.out.println(message);

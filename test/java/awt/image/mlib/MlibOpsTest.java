@@ -47,9 +47,12 @@ import java.util.Arrays;
 
 import sun.awt.image.ImagingLib;
 
-public class MlibOpsTest {
+public final class MlibOpsTest {
 
-    public static void main(String[] args) {
+  private MlibOpsTest() {
+  }
+
+  public static void main(String[] args) {
         System.out.println("AffineTransformOp:");
         BufferedImageOp op = getAffineTransformOp();
         doTest(op);
@@ -66,7 +69,7 @@ public class MlibOpsTest {
     public static void doTest(BufferedImageOp op) {
         BufferedImage src = createSrcImage();
         BufferedImage dst = createImage();
-        BufferedImage ret = null;
+        BufferedImage ret;
         try {
             ret = ImagingLib.filter(op, src, dst);
         } catch (Exception e) {
@@ -107,8 +110,8 @@ public class MlibOpsTest {
     }
 
 
-    private static int w = 100;
-    private static int h = 100;
+    private static final int w = 100;
+    private static final int h = 100;
 
     private static BufferedImage createImage() {
         return new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);

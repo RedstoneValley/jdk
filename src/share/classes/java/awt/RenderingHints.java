@@ -25,6 +25,7 @@
 
 package java.awt;
 
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,7 +39,7 @@ import sun.awt.SunHints;
  * keys and associated values which allow an application to provide input
  * into the choice of algorithms used by other classes which perform
  * rendering and image manipulation services.
- * The {@link java.awt.Graphics2D} class, and classes that implement
+ * The {@link Graphics2D} class, and classes that implement
  * {@link java.awt.image.BufferedImageOp} and
  * {@link java.awt.image.RasterOp} all provide methods to get and
  * possibly to set individual or groups of {@code RenderingHints}
@@ -72,7 +73,7 @@ import sun.awt.SunHints;
  * value for that key is the exact value that specifies the algorithm.
  * <p>
  * The keys used to control the hints are all special values that
- * subclass the associated {@link RenderingHints.Key} class.
+ * subclass the associated {@link Key} class.
  * Many common hints are expressed below as static constants in this
  * class, but the list is not meant to be exhaustive.
  * Other hints may be created by other packages by defining new objects
@@ -104,20 +105,20 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_ON = SunHints.VALUE_ANTIALIAS_ON;
+  public static final Object VALUE_ANTIALIAS_ON = SunHints.Value.VALUE_ANTIALIAS_ON;
   /**
    * Antialiasing hint value -- rendering is done without antialiasing.
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_OFF = SunHints.VALUE_ANTIALIAS_OFF;
+  public static final Object VALUE_ANTIALIAS_OFF = SunHints.Value.VALUE_ANTIALIAS_OFF;
   /**
    * Antialiasing hint value -- rendering is done with a default
    * antialiasing mode chosen by the implementation.
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_DEFAULT = SunHints.VALUE_ANTIALIAS_DEFAULT;
+  public static final Object VALUE_ANTIALIAS_DEFAULT = SunHints.Value.VALUE_ANTIALIAS_DEFAULT;
   /**
    * Rendering hint key.
    * The {@code RENDERING} hint is a general hint that provides
@@ -141,14 +142,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_SPEED = SunHints.VALUE_RENDER_SPEED;
+  public static final Object VALUE_RENDER_SPEED = SunHints.Value.VALUE_RENDER_SPEED;
   /**
    * Rendering hint value -- rendering algorithms are chosen
    * with a preference for output quality.
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_QUALITY = SunHints.VALUE_RENDER_QUALITY;
+  public static final Object VALUE_RENDER_QUALITY = SunHints.Value.VALUE_RENDER_QUALITY;
   /**
    * Rendering hint value -- rendering algorithms are chosen
    * by the implementation for a good tradeoff of performance
@@ -156,7 +157,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_DEFAULT = SunHints.VALUE_RENDER_DEFAULT;
+  public static final Object VALUE_RENDER_DEFAULT = SunHints.Value.VALUE_RENDER_DEFAULT;
   /**
    * Dithering hint key.
    * The {@code DITHERING} hint controls how closely to approximate
@@ -186,20 +187,20 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_DISABLE = SunHints.VALUE_DITHER_DISABLE;
+  public static final Object VALUE_DITHER_DISABLE = SunHints.Value.VALUE_DITHER_DISABLE;
   /**
    * Dithering hint value -- dither when rendering geometry, if needed.
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_ENABLE = SunHints.VALUE_DITHER_ENABLE;
+  public static final Object VALUE_DITHER_ENABLE = SunHints.Value.VALUE_DITHER_ENABLE;
   /**
    * Dithering hint value -- use a default for dithering chosen by
    * the implementation.
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_DEFAULT = SunHints.VALUE_DITHER_DEFAULT;
+  public static final Object VALUE_DITHER_DEFAULT = SunHints.Value.VALUE_DITHER_DEFAULT;
   /**
    * Text antialiasing hint key.
    * The {@code TEXT_ANTIALIASING} hint can control the use of
@@ -235,14 +236,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_ON = SunHints.VALUE_TEXT_ANTIALIAS_ON;
+  public static final Object VALUE_TEXT_ANTIALIAS_ON = SunHints.Value.VALUE_TEXT_ANTIALIAS_ON;
   /**
    * Text antialiasing hint value -- text rendering is done without
    * any form of antialiasing.
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_OFF = SunHints.VALUE_TEXT_ANTIALIAS_OFF;
+  public static final Object VALUE_TEXT_ANTIALIAS_OFF = SunHints.Value.VALUE_TEXT_ANTIALIAS_OFF;
   /**
    * Text antialiasing hint value -- text rendering is done according
    * to the {@link #KEY_ANTIALIASING} hint or a default chosen by the
@@ -250,7 +251,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_DEFAULT = SunHints.VALUE_TEXT_ANTIALIAS_DEFAULT;
+  public static final Object VALUE_TEXT_ANTIALIAS_DEFAULT = SunHints.Value.VALUE_TEXT_ANTIALIAS_DEFAULT;
   /**
    * Text antialiasing hint value -- text rendering is requested to
    * use information in the font resource which specifies for each point
@@ -275,7 +276,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_GASP = SunHints.VALUE_TEXT_ANTIALIAS_GASP;
+  public static final Object VALUE_TEXT_ANTIALIAS_GASP = SunHints.Value.VALUE_TEXT_ANTIALIAS_GASP;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixels in order from display
@@ -320,7 +321,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HRGB = SunHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HRGB = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixels in order from display
@@ -335,7 +336,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HBGR = SunHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HBGR = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixel organisation from display
@@ -351,7 +352,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VRGB = SunHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VRGB = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixel organisation from display
@@ -367,10 +368,10 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VBGR = SunHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VBGR = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
   /**
    * LCD text contrast rendering hint key.
-   * The value is an <code>Integer</code> object which is used as a text
+   * The value is an {@code Integer} object which is used as a text
    * contrast adjustment when used in conjunction with an LCD text
    * anti-aliasing hint such as
    * {@link #VALUE_TEXT_ANTIALIAS_LCD_HRGB}.
@@ -489,14 +490,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_FRACTIONALMETRICS
    */
-  public static final Object VALUE_FRACTIONALMETRICS_OFF = SunHints.VALUE_FRACTIONALMETRICS_OFF;
+  public static final Object VALUE_FRACTIONALMETRICS_OFF = SunHints.Value.VALUE_FRACTIONALMETRICS_OFF;
   /**
    * Font fractional metrics hint value -- character glyphs are
    * positioned with sub-pixel accuracy.
    *
    * @see #KEY_FRACTIONALMETRICS
    */
-  public static final Object VALUE_FRACTIONALMETRICS_ON = SunHints.VALUE_FRACTIONALMETRICS_ON;
+  public static final Object VALUE_FRACTIONALMETRICS_ON = SunHints.Value.VALUE_FRACTIONALMETRICS_ON;
   /**
    * Font fractional metrics hint value -- character glyphs are
    * positioned with accuracy chosen by the implementation.
@@ -504,7 +505,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_FRACTIONALMETRICS
    */
   public static final Object VALUE_FRACTIONALMETRICS_DEFAULT
-      = SunHints.VALUE_FRACTIONALMETRICS_DEFAULT;
+      = SunHints.Value.VALUE_FRACTIONALMETRICS_DEFAULT;
   /**
    * Interpolation hint key.
    * The {@code INTERPOLATION} hint controls how image pixels are
@@ -551,7 +552,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_INTERPOLATION
    */
   public static final Object VALUE_INTERPOLATION_NEAREST_NEIGHBOR
-      = SunHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+      = SunHints.Value.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
   /**
    * Interpolation hint value -- the color samples of the 4 nearest
    * neighboring integer coordinate samples in the image are
@@ -576,7 +577,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_INTERPOLATION
    */
-  public static final Object VALUE_INTERPOLATION_BILINEAR = SunHints.VALUE_INTERPOLATION_BILINEAR;
+  public static final Object VALUE_INTERPOLATION_BILINEAR = SunHints.Value.VALUE_INTERPOLATION_BILINEAR;
   /**
    * Interpolation hint value -- the color samples of 9 nearby
    * integer coordinate samples in the image are interpolated using
@@ -597,7 +598,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_INTERPOLATION
    */
-  public static final Object VALUE_INTERPOLATION_BICUBIC = SunHints.VALUE_INTERPOLATION_BICUBIC;
+  public static final Object VALUE_INTERPOLATION_BICUBIC = SunHints.Value.VALUE_INTERPOLATION_BICUBIC;
   /**
    * Alpha interpolation hint key.
    * The {@code ALPHA_INTERPOLATION} hint is a general hint that
@@ -628,7 +629,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_SPEED
-      = SunHints.VALUE_ALPHA_INTERPOLATION_SPEED;
+      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_SPEED;
   /**
    * Alpha interpolation hint value -- alpha blending algorithms
    * are chosen with a preference for precision and visual quality.
@@ -636,7 +637,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_QUALITY
-      = SunHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
+      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_QUALITY;
   /**
    * Alpha interpolation hint value -- alpha blending algorithms
    * are chosen by the implementation for a good tradeoff of
@@ -645,7 +646,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_DEFAULT
-      = SunHints.VALUE_ALPHA_INTERPOLATION_DEFAULT;
+      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_DEFAULT;
   /**
    * Color rendering hint key.
    * The {@code COLOR_RENDERING} hint controls the accuracy of
@@ -701,14 +702,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_SPEED = SunHints.VALUE_COLOR_RENDER_SPEED;
+  public static final Object VALUE_COLOR_RENDER_SPEED = SunHints.Value.VALUE_COLOR_RENDER_SPEED;
   /**
    * Color rendering hint value -- perform the color conversion
    * calculations with the highest accuracy and visual quality.
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_QUALITY = SunHints.VALUE_COLOR_RENDER_QUALITY;
+  public static final Object VALUE_COLOR_RENDER_QUALITY = SunHints.Value.VALUE_COLOR_RENDER_QUALITY;
   /**
    * Color rendering hint value -- perform color conversion
    * calculations as chosen by the implementation to represent
@@ -717,7 +718,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_DEFAULT = SunHints.VALUE_COLOR_RENDER_DEFAULT;
+  public static final Object VALUE_COLOR_RENDER_DEFAULT = SunHints.Value.VALUE_COLOR_RENDER_DEFAULT;
   /**
    * Stroke normalization control hint key.
    * The {@code STROKE_CONTROL} hint controls whether a rendering
@@ -758,7 +759,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_DEFAULT = SunHints.VALUE_STROKE_DEFAULT;
+  public static final Object VALUE_STROKE_DEFAULT = SunHints.Value.VALUE_STROKE_DEFAULT;
   /**
    * Stroke normalization control hint value -- geometry should
    * be normalized to improve uniformity or spacing of lines and
@@ -769,7 +770,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_NORMALIZE = SunHints.VALUE_STROKE_NORMALIZE;
+  public static final Object VALUE_STROKE_NORMALIZE = SunHints.Value.VALUE_STROKE_NORMALIZE;
   /**
    * Stroke normalization control hint value -- geometry should
    * be left unmodified and rendered with sub-pixel accuracy.
@@ -777,7 +778,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_PURE = SunHints.VALUE_STROKE_PURE;
+  public static final Object VALUE_STROKE_PURE = SunHints.Value.VALUE_STROKE_PURE;
   HashMap<Object, Object> hintmap = new HashMap<>(7);
 
   /**
@@ -798,7 +799,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @param key   the key of the particular hint property
    * @param value the value of the hint property specified with
-   *              <code>key</code>
+   *              {@code key}
    */
   public RenderingHints(Key key, Object value) {
     hintmap.put(key, value);
@@ -806,22 +807,24 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
 
   /**
    * Returns the number of key-value mappings in this
-   * <code>RenderingHints</code>.
+   * {@code RenderingHints}.
    *
    * @return the number of key-value mappings in this
-   * <code>RenderingHints</code>.
+   * {@code RenderingHints}.
    */
+  @Override
   public int size() {
     return hintmap.size();
   }
 
   /**
-   * Returns <code>true</code> if this
-   * <code>RenderingHints</code> contains no key-value mappings.
+   * Returns {@code true} if this
+   * {@code RenderingHints} contains no key-value mappings.
    *
-   * @return <code>true</code> if this
-   * <code>RenderingHints</code> contains no key-value mappings.
+   * @return {@code true} if this
+   * {@code RenderingHints} contains no key-value mappings.
    */
+  @Override
   public boolean isEmpty() {
     return hintmap.isEmpty();
   }
@@ -837,28 +840,30 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @throws ClassCastException if the key can not
    *                            be cast to {@code RenderingHints.Key}
    */
+  @Override
   public boolean containsKey(Object key) {
-    return hintmap.containsKey((Key) key);
+    return hintmap.containsKey(key);
   }
 
   /**
    * Returns true if this RenderingHints maps one or more keys to the
    * specified value.
-   * More formally, returns <code>true</code> if and only
-   * if this <code>RenderingHints</code>
-   * contains at least one mapping to a value <code>v</code> such that
+   * More formally, returns {@code true} if and only
+   * if this {@code RenderingHints}
+   * contains at least one mapping to a value {@code v} such that
    * <pre>
    * (value==null ? v==null : value.equals(v))
    * </pre>.
    * This operation will probably require time linear in the
-   * <code>RenderingHints</code> size for most implementations
-   * of <code>RenderingHints</code>.
+   * {@code RenderingHints} size for most implementations
+   * of {@code RenderingHints}.
    *
    * @param value value whose presence in this
-   *              <code>RenderingHints</code> is to be tested.
-   * @return <code>true</code> if this <code>RenderingHints</code>
+   *              {@code RenderingHints} is to be tested.
+   * @return {@code true} if this {@code RenderingHints}
    * maps one or more keys to the specified value.
    */
+  @Override
   public boolean containsValue(Object value) {
     return hintmap.containsValue(value);
   }
@@ -874,8 +879,9 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *                            be cast to {@code RenderingHints.Key}
    * @see #put(Object, Object)
    */
+  @Override
   public Object get(Object key) {
-    return hintmap.get((Key) key);
+    return hintmap.get(key);
   }
 
   /**
@@ -894,19 +900,20 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @throws ClassCastException       if the key can not
    *                                  be cast to {@code RenderingHints.Key}
    * @throws IllegalArgumentException if the
-   *                                  {@link Key#isCompatibleValue(java.lang.Object)
+   *                                  {@link Key#isCompatibleValue(Object)
    *                                  Key.isCompatibleValue()}
    *                                  method of the specified key returns false for the
    *                                  specified value
    * @see #get(Object)
    */
+  @Override
   public Object put(Object key, Object value) {
     if (!((Key) key).isCompatibleValue(value)) {
       throw new IllegalArgumentException(value +
           " incompatible with " +
           key);
     }
-    return hintmap.put((Key) key, value);
+    return hintmap.put(key, value);
   }
 
   /**
@@ -921,8 +928,9 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @throws ClassCastException if the key can not
    *                            be cast to {@code RenderingHints.Key}
    */
+  @Override
   public Object remove(Object key) {
-    return hintmap.remove((Key) key);
+    return hintmap.remove(key);
   }
 
   /**
@@ -940,108 +948,113 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *                                  prevents it from being stored in
    *                                  this {@code RenderingHints}.
    */
+  @Override
   public void putAll(Map<?, ?> m) {
     // ## javac bug?
     //if (m instanceof RenderingHints) {
     if (RenderingHints.class.isInstance(m)) {
       //hintmap.putAll(((RenderingHints) m).hintmap);
-      for (Map.Entry<?, ?> entry : m.entrySet()) {
+      for (Entry<?, ?> entry : m.entrySet()) {
         hintmap.put(entry.getKey(), entry.getValue());
       }
     } else {
       // Funnel each key/value pair through our protected put method
-      for (Map.Entry<?, ?> entry : m.entrySet()) {
+      for (Entry<?, ?> entry : m.entrySet()) {
         put(entry.getKey(), entry.getValue());
       }
     }
   }
 
   /**
-   * Clears this <code>RenderingHints</code> object of all key/value
+   * Clears this {@code RenderingHints} object of all key/value
    * pairs.
    */
+  @Override
   public void clear() {
     hintmap.clear();
   }
 
   /**
-   * Returns a <code>Set</code> view of the Keys contained in this
-   * <code>RenderingHints</code>.  The Set is backed by the
-   * <code>RenderingHints</code>, so changes to the
-   * <code>RenderingHints</code> are reflected in the <code>Set</code>,
-   * and vice-versa.  If the <code>RenderingHints</code> is modified
-   * while an iteration over the <code>Set</code> is in progress,
-   * the results of the iteration are undefined.  The <code>Set</code>
+   * Returns a {@code Set} view of the Keys contained in this
+   * {@code RenderingHints}.  The Set is backed by the
+   * {@code RenderingHints}, so changes to the
+   * {@code RenderingHints} are reflected in the {@code Set},
+   * and vice-versa.  If the {@code RenderingHints} is modified
+   * while an iteration over the {@code Set} is in progress,
+   * the results of the iteration are undefined.  The {@code Set}
    * supports element removal, which removes the corresponding
-   * mapping from the <code>RenderingHints</code>, via the
-   * <code>Iterator.remove</code>, <code>Set.remove</code>,
-   * <code>removeAll</code> <code>retainAll</code>, and
-   * <code>clear</code> operations.  It does not support
-   * the <code>add</code> or <code>addAll</code> operations.
+   * mapping from the {@code RenderingHints}, via the
+   * {@code Iterator.remove}, {@code Set.remove},
+   * {@code removeAll} {@code retainAll}, and
+   * {@code clear} operations.  It does not support
+   * the {@code add} or {@code addAll} operations.
    *
-   * @return a <code>Set</code> view of the keys contained
-   * in this <code>RenderingHints</code>.
+   * @return a {@code Set} view of the keys contained
+   * in this {@code RenderingHints}.
    */
+  @Override
   public Set<Object> keySet() {
     return hintmap.keySet();
   }
 
   /**
-   * Returns a <code>Collection</code> view of the values
-   * contained in this <code>RenderinHints</code>.
-   * The <code>Collection</code> is backed by the
-   * <code>RenderingHints</code>, so changes to
-   * the <code>RenderingHints</code> are reflected in
-   * the <code>Collection</code>, and vice-versa.
-   * If the <code>RenderingHints</code> is modified while
-   * an iteration over the <code>Collection</code> is
+   * Returns a {@code Collection} view of the values
+   * contained in this {@code RenderinHints}.
+   * The {@code Collection} is backed by the
+   * {@code RenderingHints}, so changes to
+   * the {@code RenderingHints} are reflected in
+   * the {@code Collection}, and vice-versa.
+   * If the {@code RenderingHints} is modified while
+   * an iteration over the {@code Collection} is
    * in progress, the results of the iteration are undefined.
-   * The <code>Collection</code> supports element removal,
+   * The {@code Collection} supports element removal,
    * which removes the corresponding mapping from the
-   * <code>RenderingHints</code>, via the
-   * <code>Iterator.remove</code>,
-   * <code>Collection.remove</code>, <code>removeAll</code>,
-   * <code>retainAll</code> and <code>clear</code> operations.
-   * It does not support the <code>add</code> or
-   * <code>addAll</code> operations.
+   * {@code RenderingHints}, via the
+   * {@code Iterator.remove},
+   * {@code Collection.remove}, {@code removeAll},
+   * {@code retainAll} and {@code clear} operations.
+   * It does not support the {@code add} or
+   * {@code addAll} operations.
    *
-   * @return a <code>Collection</code> view of the values
-   * contained in this <code>RenderingHints</code>.
+   * @return a {@code Collection} view of the values
+   * contained in this {@code RenderingHints}.
    */
+  @Override
   public Collection<Object> values() {
     return hintmap.values();
   }
 
   /**
-   * Returns a <code>Set</code> view of the mappings contained
-   * in this <code>RenderingHints</code>.  Each element in the
-   * returned <code>Set</code> is a <code>Map.Entry</code>.
-   * The <code>Set</code> is backed by the <code>RenderingHints</code>,
-   * so changes to the <code>RenderingHints</code> are reflected
-   * in the <code>Set</code>, and vice-versa.  If the
-   * <code>RenderingHints</code> is modified while
-   * while an iteration over the <code>Set</code> is in progress,
+   * Returns a {@code Set} view of the mappings contained
+   * in this {@code RenderingHints}.  Each element in the
+   * returned {@code Set} is a {@code Map.Entry}.
+   * The {@code Set} is backed by the {@code RenderingHints},
+   * so changes to the {@code RenderingHints} are reflected
+   * in the {@code Set}, and vice-versa.  If the
+   * {@code RenderingHints} is modified while
+   * while an iteration over the {@code Set} is in progress,
    * the results of the iteration are undefined.
    * <p>
-   * The entrySet returned from a <code>RenderingHints</code> object
+   * The entrySet returned from a {@code RenderingHints} object
    * is not modifiable.
    *
-   * @return a <code>Set</code> view of the mappings contained in
-   * this <code>RenderingHints</code>.
+   * @return a {@code Set} view of the mappings contained in
+   * this {@code RenderingHints}.
    */
-  public Set<Map.Entry<Object, Object>> entrySet() {
+  @Override
+  public Set<Entry<Object, Object>> entrySet() {
     return Collections.unmodifiableMap(hintmap).entrySet();
   }
 
   /**
    * Adds all of the keys and corresponding values from the specified
-   * <code>RenderingHints</code> object to this
-   * <code>RenderingHints</code> object. Keys that are present in
-   * this <code>RenderingHints</code> object, but not in the specified
-   * <code>RenderingHints</code> object are not affected.
+   * {@code RenderingHints} object to this
+   * {@code RenderingHints} object. Keys that are present in
+   * this {@code RenderingHints} object, but not in the specified
+   * {@code RenderingHints} object are not affected.
    *
    * @param hints the set of key/value pairs to be added to this
-   *              <code>RenderingHints</code> object
+   *              {@code RenderingHints} object
    */
   public void add(RenderingHints hints) {
     hintmap.putAll(hints.hintmap);
@@ -1057,8 +1070,8 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * {@code equals()} method.
    */
   public abstract static class Key {
-    private static HashMap<Object, Object> identitymap = new HashMap<>(17);
-    private int privatekey;
+    private static final HashMap<Object, Object> identitymap = new HashMap<>(17);
+    private final int privatekey;
 
     /**
      * Construct a key using the indicated private key.  Each
@@ -1076,11 +1089,11 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
       recordIdentity(this);
     }
 
-    private synchronized static void recordIdentity(Key k) {
+    private static synchronized void recordIdentity(Key k) {
       Object identity = k.getIdentity();
       Object otherref = identitymap.get(identity);
       if (otherref != null) {
-        Key otherkey = (Key) ((WeakReference) otherref).get();
+        Key otherkey = (Key) ((Reference) otherref).get();
         if (otherkey != null && otherkey.getClass() == k.getClass()) {
           throw new IllegalArgumentException(identity + " already registered");
         }
@@ -1103,7 +1116,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
       }
       // Note: Use a weak reference to avoid holding on to extra
       // objects and classes after they should be unloaded.
-      identitymap.put(identity, new WeakReference<Key>(k));
+      identitymap.put(identity, new WeakReference<>(k));
     }
 
     private String getIdentity() {
@@ -1126,9 +1139,9 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
      * Returns true if the specified object is a valid value
      * for this Key.
      *
-     * @param val the <code>Object</code> to test for validity
-     * @return <code>true</code> if <code>val</code> is valid;
-     * <code>false</code> otherwise.
+     * @param val the {@code Object} to test for validity
+     * @return {@code true} if {@code val} is valid;
+     * {@code false} otherwise.
      */
     public abstract boolean isCompatibleValue(Object val);
 
@@ -1162,61 +1175,64 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
   }
 
   /**
-   * Compares the specified <code>Object</code> with this
-   * <code>RenderingHints</code> for equality.
-   * Returns <code>true</code> if the specified object is also a
-   * <code>Map</code> and the two <code>Map</code> objects represent
-   * the same mappings.  More formally, two <code>Map</code> objects
-   * <code>t1</code> and <code>t2</code> represent the same mappings
-   * if <code>t1.keySet().equals(t2.keySet())</code> and for every
-   * key <code>k</code> in <code>t1.keySet()</code>,
+   * Compares the specified {@code Object} with this
+   * {@code RenderingHints} for equality.
+   * Returns {@code true} if the specified object is also a
+   * {@code Map} and the two {@code Map} objects represent
+   * the same mappings.  More formally, two {@code Map} objects
+   * {@code t1} and {@code t2} represent the same mappings
+   * if {@code t1.keySet().equals(t2.keySet())} and for every
+   * key {@code k} in {@code t1.keySet()},
    * <pre>
    * (t1.get(k)==null ? t2.get(k)==null : t1.get(k).equals(t2.get(k)))
    * </pre>.
-   * This ensures that the <code>equals</code> method works properly across
-   * different implementations of the <code>Map</code> interface.
+   * This ensures that the {@code equals} method works properly across
+   * different implementations of the {@code Map} interface.
    *
-   * @param o <code>Object</code> to be compared for equality with
-   *          this <code>RenderingHints</code>.
-   * @return <code>true</code> if the specified <code>Object</code>
-   * is equal to this <code>RenderingHints</code>.
+   * @param o {@code Object} to be compared for equality with
+   *          this {@code RenderingHints}.
+   * @return {@code true} if the specified {@code Object}
+   * is equal to this {@code RenderingHints}.
    */
+  @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object o) {
     if (o instanceof RenderingHints) {
       return hintmap.equals(((RenderingHints) o).hintmap);
-    } else if (o instanceof Map) {
+    }
+    if (o instanceof Map) {
       return hintmap.equals(o);
     }
     return false;
   }
 
   /**
-   * Returns the hash code value for this <code>RenderingHints</code>.
-   * The hash code of a <code>RenderingHints</code> is defined to be
-   * the sum of the hashCodes of each <code>Entry</code> in the
-   * <code>RenderingHints</code> object's entrySet view.  This ensures that
-   * <code>t1.equals(t2)</code> implies that
-   * <code>t1.hashCode()==t2.hashCode()</code> for any two <code>Map</code>
-   * objects <code>t1</code> and <code>t2</code>, as required by the general
-   * contract of <code>Object.hashCode</code>.
+   * Returns the hash code value for this {@code RenderingHints}.
+   * The hash code of a {@code RenderingHints} is defined to be
+   * the sum of the hashCodes of each {@code Entry} in the
+   * {@code RenderingHints} object's entrySet view.  This ensures that
+   * {@code t1.equals(t2)} implies that
+   * {@code t1.hashCode()==t2.hashCode()} for any two {@code Map}
+   * objects {@code t1} and {@code t2}, as required by the general
+   * contract of {@code Object.hashCode}.
    *
-   * @return the hash code value for this <code>RenderingHints</code>.
-   * @see java.util.Map.Entry#hashCode()
-   * @see Object#hashCode()
+   * @return the hash code value for this {@code RenderingHints}.
+   * @see Entry#hashCode()
    * @see Object#equals(Object)
    * @see #equals(Object)
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
     return hintmap.hashCode();
   }
 
   /**
-   * Creates a clone of this <code>RenderingHints</code> object
-   * that has the same contents as this <code>RenderingHints</code>
+   * Creates a clone of this {@code RenderingHints} object
+   * that has the same contents as this {@code RenderingHints}
    * object.
    *
    * @return a clone of this instance.
    */
+  @Override
   @SuppressWarnings("unchecked")
   public Object clone() {
     RenderingHints rh;
@@ -1236,7 +1252,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
   /**
    * Returns a rather long string representation of the hashmap
    * which contains the mappings of keys to values for this
-   * <code>RenderingHints</code> object.
+   * {@code RenderingHints} object.
    *
    * @return a string representation of this object.
    */

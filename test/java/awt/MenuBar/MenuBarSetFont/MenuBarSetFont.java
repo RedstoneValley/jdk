@@ -21,6 +21,9 @@
  * questions.
  */
 
+import java.awt.BorderLayout;
+import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.SunToolkit;
 
 import java.awt.Button;
@@ -48,14 +51,20 @@ public final class MenuBarSetFont {
 
     private static final Frame frame = new Frame();
     private static final MenuBar mb = new MenuBar();
-    private static volatile boolean clicked;
+    static volatile boolean clicked;
+
+    private MenuBarSetFont() {
+    }
 
     private static final class Listener implements ActionListener {
+        Listener() {
+        }
+
         @Override
-        public void actionPerformed(final ActionEvent e) {
+        public void actionPerformed(ActionEvent e) {
             //Click on this button is performed
             //_only_ if font of MenuBar is not changed on time
-            MenuBarSetFont.clicked = true;
+            clicked = true;
         }
     }
 
@@ -64,9 +73,9 @@ public final class MenuBarSetFont {
         frame.validate();
     }
 
-    public static void main(final String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
-        if (sun.awt.OSInfo.getOSType() == sun.awt.OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() == OSType.MACOSX) {
             System.err.println("This test is not for OS X. Menu.setFont() is not supported on OS X.");
             return;
         }
@@ -75,18 +84,18 @@ public final class MenuBarSetFont {
         frame.setMenuBar(mb);
         mb.setFont(new Font("Helvetica", Font.ITALIC, 5));
 
-        final Button button = new Button("Click Me");
+        Button button = new Button("Click Me");
         button.addActionListener(new Listener());
         frame.setLayout(new CardLayout());
-        frame.add(button, "First");
+        frame.add(button, BorderLayout.BEFORE_FIRST_LINE);
         frame.setSize(400, 400);
         frame.setVisible(true);
         sleep();
 
-        final int fInsets = frame.getInsets().top;  //Frame insets without menu.
+        int fInsets = frame.getInsets().top;  //Frame insets without menu.
         addMenu();
-        final int fMenuInsets = frame.getInsets().top; //Frame insets with menu.
-        final int menuBarHeight = fMenuInsets - fInsets;
+        int fMenuInsets = frame.getInsets().top; //Frame insets with menu.
+        int menuBarHeight = fMenuInsets - fInsets;
         // There is no way to change menubar height on windows. But on windows
         // we can try to split menubar in 2 rows.
         for (int i = 0; i < 100 && fMenuInsets == frame.getInsets().top; ++i) {
@@ -105,9 +114,9 @@ public final class MenuBarSetFont {
         mb.setFont(new Font("Helvetica", Font.ITALIC, 60));
         sleep();
 
-        final Robot r = new Robot();
+        Robot r = new Robot();
         r.setAutoDelay(200);
-        final Point pt = frame.getLocation();
+        Point pt = frame.getLocation();
         r.mouseMove(pt.x + frame.getWidth() / 2,
                     pt.y + fMenuInsets + menuBarHeight / 2);
         r.mousePress(InputEvent.BUTTON1_MASK);
@@ -129,7 +138,7 @@ public final class MenuBarSetFont {
         }
     }
 
-    private static void fail(final String message) {
+    private static void fail(String message) {
         throw new RuntimeException(message);
     }
 }

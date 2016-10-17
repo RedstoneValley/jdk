@@ -29,8 +29,6 @@
   @run applet MaximizedFrameTest.html
 */
 
-import java.applet.Applet;
-import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
 
@@ -67,7 +65,7 @@ public class MaximizedFrameTest extends Applet
         boolean titleFound = false;
         for (int j=0; j < lPane.getComponentsInLayer(JLayeredPane.FRAME_CONTENT_LAYER.intValue()).length; j++){
             titleComponent = lPane.getComponentsInLayer(JLayeredPane.FRAME_CONTENT_LAYER.intValue())[j];
-            if (titleComponent.getClass().getName().equals("javax.swing.plaf.metal.MetalTitlePane")){
+            if ("javax.swing.plaf.metal.MetalTitlePane".equals(titleComponent.getClass().getName())){
                 titleFound = true;
                 break;
             }
@@ -81,9 +79,9 @@ public class MaximizedFrameTest extends Applet
         framePosition = frame.getLocationOnScreen();
         try {
             robot = new Robot();
-            tempMousePosition = new Point(framePosition.x +
-                                          frame.getWidth()/2,
-                                          framePosition.y +
+            tempMousePosition = new Point(
+                framePosition.x + frame.getWidth()/2,
+                framePosition.y +
                                           titleComponent.getHeight()/2);
             robot.mouseMove(tempMousePosition.x, tempMousePosition.y);
             for (int iteration=0; iteration < ITERATIONS_COUNT; iteration++){
@@ -98,8 +96,10 @@ public class MaximizedFrameTest extends Applet
                 robot.mouseMove(tempMousePosition.x, tempMousePosition.y);
                 robot.delay(70);
                 robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                if ( frame.getExtendedState() != 0 ){
-                    throw new RuntimeException ("Test failed. JFrame was maximized. ExtendedState is : "+frame.getExtendedState());
+                if (frame.getExtendedState() != 0 ){
+                    throw new RuntimeException ("Test failed. JFrame was maximized. ExtendedState is : "+ frame
+
+                        .getExtendedState());
                 }
                 robot.delay(500);
             } //for iteration

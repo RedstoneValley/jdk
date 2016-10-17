@@ -23,16 +23,9 @@
 
 import java.awt.FlowLayout;
 import java.awt.Robot;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import test.java.awt.regtesthelpers.Util;
 
 /*
  @test
@@ -44,14 +37,17 @@ import test.java.awt.regtesthelpers.Util;
  @compile InputContextMemoryLeakTest.java
  @run main/othervm -Xmx20M InputContextMemoryLeakTest
  */
-public class InputContextMemoryLeakTest {
+public final class InputContextMemoryLeakTest {
 
-    private static JFrame frame;
-    private static WeakReference<JTextField> text;
-    private static WeakReference<JPanel> p;
-    private static JButton button;
+    static JFrame frame;
+    static WeakReference<JTextField> text;
+    static WeakReference<JPanel> p;
+    static JButton button;
 
-    public static void init() throws Throwable {
+  private InputContextMemoryLeakTest() {
+  }
+
+  public static void init() throws Throwable {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
@@ -91,7 +87,7 @@ public class InputContextMemoryLeakTest {
     }
 
       public static void assertGC() throws Throwable {
-        List<byte[]> alloc = new ArrayList<byte[]>();
+        List<byte[]> alloc = new ArrayList<>();
         int size = 1024 * 10;
         while (true) {
             try {
@@ -100,13 +96,12 @@ public class InputContextMemoryLeakTest {
                 break;
             }
         }
-        alloc = null;
         if (text.get() != null) {
             throw new Exception("Test failed: JTextField was not collected");
         }
     }
 
-    public static void main(String args[]) throws Throwable {
+    public static void main(String[] args) throws Throwable {
         init();
     }
 }

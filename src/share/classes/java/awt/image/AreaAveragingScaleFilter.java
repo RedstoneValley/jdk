@@ -52,11 +52,14 @@ package java.awt.image;
  * @see ImageFilter
  */
 public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
+  protected static final int CHANNEL_MAX = 255;
   private static final ColorModel rgbmodel = ColorModel.getRGBdefault();
-  private static final int neededHints = (TOPDOWNLEFTRIGHT | COMPLETESCANLINES);
-
+  private static final int neededHints = TOPDOWNLEFTRIGHT | COMPLETESCANLINES;
   private boolean passthrough;
-  private float reds[], greens[], blues[], alphas[];
+  private float[] reds;
+  private float[] greens;
+  private float[] blues;
+  private float[] alphas;
   private int savedy;
   private int savedyrem;
 
@@ -76,7 +79,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    * to allow the averaging algorithm to do its work.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code> whose
+   * {@code ImageProducer} of the {@code Image} whose
    * pixels are being filtered.  Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -84,8 +87,9 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    *
    * @see ImageConsumer#setHints
    */
+  @Override
   public void setHints(int hints) {
-    passthrough = ((hints & neededHints) != neededHints);
+    passthrough = (hints & neededHints) != neededHints;
     super.setHints(hints);
   }
 
@@ -96,8 +100,9 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
     alphas = new float[destWidth];
   }
 
+  @SuppressWarnings("MagicNumber")
   private int[] calcRow() {
-    float origmult = ((float) srcWidth) * srcHeight;
+    float origmult = (float) srcWidth * srcHeight;
     if (outpixbuf == null || !(outpixbuf instanceof int[])) {
       outpixbuf = new int[destWidth];
     }
@@ -107,37 +112,38 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
       int a = Math.round(alphas[x] / mult);
       if (a <= 0) {
         a = 0;
-      } else if (a >= 255) {
-        a = 255;
+      } else if (a >= CHANNEL_MAX) {
+        a = CHANNEL_MAX;
       } else {
         // un-premultiply the components (by modifying mult here, we
         // are effectively doing the divide by mult and divide by
         // alpha in the same step)
-        mult = alphas[x] / 255;
+        mult = alphas[x] / CHANNEL_MAX;
       }
       int r = Math.round(reds[x] / mult);
       int g = Math.round(greens[x] / mult);
       int b = Math.round(blues[x] / mult);
       if (r < 0) {
         r = 0;
-      } else if (r > 255) {
-        r = 255;
+      } else if (r > CHANNEL_MAX) {
+        r = CHANNEL_MAX;
       }
       if (g < 0) {
         g = 0;
-      } else if (g > 255) {
-        g = 255;
+      } else if (g > CHANNEL_MAX) {
+        g = CHANNEL_MAX;
       }
       if (b < 0) {
         b = 0;
-      } else if (b > 255) {
-        b = 255;
+      } else if (b > CHANNEL_MAX) {
+        b = CHANNEL_MAX;
       }
-      outpix[x] = (a << 24 | r << 16 | g << 8 | b);
+      outpix[x] = a << 24 | r << 16 | g << 8 | b;
     }
     return outpix;
   }
 
+  @SuppressWarnings("MagicNumber")
   private void accumPixels(
       int x, int y, int w, int h, ColorModel model, Object pixels, int off, int scansize) {
     if (reds == null) {
@@ -161,11 +167,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
         }
         dyrem = srcHeight;
       }
-      if (syrem < dyrem) {
-        amty = syrem;
-      } else {
-        amty = dyrem;
-      }
+      amty = syrem < dyrem ? syrem : dyrem;
       int sx = 0;
       int dx = 0;
       int sxrem = 0;
@@ -175,16 +177,13 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
         if (sxrem == 0) {
           sxrem = destWidth;
           int rgb;
-          if (pixels instanceof byte[]) {
-            rgb = ((byte[]) pixels)[off + sx] & 0xff;
-          } else {
-            rgb = ((int[]) pixels)[off + sx];
-          }
+          rgb = pixels instanceof byte[] ? ((byte[]) pixels)[off + sx] & 0xff
+              : ((int[]) pixels)[off + sx];
           // getRGB() always returns non-premultiplied components
           rgb = model.getRGB(rgb);
           a = rgb >>> 24;
-          r = (rgb >> 16) & 0xff;
-          g = (rgb >> 8) & 0xff;
+          r = rgb >> 16 & 0xff;
+          g = rgb >> 8 & 0xff;
           b = rgb & 0xff;
           // premultiply the components if necessary
           if (a != 255.0f) {
@@ -195,12 +194,8 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
           }
         }
         int amtx;
-        if (sxrem < dxrem) {
-          amtx = sxrem;
-        } else {
-          amtx = dxrem;
-        }
-        float mult = ((float) amtx) * amty;
+        amtx = sxrem < dxrem ? sxrem : dxrem;
+        float mult = (float) amtx * amty;
         alphas[dx] += mult * a;
         reds[dx] += mult * r;
         greens[dx] += mult * g;
@@ -214,7 +209,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
         }
       }
       if ((dyrem -= amty) == 0) {
-        int outpix[] = calcRow();
+        int[] outpix = calcRow();
         do {
           consumer.setPixels(0, dy, destWidth, 1, rgbmodel, outpix, 0, destWidth);
           dy++;
@@ -241,7 +236,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    * the delivery hints.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code>
+   * {@code ImageProducer} of the {@code Image}
    * whose pixels are being filtered.  Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -249,8 +244,9 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    *
    * @see ReplicateScaleFilter
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, byte pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, byte[] pixels, int off, int scansize) {
     if (passthrough) {
       super.setPixels(x, y, w, h, model, pixels, off, scansize);
     } else {
@@ -267,7 +263,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    * the delivery hints.
    * <p>
    * Note: This method is intended to be called by the
-   * <code>ImageProducer</code> of the <code>Image</code>
+   * {@code ImageProducer} of the {@code Image}
    * whose pixels are being filtered.  Developers using
    * this class to filter pixels from an image should avoid calling
    * this method directly since that operation could interfere
@@ -275,8 +271,9 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
    *
    * @see ReplicateScaleFilter
    */
+  @Override
   public void setPixels(
-      int x, int y, int w, int h, ColorModel model, int pixels[], int off, int scansize) {
+      int x, int y, int w, int h, ColorModel model, int[] pixels, int off, int scansize) {
     if (passthrough) {
       super.setPixels(x, y, w, h, model, pixels, off, scansize);
     } else {

@@ -37,6 +37,8 @@ import java.awt.image.ImageConsumer;
 import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Hashtable;
 
 /**
@@ -52,92 +54,43 @@ public class JPEGImageDecoder extends ImageDecoder {
   private static final int hintflags = ImageConsumer.TOPDOWNLEFTRIGHT
       | ImageConsumer.COMPLETESCANLINES |
       ImageConsumer.SINGLEFRAME;
-  private static ColorModel RGBcolormodel;
-  private static ColorModel ARGBcolormodel;
-  private static ColorModel Graycolormodel;
+  private static final ColorModel RGBcolormodel;
+  private static final ColorModel ARGBcolormodel;
+  private static final ColorModel Graycolormodel;
 
   static {
-    java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Void>() {
+    AccessController.doPrivileged(new PrivilegedAction<Void>() {
+      @Override
       public Void run() {
         System.loadLibrary("jpeg");
         return null;
       }
     });
-    initIDs(InputStreamClass);
     RGBcolormodel = new DirectColorModel(24, 0xff0000, 0xff00, 0xff);
     ARGBcolormodel = ColorModel.getRGBdefault();
-    byte g[] = new byte[256];
+    byte[] g = new byte[256];
     for (int i = 0; i < 256; i++) {
       g[i] = (byte) i;
     }
     Graycolormodel = new IndexColorModel(8, 256, g, g, g);
   }
 
-  Hashtable props = new Hashtable();
+  final Hashtable props = new Hashtable();
   private ColorModel colormodel;
 
   public JPEGImageDecoder(InputStreamImageSource src, InputStream is) {
     super(src, is);
   }
 
-  private static native void initIDs(Class InputStreamClass);
-
-  /**
-   * An error has occurred. Throw an exception.
-   */
-  private static void error(String s1) throws ImageFormatException {
-    throw new ImageFormatException(s1);
-  }
-
-  private native void readImage(InputStream is, byte buf[])
-      throws ImageFormatException, IOException;
-
-  public boolean sendHeaderInfo(
-      int width, int height, boolean gray, boolean hasalpha, boolean multipass) {
-    setDimensions(width, height);
-
-    setProperties(props);
-    if (gray) {
-      colormodel = Graycolormodel;
-    } else {
-      if (hasalpha) {
-        colormodel = ARGBcolormodel;
-      } else {
-        colormodel = RGBcolormodel;
-      }
-    }
-
-    setColorModel(colormodel);
-
-    int flags = hintflags;
-    if (!multipass) {
-      flags |= ImageConsumer.SINGLEPASS;
-    }
-    setHints(hintflags);
-    headerComplete();
-
-    return true;
-  }
-
-  public boolean sendPixels(int pixels[], int y) {
-    int count = setPixels(0, y, pixels.length, 1, colormodel, pixels, 0, pixels.length);
-    if (count <= 0) {
-      aborted = true;
-    }
-    return !aborted;
-  }
-
-  public boolean sendPixels(byte pixels[], int y) {
-    int count = setPixels(0, y, pixels.length, 1, colormodel, pixels, 0, pixels.length);
-    if (count <= 0) {
-      aborted = true;
-    }
-    return !aborted;
+  private void readImage(InputStream is, byte[] buf)
+      throws ImageFormatException, IOException {
+    // TODO: Native in OpenJDK AWT
   }
 
   /**
    * produce an image from the stream.
    */
+  @Override
   public void produceImage() throws IOException, ImageFormatException {
     try {
       readImage(input, new byte[1024]);

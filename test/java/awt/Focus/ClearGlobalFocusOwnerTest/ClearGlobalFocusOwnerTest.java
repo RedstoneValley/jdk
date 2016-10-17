@@ -33,15 +33,15 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
-public class ClearGlobalFocusOwnerTest {
-    static volatile boolean isFocusLost = false;
-    static Frame frame = new Frame("Test frame");
-    static Button button = new Button("Test button");
+public final class ClearGlobalFocusOwnerTest {
+    static volatile boolean isFocusLost;
+    static final Frame frame = new Frame("Test frame");
+    static final Button button = new Button("Test button");
 
     public static void main(String[] args) {
         button.addFocusListener(new FocusAdapter() {
+                @Override
                 public void focusLost(FocusEvent fe) {
                     if (fe.isTemporary()) {
                         throw new TestFailedException("the FocusLost event is temporary: " + fe);
@@ -60,7 +60,7 @@ public class ClearGlobalFocusOwnerTest {
             button.requestFocus();
             Util.waitForIdle(null);
             if (!button.hasFocus()) {
-                throw new TestErrorException("couldn't focus " + button);
+                throw new TestError("couldn't focus " + button);
             }
         }
 
@@ -80,6 +80,8 @@ public class ClearGlobalFocusOwnerTest {
  * Thrown when the behavior being verified is found wrong.
  */
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
@@ -89,6 +91,8 @@ class TestFailedException extends RuntimeException {
  * Thrown when an error not related to the behavior being verified is encountered.
  */
 class TestErrorException extends RuntimeException {
+    private static final long serialVersionUID = -6567412156900296020L;
+
     TestErrorException(String msg) {
         super("Unexpected error: " + msg);
     }

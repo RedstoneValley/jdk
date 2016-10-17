@@ -41,13 +41,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JTree;
-import javax.swing.UIManager;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeCellRenderer;
 
 @SuppressWarnings("serial")
 public class SampleTreeCellRenderer extends JLabel implements TreeCellRenderer {
@@ -59,24 +52,23 @@ public class SampleTreeCellRenderer extends JLabel implements TreeCellRenderer {
   /**
    * Font used if the string to be displayed isn't a font.
    */
-  protected static Font defaultFont;
+  protected static final Font defaultFont;
   /**
    * Icon to use when the item is collapsed.
    */
-  protected static ImageIcon collapsedIcon;
+  protected static final ImageIcon collapsedIcon;
   /**
    * Icon to use when the item is expanded.
    */
-  protected static ImageIcon expandedIcon;
+  protected static final ImageIcon expandedIcon;
 
   static {
-    if ("Nimbus".equals(UIManager.getLookAndFeel().getName())) {
-      SELECTED_BACKGROUND_COLOR = new Color(0, 0, 0, 0);
-    } else {
-      SELECTED_BACKGROUND_COLOR = Color.YELLOW;
-    }
+    SELECTED_BACKGROUND_COLOR = FileChooserDemo.NIMBUS_LAF_NAME.equals(UIManager.getLookAndFeel().getName()) ? new Color(0,
+        0,
+        0,
+        0) : Color.YELLOW;
     try {
-      defaultFont = new Font("SansSerif", 0, 12);
+      defaultFont = new Font(Font.SANS_SERIF, 0, 12);
     } catch (Exception e) {
     }
     try {
@@ -159,7 +151,7 @@ public class SampleTreeCellRenderer extends JLabel implements TreeCellRenderer {
     }
     g.setColor(bColor);
     if (currentI != null && getText() != null) {
-      int offset = (currentI.getIconWidth() + getIconTextGap());
+      int offset = currentI.getIconWidth() + getIconTextGap();
 
       if (getComponentOrientation().isLeftToRight()) {
         g.fillRect(offset, 0, getWidth() - 1 - offset, getHeight() - 1);

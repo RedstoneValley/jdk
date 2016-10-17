@@ -49,11 +49,11 @@ import sun.awt.InputMethodSupport;
 import sun.awt.SunToolkit;
 
 /**
- * <code>ExecutableInputMethodManager</code> is the implementation of the
- * <code>InputMethodManager</code> class. It is runnable as a separate
+ * {@code ExecutableInputMethodManager} is the implementation of the
+ * {@code InputMethodManager} class. It is runnable as a separate
  * thread in the AWT environment.&nbsp;
- * <code>InputMethodManager.getInstance()</code> creates an instance of
- * <code>ExecutableInputMethodManager</code> and executes it as a deamon
+ * {@code InputMethodManager.getInstance()} creates an instance of
+ * {@code ExecutableInputMethodManager} and executes it as a deamon
  * thread.
  *
  * @see InputMethodManager
@@ -63,6 +63,8 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   private static final String preferredIMNode = "/sun/awt/im/preferredInputMethod";
   private static final String descriptorKey = "descriptor";
   private static String selectInputMethodMenuTitle;
+  final Vector<InputMethodLocator> javaInputMethodLocatorList;
+  private final Hashtable<String, InputMethodLocator> preferredLocatorCache = new Hashtable<>();
   // the input context that's informed about selections from the user interface
   private InputContext currentInputContext;
   // Menu item string for the trigger menu.
@@ -73,13 +75,11 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   private InputMethodLocator hostAdapterLocator;
   // locators for Java input methods
   private int javaInputMethodCount;         // number of Java input methods found
-  private Vector<InputMethodLocator> javaInputMethodLocatorList;
   // component that is requesting input method switch
   // must be Frame or Dialog
   private Component requestComponent;
   // input context that is requesting input method switch
   private InputContext requestInputContext;
-  private Hashtable<String, InputMethodLocator> preferredLocatorCache = new Hashtable<>();
   private Preferences userRoot;
 
   ExecutableInputMethodManager() {
@@ -98,7 +98,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       // if we can't get a descriptor, we'll just have to do without native input methods
     }
 
-    javaInputMethodLocatorList = new Vector<InputMethodLocator>();
+    javaInputMethodLocatorList = new Vector<>();
     initializeInputMethodLocatorList();
   }
 
@@ -118,11 +118,10 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       return;
     }
 
-    class AWTInvocationLock {
-    }
-    Object lock = new AWTInvocationLock();
+    Object lock = new Object();
 
     InvocationEvent event = new InvocationEvent(requester, new Runnable() {
+      @Override
       public void run() {
         showInputMethodMenu();
       }
@@ -142,9 +141,26 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     }
   }
 
+  @Override
   public String getTriggerMenuString() {
     return triggerMenuString;
-  }  public void run() {
+  }
+
+  @Override
+  public synchronized void notifyChangeRequest(Component comp) {
+    if (!(comp instanceof Frame || comp instanceof Dialog)) {
+      return;
+    }
+
+    // if busy with the current request, ignore this request.
+    if (requestComponent != null) {
+      return;
+    }
+
+    requestComponent = comp;
+    notify();
+  }  @Override
+  public void run() {
     // If there are no multiple input methods to choose from, wait forever
     while (!hasMultipleInputMethods()) {
       try {
@@ -165,32 +181,18 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
         } else {
           // show the popup menu within the event thread
           EventQueue.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
               showInputMethodMenu();
             }
           });
         }
-      } catch (InterruptedException ie) {
-      } catch (InvocationTargetException ite) {
-        // should we do anything under these exceptions?
+      } catch (InterruptedException | InvocationTargetException ie) {
       }
     }
   }
 
-  public synchronized void notifyChangeRequest(Component comp) {
-    if (!(comp instanceof Frame || comp instanceof Dialog)) {
-      return;
-    }
-
-    // if busy with the current request, ignore this request.
-    if (requestComponent != null) {
-      return;
-    }
-
-    requestComponent = comp;
-    notify();
-  }
-
+  @Override
   public synchronized void notifyChangeRequestByHotKey(Component comp) {
     while (!(comp instanceof Frame || comp instanceof Dialog)) {
       if (comp == null) {
@@ -203,6 +205,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     notifyChangeRequest(comp);
   }
 
+  @Override
   void setInputContext(InputContext inputContext) {
     if (currentInputContext != null && inputContext != null) {
       // don't throw this exception until 4237852 is fixed
@@ -211,6 +214,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     currentInputContext = inputContext;
   }
 
+  @Override
   InputMethodLocator findInputMethod(Locale locale) {
     // look for preferred input method first
     InputMethodLocator locator = getPreferredInputMethod(locale);
@@ -234,21 +238,19 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     return null;
   }
 
+  @Override
   Locale getDefaultKeyboardLocale() {
     Toolkit toolkit = Toolkit.getDefaultToolkit();
-    if (toolkit instanceof InputMethodSupport) {
-      return ((InputMethodSupport) toolkit).getDefaultKeyboardLocale();
-    } else {
-      return Locale.getDefault();
-    }
+    return toolkit instanceof InputMethodSupport
+        ? ((InputMethodSupport) toolkit).getDefaultKeyboardLocale() : Locale.getDefault();
   }
 
   /*
    * Returns true if the environment indicates there are multiple input methods
    */
+  @Override
   boolean hasMultipleInputMethods() {
-    return ((hostAdapterLocator != null) && (javaInputMethodCount > 0) || (javaInputMethodCount
-                                                                               > 1));
+    return hostAdapterLocator != null && javaInputMethodCount > 0 || javaInputMethodCount > 1;
   }
 
   private synchronized void waitForChangeRequest() {
@@ -269,6 +271,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       javaInputMethodLocatorList.clear();
       try {
         AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+          @Override
           public Object run() {
             for (InputMethodDescriptor descriptor : ServiceLoader.loadInstalled(
                 InputMethodDescriptor.class)) {
@@ -295,7 +298,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     }
   }
 
-  private void showInputMethodMenu() {
+  void showInputMethodMenu() {
 
     if (!hasMultipleInputMethods()) {
       requestComponent = null;
@@ -370,7 +373,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     }
 
     if (locator != null && localeString != null) {
-      String language = "", country = "", variant = "";
+      String language, country = "", variant = "";
       int postIndex = localeString.indexOf('_');
       if (postIndex == -1) {
         language = localeString;
@@ -410,7 +413,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
    * @param locale Locale for which the user prefers the input method.
    */
   private synchronized InputMethodLocator getPreferredInputMethod(Locale locale) {
-    InputMethodLocator preferredLocator = null;
+    InputMethodLocator preferredLocator;
 
     if (!hasMultipleInputMethods()) {
       // No need to look for a preferred Java input method
@@ -491,7 +494,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   }
 
   private String readPreferredInputMethod(String nodePath) {
-    if ((userRoot == null) || (nodePath == null)) {
+    if (userRoot == null || nodePath == null) {
       return null;
     }
 
@@ -502,7 +505,6 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
    * Writes the preferred input method descriptor class name into
    * the user's Preferences tree in accordance with the given locale.
    *
-   * @param inputMethodLocator input method locator to remember.
    */
   private synchronized void putPreferredInputMethod(InputMethodLocator locator) {
     InputMethodDescriptor descriptor = locator.getDescriptor();
@@ -551,10 +553,10 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     String language = locale.getLanguage();
     String country = locale.getCountry();
     String variant = locale.getVariant();
-    String localePath = null;
-    if (!variant.equals("")) {
+    String localePath;
+    if (!"".equals(variant)) {
       localePath = "_" + language + "/_" + country + "/_" + variant;
-    } else if (!country.equals("")) {
+    } else if (!"".equals(country)) {
       localePath = "_" + language + "/_" + country;
     } else {
       localePath = "_" + language;
@@ -578,6 +580,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
 
   private Preferences getUserRoot() {
     return AccessController.doPrivileged(new PrivilegedAction<Preferences>() {
+      @Override
       public Preferences run() {
         return Preferences.userRoot();
       }
@@ -589,7 +592,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
 
     if (locator.isLocaleAvailable(locale)) {
       advertised = locale;
-    } else if (locale.getLanguage().equals("ja")) {
+    } else if ("ja".equals(locale.getLanguage())) {
       // for Japanese, Korean, and Thai, check whether the input method supports
       // language or language_COUNTRY.
       if (locator.isLocaleAvailable(Locale.JAPAN)) {
@@ -597,13 +600,13 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       } else if (locator.isLocaleAvailable(Locale.JAPANESE)) {
         advertised = Locale.JAPANESE;
       }
-    } else if (locale.getLanguage().equals("ko")) {
+    } else if ("ko".equals(locale.getLanguage())) {
       if (locator.isLocaleAvailable(Locale.KOREA)) {
         advertised = Locale.KOREA;
       } else if (locator.isLocaleAvailable(Locale.KOREAN)) {
         advertised = Locale.KOREAN;
       }
-    } else if (locale.getLanguage().equals("th")) {
+    } else if ("th".equals(locale.getLanguage())) {
       if (locator.isLocaleAvailable(new Locale("th", "TH"))) {
         advertised = new Locale("th", "TH");
       } else if (locator.isLocaleAvailable(new Locale("th"))) {

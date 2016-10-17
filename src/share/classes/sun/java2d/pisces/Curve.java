@@ -25,8 +25,6 @@
 
 package sun.java2d.pisces;
 
-import java.util.Iterator;
-
 final class Curve {
 
   float ax, ay, bx, by, cx, cy, dx, dy;
@@ -36,62 +34,13 @@ final class Curve {
   }
 
   private static float eliminateInf(float x) {
-    return (x == Float.POSITIVE_INFINITY ? Float.MAX_VALUE
-                : (x == Float.NEGATIVE_INFINITY ? Float.MIN_VALUE : x));
+    return x == Float.POSITIVE_INFINITY ? Float.MAX_VALUE
+        : x == Float.NEGATIVE_INFINITY ? Float.MIN_VALUE : x;
   }
 
   private static boolean sameSign(double x, double y) {
     // another way is to test if x*y > 0. This is bad for small x, y.
-    return (x < 0 && y < 0) || (x > 0 && y > 0);
-  }
-
-  // curve to be broken should be in pts
-  // this will change the contents of pts but not Ts
-  // TODO: There's no reason for Ts to be an array. All we need is a sequence
-  // of t values at which to subdivide. An array statisfies this condition,
-  // but is unnecessarily restrictive. Ts should be an Iterator<Float> instead.
-  // Doing this will also make dashing easier, since we could easily make
-  // LengthIterator an Iterator<Float> and feed it to this function to simplify
-  // the loop in Dasher.somethingTo.
-  static Iterator<Integer> breakPtsAtTs(
-      final float[] pts, final int type, final float[] Ts, final int numTs) {
-    assert pts.length >= 2 * type && numTs <= Ts.length;
-    return new Iterator<Integer>() {
-      // these prevent object creation and destruction during autoboxing.
-      // Because of this, the compiler should be able to completely
-      // eliminate the boxing costs.
-      final Integer i0 = 0;
-      final Integer itype = type;
-      int nextCurveIdx = 0;
-      Integer curCurveOff = i0;
-      float prevT = 0;
-
-      @Override
-      public boolean hasNext() {
-        return nextCurveIdx < numTs + 1;
-      }
-
-      @Override
-      public Integer next() {
-        Integer ret;
-        if (nextCurveIdx < numTs) {
-          float curT = Ts[nextCurveIdx];
-          float splitT = (curT - prevT) / (1 - prevT);
-          Helpers.subdivideAt(splitT, pts, curCurveOff, pts, 0, pts, type, type);
-          prevT = curT;
-          ret = i0;
-          curCurveOff = itype;
-        } else {
-          ret = curCurveOff;
-        }
-        nextCurveIdx++;
-        return ret;
-      }
-
-      @Override
-      public void remove() {
-      }
-    };
+    return x < 0 && y < 0 || x > 0 && y > 0;
   }
 
   void set(float[] points, int type) {
@@ -165,9 +114,9 @@ final class Curve {
     // inflection point at t if -f'(t)x*f''(t)y + f'(t)y*f''(t)x == 0
     // Fortunately, this turns out to be quadratic, so there are at
     // most 2 inflection points.
-    final float a = dax * dby - dbx * day;
-    final float b = 2 * (cy * dax - day * cx);
-    final float c = cy * dbx - cx * dby;
+    float a = dax * dby - dbx * day;
+    float b = 2 * (cy * dax - day * cx);
+    float c = cy * dbx - cx * dby;
 
     return Helpers.quadraticRoots(a, b, c, pts, off);
   }
@@ -181,10 +130,10 @@ final class Curve {
     // these are the coefficients of some multiple of g(t) (not g(t),
     // because the roots of a polynomial are not changed after multiplication
     // by a constant, and this way we save a few multiplications).
-    final float a = 2 * (dax * dax + day * day);
-    final float b = 3 * (dax * dbx + day * dby);
-    final float c = 2 * (dax * cx + day * cy) + dbx * dbx + dby * dby;
-    final float d = dbx * cx + dby * cy;
+    float a = 2 * (dax * dax + day * day);
+    float b = 3 * (dax * dbx + day * dby);
+    float c = 2 * (dax * cx + day * cy) + dbx * dbx + dby * dby;
+    float d = dbx * cx + dby * cy;
     return Helpers.cubicRootsInAB(a, b, c, d, pts, off, 0f, 1f);
   }
 
@@ -201,7 +150,7 @@ final class Curve {
   // at most 4 sub-intervals of (0,1). ROC has asymptotes at inflection
   // points, so roc-w can have at least 6 roots. This shouldn't be a
   // problem for what we're trying to do (draw a nice looking curve).
-  int rootsOfROCMinusW(float[] roots, int off, final float w, final float err) {
+  int rootsOfROCMinusW(float[] roots, int off, float w, float err) {
     // no OOB exception, because by now off<=6, and roots.length >= 10
     assert off <= 6 && roots.length >= 10;
     int ret = off;
@@ -212,11 +161,13 @@ final class Curve {
     for (int i = off; i < off + numPerpdfddf; i++) {
       float t1 = roots[i], ft1 = ROCsq(t1) - w * w;
       if (ft0 == 0f) {
-        roots[ret++] = t0;
+        roots[ret] = t0;
+        ret++;
       } else if (ft1 * ft0 < 0f) { // have opposite signs
         // (ROC(t)^2 == w^2) == (ROC(t) == w) is true because
         // ROC(t) >= 0 for all t.
-        roots[ret++] = falsePositionROCsqMinusX(t0, t1, w * w, err);
+        roots[ret] = falsePositionROCsqMinusX(t0, t1, w * w, err);
+        ret++;
       }
       t0 = t1;
       ft0 = ft1;
@@ -232,8 +183,8 @@ final class Curve {
   // expressions make it into the language), depending on how closures
   // and turn out. Same goes for the newton's method
   // algorithm in Helpers.java
-  private float falsePositionROCsqMinusX(float x0, float x1, final float x, final float err) {
-    final int iterLimit = 100;
+  private float falsePositionROCsqMinusX(float x0, float x1, float x, float err) {
+    int iterLimit = 100;
     int side = 0;
     float t = x1, ft = eliminateInf(ROCsq(t) - x);
     float s = x0, fs = eliminateInf(ROCsq(s) - x);
@@ -245,7 +196,7 @@ final class Curve {
         ft = fr;
         t = r;
         if (side < 0) {
-          fs /= (1 << (-side));
+          fs /= 1 << -side;
           side--;
         } else {
           side = -1;
@@ -254,7 +205,7 @@ final class Curve {
         fs = fr;
         s = r;
         if (side > 0) {
-          ft /= (1 << side);
+          ft /= 1 << side;
           side++;
         } else {
           side = 1;
@@ -268,16 +219,16 @@ final class Curve {
 
   // returns the radius of curvature squared at t of this curve
   // see http://en.wikipedia.org/wiki/Radius_of_curvature_(applications)
-  private float ROCsq(final float t) {
+  private float ROCsq(float t) {
     // dx=xat(t) and dy=yat(t). These calls have been inlined for efficiency
-    final float dx = t * (t * dax + dbx) + cx;
-    final float dy = t * (t * day + dby) + cy;
-    final float ddx = 2 * dax * t + dbx;
-    final float ddy = 2 * day * t + dby;
-    final float dx2dy2 = dx * dx + dy * dy;
-    final float ddx2ddy2 = ddx * ddx + ddy * ddy;
-    final float ddxdxddydy = ddx * dx + ddy * dy;
-    return dx2dy2 * ((dx2dy2 * dx2dy2) / (dx2dy2 * ddx2ddy2 - ddxdxddydy * ddxdxddydy));
+    float dx = t * (t * dax + dbx) + cx;
+    float dy = t * (t * day + dby) + cy;
+    float ddx = 2 * dax * t + dbx;
+    float ddy = 2 * day * t + dby;
+    float dx2dy2 = dx * dx + dy * dy;
+    float ddx2ddy2 = ddx * ddx + ddy * ddy;
+    float ddxdxddydy = ddx * dx + ddy * dy;
+    return dx2dy2 * (dx2dy2 * dx2dy2 / (dx2dy2 * ddx2ddy2 - ddxdxddydy * ddxdxddydy));
   }
 }
 

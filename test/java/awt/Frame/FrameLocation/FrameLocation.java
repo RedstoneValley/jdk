@@ -31,9 +31,12 @@
 
 import java.awt.*;
 
-public class FrameLocation {
+public final class FrameLocation {
     private static final int X = 250;
     private static final int Y = 250;
+
+    private FrameLocation() {
+    }
 
     public static void main(String[] args) {
         Frame f = new Frame("test");

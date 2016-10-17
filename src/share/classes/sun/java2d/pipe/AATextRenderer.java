@@ -25,7 +25,6 @@
 
 package sun.java2d.pipe;
 
-import sun.font.GlyphList;
 import sun.java2d.SunGraphics2D;
 
 /**
@@ -33,7 +32,8 @@ import sun.java2d.SunGraphics2D;
  * a solid source colour to an opaque destination.
  */
 
-public class AATextRenderer extends GlyphListLoopPipe implements LoopBasedPipe {
+public class AATextRenderer extends GlyphListLoopPipe {
+  @Override
   protected void drawGlyphList(SunGraphics2D sg2d, GlyphList gl) {
     sg2d.loops.drawGlyphListAALoop.DrawGlyphListAA(sg2d, sg2d.surfaceData, gl);
   }

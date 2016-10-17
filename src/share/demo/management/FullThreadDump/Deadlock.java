@@ -56,7 +56,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * API.
  */
 public class Deadlock {
-  private CyclicBarrier barrier = new CyclicBarrier(6);
+  final CyclicBarrier barrier = new CyclicBarrier(6);
 
   public Deadlock() {
     DeadlockThread[] dThreads = new DeadlockThread[6];
@@ -107,7 +107,7 @@ public class Deadlock {
       boolean done = false;
       while (!done) {
         char ch = (char) System.in.read();
-        if (ch < 0 || ch == '\n') {
+        if (ch == '\n') {
           done = true;
         }
       }
@@ -117,25 +117,26 @@ public class Deadlock {
     }
   }
 
+  @SuppressWarnings("LockAcquiredButNotSafelyReleased")
   class DeadlockThread extends Thread {
-    private Lock lock1 = null;
-    private Lock lock2 = null;
-    private Monitor mon1 = null;
-    private Monitor mon2 = null;
-    private boolean useSync;
+    private final boolean useSync;
+    private Lock lock1;
+    private Lock lock2;
+    private Monitor mon1;
+    private Monitor mon2;
 
     DeadlockThread(String name, Lock lock1, Lock lock2) {
       super(name);
       this.lock1 = lock1;
       this.lock2 = lock2;
-      this.useSync = true;
+      useSync = true;
     }
 
     DeadlockThread(String name, Monitor mon1, Monitor mon2) {
       super(name);
       this.mon1 = mon1;
       this.mon2 = mon2;
-      this.useSync = false;
+      useSync = false;
     }
 
     @Override
@@ -152,10 +153,7 @@ public class Deadlock {
       try {
         try {
           barrier.await();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-          System.exit(1);
-        } catch (BrokenBarrierException e) {
+        } catch (InterruptedException | BrokenBarrierException e) {
           e.printStackTrace();
           System.exit(1);
         }
@@ -168,10 +166,7 @@ public class Deadlock {
     private void goSyncDeadlock() {
       try {
         barrier.await();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-        System.exit(1);
-      } catch (BrokenBarrierException e) {
+      } catch (InterruptedException | BrokenBarrierException e) {
         e.printStackTrace();
         System.exit(1);
       }
@@ -183,10 +178,7 @@ public class Deadlock {
       synchronized (mon1) {
         try {
           barrier.await();
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-          System.exit(1);
-        } catch (BrokenBarrierException e) {
+        } catch (InterruptedException | BrokenBarrierException e) {
           e.printStackTrace();
           System.exit(1);
         }
@@ -197,10 +189,7 @@ public class Deadlock {
     private void goMonitorDeadlock() {
       try {
         barrier.await();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-        System.exit(1);
-      } catch (BrokenBarrierException e) {
+      } catch (InterruptedException | BrokenBarrierException e) {
         e.printStackTrace();
         System.exit(1);
       }
@@ -211,7 +200,7 @@ public class Deadlock {
   }
 
   class Monitor {
-    String name;
+    final String name;
 
     Monitor(String name) {
       this.name = name;

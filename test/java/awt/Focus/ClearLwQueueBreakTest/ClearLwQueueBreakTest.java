@@ -32,20 +32,17 @@
 */
 
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
-import java.applet.Applet;
-import test.java.awt.regtesthelpers.Util;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClearLwQueueBreakTest extends Applet {
-    JFrame f1 = new JFrame("frame");
-    JFrame f2 = new JFrame("frame");
-    JButton b = new JButton("button");
-    JTextField tf1 = new JTextField("     ");
-    JTextField tf2 = new JTextField("     ");
-    JTextField tf3 = new JTextField("     ");
-    AtomicBoolean typed = new AtomicBoolean(false);
+    final JFrame f1 = new JFrame(Frame.base);
+    final JFrame f2 = new JFrame(Frame.base);
+    final JButton b = new JButton(Button.base);
+    final JTextField tf1 = new JTextField("     ");
+    final JTextField tf2 = new JTextField("     ");
+    final JTextField tf3 = new JTextField("     ");
+    final AtomicBoolean typed = new AtomicBoolean(false);
     FocusListener listener1;
     FocusListener listener2;
 
@@ -63,7 +60,7 @@ public class ClearLwQueueBreakTest extends Applet {
         // Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout (new BorderLayout ());
+        setLayout(new BorderLayout ());
         Sysout.createDialogWithInstructions(new String[]
             {"This is an automatic test. Simply wait until it is done."
             });
@@ -71,11 +68,13 @@ public class ClearLwQueueBreakTest extends Applet {
 
     public void start() {
         b.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     f2.setVisible(true);
                 }
             });
         tf2.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyTyped(KeyEvent e) {
                     if (e.getKeyChar() == '9') {
                         synchronized (typed) {
@@ -86,6 +85,7 @@ public class ClearLwQueueBreakTest extends Applet {
                 }
             });
         tf3.addKeyListener(new KeyAdapter() {
+                @Override
                 public void keyTyped(KeyEvent e) {
                     if (e.getKeyChar() == '8') {
                         synchronized (typed) {
@@ -97,6 +97,7 @@ public class ClearLwQueueBreakTest extends Applet {
             });
 
         listener1 = new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
                     b.requestFocus();
                     tf1.requestFocus();
@@ -106,6 +107,7 @@ public class ClearLwQueueBreakTest extends Applet {
             };
 
         listener2 = new FocusAdapter() {
+                @Override
                 public void focusGained(FocusEvent e) {
                     b.requestFocus();
                     tf1.requestFocus();
@@ -192,18 +194,20 @@ public class ClearLwQueueBreakTest extends Applet {
 }
 
 class TestFailedException extends RuntimeException {
+    private static final long serialVersionUID = -6211481026000527924L;
+
     TestFailedException(String msg) {
         super("Test failed: " + msg);
     }
 }
 
-/****************************************************
+/***************************************************
  Standard Test Machinery
  DO NOT modify anything below -- it's a standard
-  chunk of code whose purpose is to make user
-  interaction uniform, and thereby make it simpler
-  to read and understand someone else's test.
- ****************************************************/
+ chunk of code whose purpose is to make user
+ interaction uniform, and thereby make it simpler
+ to read and understand someone else's test.
+ */
 
 /**
  This is part of the standard test machinery.
@@ -217,9 +221,12 @@ class TestFailedException extends RuntimeException {
   as standalone.
  */
 
-class Sysout
+final class Sysout
 {
     static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions( String[] instructions )
     {
@@ -263,9 +270,10 @@ class Sysout
 class TestDialog extends Dialog
 {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = -175121528743417031L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog( Frame frame, String name )
@@ -273,10 +281,10 @@ class TestDialog extends Dialog
         super( frame, name );
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-        add( "North", instructionsText );
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -292,35 +300,31 @@ class TestDialog extends Dialog
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for( int i=0; i < instructions.length; i++ )
-        {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i ];
-            while( remainingStr.length() > 0 )
-            {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
-                if( remainingStr.length() >= maxStringLength )
-                {
+                if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                        lastIndexOf( ' ', maxStringLength - 1 );
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
-                    printStr = remainingStr.substring( 0, posOfSpace + 1 );
-                    remainingStr = remainingStr.substring( posOfSpace + 1 );
+                    printStr = remainingStr.substring(0, posOfSpace + 1);
+                    remainingStr = remainingStr.substring(posOfSpace + 1);
                 }
                 //else just print
-                else
-                {
+                else {
                     printStr = remainingStr;
                     remainingStr = "";
                 }
 
-                instructionsText.append( printStr + "\n" );
-
+                instructionsText.append(printStr + "\n");
             }// while
-
         }// for
 
     }//printInstructions()

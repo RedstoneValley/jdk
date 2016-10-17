@@ -31,33 +31,19 @@
   @run      main WrongKeyTypedConsumedTest
 */
 
-import java.applet.Applet;
-import java.awt.AWTException;
 import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.KeyboardFocusManager;
-import java.awt.Point;
 import java.awt.Robot;
-import java.awt.TextArea;
 
 import java.awt.event.KeyEvent;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-
-import test.java.awt.regtesthelpers.Util;
-
 public class WrongKeyTypedConsumedTest extends Applet
 {
-    Robot robot = Util.createRobot();
+    final Robot robot = Util.createRobot();
 
     public static void main(String[] args) {
         WrongKeyTypedConsumedTest test = new WrongKeyTypedConsumedTest();

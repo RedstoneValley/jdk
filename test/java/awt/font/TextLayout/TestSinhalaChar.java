@@ -26,26 +26,25 @@
  * @bug 6795060
  */
 
-import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 
 public class TestSinhalaChar {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new TestSinhalaChar().run();
             }
         });
     }
-    public static boolean AUTOMATIC_TEST=true;  // true; run test automatically, else manually at button push
+    public static final boolean AUTOMATIC_TEST=true;  // true; run test automatically, else manually at button push
 
-    private void run() {
+    void run() {
         JFrame frame = new JFrame("Test Character (no crash = PASS)");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel panel = new JPanel();
-        final JLabel label = new JLabel("(empty)");
+        JLabel label = new JLabel("(empty)");
         label.setSize(400, 100);
         label.setBorder(new LineBorder(Color.black));
         label.setFont(new Font("Lucida Bright", Font.PLAIN, 12));

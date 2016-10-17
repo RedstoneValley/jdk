@@ -41,8 +41,8 @@ package sun.java2d.loops;
  */
 public class GraphicsPrimitiveProxy extends GraphicsPrimitive {
 
-  private Class owner;
-  private String relativeClassName;
+  private final Class owner;
+  private final String relativeClassName;
 
   /**
    * Create a GraphicsPrimitiveProxy for a primitive with a no-argument
@@ -69,12 +69,14 @@ public class GraphicsPrimitiveProxy extends GraphicsPrimitive {
     return className.substring(0, lastDotIdx);
   }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // This should never happen.
     throw new InternalError("makePrimitive called on a Proxy!");
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return instantiate().traceWrap();
   }
@@ -92,11 +94,7 @@ public class GraphicsPrimitiveProxy extends GraphicsPrimitive {
         throw new RuntimeException("Primitive " + p + " incompatible with proxy for " + name);
       }
       return p;
-    } catch (ClassNotFoundException ex) {
-      throw new RuntimeException(ex.toString());
-    } catch (InstantiationException ex) {
-      throw new RuntimeException(ex.toString());
-    } catch (IllegalAccessException ex) {
+    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
       throw new RuntimeException(ex.toString());
     }
     // A RuntimeException should never happen in a deployed JDK, because

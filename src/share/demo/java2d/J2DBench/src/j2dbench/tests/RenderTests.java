@@ -43,6 +43,7 @@ import j2dbench.Group;
 import j2dbench.Node;
 import j2dbench.Option;
 import j2dbench.TestEnvironment;
+import j2dbench.tests.iio.IIOTests;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -51,7 +52,6 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LinearGradientPaint;
-import java.awt.MultipleGradientPaint;
 import java.awt.MultipleGradientPaint.CycleMethod;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
@@ -63,11 +63,11 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import javax.swing.JComponent;
+import sun.java2d.loops.SurfaceType;
 
 public abstract class RenderTests extends GraphicsTests {
   static final int NUM_RANDOMCOLORS = 4096;
-  static final int NUM_RANDOMCOLORMASK = (NUM_RANDOMCOLORS - 1);
+  static final int NUM_RANDOMCOLORMASK = NUM_RANDOMCOLORS - 1;
   static Group renderroot;
   static Group renderoptroot;
   static Group rendertestroot;
@@ -77,9 +77,9 @@ public abstract class RenderTests extends GraphicsTests {
   static Option doAlphaColors;
   static Option sizeList;
   static Option strokeList;
-  static Color randAlphaColors[];
-  static Color randOpaqueColors[];
-  static boolean hasMultiGradient;
+  static final Color[] randAlphaColors;
+  static final Color[] randOpaqueColors;
+  static final boolean hasMultiGradient;
 
   static {
     randOpaqueColors = new Color[NUM_RANDOMCOLORS];
@@ -95,7 +95,7 @@ public abstract class RenderTests extends GraphicsTests {
 
   static {
     try {
-      hasMultiGradient = (MultipleGradientPaint.class != null);
+      hasMultiGradient = true;
     } catch (NoClassDefFoundError e) {
     }
   }
@@ -113,8 +113,8 @@ public abstract class RenderTests extends GraphicsTests {
     ArrayList paintStrs = new ArrayList();
     ArrayList paintDescs = new ArrayList();
     paintStrs.add("single");
-    paintDescs.add("Single Color");
-    paintStrs.add("random");
+    paintDescs.add(SurfaceType.DESC_ANY_COLOR);
+    paintStrs.add(IIOTests.CONTENT_RANDOM);
     paintDescs.add("Random Color");
     if (hasGraphics2D) {
       paintStrs.add("gradient2");
@@ -138,7 +138,7 @@ public abstract class RenderTests extends GraphicsTests {
     paintStrArr = (String[]) paintStrs.toArray(paintStrArr);
     String[] paintDescArr = new String[paintDescs.size()];
     paintDescArr = (String[]) paintDescs.toArray(paintDescArr);
-    paintList = new Option.ObjectList(renderoptroot,
+    paintList = new ObjectList(renderoptroot,
         "paint",
         "Paint Type",
         paintStrArr,
@@ -146,28 +146,25 @@ public abstract class RenderTests extends GraphicsTests {
         paintStrArr,
         paintDescArr,
         0x1);
-    ((Option.ObjectList) paintList).setNumRows(5);
+    ((ObjectList) paintList).setNumRows(5);
 
     // add special RandomColorOpt for backwards compatibility with
     // older options files
     new RandomColorOpt();
 
     if (hasGraphics2D) {
-      doAlphaColors = new Option.Toggle(renderoptroot,
+      doAlphaColors = new Toggle(renderoptroot,
           "alphacolor",
           "Set the alpha of the paint to 0.125",
-          Option.Toggle.Off);
-      doAntialias = new Option.Toggle(renderoptroot,
-          "antialias",
-          "Render shapes antialiased",
-          Option.Toggle.Off);
-      String strokeStrings[] = {
+          Toggle.Off);
+      doAntialias = new Toggle(renderoptroot, "antialias", "Render shapes antialiased", Toggle.Off);
+      String[] strokeStrings = {
           "width0", "width1", "width5", "width20", "dash0_5", "dash1_5", "dash5_20", "dash20_50",};
-      String strokeDescriptions[] = {
+      String[] strokeDescriptions = {
           "Solid Thin lines", "Solid Width 1 lines", "Solid Width 5 lines", "Solid Width 20 lines",
           "Dashed Thin lines", "Dashed Width 1 lines", "Dashed Width 5 lines",
           "Dashed Width 20 lines",};
-      BasicStroke strokeObjects[] = {
+      BasicStroke[] strokeObjects = {
           new BasicStroke(0f), new BasicStroke(1f), new BasicStroke(5f), new BasicStroke(20f),
           new BasicStroke(0f,
               BasicStroke.CAP_SQUARE,
@@ -190,7 +187,7 @@ public abstract class RenderTests extends GraphicsTests {
           10f,
           new float[]{50f, 50f},
           0f),};
-      strokeList = new Option.ObjectList(renderoptroot,
+      strokeList = new ObjectList(renderoptroot,
           "stroke",
           "Stroke Type",
           strokeStrings,
@@ -198,7 +195,7 @@ public abstract class RenderTests extends GraphicsTests {
           strokeStrings,
           strokeDescriptions,
           0x2);
-      ((Option.ObjectList) strokeList).setNumRows(4);
+      ((ObjectList) strokeList).setNumRows(4);
     }
 
     new DrawDiagonalLines();
@@ -222,7 +219,7 @@ public abstract class RenderTests extends GraphicsTests {
   }
 
   private Color[] makeGradientColors(int numColors, boolean alpha) {
-    Color[] colors = new Color[]{Color.red, Color.blue, Color.green, Color.yellow};
+    Color[] colors = {Color.red, Color.blue, Color.green, Color.yellow};
     Color[] ret = new Color[numColors];
     for (int i = 0; i < numColors; i++) {
       ret[i] = alpha ? makeAlphaColor(colors[i], 32) : colors[i];
@@ -254,8 +251,6 @@ public abstract class RenderTests extends GraphicsTests {
     }
     Color[] colors = makeGradientColors(numColors, alpha);
     return new RadialGradientPaint(0.0f, 0.0f, 10.0f, fractions, colors, CycleMethod.REFLECT);
-  }  public GraphicsTests.Context createContext() {
-    return new RenderTests.Context();
   }
 
   private TexturePaint makeTexturePaint(int size, boolean alpha) {
@@ -276,56 +271,9 @@ public abstract class RenderTests extends GraphicsTests {
     g2d.dispose();
     Rectangle2D bounds = new Rectangle2D.Float(0, 0, size, size);
     return new TexturePaint(img, bounds);
-  }  public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
-    super.initContext(env, ctx);
-    RenderTests.Context rctx = (RenderTests.Context) ctx;
-    boolean alphacolor;
-
-    if (hasGraphics2D) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      if (env.isEnabled(doAntialias)) {
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-      }
-      alphacolor = env.isEnabled(doAlphaColors);
-      g2d.setStroke((Stroke) env.getModifier(strokeList));
-    } else {
-      alphacolor = false;
-    }
-
-    String paint = (String) env.getModifier(paintList);
-    if (paint.equals("single")) {
-      Color c = Color.darkGray;
-      if (alphacolor) {
-        c = makeAlphaColor(c, 32);
-      }
-      rctx.graphics.setColor(c);
-    } else if (paint.equals("random")) {
-      rctx.colorlist = alphacolor ? randAlphaColors : randOpaqueColors;
-    } else if (paint.equals("gradient2")) {
-      Color[] colors = makeGradientColors(2, alphacolor);
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(new GradientPaint(0.0f, 0.0f, colors[0], 10.0f, 10.0f, colors[1], true));
-    } else if (paint.equals("linear2")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeLinear(2, alphacolor));
-    } else if (paint.equals("linear3")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeLinear(3, alphacolor));
-    } else if (paint.equals("radial2")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeRadial(2, alphacolor));
-    } else if (paint.equals("radial3")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeRadial(3, alphacolor));
-    } else if (paint.equals("texture20")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeTexturePaint(20, alphacolor));
-    } else if (paint.equals("texture32")) {
-      Graphics2D g2d = (Graphics2D) rctx.graphics;
-      g2d.setPaint(makeTexturePaint(32, alphacolor));
-    } else {
-      throw new InternalError("Invalid paint mode");
-    }
+  }  @Override
+  public GraphicsTests.Context createContext() {
+    return new Context();
   }
 
   /**
@@ -340,37 +288,92 @@ public abstract class RenderTests extends GraphicsTests {
       super(renderoptroot, "randomcolor", "Use random colors for each shape");
     }
 
+    @Override
     public JComponent getJComponent() {
       return null;
     }
 
+    @Override
     public void restoreDefault() {
       // no-op
     }
 
+    @Override
     public void write(PrintWriter pw) {
       // no-op (the random/single choice will be saved as part of
       // the new "paint" option added to J2DBench in JDK 6)
     }
 
+    @Override
     public String setOption(String key, String value) {
       String opts;
-      if (value.equals("On")) {
-        opts = "random";
-      } else if (value.equals("Off")) {
+      if ("On".equals(value)) {
+        opts = IIOTests.CONTENT_RANDOM;
+      } else if ("Off".equals(value)) {
         opts = "single";
-      } else if (value.equals("Both")) {
+      } else if ("Both".equals(value)) {
         opts = "random,single";
       } else {
         return "Bad value";
       }
-      return ((Option.ObjectList) paintList).setValueFromString(opts);
+      return paintList.setValueFromString(opts);
     }
   }
 
   public static class Context extends GraphicsTests.Context {
     int colorindex;
-    Color colorlist[];
+    Color[] colorlist;
+  }  @Override
+  public void initContext(TestEnvironment env, GraphicsTests.Context ctx) {
+    super.initContext(env, ctx);
+    Context rctx = (Context) ctx;
+    boolean alphacolor;
+
+    if (hasGraphics2D) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      if (env.isEnabled(doAntialias)) {
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      }
+      alphacolor = env.isEnabled(doAlphaColors);
+      g2d.setStroke((Stroke) env.getModifier(strokeList));
+    } else {
+      alphacolor = false;
+    }
+
+    String paint = (String) env.getModifier(paintList);
+    if ("single".equals(paint)) {
+      Color c = Color.darkGray;
+      if (alphacolor) {
+        c = makeAlphaColor(c, 32);
+      }
+      rctx.graphics.setColor(c);
+    } else if (IIOTests.CONTENT_RANDOM.equals(paint)) {
+      rctx.colorlist = alphacolor ? randAlphaColors : randOpaqueColors;
+    } else if ("gradient2".equals(paint)) {
+      Color[] colors = makeGradientColors(2, alphacolor);
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(new GradientPaint(0.0f, 0.0f, colors[0], 10.0f, 10.0f, colors[1], true));
+    } else if ("linear2".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeLinear(2, alphacolor));
+    } else if ("linear3".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeLinear(3, alphacolor));
+    } else if ("radial2".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeRadial(2, alphacolor));
+    } else if ("radial3".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeRadial(3, alphacolor));
+    } else if ("texture20".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeTexturePaint(20, alphacolor));
+    } else if ("texture32".equals(paint)) {
+      Graphics2D g2d = (Graphics2D) rctx.graphics;
+      g2d.setPaint(makeTexturePaint(32, alphacolor));
+    } else {
+      throw new InternalError("Invalid paint mode");
+    }
   }
 
   public static class DrawDiagonalLines extends RenderTests {
@@ -378,23 +381,27 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawLine", "Draw Diagonal Lines");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
       return Math.max(ctx.outdim.width, ctx.outdim.height);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x + size, y + size);
           if ((x -= 3) < 0) {
@@ -403,14 +410,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x + size, y + size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -422,27 +433,32 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawLineHoriz", "Draw Horizontal Lines");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
       return ctx.outdim.width;
     }
 
+    @Override
     public Dimension getOutputSize(int w, int h) {
       return new Dimension(w, 1);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x + size, y);
           if ((x -= 3) < 0) {
@@ -451,14 +467,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x + size, y);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -470,27 +490,32 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawLineVert", "Draw Vertical Lines");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
       return ctx.outdim.height;
     }
 
+    @Override
     public Dimension getOutputSize(int w, int h) {
       return new Dimension(1, h);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x, y + size);
           if ((x -= 3) < 0) {
@@ -499,14 +524,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawLine(x, y, x, y + size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -518,19 +547,22 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "fillRect", "Fill Rectangles");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.fillRect(x, y, size, size);
           if ((x -= 3) < 0) {
@@ -539,14 +571,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.fillRect(x, y, size, size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -558,6 +594,7 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawRect", "Draw Rectangles");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
       int w = ctx.outdim.width;
       int h = ctx.outdim.height;
@@ -566,22 +603,25 @@ public abstract class RenderTests extends GraphicsTests {
         // gap in the middle, so we get a solid filled rectangle.
         return w * h;
       }
-      return (w * 2) + ((h - 2) * 2);
+      return (w << 1) + ((h - 2) << 1);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawRect(x, y, size, size);
           if ((x -= 3) < 0) {
@@ -590,14 +630,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawRect(x, y, size, size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -609,6 +653,7 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "fillOval", "Fill Ellipses");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
       // Approximated
       double xaxis = ctx.outdim.width / 2.0;
@@ -616,19 +661,22 @@ public abstract class RenderTests extends GraphicsTests {
       return (int) (xaxis * yaxis * Math.PI);
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.fillOval(x, y, size, size);
           if ((x -= 3) < 0) {
@@ -637,14 +685,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.fillOval(x, y, size, size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -656,6 +708,7 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawOval", "Draw Ellipses");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
             /*
              * Approximation: We figured that the vertical chord connecting
@@ -674,19 +727,22 @@ public abstract class RenderTests extends GraphicsTests {
       return (int) (Math.sqrt(2.0) * (ctx.outdim.width + ctx.outdim.height));
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
       if (rctx.animate) {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawOval(x, y, size, size);
           if ((x -= 3) < 0) {
@@ -695,14 +751,18 @@ public abstract class RenderTests extends GraphicsTests {
           if ((y -= 1) < 0) {
             y += rctx.maxY;
           }
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       } else {
+        --numReps;
         do {
           if (rCArray != null) {
-            g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+            g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+            ci++;
           }
           g.drawOval(x, y, size, size);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
@@ -714,6 +774,7 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "fillPoly", "Fill Hexagonal Polygons");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
             /*
              * The polygon is a hexagon inscribed inside the square but
@@ -730,20 +791,22 @@ public abstract class RenderTests extends GraphicsTests {
              * touched by the filled polygon.
              */
       int size = ctx.outdim.width * ctx.outdim.height;
-      return size - (size / 4);
+      return size - size / 4;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       int size = rctx.size;
       int x = rctx.initX;
       int y = rctx.initY;
-      int hexaX[] = new int[6];
-      int hexaY[] = new int[6];
+      int[] hexaX = new int[6];
+      int[] hexaY = new int[6];
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
+      --numReps;
       do {
         hexaX[0] = x;
         hexaX[1] = hexaX[5] = x + size / 4;
@@ -754,7 +817,8 @@ public abstract class RenderTests extends GraphicsTests {
         hexaY[4] = hexaY[5] = y + size;
 
         if (rCArray != null) {
-          g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         g.fillPolygon(hexaX, hexaY, 6);
         if ((x -= 3) < 0) {
@@ -763,7 +827,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += rctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
     }
@@ -774,6 +839,7 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendertestroot, "drawPoly", "Draw Hexagonal Polygons");
     }
 
+    @Override
     public int pixelsTouched(GraphicsTests.Context ctx) {
             /*
              * The two horizontal segments have exactly two pixels per column.
@@ -793,26 +859,24 @@ public abstract class RenderTests extends GraphicsTests {
              *     (size - size/4 - 1) * 4
              */
       int size = ctx.size;
-      if (size <= 1) {
-        return 1;
-      } else {
-        return (size - (size / 4) - 1) * 4;
-      }
+      return size <= 1 ? 1 : (size - size / 4 - 1) << 2;
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      RenderTests.Context rctx = (RenderTests.Context) ctx;
+      Context rctx = (Context) ctx;
       // subtract 1 to account for the fact that lines are drawn to
       // and including the final coordinate...
       int size = rctx.size - 1;
       int x = rctx.initX;
       int y = rctx.initY;
-      int hexaX[] = new int[6];
-      int hexaY[] = new int[6];
+      int[] hexaX = new int[6];
+      int[] hexaY = new int[6];
       Graphics g = rctx.graphics;
       g.translate(rctx.orgX, rctx.orgY);
-      Color rCArray[] = rctx.colorlist;
+      Color[] rCArray = rctx.colorlist;
       int ci = rctx.colorindex;
+      --numReps;
       do {
         hexaX[0] = x;
         hexaX[1] = hexaX[5] = x + size / 4;
@@ -823,7 +887,8 @@ public abstract class RenderTests extends GraphicsTests {
         hexaY[4] = hexaY[5] = y + size;
 
         if (rCArray != null) {
-          g.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         g.drawPolygon(hexaX, hexaY, 6);
         if ((x -= 3) < 0) {
@@ -832,7 +897,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += rctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       rctx.colorindex = ci;
       g.translate(-rctx.orgX, -rctx.orgY);
     }
@@ -846,9 +912,15 @@ public abstract class RenderTests extends GraphicsTests {
       super(rendershaperoot, "fillCubic", "Fill Bezier Curves");
     }
 
+    @Override
     public GraphicsTests.Context createContext() {
-      return new FillCubics.Context();
-    }    public int pixelsTouched(GraphicsTests.Context ctx) {
+      return new Context();
+    }
+
+    public static class Context extends RenderTests.Context {
+      final CubicCurve2D curve = new CubicCurve2D.Float();
+    }    @Override
+    public int pixelsTouched(GraphicsTests.Context ctx) {
             /*
              * The cubic only touches 2 quadrants in the square, thus
              * at least half of the square is unfilled.  The integrals
@@ -866,14 +938,11 @@ public abstract class RenderTests extends GraphicsTests {
       return size * size * 5 / 16;
     }
 
-    public static class Context extends RenderTests.Context {
-      CubicCurve2D curve = new CubicCurve2D.Float();
-    }
 
 
-
+    @Override
     public void runTest(Object ctx, int numReps) {
-      FillCubics.Context cctx = (FillCubics.Context) ctx;
+      Context cctx = (Context) ctx;
       int size = cctx.size;
       // Note: 2x2 ends up hitting exactly 1 pixel...
       if (size < 2) {
@@ -885,8 +954,9 @@ public abstract class RenderTests extends GraphicsTests {
       CubicCurve2D curve = cctx.curve;
       Graphics2D g2d = (Graphics2D) cctx.graphics;
       g2d.translate(cctx.orgX, cctx.orgY);
-      Color rCArray[] = cctx.colorlist;
+      Color[] rCArray = cctx.colorlist;
       int ci = cctx.colorindex;
+      --numReps;
       do {
         curve.setCurve(x,
             y + size / 2.0,
@@ -898,7 +968,8 @@ public abstract class RenderTests extends GraphicsTests {
             y + size / 2.0);
 
         if (rCArray != null) {
-          g2d.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g2d.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         g2d.fill(curve);
         if ((x -= 3) < 0) {
@@ -907,7 +978,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += cctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       cctx.colorindex = ci;
       g2d.translate(-cctx.orgX, -cctx.orgY);
     }
@@ -922,8 +994,11 @@ public abstract class RenderTests extends GraphicsTests {
     }
 
     public static class Context extends RenderTests.Context {
-      CubicCurve2D curve = new CubicCurve2D.Float();
-    }    public int pixelsTouched(GraphicsTests.Context ctx) {
+      final CubicCurve2D curve = new CubicCurve2D.Float();
+    }
+
+    @Override
+    public int pixelsTouched(GraphicsTests.Context ctx) {
       // Gross approximation
       int size = ctx.size;
       if (size < 2) {
@@ -932,14 +1007,14 @@ public abstract class RenderTests extends GraphicsTests {
       return size;
     }
 
-
-
+    @Override
     public GraphicsTests.Context createContext() {
-      return new DrawCubics.Context();
+      return new Context();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      DrawCubics.Context cctx = (DrawCubics.Context) ctx;
+      Context cctx = (Context) ctx;
       int size = cctx.size;
       // Note: 2x2 ends up hitting exactly 1 pixel...
       if (size < 2) {
@@ -951,8 +1026,9 @@ public abstract class RenderTests extends GraphicsTests {
       CubicCurve2D curve = cctx.curve;
       Graphics2D g2d = (Graphics2D) cctx.graphics;
       g2d.translate(cctx.orgX, cctx.orgY);
-      Color rCArray[] = cctx.colorlist;
+      Color[] rCArray = cctx.colorlist;
       int ci = cctx.colorindex;
+      --numReps;
       do {
         curve.setCurve(x,
             y + size / 2.0,
@@ -964,7 +1040,8 @@ public abstract class RenderTests extends GraphicsTests {
             y + size / 2.0);
 
         if (rCArray != null) {
-          g2d.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g2d.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         g2d.draw(curve);
         if ((x -= 3) < 0) {
@@ -973,7 +1050,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += cctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       cctx.colorindex = ci;
       g2d.translate(-cctx.orgX, -cctx.orgY);
     }
@@ -985,33 +1063,38 @@ public abstract class RenderTests extends GraphicsTests {
     }
 
     public static class Context extends RenderTests.Context {
-      Ellipse2D ellipse = new Ellipse2D.Float();
-    }    public int pixelsTouched(GraphicsTests.Context ctx) {
+      final Ellipse2D ellipse = new Ellipse2D.Float();
+    }
+
+    @Override
+    public int pixelsTouched(GraphicsTests.Context ctx) {
       // Approximated (copied from FillOvals.pixelsTouched())
       double xaxis = ctx.outdim.width / 2.0;
       double yaxis = ctx.outdim.height / 2.0;
       return (int) (xaxis * yaxis * Math.PI);
     }
 
-
-
+    @Override
     public GraphicsTests.Context createContext() {
-      return new FillEllipse2Ds.Context();
+      return new Context();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      FillEllipse2Ds.Context cctx = (FillEllipse2Ds.Context) ctx;
+      Context cctx = (Context) ctx;
       int size = cctx.size;
       int x = cctx.initX;
       int y = cctx.initY;
       Ellipse2D ellipse = cctx.ellipse;
       Graphics2D g2d = (Graphics2D) cctx.graphics;
       g2d.translate(cctx.orgX, cctx.orgY);
-      Color rCArray[] = cctx.colorlist;
+      Color[] rCArray = cctx.colorlist;
       int ci = cctx.colorindex;
+      --numReps;
       do {
         if (rCArray != null) {
-          g2d.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g2d.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         ellipse.setFrame(x, y, size, size);
         g2d.fill(ellipse);
@@ -1021,7 +1104,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += cctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       cctx.colorindex = ci;
       g2d.translate(-cctx.orgX, -cctx.orgY);
     }
@@ -1033,31 +1117,36 @@ public abstract class RenderTests extends GraphicsTests {
     }
 
     public static class Context extends RenderTests.Context {
-      Ellipse2D ellipse = new Ellipse2D.Float();
-    }    public int pixelsTouched(GraphicsTests.Context ctx) {
+      final Ellipse2D ellipse = new Ellipse2D.Float();
+    }
+
+    @Override
+    public int pixelsTouched(GraphicsTests.Context ctx) {
       // Approximated (copied from DrawOvals.pixelsTouched())
       return (int) (Math.sqrt(2.0) * (ctx.outdim.width + ctx.outdim.height));
     }
 
-
-
+    @Override
     public GraphicsTests.Context createContext() {
-      return new DrawEllipse2Ds.Context();
+      return new Context();
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      DrawEllipse2Ds.Context cctx = (DrawEllipse2Ds.Context) ctx;
+      Context cctx = (Context) ctx;
       int size = cctx.size;
       int x = cctx.initX;
       int y = cctx.initY;
       Ellipse2D ellipse = cctx.ellipse;
       Graphics2D g2d = (Graphics2D) cctx.graphics;
       g2d.translate(cctx.orgX, cctx.orgY);
-      Color rCArray[] = cctx.colorlist;
+      Color[] rCArray = cctx.colorlist;
       int ci = cctx.colorindex;
+      --numReps;
       do {
         if (rCArray != null) {
-          g2d.setColor(rCArray[ci++ & NUM_RANDOMCOLORMASK]);
+          g2d.setColor(rCArray[ci & NUM_RANDOMCOLORMASK]);
+          ci++;
         }
         ellipse.setFrame(x, y, size, size);
         g2d.draw(ellipse);
@@ -1067,7 +1156,8 @@ public abstract class RenderTests extends GraphicsTests {
         if ((y -= 1) < 0) {
           y += cctx.maxY;
         }
-      } while (--numReps > 0);
+        --numReps;
+      } while (numReps > 0);
       cctx.colorindex = ci;
       g2d.translate(-cctx.orgX, -cctx.orgY);
     }

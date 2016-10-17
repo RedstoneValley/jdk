@@ -32,13 +32,16 @@ import java.awt.*;
 import java.awt.event.*;
 import sun.awt.SunToolkit;
 
-public class TextEventSequenceTest {
+public final class TextEventSequenceTest {
 
     private static Frame f;
     private static TextField tf;
     private static TextArea t;
-    private static int cntEmptyStrings = 0;
-    private static int cntNonEmptyStrings = 0;
+    static int cntEmptyStrings;
+    static int cntNonEmptyStrings;
+
+    private TextEventSequenceTest() {
+    }
 
     public static void main(String[] args) {
 
@@ -110,10 +113,11 @@ public class TextEventSequenceTest {
 
     static class MyTextListener implements TextListener {
 
+        @Override
         public synchronized void textValueChanged(TextEvent e) {
             TextComponent tc = (TextComponent) e.getSource();
             String text = tc.getText();
-            if (text.length() == 0) {
+            if (text.isEmpty()) {
                 cntEmptyStrings++;
             } else {
                 cntNonEmptyStrings++;
@@ -121,12 +125,12 @@ public class TextEventSequenceTest {
         }
     }
 
-    synchronized static void initCounts() {
+    static synchronized void initCounts() {
         cntEmptyStrings = 0;
         cntNonEmptyStrings = 0;
     }
 
-    synchronized static void checkCounts(int empty, int nonempty) {
+    static synchronized void checkCounts(int empty, int nonempty) {
         if (empty != cntEmptyStrings || nonempty != cntNonEmptyStrings) {
             throw new RuntimeException(
                     String.format("Expected events: empty = %d, nonempty = %d, "

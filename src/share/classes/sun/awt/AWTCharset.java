@@ -37,15 +37,16 @@ import java.nio.charset.CodingErrorAction;
 //its subclasses do not provide their own en/decode solution.
 
 public class AWTCharset extends Charset {
-  protected Charset awtCs;
-  protected Charset javaCs;
+  protected final Charset awtCs;
+  protected final Charset javaCs;
 
   public AWTCharset(String awtCsName, Charset javaCs) {
     super(awtCsName, null);
     this.javaCs = javaCs;
-    this.awtCs = this;
+    awtCs = this;
   }
 
+  @Override
   public boolean contains(Charset cs) {
     if (javaCs == null) {
       return false;
@@ -53,6 +54,7 @@ public class AWTCharset extends Charset {
     return javaCs.contains(cs);
   }
 
+  @Override
   public CharsetDecoder newDecoder() {
     if (javaCs == null) {
       throw new Error("Decoder is not supported by this Charset");
@@ -60,6 +62,7 @@ public class AWTCharset extends Charset {
     return new Decoder(javaCs.newDecoder());
   }
 
+  @Override
   public CharsetEncoder newEncoder() {
     if (javaCs == null) {
       throw new Error("Encoder is not supported by this Charset");
@@ -68,7 +71,7 @@ public class AWTCharset extends Charset {
   }
 
   public class Encoder extends CharsetEncoder {
-    protected CharsetEncoder enc;
+    protected final CharsetEncoder enc;
 
     protected Encoder() {
       this(javaCs.newEncoder());
@@ -79,48 +82,57 @@ public class AWTCharset extends Charset {
       this.enc = enc;
     }
 
+    @Override
     protected void implReplaceWith(byte[] newReplacement) {
       if (enc != null) {
         enc.replaceWith(newReplacement);
       }
     }
 
+    @Override
     public boolean isLegalReplacement(byte[] repl) {
       return true;
     }
 
+    @Override
     protected void implOnMalformedInput(CodingErrorAction newAction) {
       enc.onMalformedInput(newAction);
     }
 
+    @Override
     protected void implOnUnmappableCharacter(CodingErrorAction newAction) {
       enc.onUnmappableCharacter(newAction);
     }
 
+    @Override
     protected CoderResult implFlush(ByteBuffer out) {
       return enc.flush(out);
     }
 
+    @Override
     protected void implReset() {
       enc.reset();
     }
 
+    @Override
     protected CoderResult encodeLoop(CharBuffer src, ByteBuffer dst) {
       return enc.encode(src, dst, true);
     }
 
+    @Override
     public boolean canEncode(char c) {
       return enc.canEncode(c);
     }
 
+    @Override
     public boolean canEncode(CharSequence cs) {
       return enc.canEncode(cs);
     }
   }
 
   public class Decoder extends CharsetDecoder {
-    protected CharsetDecoder dec;
-    ByteBuffer fbb = ByteBuffer.allocate(0);
+    protected final CharsetDecoder dec;
+    final ByteBuffer fbb = ByteBuffer.allocate(0);
     private String nr;
 
     protected Decoder() {
@@ -132,29 +144,35 @@ public class AWTCharset extends Charset {
       this.dec = dec;
     }
 
+    @Override
     protected void implReplaceWith(String newReplacement) {
       if (dec != null) {
         dec.replaceWith(newReplacement);
       }
     }
 
+    @Override
     protected void implOnMalformedInput(CodingErrorAction newAction) {
       dec.onMalformedInput(newAction);
     }
 
+    @Override
     protected void implOnUnmappableCharacter(CodingErrorAction newAction) {
       dec.onUnmappableCharacter(newAction);
     }
 
+    @Override
     protected CoderResult implFlush(CharBuffer out) {
       dec.decode(fbb, out, true);
       return dec.flush(out);
     }
 
+    @Override
     protected void implReset() {
       dec.reset();
     }
 
+    @Override
     protected CoderResult decodeLoop(ByteBuffer src, CharBuffer dst) {
       return dec.decode(src, dst, true);
     }

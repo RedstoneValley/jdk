@@ -26,29 +26,27 @@
    @run main PrintToDir
    @summary Must throw exception when printing to an invalid filename - a dir.
 */
+import java.awt.JobAttributes.DestinationType;
 import java.io.*;
 import java.net.*;
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.print.*;
-import javax.print.PrintService;
-import javax.print.attribute.*;
-import javax.print.attribute.standard.*;
 import java.util.PropertyPermission;
 
 public class PrintToDir extends Frame implements Printable {
 
+    private static final long serialVersionUID = 2197494438517222019L;
     boolean firstTime = true;
     double sx, sy;
     Shape clip, firstClip;
 
-    TextField tf = new TextField();
-    Label tfLabel = new Label ("File Name");
-    Panel p = new Panel (new GridLayout(2,2));
-    Button b = new Button("Print");
+    final TextField tf = new TextField();
+    final Label tfLabel = new Label ("File Name");
+    final Panel p = new Panel (new GridLayout(2,2));
+    final Button b = new Button("Print");
 
     PrintToDir() {
-        add("South", p);
+        add(BorderLayout.SOUTH, p);
         p.add(tfLabel);
         p.add(tf);
         p.add(b);
@@ -56,6 +54,7 @@ public class PrintToDir extends Frame implements Printable {
         setVisible(true);
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex)  {
         Graphics2D g2 = (Graphics2D)g;
         if (pageIndex>=1) {
@@ -69,7 +68,7 @@ public class PrintToDir extends Frame implements Printable {
         PageAttributes pa = new PageAttributes();
         JobAttributes ja = new JobAttributes();
         ja.setDialog(JobAttributes.DialogType.NONE);
-        ja.setDestination(JobAttributes.DestinationType.FILE);
+        ja.setDestination(DestinationType.FILE);
         ja.setFileName(fileStr);
         try {
             PrintJob pjob = Toolkit.getDefaultToolkit().getPrintJob(this,
@@ -77,7 +76,7 @@ public class PrintToDir extends Frame implements Printable {
             if (pjob != null) {
                 System.out.println("Printjob successfully created: " + pjob);
                 Graphics g = pjob.getGraphics();
-                this.printAll(g);
+                printAll(g);
                 g.dispose();
                 pjob.end();
             }
@@ -118,7 +117,7 @@ public class PrintToDir extends Frame implements Printable {
     }
 
 
-    public static void main(String arg[]) {
+    public static void main(String[] arg) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
             System.out.println("Security manager detected");
@@ -131,11 +130,11 @@ public class PrintToDir extends Frame implements Printable {
             }
         }
         String[] testStr = {".", ""};
-        for (int i=0; i<testStr.length; i++) {
-            System.out.println("Testing file name = \""+testStr[i]+"\"");
-            doPrinterJob(testStr[i], OrientationRequested.PORTRAIT);
+        for (String aTestStr : testStr) {
+            System.out.println("Testing file name = \"" + aTestStr + "\"");
+            doPrinterJob(aTestStr, OrientationRequested.PORTRAIT);
             PrintToDir ptd = new PrintToDir();
-            ptd.doPrintJob(testStr[i]);
+            ptd.doPrintJob(aTestStr);
             ptd.dispose();
         }
         System.out.println("TEST PASSED");

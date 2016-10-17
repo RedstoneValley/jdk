@@ -2,6 +2,7 @@ package sun.text;
 
 import java.text.CharacterIterator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -19,7 +20,7 @@ public class CodePointIterator implements Iterator<Integer> {
     return new CodePointIterator(aci);
   }
 
-  private Integer internalNext() {
+  private int internalNext() {
     char next = aci.next();
     if (next == CharacterIterator.DONE) {
       return DONE;
@@ -29,6 +30,7 @@ public class CodePointIterator implements Iterator<Integer> {
     }
     return (int) next;
   }
+
   @Override
   public boolean hasNext() {
     if (next == null) {
@@ -43,6 +45,9 @@ public class CodePointIterator implements Iterator<Integer> {
       next = internalNext();
     }
     Integer returned = next;
+    if (next == DONE) {
+      throw new NoSuchElementException();
+    }
     next = null;
     return returned;
   }

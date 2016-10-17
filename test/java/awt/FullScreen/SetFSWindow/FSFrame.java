@@ -34,19 +34,19 @@
 
 import java.awt.*;
 import java.awt.image.*;
-import java.applet.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import javax.imageio.ImageIO;
 
 public class FSFrame extends Frame implements Runnable {
 
+    private static final long serialVersionUID = 3733515391628174190L;
     // Don't start the test until the window is visible
-    boolean visible = false;
-    Robot robot = null;
-    static volatile boolean done = false;
+    boolean visible;
+    Robot robot;
+    static volatile boolean done;
 
+    @Override
     public void paint(Graphics g) {
         if (!visible && getWidth() != 0 && getHeight() != 0) {
             visible = true;
@@ -99,8 +99,8 @@ public class FSFrame extends Frame implements Runnable {
         if (robot == null) {
             return;
         }
-        boolean colorCorrect = true;
-        colorCorrect &= checkColor(0, 0, bImg);
+        boolean colorCorrect;
+        colorCorrect = checkColor(0, 0, bImg);
         colorCorrect &= checkColor(0, bImg.getHeight() - 1, bImg);
         colorCorrect &= checkColor(bImg.getWidth() - 1, 0, bImg);
         colorCorrect &= checkColor(bImg.getWidth() - 1, bImg.getHeight() - 1, bImg);
@@ -130,7 +130,7 @@ public class FSFrame extends Frame implements Runnable {
         }
         try {
             // None of these should throw an exception
-            final boolean fs = gd.isFullScreenSupported();
+            boolean fs = gd.isFullScreenSupported();
             System.out.println("FullscreenSupported: " + (fs ? "yes" : "no"));
             gd.setFullScreenWindow(this);
             try {
@@ -142,14 +142,13 @@ public class FSFrame extends Frame implements Runnable {
                 // See if FS window got displayed correctly
                 try {
                     EventQueue.invokeAndWait(new Runnable() {
+                        @Override
                         public void run() {
                             repaint();
                             checkFSDisplay(fs);
                         }
                     });
-                } catch (InvocationTargetException ex) {
-                    ex.printStackTrace();
-                } catch (InterruptedException ex) {
+                } catch (InvocationTargetException | InterruptedException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -167,6 +166,7 @@ public class FSFrame extends Frame implements Runnable {
         }
     }
 
+    @Override
     public void run() {
         boolean firstTime = true;
         while (!done) {
@@ -186,7 +186,7 @@ public class FSFrame extends Frame implements Runnable {
         System.out.println("PASS");
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         FSFrame frame = new FSFrame();
         frame.setUndecorated(true);
         Thread t = new Thread(frame);

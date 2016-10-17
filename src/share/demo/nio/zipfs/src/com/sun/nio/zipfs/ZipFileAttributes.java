@@ -39,8 +39,6 @@
 
 package com.sun.nio.zipfs;
 
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
 import java.util.Arrays;
 import java.util.Formatter;
 

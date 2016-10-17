@@ -21,34 +21,29 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 800535 8022536
  * @summary JDK7 Printing: CJK and Latin Text in string overlap
  * @run main/manual=yesno PrintLatinCJKTest
  */
 
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.print.PageFormat;
-import java.awt.print.Pageable;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-
-import javax.swing.SwingUtilities;
 
 public class PrintLatinCJKTest implements Printable, ActionListener {
 
-    static PrintLatinCJKTest testInstance = new PrintLatinCJKTest();
+    static final PrintLatinCJKTest testInstance = new PrintLatinCJKTest();
     private PageFormat pf;
 
-    static String info =
+    static final String info =
        "To test 8022536, if a remote printer is the system default,"+
        "it should show in the dialog as the selected printer.\n"+
        "You need a printer for this test. If you have none, let "+
@@ -61,14 +56,15 @@ public class PrintLatinCJKTest implements Printable, ActionListener {
          JTextArea jta = new JTextArea(info, 4, 30);
          jta.setLineWrap(true);
          jta.setWrapStyleWord(true);
-         f.add("Center", jta);
+         f.add(BorderLayout.CENTER, jta);
          JButton b = new JButton("Print");
          b.addActionListener(testInstance);
-         f.add("South", b);
+         f.add(BorderLayout.SOUTH, b);
          f.pack();
          f.setVisible(true);
     }
 
+    @Override
     public int print(Graphics g, PageFormat pf, int pageIndex)
                          throws PrinterException {
 
@@ -76,11 +72,12 @@ public class PrintLatinCJKTest implements Printable, ActionListener {
             return Printable.NO_SUCH_PAGE;
         }
         g.translate((int) pf.getImageableX(), (int) pf.getImageableY());
-        g.setFont(new Font("Dialog", Font.PLAIN, 36));
+        g.setFont(new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 36));
         g.drawString("\u4e00\u4e01\u4e02\u4e03\u4e04English", 20, 100);
         return Printable.PAGE_EXISTS;
     }
 
+    @Override
     public void actionPerformed(ActionEvent e) {
         try {
             PrinterJob job = PrinterJob.getPrinterJob();

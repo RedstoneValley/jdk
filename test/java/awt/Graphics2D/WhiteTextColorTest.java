@@ -23,7 +23,6 @@
 
 import java.awt.*;
 import java.awt.image.*;
-import javax.swing.*;
 
 /**
  * @test
@@ -33,7 +32,8 @@ import javax.swing.*;
  * @author ceisserer
  */
 public class WhiteTextColorTest extends Frame {
-    public static volatile boolean success = false;
+    private static final long serialVersionUID = 3442286836835312270L;
+    public static volatile boolean success;
 
     public WhiteTextColorTest() {
         Image dstImg = getGraphicsConfiguration()
@@ -67,6 +67,7 @@ public class WhiteTextColorTest extends Frame {
 
     public static void main(String[] args) throws Exception {
         SwingUtilities.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new WhiteTextColorTest();
             }

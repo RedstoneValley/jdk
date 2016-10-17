@@ -24,22 +24,25 @@
  */
 package java.awt;
 
+import java.awt.Component.BaselineResizeBehavior;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
- * The <code>GridBagLayout</code> class is a flexible layout
+ * The {@code GridBagLayout} class is a flexible layout
  * manager that aligns components vertically, horizontally or along their
  * baseline without requiring that the components be of the same size.
- * Each <code>GridBagLayout</code> object maintains a dynamic,
+ * Each {@code GridBagLayout} object maintains a dynamic,
  * rectangular grid of cells, with each component occupying
  * one or more cells, called its <em>display area</em>.
  * <p>
- * Each component managed by a <code>GridBagLayout</code> is associated with
+ * Each component managed by a {@code GridBagLayout} is associated with
  * an instance of {@link GridBagConstraints}.  The constraints object
  * specifies where a component's display area should be located on the grid
  * and how the component should be positioned within its display area.  In
- * addition to its constraints object, the <code>GridBagLayout</code> also
+ * addition to its constraints object, the {@code GridBagLayout} also
  * considers each component's minimum and preferred sizes in order to
  * determine a component's size.
  * <p>
@@ -52,8 +55,8 @@ import java.util.Hashtable;
  * increasing downward.
  * <p>
  * To use a grid bag layout effectively, you must customize one or more
- * of the <code>GridBagConstraints</code> objects that are associated
- * with its components. You customize a <code>GridBagConstraints</code>
+ * of the {@code GridBagConstraints} objects that are associated
+ * with its components. You customize a {@code GridBagConstraints}
  * object by setting one or more of its instance variables:
  * <p>
  * <dl>
@@ -61,55 +64,55 @@ import java.util.Hashtable;
  * {@link GridBagConstraints#gridy}
  * <dd>Specifies the cell containing the leading corner of the component's
  * display area, where the cell at the origin of the grid has address
- * <code>gridx&nbsp;=&nbsp;0</code>,
- * <code>gridy&nbsp;=&nbsp;0</code>.  For horizontal left-to-right layout,
+ * {@code gridx&nbsp;=&nbsp;0},
+ * {@code gridy&nbsp;=&nbsp;0}.  For horizontal left-to-right layout,
  * a component's leading corner is its upper left.  For horizontal
  * right-to-left layout, a component's leading corner is its upper right.
- * Use <code>GridBagConstraints.RELATIVE</code> (the default value)
+ * Use {@code GridBagConstraints.RELATIVE} (the default value)
  * to specify that the component be placed immediately following
- * (along the x axis for <code>gridx</code> or the y axis for
- * <code>gridy</code>) the component that was added to the container
+ * (along the x axis for {@code gridx} or the y axis for
+ * {@code gridy}) the component that was added to the container
  * just before this component was added.
  * <dt>{@link GridBagConstraints#gridwidth},
  * {@link GridBagConstraints#gridheight}
- * <dd>Specifies the number of cells in a row (for <code>gridwidth</code>)
- * or column (for <code>gridheight</code>)
+ * <dd>Specifies the number of cells in a row (for {@code gridwidth})
+ * or column (for {@code gridheight})
  * in the component's display area.
  * The default value is 1.
- * Use <code>GridBagConstraints.REMAINDER</code> to specify
- * that the component's display area will be from <code>gridx</code>
- * to the last cell in the row (for <code>gridwidth</code>)
- * or from <code>gridy</code> to the last cell in the column
- * (for <code>gridheight</code>).
+ * Use {@code GridBagConstraints.REMAINDER} to specify
+ * that the component's display area will be from {@code gridx}
+ * to the last cell in the row (for {@code gridwidth})
+ * or from {@code gridy} to the last cell in the column
+ * (for {@code gridheight}).
  * <p>
- * Use <code>GridBagConstraints.RELATIVE</code> to specify
- * that the component's display area will be from <code>gridx</code>
- * to the next to the last cell in its row (for <code>gridwidth</code>
- * or from <code>gridy</code> to the next to the last cell in its
- * column (for <code>gridheight</code>).
+ * Use {@code GridBagConstraints.RELATIVE} to specify
+ * that the component's display area will be from {@code gridx}
+ * to the next to the last cell in its row (for {@code gridwidth}
+ * or from {@code gridy} to the next to the last cell in its
+ * column (for {@code gridheight}).
  * <p>
  * <dt>{@link GridBagConstraints#fill}
  * <dd>Used when the component's display area
  * is larger than the component's requested size
  * to determine whether (and how) to resize the component.
  * Possible values are
- * <code>GridBagConstraints.NONE</code> (the default),
- * <code>GridBagConstraints.HORIZONTAL</code>
+ * {@code GridBagConstraints.NONE} (the default),
+ * {@code GridBagConstraints.HORIZONTAL}
  * (make the component wide enough to fill its display area
  * horizontally, but don't change its height),
- * <code>GridBagConstraints.VERTICAL</code>
+ * {@code GridBagConstraints.VERTICAL}
  * (make the component tall enough to fill its display area
  * vertically, but don't change its width), and
- * <code>GridBagConstraints.BOTH</code>
+ * {@code GridBagConstraints.BOTH}
  * (make the component fill its display area entirely).
  * <dt>{@link GridBagConstraints#ipadx},
  * {@link GridBagConstraints#ipady}
  * <dd>Specifies the component's internal padding within the layout,
  * how much to add to the minimum size of the component.
  * The width of the component will be at least its minimum width
- * plus <code>ipadx</code> pixels. Similarly, the height of
+ * plus {@code ipadx} pixels. Similarly, the height of
  * the component will be at least the minimum height plus
- * <code>ipady</code> pixels.
+ * {@code ipady} pixels.
  * <dt>{@link GridBagConstraints#insets}
  * <dd>Specifies the component's external padding, the minimum
  * amount of space between the component and the edges of its display area.
@@ -118,7 +121,7 @@ import java.util.Hashtable;
  * There are three kinds of possible values: absolute, orientation-relative,
  * and baseline-relative
  * Orientation relative values are interpreted relative to the container's
- * <code>ComponentOrientation</code> property while absolute values
+ * {@code ComponentOrientation} property while absolute values
  * are not.  Baseline relative values are calculated relative to the
  * baseline.  Valid values are:
  * <p>
@@ -132,40 +135,40 @@ import java.util.Hashtable;
  * <tr>
  * <td>
  * <ul style="list-style-type:none">
- * <li><code>GridBagConstraints.NORTH</code></li>
- * <li><code>GridBagConstraints.SOUTH</code></li>
- * <li><code>GridBagConstraints.WEST</code></li>
- * <li><code>GridBagConstraints.EAST</code></li>
- * <li><code>GridBagConstraints.NORTHWEST</code></li>
- * <li><code>GridBagConstraints.NORTHEAST</code></li>
- * <li><code>GridBagConstraints.SOUTHWEST</code></li>
- * <li><code>GridBagConstraints.SOUTHEAST</code></li>
- * <li><code>GridBagConstraints.CENTER</code> (the default)</li>
+ * <li>{@code GridBagConstraints.NORTH}</li>
+ * <li>{@code GridBagConstraints.SOUTH}</li>
+ * <li>{@code GridBagConstraints.WEST}</li>
+ * <li>{@code GridBagConstraints.EAST}</li>
+ * <li>{@code GridBagConstraints.NORTHWEST}</li>
+ * <li>{@code GridBagConstraints.NORTHEAST}</li>
+ * <li>{@code GridBagConstraints.SOUTHWEST}</li>
+ * <li>{@code GridBagConstraints.SOUTHEAST}</li>
+ * <li>{@code GridBagConstraints.CENTER} (the default)</li>
  * </ul>
  * </td>
  * <td>
  * <ul style="list-style-type:none">
- * <li><code>GridBagConstraints.PAGE_START</code></li>
- * <li><code>GridBagConstraints.PAGE_END</code></li>
- * <li><code>GridBagConstraints.LINE_START</code></li>
- * <li><code>GridBagConstraints.LINE_END</code></li>
- * <li><code>GridBagConstraints.FIRST_LINE_START</code></li>
- * <li><code>GridBagConstraints.FIRST_LINE_END</code></li>
- * <li><code>GridBagConstraints.LAST_LINE_START</code></li>
- * <li><code>GridBagConstraints.LAST_LINE_END</code></li>
+ * <li>{@code GridBagConstraints.PAGE_START}</li>
+ * <li>{@code GridBagConstraints.PAGE_END}</li>
+ * <li>{@code GridBagConstraints.LINE_START}</li>
+ * <li>{@code GridBagConstraints.LINE_END}</li>
+ * <li>{@code GridBagConstraints.FIRST_LINE_START}</li>
+ * <li>{@code GridBagConstraints.FIRST_LINE_END}</li>
+ * <li>{@code GridBagConstraints.LAST_LINE_START}</li>
+ * <li>{@code GridBagConstraints.LAST_LINE_END}</li>
  * </ul>
  * </td>
  * <td>
  * <ul style="list-style-type:none">
- * <li><code>GridBagConstraints.BASELINE</code></li>
- * <li><code>GridBagConstraints.BASELINE_LEADING</code></li>
- * <li><code>GridBagConstraints.BASELINE_TRAILING</code></li>
- * <li><code>GridBagConstraints.ABOVE_BASELINE</code></li>
- * <li><code>GridBagConstraints.ABOVE_BASELINE_LEADING</code></li>
- * <li><code>GridBagConstraints.ABOVE_BASELINE_TRAILING</code></li>
- * <li><code>GridBagConstraints.BELOW_BASELINE</code></li>
- * <li><code>GridBagConstraints.BELOW_BASELINE_LEADING</code></li>
- * <li><code>GridBagConstraints.BELOW_BASELINE_TRAILING</code></li>
+ * <li>{@code GridBagConstraints.BASELINE}</li>
+ * <li>{@code GridBagConstraints.BASELINE_LEADING}</li>
+ * <li>{@code GridBagConstraints.BASELINE_TRAILING}</li>
+ * <li>{@code GridBagConstraints.ABOVE_BASELINE}</li>
+ * <li>{@code GridBagConstraints.ABOVE_BASELINE_LEADING}</li>
+ * <li>{@code GridBagConstraints.ABOVE_BASELINE_TRAILING}</li>
+ * <li>{@code GridBagConstraints.BELOW_BASELINE}</li>
+ * <li>{@code GridBagConstraints.BELOW_BASELINE_LEADING}</li>
+ * <li>{@code GridBagConstraints.BELOW_BASELINE_TRAILING}</li>
  * </ul>
  * </td>
  * </tr>
@@ -175,10 +178,10 @@ import java.util.Hashtable;
  * <dd>Used to determine how to distribute space, which is
  * important for specifying resizing behavior.
  * Unless you specify a weight for at least one component
- * in a row (<code>weightx</code>) and column (<code>weighty</code>),
+ * in a row ({@code weightx}) and column ({@code weighty}),
  * all the components clump together in the center of their container.
  * This is because when the weight is zero (the default),
- * the <code>GridBagLayout</code> object puts any extra space
+ * the {@code GridBagLayout} object puts any extra space
  * between its grid of cells and the edges of the container.
  * </dl>
  * <p>
@@ -206,12 +209,12 @@ import java.util.Hashtable;
  * </table></center>
  * This layout consists of three components:
  * <ul><li>A panel that starts in row 0 and ends in row 1.  The panel
- * has a baseline-resize behavior of <code>CONSTANT_DESCENT</code> and has
- * an anchor of <code>BASELINE</code>.  As the baseline-resize behavior
- * is <code>CONSTANT_DESCENT</code> the prevailing row for the panel is
+ * has a baseline-resize behavior of {@code CONSTANT_DESCENT} and has
+ * an anchor of {@code BASELINE}.  As the baseline-resize behavior
+ * is {@code CONSTANT_DESCENT} the prevailing row for the panel is
  * row 1.
  * <li>Two buttons, each with a baseline-resize behavior of
- * <code>CENTER_OFFSET</code> and an anchor of <code>BASELINE</code>.
+ * {@code CENTER_OFFSET} and an anchor of {@code BASELINE}.
  * </ul>
  * Because the second button and the panel share the same prevailing row,
  * they are both aligned along their baseline.
@@ -221,7 +224,7 @@ import java.util.Hashtable;
  * value.  How components change is dictated by how the baseline of the
  * prevailing row changes.  The baseline is anchored to the
  * bottom of the display area if any components with the same prevailing row
- * have a baseline-resize behavior of <code>CONSTANT_DESCENT</code>,
+ * have a baseline-resize behavior of {@code CONSTANT_DESCENT},
  * otherwise the baseline is anchored to the top of the display area.
  * The following rules dictate the resize behavior:
  * <ul>
@@ -233,12 +236,12 @@ import java.util.Hashtable;
  * only grow as high as the difference between the display height and the
  * baseline.
  * <li>Resizable components positioned on the baseline with a
- * baseline-resize behavior of <code>OTHER</code> are only resized if
+ * baseline-resize behavior of {@code OTHER} are only resized if
  * the baseline at the resized size fits within the display area.  If
  * the baseline is such that it does not fit within the display area
  * the component is not resized.
  * <li>Components positioned on the baseline that do not have a
- * baseline-resize behavior of <code>OTHER</code>
+ * baseline-resize behavior of {@code OTHER}
  * can only grow as tall as {@code display height - baseline + baseline of component}.
  * </ul>
  * If you position a component along the baseline, but the
@@ -268,22 +271,22 @@ import java.util.Hashtable;
  * </tr>
  * </table></center>
  * <p>
- * Each of the ten components has the <code>fill</code> field
- * of its associated <code>GridBagConstraints</code> object
- * set to <code>GridBagConstraints.BOTH</code>.
+ * Each of the ten components has the {@code fill} field
+ * of its associated {@code GridBagConstraints} object
+ * set to {@code GridBagConstraints.BOTH}.
  * In addition, the components have the following non-default constraints:
  * <p>
  * <ul>
- * <li>Button1, Button2, Button3: <code>weightx&nbsp;=&nbsp;1.0</code>
- * <li>Button4: <code>weightx&nbsp;=&nbsp;1.0</code>,
- * <code>gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER</code>
- * <li>Button5: <code>gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER</code>
- * <li>Button6: <code>gridwidth&nbsp;=&nbsp;GridBagConstraints.RELATIVE</code>
- * <li>Button7: <code>gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER</code>
- * <li>Button8: <code>gridheight&nbsp;=&nbsp;2</code>,
- * <code>weighty&nbsp;=&nbsp;1.0</code>
+ * <li>Button1, Button2, Button3: {@code weightx&nbsp;=&nbsp;1.0}
+ * <li>Button4: {@code weightx&nbsp;=&nbsp;1.0},
+ * {@code gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER}
+ * <li>Button5: {@code gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER}
+ * <li>Button6: {@code gridwidth&nbsp;=&nbsp;GridBagConstraints.RELATIVE}
+ * <li>Button7: {@code gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER}
+ * <li>Button8: {@code gridheight&nbsp;=&nbsp;2},
+ * {@code weighty&nbsp;=&nbsp;1.0}
  * <li>Button9, Button 10:
- * <code>gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER</code>
+ * {@code gridwidth&nbsp;=&nbsp;GridBagConstraints.REMAINDER}
  * </ul>
  * <p>
  * Here is the code that implements the example shown above:
@@ -356,15 +359,19 @@ import java.util.Hashtable;
  * }
  * </pre></blockquote><hr>
  * <p>
+ * <p>
+ * Methods whose names start with Get, with a capital G, are overridden by external subclasses, so
+ * they can't be deleted.
  *
  * @author Doug Stein
  * @author Bill Spitzak (orignial NeWS &amp; OLIT implementation)
- * @see java.awt.GridBagConstraints
- * @see java.awt.GridBagLayoutInfo
- * @see java.awt.ComponentOrientation
+ * @see GridBagConstraints
+ * @see GridBagLayoutInfo
+ * @see ComponentOrientation
  * @since JDK1.0
  */
-public class GridBagLayout implements LayoutManager2, java.io.Serializable {
+@SuppressWarnings("MethodNamesDifferingOnlyByCase")
+public class GridBagLayout implements LayoutManager2, Serializable {
 
   /**
    * This field is no longer used to reserve arrays and kept for backward
@@ -388,7 +395,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   static final long serialVersionUID = 8838754796412211005L;
   /**
    * This field holds the overrides to the column minimum
-   * width.  If this field is non-<code>null</code> the values are
+   * width.  If this field is non-{@code null} the values are
    * applied to the gridbag after all of the minimum columns
    * widths have been calculated.
    * If columnWidths has more elements than the number of
@@ -398,77 +405,77 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * @serial
    * @see #getLayoutDimensions()
    */
-  public int columnWidths[];
+  public int[] columnWidths;
   /**
    * This field holds the overrides to the row minimum
-   * heights.  If this field is non-<code>null</code> the values are
+   * heights.  If this field is non-{@code null} the values are
    * applied to the gridbag after all of the minimum row
    * heights have been calculated.
-   * If <code>rowHeights</code> has more elements than the number of
+   * If {@code rowHeights} has more elements than the number of
    * rows, rows are added to the gridbag to match
-   * the number of elements in <code>rowHeights</code>.
+   * the number of elements in {@code rowHeights}.
    *
    * @serial
    * @see #getLayoutDimensions()
    */
-  public int rowHeights[];
+  public int[] rowHeights;
   /**
    * This field holds the overrides to the column weights.
-   * If this field is non-<code>null</code> the values are
+   * If this field is non-{@code null} the values are
    * applied to the gridbag after all of the columns
    * weights have been calculated.
-   * If <code>columnWeights[i]</code> &gt; weight for column i, then
-   * column i is assigned the weight in <code>columnWeights[i]</code>.
-   * If <code>columnWeights</code> has more elements than the number
+   * If {@code columnWeights[i]} &gt; weight for column i, then
+   * column i is assigned the weight in {@code columnWeights[i]}.
+   * If {@code columnWeights} has more elements than the number
    * of columns, the excess elements are ignored - they do
    * not cause more columns to be created.
    *
    * @serial
    */
-  public double columnWeights[];
+  public double[] columnWeights;
   /**
    * This field holds the overrides to the row weights.
-   * If this field is non-<code>null</code> the values are
+   * If this field is non-{@code null} the values are
    * applied to the gridbag after all of the rows
    * weights have been calculated.
-   * If <code>rowWeights[i]</code> &gt; weight for row i, then
-   * row i is assigned the weight in <code>rowWeights[i]</code>.
-   * If <code>rowWeights</code> has more elements than the number
+   * If {@code rowWeights[i]} &gt; weight for row i, then
+   * row i is assigned the weight in {@code rowWeights[i]}.
+   * If {@code rowWeights} has more elements than the number
    * of rows, the excess elements are ignored - they do
    * not cause more rows to be created.
    *
    * @serial
    */
-  public double rowWeights[];
+  public double[] rowWeights;
   /**
    * This hashtable maintains the association between
    * a component and its gridbag constraints.
-   * The Keys in <code>comptable</code> are the components and the
-   * values are the instances of <code>GridBagConstraints</code>.
+   * The Keys in {@code comptable} are the components and the
+   * values are the instances of {@code GridBagConstraints}.
    *
    * @serial
-   * @see java.awt.GridBagConstraints
+   * @see GridBagConstraints
    */
-  protected Hashtable<Component, GridBagConstraints> comptable;
+  protected final Map<Component, GridBagConstraints> comptable;
   /**
    * This field holds a gridbag constraints instance
    * containing the default values, so if a component
    * does not have gridbag constraints associated with
    * it, then the component will be assigned a
-   * copy of the <code>defaultConstraints</code>.
+   * copy of the {@code defaultConstraints}.
    *
    * @serial
    * @see #getConstraints(Component)
    * @see #setConstraints(Component, GridBagConstraints)
    * @see #lookupConstraints(Component)
    */
-  protected GridBagConstraints defaultConstraints;
+  protected final GridBagConstraints defaultConstraints;
   /**
    * This field holds the layout information
    * for the gridbag.  The information in this field
    * is based on the most recent validation of the
    * gridbag.
-   * If <code>layoutInfo</code> is <code>null</code>
+   * If {@code layoutInfo} is {@code null}
    * this indicates that there are no components in
    * the gridbag or if there are components, they have
    * not yet been validated.
@@ -477,10 +484,10 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * @see #getLayoutInfo(Container, int)
    */
   protected GridBagLayoutInfo layoutInfo;
-  transient boolean rightToLeft = false;
+  transient boolean rightToLeft;
   /**
    * The component being positioned.  This is set before calling into
-   * <code>adjustForGravity</code>.
+   * {@code adjustForGravity}.
    */
   private Component componentAdjusting;
 
@@ -488,7 +495,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * Creates a grid bag layout manager.
    */
   public GridBagLayout() {
-    comptable = new Hashtable<Component, GridBagConstraints>();
+    comptable = new Hashtable<>();
     defaultConstraints = new GridBagConstraints();
   }
 
@@ -504,7 +511,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
 
   /**
    * Gets the constraints for the specified component.  A copy of
-   * the actual <code>GridBagConstraints</code> object is returned.
+   * the actual {@code GridBagConstraints} object is returned.
    *
    * @param comp the component to be queried
    * @return the constraint for the specified component in this
@@ -523,12 +530,12 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * Retrieves the constraints for the specified component.
    * The return value is not a copy, but is the actual
-   * <code>GridBagConstraints</code> object used by the layout mechanism.
+   * {@code GridBagConstraints} object used by the layout mechanism.
    * <p>
-   * If <code>comp</code> is not in the <code>GridBagLayout</code>,
-   * a set of default <code>GridBagConstraints</code> are returned.
-   * A <code>comp</code> value of <code>null</code> is invalid
-   * and returns <code>null</code>.
+   * If {@code comp} is not in the {@code GridBagLayout},
+   * a set of default {@code GridBagConstraints} are returned.
+   * A {@code comp} value of {@code null} is invalid
+   * and returns {@code null}.
    *
    * @param comp the component to be queried
    * @return the constraints for the specified component
@@ -555,13 +562,13 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * Determines the origin of the layout area, in the graphics coordinate
    * space of the target container.  This value represents the pixel
    * coordinates of the top-left corner of the layout area regardless of
-   * the <code>ComponentOrientation</code> value of the container.  This
+   * the {@code ComponentOrientation} value of the container.  This
    * is distinct from the grid origin given by the cell coordinates (0,0).
    * Most applications do not call this method directly.
    *
    * @return the graphics origin of the cell in the top-left
    * corner of the layout grid
-   * @see java.awt.ComponentOrientation
+   * @see ComponentOrientation
    * @since JDK1.1
    */
   public Point getLayoutOrigin() {
@@ -588,7 +595,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       return new int[2][0];
     }
 
-    int dim[][] = new int[2][];
+    int[][] dim = new int[2][];
     dim[0] = new int[layoutInfo.width];
     dim[1] = new int[layoutInfo.height];
 
@@ -616,7 +623,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       return new double[2][0];
     }
 
-    double weights[][] = new double[2][];
+    double[][] weights = new double[2][];
     weights[0] = new double[layoutInfo.width];
     weights[1] = new double[layoutInfo.height];
 
@@ -628,30 +635,30 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
 
   /**
    * Determines which cell in the layout grid contains the point
-   * specified by <code>(x,&nbsp;y)</code>. Each cell is identified
+   * specified by {@code (x,&nbsp;y)}. Each cell is identified
    * by its column index (ranging from 0 to the number of columns
    * minus 1) and its row index (ranging from 0 to the number of
    * rows minus 1).
    * <p>
-   * If the <code>(x,&nbsp;y)</code> point lies
+   * If the {@code (x,&nbsp;y)} point lies
    * outside the grid, the following rules are used.
-   * The column index is returned as zero if <code>x</code> lies to the
+   * The column index is returned as zero if {@code x} lies to the
    * left of the layout for a left-to-right container or to the right of
    * the layout for a right-to-left container.  The column index is returned
-   * as the number of columns if <code>x</code> lies
+   * as the number of columns if {@code x} lies
    * to the right of the layout in a left-to-right container or to the left
    * in a right-to-left container.
-   * The row index is returned as zero if <code>y</code> lies above the
-   * layout, and as the number of rows if <code>y</code> lies
+   * The row index is returned as zero if {@code y} lies above the
+   * layout, and as the number of rows if {@code y} lies
    * below the layout.  The orientation of a container is determined by its
-   * <code>ComponentOrientation</code> property.
+   * {@code ComponentOrientation} property.
    *
    * @param x the <i>x</i> coordinate of a point
    * @param y the <i>y</i> coordinate of a point
    * @return an ordered pair of indexes that indicate which cell
    * in the layout grid contains the point
    * (<i>x</i>,&nbsp;<i>y</i>).
-   * @see java.awt.ComponentOrientation
+   * @see ComponentOrientation
    * @since JDK1.1
    */
   public Point location(int x, int y) {
@@ -696,6 +703,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * Has no effect, since this layout manager does not use a per-component string.
    */
+  @Override
   public void addLayoutComponent(String name, Component comp) {
   }
 
@@ -705,39 +713,42 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * Most applications do not call this method directly.
    *
    * @param comp the component to be removed.
-   * @see java.awt.Container#remove(java.awt.Component)
-   * @see java.awt.Container#removeAll()
+   * @see Container#remove(Component)
+   * @see Container#removeAll()
    */
+  @Override
   public void removeLayoutComponent(Component comp) {
     removeConstraints(comp);
   }
 
   /**
-   * Determines the preferred size of the <code>parent</code>
+   * Determines the preferred size of the {@code parent}
    * container using this grid bag layout.
    * <p>
    * Most applications do not call this method directly.
    *
    * @param parent the container in which to do the layout
-   * @return the preferred size of the <code>parent</code>
+   * @return the preferred size of the {@code parent}
    * container
-   * @see java.awt.Container#getPreferredSize
+   * @see Container#getPreferredSize
    */
+  @Override
   public Dimension preferredLayoutSize(Container parent) {
     GridBagLayoutInfo info = getLayoutInfo(parent, PREFERREDSIZE);
     return getMinSize(parent, info);
   }
 
   /**
-   * Determines the minimum size of the <code>parent</code> container
+   * Determines the minimum size of the {@code parent} container
    * using this grid bag layout.
    * <p>
    * Most applications do not call this method directly.
    *
    * @param parent the container in which to do the layout
-   * @return the minimum size of the <code>parent</code> container
-   * @see java.awt.Container#doLayout
+   * @return the minimum size of the {@code parent} container
+   * @see Container#doLayout
    */
+  @Override
   public Dimension minimumLayoutSize(Container parent) {
     GridBagLayoutInfo info = getLayoutInfo(parent, MINSIZE);
     return getMinSize(parent, info);
@@ -746,30 +757,32 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * Lays out the specified container using this grid bag layout.
    * This method reshapes components in the specified container in
-   * order to satisfy the constraints of this <code>GridBagLayout</code>
+   * order to satisfy the constraints of this {@code GridBagLayout}
    * object.
    * <p>
    * Most applications do not call this method directly.
    *
    * @param parent the container in which to do the layout
-   * @see java.awt.Container
-   * @see java.awt.Container#doLayout
+   * @see Container
+   * @see Container#doLayout
    */
+  @Override
   public void layoutContainer(Container parent) {
     arrangeGrid(parent);
   }
 
   /**
    * Adds the specified component to the layout, using the specified
-   * <code>constraints</code> object.  Note that constraints
+   * {@code constraints} object.  Note that constraints
    * are mutable and are, therefore, cloned when cached.
    *
    * @param comp        the component to be added
    * @param constraints an object that determines how
    *                    the component is added to the layout
-   * @throws IllegalArgumentException if <code>constraints</code>
-   *                                  is not a <code>GridBagConstraint</code>
+   * @throws IllegalArgumentException if {@code constraints}
+   *                                  is not a {@code GridBagConstraint}
    */
+  @Override
   public void addLayoutComponent(Component comp, Object constraints) {
     if (constraints instanceof GridBagConstraints) {
       setConstraints(comp, (GridBagConstraints) constraints);
@@ -789,6 +802,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * @see #minimumLayoutSize(Container)
    * @see #preferredLayoutSize(Container)
    */
+  @Override
   public Dimension maximumLayoutSize(Container target) {
     return new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE);
   }
@@ -801,8 +815,9 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * the furthest away from the origin, 0.5 is centered, etc.
    * <p>
    *
-   * @return the value <code>0.5f</code> to indicate centered
+   * @return the value {@code 0.5f} to indicate centered
    */
+  @Override
   public float getLayoutAlignmentX(Container parent) {
     return 0.5f;
   }
@@ -815,14 +830,15 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * the furthest away from the origin, 0.5 is centered, etc.
    * <p>
    *
-   * @return the value <code>0.5f</code> to indicate centered
+   * @return the value {@code 0.5f} to indicate centered
    */
+  @Override
   public float getLayoutAlignmentY(Container parent) {
     return 0.5f;
   }
 
-  /**
-   * Print the layout information.  Useful for debugging.
+  /*
+    Print the layout information.  Useful for debugging.
    */
 
     /* DEBUG
@@ -845,8 +861,8 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
      *  }
      */
 
-  /**
-   * Print the layout constraints.  Useful for debugging.
+  /*
+    Print the layout constraints.  Useful for debugging.
    */
 
     /* DEBUG
@@ -894,6 +910,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * Invalidates the layout, indicating that if the layout manager
    * has cached information it should be discarded.
    */
+  @Override
   public void invalidateLayout(Container target) {
   }
 
@@ -913,7 +930,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   }
 
   /**
-   * Fills in an instance of <code>GridBagLayoutInfo</code> for the
+   * Fills in an instance of {@code GridBagLayoutInfo} for the
    * current set of managed children. This requires three passes through the
    * set of children:
    * <p>
@@ -927,12 +944,12 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * first encountered (so subsequent loops don't need to ask again).
    * <p>
    * This method should only be used internally by
-   * <code>GridBagLayout</code>.
+   * {@code GridBagLayout}.
    *
    * @param parent   the layout container
-   * @param sizeflag either <code>PREFERREDSIZE</code> or
-   *                 <code>MINSIZE</code>
-   * @return the <code>GridBagLayoutInfo</code> for the set of children
+   * @param sizeflag either {@code PREFERREDSIZE} or
+   *                 {@code MINSIZE}
+   * @return the {@code GridBagLayoutInfo} for the set of children
    * @since 1.4
    */
   protected GridBagLayoutInfo getLayoutInfo(Container parent, int sizeflag) {
@@ -940,7 +957,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   }
 
   private long[] preInitMaximumArraySizes(Container parent) {
-    Component components[] = parent.getComponents();
+    Component[] components = parent.getComponents();
     Component comp;
     GridBagConstraints constraints;
     int curX, curY;
@@ -949,8 +966,8 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
     int preMaximumArrayYIndex = 0;
     long[] returnArray = new long[2];
 
-    for (int compId = 0; compId < components.length; compId++) {
-      comp = components[compId];
+    for (Component component : components) {
+      comp = component;
       if (!comp.isVisible()) {
         continue;
       }
@@ -967,10 +984,12 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       // already used in maximumArray[X|Y]Index calculation. We could just increase
       // maximum by 1 to handle situation when component with gridx=-1 was added.
       if (curX < 0) {
-        curX = ++preMaximumArrayYIndex;
+        ++preMaximumArrayYIndex;
+        curX = preMaximumArrayYIndex;
       }
       if (curY < 0) {
-        curY = ++preMaximumArrayXIndex;
+        ++preMaximumArrayXIndex;
+        curY = preMaximumArrayXIndex;
       }
       // gridwidth|gridheight may be equal to RELATIVE (-1) or REMAINDER (0)
       // in any case using 1 instead of 0 or -1 should be sufficient to for
@@ -997,9 +1016,9 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * This method is obsolete and supplied for backwards
    * compatibility only; new code should call {@link
-   * #getLayoutInfo(java.awt.Container, int) getLayoutInfo} instead.
-   * This method is the same as <code>getLayoutInfo</code>;
-   * refer to <code>getLayoutInfo</code> for details on parameters
+   * #getLayoutInfo(Container, int) getLayoutInfo} instead.
+   * This method is the same as {@code getLayoutInfo};
+   * refer to {@code getLayoutInfo} for details on parameters
    * and return value.
    */
   protected GridBagLayoutInfo GetLayoutInfo(Container parent, int sizeflag) {
@@ -1008,7 +1027,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       Component comp;
       GridBagConstraints constraints;
       Dimension d;
-      Component components[] = parent.getComponents();
+      Component[] components = parent.getComponents();
       // Code below will address index curX+curWidth in the case of yMaxArray, weightY
       // ( respectively curY+curHeight for xMaxArray, weightX ) where
       //  curX in 0 to preInitMaximumArraySizes.y
@@ -1020,14 +1039,14 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       int[] xMaxArray;
       int[] yMaxArray;
       int compindex, i, k, px, py, pixels_diff, nextSize;
-      int curX = 0; // constraints.gridx
-      int curY = 0; // constraints.gridy
-      int curWidth = 1;  // constraints.gridwidth
-      int curHeight = 1;  // constraints.gridheight
+      int curX; // constraints.gridx
+      int curY; // constraints.gridy
+      int curWidth;  // constraints.gridwidth
+      int curHeight;  // constraints.gridheight
       int curRow, curCol;
       double weight_diff, weight;
-      int maximumArrayXIndex = 0;
-      int maximumArrayYIndex = 0;
+      int maximumArrayXIndex;
+      int maximumArrayYIndex;
       int anchor;
 
             /*
@@ -1048,10 +1067,10 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
              * We need to detect this situation and try to create a
              * grid with Integer.MAX_VALUE size instead.
              */
-      maximumArrayXIndex = (EMPIRICMULTIPLIER * arraySizes[0] > Integer.MAX_VALUE)
-          ? Integer.MAX_VALUE : EMPIRICMULTIPLIER * (int) arraySizes[0];
-      maximumArrayYIndex = (EMPIRICMULTIPLIER * arraySizes[1] > Integer.MAX_VALUE)
-          ? Integer.MAX_VALUE : EMPIRICMULTIPLIER * (int) arraySizes[1];
+      maximumArrayXIndex = EMPIRICMULTIPLIER * arraySizes[0] > Integer.MAX_VALUE ? Integer.MAX_VALUE
+          : EMPIRICMULTIPLIER * (int) arraySizes[0];
+      maximumArrayYIndex = EMPIRICMULTIPLIER * arraySizes[1] > Integer.MAX_VALUE ? Integer.MAX_VALUE
+          : EMPIRICMULTIPLIER * (int) arraySizes[1];
 
       if (rowHeights != null) {
         maximumArrayXIndex = Math.max(maximumArrayXIndex, rowHeights.length);
@@ -1094,7 +1113,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
         }
         if (curX < 0) {
           px = 0;
-          for (i = curY; i < (curY + curHeight); i++) {
+          for (i = curY; i < curY + curHeight; i++) {
             px = Math.max(px, xMaxArray[i]);
           }
 
@@ -1104,7 +1123,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
           }
         } else if (curY < 0) {
           py = 0;
-          for (i = curX; i < (curX + curWidth); i++) {
+          for (i = curX; i < curX + curWidth; i++) {
             py = Math.max(py, yMaxArray[i]);
           }
           curY = py - curY - 1;
@@ -1126,20 +1145,16 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
         }
 
                 /* Adjust xMaxArray and yMaxArray */
-        for (i = curX; i < (curX + curWidth); i++) {
+        for (i = curX; i < curX + curWidth; i++) {
           yMaxArray[i] = py;
         }
-        for (i = curY; i < (curY + curHeight); i++) {
+        for (i = curY; i < curY + curHeight; i++) {
           xMaxArray[i] = px;
         }
 
 
                 /* Cache the current slave's size. */
-        if (sizeflag == PREFERREDSIZE) {
-          d = comp.getPreferredSize();
-        } else {
-          d = comp.getMinimumSize();
-        }
+        d = sizeflag == PREFERREDSIZE ? comp.getPreferredSize() : comp.getMinimumSize();
         constraints.minWidth = d.width;
         constraints.minHeight = d.height;
         if (calculateBaseline(comp, constraints, d)) {
@@ -1233,7 +1248,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
           }
 
           px = 0;
-          for (i = curY; i < (curY + curHeight); i++) {
+          for (i = curY; i < curY + curHeight; i++) {
             px = Math.max(px, xMaxArray[i]);
           }
 
@@ -1250,7 +1265,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
           }
 
           py = 0;
-          for (i = curX; i < (curX + curWidth); i++) {
+          for (i = curX; i < curX + curWidth; i++) {
             py = Math.max(py, yMaxArray[i]);
           }
 
@@ -1277,10 +1292,10 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
         px = curX + curWidth;
         py = curY + curHeight;
 
-        for (i = curX; i < (curX + curWidth); i++) {
+        for (i = curX; i < curX + curWidth; i++) {
           yMaxArray[i] = py;
         }
-        for (i = curY; i < (curY + curHeight); i++) {
+        for (i = curY; i < curY + curHeight; i++) {
           xMaxArray[i] = px;
         }
 
@@ -1311,7 +1326,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
                   maxAscent[curY] = Math.max(maxAscent[curY], constraints.ascent);
                   maxDescent[curY] = Math.max(maxDescent[curY], constraints.descent);
                 } else {
-                  if (constraints.baselineResizeBehavior == Component.BaselineResizeBehavior.
+                  if (constraints.baselineResizeBehavior == BaselineResizeBehavior.
                       CONSTANT_DESCENT) {
                     maxDescent[curY + curHeight - 1] = Math.max(maxDescent[curY + curHeight - 1],
                         constraints.descent);
@@ -1319,13 +1334,12 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
                     maxAscent[curY] = Math.max(maxAscent[curY], constraints.ascent);
                   }
                 }
-                if (constraints.baselineResizeBehavior
-                    == Component.BaselineResizeBehavior.CONSTANT_DESCENT) {
-                  baselineType[curY + curHeight - 1] |= (1 << constraints.
-                      baselineResizeBehavior.ordinal());
+                if (constraints.baselineResizeBehavior == BaselineResizeBehavior.CONSTANT_DESCENT) {
+                  baselineType[curY + curHeight - 1] |= 1 << constraints.
+                      baselineResizeBehavior.ordinal();
                 } else {
-                  baselineType[curY] |= (1 << constraints.
-                      baselineResizeBehavior.ordinal());
+                  baselineType[curY] |= 1 << constraints.
+                      baselineResizeBehavior.ordinal();
                 }
               }
               break;
@@ -1425,7 +1439,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               }
               for (k = constraints.tempX; weight > 0.0 && k < px; k++) {
                 double wt = r.weightX[k];
-                double dx = (wt * weight_diff) / weight;
+                double dx = wt * weight_diff / weight;
                 r.weightX[k] += dx;
                 weight_diff -= dx;
                 weight -= wt;
@@ -1455,7 +1469,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               }
               for (k = constraints.tempX; weight > 0.0 && k < px; k++) {
                 double wt = r.weightX[k];
-                int dx = (int) ((wt * ((double) pixels_diff)) / weight);
+                int dx = (int) (wt * (double) pixels_diff / weight);
                 r.minWidth[k] += dx;
                 pixels_diff -= dx;
                 weight -= wt;
@@ -1488,7 +1502,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               }
               for (k = constraints.tempY; weight > 0.0 && k < py; k++) {
                 double wt = r.weightY[k];
-                double dy = (wt * weight_diff) / weight;
+                double dy = wt * weight_diff / weight;
                 r.weightY[k] += dy;
                 weight_diff -= dy;
                 weight -= wt;
@@ -1514,8 +1528,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
                   if (constraints.ascent >= 0) {
                     if (constraints.tempHeight == 1) {
                       pixels_diff = maxAscent[constraints.tempY] + maxDescent[constraints.tempY];
-                    } else if (constraints.baselineResizeBehavior
-                        != Component.BaselineResizeBehavior.
+                    } else if (constraints.baselineResizeBehavior != BaselineResizeBehavior.
                         CONSTANT_DESCENT) {
                       pixels_diff = maxAscent[constraints.tempY] + constraints.descent;
                     } else {
@@ -1557,7 +1570,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               }
               for (k = constraints.tempY; weight > 0.0 && k < py; k++) {
                 double wt = r.weightY[k];
-                int dy = (int) ((wt * ((double) pixels_diff)) / weight);
+                int dy = (int) (wt * (double) pixels_diff / weight);
                 r.minHeight[k] += dy;
                 pixels_diff -= dy;
                 weight -= wt;
@@ -1598,8 +1611,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
         constraints.ascent += constraints.insets.top;
         constraints.baselineResizeBehavior = c.getBaselineResizeBehavior();
         constraints.centerPadding = 0;
-        if (constraints.baselineResizeBehavior == Component.
-            BaselineResizeBehavior.CENTER_OFFSET) {
+        if (constraints.baselineResizeBehavior == BaselineResizeBehavior.CENTER_OFFSET) {
           // Component has a baseline resize behavior of
           // CENTER_OFFSET, calculate centerPadding and
           // centerOffset (see the description of
@@ -1628,10 +1640,10 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * Adjusts the x, y, width, and height fields to the correct
    * values depending on the constraint geometry and pads.
    * This method should only be used internally by
-   * <code>GridBagLayout</code>.
+   * {@code GridBagLayout}.
    *
    * @param constraints the constraints to be applied
-   * @param r           the <code>Rectangle</code> to be adjusted
+   * @param r           the {@code Rectangle} to be adjusted
    * @since 1.4
    */
   protected void adjustForGravity(GridBagConstraints constraints, Rectangle r) {
@@ -1641,10 +1653,10 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * This method is obsolete and supplied for backwards
    * compatibility only; new code should call {@link
-   * #adjustForGravity(java.awt.GridBagConstraints, java.awt.Rectangle)
+   * #adjustForGravity(GridBagConstraints, Rectangle)
    * adjustForGravity} instead.
-   * This method is the same as <code>adjustForGravity</code>;
-   * refer to <code>adjustForGravity</code> for details
+   * This method is the same as {@code adjustForGravity};
+   * refer to {@code adjustForGravity} for details
    * on parameters.
    */
   protected void AdjustForGravity(GridBagConstraints constraints, Rectangle r) {
@@ -1657,24 +1669,22 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
     } else {
       r.x -= r.width - constraints.insets.right;
     }
-    r.width -= (constraints.insets.left + constraints.insets.right);
+    r.width -= constraints.insets.left + constraints.insets.right;
     r.y += constraints.insets.top;
-    r.height -= (constraints.insets.top + constraints.insets.bottom);
+    r.height -= constraints.insets.top + constraints.insets.bottom;
 
     diffx = 0;
-    if ((constraints.fill != GridBagConstraints.HORIZONTAL
-             && constraints.fill != GridBagConstraints.BOTH) && (r.width > (constraints.minWidth
-                                                                                + constraints
-        .ipadx))) {
+    if (constraints.fill != GridBagConstraints.HORIZONTAL
+        && constraints.fill != GridBagConstraints.BOTH
+        && r.width > constraints.minWidth + constraints.ipadx) {
       diffx = r.width - (constraints.minWidth + constraints.ipadx);
       r.width = constraints.minWidth + constraints.ipadx;
     }
 
     diffy = 0;
-    if ((constraints.fill != GridBagConstraints.VERTICAL
-             && constraints.fill != GridBagConstraints.BOTH) && (r.height > (constraints.minHeight
-                                                                                 + constraints
-        .ipady))) {
+    if (constraints.fill != GridBagConstraints.VERTICAL
+        && constraints.fill != GridBagConstraints.BOTH
+        && r.height > constraints.minHeight + constraints.ipady) {
       diffy = r.height - (constraints.minHeight + constraints.ipady);
       r.height = constraints.minHeight + constraints.ipady;
     }
@@ -1810,8 +1820,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    */
   private void alignOnBaseline(GridBagConstraints cons, Rectangle r, int cellY, int cellHeight) {
     if (cons.ascent >= 0) {
-      if (cons.baselineResizeBehavior == Component.
-          BaselineResizeBehavior.CONSTANT_DESCENT) {
+      if (cons.baselineResizeBehavior == BaselineResizeBehavior.CONSTANT_DESCENT) {
         // Anchor to the bottom.
         // Baseline is at (cellY + cellHeight - maxDescent).
         // Bottom of component (maxY) is at baseline + descent
@@ -1837,16 +1846,9 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
         int baseline; // baseline for the row, relative to cellY
         // Component baseline, includes insets.top
         int ascent = cons.ascent;
-        if (layoutInfo.hasConstantDescent(cons.tempY)) {
-          // Mixed ascent/descent in same row, calculate position
-          // off maxDescent
-          baseline = cellHeight - layoutInfo.maxDescent[cons.tempY];
-        } else {
-          // Only ascents/unknown in this row, anchor to top
-          baseline = layoutInfo.maxAscent[cons.tempY];
-        }
-        if (cons.baselineResizeBehavior == Component.
-            BaselineResizeBehavior.OTHER) {
+        baseline = layoutInfo.hasConstantDescent(cons.tempY) ? cellHeight
+            - layoutInfo.maxDescent[cons.tempY] : layoutInfo.maxAscent[cons.tempY];
+        if (cons.baselineResizeBehavior == BaselineResizeBehavior.OTHER) {
           // BRB is other, which means we can only determine
           // the baseline by asking for it again giving the
           // size we plan on using for the component.
@@ -1861,8 +1863,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
           if (ascent >= 0 && ascent <= baseline) {
             // Components baseline fits within rows baseline.
             // Make sure the descent fits within the space as well.
-            if (baseline + (r.height - ascent - cons.insets.top)
-                <= cellHeight - cons.insets.bottom) {
+            if (baseline + r.height - ascent - cons.insets.top <= cellHeight - cons.insets.bottom) {
               // It fits, we're good.
               fits = true;
             } else if (cons.isVerticallyResizable()) {
@@ -1900,7 +1901,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               r.height = Math.max(cons.minHeight, cellY + cellHeight -
                   r.y - cons.insets.bottom);
               break;
-            case CENTER_OFFSET: {
+            case CENTER_OFFSET:
               int upper = r.y - cellY - cons.insets.top;
               int lower = cellY + cellHeight - r.y -
                   cons.minHeight - cons.insets.bottom;
@@ -1915,8 +1916,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
               r.y = cellY + baseline -
                   (r.height + cons.centerPadding) / 2 -
                   cons.centerOffset;
-            }
-            break;
+              break;
             case OTHER:
               // Handled above
               break;
@@ -1938,13 +1938,8 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   private void alignAboveBaseline(GridBagConstraints cons, Rectangle r, int cellY, int cellHeight) {
     if (layoutInfo.hasBaseline(cons.tempY)) {
       int maxY; // Baseline for the row
-      if (layoutInfo.hasConstantDescent(cons.tempY)) {
-        // Prefer descent
-        maxY = cellY + cellHeight - layoutInfo.maxDescent[cons.tempY];
-      } else {
-        // Prefer ascent
-        maxY = cellY + layoutInfo.maxAscent[cons.tempY];
-      }
+      maxY = layoutInfo.hasConstantDescent(cons.tempY) ? cellY + cellHeight
+          - layoutInfo.maxDescent[cons.tempY] : cellY + layoutInfo.maxAscent[cons.tempY];
       if (cons.isVerticallyResizable()) {
         // Component is resizable. Top edge is offset by top
         // inset, bottom edge on baseline.
@@ -1965,13 +1960,8 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    */
   private void alignBelowBaseline(GridBagConstraints cons, Rectangle r, int cellY, int cellHeight) {
     if (layoutInfo.hasBaseline(cons.tempY)) {
-      if (layoutInfo.hasConstantDescent(cons.tempY)) {
-        // Prefer descent
-        r.y = cellY + cellHeight - layoutInfo.maxDescent[cons.tempY];
-      } else {
-        // Prefer ascent
-        r.y = cellY + layoutInfo.maxAscent[cons.tempY];
-      }
+      r.y = layoutInfo.hasConstantDescent(cons.tempY) ? cellY + cellHeight
+          - layoutInfo.maxDescent[cons.tempY] : cellY + layoutInfo.maxAscent[cons.tempY];
       if (cons.isVerticallyResizable()) {
         r.height = cellY + cellHeight - r.y - cons.insets.bottom;
       }
@@ -1990,13 +1980,13 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
 
   /**
    * Figures out the minimum size of the
-   * master based on the information from <code>getLayoutInfo</code>.
+   * master based on the information from {@code getLayoutInfo}.
    * This method should only be used internally by
-   * <code>GridBagLayout</code>.
+   * {@code GridBagLayout}.
    *
    * @param parent the layout container
    * @param info   the layout info for this parent
-   * @return a <code>Dimension</code> object containing the
+   * @return a {@code Dimension} object containing the
    * minimum size
    * @since 1.4
    */
@@ -2007,9 +1997,9 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * This method is obsolete and supplied for backwards
    * compatibility only; new code should call {@link
-   * #getMinSize(java.awt.Container, GridBagLayoutInfo) getMinSize} instead.
-   * This method is the same as <code>getMinSize</code>;
-   * refer to <code>getMinSize</code> for details on parameters
+   * #getMinSize(Container, GridBagLayoutInfo) getMinSize} instead.
+   * This method is the same as {@code getMinSize};
+   * refer to {@code getMinSize} for details on parameters
    * and return value.
    */
   protected Dimension GetMinSize(Container parent, GridBagLayoutInfo info) {
@@ -2035,7 +2025,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
   /**
    * Lays out the grid.
    * This method should only be used internally by
-   * <code>GridBagLayout</code>.
+   * {@code GridBagLayout}.
    *
    * @param parent the layout container
    * @since 1.4
@@ -2048,8 +2038,8 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
    * This method is obsolete and supplied for backwards
    * compatibility only; new code should call {@link
    * #arrangeGrid(Container) arrangeGrid} instead.
-   * This method is the same as <code>arrangeGrid</code>;
-   * refer to <code>arrangeGrid</code> for details on the
+   * This method is the same as {@code arrangeGrid};
+   * refer to {@code arrangeGrid} for details on the
    * parameter.
    */
   protected void ArrangeGrid(Container parent) {
@@ -2057,7 +2047,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
     int compindex;
     GridBagConstraints constraints;
     Insets insets = parent.getInsets();
-    Component components[] = parent.getComponents();
+    Component[] components = parent.getComponents();
     Dimension d;
     Rectangle r = new Rectangle();
     int i, diffw, diffh;
@@ -2121,7 +2111,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       }
       if (weight > 0.0) {
         for (i = 0; i < info.width; i++) {
-          int dx = (int) ((((double) diffw) * info.weightX[i]) / weight);
+          int dx = (int) ((double) diffw * info.weightX[i] / weight);
           info.minWidth[i] += dx;
           r.width += dx;
           if (info.minWidth[i] < 0) {
@@ -2143,7 +2133,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       }
       if (weight > 0.0) {
         for (i = 0; i < info.height; i++) {
-          int dy = (int) ((((double) diffh) * info.weightY[i]) / weight);
+          int dy = (int) ((double) diffh * info.weightY[i] / weight);
           info.minHeight[i] += dy;
           r.height += dy;
           if (info.minHeight[i] < 0) {
@@ -2197,12 +2187,12 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
       }
 
       r.width = 0;
-      for (i = constraints.tempX; i < (constraints.tempX + constraints.tempWidth); i++) {
+      for (i = constraints.tempX; i < constraints.tempX + constraints.tempWidth; i++) {
         r.width += info.minWidth[i];
       }
 
       r.height = 0;
-      for (i = constraints.tempY; i < (constraints.tempY + constraints.tempHeight); i++) {
+      for (i = constraints.tempY; i < constraints.tempY + constraints.tempHeight; i++) {
         r.height += info.minHeight[i];
       }
 
@@ -2227,7 +2217,7 @@ public class GridBagLayout implements LayoutManager2, java.io.Serializable {
              * it's mapped.
              */
 
-      if ((r.width <= 0) || (r.height <= 0)) {
+      if (r.width <= 0 || r.height <= 0) {
         comp.setBounds(0, 0, 0, 0);
       } else {
         if (comp.x != r.x || comp.y != r.y ||

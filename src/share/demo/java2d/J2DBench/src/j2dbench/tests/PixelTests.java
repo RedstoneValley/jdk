@@ -41,10 +41,19 @@ package j2dbench.tests;
 
 import j2dbench.Destinations;
 import j2dbench.Group;
+import j2dbench.Group.EnableSet;
 import j2dbench.Option;
 import j2dbench.Result;
 import j2dbench.Test;
 import j2dbench.TestEnvironment;
+import j2dbench.tests.PixelTests.BufImgTest.GetRGB;
+import j2dbench.tests.PixelTests.BufImgTest.SetRGB;
+import j2dbench.tests.PixelTests.DataBufTest.GetElem;
+import j2dbench.tests.PixelTests.DataBufTest.SetElem;
+import j2dbench.tests.PixelTests.RasTest.GetDataElements;
+import j2dbench.tests.PixelTests.RasTest.GetPixel;
+import j2dbench.tests.PixelTests.RasTest.SetDataElements;
+import j2dbench.tests.PixelTests.RasTest.SetPixel;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -60,7 +69,7 @@ public abstract class PixelTests extends Test {
   static Group pixelroot;
 
   static Group pixeloptroot;
-  static Group.EnableSet bufimgsrcroot;
+  static EnableSet bufimgsrcroot;
 
   static Option doRenderTo;
   static Option doRenderFrom;
@@ -79,17 +88,14 @@ public abstract class PixelTests extends Test {
     pixelroot = new Group("pixel", "Pixel Access Benchmarks");
 
     pixeloptroot = new Group(pixelroot, "opts", "Pixel Access Options");
-    doRenderTo = new Option.Toggle(pixeloptroot,
-        "renderto",
-        "Render to Image before test",
-        Option.Toggle.Off);
-    doRenderFrom = new Option.Toggle(pixeloptroot,
+    doRenderTo = new Toggle(pixeloptroot, "renderto", "Render to Image before test", Toggle.Off);
+    doRenderFrom = new Toggle(pixeloptroot,
         "renderfrom",
         "Render from Image before test",
-        Option.Toggle.Off);
+        Toggle.Off);
 
     // BufferedImage Sources
-    bufimgsrcroot = new Group.EnableSet(pixelroot, "src", "BufferedImage Sources");
+    bufimgsrcroot = new EnableSet(pixelroot, "src", "BufferedImage Sources");
     new BufImg(BufferedImage.TYPE_BYTE_BINARY, 1);
     new BufImg(BufferedImage.TYPE_BYTE_BINARY, 2);
     new BufImg(BufferedImage.TYPE_BYTE_BINARY, 4);
@@ -106,22 +112,23 @@ public abstract class PixelTests extends Test {
 
     // BufferedImage Tests
     bufimgtestroot = new Group(pixelroot, "bimgtests", "BufferedImage Tests");
-    new BufImgTest.GetRGB();
-    new BufImgTest.SetRGB();
+    new GetRGB();
+    new SetRGB();
 
     // Raster Tests
     rastertestroot = new Group(pixelroot, "rastests", "Raster Tests");
-    new RasTest.GetDataElements();
-    new RasTest.SetDataElements();
-    new RasTest.GetPixel();
-    new RasTest.SetPixel();
+    new GetDataElements();
+    new SetDataElements();
+    new GetPixel();
+    new SetPixel();
 
     // DataBuffer Tests
     dbtestroot = new Group(pixelroot, "dbtests", "DataBuffer Tests");
-    new DataBufTest.GetElem();
-    new DataBufTest.SetElem();
+    new GetElem();
+    new SetElem();
   }
 
+  @Override
   public Object initTest(TestEnvironment env, Result result) {
     Context ctx = new Context();
     ctx.bimg = ((BufImg) env.getModifier(bufimgsrcroot)).getImage();
@@ -156,15 +163,15 @@ public abstract class PixelTests extends Test {
     BufferedImage bimg;
     WritableRaster ras;
     DataBuffer db;
-    int pixeldata[];
+    int[] pixeldata;
     Object elemdata;
   }
 
-  public static class BufImg extends Option.Enable {
-    public static int rgbvals[] = {
+  public static class BufImg extends Enable {
+    public static final int[] rgbvals = {
         0x00000000, 0xff0000ff, 0x8000ff00, 0xffffffff};
 
-    static int cmap[] = {
+    static final int[] cmap = {
         0xff000000,  // 0: opaque black
         0xffffffff,  // 1: opaque white
 
@@ -185,8 +192,8 @@ public abstract class PixelTests extends Test {
         0xffffff00,  // F: opaque yellow
     };
 
-    int type;
-    int nbits;
+    final int type;
+    final int nbits;
 
     public BufImg(int type) {
       super(bufimgsrcroot,
@@ -194,7 +201,7 @@ public abstract class PixelTests extends Test {
           Destinations.BufImg.Descriptions[type],
           false);
       this.type = type;
-      this.nbits = 0;
+      nbits = 0;
     }
 
     public BufImg(int type, int nbits) {
@@ -203,6 +210,7 @@ public abstract class PixelTests extends Test {
       this.nbits = nbits;
     }
 
+    @Override
     public String getModifierValueName(Object val) {
       return "BufImg(" + getNodeName() + ")";
     }
@@ -213,10 +221,10 @@ public abstract class PixelTests extends Test {
         bimg = new BufferedImage(8, 1, type);
       } else {
         IndexColorModel icm = new IndexColorModel(nbits,
-            (1 << nbits),
+            1 << nbits,
             cmap,
             0,
-            (nbits > 1),
+            nbits > 1,
             -1,
             DataBuffer.TYPE_BYTE);
         // Note that this constructor has bugs pre 1.4...
@@ -229,10 +237,9 @@ public abstract class PixelTests extends Test {
       }
       return bimg;
     }
-  }  public void cleanupTest(TestEnvironment env, Object context) {
   }
 
-  public static abstract class BufImgTest extends PixelTests {
+  public abstract static class BufImgTest extends PixelTests {
     public BufImgTest(String nodeName, String description) {
       super(bufimgtestroot, nodeName, description);
     }
@@ -242,14 +249,15 @@ public abstract class PixelTests extends Test {
         super("getrgb", "BufferedImage.getRGB(x, y)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         BufferedImage bimg = ((Context) context).bimg;
+        --numReps;
         do {
           bimg.getRGB(numReps & 7, 0);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
-    }    public String getUnitName() {
-      return "pixel";
     }
 
     public static class SetRGB extends BufImgTest {
@@ -257,30 +265,37 @@ public abstract class PixelTests extends Test {
         super("setrgb", "BufferedImage.setRGB(x, y, rgb)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         BufferedImage bimg = ((Context) context).bimg;
+        --numReps;
         do {
           bimg.setRGB(numReps & 7, 0, BufImg.rgbvals[numReps & 3]);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
+    }    @Override
+    public String getUnitName() {
+      return "pixel";
     }
 
 
+  }  @Override
+  public void cleanupTest(TestEnvironment env, Object context) {
   }
 
-  public static abstract class RasTest extends PixelTests {
+  public abstract static class RasTest extends PixelTests {
     public RasTest(String nodeName, String description) {
       super(rastertestroot, nodeName, description);
     }
 
+    @Override
     public Object initTest(TestEnvironment env, Result result) {
       Context ctx = (Context) super.initTest(env, result);
       ctx.ras = ctx.bimg.getRaster();
       ctx.pixeldata = ctx.ras.getPixel(0, 0, (int[]) null);
       ctx.elemdata = ctx.ras.getDataElements(0, 0, null);
       return ctx;
-    }    public String getUnitName() {
-      return "pixel";
     }
 
     public static class GetDataElements extends RasTest {
@@ -288,13 +303,19 @@ public abstract class PixelTests extends Test {
         super("getdataelem", "Raster.getDataElements(x, y, o)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         Raster ras = ((Context) context).ras;
         Object elemdata = ((Context) context).elemdata;
+        --numReps;
         do {
           ras.getDataElements(numReps & 7, 0, elemdata);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
+    }    @Override
+    public String getUnitName() {
+      return "pixel";
     }
 
     public static class SetDataElements extends RasTest {
@@ -302,12 +323,15 @@ public abstract class PixelTests extends Test {
         super("setdataelem", "WritableRaster.setDataElements(x, y, o)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         WritableRaster ras = ((Context) context).ras;
         Object elemdata = ((Context) context).elemdata;
+        --numReps;
         do {
           ras.setDataElements(numReps & 7, 0, elemdata);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
     }
 
@@ -316,12 +340,15 @@ public abstract class PixelTests extends Test {
         super("getpixel", "Raster.getPixel(x, y, v[])");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         Raster ras = ((Context) context).ras;
-        int pixeldata[] = ((Context) context).pixeldata;
+        int[] pixeldata = ((Context) context).pixeldata;
+        --numReps;
         do {
           ras.getPixel(numReps & 7, 0, pixeldata);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
     }
 
@@ -330,19 +357,22 @@ public abstract class PixelTests extends Test {
         super("setpixel", "WritableRaster.setPixel(x, y, v[])");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         WritableRaster ras = ((Context) context).ras;
-        int pixeldata[] = ((Context) context).pixeldata;
+        int[] pixeldata = ((Context) context).pixeldata;
+        --numReps;
         do {
           ras.setPixel(numReps & 7, 0, pixeldata);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
     }
 
 
   }
 
-  public static abstract class DataBufTest extends PixelTests {
+  public abstract static class DataBufTest extends PixelTests {
     public DataBufTest(String nodeName, String description) {
       super(dbtestroot, nodeName, description);
     }
@@ -352,14 +382,15 @@ public abstract class PixelTests extends Test {
         super("getelem", "DataBuffer.getElem(i)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         DataBuffer db = ((Context) context).db;
+        --numReps;
         do {
           db.getElem(numReps & 7);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
-    }    public String getUnitName() {
-      return "element";
     }
 
     public static class SetElem extends DataBufTest {
@@ -367,21 +398,28 @@ public abstract class PixelTests extends Test {
         super("setelem", "DataBuffer.setElem(i, v)");
       }
 
+      @Override
       public void runTest(Object context, int numReps) {
         DataBuffer db = ((Context) context).db;
+        --numReps;
         do {
           db.setElem(numReps & 7, 0);
-        } while (--numReps > 0);
+          --numReps;
+        } while (numReps > 0);
       }
-    }    public Object initTest(TestEnvironment env, Result result) {
-      Context ctx = (Context) super.initTest(env, result);
-      ctx.db = ctx.bimg.getRaster().getDataBuffer();
-      return ctx;
+    }    @Override
+    public String getUnitName() {
+      return "element";
     }
 
 
 
-
+    @Override
+    public Object initTest(TestEnvironment env, Result result) {
+      Context ctx = (Context) super.initTest(env, result);
+      ctx.db = ctx.bimg.getRaster().getDataBuffer();
+      return ctx;
+    }
   }
 
 

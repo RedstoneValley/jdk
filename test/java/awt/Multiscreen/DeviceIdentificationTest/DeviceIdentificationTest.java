@@ -20,8 +20,8 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-/**
- * @test
+/*
+  @test
  * @bug 6614214
  * @summary Verifies that we enter the fs mode on the correct screen.
  * Here is how to test: start the test on on a multi-screen system.
@@ -43,6 +43,7 @@
  * @run main/manual/othervm -Dsun.java2d.opengl=True DeviceIdentificationTest
  */
 
+import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Frame;
@@ -60,16 +61,21 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class DeviceIdentificationTest {
+public final class DeviceIdentificationTest {
 
-    public static void main(String args[]) {
-        final Frame f = new Frame("DeviceIdentificationTest");
+  private DeviceIdentificationTest() {
+  }
+
+  public static void main(String[] args) {
+        Frame f = new Frame("DeviceIdentificationTest");
         f.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 f.dispose();
             }
         });
         f.addComponentListener(new ComponentAdapter() {
+            @Override
             public void componentMoved(ComponentEvent e) {
                 f.setTitle("Currently on: "+
                            f.getGraphicsConfiguration().getDevice());
@@ -79,10 +85,10 @@ public class DeviceIdentificationTest {
         Panel p = new Panel();
         Button b = new Button("Print Current Devices");
         b.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                GraphicsDevice gds[] =
-                    GraphicsEnvironment.getLocalGraphicsEnvironment().
-                        getScreenDevices();
+                GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().
+                    getScreenDevices();
                 int i = 0;
                 System.err.println("--- Devices: ---");
                 for (GraphicsDevice gd : gds) {
@@ -98,6 +104,7 @@ public class DeviceIdentificationTest {
 
         b = new Button("Print My Device");
         b.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 GraphicsConfiguration gc = f.getGraphicsConfiguration();
                 GraphicsDevice gd = gc.getDevice();
@@ -111,14 +118,18 @@ public class DeviceIdentificationTest {
 
         b = new Button("Create FS Frame on my Device");
         b.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 GraphicsConfiguration gc = f.getGraphicsConfiguration();
-                final GraphicsDevice gd = gc.getDevice();
+                GraphicsDevice gd = gc.getDevice();
                 System.err.println("--- Creating FS Frame on Device ---");
                 System.err.println("Device  = "+ gd);
                 System.err.println(" bounds = "+
                         gd.getDefaultConfiguration().getBounds());
-                final Frame fsf = new Frame("Full-screen Frame on dev"+gd, gc) {
+                Frame fsf = new Frame("Full-screen Frame on dev"+gd, gc) {
+                  private static final long serialVersionUID = 7055189950943826213L;
+
+                  @Override
                     public void paint(Graphics g) {
                         g.setColor(Color.green);
                         g.fillRect(0, 0, getWidth(), getHeight());
@@ -129,6 +140,7 @@ public class DeviceIdentificationTest {
                 };
                 fsf.setUndecorated(true);
                 fsf.addMouseListener(new MouseAdapter() {
+                    @Override
                     public void mouseClicked(MouseEvent e) {
                         gd.setFullScreenWindow(null);
                         fsf.dispose();
@@ -138,12 +150,13 @@ public class DeviceIdentificationTest {
             }
         });
         p.add(b);
-        f.add("North", p);
+        f.add(BorderLayout.NORTH, p);
 
         p = new Panel();
         b = new Button("Test Passed");
         b.setBackground(Color.green);
         b.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Test Passed");
                 f.dispose();
@@ -153,6 +166,7 @@ public class DeviceIdentificationTest {
         b = new Button("Test Failed");
         b.setBackground(Color.red);
         b.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Test FAILED");
                 f.dispose();
@@ -160,7 +174,7 @@ public class DeviceIdentificationTest {
             }
         });
         p.add(b);
-        f.add("South", p);
+        f.add(BorderLayout.SOUTH, p);
 
         f.pack();
         f.setVisible(true);

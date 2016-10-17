@@ -25,8 +25,11 @@
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 
-public class PutOnlyAllHtmlFlavorOnClipboard {
-    public static void main(String[] args) {
+public final class PutOnlyAllHtmlFlavorOnClipboard {
+  private PutOnlyAllHtmlFlavorOnClipboard() {
+  }
+
+  public static void main(String[] args) {
         System.out.println("PutOnlyAllHtmlFlavorOnClipboard has been started.");
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
                 new HtmlTransferable(new DataFlavor[]{DataFlavor.allHtmlFlavor}), null);

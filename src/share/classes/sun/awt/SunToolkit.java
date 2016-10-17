@@ -38,18 +38,19 @@ import android.content.Intent;
 import android.net.Uri;
 import java.awt.AWTEvent;
 import java.awt.AWTException;
-import java.awt.BufferCapabilities;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.Checkbox;
 import java.awt.CheckboxMenuItem;
 import java.awt.Choice;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.DefaultKeyboardFocusManager;
 import java.awt.Desktop;
+import java.awt.Desktop.Action;
 import java.awt.Dialog;
+import java.awt.Dialog.ModalExclusionType;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
@@ -57,11 +58,10 @@ import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
@@ -72,7 +72,6 @@ import java.awt.MenuBar;
 import java.awt.MenuComponent;
 import java.awt.MenuItem;
 import java.awt.Panel;
-import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.RenderingHints;
 import java.awt.Robot;
@@ -89,24 +88,18 @@ import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.dnd.peer.DragSourceContextPeer;
 import java.awt.event.KeyEvent;
-import java.awt.event.PaintEvent;
 import java.awt.event.WindowEvent;
-import java.awt.im.InputMethodRequests;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.Raster;
-import java.awt.image.VolatileImage;
 import java.awt.peer.ButtonPeer;
 import java.awt.peer.CanvasPeer;
 import java.awt.peer.CheckboxMenuItemPeer;
 import java.awt.peer.CheckboxPeer;
 import java.awt.peer.ChoicePeer;
-import java.awt.peer.ComponentPeer;
-import java.awt.peer.ContainerPeer;
 import java.awt.peer.DesktopPeer;
 import java.awt.peer.DialogPeer;
 import java.awt.peer.FileDialogPeer;
@@ -131,15 +124,17 @@ import java.awt.peer.TrayIconPeer;
 import java.awt.peer.WindowPeer;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.AccessController;
+import java.security.Permission;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
@@ -147,20 +142,15 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import sun.awt.AWTAccessor.SequencedEventAccessor;
 import sun.awt.im.InputContext;
+import sun.awt.im.SimpleInputMethodWindow;
 import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
 import sun.awt.image.ImageRepresentation;
 import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.ToolkitImage;
 import sun.awt.image.URLImageSource;
-import sun.font.FontDesignMetrics;
-import sun.java2d.pipe.Region;
-import sun.misc.SoftCache;
-import sun.net.util.URLUtil;
-import sun.security.action.GetBooleanAction;
-import sun.security.action.GetPropertyAction;
-import sun.security.util.SecurityConstants;
 
 public abstract class SunToolkit extends Toolkit
     implements WindowClosingSupport, WindowClosingListener, ComponentFactory, InputMethodSupport,
@@ -175,7 +165,6 @@ public abstract class SunToolkit extends Toolkit
    */
   public static final int GRAB_EVENT_MASK = 0x80000000;
 
-  ;
   /* XFree standard mention 24 buttons as maximum:
    * http://www.xfree86.org/current/mouse.4.html
    * We workaround systems supporting more than 24 buttons.
@@ -185,7 +174,7 @@ public abstract class SunToolkit extends Toolkit
    * the 4-bytes limit for the int type. (CR 6799099)
    * One more bit is reserved for FIRST_HIGH_BIT.
    */
-  public final static int MAX_BUTTONS_SUPPORTED = 20;
+  public static final int MAX_BUTTONS_SUPPORTED = 20;
   public static final int DEFAULT_WAIT_TIME = 10000;
   /* A variable defined for the convenience of JDK code */
   public static final String DESKTOPFONTHINTS = "awt.font.desktophints";
@@ -225,7 +214,7 @@ public abstract class SunToolkit extends Toolkit
    * }
    */
 
-  private static final ReentrantLock AWT_LOCK = new ReentrantLock();
+  public static final ReentrantLock AWT_LOCK = new ReentrantLock();
   private static final Condition AWT_LOCK_COND = AWT_LOCK.newCondition();
   // Maps from non-Component/MenuComponent to AppContext.
   // WeakHashMap<Component,AppContext>
@@ -240,15 +229,15 @@ public abstract class SunToolkit extends Toolkit
    * By default it's taken from the system. If system value does not
    * fit into int type range, use our own MAX_BUTTONS_SUPPORT value.
    */
-  protected static int numberOfButtons = 0;
-  private static Locale startupLocale = null;
-  private static DefaultMouseInfoPeer mPeer = null;
-  private static Dialog.ModalExclusionType DEFAULT_MODAL_EXCLUSION_TYPE = null;
+  protected static int numberOfButtons;
+  private static Locale startupLocale;
+  private static DefaultMouseInfoPeer mPeer;
+  private static ModalExclusionType DEFAULT_MODAL_EXCLUSION_TYPE;
   private static boolean checkedSystemAAFontSettings;
   private static boolean useSystemAAFontSettings;
   private static boolean lastExtraCondition = true;
   private static RenderingHints desktopFontHints;
-  private static Boolean sunAwtDisableMixing = null;
+  private static Boolean sunAwtDisableMixing;
 
   /* Load debug settings for native code */
   static {
@@ -257,12 +246,12 @@ public abstract class SunToolkit extends Toolkit
     }
   }
 
-  private final Object waitLock = "Wait Lock";
+  final Object waitLock = "Wait Lock";
+  private final ModalityListenerList modalityListeners = new ModalityListenerList();
   // Support for window closing event notifications
-  private transient WindowClosingListener windowClosingListener = null;
-  private ModalityListenerList modalityListeners = new ModalityListenerList();
-  private boolean eventDispatched = false;
-  private boolean queueEmpty = false;
+  private transient WindowClosingListener windowClosingListener;
+  boolean eventDispatched;
+  boolean queueEmpty;
 
   public SunToolkit() {
   }
@@ -279,7 +268,7 @@ public abstract class SunToolkit extends Toolkit
   private static void initEQ(AppContext appContext) {
     EventQueue eventQueue;
 
-    String eqName = System.getProperty("AWT.EventQueueClass", "java.awt.EventQueue");
+    String eqName = System.getProperty("AWT.EventQueueClass", EventQueue.TAG);
 
     try {
       eventQueue = (EventQueue) Class.forName(eqName).newInstance();
@@ -292,38 +281,6 @@ public abstract class SunToolkit extends Toolkit
 
     PostEventQueue postEventQueue = new PostEventQueue(eventQueue);
     appContext.put(POST_EVENT_QUEUE_KEY, postEventQueue);
-  }
-
-  public static final void awtLock() {
-    AWT_LOCK.lock();
-  }
-
-  public static final boolean awtTryLock() {
-    return AWT_LOCK.tryLock();
-  }
-
-  public static final void awtUnlock() {
-    AWT_LOCK.unlock();
-  }
-
-  public static final void awtLockWait() throws InterruptedException {
-    AWT_LOCK_COND.await();
-  }
-
-  public static final void awtLockWait(long timeout) throws InterruptedException {
-    AWT_LOCK_COND.await(timeout, TimeUnit.MILLISECONDS);
-  }
-
-  public static final void awtLockNotify() {
-    AWT_LOCK_COND.signal();
-  }
-
-  public static final void awtLockNotifyAll() {
-    AWT_LOCK_COND.signalAll();
-  }
-
-  public static final boolean isAWTLockHeldByCurrentThread() {
-    return AWT_LOCK.isHeldByCurrentThread();
   }
 
   /*
@@ -346,10 +303,6 @@ public abstract class SunToolkit extends Toolkit
     return appContext;
   }
 
-  static void wakeupEventQueue(EventQueue q, boolean isShutdown) {
-    AWTAccessor.getEventQueueAccessor().wakeup(q, isShutdown);
-  }
-
   /*
    * Fetch the peer associated with the given target (as specified
    * in the peer creation method).  This can be used to determine
@@ -359,22 +312,20 @@ public abstract class SunToolkit extends Toolkit
    * be returned.
    */
   protected static Object targetToPeer(Object target) {
-    if (target != null && !GraphicsEnvironment.isHeadless()) {
+    if (target != null) {
       return AWTAutoShutdown.getInstance().getPeer(target);
     }
     return null;
   }
 
   protected static void targetCreatedPeer(Object target, Object peer) {
-    if (target != null && peer != null &&
-        !GraphicsEnvironment.isHeadless()) {
+    if (target != null && peer != null) {
       AWTAutoShutdown.getInstance().registerPeer(target, peer);
     }
   }
 
   protected static void targetDisposedPeer(Object target, Object peer) {
-    if (target != null && peer != null &&
-        !GraphicsEnvironment.isHeadless()) {
+    if (target != null && peer != null) {
       AWTAutoShutdown.getInstance().unregisterPeer(target, peer);
     }
   }
@@ -434,9 +385,9 @@ public abstract class SunToolkit extends Toolkit
   /**
    * Sets the synchronous status of focus requests on lightweight
    * components in the specified window to the specified value.
-   * If the boolean parameter is <code>true</code> then the focus
+   * If the boolean parameter is {@code true} then the focus
    * requests on lightweight components will be performed
-   * synchronously, if it is <code>false</code>, then asynchronously.
+   * synchronously, if it is {@code false}, then asynchronously.
    * By default, all windows have their lightweight request status
    * set to asynchronous.
    * <p>
@@ -452,8 +403,6 @@ public abstract class SunToolkit extends Toolkit
    * behaviour is unspecified.
    * <p>
    *
-   * @param w      window for which the lightweight focus request status
-   *               should be set
    * @param status the value of lightweight focus request status
    */
 
@@ -474,11 +423,7 @@ public abstract class SunToolkit extends Toolkit
     try {
       Class<?> layoutPolicyClass = Class.forName("javax.swing.LayoutFocusTraversalPolicy");
       policy = (FocusTraversalPolicy) layoutPolicyClass.newInstance();
-    } catch (ClassNotFoundException e) {
-      assert false;
-    } catch (InstantiationException e) {
-      assert false;
-    } catch (IllegalAccessException e) {
+    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
       assert false;
     }
 
@@ -509,7 +454,7 @@ public abstract class SunToolkit extends Toolkit
       throw new NullPointerException();
     }
 
-    AWTAccessor.SequencedEventAccessor sea = AWTAccessor.getSequencedEventAccessor();
+    SequencedEventAccessor sea = AWTAccessor.getSequencedEventAccessor();
     if (sea != null && sea.isSequencedEvent(event)) {
       AWTEvent nested = sea.getNested(event);
       if (nested.getID() == WindowEvent.WINDOW_LOST_FOCUS && nested instanceof TimedWindowEvent) {
@@ -536,19 +481,6 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /*
-   * Post AWTEvent of high priority.
-   */
-  public static void postPriorityEvent(final AWTEvent e) {
-    PeerEvent pe = new PeerEvent(Toolkit.getDefaultToolkit(), new Runnable() {
-      public void run() {
-        AWTAccessor.getAWTEventAccessor().setPosted(e);
-        ((Component) e.getSource()).dispatchEvent(e);
-      }
-    }, PeerEvent.ULTIMATE_PRIORITY_EVENT);
-    postEvent(targetToAppContext(e.getSource()), pe);
-  }
-
-  /*
    * Flush any pending events which haven't been posted to the AWT
    * EventQueue yet.
    */
@@ -569,8 +501,6 @@ public abstract class SunToolkit extends Toolkit
     }
   }
 
-  ;
-
   /*
    * Execute a chunk of code on the Java event handler thread for the
    * given target.  Does not wait for the execution to occur before
@@ -586,8 +516,9 @@ public abstract class SunToolkit extends Toolkit
    */
   @SuppressWarnings("serial")
   public static void executeOnEventHandlerThread(
-      Object target, Runnable runnable, final long when) {
+      Object target, Runnable runnable, long when) {
     executeOnEventHandlerThread(new PeerEvent(target, runnable, PeerEvent.PRIORITY_EVENT) {
+      @Override
       public long getWhen() {
         return when;
       }
@@ -604,20 +535,6 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /*
-   * Execute a chunk of code on the Java event handler thread. The
-   * method takes into account provided AppContext and sets
-   * <code>SunToolkit.getDefaultToolkit()</code> as a target of the
-   * event. See 6451487 for detailes.
-   * Does not wait for the execution to occur before returning to
-   * the caller.
-   */
-  public static void invokeLaterOnAppContext(
-      AppContext appContext, Runnable dispatcher) {
-    postEvent(appContext,
-        new PeerEvent(Toolkit.getDefaultToolkit(), dispatcher, PeerEvent.PRIORITY_EVENT));
-  }
-
-  /*
    * Execute a chunk of code on the Java event handler thread for the
    * given target.  Waits for the execution to occur before returning
    * to the caller.
@@ -628,9 +545,7 @@ public abstract class SunToolkit extends Toolkit
       throw new Error("Cannot call executeOnEDTAndWait from any event dispatcher thread");
     }
 
-    class AWTInvocationLock {
-    }
-    Object lock = new AWTInvocationLock();
+    Object lock = new Object();
 
     PeerEvent event = new PeerEvent(target, runnable, lock, true, PeerEvent.PRIORITY_EVENT);
 
@@ -645,20 +560,6 @@ public abstract class SunToolkit extends Toolkit
     if (eventThrowable != null) {
       throw new InvocationTargetException(eventThrowable);
     }
-  }
-
-  /*
-   * Returns true if the calling thread is the event dispatch thread
-   * contained within AppContext which associated with the given target.
-   * Use this call to ensure that a given task is being executed
-   * (or not being) on the event dispatch thread for the given target.
-   */
-  public static boolean isDispatchThreadForAppContext(Object target) {
-    AppContext appContext = targetToAppContext(target);
-    EventQueue eq = (EventQueue) appContext.get(AppContext.EVENT_QUEUE_KEY);
-
-    AWTAccessor.EventQueueAccessor accessor = AWTAccessor.getEventQueueAccessor();
-    return accessor.isDispatchThreadImpl(eq);
   }
 
   /**
@@ -755,25 +656,24 @@ public abstract class SunToolkit extends Toolkit
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       try {
-        java.security.Permission perm = URLUtil.getConnectPermission(url);
+        Permission perm = URLUtil.getConnectPermission(url);
         if (perm != null) {
           try {
             sm.checkPermission(perm);
           } catch (SecurityException se) {
             // fallback to checkRead/checkConnect for pre 1.2
             // security managers
-            if ((perm instanceof java.io.FilePermission)
-                && perm.getActions().indexOf("read") != -1) {
+            if (perm instanceof FilePermission && perm.getActions().contains("read")) {
               sm.checkRead(perm.getName());
-            } else if ((perm instanceof java.net.SocketPermission)
-                && perm.getActions().indexOf("connect") != -1) {
+            } else if (perm instanceof SocketPermission
+                && perm.getActions().contains("connect")) {
               sm.checkConnect(url.getHost(), url.getPort());
             } else {
               throw se;
             }
           }
         }
-      } catch (java.io.IOException ioe) {
+      } catch (IOException ioe) {
         sm.checkConnect(url.getHost(), url.getPort());
       }
     }
@@ -793,13 +693,12 @@ public abstract class SunToolkit extends Toolkit
     int bestHeight = 0;
     double bestSimilarity = 3; //Impossibly high value
     double bestScaleFactor = 0;
-    for (Iterator<Image> i = imageList.iterator(); i.hasNext(); ) {
+    for (Image im : imageList) {
       //Iterate imageList looking for best matching image.
       //'Similarity' measure is defined as good scale factor and small insets.
       //best possible similarity is 0 (no scale, no insets).
       //It's found while the experiments that good-looking result is achieved
       //with scale factors x1, x3/4, x2/3, xN, x1/N.
-      Image im = i.next();
       if (im == null) {
         continue;
       }
@@ -820,9 +719,9 @@ public abstract class SunToolkit extends Toolkit
         double scaleFactor = Math.min((double) width / (double) iw, (double) height / (double) ih);
         //Calculate scaled image dimensions
         //adjusting scale factor to nearest "good" value
-        int adjw = 0;
-        int adjh = 0;
-        double scaleMeasure = 1; //0 - best (no) scale, 1 - impossibly bad
+        int adjw;
+        int adjh;
+        double scaleMeasure; //0 - best (no) scale, 1 - impossibly bad
         if (scaleFactor >= 2) {
           //Need to enlarge image more than twice
           //Round down scale factor to multiply by integer value
@@ -845,8 +744,8 @@ public abstract class SunToolkit extends Toolkit
         } else if (scaleFactor >= 0.6666) {
           //Multiply by 2/3
           scaleFactor = 0.6666;
-          adjw = iw * 2 / 3;
-          adjh = ih * 2 / 3;
+          adjw = (iw << 1) / 3;
+          adjh = (ih << 1) / 3;
           scaleMeasure = 0.33;
         } else {
           //Multiply size by 1/scaleDivider
@@ -863,7 +762,6 @@ public abstract class SunToolkit extends Toolkit
             scaleMeasure; //Large rescale is bad
         if (similarity < bestSimilarity) {
           bestSimilarity = similarity;
-          bestScaleFactor = scaleFactor;
           bestImage = im;
           bestWidth = adjw;
           bestHeight = adjh;
@@ -908,8 +806,7 @@ public abstract class SunToolkit extends Toolkit
   }
 
   public static EventQueue getSystemEventQueueImplPP(AppContext appContext) {
-    EventQueue theEventQueue = (EventQueue) appContext.get(AppContext.EVENT_QUEUE_KEY);
-    return theEventQueue;
+    return (EventQueue) appContext.get(AppContext.EVENT_QUEUE_KEY);
   }
 
   /**
@@ -964,7 +861,7 @@ public abstract class SunToolkit extends Toolkit
    * Returns whether default toolkit needs the support of the xembed
    * from embedding host(if any).
    *
-   * @return <code>true</code>, if XEmbed is needed, <code>false</code> otherwise
+   * @return {@code true}, if XEmbed is needed, {@code false} otherwise
    */
   public static boolean needsXEmbed() {
     String noxembed = AccessController.
@@ -974,24 +871,17 @@ public abstract class SunToolkit extends Toolkit
     }
 
     Toolkit tk = Toolkit.getDefaultToolkit();
-    if (tk instanceof SunToolkit) {
-      // SunToolkit descendants should override this method to specify
-      // concrete behavior
-      return ((SunToolkit) tk).needsXEmbedImpl();
-    } else {
-      // Non-SunToolkit doubtly might support XEmbed
-      return false;
-    }
+    return tk instanceof SunToolkit ? ((SunToolkit) tk).needsXEmbedImpl() : false;
   }
 
   /**
    * Returns whether the modal exclusion API is supported by the current toolkit.
-   * When it isn't supported, calling <code>setModalExcluded</code> has no
-   * effect, and <code>isModalExcluded</code> returns false for all windows.
+   * When it isn't supported, calling {@code setModalExcluded} has no
+   * effect, and {@code isModalExcluded} returns false for all windows.
    *
    * @return true if modal exclusion is supported by the toolkit, false otherwise
-   * @see sun.awt.SunToolkit#setModalExcluded(java.awt.Window)
-   * @see sun.awt.SunToolkit#isModalExcluded(java.awt.Window)
+   * @see SunToolkit#setModalExcluded(Window)
+   * @see SunToolkit#isModalExcluded(Window)
    * @since 1.5
    */
   public static boolean isModalExcludedSupported() {
@@ -1017,7 +907,7 @@ public abstract class SunToolkit extends Toolkit
    */
   public static void setModalExcluded(Window window) {
     if (DEFAULT_MODAL_EXCLUSION_TYPE == null) {
-      DEFAULT_MODAL_EXCLUSION_TYPE = Dialog.ModalExclusionType.APPLICATION_EXCLUDE;
+      DEFAULT_MODAL_EXCLUSION_TYPE = ModalExclusionType.APPLICATION_EXCLUDE;
     }
     window.setModalExclusionType(DEFAULT_MODAL_EXCLUSION_TYPE);
   }
@@ -1040,20 +930,9 @@ public abstract class SunToolkit extends Toolkit
    */
   public static boolean isModalExcluded(Window window) {
     if (DEFAULT_MODAL_EXCLUSION_TYPE == null) {
-      DEFAULT_MODAL_EXCLUSION_TYPE = Dialog.ModalExclusionType.APPLICATION_EXCLUDE;
+      DEFAULT_MODAL_EXCLUSION_TYPE = ModalExclusionType.APPLICATION_EXCLUDE;
     }
     return window.getModalExclusionType().compareTo(DEFAULT_MODAL_EXCLUSION_TYPE) >= 0;
-  }
-
-  public static boolean isLightweightOrUnknown(Component comp) {
-    if (comp.isLightweight() || !(getDefaultToolkit() instanceof SunToolkit)) {
-      return true;
-    }
-    return !(comp instanceof Button || comp instanceof Canvas || comp instanceof Checkbox
-                 || comp instanceof Choice || comp instanceof Label || comp instanceof java.awt.List
-                 || comp instanceof Panel || comp instanceof Scrollbar || comp instanceof ScrollPane
-                 || comp instanceof TextArea || comp instanceof TextField
-                 || comp instanceof Window);
   }
 
   /**
@@ -1063,7 +942,9 @@ public abstract class SunToolkit extends Toolkit
    * @see java.awt.SplashScreen
    * @since 1.6
    */
-  public static native void closeSplashScreen();
+  public static void closeSplashScreen() {
+    // TODO: Native in OpenJDK AWT
+  }
 
   /* Since Swing is the reason for this "extra condition" logic its
    * worth documenting it in some detail.
@@ -1114,17 +995,17 @@ public abstract class SunToolkit extends Toolkit
   private static RenderingHints getDesktopAAHintsByName(String hintname) {
     Object aaHint = null;
     hintname = hintname.toLowerCase(Locale.ENGLISH);
-    if (hintname.equals("on")) {
+    if ("on".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_ON;
-    } else if (hintname.equals("gasp")) {
+    } else if ("gasp".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_GASP;
-    } else if (hintname.equals("lcd") || hintname.equals("lcd_hrgb")) {
+    } else if ("lcd".equals(hintname) || "lcd_hrgb".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_LCD_HRGB;
-    } else if (hintname.equals("lcd_hbgr")) {
+    } else if ("lcd_hbgr".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_LCD_HBGR;
-    } else if (hintname.equals("lcd_vrgb")) {
+    } else if ("lcd_vrgb".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_LCD_VRGB;
-    } else if (hintname.equals("lcd_vbgr")) {
+    } else if ("lcd_vbgr".equals(hintname)) {
       aaHint = VALUE_TEXT_ANTIALIAS_LCD_VBGR;
     }
     if (aaHint != null) {
@@ -1189,7 +1070,7 @@ public abstract class SunToolkit extends Toolkit
             /* cloning not necessary as the return value is cloned later, but
              * its harmless.
              */
-      return (RenderingHints) (desktopFontHints.clone());
+      return (RenderingHints) desktopFontHints.clone();
     } else {
       return null;
     }
@@ -1211,7 +1092,7 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /**
-   * Returns the <code>Window</code> ancestor of the component <code>comp</code>.
+   * Returns the {@code Window} ancestor of the component {@code comp}.
    *
    * @return Window ancestor of the component or component by itself if it is Window;
    * null, if component is not a part of window hierarchy
@@ -1227,7 +1108,7 @@ public abstract class SunToolkit extends Toolkit
    * Returns the value of "sun.awt.disableMixing" property. Default
    * value is {@code false}.
    */
-  public synchronized static boolean getSunAwtDisableMixing() {
+  public static synchronized boolean getSunAwtDisableMixing() {
     if (sunAwtDisableMixing == null) {
       sunAwtDisableMixing = Boolean.valueOf(System.getProperty("sun.awt.disableMixing"));
     }
@@ -1237,13 +1118,13 @@ public abstract class SunToolkit extends Toolkit
   /**
    * Returns whether or not a containing top level window for the passed
    * component is
-   * {@link GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSLUCENT PERPIXEL_TRANSLUCENT}.
+   * {@link WindowTranslucency#PERPIXEL_TRANSLUCENT PERPIXEL_TRANSLUCENT}.
    *
    * @param c a Component which toplevel's to check
    * @return {@code true}  if the passed component is not null and has a
    * containing toplevel window which is opaque (so per-pixel translucency
    * is not enabled), {@code false} otherwise
-   * @see GraphicsDevice.WindowTranslucency#PERPIXEL_TRANSLUCENT
+   * @see WindowTranslucency#PERPIXEL_TRANSLUCENT
    */
   public static boolean isContainingTopLevelOpaque(Component c) {
     Window w = getContainingWindow(c);
@@ -1253,13 +1134,13 @@ public abstract class SunToolkit extends Toolkit
   /**
    * Returns whether or not a containing top level window for the passed
    * component is
-   * {@link GraphicsDevice.WindowTranslucency#TRANSLUCENT TRANSLUCENT}.
+   * {@link WindowTranslucency#TRANSLUCENT TRANSLUCENT}.
    *
    * @param c a Component which toplevel's to check
    * @return {@code true} if the passed component is not null and has a
    * containing toplevel window which has opacity less than
    * 1.0f (which means that it is translucent), {@code false} otherwise
-   * @see GraphicsDevice.WindowTranslucency#TRANSLUCENT
+   * @see WindowTranslucency#TRANSLUCENT
    */
   public static boolean isContainingTopLevelTranslucent(Component c) {
     Window w = getContainingWindow(c);
@@ -1325,10 +1206,6 @@ public abstract class SunToolkit extends Toolkit
     AWTAccessor.getAWTEventAccessor().setSystemGenerated(e);
   }
 
-  public static boolean isSystemGenerated(AWTEvent e) {
-    return AWTAccessor.getAWTEventAccessor().isSystemGenerated(e);
-  }
-
   public boolean useBufferPerWindow() {
     return false;
   }
@@ -1343,8 +1220,10 @@ public abstract class SunToolkit extends Toolkit
 
   public abstract boolean isTraySupported();
 
+  @Override
   public abstract RobotPeer createRobot(Robot target, GraphicsDevice screen) throws AWTException;
 
+  @Override
   public abstract KeyboardFocusManagerPeer getKeyboardFocusManagerPeer() throws HeadlessException;
 
   protected abstract int getScreenWidth();
@@ -1356,7 +1235,7 @@ public abstract class SunToolkit extends Toolkit
     int rvw = getRVSize(w);
     int rvh = getRVSize(h);
     // Ignore the resolution variant in case of error
-    return (rvImage == null || rvImage.hasError()) ? 0xFFFF
+    return rvImage == null || rvImage.hasError() ? 0xFFFF
         : checkImage(rvImage, rvw, rvh, MultiResolutionToolkitImage.
             getResolutionVariantObserver(img, o, w, h, rvw, rvh, true));
   }
@@ -1383,14 +1262,16 @@ public abstract class SunToolkit extends Toolkit
    * SunToolkit subclasses can override this method to return better input
    * method windows.
    */
+  @Override
   public Window createInputMethodWindow(String title, InputContext context) {
-    return new sun.awt.im.SimpleInputMethodWindow(title, context);
+    return new SimpleInputMethodWindow(title, context);
   }
 
   /**
    * Returns whether enableInputMethods should be set to true for peered
    * TextComponent instances on this platform. False by default.
    */
+  @Override
   public boolean enableInputMethodsForTextComponent() {
     return false;
   }
@@ -1398,51 +1279,37 @@ public abstract class SunToolkit extends Toolkit
   /**
    * Returns the default keyboard locale of the underlying operating system
    */
+  @Override
   public Locale getDefaultKeyboardLocale() {
     return getStartupLocale();
   }
 
-  /**
-   * @see sun.awt.WindowClosingSupport#getWindowClosingListener
-   */
+  @Override
   public WindowClosingListener getWindowClosingListener() {
     return windowClosingListener;
   }
 
-  /**
-   * @see sun.awt.WindowClosingSupport#setWindowClosingListener
-   */
+  @Override
   public void setWindowClosingListener(WindowClosingListener wcl) {
     windowClosingListener = wcl;
   }
 
-  /**
-   * @see sun.awt.WindowClosingListener#windowClosingNotify
-   */
+  @Override
   public RuntimeException windowClosingNotify(WindowEvent event) {
-    if (windowClosingListener != null) {
-      return windowClosingListener.windowClosingNotify(event);
-    } else {
-      return null;
-    }
+    return windowClosingListener != null ? windowClosingListener.windowClosingNotify(event) : null;
   }
 
-  /**
-   * @see sun.awt.WindowClosingListener#windowClosingDelivered
-   */
+  @Override
   public RuntimeException windowClosingDelivered(WindowEvent event) {
-    if (windowClosingListener != null) {
-      return windowClosingListener.windowClosingDelivered(event);
-    } else {
-      return null;
-    }
+    return windowClosingListener != null ? windowClosingListener.windowClosingDelivered(event)
+        : null;
   }
 
   /**
    * Returns whether this toolkit needs the support of the xembed
    * from embedding host(if any).
    *
-   * @return <code>true</code>, if XEmbed is needed, <code>false</code> otherwise
+   * @return {@code true}, if XEmbed is needed, {@code false} otherwise
    */
   protected boolean needsXEmbedImpl() {
     return false;
@@ -1523,55 +1390,76 @@ public abstract class SunToolkit extends Toolkit
     return new DesktopPeerImpl();
   }
 
+  @Override
   public abstract ButtonPeer createButton(Button target) throws HeadlessException;
 
+  @Override
   public abstract TextFieldPeer createTextField(TextField target) throws HeadlessException;
 
+  @Override
   public abstract LabelPeer createLabel(Label target) throws HeadlessException;
 
-  public abstract ListPeer createList(java.awt.List target) throws HeadlessException;
+  @Override
+  public abstract ListPeer createList(List target) throws HeadlessException;
 
+  @Override
   public abstract CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException;
 
+  @Override
   public abstract ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException;
 
+  @Override
   public abstract ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException;
 
   ///////////////////////////////////////////////////////////////////////////
   // End Plug-in code
   ///////////////////////////////////////////////////////////////////////////
 
+  @Override
   public abstract TextAreaPeer createTextArea(TextArea target) throws HeadlessException;
 
+  @Override
   public abstract ChoicePeer createChoice(Choice target) throws HeadlessException;
 
+  @Override
   public abstract FramePeer createFrame(Frame target) throws HeadlessException;
 
+  @Override
   public CanvasPeer createCanvas(Canvas target) {
     return (CanvasPeer) createComponent(target);
   }
 
+  @Override
   public PanelPeer createPanel(Panel target) {
     return (PanelPeer) createComponent(target);
   }
 
+  @Override
   public abstract WindowPeer createWindow(Window target) throws HeadlessException;
 
+  @Override
   public abstract DialogPeer createDialog(Dialog target) throws HeadlessException;
 
+  @Override
   public abstract MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException;
 
+  @Override
   public abstract MenuPeer createMenu(Menu target) throws HeadlessException;
 
+  @Override
   public abstract PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException;
 
+  @Override
   public abstract MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException;
 
+  @Override
   public abstract FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException;
 
+  @Override
   public abstract CheckboxMenuItemPeer createCheckboxMenuItem(
       CheckboxMenuItem target) throws HeadlessException;
 
+  @Override
   protected synchronized MouseInfoPeer getMouseInfoPeer() {
     if (mPeer == null) {
       mPeer = new DefaultMouseInfoPeer();
@@ -1579,30 +1467,34 @@ public abstract class SunToolkit extends Toolkit
     return mPeer;
   }
 
+  @Override
   @SuppressWarnings("deprecation")
   public abstract FontPeer getFontPeer(String name, int style);
 
+  @Override
   public Dimension getScreenSize() {
     return new Dimension(getScreenWidth(), getScreenHeight());
   }
 
+  @Override
   @SuppressWarnings("deprecation")
   public String[] getFontList() {
-    String[] hardwiredFontList = {
+    return new String[]{
         Font.DIALOG, Font.SANS_SERIF, Font.SERIF, Font.MONOSPACED, Font.DIALOG_INPUT
 
         // -- Obsolete font names from 1.0.2.  It was decided that
         // -- getFontList should not return these old names:
         //    "Helvetica", "TimesRoman", "Courier", "ZapfDingbats"
     };
-    return hardwiredFontList;
   }
 
+  @Override
   @SuppressWarnings("deprecation")
   public FontMetrics getFontMetrics(Font font) {
     return FontDesignMetrics.getMetrics(font);
   }
 
+  @Override
   public Image getImage(String filename) {
     return getImageFromHash(this, filename);
   }
@@ -1611,20 +1503,24 @@ public abstract class SunToolkit extends Toolkit
      * desktop text anti-aliasing settings
      */
 
+  @Override
   public Image getImage(URL url) {
     return getImageFromHash(this, url);
   }
 
+  @Override
   public Image createImage(String filename) {
     checkPermissions(filename);
     return createImage(new FileImageSource(filename));
   }
 
+  @Override
   public Image createImage(URL url) {
     checkPermissions(url);
     return createImage(new URLImageSource(url));
   }
 
+  @Override
   public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
     if (w == 0 || h == 0) {
       return true;
@@ -1643,9 +1539,10 @@ public abstract class SunToolkit extends Toolkit
       return false;
     }
     ImageRepresentation ir = tkimg.getImageRep();
-    return ir.prepare(o) & prepareResolutionVariant(img, w, h, o);
+    return ir.prepare(o) && prepareResolutionVariant(img, w, h, o);
   }
 
+  @Override
   public int checkImage(Image img, int w, int h, ImageObserver o) {
     if (!(img instanceof ToolkitImage)) {
       return ImageObserver.ALLBITS;
@@ -1653,43 +1550,43 @@ public abstract class SunToolkit extends Toolkit
 
     ToolkitImage tkimg = (ToolkitImage) img;
     int repbits;
-    if (w == 0 || h == 0) {
-      repbits = ImageObserver.ALLBITS;
-    } else {
-      repbits = tkimg.getImageRep().check(o);
-    }
+    repbits = w == 0 || h == 0 ? ImageObserver.ALLBITS : tkimg.getImageRep().check(o);
     return (tkimg.check(o) | repbits) & checkResolutionVariant(img, w, h, o);
   }
 
+  @Override
   public Image createImage(ImageProducer producer) {
     return new ToolkitImage(producer);
   }
 
+  @Override
   public Image createImage(byte[] data, int offset, int length) {
     return createImage(new ByteArrayImageSource(data, offset, length));
   }
 
+  @Override
   protected EventQueue getSystemEventQueueImpl() {
     return getSystemEventQueueImplPP();
   }
 
+  @Override
   public abstract DragSourceContextPeer createDragSourceContextPeer(
       DragGestureEvent dge) throws InvalidDnDOperationException;
 
   /**
    * Overridden in XToolkit and WToolkit
    */
-  public boolean isModalityTypeSupported(Dialog.ModalityType modalityType) {
-    return (modalityType == Dialog.ModalityType.MODELESS) || (modalityType
-                                                                  == Dialog.ModalityType
-        .APPLICATION_MODAL);
+  @Override
+  public boolean isModalityTypeSupported(ModalityType modalityType) {
+    return modalityType == ModalityType.MODELESS || modalityType == ModalityType.APPLICATION_MODAL;
   }
 
   /**
    * Overridden in XToolkit and WToolkit
    */
-  public boolean isModalExclusionTypeSupported(Dialog.ModalExclusionType exclusionType) {
-    return (exclusionType == Dialog.ModalExclusionType.NO_EXCLUDE);
+  @Override
+  public boolean isModalExclusionTypeSupported(ModalExclusionType exclusionType) {
+    return exclusionType == ModalExclusionType.NO_EXCLUDE;
   }
 
   /**
@@ -1711,23 +1608,23 @@ public abstract class SunToolkit extends Toolkit
    * <p>
    * <p> This method allows to write tests without explicit timeouts
    * or wait for some event.  Example:
-   * <code>
+   * {@code
    * Frame f = ...;
    * f.setVisible(true);
    * ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
-   * </code>
+   * }
    * <p>
-   * <p> After realSync, <code>f</code> will be completely visible
+   * <p> After realSync, {@code f} will be completely visible
    * on the screen, its getLocationOnScreen will be returning the
    * right result and it will be the focus owner.
    * <p>
    * <p> Another example:
-   * <code>
+   * {@code
    * b.requestFocus();
    * ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
-   * </code>
+   * }
    * <p>
-   * <p> After realSync, <code>b</code> will be focus owner.
+   * <p> After realSync, {@code b} will be focus owner.
    * <p>
    * <p> Notice that realSync isn't guaranteed to work if recurring
    * actions occur, such as if during processing of some event
@@ -1744,7 +1641,7 @@ public abstract class SunToolkit extends Toolkit
    *
    * @param timeout the maximum time to wait in milliseconds, negative means "forever".
    */
-  public void realSync(final long timeout) throws OperationTimedOut, InfiniteLoop {
+  public void realSync(long timeout) throws OperationTimedOut, InfiniteLoop {
     if (EventQueue.isDispatchThread()) {
       throw new IllegalThreadException(
           "The SunToolkit.realSync() method cannot be used on the event dispatch thread (EDT).");
@@ -1760,7 +1657,7 @@ public abstract class SunToolkit extends Toolkit
       // Therefore, we dispatch them as long as there is something
       // to dispatch.
       int iters = 0;
-      while (iters < MIN_ITERS) {
+      while (false) {
         syncNativeQueue(timeout);
         iters++;
       }
@@ -1779,7 +1676,7 @@ public abstract class SunToolkit extends Toolkit
       // some other events could have been generated.  So, after
       // waitForIdle, we may end up with full EventQueue
       iters = 0;
-      while (iters < MIN_ITERS) {
+      while (false) {
         waitForIdle(timeout);
         iters++;
       }
@@ -1802,12 +1699,12 @@ public abstract class SunToolkit extends Toolkit
    * sync of the native queue.  The method should wait until native
    * requests are processed, all native events are processed and
    * corresponding Java events are generated.  Should return
-   * <code>true</code> if some events were processed,
-   * <code>false</code> otherwise.
+   * {@code true} if some events were processed,
+   * {@code false} otherwise.
    */
-  protected abstract boolean syncNativeQueue(final long timeout);
+  protected abstract boolean syncNativeQueue(long timeout);
 
-  private boolean isEQEmpty() {
+  boolean isEQEmpty() {
     EventQueue queue = getSystemEventQueueImpl();
     return AWTAccessor.getEventQueueAccessor().noEvents(queue);
   }
@@ -1816,11 +1713,11 @@ public abstract class SunToolkit extends Toolkit
    * Waits for the Java event queue to empty.  Ensures that all
    * events are processed (including paint events), and that if
    * recursive events were generated, they are also processed.
-   * Should return <code>true</code> if more processing is
-   * necessary, <code>false</code> otherwise.
+   * Should return {@code true} if more processing is
+   * necessary, {@code false} otherwise.
    */
   @SuppressWarnings("serial")
-  protected final boolean waitForIdle(final long timeout) {
+  protected final boolean waitForIdle(long timeout) {
     flushPendingEvents();
     boolean queueWasEmpty = isEQEmpty();
     queueEmpty = false;
@@ -1828,6 +1725,7 @@ public abstract class SunToolkit extends Toolkit
     synchronized (waitLock) {
       postEvent(AppContext.getAppContext(),
           new PeerEvent(getSystemEventQueueImpl(), null, PeerEvent.LOW_PRIORITY_EVENT) {
+            @Override
             public void dispatch() {
               // Here we block EDT.  It could have some
               // events, it should have dispatched them by
@@ -1835,7 +1733,7 @@ public abstract class SunToolkit extends Toolkit
               // generated.  First, dispatch them.  Then,
               // flush Java events again.
               int iters = 0;
-              while (iters < MIN_ITERS) {
+              while (false) {
                 syncNativeQueue(timeout);
                 iters++;
               }
@@ -1896,7 +1794,7 @@ public abstract class SunToolkit extends Toolkit
 
   /* Need an instance method because setDesktopProperty(..) is protected. */
   private void fireDesktopFontPropertyChanges() {
-    setDesktopProperty(SunToolkit.DESKTOPFONTHINTS, SunToolkit.getDesktopFontHints());
+    setDesktopProperty(DESKTOPFONTHINTS, getDesktopFontHints());
   }
 
   /* Overridden by subclasses to return platform/desktop specific values */
@@ -1919,7 +1817,7 @@ public abstract class SunToolkit extends Toolkit
     AppContext ctx = getAppContext(w);
     WeakHashMap<Window, Long> map = (WeakHashMap<Window, Long>) ctx.get(DEACTIVATION_TIMES_MAP_KEY);
     if (map == null) {
-      map = new WeakHashMap<Window, Long>();
+      map = new WeakHashMap<>();
       ctx.put(DEACTIVATION_TIMES_MAP_KEY, map);
     }
     map.put(w, time);
@@ -1981,7 +1879,7 @@ public abstract class SunToolkit extends Toolkit
 
   static class ModalityListenerList implements ModalityListener {
 
-    Vector<ModalityListener> listeners = new Vector<ModalityListener>();
+    final Vector<ModalityListener> listeners = new Vector<>();
 
     void add(ModalityListener listener) {
       listeners.addElement(listener);
@@ -1991,17 +1889,17 @@ public abstract class SunToolkit extends Toolkit
       listeners.removeElement(listener);
     }
 
+    @Override
     public void modalityPushed(ModalityEvent ev) {
-      Iterator<ModalityListener> it = listeners.iterator();
-      while (it.hasNext()) {
-        it.next().modalityPushed(ev);
+      for (ModalityListener listener : listeners) {
+        listener.modalityPushed(ev);
       }
     }
 
+    @Override
     public void modalityPopped(ModalityEvent ev) {
-      Iterator<ModalityListener> it = listeners.iterator();
-      while (it.hasNext()) {
-        it.next().modalityPopped(ev);
+      for (ModalityListener listener : listeners) {
+        listener.modalityPopped(ev);
       }
     }
   } // end of class ModalityListenerList
@@ -2042,9 +1940,12 @@ public abstract class SunToolkit extends Toolkit
 
   private class DesktopPeerImpl implements DesktopPeer {
 
+    DesktopPeerImpl() {
+    }
+
     @Override
-    public boolean isSupported(Desktop.Action action) {
-      return action != Desktop.Action.PRINT;
+    public boolean isSupported(Action action) {
+      return action != Action.PRINT;
     }
 
     @Override
@@ -2060,7 +1961,7 @@ public abstract class SunToolkit extends Toolkit
     @Override
     public void print(File file) throws IOException {
       throw new UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
-      /**
+      /*
        if (ContextCompat.checkSelfPermission(androidContext,
        Manifest.permission.READ_CONTACTS)
        != PackageManager.PERMISSION_GRANTED) {
@@ -2117,12 +2018,16 @@ public abstract class SunToolkit extends Toolkit
  */
 class PostEventQueue {
   private final EventQueue eventQueue;
-  private EventQueueItem queueHead = null;
-  private EventQueueItem queueTail = null;
-  private Thread flushThread = null;
+  private EventQueueItem queueHead;
+  private EventQueueItem queueTail;
+  private Thread flushThread;
 
   PostEventQueue(EventQueue eq) {
     eventQueue = eq;
+  }
+
+  static void wakeupEventQueue(EventQueue q, boolean isShutdown) {
+    AWTAccessor.getEventQueueAccessor().wakeup(q, isShutdown);
   }
 
   /*
@@ -2192,6 +2097,6 @@ class PostEventQueue {
         queueTail = item;
       }
     }
-    SunToolkit.wakeupEventQueue(eventQueue, event.getSource() == AWTAutoShutdown.getInstance());
+    wakeupEventQueue(eventQueue, event.getSource() == AWTAutoShutdown.getInstance());
   }
 } // class PostEventQueue

@@ -37,7 +37,6 @@ import java.awt.dnd.DropTargetContext;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
 import java.awt.dnd.InvalidDnDOperationException;
 import java.awt.dnd.peer.DropTargetContextPeer;
 import java.io.IOException;
@@ -49,7 +48,6 @@ import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 import sun.awt.datatransfer.DataTransferer;
 import sun.awt.datatransfer.ToolkitThreadBlockedHandler;
-import sun.security.util.SecurityConstants;
 
 /**
  * <p>
@@ -69,47 +67,45 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    */
   public static final boolean DISPATCH_SYNC = true;
   protected static final Object _globalLock = new Object();
-  protected final static int STATUS_NONE = 0; // none pending
-  protected final static int STATUS_WAIT = 1; // drop pending
-  protected final static int STATUS_ACCEPT = 2;
-  protected final static int STATUS_REJECT = -1;
+  protected static final int STATUS_NONE = 0; // none pending
+  protected static final int STATUS_WAIT = 1; // drop pending
+  protected static final int STATUS_ACCEPT = 2;
+  protected static final int STATUS_REJECT = -1;
   private static final String TAG = "SunDropTargetContextPeer";
-  protected static Transferable currentJVMLocalSourceTransferable = null;
+  protected static Transferable currentJVMLocalSourceTransferable;
   protected int dropStatus = STATUS_NONE;
-  protected boolean dropComplete = false;
+  protected boolean dropComplete;
   // The flag is used to monitor whether the drop action is
   // handled by a user. That allows to distinct during
   // which operation getTransferData() method is invoked.
-  boolean dropInProcess = false;
+  boolean dropInProcess;
   private DropTarget currentDT;
   private DropTargetContext currentDTC;
-  private long[] currentT;
+  long[] currentT;
 
   /*
    * global lock
    */
   private int currentA;   // target actions
-  private int currentSA;  // source actions
+  int currentSA;  // source actions
 
   /*
    * a primitive mechanism for advertising intra-JVM Transferables
-   */
-  private int currentDA;  // current drop action
-  private int previousDA;
-  private long nativeDragContext;
+   */ int currentDA;  // current drop action
+  int previousDA;
+  long nativeDragContext;
 
   /*
    * constants used by dropAccept() or dropReject()
    */
   private Transferable local;
-  private boolean dragRejected = false;
+  private boolean dragRejected;
 
   /**
    * create the peer
    */
 
   public SunDropTargetContextPeer() {
-    super();
   }
 
   public static void setCurrentJVMLocalSourceTransferable(Transferable t)
@@ -135,24 +131,22 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * @return if the flavor is supported
    */
 
+  @Override
   public boolean isDataFlavorSupported(DataFlavor df) {
     Transferable localTransferable = local;
 
-    if (localTransferable != null) {
-      return localTransferable.isDataFlavorSupported(df);
-    } else {
-      return DataTransferer
-          .getInstance()
-          .getFlavorsForFormats(currentT, DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()))
-          .
-              containsKey(df);
-    }
+    return localTransferable != null ? localTransferable.isDataFlavorSupported(df) : DataTransferer
+        .getInstance()
+        .getFlavorsForFormats(currentT, DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()))
+        .
+            containsKey(df);
   }
 
   /**
    * @return the data
    */
 
+  @Override
   public Object getTransferData(DataFlavor df)
       throws UnsupportedFlavorException, IOException, InvalidDnDOperationException {
 
@@ -167,7 +161,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
       return null;
     }
 
-    Long lFormat = null;
+    Long lFormat;
     Transferable localTransferable = local;
 
     if (localTransferable != null) {
@@ -192,7 +186,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
           "only ACTION_LINK is permissable for transfer of java.rmi.Remote objects");
     }
 
-    final long format = lFormat.longValue();
+    long format = lFormat;
 
     Object ret = getNativeData(format);
 
@@ -221,6 +215,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * @return the current target actions
    */
 
+  @Override
   public int getTargetActions() {
     return currentA;
   }
@@ -229,6 +224,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * @param actions set the current actions
    */
 
+  @Override
   public synchronized void setTargetActions(int actions) {
     currentA = actions & (DnDConstants.ACTION_COPY_OR_MOVE | DnDConstants.ACTION_LINK);
   }
@@ -237,6 +233,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * @return the DropTarget associated with this peer
    */
 
+  @Override
   public DropTarget getDropTarget() {
     return currentDT;
   }
@@ -246,23 +243,21 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    */
   // NOTE: This method may be called by privileged threads.
   //       DO NOT INVOKE CLIENT CODE ON THIS THREAD!
+  @Override
   public DataFlavor[] getTransferDataFlavors() {
-    final Transferable localTransferable = local;
+    Transferable localTransferable = local;
 
-    if (localTransferable != null) {
-      return localTransferable.getTransferDataFlavors();
-    } else {
-      return DataTransferer
-          .getInstance()
-          .getFlavorsForFormatsAsArray(currentT,
-              DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()));
-    }
+    return localTransferable != null ? localTransferable.getTransferDataFlavors() : DataTransferer
+        .getInstance()
+        .getFlavorsForFormatsAsArray(currentT,
+            DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()));
   }
 
   /**
    * get the Transferable associated with the drop
    */
 
+  @Override
   public Transferable getTransferable() {
     return this;
   }
@@ -270,6 +265,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   /**
    * @return if the transfer is a local one
    */
+  @Override
   public boolean isTransferableJVMLocal() {
     return local != null || getJVMLocalSourceTransferable() != null;
   }
@@ -278,6 +274,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * acceptDrag
    */
 
+  @Override
   public synchronized void acceptDrag(int dragOperation) {
     if (currentDT == null) {
       throw new InvalidDnDOperationException("No Drag pending");
@@ -292,6 +289,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * rejectDrag
    */
 
+  @Override
   public synchronized void rejectDrag() {
     if (currentDT == null) {
       throw new InvalidDnDOperationException("No Drag pending");
@@ -304,6 +302,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * acceptDrop
    */
 
+  @Override
   public synchronized void acceptDrop(int dropOperation) {
     if (dropOperation == DnDConstants.ACTION_NONE) {
       throw new IllegalArgumentException("invalid acceptDrop() action");
@@ -323,6 +322,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * reject Drop
    */
 
+  @Override
   public synchronized void rejectDrop() {
     if (dropStatus != STATUS_WAIT) {
       throw new InvalidDnDOperationException("invalid rejectDrop()");
@@ -342,6 +342,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * signal drop complete
    */
 
+  @Override
   public synchronized void dropComplete(boolean success) {
     if (dropStatus == STATUS_NONE) {
       throw new InvalidDnDOperationException("No Drop pending");
@@ -374,8 +375,8 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   }
 
   private int handleEnterMessage(
-      final Component component, final int x, final int y, final int dropAction, final int actions,
-      final long[] formats, final long nativeCtxt) {
+      Component component, int x, int y, int dropAction, int actions, long[] formats,
+      long nativeCtxt) {
     return postDropTargetEvent(component,
         x,
         y,
@@ -384,7 +385,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         formats,
         nativeCtxt,
         SunDropTargetEvent.MOUSE_ENTERED,
-        SunDropTargetContextPeer.DISPATCH_SYNC);
+        DISPATCH_SYNC);
   }
 
   /**
@@ -412,10 +413,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
       currentA = dt.getDefaultActions();
 
       try {
-        ((DropTargetListener) dt).dragEnter(new DropTargetDragEvent(currentDTC,
-            hots,
-            currentDA,
-            currentSA));
+        dt.dragEnter(new DropTargetDragEvent(currentDTC, hots, currentDA, currentSA));
       } catch (Exception e) {
         e.printStackTrace();
         currentDA = DnDConstants.ACTION_NONE;
@@ -433,7 +431,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    * upcall to handle exit messages
    */
 
-  private void handleExitMessage(final Component component, final long nativeCtxt) {
+  private void handleExitMessage(Component component, long nativeCtxt) {
         /*
          * Even though the return value is irrelevant for this event, it is
          * dispatched synchronously to fix 4393148 properly.
@@ -446,7 +444,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         null,
         nativeCtxt,
         SunDropTargetEvent.MOUSE_EXITED,
-        SunDropTargetContextPeer.DISPATCH_SYNC);
+        DISPATCH_SYNC);
   }
 
   /**
@@ -456,7 +454,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   protected void processExitMessage(SunDropTargetEvent event) {
     Component c = (Component) event.getSource();
     DropTarget dt = c.getDropTarget();
-    DropTargetContext dtc = null;
+    DropTargetContext dtc;
 
     if (dt == null) {
       currentDT = null;
@@ -487,7 +485,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     if (dt.isActive()) {
       try {
-        ((DropTargetListener) dt).dragExit(new DropTargetEvent(dtc));
+        dt.dragExit(new DropTargetEvent(dtc));
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
@@ -508,8 +506,8 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   }
 
   private int handleMotionMessage(
-      final Component component, final int x, final int y, final int dropAction, final int actions,
-      final long[] formats, final long nativeCtxt) {
+      Component component, int x, int y, int dropAction, int actions, long[] formats,
+      long nativeCtxt) {
     return postDropTargetEvent(component,
         x,
         y,
@@ -518,7 +516,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         formats,
         nativeCtxt,
         SunDropTargetEvent.MOUSE_DRAGGED,
-        SunDropTargetContextPeer.DISPATCH_SYNC);
+        DISPATCH_SYNC);
   }
 
   /**
@@ -530,9 +528,9 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
     Point hots = event.getPoint();
     int id = event.getID();
     DropTarget dt = c.getDropTarget();
-    DropTargetContext dtc = null;
+    DropTargetContext dtc;
 
-    if (c.isShowing() && (dt != null) && dt.isActive()) {
+    if (c.isShowing() && dt != null && dt.isActive()) {
       if (currentDT != dt) {
         if (currentDTC != null) {
           currentDTC.removeNotify();
@@ -556,11 +554,10 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
       try {
         DropTargetDragEvent dtde = new DropTargetDragEvent(dtc, hots, currentDA, currentSA);
-        DropTargetListener dtl = (DropTargetListener) dt;
         if (operationChanged) {
-          dtl.dropActionChanged(dtde);
+          dt.dropActionChanged(dtde);
         } else {
-          dtl.dragOver(dtde);
+          dt.dragOver(dtde);
         }
 
         if (dragRejected) {
@@ -580,8 +577,8 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
    */
 
   private void handleDropMessage(
-      final Component component, final int x, final int y, final int dropAction, final int actions,
-      final long[] formats, final long nativeCtxt) {
+      Component component, int x, int y, int dropAction, int actions, long[] formats,
+      long nativeCtxt) {
     postDropTargetEvent(component,
         x,
         y,
@@ -590,7 +587,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         formats,
         nativeCtxt,
         SunDropTargetEvent.MOUSE_DROPPED,
-        !SunDropTargetContextPeer.DISPATCH_SYNC);
+        !DISPATCH_SYNC);
   }
 
   /**
@@ -627,15 +624,11 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
       dropInProcess = true;
 
       try {
-        ((DropTargetListener) dt).drop(new DropTargetDropEvent(dtc,
-            hots,
-            currentDA,
-            currentSA,
-            local != null));
+        dt.drop(new DropTargetDropEvent(dtc, hots, currentDA, currentSA, local != null));
       } finally {
         if (dropStatus == STATUS_WAIT) {
           rejectDrop();
-        } else if (dropComplete == false) {
+        } else if (!dropComplete) {
           dropComplete(false);
         }
         dropInProcess = false;
@@ -646,8 +639,8 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   }
 
   protected int postDropTargetEvent(
-      final Component component, final int x, final int y, final int dropAction, final int actions,
-      final long[] formats, final long nativeCtxt, final int eventID, final boolean dispatchType) {
+      Component component, int x, int y, int dropAction, int actions, long[] formats,
+      long nativeCtxt, int eventID, boolean dispatchType) {
     AppContext appContext = SunToolkit.targetToAppContext(component);
 
     EventDispatcher dispatcher = new EventDispatcher(this,
@@ -659,7 +652,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     SunDropTargetEvent event = new SunDropTargetEvent(component, eventID, x, y, dispatcher);
 
-    if (dispatchType == SunDropTargetContextPeer.DISPATCH_SYNC) {
+    if (dispatchType == DISPATCH_SYNC) {
       DataTransferer.getInstance().getToolkitThreadBlockedHandler().lock();
     }
 
@@ -668,7 +661,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     eventPosted(event);
 
-    if (dispatchType == SunDropTargetContextPeer.DISPATCH_SYNC) {
+    if (dispatchType == DISPATCH_SYNC) {
       while (!dispatcher.isDone()) {
         DataTransferer.getInstance().getToolkitThreadBlockedHandler().enter();
       }
@@ -691,9 +684,9 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         DnDConstants.ACTION_MOVE, DnDConstants.ACTION_COPY, DnDConstants.ACTION_LINK,};
     int ret = DnDConstants.ACTION_NONE;
 
-    for (int i = 0; i < operations.length; i++) {
-      if ((operation & operations[i]) == operations[i]) {
-        ret = operations[i];
+    for (int operation1 : operations) {
+      if ((operation & operation1) == operation1) {
+        ret = operation1;
         break;
       }
     }
@@ -727,9 +720,9 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
     // set of events to be dispatched by this dispatcher
     private final HashSet eventSet = new HashSet(3);
     private long nativeCtxt;
-    private boolean dispatcherDone = false;
+    private boolean dispatcherDone;
     // dispatcher state fields
-    private int returnValue = 0;
+    private int returnValue;
 
     EventDispatcher(
         SunDropTargetContextPeer peer, int dropAction, int actions, long[] formats, long nativeCtxt,
@@ -739,7 +732,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
       this.nativeCtxt = nativeCtxt;
       this.dropAction = dropAction;
       this.actions = actions;
-      this.formats = (null == formats) ? null : Arrays.copyOf(formats, formats.length);
+      this.formats = null == formats ? null : Arrays.copyOf(formats, formats.length);
       this.dispatchType = dispatchType;
     }
 
@@ -851,7 +844,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     void registerEvent(SunDropTargetEvent e) {
       handler.lock();
-      if (!eventSet.add(e) && true) {
+      if (!eventSet.add(e)) {
         Log.d(TAG, "Event is already registered: " + e);
       }
       handler.unlock();
@@ -898,10 +891,8 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
         handler.unlock();
       }
 
-      if (events != null) {
-        for (int i = 0; i < events.length; i++) {
-          unregisterEvent((SunDropTargetEvent) events[i]);
-        }
+      for (Object event : events) {
+        unregisterEvent((SunDropTargetEvent) event);
       }
     }
   }

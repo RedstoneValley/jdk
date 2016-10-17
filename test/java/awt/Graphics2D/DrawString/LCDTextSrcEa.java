@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6996867
  * @summary Render as LCD Text in SrcEa composite mode.
  */
@@ -33,15 +33,16 @@ import java.awt.image.*;
 
 public class LCDTextSrcEa extends Component {
 
-    static int SZ=150;
-    BufferedImage target =
+    private static final long serialVersionUID = 202912689081814962L;
+    static final int SZ=150;
+    final BufferedImage target =
         new BufferedImage(SZ, SZ, BufferedImage.TYPE_INT_RGB);
 
     protected LCDTextSrcEa(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
         super(wrappedObjectsSupplier);
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Frame f = new Frame("LCD Text SrcEa Test");
         f.addWindowListener(new WindowAdapter() {
             @Override
@@ -50,15 +51,17 @@ public class LCDTextSrcEa extends Component {
             }
         });
         LCDTextSrcEa td = new LCDTextSrcEa();
-        f.add("Center", td);
+        f.add(BorderLayout.CENTER, td);
         f.pack();
         f.setVisible(true);
     }
 
+    @Override
     public Dimension getPreferredSize() {
         return new Dimension(SZ,SZ);
     }
 
+    @Override
     public void paint(Graphics gx) {
 
         Graphics2D g2d = (Graphics2D) target.getGraphics();
@@ -83,8 +86,8 @@ public class LCDTextSrcEa extends Component {
                 int rgb = target.getRGB(px, py);
                 int r = (rgb & 0xff0000) >> 16;
                 int g = (rgb & 0x00ff00) >> 8;
-                int b = (rgb & 0x0000ff);
-                if (r != g || r !=b || g != b) {
+                int b = rgb & 0x0000ff;
+                if (r != g || r != b) {
                      nongrey=true;
                      break;
                 }

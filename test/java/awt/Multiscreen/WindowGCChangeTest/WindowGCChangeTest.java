@@ -32,12 +32,8 @@
   @run applet WindowGCChangeTest.html
 */
 
-import java.applet.Applet;
-
 import java.awt.*;
 import java.awt.event.*;
-
-import test.java.awt.regtesthelpers.Util;
 
 public class WindowGCChangeTest extends Applet
 {
@@ -47,7 +43,7 @@ public class WindowGCChangeTest extends Applet
 
     public void start()
     {
-        Robot robot = null;
+        Robot robot;
         try
         {
             robot = new Robot();
@@ -78,7 +74,7 @@ public class WindowGCChangeTest extends Applet
         for (int i = 0; i < gds.length; i++)
         {
             Rectangle r = gds[i].getDefaultConfiguration().getBounds();
-            if ((r.x != 0) || (r.y != 0))
+            if (r.x != 0 || r.y != 0)
             {
                 isVirtualScreen = true;
             }
@@ -101,13 +97,14 @@ public class WindowGCChangeTest extends Applet
         GraphicsDevice defGD = gds[defGDNo];
         GraphicsDevice nondefGD = gds[nondefGDNo];
 
-        final GraphicsConfiguration defGC = defGD.getDefaultConfiguration();
-        final GraphicsConfiguration nondefGC = nondefGD.getDefaultConfiguration();
+        GraphicsConfiguration defGC = defGD.getDefaultConfiguration();
+        GraphicsConfiguration nondefGC = nondefGD.getDefaultConfiguration();
 
-        final Frame f = new Frame(defGC);
+        Frame f = new Frame(defGC);
         f.setBounds(nondefGC.getBounds().x + 100, nondefGC.getBounds().y + 100, 100, 100);
         f.addWindowListener(new WindowAdapter()
         {
+            @Override
             public void windowActivated(WindowEvent ev)
             {
                 GraphicsConfiguration gcf = f.getGraphicsConfiguration();
@@ -122,10 +119,11 @@ public class WindowGCChangeTest extends Applet
         Util.waitForIdle(robot);
 
         // paranoia - change def to nondef and vice versa
-        final Frame g = new Frame(nondefGC);
+        Frame g = new Frame(nondefGC);
         g.setBounds(defGC.getBounds().x + 100, defGC.getBounds().y + 100, 100, 100);
         g.addWindowListener(new WindowAdapter()
         {
+            @Override
             public void windowActivated(WindowEvent ev)
             {
                 GraphicsConfiguration gcg = g.getGraphicsConfiguration();
@@ -140,10 +138,11 @@ public class WindowGCChangeTest extends Applet
         Util.waitForIdle(robot);
 
         // test fullscreen changes
-        final Frame h = new Frame(defGC);
+        Frame h = new Frame(defGC);
         h.setBounds(defGC.getBounds().x + 100, defGC.getBounds().y + 100, 100, 100);
         h.addWindowListener(new WindowAdapter()
         {
+            @Override
             public void windowActivated(WindowEvent ev)
             {
                 GraphicsConfiguration gch = h.getGraphicsConfiguration();

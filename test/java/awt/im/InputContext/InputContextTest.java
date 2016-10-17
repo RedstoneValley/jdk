@@ -34,9 +34,12 @@ import java.awt.Frame;
 import java.awt.im.InputContext;
 import java.util.Locale;
 
-public class InputContextTest {
+public final class InputContextTest {
 
-    public static void main(String[] args) throws Exception {
+  private InputContextTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
 
         Frame frame = new Frame();
         InputContext ic = frame.getInputContext();

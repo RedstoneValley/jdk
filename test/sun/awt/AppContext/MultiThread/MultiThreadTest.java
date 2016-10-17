@@ -30,12 +30,15 @@
 
 import sun.awt.AppContext;
 
-public class MultiThreadTest {
+public final class MultiThreadTest {
     private static final int NUM_THREADS = 2;
 
-    private static AppContextGetter[] getters = new AppContextGetter[NUM_THREADS];
+    private static final AppContextGetter[] getters = new AppContextGetter[NUM_THREADS];
 
-    public static void main(String[] args) {
+  private MultiThreadTest() {
+  }
+
+  public static void main(String[] args) {
         createAndStartThreads();
         compareAppContexts();
     }

@@ -29,23 +29,25 @@
   @run main EnterAsGrabbedEvent
 */
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class EnterAsGrabbedEvent
+public final class EnterAsGrabbedEvent
 {
     //Declare things used in the test, like buttons and labels here
     private static Frame frame;
     private static Button button;
-    private static volatile boolean enterTriggered = false;
-    private static volatile boolean actionTriggered = false;
+    static volatile boolean enterTriggered;
+    private static volatile boolean actionTriggered;
 
-    private static void init()
+  private EnterAsGrabbedEvent() {
+  }
+
+  private static void init()
     {
         frame = new Frame();
         frame.setLayout(new FlowLayout());
-        button = new Button("button");
+        button = new Button(Button.base);
         button.addActionListener(actionEvent -> {
             actionTriggered = true;
         });
@@ -72,12 +74,14 @@ public class EnterAsGrabbedEvent
             // event if the grabbed window is the component (button)
             frame.addMouseListener(
                     new MouseAdapter() {
+                        @Override
                         public void mouseEntered(MouseEvent me) {
                             System.out.println(me);
                             enterTriggered = true;
                         }
 
                         // Just for tracing
+                        @Override
                         public void mouseExited(MouseEvent me) {
                             System.out.println(me);
                         }
@@ -86,9 +90,11 @@ public class EnterAsGrabbedEvent
             // Just for tracing
             button.addMouseListener(
                     new MouseAdapter(){
+                        @Override
                         public void mouseEntered(MouseEvent me){
                             System.out.println(me);
                         }
+                        @Override
                         public void mouseExited(MouseEvent me){
                             System.out.println(me);
                         }

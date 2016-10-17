@@ -35,15 +35,15 @@ import java.util.Locale;
  */
 final class InputMethodLocator {
 
-  private InputMethodDescriptor descriptor;
+  private final InputMethodDescriptor descriptor;
 
   // Currently `loader' is always the class loader for a
   // descriptor. `loader' is provided for future extensions to be
   // able to load input methods from somewhere else, and to support
   // per input method name space.
-  private ClassLoader loader;
+  private final ClassLoader loader;
 
-  private Locale locale;
+  private final Locale locale;
 
   InputMethodLocator(InputMethodDescriptor descriptor, ClassLoader loader, Locale locale) {
     if (descriptor == null) {
@@ -69,7 +69,7 @@ final class InputMethodLocator {
     if (other == this) {
       return true;
     }
-    if (other == null || this.getClass() != other.getClass()) {
+    if (other == null || getClass() != other.getClass()) {
       return false;
     }
 
@@ -81,11 +81,8 @@ final class InputMethodLocator {
         otherLocator.loader)) {
       return false;
     }
-    if (locale == null && otherLocator.locale != null || locale != null && !locale.equals(
-        otherLocator.locale)) {
-      return false;
-    }
-    return true;
+    return !(locale == null && otherLocator.locale != null || locale != null && !locale.equals(
+        otherLocator.locale));
   }
 
   InputMethodDescriptor getDescriptor() {
@@ -107,8 +104,8 @@ final class InputMethodLocator {
   boolean isLocaleAvailable(Locale locale) {
     try {
       Locale[] locales = descriptor.getAvailableLocales();
-      for (int i = 0; i < locales.length; i++) {
-        if (locales[i].equals(locale)) {
+      for (Locale locale1 : locales) {
+        if (locale1.equals(locale)) {
           return true;
         }
       }
@@ -125,11 +122,7 @@ final class InputMethodLocator {
    * use {@link #isLocaleAvailable} for that.
    */
   InputMethodLocator deriveLocator(Locale forLocale) {
-    if (forLocale == locale) {
-      return this;
-    } else {
-      return new InputMethodLocator(descriptor, loader, forLocale);
-    }
+    return forLocale == locale ? this : new InputMethodLocator(descriptor, loader, forLocale);
   }
 
   /**
@@ -147,10 +140,8 @@ final class InputMethodLocator {
     if (!descriptor.getClass().equals(other.descriptor.getClass())) {
       return false;
     }
-    if (loader == null && other.loader != null || loader != null && !loader.equals(other.loader)) {
-      return false;
-    }
-    return true;
+    return !(loader == null && other.loader != null
+                 || loader != null && !loader.equals(other.loader));
   }
 
   /**
@@ -161,10 +152,6 @@ final class InputMethodLocator {
    */
   String getActionCommandString() {
     String inputMethodString = descriptor.getClass().getName();
-    if (locale == null) {
-      return inputMethodString;
-    } else {
-      return inputMethodString + "\n" + locale.toString();
-    }
+    return locale == null ? inputMethodString : inputMethodString + "\n" + locale;
   }
 }

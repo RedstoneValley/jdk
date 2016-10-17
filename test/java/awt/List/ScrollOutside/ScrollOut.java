@@ -34,15 +34,17 @@
 import java.awt.*;
 import java.awt.event.*;
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
-public class ScrollOut
+public final class ScrollOut
 {
-    public static final void main(String args[])
+    private ScrollOut() {
+    }
+
+    public static void main(String[] args)
     {
-        final Frame frame = new Frame();
-        final List list = new List();
-        Robot robot = null;
+        Frame frame = new Frame();
+        List list = new List();
+        Robot robot;
 
         for (int i = 0; i < 5; i++){
             list.add("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");

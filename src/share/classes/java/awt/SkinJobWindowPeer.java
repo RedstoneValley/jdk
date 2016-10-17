@@ -6,7 +6,7 @@ import android.view.Window;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.DialogPeer;
 import java.awt.peer.FramePeer;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * SkinJob android implementation of {@link FramePeer}.
@@ -211,7 +211,7 @@ public class SkinJobWindowPeer extends SkinJobComponentPeer<Window>
   @Override
   public boolean requestFocus(
       Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time,
-      CausedFocusEvent.Cause cause) {
+      Cause cause) {
     if (focusedWindowChangeAllowed) {
       androidWidget.makeActive();
       return true;
@@ -233,7 +233,7 @@ public class SkinJobWindowPeer extends SkinJobComponentPeer<Window>
   @Override
   public void setZOrder(ComponentPeer above) {
     if (above instanceof SkinJobWindowPeer
-        && ((SkinJobWindowPeer) above).androidWidget.isActive()) {
+        && ((SkinJobComponentPeer<Window>) above).androidWidget.isActive()) {
       androidWidget.makeActive();
     }
   }

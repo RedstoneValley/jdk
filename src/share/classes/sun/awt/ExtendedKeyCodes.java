@@ -4,22 +4,20 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class ExtendedKeyCodes {
+public final class ExtendedKeyCodes {
   /**
    * ATTN: These are the readonly hashes with load factor == 1;
    * adding a value, please set the inital capacity to exact number of items
    * or higher.
    */
   // Keycodes declared in KeyEvent.java with corresponding Unicode values.
-  private final static HashMap<Integer, Integer> regularKeyCodesMap = new HashMap<Integer,
-      Integer>(98,
-      1.0f);
+  private static final HashMap<Integer, Integer> regularKeyCodesMap = new HashMap<>(98, 1.0f);
 
   // Keycodes derived from Unicode values. Here should be collected codes
   // for characters appearing on the primary layer of at least one
   // known keyboard layout. For instance, sterling sign is on the primary layer
   // of the Mac Italian layout.
-  private final static HashSet<Integer> extendedKeyCodesSet = new HashSet<Integer>(501, 1.0f);
+  private static final HashSet<Integer> extendedKeyCodesSet = new HashSet<>(501, 1.0f);
 
   static {
     regularKeyCodesMap.put(0x08, KeyEvent.VK_BACK_SPACE);
@@ -624,7 +622,10 @@ public class ExtendedKeyCodes {
     extendedKeyCodesSet.add(0x01000000 + 0x20AB);
   }
 
-  final public static int getExtendedKeyCodeForChar(int c) {
+  private ExtendedKeyCodes() {
+  }
+
+  public static int getExtendedKeyCodeForChar(int c) {
     int uc = Character.toUpperCase(c);
     int lc = Character.toLowerCase(c);
     if (regularKeyCodesMap.containsKey(c)) {
@@ -637,7 +638,8 @@ public class ExtendedKeyCodes {
     lc += 0x01000000;
     if (extendedKeyCodesSet.contains(uc)) {
       return uc;
-    } else if (extendedKeyCodesSet.contains(lc)) {
+    }
+    if (extendedKeyCodesSet.contains(lc)) {
       return lc;
     }
     return KeyEvent.VK_UNDEFINED;

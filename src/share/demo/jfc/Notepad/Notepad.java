@@ -65,10 +65,6 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.undo.*;
 
 /**
  * Sample application using the simple text editor component that
@@ -104,14 +100,14 @@ class Notepad extends JPanel {
   public static final String saveAction = "save";
   public static final String exitAction = "exit";
   public static final String showElementTreeAction = "showElementTree";
-  private final static String EXIT_AFTER_PAINT = "-exit";
+  private static final String EXIT_AFTER_PAINT = "-exit";
   private static final String[] MENUBAR_KEYS = {"file", "edit", "debug"};
   private static final String[] TOOLBAR_KEYS = {"new", "open", "save", "-", "cut", "copy", "paste"};
   private static final String[] FILE_KEYS = {"new", "open", "save", "-", "exit"};
   private static final String[] EDIT_KEYS = {"cut", "copy", "paste", "-", "undo", "redo"};
-  private static final String[] DEBUG_KEYS = {"dump", "showElementTree"};
-  protected static Properties properties;
-  private static ResourceBundle resources;
+  private static final String[] DEBUG_KEYS = {"dump", showElementTreeAction};
+  protected static final Properties properties;
+  static final ResourceBundle resources;
   private static boolean exitAfterFirstPaint;
 
   static {
@@ -126,29 +122,29 @@ class Notepad extends JPanel {
     }
   }
 
+  final JTextComponent editor;
+  private final Map<Object, Action> commands;
+  // --- action implementations -----------------------------------
+  final UndoAction undoAction = new UndoAction();
+  final RedoAction redoAction = new RedoAction();
+  /**
+   * Actions defined by the Notepad class
+   */
+  private final Action[] defaultActions = {
+      new NewAction(), new OpenAction(), new SaveAction(), new ExitAction(),
+      new ShowElementTreeAction(), undoAction, redoAction};
   protected ElementTreePanel elementTreePanel;
   /**
    * Listener for the edits on the current document.
    */
-  protected UndoableEditListener undoHandler = new UndoHandler();
+  protected final UndoableEditListener undoHandler = new UndoHandler();
   /**
    * UndoManager that we add edits to.
    */
-  protected UndoManager undo = new UndoManager();
-  private JTextComponent editor;
-  private Map<Object, Action> commands;
+  protected final UndoManager undo = new UndoManager();
   private JToolBar toolbar;
-  private JComponent status;
-  private JFrame elementTreeFrame;
-  // --- action implementations -----------------------------------
-  private UndoAction undoAction = new UndoAction();
-  private RedoAction redoAction = new RedoAction();
-  /**
-   * Actions defined by the Notepad class
-   */
-  private Action[] defaultActions = {
-      new NewAction(), new OpenAction(), new SaveAction(), new ExitAction(),
-      new ShowElementTreeAction(), undoAction, redoAction};
+  JComponent status;
+  JFrame elementTreeFrame;
 
   @SuppressWarnings("OverridableMethodCallInConstructor")
   Notepad() {
@@ -157,7 +153,7 @@ class Notepad extends JPanel {
     // Trying to set Nimbus look and feel
     try {
       for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
+        if (FileChooserDemo.NIMBUS_LAF_NAME.equals(info.getName())) {
           UIManager.setLookAndFeel(info.getClassName());
           break;
         }
@@ -192,10 +188,10 @@ class Notepad extends JPanel {
 
     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
-    panel.add("North", createToolbar());
-    panel.add("Center", scroller);
-    add("Center", panel);
-    add("South", createStatusbar());
+    panel.add(BorderLayout.NORTH, createToolbar());
+    panel.add(BorderLayout.CENTER, scroller);
+    add(BorderLayout.CENTER, panel);
+    add(BorderLayout.SOUTH, createStatusbar());
   }
 
   public static void main(String[] args) throws Exception {
@@ -204,13 +200,14 @@ class Notepad extends JPanel {
     }
     SwingUtilities.invokeAndWait(new Runnable() {
 
+      @Override
       public void run() {
         JFrame frame = new JFrame();
         frame.setTitle(resources.getString("Title"));
         frame.setBackground(Color.lightGray);
         frame.getContentPane().setLayout(new BorderLayout());
         Notepad notepad = new Notepad();
-        frame.getContentPane().add("Center", notepad);
+        frame.getContentPane().add(BorderLayout.CENTER, notepad);
         frame.setJMenuBar(notepad.createMenubar());
         frame.addWindowListener(new AppCloser());
         frame.pack();
@@ -317,7 +314,7 @@ class Notepad extends JPanel {
   protected URL getResource(String key) {
     String name = getResourceString(key);
     if (name != null) {
-      return this.getClass().getResource(name);
+      return getClass().getResource(name);
     }
     return null;
   }
@@ -347,7 +344,7 @@ class Notepad extends JPanel {
   private Component createToolbar() {
     toolbar = new JToolBar();
     for (String toolKey : getToolBarKeys()) {
-      if (toolKey.equals("-")) {
+      if ("-".equals(toolKey)) {
         toolbar.add(Box.createHorizontalStrut(5));
       } else {
         toolbar.add(createTool(toolKey));
@@ -427,7 +424,7 @@ class Notepad extends JPanel {
   protected JMenu createMenu(String key) {
     JMenu menu = new JMenu(getResourceString(key + labelSuffix));
     for (String itemKey : getItemKeys(key)) {
-      if (itemKey.equals("-")) {
+      if ("-".equals(itemKey)) {
         menu.addSeparator();
       } else {
         JMenuItem mi = createMenuItem(itemKey);
@@ -482,19 +479,19 @@ class Notepad extends JPanel {
 
   private class ActionChangedListener implements PropertyChangeListener {
 
-    JMenuItem menuItem;
+    final JMenuItem menuItem;
 
     ActionChangedListener(JMenuItem mi) {
-      super();
-      this.menuItem = mi;
+      menuItem = mi;
     }
 
+    @Override
     public void propertyChange(PropertyChangeEvent e) {
       String propertyName = e.getPropertyName();
       if (e.getPropertyName().equals(Action.NAME)) {
         String text = (String) e.getNewValue();
         menuItem.setText(text);
-      } else if (propertyName.equals("enabled")) {
+      } else if ("enabled".equals(propertyName)) {
         Boolean enabledState = (Boolean) e.getNewValue();
         menuItem.setEnabled(enabledState.booleanValue());
       }
@@ -505,7 +502,7 @@ class Notepad extends JPanel {
 
     /**
      * Messaged when the Document has created an edit, the edit is
-     * added to <code>undo</code>, an instance of UndoManager.
+     * added to {@code undo}, an instance of UndoManager.
      */
     public void undoableEditHappened(UndoableEditEvent e) {
       undo.addEdit(e.getEdit());
@@ -520,7 +517,6 @@ class Notepad extends JPanel {
   class StatusBar extends JComponent {
 
     public StatusBar() {
-      super();
       setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
     }
 
@@ -616,7 +612,8 @@ class Notepad extends JPanel {
         Thread loader = new FileLoader(f, editor.getDocument());
         loader.start();
       } else {
-        JOptionPane.showMessageDialog(getFrame(),
+        JOptionPane.showMessageDialog(
+            getFrame(),
             "Could not open file: " + f,
             "Error opening file",
             JOptionPane.ERROR_MESSAGE);
@@ -727,8 +724,8 @@ class Notepad extends JPanel {
    */
   class FileLoader extends Thread {
 
-    Document doc;
-    File f;
+    final Document doc;
+    final File f;
 
     FileLoader(File f, Document doc) {
       setPriority(4);
@@ -756,11 +753,13 @@ class Notepad extends JPanel {
           progress.setValue(progress.getValue() + nch);
         }
       } catch (IOException e) {
-        final String msg = e.getMessage();
+        String msg = e.getMessage();
         SwingUtilities.invokeLater(new Runnable() {
 
+          @Override
           public void run() {
-            JOptionPane.showMessageDialog(getFrame(),
+            JOptionPane.showMessageDialog(
+                getFrame(),
                 "Could not open file: " + msg,
                 "Error opening file",
                 JOptionPane.ERROR_MESSAGE);
@@ -779,6 +778,7 @@ class Notepad extends JPanel {
       if (elementTreePanel != null) {
         SwingUtilities.invokeLater(new Runnable() {
 
+          @Override
           public void run() {
             elementTreePanel.setEditor(getEditor());
           }
@@ -792,8 +792,8 @@ class Notepad extends JPanel {
    */
   class FileSaver extends Thread {
 
-    Document doc;
-    File f;
+    final Document doc;
+    final File f;
 
     FileSaver(File f, Document doc) {
       setPriority(4);
@@ -834,11 +834,13 @@ class Notepad extends JPanel {
         out.flush();
         out.close();
       } catch (IOException e) {
-        final String msg = e.getMessage();
+        String msg = e.getMessage();
         SwingUtilities.invokeLater(new Runnable() {
 
+          @Override
           public void run() {
-            JOptionPane.showMessageDialog(getFrame(),
+            JOptionPane.showMessageDialog(
+                getFrame(),
                 "Could not save file: " + msg,
                 "Error saving file",
                 JOptionPane.ERROR_MESSAGE);

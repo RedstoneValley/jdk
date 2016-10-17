@@ -33,13 +33,13 @@
 
 
 import sun.awt.*;
-import java.awt.*;
-import test.java.awt.regtesthelpers.Util;
-import test.java.awt.regtesthelpers.Sysout;
 
-public class EqualKeyCode {
+public final class EqualKeyCode {
 
-    final static String LETTERS = "abcdefghijklmnopqrstuvwxyz";
+    static final String LETTERS = "abcdefghijklmnopqrstuvwxyz";
+
+    private EqualKeyCode() {
+    }
 
     public static void main(String []s) {
         for (int i = 0; i < LETTERS.length(); i++){

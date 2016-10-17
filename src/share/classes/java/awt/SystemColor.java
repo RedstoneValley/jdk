@@ -25,7 +25,6 @@
 package java.awt;
 
 import java.io.ObjectStreamException;
-import java.lang.annotation.Native;
 import sun.awt.AWTAccessor;
 
 /**
@@ -34,21 +33,21 @@ import sun.awt.AWTAccessor;
  * update of the system colors (when the user changes the colors)
  * the actual RGB values of these symbolic colors will also change
  * dynamically.  In order to compare the "current" RGB value of a
- * <code>SystemColor</code> object with a non-symbolic Color object,
- * <code>getRGB</code> should be used rather than <code>equals</code>.
+ * {@code SystemColor} object with a non-symbolic Color object,
+ * {@code getRGB} should be used rather than {@code equals}.
  * <p>
  * Note that the way in which these system colors are applied to GUI objects
  * may vary slightly from platform to platform since GUI objects may be
  * rendered differently on each platform.
  * <p>
- * System color values may also be available through the <code>getDesktopProperty</code>
- * method on <code>java.awt.Toolkit</code>.
+ * System color values may also be available through the {@code getDesktopProperty}
+ * method on {@code java.awt.Toolkit}.
  *
  * @author Carl Quinn
  * @author Amy Fowler
  * @see Toolkit#getDesktopProperty
  */
-public final class SystemColor extends Color implements java.io.Serializable {
+public final class SystemColor extends Color {
 
   /**
    * The array index for the
@@ -56,7 +55,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#desktop
    */
-  @Native public final static int DESKTOP = 0;
+  @Native public static final int DESKTOP = 0;
 
   /**
    * The array index for the
@@ -64,7 +63,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#activeCaption
    */
-  @Native public final static int ACTIVE_CAPTION = 1;
+  @Native public static final int ACTIVE_CAPTION = 1;
 
   /**
    * The array index for the
@@ -72,7 +71,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#activeCaptionText
    */
-  @Native public final static int ACTIVE_CAPTION_TEXT = 2;
+  @Native public static final int ACTIVE_CAPTION_TEXT = 2;
 
   /**
    * The array index for the
@@ -80,7 +79,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#activeCaptionBorder
    */
-  @Native public final static int ACTIVE_CAPTION_BORDER = 3;
+  @Native public static final int ACTIVE_CAPTION_BORDER = 3;
 
   /**
    * The array index for the
@@ -88,7 +87,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#inactiveCaption
    */
-  @Native public final static int INACTIVE_CAPTION = 4;
+  @Native public static final int INACTIVE_CAPTION = 4;
 
   /**
    * The array index for the
@@ -96,7 +95,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#inactiveCaptionText
    */
-  @Native public final static int INACTIVE_CAPTION_TEXT = 5;
+  @Native public static final int INACTIVE_CAPTION_TEXT = 5;
 
   /**
    * The array index for the
@@ -104,7 +103,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#inactiveCaptionBorder
    */
-  @Native public final static int INACTIVE_CAPTION_BORDER = 6;
+  @Native public static final int INACTIVE_CAPTION_BORDER = 6;
 
   /**
    * The array index for the
@@ -112,7 +111,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#window
    */
-  @Native public final static int WINDOW = 7;
+  @Native public static final int WINDOW = 7;
 
   /**
    * The array index for the
@@ -120,7 +119,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#windowBorder
    */
-  @Native public final static int WINDOW_BORDER = 8;
+  @Native public static final int WINDOW_BORDER = 8;
 
   /**
    * The array index for the
@@ -128,7 +127,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#windowText
    */
-  @Native public final static int WINDOW_TEXT = 9;
+  @Native public static final int WINDOW_TEXT = 9;
 
   /**
    * The array index for the
@@ -136,7 +135,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#menu
    */
-  @Native public final static int MENU = 10;
+  @Native public static final int MENU = 10;
 
   /**
    * The array index for the
@@ -144,7 +143,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#menuText
    */
-  @Native public final static int MENU_TEXT = 11;
+  @Native public static final int MENU_TEXT = 11;
 
   /**
    * The array index for the
@@ -152,7 +151,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#text
    */
-  @Native public final static int TEXT = 12;
+  @Native public static final int TEXT = 12;
 
   /**
    * The array index for the
@@ -160,7 +159,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#textText
    */
-  @Native public final static int TEXT_TEXT = 13;
+  @Native public static final int TEXT_TEXT = 13;
 
   /**
    * The array index for the
@@ -168,7 +167,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#textHighlight
    */
-  @Native public final static int TEXT_HIGHLIGHT = 14;
+  @Native public static final int TEXT_HIGHLIGHT = 14;
 
   /**
    * The array index for the
@@ -176,7 +175,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#textHighlightText
    */
-  @Native public final static int TEXT_HIGHLIGHT_TEXT = 15;
+  @Native public static final int TEXT_HIGHLIGHT_TEXT = 15;
 
   /**
    * The array index for the
@@ -184,7 +183,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#textInactiveText
    */
-  @Native public final static int TEXT_INACTIVE_TEXT = 16;
+  @Native public static final int TEXT_INACTIVE_TEXT = 16;
 
   /**
    * The array index for the
@@ -192,7 +191,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#control
    */
-  @Native public final static int CONTROL = 17;
+  @Native public static final int CONTROL = 17;
 
   /**
    * The array index for the
@@ -200,7 +199,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#controlText
    */
-  @Native public final static int CONTROL_TEXT = 18;
+  @Native public static final int CONTROL_TEXT = 18;
 
   /**
    * The array index for the
@@ -208,7 +207,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#controlHighlight
    */
-  @Native public final static int CONTROL_HIGHLIGHT = 19;
+  @Native public static final int CONTROL_HIGHLIGHT = 19;
 
   /**
    * The array index for the
@@ -216,7 +215,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#controlLtHighlight
    */
-  @Native public final static int CONTROL_LT_HIGHLIGHT = 20;
+  @Native public static final int CONTROL_LT_HIGHLIGHT = 20;
 
   /**
    * The array index for the
@@ -224,7 +223,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#controlShadow
    */
-  @Native public final static int CONTROL_SHADOW = 21;
+  @Native public static final int CONTROL_SHADOW = 21;
 
   /**
    * The array index for the
@@ -232,7 +231,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#controlDkShadow
    */
-  @Native public final static int CONTROL_DK_SHADOW = 22;
+  @Native public static final int CONTROL_DK_SHADOW = 22;
 
   /**
    * The array index for the
@@ -240,7 +239,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#scrollbar
    */
-  @Native public final static int SCROLLBAR = 23;
+  @Native public static final int SCROLLBAR = 23;
 
   /**
    * The array index for the
@@ -248,7 +247,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#info
    */
-  @Native public final static int INFO = 24;
+  @Native public static final int INFO = 24;
 
   /**
    * The array index for the
@@ -256,133 +255,133 @@ public final class SystemColor extends Color implements java.io.Serializable {
    *
    * @see SystemColor#infoText
    */
-  @Native public final static int INFO_TEXT = 25;
+  @Native public static final int INFO_TEXT = 25;
 
   /**
    * The number of system colors in the array.
    */
-  @Native public final static int NUM_COLORS = 26;
+  @Native public static final int NUM_COLORS = 26;
   /**
    * The color rendered for the background of the desktop.
    */
-  public final static SystemColor desktop = new SystemColor((byte) DESKTOP);
+  public static final SystemColor desktop = new SystemColor((byte) DESKTOP);
   /**
    * The color rendered for the window-title background of the currently active window.
    */
-  public final static SystemColor activeCaption = new SystemColor((byte) ACTIVE_CAPTION);
+  public static final SystemColor activeCaption = new SystemColor((byte) ACTIVE_CAPTION);
   /**
    * The color rendered for the window-title text of the currently active window.
    */
-  public final static SystemColor activeCaptionText = new SystemColor((byte) ACTIVE_CAPTION_TEXT);
+  public static final SystemColor activeCaptionText = new SystemColor((byte) ACTIVE_CAPTION_TEXT);
   /**
    * The color rendered for the border around the currently active window.
    */
-  public final static SystemColor activeCaptionBorder
+  public static final SystemColor activeCaptionBorder
       = new SystemColor((byte) ACTIVE_CAPTION_BORDER);
   /**
    * The color rendered for the window-title background of inactive windows.
    */
-  public final static SystemColor inactiveCaption = new SystemColor((byte) INACTIVE_CAPTION);
+  public static final SystemColor inactiveCaption = new SystemColor((byte) INACTIVE_CAPTION);
   /**
    * The color rendered for the window-title text of inactive windows.
    */
-  public final static SystemColor inactiveCaptionText
+  public static final SystemColor inactiveCaptionText
       = new SystemColor((byte) INACTIVE_CAPTION_TEXT);
   /**
    * The color rendered for the border around inactive windows.
    */
-  public final static SystemColor inactiveCaptionBorder
+  public static final SystemColor inactiveCaptionBorder
       = new SystemColor((byte) INACTIVE_CAPTION_BORDER);
   /**
    * The color rendered for the background of interior regions inside windows.
    */
-  public final static SystemColor window = new SystemColor((byte) WINDOW);
+  public static final SystemColor window = new SystemColor((byte) WINDOW);
   /**
    * The color rendered for the border around interior regions inside windows.
    */
-  public final static SystemColor windowBorder = new SystemColor((byte) WINDOW_BORDER);
+  public static final SystemColor windowBorder = new SystemColor((byte) WINDOW_BORDER);
   /**
    * The color rendered for text of interior regions inside windows.
    */
-  public final static SystemColor windowText = new SystemColor((byte) WINDOW_TEXT);
+  public static final SystemColor windowText = new SystemColor((byte) WINDOW_TEXT);
   /**
    * The color rendered for the background of menus.
    */
-  public final static SystemColor menu = new SystemColor((byte) MENU);
+  public static final SystemColor menu = new SystemColor((byte) MENU);
   /**
    * The color rendered for the text of menus.
    */
-  public final static SystemColor menuText = new SystemColor((byte) MENU_TEXT);
+  public static final SystemColor menuText = new SystemColor((byte) MENU_TEXT);
   /**
    * The color rendered for the background of text control objects, such as
    * textfields and comboboxes.
    */
-  public final static SystemColor text = new SystemColor((byte) TEXT);
+  public static final SystemColor text = new SystemColor((byte) TEXT);
   /**
    * The color rendered for the text of text control objects, such as textfields
    * and comboboxes.
    */
-  public final static SystemColor textText = new SystemColor((byte) TEXT_TEXT);
+  public static final SystemColor textText = new SystemColor((byte) TEXT_TEXT);
   /**
    * The color rendered for the background of selected items, such as in menus,
    * comboboxes, and text.
    */
-  public final static SystemColor textHighlight = new SystemColor((byte) TEXT_HIGHLIGHT);
+  public static final SystemColor textHighlight = new SystemColor((byte) TEXT_HIGHLIGHT);
   /**
    * The color rendered for the text of selected items, such as in menus, comboboxes,
    * and text.
    */
-  public final static SystemColor textHighlightText = new SystemColor((byte) TEXT_HIGHLIGHT_TEXT);
+  public static final SystemColor textHighlightText = new SystemColor((byte) TEXT_HIGHLIGHT_TEXT);
   /**
    * The color rendered for the text of inactive items, such as in menus.
    */
-  public final static SystemColor textInactiveText = new SystemColor((byte) TEXT_INACTIVE_TEXT);
+  public static final SystemColor textInactiveText = new SystemColor((byte) TEXT_INACTIVE_TEXT);
   /**
    * The color rendered for the background of control panels and control objects,
    * such as pushbuttons.
    */
-  public final static SystemColor control = new SystemColor((byte) CONTROL);
+  public static final SystemColor control = new SystemColor((byte) CONTROL);
   /**
    * The color rendered for the text of control panels and control objects,
    * such as pushbuttons.
    */
-  public final static SystemColor controlText = new SystemColor((byte) CONTROL_TEXT);
+  public static final SystemColor controlText = new SystemColor((byte) CONTROL_TEXT);
   /**
    * The color rendered for light areas of 3D control objects, such as pushbuttons.
-   * This color is typically derived from the <code>control</code> background color
+   * This color is typically derived from the {@code control} background color
    * to provide a 3D effect.
    */
-  public final static SystemColor controlHighlight = new SystemColor((byte) CONTROL_HIGHLIGHT);
+  public static final SystemColor controlHighlight = new SystemColor((byte) CONTROL_HIGHLIGHT);
   /**
    * The color rendered for highlight areas of 3D control objects, such as pushbuttons.
-   * This color is typically derived from the <code>control</code> background color
+   * This color is typically derived from the {@code control} background color
    * to provide a 3D effect.
    */
-  public final static SystemColor controlLtHighlight = new SystemColor((byte) CONTROL_LT_HIGHLIGHT);
+  public static final SystemColor controlLtHighlight = new SystemColor((byte) CONTROL_LT_HIGHLIGHT);
   /**
    * The color rendered for shadow areas of 3D control objects, such as pushbuttons.
-   * This color is typically derived from the <code>control</code> background color
+   * This color is typically derived from the {@code control} background color
    * to provide a 3D effect.
    */
-  public final static SystemColor controlShadow = new SystemColor((byte) CONTROL_SHADOW);
+  public static final SystemColor controlShadow = new SystemColor((byte) CONTROL_SHADOW);
   /**
    * The color rendered for dark shadow areas on 3D control objects, such as pushbuttons.
-   * This color is typically derived from the <code>control</code> background color
+   * This color is typically derived from the {@code control} background color
    * to provide a 3D effect.
    */
-  public final static SystemColor controlDkShadow = new SystemColor((byte) CONTROL_DK_SHADOW);
+  public static final SystemColor controlDkShadow = new SystemColor((byte) CONTROL_DK_SHADOW);
   /**
    * The color rendered for the background of scrollbars.
    */
-  public final static SystemColor scrollbar = new SystemColor((byte) SCROLLBAR);
+  public static final SystemColor scrollbar = new SystemColor((byte) SCROLLBAR);
   /**
    * The color rendered for the background of tooltips or spot help.
    */
-  public final static SystemColor info = new SystemColor((byte) INFO);
+  public static final SystemColor info = new SystemColor((byte) INFO);
   /**
    * The color rendered for the text of tooltips or spot help.
    */
-  public final static SystemColor infoText = new SystemColor((byte) INFO_TEXT);
+  public static final SystemColor infoText = new SystemColor((byte) INFO_TEXT);
   /*
    * JDK 1.1 serialVersionUID.
    */
@@ -395,7 +394,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
      * Should put array initialization above first field that is using
      * SystemColor constructor to initialize.
      */
-  private static int[] systemColors = {
+  private static final int[] systemColors = {
       0xFF005C5C,  // desktop = new Color(0,92,92);
       0xFF000080,  // activeCaption = new Color(0,0,128);
       0xFFFFFFFF,  // activeCaptionText = Color.white;
@@ -423,15 +422,12 @@ public final class SystemColor extends Color implements java.io.Serializable {
       0xFFE0E000,  // info = new Color(224,224,0);
       0xFF000000,  // infoText = Color.black;
   };
-  private static SystemColor systemColorObjects[] = {
-      SystemColor.desktop, SystemColor.activeCaption, SystemColor.activeCaptionText,
-      SystemColor.activeCaptionBorder, SystemColor.inactiveCaption, SystemColor.inactiveCaptionText,
-      SystemColor.inactiveCaptionBorder, SystemColor.window, SystemColor.windowBorder,
-      SystemColor.windowText, SystemColor.menu, SystemColor.menuText, SystemColor.text,
-      SystemColor.textText, SystemColor.textHighlight, SystemColor.textHighlightText,
-      SystemColor.textInactiveText, SystemColor.control, SystemColor.controlText,
-      SystemColor.controlHighlight, SystemColor.controlLtHighlight, SystemColor.controlShadow,
-      SystemColor.controlDkShadow, SystemColor.scrollbar, SystemColor.info, SystemColor.infoText};
+  private static final SystemColor[] systemColorObjects = {
+      desktop, activeCaption, activeCaptionText, activeCaptionBorder, inactiveCaption,
+      inactiveCaptionText, inactiveCaptionBorder, window, windowBorder, windowText, menu, menuText,
+      text, textText, textHighlight, textHighlightText, textInactiveText, control, controlText,
+      controlHighlight, controlLtHighlight, controlShadow, controlDkShadow, scrollbar, info,
+      infoText};
 
   static {
     AWTAccessor.setSystemColorAccessor(SystemColor::updateSystemColors);
@@ -441,7 +437,7 @@ public final class SystemColor extends Color implements java.io.Serializable {
   /*
    * An index into either array of SystemColor objects or values.
    */
-  private transient int index;
+  private final transient int index;
 
   /**
    * Creates a symbolic color that represents an indexed entry into system
@@ -456,25 +452,23 @@ public final class SystemColor extends Color implements java.io.Serializable {
    * Called from {@code <init>} and toolkit to update the above systemColors cache.
    */
   private static void updateSystemColors() {
-    if (!GraphicsEnvironment.isHeadless()) {
-      Toolkit.getDefaultToolkit().loadSystemColors(systemColors);
-    }
+    Toolkit.getDefaultToolkit().loadSystemColors(systemColors);
     for (int i = 0; i < systemColors.length; i++) {
       systemColorObjects[i].value = systemColors[i];
     }
   }
 
   /**
-   * Returns a string representation of this <code>Color</code>'s values.
+   * Returns a string representation of this {@code Color}'s values.
    * This method is intended to be used only for debugging purposes,
    * and the content and format of the returned string may vary between
    * implementations.
-   * The returned string may be empty but may not be <code>null</code>.
+   * The returned string may be empty but may not be {@code null}.
    *
-   * @return a string representation of this <code>Color</code>
+   * @return a string representation of this {@code Color}
    */
   public String toString() {
-    return getClass().getName() + "[i=" + (index) + "]";
+    return getClass().getName() + "[i=" + index + "]";
   }
 
   /**

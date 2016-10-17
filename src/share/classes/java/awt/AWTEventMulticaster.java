@@ -67,7 +67,7 @@ import java.util.EventListener;
  * <p>
  * The following example illustrates how to use this class:
  * <p>
- * <pre><code>
+ * <pre>{@code
  * public myComponent extends Component {
  *     ActionListener actionListener = null;
  *
@@ -85,7 +85,7 @@ import java.util.EventListener;
  *         }
  *     }
  * }
- * </code></pre>
+ * }</pre>
  * The important point to note is the first argument to the {@code
  * add} and {@code remove} methods is the field maintaining the
  * listeners. In addition you must assign the result of the {@code add}
@@ -119,13 +119,9 @@ import java.util.EventListener;
  * first argument, supplying the second argument to the
  * {@code remove(EventListener)} method.
  * </ul>
- * <p>Swing makes use of
- * {@link javax.swing.event.EventListenerList EventListenerList} for
- * similar logic. Refer to it for details.
  *
  * @author John Rose
  * @author Amy Fowler
- * @see javax.swing.event.EventListenerList
  * @since 1.1
  */
 
@@ -139,9 +135,9 @@ public class AWTEventMulticaster
 
   /**
    * Creates an event multicaster instance which chains listener-a
-   * with listener-b. Input parameters <code>a</code> and <code>b</code>
-   * should not be <code>null</code>, though implementations may vary in
-   * choosing whether or not to throw <code>NullPointerException</code>
+   * with listener-b. Input parameters {@code a} and {@code b}
+   * should not be {@code null}, though implementations may vary in
+   * choosing whether or not to throw {@code NullPointerException}
    * in that case.
    *
    * @param a listener-a
@@ -581,6 +577,7 @@ public class AWTEventMulticaster
       ((AWTEventMulticaster) l).saveInternal(s, k);
     } else if (l instanceof Serializable) {
       s.writeObject(k);
+      //noinspection NonSerializableObjectPassedToObjectStream
       s.writeObject(l);
     }
   }
@@ -626,29 +623,29 @@ public class AWTEventMulticaster
   /**
    * Returns an array of all the objects chained as
    * <code><em>Foo</em>Listener</code>s by the specified
-   * <code>java.util.EventListener</code>.
+   * {@code java.util.EventListener}.
    * <code><em>Foo</em>Listener</code>s are chained by the
-   * <code>AWTEventMulticaster</code> using the
+   * {@code AWTEventMulticaster} using the
    * <code>add<em>Foo</em>Listener</code> method.
-   * If a <code>null</code> listener is specified, this method returns an
+   * If a {@code null} listener is specified, this method returns an
    * empty array. If the specified listener is not an instance of
-   * <code>AWTEventMulticaster</code>, this method returns an array which
+   * {@code AWTEventMulticaster}, this method returns an array which
    * contains only the specified listener. If no such listeners are chained,
    * this method returns an empty array.
    *
-   * @param l            the specified <code>java.util.EventListener</code>
+   * @param l            the specified {@code java.util.EventListener}
    * @param listenerType the type of listeners requested; this parameter
    *                     should specify an interface that descends from
-   *                     <code>java.util.EventListener</code>
+   *                     {@code java.util.EventListener}
    * @return an array of all objects chained as
    * <code><em>Foo</em>Listener</code>s by the specified multicast
    * listener, or an empty array if no such listeners have been
    * chained by the specified multicast listener
    * @throws NullPointerException if the specified
    *                              {@code listenertype} parameter is {@code null}
-   * @throws ClassCastException   if <code>listenerType</code>
+   * @throws ClassCastException   if {@code listenerType}
    *                              doesn't specify a class or interface that implements
-   *                              <code>java.util.EventListener</code>
+   *                              {@code java.util.EventListener}
    * @since 1.4
    */
   @SuppressWarnings("unchecked")
@@ -698,6 +695,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentResized(ComponentEvent e) {
     ((ComponentListener) a).componentResized(e);
     ((ComponentListener) b).componentResized(e);
@@ -709,6 +707,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentMoved(ComponentEvent e) {
     ((ComponentListener) a).componentMoved(e);
     ((ComponentListener) b).componentMoved(e);
@@ -720,6 +719,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentShown(ComponentEvent e) {
     ((ComponentListener) a).componentShown(e);
     ((ComponentListener) b).componentShown(e);
@@ -731,6 +731,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentHidden(ComponentEvent e) {
     ((ComponentListener) a).componentHidden(e);
     ((ComponentListener) b).componentHidden(e);
@@ -742,6 +743,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentAdded(ContainerEvent e) {
     ((ContainerListener) a).componentAdded(e);
     ((ContainerListener) b).componentAdded(e);
@@ -753,6 +755,7 @@ public class AWTEventMulticaster
    *
    * @param e the component event
    */
+  @Override
   public void componentRemoved(ContainerEvent e) {
     ((ContainerListener) a).componentRemoved(e);
     ((ContainerListener) b).componentRemoved(e);
@@ -764,6 +767,7 @@ public class AWTEventMulticaster
    *
    * @param e the focus event
    */
+  @Override
   public void focusGained(FocusEvent e) {
     ((FocusListener) a).focusGained(e);
     ((FocusListener) b).focusGained(e);
@@ -775,6 +779,7 @@ public class AWTEventMulticaster
    *
    * @param e the focus event
    */
+  @Override
   public void focusLost(FocusEvent e) {
     ((FocusListener) a).focusLost(e);
     ((FocusListener) b).focusLost(e);
@@ -786,6 +791,7 @@ public class AWTEventMulticaster
    *
    * @param e the key event
    */
+  @Override
   public void keyTyped(KeyEvent e) {
     ((KeyListener) a).keyTyped(e);
     ((KeyListener) b).keyTyped(e);
@@ -797,6 +803,7 @@ public class AWTEventMulticaster
    *
    * @param e the key event
    */
+  @Override
   public void keyPressed(KeyEvent e) {
     ((KeyListener) a).keyPressed(e);
     ((KeyListener) b).keyPressed(e);
@@ -808,6 +815,7 @@ public class AWTEventMulticaster
    *
    * @param e the key event
    */
+  @Override
   public void keyReleased(KeyEvent e) {
     ((KeyListener) a).keyReleased(e);
     ((KeyListener) b).keyReleased(e);
@@ -819,6 +827,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseClicked(MouseEvent e) {
     ((MouseListener) a).mouseClicked(e);
     ((MouseListener) b).mouseClicked(e);
@@ -830,6 +839,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mousePressed(MouseEvent e) {
     ((MouseListener) a).mousePressed(e);
     ((MouseListener) b).mousePressed(e);
@@ -841,6 +851,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseReleased(MouseEvent e) {
     ((MouseListener) a).mouseReleased(e);
     ((MouseListener) b).mouseReleased(e);
@@ -852,6 +863,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseEntered(MouseEvent e) {
     ((MouseListener) a).mouseEntered(e);
     ((MouseListener) b).mouseEntered(e);
@@ -863,6 +875,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseExited(MouseEvent e) {
     ((MouseListener) a).mouseExited(e);
     ((MouseListener) b).mouseExited(e);
@@ -874,6 +887,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseDragged(MouseEvent e) {
     ((MouseMotionListener) a).mouseDragged(e);
     ((MouseMotionListener) b).mouseDragged(e);
@@ -885,6 +899,7 @@ public class AWTEventMulticaster
    *
    * @param e the mouse event
    */
+  @Override
   public void mouseMoved(MouseEvent e) {
     ((MouseMotionListener) a).mouseMoved(e);
     ((MouseMotionListener) b).mouseMoved(e);
@@ -896,6 +911,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowOpened(WindowEvent e) {
     ((WindowListener) a).windowOpened(e);
     ((WindowListener) b).windowOpened(e);
@@ -907,6 +923,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowClosing(WindowEvent e) {
     ((WindowListener) a).windowClosing(e);
     ((WindowListener) b).windowClosing(e);
@@ -918,6 +935,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowClosed(WindowEvent e) {
     ((WindowListener) a).windowClosed(e);
     ((WindowListener) b).windowClosed(e);
@@ -929,6 +947,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowIconified(WindowEvent e) {
     ((WindowListener) a).windowIconified(e);
     ((WindowListener) b).windowIconified(e);
@@ -940,6 +959,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowDeiconified(WindowEvent e) {
     ((WindowListener) a).windowDeiconified(e);
     ((WindowListener) b).windowDeiconified(e);
@@ -951,6 +971,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowActivated(WindowEvent e) {
     ((WindowListener) a).windowActivated(e);
     ((WindowListener) b).windowActivated(e);
@@ -962,6 +983,7 @@ public class AWTEventMulticaster
    *
    * @param e the window event
    */
+  @Override
   public void windowDeactivated(WindowEvent e) {
     ((WindowListener) a).windowDeactivated(e);
     ((WindowListener) b).windowDeactivated(e);
@@ -974,6 +996,7 @@ public class AWTEventMulticaster
    * @param e the window event
    * @since 1.4
    */
+  @Override
   public void windowStateChanged(WindowEvent e) {
     ((WindowStateListener) a).windowStateChanged(e);
     ((WindowStateListener) b).windowStateChanged(e);
@@ -986,6 +1009,7 @@ public class AWTEventMulticaster
    * @param e the window event
    * @since 1.4
    */
+  @Override
   public void windowGainedFocus(WindowEvent e) {
     ((WindowFocusListener) a).windowGainedFocus(e);
     ((WindowFocusListener) b).windowGainedFocus(e);
@@ -998,6 +1022,7 @@ public class AWTEventMulticaster
    * @param e the window event
    * @since 1.4
    */
+  @Override
   public void windowLostFocus(WindowEvent e) {
     ((WindowFocusListener) a).windowLostFocus(e);
     ((WindowFocusListener) b).windowLostFocus(e);
@@ -1009,6 +1034,7 @@ public class AWTEventMulticaster
    *
    * @param e the action event
    */
+  @Override
   public void actionPerformed(ActionEvent e) {
     ((ActionListener) a).actionPerformed(e);
     ((ActionListener) b).actionPerformed(e);
@@ -1020,6 +1046,7 @@ public class AWTEventMulticaster
    *
    * @param e the item event
    */
+  @Override
   public void itemStateChanged(ItemEvent e) {
     ((ItemListener) a).itemStateChanged(e);
     ((ItemListener) b).itemStateChanged(e);
@@ -1031,11 +1058,13 @@ public class AWTEventMulticaster
    *
    * @param e the adjustment event
    */
+  @Override
   public void adjustmentValueChanged(AdjustmentEvent e) {
     ((AdjustmentListener) a).adjustmentValueChanged(e);
     ((AdjustmentListener) b).adjustmentValueChanged(e);
   }
 
+  @Override
   public void textValueChanged(TextEvent e) {
     ((TextListener) a).textValueChanged(e);
     ((TextListener) b).textValueChanged(e);
@@ -1047,6 +1076,7 @@ public class AWTEventMulticaster
    *
    * @param e the item event
    */
+  @Override
   public void inputMethodTextChanged(InputMethodEvent e) {
     ((InputMethodListener) a).inputMethodTextChanged(e);
     ((InputMethodListener) b).inputMethodTextChanged(e);
@@ -1058,6 +1088,7 @@ public class AWTEventMulticaster
    *
    * @param e the item event
    */
+  @Override
   public void caretPositionChanged(InputMethodEvent e) {
     ((InputMethodListener) a).caretPositionChanged(e);
     ((InputMethodListener) b).caretPositionChanged(e);
@@ -1074,6 +1105,7 @@ public class AWTEventMulticaster
    * @param e the item event
    * @since 1.3
    */
+  @Override
   public void hierarchyChanged(HierarchyEvent e) {
     ((HierarchyListener) a).hierarchyChanged(e);
     ((HierarchyListener) b).hierarchyChanged(e);
@@ -1086,6 +1118,7 @@ public class AWTEventMulticaster
    * @param e the item event
    * @since 1.3
    */
+  @Override
   public void ancestorMoved(HierarchyEvent e) {
     ((HierarchyBoundsListener) a).ancestorMoved(e);
     ((HierarchyBoundsListener) b).ancestorMoved(e);
@@ -1098,6 +1131,7 @@ public class AWTEventMulticaster
    * @param e the item event
    * @since 1.3
    */
+  @Override
   public void ancestorResized(HierarchyEvent e) {
     ((HierarchyBoundsListener) a).ancestorResized(e);
     ((HierarchyBoundsListener) b).ancestorResized(e);
@@ -1110,6 +1144,7 @@ public class AWTEventMulticaster
    * @param e the mouse event
    * @since 1.4
    */
+  @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
     ((MouseWheelListener) a).mouseWheelMoved(e);
     ((MouseWheelListener) b).mouseWheelMoved(e);
@@ -1120,6 +1155,7 @@ public class AWTEventMulticaster
       ((AWTEventMulticaster) a).saveInternal(s, k);
     } else if (a instanceof Serializable) {
       s.writeObject(k);
+      //noinspection NonSerializableObjectPassedToObjectStream
       s.writeObject(a);
     }
 
@@ -1127,6 +1163,7 @@ public class AWTEventMulticaster
       ((AWTEventMulticaster) b).saveInternal(s, k);
     } else if (b instanceof Serializable) {
       s.writeObject(k);
+      //noinspection NonSerializableObjectPassedToObjectStream
       s.writeObject(b);
     }
   }

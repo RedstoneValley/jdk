@@ -36,21 +36,16 @@ import java.awt.event.*;
 import java.util.Vector;
 import java.io.*;
 
-public class RenderClipTest {
+public final class RenderClipTest {
+    private RenderClipTest() {
+    }
+
     public static double randDblCoord() {
         return Math.random()*60 - 10;
     }
 
-    public static float randFltCoord() {
-        return (float) randDblCoord();
-    }
-
     public static int randIntCoord() {
         return (int) Math.round(randDblCoord());
-    }
-
-    public static int randInt(int n) {
-        return ((int) (Math.random() * (n*4))) >> 2;
     }
 
     static int numtests;
@@ -78,22 +73,58 @@ public class RenderClipTest {
     static Graphics2D grefrender;
     static Graphics2D gtstrender;
 
-    public static abstract class AnnotatedRenderOp {
+    public abstract static class AnnotatedRenderOp {
         public static AnnotatedRenderOp parse(String str) {
             AnnotatedRenderOp ar;
-            if (((ar = Cubic.tryparse(str)) != null) ||
-                ((ar = Quad.tryparse(str)) != null) ||
-                ((ar = Poly.tryparse(str)) != null) ||
-                ((ar = Path.tryparse(str)) != null) ||
-                ((ar = Rect.tryparse(str)) != null) ||
-                ((ar = Line.tryparse(str)) != null) ||
-                ((ar = RectMethod.tryparse(str)) != null) ||
-                ((ar = LineMethod.tryparse(str)) != null))
+            if ((ar = Cubic.tryparse(str)) != null ||
+                (ar = Quad.tryparse(str)) != null ||
+                (ar = Poly.tryparse(str)) != null ||
+                (ar = Path.tryparse(str)) != null ||
+                (ar = Rect.tryparse(str)) != null ||
+                (ar = Line.tryparse(str)) != null ||
+                (ar = RectMethod.tryparse(str)) != null ||
+                (ar = tryparse(str)) != null)
             {
                 return ar;
             }
             System.err.println("Unable to parse shape: "+str);
             return null;
+        }
+
+        public static LineMethod tryparse(String str) {
+            str = str.trim();
+            if (!str.startsWith("LineMethod(")) {
+                return null;
+            }
+            str = str.substring(11);
+            int[] coords = new int[4];
+            boolean foundparen = false;
+            for (int i = 0; i < coords.length; i++) {
+                int index = str.indexOf(",");
+                if (index < 0) {
+                    if (i < coords.length-1) {
+                        return null;
+                    }
+                    index = str.indexOf(")");
+                    if (index < 0) {
+                        return null;
+                    }
+                    foundparen = true;
+                }
+                String num = str.substring(0, index).trim();
+                try {
+                    coords[i] = Integer.parseInt(num);
+                } catch (NumberFormatException nfe) {
+                    return null;
+                }
+                str = str.substring(index+1);
+            }
+            if (!foundparen || !str.isEmpty()) {
+                return null;
+            }
+            LineMethod lm = new LineMethod();
+            lm.line = coords;
+            return lm;
         }
 
         public abstract void randomize();
@@ -103,13 +134,15 @@ public class RenderClipTest {
         public abstract void draw(Graphics2D g2d);
     }
 
-    public static abstract class AnnotatedShapeOp extends AnnotatedRenderOp {
+    public abstract static class AnnotatedShapeOp extends AnnotatedRenderOp {
         public abstract Shape getShape();
 
+        @Override
         public void fill(Graphics2D g2d) {
             g2d.fill(getShape());
         }
 
+        @Override
         public void draw(Graphics2D g2d) {
             g2d.draw(getShape());
         }
@@ -157,78 +190,82 @@ public class RenderClipTest {
                            "(default 1000)");
         System.err.println("    -strict       All failures are important");
         System.err.println("    -usage        Print this help, then exit");
-        System.exit((err != null) ? -1 : 0);
+        System.exit(err != null ? -1 : 0);
     }
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         boolean readTests = false;
         String readFile = null;
         boolean rectsuite = false;
         int count = 1000;
         lw = 1.0f;
         rot = 0.0;
-        Vector<AnnotatedRenderOp> testOps = new Vector<AnnotatedRenderOp>();
+        Vector<AnnotatedRenderOp> testOps = new Vector<>();
         for (int i = 0; i < argv.length; i++) {
             String arg = argv[i].toLowerCase();
-            if (arg.equals("-aa")) {
+            if ("-aa".equals(arg)) {
                 useAA = true;
-            } else if (arg.equals("-pure")) {
+            } else if ("-pure".equals(arg)) {
                 strokePure = true;
-            } else if (arg.equals("-fill")) {
+            } else if ("-fill".equals(arg)) {
                 testFill = true;
-            } else if (arg.equals("-draw")) {
+            } else if ("-draw".equals(arg)) {
                 testDraw = true;
-            } else if (arg.equals("-lw")) {
+            } else if ("-lw".equals(arg)) {
                 if (i+1 >= argv.length) {
                     usage("Missing argument: "+argv[i]);
                 }
-                lw = Float.parseFloat(argv[++i]);
-            } else if (arg.equals("-rot")) {
+                ++i;
+                lw = Float.parseFloat(argv[i]);
+            } else if ("-rot".equals(arg)) {
                 if (i+1 >= argv.length) {
                     usage("Missing argument: "+argv[i]);
                 }
-                rot = Double.parseDouble(argv[++i]);
-            } else if (arg.equals("-cubic")) {
+                ++i;
+                rot = Double.parseDouble(argv[i]);
+            } else if ("-cubic".equals(arg)) {
                 testOps.add(new Cubic());
-            } else if (arg.equals("-quad")) {
+            } else if ("-quad".equals(arg)) {
                 testOps.add(new Quad());
-            } else if (arg.equals("-poly")) {
+            } else if ("-poly".equals(arg)) {
                 testOps.add(new Poly());
-            } else if (arg.equals("-path")) {
+            } else if ("-path".equals(arg)) {
                 testOps.add(new Path());
-            } else if (arg.equals("-rect")) {
+            } else if ("-rect".equals(arg)) {
                 testOps.add(new Rect());
-            } else if (arg.equals("-line")) {
+            } else if ("-line".equals(arg)) {
                 testOps.add(new Line());
-            } else if (arg.equals("-rectmethod")) {
+            } else if ("-rectmethod".equals(arg)) {
                 testOps.add(new RectMethod());
-            } else if (arg.equals("-linemethod")) {
+            } else if ("-linemethod".equals(arg)) {
                 testOps.add(new LineMethod());
-            } else if (arg.equals("-verbose")) {
+            } else if ("-verbose".equals(arg)) {
                 verbose = true;
-            } else if (arg.equals("-strict")) {
+            } else if ("-strict".equals(arg)) {
                 strict = true;
-            } else if (arg.equals("-silent")) {
+            } else if ("-silent".equals(arg)) {
                 silent = true;
-            } else if (arg.equals("-showerr")) {
+            } else if ("-showerr".equals(arg)) {
                 showErrors = true;
-            } else if (arg.equals("-readfile")) {
+            } else if ("-readfile".equals(arg)) {
                 if (i+1 >= argv.length) {
                     usage("Missing argument: "+argv[i]);
                 }
                 readTests = true;
-                readFile = argv[++i];
-            } else if (arg.equals("-read")) {
+                ++i;
+                readFile = argv[i];
+            } else if ("-read".equals(arg)) {
                 readTests = true;
                 readFile = null;
-            } else if (arg.equals("-rectsuite")) {
+            } else if ("-rectsuite".equals(arg)) {
                 rectsuite = true;
-            } else if (arg.equals("-count")) {
+            } else if ("-count".equals(arg)) {
                 if (i+1 >= argv.length) {
                     usage("Missing argument: "+argv[i]);
                 }
-                count = Integer.parseInt(argv[++i]);
-            } else if (arg.equals("-usage")) {
+                ++i;
+                count = Integer.parseInt(argv[i]);
+            } else if ("-usage".equals(arg)) {
                 usage(null);
             } else {
                 usage("Unknown argument: "+argv[i]);
@@ -238,7 +275,7 @@ public class RenderClipTest {
             if (rectsuite || testDraw || testFill ||
                 useAA || strokePure ||
                 lw != 1.0f || rot != 0.0 ||
-                testOps.size() > 0)
+                !testOps.isEmpty())
             {
                 usage("Should not specify test types with -read options");
             }
@@ -246,7 +283,7 @@ public class RenderClipTest {
             if (testDraw || testFill ||
                 useAA || strokePure ||
                 lw != 1.0f || rot != 0.0 ||
-                testOps.size() > 0)
+                !testOps.isEmpty())
             {
                 usage("Should not specify test types with -rectsuite option");
             }
@@ -255,7 +292,7 @@ public class RenderClipTest {
                 usage("No work: Must specify one or both of "+
                       "-fill or -draw");
             }
-            if (testOps.size() == 0) {
+            if (testOps.isEmpty()) {
                 usage("No work: Must specify one or more of "+
                       "-rect[method], -line[method], "+
                       "-cubic, -quad, -poly, or -path");
@@ -315,34 +352,26 @@ public class RenderClipTest {
             throw new RuntimeException(critical+" tests had critical errors");
         }
         System.out.println("No tests had critical errors");
-        return (numerrors+totalfailures);
+        return numerrors+totalfailures;
     }
 
     public static void runRectSuite(int count) {
-        AnnotatedRenderOp ops[] = {
-            new Rect(),
-            new RectMethod(),
-            new Line(),
-            new LineMethod(),
-        };
+        AnnotatedRenderOp[] ops = {
+            new Rect(), new RectMethod(), new Line(), new LineMethod(),};
         // Sometimes different fill algorithms are chosen for
         // thin and wide line modes, make sure we test both...
-        float filllinewidths[] = { 0.0f, 2.0f };
-        float drawlinewidths[] = { 0.0f, 0.5f, 1.0f,
-                                   2.0f, 2.5f,
-                                   5.0f, 5.3f };
-        double rotations[] = { 0.0, 15.0, 90.0,
-                               135.0, 180.0,
-                               200.0, 270.0,
-                               300.0};
+        float[] filllinewidths = {0.0f, 2.0f};
+        float[] drawlinewidths = {
+            0.0f, 0.5f, 1.0f, 2.0f, 2.5f, 5.0f, 5.3f};
+        double[] rotations = {
+            0.0, 15.0, 90.0, 135.0, 180.0, 200.0, 270.0, 300.0};
         for (AnnotatedRenderOp ar: ops) {
             for (double r: rotations) {
                 rot = r;
                 for (int i = 0; i < 8; i++) {
-                    float linewidths[];
+                    float[] linewidths;
                     if ((i & 1) == 0) {
-                        if ((ar instanceof Line) ||
-                            (ar instanceof LineMethod))
+                        if (ar instanceof Line || ar instanceof LineMethod)
                         {
                             continue;
                         }
@@ -354,8 +383,8 @@ public class RenderClipTest {
                         testDraw = true;
                         linewidths = drawlinewidths;
                     }
-                    useAA = ((i & 2) != 0);
-                    strokePure = ((i & 4) != 0);
+                    useAA = (i & 2) != 0;
+                    strokePure = (i & 4) != 0;
                     for (float w : linewidths) {
                         lw = w;
                         runSuiteTests(ar, count);
@@ -563,14 +592,14 @@ public class RenderClipTest {
                                -r.getSampleModelTranslateY());
     }
 
-    final static int opaque = 0xff000000;
-    final static int whitergb = Color.white.getRGB();
+    static final int opaque = 0xff000000;
+    static final int whitergb = Color.white.getRGB();
 
-    public static final int maxdiff(int rgb1, int rgb2) {
+    public static int maxdiff(int rgb1, int rgb2) {
         int maxd = 0;
         for (int i = 0; i < 32; i += 8) {
-            int c1 = (rgb1 >> i) & 0xff;
-            int c2 = (rgb2 >> i) & 0xff;
+            int c1 = rgb1 >> i & 0xff;
+            int c2 = rgb2 >> i & 0xff;
             int d = Math.abs(c1-c2);
             if (maxd < d) {
                 maxd = d;
@@ -583,8 +612,8 @@ public class RenderClipTest {
                              AnnotatedRenderOp ar, boolean wasfill)
     {
         numtests++;
-        int dataref[] = getData(imgref);
-        int datatst[] = getData(imgtst);
+        int[] dataref = getData(imgref);
+        int[] datatst = getData(imgtst);
         int scanref = getScan(imgref);
         int scantst = getScan(imgtst);
         int offref = getOffset(imgref);
@@ -633,9 +662,7 @@ public class RenderClipTest {
               10, 10, 30, 30);
     }
 
-    public static boolean check(AnnotatedRenderOp ar, boolean wasfill,
-                                int dataref[], int scanref, int offref,
-                                int datatst[], int scantst, int offtst,
+    public static boolean check(AnnotatedRenderOp ar, boolean wasfill, int[] dataref, int scanref, int offref, int[] datatst, int scantst, int offtst,
                                 int x0, int y0, int x1, int y1)
     {
         offref += scanref * y0;
@@ -651,13 +678,13 @@ public class RenderClipTest {
                 if (dataref == null) {
                     /* Outside of clip, must be white, no error tolerance */
                     rgbref = whitergb;
-                    failed = (rgbtst != rgbref);
+                    failed = rgbtst != rgbref;
                     reason = "stray pixel rendered outside of clip";
                 } else {
                     /* Inside of clip, check for maxerr delta in components */
                     rgbref = dataref[offref+x] | opaque;
-                    failed = (rgbref != rgbtst &&
-                              maxdiff(rgbref, rgbtst) > maxerr);
+                    failed = rgbref != rgbtst &&
+                              maxdiff(rgbref, rgbtst) > maxerr;
                     reason = "different pixel rendered inside clip";
                 }
                 if (failed) {
@@ -675,10 +702,18 @@ public class RenderClipTest {
                                            " != "+Integer.toHexString(rgbtst)+
                                            "]");
                         System.out.print(wasfill ? "Filled " : "Stroked ");
-                        if (useAA) System.out.print("AA ");
-                        if (strokePure) System.out.print("Pure ");
-                        if (lw != 1) System.out.print("Lw="+lw+" ");
-                        if (rot != 0) System.out.print("Rot="+rot+" ");
+                        if (useAA) {
+                            System.out.print("AA ");
+                        }
+                        if (strokePure) {
+                            System.out.print("Pure ");
+                        }
+                        if (lw != 1) {
+                            System.out.print("Lw=" + lw + " ");
+                        }
+                        if (rot != 0) {
+                            System.out.print("Rot=" + rot + " ");
+                        }
                         System.out.println(ar);
                     }
                     if (showErrors) {
@@ -710,7 +745,7 @@ public class RenderClipTest {
                 return null;
             }
             str = str.substring(6);
-            double coords[] = new double[8];
+            double[] coords = new double[8];
             boolean foundparen = false;
             for (int i = 0; i < coords.length; i++) {
                 int index = str.indexOf(",");
@@ -732,7 +767,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(index+1);
             }
-            if (!foundparen || str.length() > 0) {
+            if (!foundparen || !str.isEmpty()) {
                 return null;
             }
             Cubic c = new Cubic();
@@ -743,8 +778,9 @@ public class RenderClipTest {
             return c;
         }
 
-        private CubicCurve2D cubic = new CubicCurve2D.Double();
+        private final CubicCurve2D cubic = new CubicCurve2D.Double();
 
+        @Override
         public void randomize() {
             cubic.setCurve(randDblCoord(), randDblCoord(),
                            randDblCoord(), randDblCoord(),
@@ -752,21 +788,22 @@ public class RenderClipTest {
                            randDblCoord(), randDblCoord());
         }
 
+        @Override
         public Shape getShape() {
             return cubic;
         }
 
         public String toString() {
-            return ("Cubic("+
-                    cubic.getX1()+", "+
-                    cubic.getY1()+", "+
-                    cubic.getCtrlX1()+", "+
-                    cubic.getCtrlY1()+", "+
-                    cubic.getCtrlX2()+", "+
-                    cubic.getCtrlY2()+", "+
-                    cubic.getX2()+", "+
-                    cubic.getY2()
-                    +")");
+            return "Cubic("+
+                cubic.getX1()+", "+
+                cubic.getY1()+", "+
+                cubic.getCtrlX1()+", "+
+                cubic.getCtrlY1()+", "+
+                cubic.getCtrlX2()+", "+
+                cubic.getCtrlY2()+", "+
+                cubic.getX2()+", "+
+                cubic.getY2()
+                    +")";
         }
     }
 
@@ -777,7 +814,7 @@ public class RenderClipTest {
                 return null;
             }
             str = str.substring(5);
-            double coords[] = new double[6];
+            double[] coords = new double[6];
             boolean foundparen = false;
             for (int i = 0; i < coords.length; i++) {
                 int index = str.indexOf(",");
@@ -799,7 +836,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(index+1);
             }
-            if (!foundparen || str.length() > 0) {
+            if (!foundparen || !str.isEmpty()) {
                 return null;
             }
             Quad c = new Quad();
@@ -809,27 +846,29 @@ public class RenderClipTest {
             return c;
         }
 
-        private QuadCurve2D quad = new QuadCurve2D.Double();
+        private final QuadCurve2D quad = new QuadCurve2D.Double();
 
+        @Override
         public void randomize() {
             quad.setCurve(randDblCoord(), randDblCoord(),
                           randDblCoord(), randDblCoord(),
                           randDblCoord(), randDblCoord());
         }
 
+        @Override
         public Shape getShape() {
             return quad;
         }
 
         public String toString() {
-            return ("Quad("+
-                    quad.getX1()+", "+
-                    quad.getY1()+", "+
-                    quad.getCtrlX()+", "+
-                    quad.getCtrlY()+", "+
-                    quad.getX2()+", "+
-                    quad.getY2()
-                    +")");
+            return "Quad("+
+                quad.getX1()+", "+
+                quad.getY1()+", "+
+                quad.getCtrlX()+", "+
+                quad.getCtrlY()+", "+
+                quad.getX2()+", "+
+                quad.getY2()
+                    +")";
         }
     }
 
@@ -844,18 +883,18 @@ public class RenderClipTest {
             while (true) {
                 int x, y;
                 str = str.trim();
-                if (str.startsWith(")")) {
+                if (str.length() > 0 && str.charAt(0) == ')') {
                     str = str.substring(1);
                     break;
                 }
                 if (p.npoints > 0) {
-                    if (str.startsWith(",")) {
+                    if (str.length() > 0 && str.charAt(0) == ',') {
                         str = str.substring(2).trim();
                     } else {
                         return null;
                     }
                 }
-                if (str.startsWith("[")) {
+                if (str.length() > 0 && str.charAt(0) == '[') {
                     str = str.substring(1);
                 } else {
                     return null;
@@ -884,7 +923,7 @@ public class RenderClipTest {
                 str = str.substring(index+1);
                 p.addPoint(x, y);
             }
-            if (str.length() > 0) {
+            if (!str.isEmpty()) {
                 return null;
             }
             if (p.npoints < 3) {
@@ -893,16 +932,17 @@ public class RenderClipTest {
             return new Poly(p);
         }
 
-        private Polygon poly;
+        private final Polygon poly;
 
         public Poly() {
-            this.poly = new Polygon();
+            poly = new Polygon();
         }
 
         private Poly(Polygon p) {
-            this.poly = p;
+            poly = p;
         }
 
+        @Override
         public void randomize() {
             poly.reset();
             poly.addPoint(randIntCoord(), randIntCoord());
@@ -912,12 +952,13 @@ public class RenderClipTest {
             poly.addPoint(randIntCoord(), randIntCoord());
         }
 
+        @Override
         public Shape getShape() {
             return poly;
         }
 
         public String toString() {
-            StringBuffer sb = new StringBuffer(100);
+            StringBuilder sb = new StringBuilder(100);
             sb.append("Poly(");
             for (int i = 0; i < poly.npoints; i++) {
                 if (i != 0) {
@@ -942,13 +983,13 @@ public class RenderClipTest {
             }
             str = str.substring(5);
             GeneralPath gp = new GeneralPath();
-            float coords[] = new float[6];
+            float[] coords = new float[6];
             int numsegs = 0;
             while (true) {
                 int type;
                 int n;
                 str = str.trim();
-                if (str.startsWith(")")) {
+                if (str.length() > 0 && str.charAt(0) == ')') {
                     str = str.substring(1);
                     break;
                 }
@@ -972,7 +1013,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(2);
                 if (n == 0) {
-                    if (str.startsWith("]")) {
+                    if (str.length() > 0 && str.charAt(0) == ']') {
                         str = str.substring(1);
                     } else {
                         return null;
@@ -980,11 +1021,7 @@ public class RenderClipTest {
                 }
                 for (int i = 0; i < n; i++) {
                     int index;
-                    if (i < n-1) {
-                        index = str.indexOf(",");
-                    } else {
-                        index = str.indexOf("]");
-                    }
+                    index = i < n - 1 ? str.indexOf(",") : str.indexOf("]");
                     if (index < 0) {
                         return null;
                     }
@@ -1018,7 +1055,7 @@ public class RenderClipTest {
                 }
                 numsegs++;
             }
-            if (str.length() > 0) {
+            if (!str.isEmpty()) {
                 return null;
             }
             if (numsegs < 2) {
@@ -1027,16 +1064,25 @@ public class RenderClipTest {
             return new Path(gp);
         }
 
-        private GeneralPath path;
+        private final GeneralPath path;
 
         public Path() {
-            this.path = new GeneralPath();
+            path = new GeneralPath();
         }
 
         private Path(GeneralPath gp) {
-            this.path = gp;
+            path = gp;
         }
 
+        public static int randInt(int n) {
+            return (int) (Math.random() * n*4) >> 2;
+        }
+
+        public static float randFltCoord() {
+            return (float) randDblCoord();
+        }
+
+        @Override
         public void randomize() {
             path.reset();
             path.moveTo(randFltCoord(), randFltCoord());
@@ -1064,15 +1110,16 @@ public class RenderClipTest {
             }
         }
 
+        @Override
         public Shape getShape() {
             return path;
         }
 
         public String toString() {
-            StringBuffer sb = new StringBuffer(100);
+            StringBuilder sb = new StringBuilder(100);
             sb.append("Path(");
             PathIterator pi = path.getPathIterator(null);
-            float coords[] = new float[6];
+            float[] coords = new float[6];
             boolean first = true;
             while (!pi.isDone()) {
                 int n;
@@ -1124,7 +1171,7 @@ public class RenderClipTest {
                 return null;
             }
             str = str.substring(5);
-            double coords[] = new double[4];
+            double[] coords = new double[4];
             boolean foundparen = false;
             for (int i = 0; i < coords.length; i++) {
                 int index = str.indexOf(",");
@@ -1146,7 +1193,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(index+1);
             }
-            if (!foundparen || str.length() > 0) {
+            if (!foundparen || !str.isEmpty()) {
                 return null;
             }
             Rect r = new Rect();
@@ -1155,24 +1202,26 @@ public class RenderClipTest {
             return r;
         }
 
-        private Rectangle2D rect = new Rectangle2D.Double();
+        private final Rectangle2D rect = new Rectangle2D.Double();
 
+        @Override
         public void randomize() {
             rect.setRect(randDblCoord(), randDblCoord(),
                          randDblCoord(), randDblCoord());
         }
 
+        @Override
         public Shape getShape() {
             return rect;
         }
 
         public String toString() {
-            return ("Rect("+
-                    rect.getX()+", "+
-                    rect.getY()+", "+
-                    rect.getWidth()+", "+
-                    rect.getHeight()
-                    +")");
+            return "Rect("+
+                rect.getX()+", "+
+                rect.getY()+", "+
+                rect.getWidth()+", "+
+                rect.getHeight()
+                    +")";
         }
     }
 
@@ -1183,7 +1232,7 @@ public class RenderClipTest {
                 return null;
             }
             str = str.substring(5);
-            double coords[] = new double[4];
+            double[] coords = new double[4];
             boolean foundparen = false;
             for (int i = 0; i < coords.length; i++) {
                 int index = str.indexOf(",");
@@ -1205,7 +1254,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(index+1);
             }
-            if (!foundparen || str.length() > 0) {
+            if (!foundparen || !str.isEmpty()) {
                 return null;
             }
             Line l = new Line();
@@ -1214,24 +1263,26 @@ public class RenderClipTest {
             return l;
         }
 
-        private Line2D line = new Line2D.Double();
+        private final Line2D line = new Line2D.Double();
 
+        @Override
         public void randomize() {
             line.setLine(randDblCoord(), randDblCoord(),
                          randDblCoord(), randDblCoord());
         }
 
+        @Override
         public Shape getShape() {
             return line;
         }
 
         public String toString() {
-            return ("Line("+
-                    line.getX1()+", "+
-                    line.getY1()+", "+
-                    line.getX2()+", "+
-                    line.getY2()
-                    +")");
+            return "Line("+
+                line.getX1()+", "+
+                line.getY1()+", "+
+                line.getX2()+", "+
+                line.getY2()
+                    +")";
         }
     }
 
@@ -1242,7 +1293,7 @@ public class RenderClipTest {
                 return null;
             }
             str = str.substring(11);
-            int coords[] = new int[4];
+            int[] coords = new int[4];
             boolean foundparen = false;
             for (int i = 0; i < coords.length; i++) {
                 int index = str.indexOf(",");
@@ -1264,7 +1315,7 @@ public class RenderClipTest {
                 }
                 str = str.substring(index+1);
             }
-            if (!foundparen || str.length() > 0) {
+            if (!foundparen || !str.isEmpty()) {
                 return null;
             }
             RectMethod rm = new RectMethod();
@@ -1273,70 +1324,39 @@ public class RenderClipTest {
             return rm;
         }
 
-        private Rectangle rect = new Rectangle();
+        private final Rectangle rect = new Rectangle();
 
+        @Override
         public void randomize() {
             rect.setBounds(randIntCoord(), randIntCoord(),
                            randIntCoord(), randIntCoord());
         }
 
+        @Override
         public void fill(Graphics2D g2d) {
             g2d.fillRect(rect.x, rect.y, rect.width, rect.height);
         }
 
+        @Override
         public void draw(Graphics2D g2d) {
             g2d.drawRect(rect.x, rect.y, rect.width, rect.height);
         }
 
         public String toString() {
-            return ("RectMethod("+
-                    rect.x+", "+
-                    rect.y+", "+
-                    rect.width+", "+
-                    rect.height
-                    +")");
+            return "RectMethod("+
+                rect.x+", "+
+                rect.y+", "+
+                rect.width+", "+
+                rect.height
+                    +")";
         }
     }
 
     public static class LineMethod extends AnnotatedRenderOp {
-        public static LineMethod tryparse(String str) {
-            str = str.trim();
-            if (!str.startsWith("LineMethod(")) {
-                return null;
-            }
-            str = str.substring(11);
-            int coords[] = new int[4];
-            boolean foundparen = false;
-            for (int i = 0; i < coords.length; i++) {
-                int index = str.indexOf(",");
-                if (index < 0) {
-                    if (i < coords.length-1) {
-                        return null;
-                    }
-                    index = str.indexOf(")");
-                    if (index < 0) {
-                        return null;
-                    }
-                    foundparen = true;
-                }
-                String num = str.substring(0, index).trim();
-                try {
-                    coords[i] = Integer.parseInt(num);
-                } catch (NumberFormatException nfe) {
-                    return null;
-                }
-                str = str.substring(index+1);
-            }
-            if (!foundparen || str.length() > 0) {
-                return null;
-            }
-            LineMethod lm = new LineMethod();
-            lm.line = coords;
-            return lm;
-        }
 
-        private int line[] = new int[4];
+        private int[] line = new int[4];
 
+        @Override
         public void randomize() {
             line[0] = randIntCoord();
             line[1] = randIntCoord();
@@ -1344,28 +1364,31 @@ public class RenderClipTest {
             line[3] = randIntCoord();
         }
 
+        @Override
         public void fill(Graphics2D g2d) {
         }
 
+        @Override
         public void draw(Graphics2D g2d) {
             g2d.drawLine(line[0], line[1], line[2], line[3]);
         }
 
         public String toString() {
-            return ("LineMethod("+
-                    line[0]+", "+
-                    line[1]+", "+
-                    line[2]+", "+
-                    line[3]
-                    +")");
+            return "LineMethod("+
+                line[0]+", "+
+                line[1]+", "+
+                line[2]+", "+
+                line[3]
+                    +")";
         }
     }
 
     public static class ErrorWindow extends Frame {
-        ImageCanvas unclipped;
-        ImageCanvas reference;
-        ImageCanvas actual;
-        ImageCanvas diff;
+        private static final long serialVersionUID = -7411804555386082804L;
+        final ImageCanvas unclipped;
+        final ImageCanvas reference;
+        final ImageCanvas actual;
+        final ImageCanvas diff;
 
         public ErrorWindow() {
             super("Error Comparison Window");
@@ -1382,6 +1405,7 @@ public class RenderClipTest {
             addImagePanel(diff, "Difference");
 
             addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent e) {
                     setVisible(false);
                 }
@@ -1403,6 +1427,7 @@ public class RenderClipTest {
             repaint();
         }
 
+        @Override
         public void setVisible(boolean vis) {
             super.setVisible(vis);
             synchronized (this) {
@@ -1422,21 +1447,23 @@ public class RenderClipTest {
     }
 
     public static class SmartGridLayout implements LayoutManager {
-        int rows;
-        int cols;
-        int hgap;
-        int vgap;
+        final int rows;
+        final int cols;
+        final int hgap;
+        final int vgap;
 
         public SmartGridLayout(int r, int c, int h, int v) {
-            this.rows = r;
-            this.cols = c;
-            this.hgap = h;
-            this.vgap = v;
+            rows = r;
+            cols = c;
+            hgap = h;
+            vgap = v;
         }
 
+        @Override
         public void addLayoutComponent(String name, Component comp) {
         }
 
+        @Override
         public void removeLayoutComponent(Component comp) {
         }
 
@@ -1450,15 +1477,15 @@ public class RenderClipTest {
             } else {
                 nrows = (ncomponents + ncols - 1) / ncols;
             }
-            int widths[] = new int[ncols+1];
-            int heights[] = new int[nrows+1];
+            int[] widths = new int[ncols + 1];
+            int[] heights = new int[nrows + 1];
             int x = 0;
             int y = 0;
             for (int i = 0 ; i < ncomponents ; i++) {
                 Component comp = parent.getComponent(i);
-                Dimension d = (min
+                Dimension d = min
                                ? comp.getMinimumSize()
-                               : comp.getPreferredSize());
+                               : comp.getPreferredSize();
                 if (widths[x] < d.width) {
                     widths[x] = d.width;
                 }
@@ -1481,42 +1508,45 @@ public class RenderClipTest {
         }
 
         public Dimension getSize(Container parent, boolean min) {
-            int sizes[][] = getGridSizes(parent, min);
-            int widths[] = sizes[0];
-            int heights[] = sizes[1];
+            int[][] sizes = getGridSizes(parent, min);
+            int[] widths = sizes[0];
+            int[] heights = sizes[1];
             int nrows = heights.length-1;
             int ncols = widths.length-1;
             int w = widths[ncols];
             int h = heights[nrows];
             Insets insets = parent.getInsets();
-            return new Dimension(insets.left+insets.right + w+(ncols+1)*hgap,
-                                 insets.top+insets.bottom + h+(nrows+1)*vgap);
+            return new Dimension(insets.left+insets.right + w+(ncols+1)* hgap,
+                                 insets.top+insets.bottom + h+(nrows+1)* vgap);
         }
 
+        @Override
         public Dimension preferredLayoutSize(Container parent) {
             return getSize(parent, false);
         }
 
+        @Override
         public Dimension minimumLayoutSize(Container parent) {
             return getSize(parent, true);
         }
 
+        @Override
         public void layoutContainer(Container parent) {
-            int pref[][] = getGridSizes(parent, false);
-            int min[][] = getGridSizes(parent, true);
-            int minwidths[] = min[0];
-            int minheights[] = min[1];
-            int prefwidths[] = pref[0];
-            int prefheights[] = pref[1];
+            int[][] pref = getGridSizes(parent, false);
+            int[][] min = getGridSizes(parent, true);
+            int[] minwidths = min[0];
+            int[] minheights = min[1];
+            int[] prefwidths = pref[0];
+            int[] prefheights = pref[1];
             int nrows = minheights.length - 1;
             int ncols = minwidths.length - 1;
             Insets insets = parent.getInsets();
             int w = parent.getWidth() - insets.left - insets.right;
             int h = parent.getHeight() - insets.top - insets.bottom;
-            w = w - (ncols+1)*hgap;
-            h = h - (nrows+1)*vgap;
-            int widths[] = calculateSizes(w, ncols, minwidths, prefwidths);
-            int heights[] = calculateSizes(h, nrows, minheights, prefheights);
+            w -= (ncols + 1) * hgap;
+            h -= (nrows + 1) * vgap;
+            int[] widths = calculateSizes(w, ncols, minwidths, prefwidths);
+            int[] heights = calculateSizes(h, nrows, minheights, prefheights);
             int ncomponents = parent.getComponentCount();
             int x = insets.left + hgap;
             int y = insets.top + vgap;
@@ -1524,11 +1554,13 @@ public class RenderClipTest {
             int c = 0;
             for (int i = 0; i < ncomponents; i++) {
                 parent.getComponent(i).setBounds(x, y, widths[c], heights[r]);
-                x += widths[c++] + hgap;
+                x += widths[c] + hgap;
+                c++;
                 if (c >= ncols) {
                     c = 0;
                     x = insets.left + hgap;
-                    y += heights[r++] + vgap;
+                    y += heights[r] + vgap;
+                    r++;
                     if (r >= nrows) {
                         // just in case
                         break;
@@ -1537,8 +1569,7 @@ public class RenderClipTest {
             }
         }
 
-        public static int[] calculateSizes(int total, int num,
-                                           int minsizes[], int prefsizes[])
+        public static int[] calculateSizes(int total, int num, int[] minsizes, int[] prefsizes)
         {
             if (total <= minsizes[num]) {
                 return minsizes;
@@ -1546,7 +1577,7 @@ public class RenderClipTest {
             if (total >= prefsizes[num]) {
                 return prefsizes;
             }
-            int sizes[] = new int[total];
+            int[] sizes = new int[total];
             int prevhappy = 0;
             int nhappy = 0;
             int happysize = 0;
@@ -1557,7 +1588,7 @@ public class RenderClipTest {
                     if (sizes[i] >= prefsizes[i] ||
                         minsizes[i] + addsize > prefsizes[i])
                     {
-                        happysize += (sizes[i] = prefsizes[i]);
+                        happysize += sizes[i] = prefsizes[i];
                         nhappy++;
                     } else {
                         sizes[i] = minsizes[i] + addsize;
@@ -1569,10 +1600,11 @@ public class RenderClipTest {
     }
 
     public static class ImageCanvas extends Canvas {
+        private static final long serialVersionUID = 7429883784132767684L;
         BufferedImage image;
 
         public void setImage(BufferedImage img) {
-            this.image = img;
+            image = img;
         }
 
         public BufferedImage getImage() {
@@ -1619,14 +1651,13 @@ public class RenderClipTest {
             g.dispose();
         }
 
+        @Override
         public Dimension getPreferredSize() {
-            if (image == null) {
-                return new Dimension();
-            } else {
-                return new Dimension(image.getWidth(), image.getHeight());
-            }
+            return image == null ? new Dimension()
+                : new Dimension(image.getWidth(), image.getHeight());
         }
 
+        @Override
         public void paint(Graphics g) {
             g.drawImage(image, 0, 0, null);
         }

@@ -28,13 +28,12 @@ import java.awt.Image;
 import java.awt.image.ImageObserver;
 import java.util.Arrays;
 import java.util.List;
-import sun.misc.SoftCache;
 
 public class MultiResolutionToolkitImage extends ToolkitImage implements MultiResolutionImage {
 
   private static final int BITS_INFO = ImageObserver.SOMEBITS | ImageObserver.FRAMEBITS
       | ImageObserver.ALLBITS;
-  Image resolutionVariant;
+  final Image resolutionVariant;
 
   public MultiResolutionToolkitImage(Image lowResolutionImage, Image resolutionVariant) {
     super(lowResolutionImage.getSource());
@@ -42,20 +41,8 @@ public class MultiResolutionToolkitImage extends ToolkitImage implements MultiRe
   }
 
   public static ImageObserver getResolutionVariantObserver(
-      final Image image, final ImageObserver observer, final int imgWidth, final int imgHeight,
-      final int rvWidth, final int rvHeight) {
-    return getResolutionVariantObserver(image,
-        observer,
-        imgWidth,
-        imgHeight,
-        rvWidth,
-        rvHeight,
-        false);
-  }
-
-  public static ImageObserver getResolutionVariantObserver(
-      final Image image, final ImageObserver observer, final int imgWidth, final int imgHeight,
-      final int rvWidth, final int rvHeight, boolean concatenateInfo) {
+      Image image, ImageObserver observer, int imgWidth, int imgHeight, int rvWidth, int rvHeight,
+      boolean concatenateInfo) {
 
     if (observer == null) {
       return null;
@@ -97,19 +84,19 @@ public class MultiResolutionToolkitImage extends ToolkitImage implements MultiRe
 
   @Override
   public Image getResolutionVariant(int width, int height) {
-    return ((width <= getWidth() && height <= getHeight())) ? this : resolutionVariant;
+    return width <= getWidth() && height <= getHeight() ? this : resolutionVariant;
   }
 
   @Override
   public List<Image> getResolutionVariants() {
-    return Arrays.<Image>asList(this, resolutionVariant);
+    return Arrays.asList(this, resolutionVariant);
   }
 
   public Image getResolutionVariant() {
     return resolutionVariant;
   }
 
-  private static class ObserverCache {
+  private static final class ObserverCache {
 
     static final SoftCache INSTANCE = new SoftCache();
   }

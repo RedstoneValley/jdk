@@ -51,11 +51,11 @@ import sun.java2d.pipe.Region;
  * with overlapping regions of pixels
  */
 public class BlitBg extends GraphicsPrimitive {
-  public static final String methodSignature = "BlitBg(...)".toString();
+  public static final String methodSignature = "BlitBg(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache blitcache = new RenderCache(20);
+  private static final RenderCache blitcache = new RenderCache(20);
 
   static {
     GraphicsPrimitiveMgr.registerGeneral(new BlitBg(null, null, null));
@@ -94,10 +94,13 @@ public class BlitBg extends GraphicsPrimitive {
   /**
    * All BlitBg implementors must have this invoker method
    */
-  public native void BlitBg(
+  public void BlitBg(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, int bgColor, int srcx,
-      int srcy, int dstx, int dsty, int width, int height);
+      int srcy, int dstx, int dsty, int width, int height) {
+    // TODO: In OpenJDK AWT, this is native
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
@@ -109,25 +112,27 @@ public class BlitBg extends GraphicsPrimitive {
     return new General(srctype, comptype, dsttype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceBlitBg(this);
   }
 
   private static class General extends BlitBg {
-    private static Font defaultFont = new Font("Dialog", Font.PLAIN, 12);
-    CompositeType compositeType;
+    private static final Font defaultFont = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12);
+    final CompositeType compositeType;
 
     public General(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
       super(srctype, comptype, dsttype);
       compositeType = comptype;
     }
 
+    @SuppressWarnings("MagicNumber")
     @Override
     public void BlitBg(
         SurfaceData srcData, SurfaceData dstData, Composite comp, Region clip, int bgArgb, int srcx,
         int srcy, int dstx, int dsty, int width, int height) {
       ColorModel dstModel = dstData.getColorModel();
-      boolean bgHasAlpha = (bgArgb >>> 24) != 0xff;
+      boolean bgHasAlpha = bgArgb >>> 24 != 0xff;
       if (!dstModel.hasAlpha() && bgHasAlpha) {
         dstModel = ColorModel.getRGBdefault();
       }
@@ -162,13 +167,14 @@ public class BlitBg extends GraphicsPrimitive {
   }
 
   private static class TraceBlitBg extends BlitBg {
-    BlitBg target;
+    final BlitBg target;
 
     public TraceBlitBg(BlitBg target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

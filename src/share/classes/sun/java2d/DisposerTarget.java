@@ -34,5 +34,5 @@ public interface DisposerTarget {
    * Returns an object which will be
    * used as the referent in the ReferenceQueue
    */
-  public Object getDisposerReferent();
+  Object getDisposerReferent();
 }

@@ -32,12 +32,12 @@
 */
 
 import java.awt.*;
-import java.awt.event.*;
 
-import test.java.awt.regtesthelpers.Util;
-
-public class ScreenInsetsTest
+public final class ScreenInsetsTest
 {
+    private ScreenInsetsTest() {
+    }
+
     public static void main(String[] args)
     {
         if (!Toolkit.getDefaultToolkit().isFrameStateSupported(Frame.MAXIMIZED_BOTH))
@@ -69,12 +69,12 @@ public class ScreenInsetsTest
             // workaround: on Windows maximized windows have negative coordinates
             if (fBounds.x < gcBounds.x)
             {
-                fBounds.width -= (gcBounds.x - fBounds.x) * 2; // width is decreased
+                fBounds.width -= (gcBounds.x - fBounds.x) << 1; // width is decreased
                 fBounds.x = gcBounds.x;
             }
             if (fBounds.y < gcBounds.y)
             {
-                fBounds.height -= (gcBounds.y - fBounds.y) * 2; // height is decreased
+                fBounds.height -= (gcBounds.y - fBounds.y) << 1; // height is decreased
                 fBounds.y = gcBounds.y;
             }
             Insets expected = new Insets(fBounds.y - gcBounds.y,

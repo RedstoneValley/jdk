@@ -72,23 +72,22 @@ public class GifImageDecoder extends ImageDecoder {
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    initIDs();
   }
 
+  private final short[] prefix = new short[4096];
+  private final byte[] suffix = new byte[4096];
+  private final byte[] outCode = new byte[4097];
   int num_global_colors;
   byte[] global_colormap;
   int trans_pixel = -1;
   IndexColorModel global_model;
-  Hashtable props = new Hashtable();
+  final Hashtable props = new Hashtable();
   byte[] saved_image;
   IndexColorModel saved_model;
   int global_width;
   int global_height;
   int global_bgpixel;
   GifFrame curframe;
-  private short prefix[] = new short[4096];
-  private byte suffix[] = new byte[4096];
-  private byte outCode[] = new byte[4097];
 
   public GifImageDecoder(InputStreamImageSource src, InputStream is) {
     super(src, is);
@@ -101,15 +100,13 @@ public class GifImageDecoder extends ImageDecoder {
     throw new ImageFormatException(s1);
   }
 
-  private static final int ExtractByte(byte buf[], int off) {
-    return (buf[off] & 0xFF);
+  private static final int ExtractByte(byte[] buf, int off) {
+    return buf[off] & 0xFF;
   }
 
-  private static final int ExtractWord(byte buf[], int off) {
-    return (buf[off] & 0xFF) | ((buf[off + 1] & 0xFF) << 8);
+  private static final int ExtractWord(byte[] buf, int off) {
+    return buf[off] & 0xFF | (buf[off + 1] & 0xFF) << 8;
   }
-
-  private static native void initIDs();
 
   public static byte[] grow_colormap(byte[] colormap, int newlen) {
     byte[] newcm = new byte[newlen * 3];
@@ -122,7 +119,7 @@ public class GifImageDecoder extends ImageDecoder {
    *
    * @return number of bytes that were not read due to EOF or error
    */
-  private int readBytes(byte buf[], int off, int len) {
+  private int readBytes(byte[] buf, int off, int len) {
     while (len > 0) {
       try {
         int n = input.read(buf, off, len);
@@ -141,6 +138,7 @@ public class GifImageDecoder extends ImageDecoder {
   /**
    * produce an image from the stream.
    */
+  @Override
   public void produceImage() throws IOException, ImageFormatException {
     try {
       readHeader();
@@ -160,11 +158,11 @@ public class GifImageDecoder extends ImageDecoder {
           case EXBLOCK:
             switch (code = input.read()) {
               case EX_GRAPHICS_CONTROL: {
-                byte buf[] = new byte[6];
+                byte[] buf = new byte[6];
                 if (readBytes(buf, 0, 6) != 0) {
                   return;//error("corrupt GIF file");
                 }
-                if ((buf[0] != 4) || (buf[5] != 0)) {
+                if (buf[0] != 4 || buf[5] != 0) {
                   return;//error("corrupt GIF file (GCE size)");
                 }
                 // Get the index of the transparent color
@@ -173,12 +171,8 @@ public class GifImageDecoder extends ImageDecoder {
                   isAnimation = true;
                   ImageFetcher.startingAnimation();
                 }
-                disposal_method = (buf[1] >> 2) & 7;
-                if ((buf[1] & TRANSPARENCYMASK) != 0) {
-                  trans_pixel = ExtractByte(buf, 4);
-                } else {
-                  trans_pixel = -1;
-                }
+                disposal_method = buf[1] >> 2 & 7;
+                trans_pixel = (buf[1] & TRANSPARENCYMASK) != 0 ? ExtractByte(buf, 4) : -1;
                 break;
               }
 
@@ -192,7 +186,7 @@ public class GifImageDecoder extends ImageDecoder {
                   if (n <= 0) {
                     break;
                   }
-                  byte buf[] = new byte[n];
+                  byte[] buf = new byte[n];
                   if (readBytes(buf, 0, n) != 0) {
                     return;//error("corrupt GIF file");
                   }
@@ -264,7 +258,7 @@ public class GifImageDecoder extends ImageDecoder {
             // NOBREAK
 
           case TERMINATOR:
-            if (nloops == 0 || nloops-- >= 0) {
+            if (nloops == 0 || nloops >= 0) {
               try {
                 if (curframe != null) {
                   curframe.dispose();
@@ -279,6 +273,7 @@ public class GifImageDecoder extends ImageDecoder {
                 return; // Unable to reset input buffer
               }
             }
+            nloops--;
             if (verbose && frameno != 1) {
               System.out.println(
                   "processing GIF terminator," + " frames: " + frameno + " total: " + totalframes);
@@ -297,7 +292,7 @@ public class GifImageDecoder extends ImageDecoder {
    */
   private void readHeader() throws IOException, ImageFormatException {
     // Create a buffer
-    byte buf[] = new byte[13];
+    byte[] buf = new byte[13];
 
     // Read the header
     if (readBytes(buf, 0, 13) != 0) {
@@ -305,7 +300,7 @@ public class GifImageDecoder extends ImageDecoder {
     }
 
     // Check header
-    if ((buf[0] != 'G') || (buf[1] != 'I') || (buf[2] != 'F')) {
+    if (buf[0] != 'G' || buf[1] != 'I' || buf[2] != 'F') {
       error("not a GIF file.");
     }
 
@@ -328,12 +323,12 @@ public class GifImageDecoder extends ImageDecoder {
       global_colormap[0] = global_colormap[1] = global_colormap[2] = (byte) 0;
       global_colormap[3] = global_colormap[4] = global_colormap[5] = (byte) 255;
     } else {
-      num_global_colors = 1 << ((ch & 0x7) + 1);
+      num_global_colors = 1 << (ch & 0x7) + 1;
 
       global_bgpixel = ExtractByte(buf, 11);
 
       if (buf[12] != 0) {
-        props.put("aspectratio", "" + ((ExtractByte(buf, 12) + 15) / 64.0));
+        props.put("aspectratio", "" + (ExtractByte(buf, 12) + 15) / 64.0);
       }
 
       // Read colors
@@ -345,11 +340,14 @@ public class GifImageDecoder extends ImageDecoder {
     input.mark(Integer.MAX_VALUE); // set this mark in case this is an animated GIF
   }
 
-  private native boolean parseImage(
-      int x, int y, int width, int height, boolean interlace, int initCodeSize, byte block[],
-      byte rasline[], IndexColorModel model);
+  private boolean parseImage(
+      int x, int y, int width, int height, boolean interlace, int initCodeSize, byte[] block,
+      byte[] rasline, IndexColorModel model) {
+    // TODO: Native in OpenJDK AWT
+    return false;
+  }
 
-  private int sendPixels(int x, int y, int width, int height, byte rasline[], ColorModel model) {
+  private int sendPixels(int x, int y, int width, int height, byte[] rasline, ColorModel model) {
     int rasbeg, rasend, x2;
     if (y < 0) {
       height += y;
@@ -385,7 +383,7 @@ public class GifImageDecoder extends ImageDecoder {
     // rasline[rasbeg] == pixel at coordinate (x2,y)
     // rasline[rasend] == pixel at coordinate (x2+width, y)
     int off = y * global_width + x2;
-    boolean save = (curframe.disposal_method == GifFrame.DISPOSAL_SAVE);
+    boolean save = curframe.disposal_method == GifFrame.DISPOSAL_SAVE;
     if (trans_pixel >= 0 && !curframe.initialframe) {
       if (saved_image != null && model.equals(saved_model)) {
         for (int i = rasbeg; i < rasend; i++, off++) {
@@ -430,8 +428,7 @@ public class GifImageDecoder extends ImageDecoder {
     } else if (save) {
       System.arraycopy(rasline, rasbeg, saved_image, off, width);
     }
-    int count = setPixels(x2, y, width, height, model, rasline, rasbeg, 0);
-    return count;
+    return setPixels(x2, y, width, height, model, rasline, rasbeg, 0);
   }
 
   /**
@@ -450,7 +447,7 @@ public class GifImageDecoder extends ImageDecoder {
     }
 
     // Allocate the buffer
-    byte block[] = new byte[256 + 3];
+    byte[] block = new byte[256 + 3];
 
     // Read the image descriptor
     if (readBytes(block, 0, 10) != 0) {
@@ -487,7 +484,7 @@ public class GifImageDecoder extends ImageDecoder {
       // We read one extra byte above so now when we must
       // transfer that byte as the first colormap byte
       // and manually read the code size when we are done
-      int num_local_colors = 1 << ((block[8] & 0x7) + 1);
+      int num_local_colors = 1 << (block[8] & 0x7) + 1;
 
       // Read local colors
       byte[] local_colormap = new byte[num_local_colors * 3];
@@ -538,10 +535,10 @@ public class GifImageDecoder extends ImageDecoder {
              * If height of current image is smaller than the global height,
              * fill the gap with transparent pixels.
              */
-      if ((height < global_height) && (model != null)) {
+      if (height < global_height) {
         byte tpix = (byte) model.getTransparentPixel();
         if (tpix >= 0) {
-          byte trans_rasline[] = new byte[global_width];
+          byte[] trans_rasline = new byte[global_width];
           for (int i = 0; i < global_width; i++) {
             trans_rasline[i] = tpix;
           }
@@ -559,13 +556,13 @@ public class GifImageDecoder extends ImageDecoder {
       }
     }
 
-    int hints = (interlace ? interlaceflags : normalflags);
+    int hints = interlace ? interlaceflags : normalflags;
     setHints(hints);
 
     curframe = new GifFrame(this,
         disposal_method,
         delay,
-        (curframe == null),
+        curframe == null,
         model,
         x,
         y,
@@ -573,7 +570,7 @@ public class GifImageDecoder extends ImageDecoder {
         height);
 
     // allocate the raster data
-    byte rasline[] = new byte[width];
+    byte[] rasline = new byte[width];
 
     if (verbose) {
       System.out.print("Reading a " + width + " by " + height + " " +
@@ -607,10 +604,10 @@ class GifFrame {
   static final int DISPOSAL_PREVIOUS = 0x03;
   private static final boolean verbose = false;
   private static IndexColorModel trans_model;
-  GifImageDecoder decoder;
+  final GifImageDecoder decoder;
 
   int disposal_method;
-  int delay;
+  final int delay;
 
   IndexColorModel model;
 
@@ -619,20 +616,20 @@ class GifFrame {
   int width;
   int height;
 
-  boolean initialframe;
+  final boolean initialframe;
 
   public GifFrame(
       GifImageDecoder id, int dm, int dl, boolean init, IndexColorModel cm, int x, int y, int w,
       int h) {
-    this.decoder = id;
-    this.disposal_method = dm;
-    this.delay = dl;
-    this.model = cm;
-    this.initialframe = init;
+    decoder = id;
+    disposal_method = dm;
+    delay = dl;
+    model = cm;
+    initialframe = init;
     this.x = x;
     this.y = y;
-    this.width = w;
-    this.height = h;
+    width = w;
+    height = h;
   }
 
   private void setPixels(int x, int y, int w, int h, ColorModel cm, byte[] pix, int off, int scan) {
@@ -642,97 +639,96 @@ class GifFrame {
   public boolean dispose() {
     if (decoder.imageComplete(ImageConsumer.SINGLEFRAMEDONE, false) == 0) {
       return false;
+    }
+    if (delay > 0) {
+      try {
+        if (verbose) {
+          System.out.println("sleeping: " + delay);
+        }
+        Thread.sleep(delay);
+      } catch (InterruptedException e) {
+        return false;
+      }
     } else {
-      if (delay > 0) {
-        try {
-          if (verbose) {
-            System.out.println("sleeping: " + delay);
-          }
-          Thread.sleep(delay);
-        } catch (InterruptedException e) {
-          return false;
-        }
-      } else {
-        Thread.yield();
-      }
+      Thread.yield();
+    }
 
-      if (verbose && disposal_method != 0) {
-        System.out.println("disposal method: " + disposal_method);
-      }
+    if (verbose && disposal_method != 0) {
+      System.out.println("disposal method: " + disposal_method);
+    }
 
-      int global_width = decoder.global_width;
-      int global_height = decoder.global_height;
+    int global_width = decoder.global_width;
+    int global_height = decoder.global_height;
 
-      if (x < 0) {
-        width += x;
-        x = 0;
+    if (x < 0) {
+      width += x;
+      x = 0;
+    }
+    if (x + width > global_width) {
+      width = global_width - x;
+    }
+    if (width <= 0) {
+      disposal_method = DISPOSAL_NONE;
+    } else {
+      if (y < 0) {
+        height += y;
+        y = 0;
       }
-      if (x + width > global_width) {
-        width = global_width - x;
+      if (y + height > global_height) {
+        height = global_height - y;
       }
-      if (width <= 0) {
+      if (height <= 0) {
         disposal_method = DISPOSAL_NONE;
-      } else {
-        if (y < 0) {
-          height += y;
-          y = 0;
-        }
-        if (y + height > global_height) {
-          height = global_height - y;
-        }
-        if (height <= 0) {
-          disposal_method = DISPOSAL_NONE;
-        }
       }
+    }
 
-      switch (disposal_method) {
-        case DISPOSAL_PREVIOUS:
-          byte[] saved_image = decoder.saved_image;
-          IndexColorModel saved_model = decoder.saved_model;
-          if (saved_image != null) {
-            setPixels(x,
-                y,
-                width,
-                height,
-                saved_model,
-                saved_image,
-                y * global_width + x,
-                global_width);
+    switch (disposal_method) {
+      case DISPOSAL_PREVIOUS:
+        byte[] saved_image = decoder.saved_image;
+        IndexColorModel saved_model = decoder.saved_model;
+        if (saved_image != null) {
+          setPixels(x,
+              y,
+              width,
+              height,
+              saved_model,
+              saved_image,
+              y * global_width + x,
+              global_width);
+        }
+        break;
+      case DISPOSAL_BGCOLOR:
+        byte tpix;
+        if (model.getTransparentPixel() < 0) {
+          model = trans_model;
+          if (model == null) {
+            model = new IndexColorModel(8, 1, new byte[4], 0, true);
+            trans_model = model;
           }
-          break;
-        case DISPOSAL_BGCOLOR:
-          byte tpix;
-          if (model.getTransparentPixel() < 0) {
-            model = trans_model;
-            if (model == null) {
-              model = new IndexColorModel(8, 1, new byte[4], 0, true);
-              trans_model = model;
-            }
-            tpix = 0;
-          } else {
-            tpix = (byte) model.getTransparentPixel();
+          tpix = 0;
+        } else {
+          tpix = (byte) model.getTransparentPixel();
+        }
+        byte[] rasline = new byte[width];
+        if (tpix != 0) {
+          for (int i = 0; i < width; i++) {
+            rasline[i] = tpix;
           }
-          byte[] rasline = new byte[width];
-          if (tpix != 0) {
-            for (int i = 0; i < width; i++) {
-              rasline[i] = tpix;
-            }
-          }
+        }
 
-          // clear saved_image using transparent pixels
-          // this will be used as the background in the next display
-          if (decoder.saved_image != null) {
-            for (int i = 0; i < global_width * global_height; i++) {
-              decoder.saved_image[i] = tpix;
-            }
+        // clear saved_image using transparent pixels
+        // this will be used as the background in the next display
+        if (decoder.saved_image != null) {
+          for (int i = 0; i < global_width * global_height; i++) {
+            decoder.saved_image[i] = tpix;
           }
+        }
 
-          setPixels(x, y, width, height, model, rasline, 0, 0);
-          break;
-        case DISPOSAL_SAVE:
-          decoder.saved_model = model;
-          break;
-      }
+        setPixels(x, y, width, height, model, rasline, 0, 0);
+        break;
+      case DISPOSAL_SAVE:
+        decoder.saved_model = model;
+        break;
     }
     return true;
   }

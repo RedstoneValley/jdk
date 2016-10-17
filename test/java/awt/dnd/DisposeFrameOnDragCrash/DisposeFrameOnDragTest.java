@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test @summary JVM crash if the frame is disposed in DropTargetListener
+/*
+  @test @summary JVM crash if the frame is disposed in DropTargetListener
  * @author Petr Pchelko
  * @library ../../regtesthelpers
  * @build Util
@@ -36,16 +36,14 @@ import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDragEvent;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.InputEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.TooManyListenersException;
-import javax.swing.JFrame;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
-import test.java.awt.regtesthelpers.Util;
 
-public class DisposeFrameOnDragTest {
+public final class DisposeFrameOnDragTest {
 
     private static JTextArea textArea;
+
+    private DisposeFrameOnDragTest() {
+    }
 
     public static void main(String[] args) throws Throwable {
 
@@ -60,8 +58,8 @@ public class DisposeFrameOnDragTest {
         try {
             Point loc = textArea.getLocationOnScreen();
             Util.drag(new Robot(),
-                    new Point((int) loc.x + 3, (int) loc.y + 3),
-                    new Point((int) loc.x + 40, (int) loc.y + 40),
+                    new Point(loc.x + 3, loc.y + 3),
+                    new Point(loc.x + 40, loc.y + 40),
                     InputEvent.BUTTON1_MASK);
         } catch (AWTException ex) {
             throw new RuntimeException("Could not initiate a drag operation");
@@ -69,8 +67,8 @@ public class DisposeFrameOnDragTest {
         Util.waitForIdle(null);
     }
 
-    private static void constructTestUI() {
-        final JFrame frame = new JFrame("Test frame");
+    static void constructTestUI() {
+        JFrame frame = new JFrame("Test frame");
         textArea = new JTextArea("Drag Me!");
         try {
             textArea.getDropTarget().addDropTargetListener(new DropTargetAdapter() {

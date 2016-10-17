@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6679308
  * @summary test drawing to Alpha surfaces
  */
@@ -30,9 +30,11 @@
 import java.awt.*;
 import java.awt.image.*;
 
+@SuppressWarnings("MagicNumber")
 public class AlphaSurfaceText {
 
-    int wid=400, hgt=200;
+    final int wid=400;
+    final int hgt=200;
 
     public AlphaSurfaceText(int biType, Color c) {
         BufferedImage opaquebi0 =
@@ -64,20 +66,28 @@ public class AlphaSurfaceText {
     // Need to allow for minimal rounding error, so allow each component
     // to differ by 1.
     void compare(BufferedImage bi0, BufferedImage bi1, int biType, Color c) {
-        for (int x=0; x<wid; x++) {
-            for (int y=0; y<hgt; y++) {
+        for (int x=0; x< wid; x++) {
+            for (int y=0; y< hgt; y++) {
                 int rgb0 = bi0.getRGB(x, y);
                 int rgb1 = bi1.getRGB(x, y);
-                if (rgb0 == rgb1) continue;
+                if (rgb0 == rgb1) {
+                    continue;
+                }
                 int r0 = (rgb0 & 0xff0000) >> 16;
                 int r1 = (rgb1 & 0xff0000) >> 16;
-                int rdiff = r0-r1; if (rdiff<0) rdiff = -rdiff;
+                int rdiff = r0-r1; if (rdiff<0) {
+                    rdiff = -rdiff;
+                }
                 int g0 = (rgb0 & 0x00ff00) >> 8;
                 int g1 = (rgb1 & 0x00ff00) >> 8;
-                int gdiff = g0-g1; if (gdiff<0) gdiff = -gdiff;
-                int b0 = (rgb0 & 0x0000ff);
-                int b1 = (rgb1 & 0x0000ff);
-                int bdiff = b0-b1; if (bdiff<0) bdiff = -bdiff;
+                int gdiff = g0-g1; if (gdiff<0) {
+                    gdiff = -gdiff;
+                }
+                int b0 = rgb0 & 0x0000ff;
+                int b1 = rgb1 & 0x0000ff;
+                int bdiff = b0-b1; if (bdiff<0) {
+                    bdiff = -bdiff;
+                }
                 if (rdiff > 1 || gdiff > 1 || bdiff > 1) {
                     throw new RuntimeException(
                       "Images differ for type "+biType + " col="+c +

@@ -30,10 +30,15 @@ import java.awt.*;
  *
  * @run     main ImageIconHang
  */
-public class ImageIconHang {
-    public static void main(String[] args) throws Exception {
+public final class ImageIconHang {
+  private ImageIconHang() {
+  }
+
+  public static void main(String[] args) throws Exception {
         Image image = Toolkit.getDefaultToolkit().getImage((String) null);
-        MediaTracker mt = new MediaTracker(new Component() {});
+        MediaTracker mt = new MediaTracker(new Component() {
+          private static final long serialVersionUID = -6387649573080936624L;
+        });
         mt.addImage(image, 1);
         mt.waitForID(1, 5000);
 

@@ -41,12 +41,12 @@ import java.util.EventListener;
  * The class that is interested in monitoring AWT events
  * implements this interface, and the object created with that
  * class is registered with the Toolkit, using the Toolkit's
- * <code>addAWTEventListener</code> method.  When an event is
+ * {@code addAWTEventListener} method.  When an event is
  * dispatched anywhere in the AWT, that object's
- * <code>eventDispatched</code> method is invoked.
+ * {@code eventDispatched} method is invoked.
  *
  * @author Fred Ecks
- * @see java.awt.AWTEvent
+ * @see AWTEvent
  * @see java.awt.Toolkit#addAWTEventListener
  * @see java.awt.Toolkit#removeAWTEventListener
  * @since 1.2
@@ -56,5 +56,5 @@ public interface AWTEventListener extends EventListener {
   /**
    * Invoked when an event is dispatched in the AWT.
    */
-  public void eventDispatched(AWTEvent event);
+  void eventDispatched(AWTEvent event);
 }

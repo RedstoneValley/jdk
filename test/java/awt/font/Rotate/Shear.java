@@ -27,24 +27,27 @@
  * @summary Verify no crashes with extreme shears.
  */
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 public class Shear extends Component {
 
+    private static final long serialVersionUID = 6481749055006952606L;
+
     public static void main(String[] args) {
         JFrame f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().add("Center", new Shear());
+        f.getContentPane().add(BorderLayout.CENTER, new Shear());
         f.pack();
         f.setVisible(true);
     }
 
+    @Override
     public Dimension getPreferredSize() {
       return new Dimension(400,300);
     }
 
+    @Override
     public void paint(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
 

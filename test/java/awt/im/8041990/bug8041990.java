@@ -31,15 +31,12 @@
 
 import sun.awt.SunToolkit;
 
-import javax.swing.*;
-import java.awt.*;
 import java.awt.event.InputMethodEvent;
 import java.awt.font.TextHitInfo;
-import java.text.AttributedString;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class bug8041990 {
+public final class bug8041990 {
     private static JFrame frame;
     private static JComponent component;
 

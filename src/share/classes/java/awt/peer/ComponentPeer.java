@@ -28,8 +28,10 @@ package java.awt.peer;
 import java.awt.AWTEvent;
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
+import java.awt.BufferCapabilities.FlipContents;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Component.FlipBufferStrategy;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -43,7 +45,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
-import sun.awt.CausedFocusEvent;
+import sun.awt.CausedFocusEvent.Cause;
 import sun.java2d.pipe.Region;
 
 /**
@@ -67,7 +69,7 @@ public interface ComponentPeer {
    *
    * @see #setBounds(int, int, int, int, int)
    */
-  public static final int SET_LOCATION = 1;
+  int SET_LOCATION = 1;
 
   /**
    * Operation for {@link #setBounds(int, int, int, int, int)}, indicating
@@ -75,7 +77,7 @@ public interface ComponentPeer {
    *
    * @see #setBounds(int, int, int, int, int)
    */
-  public static final int SET_SIZE = 2;
+  int SET_SIZE = 2;
 
   /**
    * Operation for {@link #setBounds(int, int, int, int, int)}, indicating
@@ -83,7 +85,7 @@ public interface ComponentPeer {
    *
    * @see #setBounds(int, int, int, int, int)
    */
-  public static final int SET_BOUNDS = 3;
+  int SET_BOUNDS = 3;
 
   /**
    * Operation for {@link #setBounds(int, int, int, int, int)}, indicating
@@ -92,7 +94,7 @@ public interface ComponentPeer {
    *
    * @see #setBounds(int, int, int, int, int)
    */
-  public static final int SET_CLIENT_SIZE = 4;
+  int SET_CLIENT_SIZE = 4;
 
   /**
    * Resets the setBounds() operation to DEFAULT_OPERATION. This is not
@@ -103,7 +105,7 @@ public interface ComponentPeer {
    *
    * @see Component#setBoundsOp
    */
-  public static final int RESET_OPERATION = 5;
+  int RESET_OPERATION = 5;
 
   /**
    * A flag that is used to suppress checks for embedded frames.
@@ -111,7 +113,7 @@ public interface ComponentPeer {
    * TODO: This is only used internally and should probably be moved outside
    * the peer interface.
    */
-  public static final int NO_EMBEDDED_CHECK = (1 << 14);
+  int NO_EMBEDDED_CHECK = 1 << 14;
 
   /**
    * The default operation, which is to set size and location.
@@ -121,7 +123,7 @@ public interface ComponentPeer {
    *
    * @see Component#setBoundsOp
    */
-  public static final int DEFAULT_OPERATION = SET_BOUNDS;
+  int DEFAULT_OPERATION = SET_BOUNDS;
 
   /**
    * Determines if a component has been obscured, i.e. by an overlapping
@@ -132,7 +134,6 @@ public interface ComponentPeer {
    * @return {@code true} when the component has been obscured,
    * {@code false} otherwise
    * @see #canDetermineObscurity()
-   * @see javax.swing.JViewport#needsRepaintAfterBlit
    */
   boolean isObscured();
 
@@ -143,7 +144,6 @@ public interface ComponentPeer {
    * @return {@code true} when the peer can determine if a component
    * has been obscured, {@code false} false otherwise
    * @see #isObscured()
-   * @see javax.swing.JViewport#needsRepaintAfterBlit
    */
   boolean canDetermineObscurity();
 
@@ -333,7 +333,7 @@ public interface ComponentPeer {
    */
   boolean requestFocus(
       Component lightweightChild, boolean temporary, boolean focusedWindowChangeAllowed, long time,
-      CausedFocusEvent.Cause cause);
+      Cause cause);
 
   /**
    * Returns {@code true} when the component takes part in the focus
@@ -434,7 +434,7 @@ public interface ComponentPeer {
    * @param numBuffers the number of buffers to create
    * @param caps       the buffer capabilities
    * @throws AWTException if flip buffering is not supported
-   * @see Component.FlipBufferStrategy#createBuffers
+   * @see FlipBufferStrategy#createBuffers
    */
   void createBuffers(int numBuffers, BufferCapabilities caps) throws AWTException;
 
@@ -442,7 +442,7 @@ public interface ComponentPeer {
    * Returns the back buffer as image.
    *
    * @return the back buffer as image
-   * @see Component.FlipBufferStrategy#getBackBuffer
+   * @see FlipBufferStrategy#getBackBuffer
    */
   Image getBackBuffer();
 
@@ -454,14 +454,14 @@ public interface ComponentPeer {
    * @param x2         the area to be flipped, lower right X coordinate
    * @param y2         the area to be flipped, lower right Y coordinate
    * @param flipAction the flip action to perform
-   * @see Component.FlipBufferStrategy#flip
+   * @see FlipBufferStrategy#flip
    */
-  void flip(int x1, int y1, int x2, int y2, BufferCapabilities.FlipContents flipAction);
+  void flip(int x1, int y1, int x2, int y2, FlipContents flipAction);
 
   /**
    * Destroys all created buffers.
    *
-   * @see Component.FlipBufferStrategy#destroyBuffers
+   * @see FlipBufferStrategy#destroyBuffers
    */
   void destroyBuffers();
 

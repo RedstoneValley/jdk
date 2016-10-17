@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 4252108 6229507
  * @summary PrinterJob.validatePage() is unimplemented.
  * @author prr
@@ -35,19 +35,32 @@ import java.awt.print.*;
 
 public class ValidatePage extends Frame implements Printable {
 
-PrinterJob myPrinterJob;
+  private static final long serialVersionUID = -2627819028627708791L;
+  final PrinterJob myPrinterJob;
 PageFormat myPageFormat;
-Label pw, ph, pglm, pgrm, pgiw, pgih, pgtm, pgbm;
-TextField tpw, tph, tpglm, tpgtm, tpgiw, tpgih;
-Label myWidthLabel;
-Label myHeightLabel;
-Label myImageableXLabel;
-Label myImageableYLabel;
-Label myImageableRightLabel;
-Label myImageableBottomLabel;
-Label myImageableWidthLabel;
-Label myImageableHeightLabel;
-Label myOrientationLabel;
+final Label pw;
+  final Label ph;
+  final Label pglm;
+  final Label pgrm;
+  final Label pgiw;
+  final Label pgih;
+  final Label pgtm;
+  final Label pgbm;
+final TextField tpw;
+  final TextField tph;
+  final TextField tpglm;
+  final TextField tpgtm;
+  final TextField tpgiw;
+  final TextField tpgih;
+final Label myWidthLabel;
+final Label myHeightLabel;
+final Label myImageableXLabel;
+final Label myImageableYLabel;
+final Label myImageableRightLabel;
+final Label myImageableBottomLabel;
+final Label myImageableWidthLabel;
+final Label myImageableHeightLabel;
+final Label myOrientationLabel;
 
   protected void displayPageFormatAttributes() {
     myWidthLabel.setText ("Format Width = " + drnd(myPageFormat.getWidth()));
@@ -93,11 +106,7 @@ Label myOrientationLabel;
       String ds = Double.toString(d);
       int decimal_pos = ds.indexOf(".");
       int len = ds.length();
-      if (len > decimal_pos+2) {
-          return ds.substring(0, decimal_pos+2);
-      } else {
-          return ds;
-      }
+    return len > decimal_pos + 2 ? ds.substring(0, decimal_pos + 2) : ds;
   }
 
   public ValidatePage() {
@@ -152,32 +161,35 @@ Label myOrientationLabel;
     epp.add (tpgih = new TextField());
 
     add(epp);
-       displayPageFormatAttributes();
+    displayPageFormatAttributes();
 
     Panel panel = new Panel();
     Button defButton = new Button ("Default Page");
     defButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
-                        myPageFormat = myPrinterJob.defaultPage();
-                        displayPageFormatAttributes();
+                  myPageFormat = myPrinterJob.defaultPage();
+                  displayPageFormatAttributes();
                 }
     });
 
     Button pageButton = new Button ("Page Setup..");
     pageButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
-                        myPageFormat = myPrinterJob.pageDialog (myPageFormat);
-                        displayPageFormatAttributes();
+                  myPageFormat = myPrinterJob.pageDialog (
+                      myPageFormat);
+                  displayPageFormatAttributes();
                 }
     });
     Button printButton = new Button ("Print");
     printButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
                     try {
                          //if (myPrinterJob.printDialog()) {
-                             myPrinterJob.setPrintable(ValidatePage.this,
-                                                       myPageFormat);
-                             myPrinterJob.print();
+                      myPrinterJob.setPrintable(ValidatePage.this, myPageFormat);
+                      myPrinterJob.print();
                    // }
                     } catch (PrinterException pe ) {
                     }
@@ -186,20 +198,24 @@ Label myOrientationLabel;
 
     Button chooseButton = new Button ("Printer..");
     chooseButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
-                            myPrinterJob.printDialog();
+                  myPrinterJob.printDialog();
                 }
     });
 
     Button validateButton = new Button ("Validate Page");
     validateButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
-                        myPageFormat = myPrinterJob.validatePage(myPageFormat);
-                        displayPageFormatAttributes();
+                  myPageFormat = myPrinterJob.validatePage(
+                      myPageFormat);
+                  displayPageFormatAttributes();
                 }
     });
     Button setButton = new Button ("Set Paper");
     setButton.addActionListener(new ActionListener() {
+                @Override
                 public void actionPerformed (ActionEvent e) {
                   try {
                       Paper p = new Paper();
@@ -211,8 +227,8 @@ Label myOrientationLabel;
                       double pimhgt = Double.parseDouble(tpgih.getText());
                       p.setSize(pwid, phgt);
                       p.setImageableArea(pimx, pimy, pimwid, pimhgt);
-                      myPageFormat.setPaper(p);
-                            displayPageFormatAttributes();
+                    myPageFormat.setPaper(p);
+                    displayPageFormatAttributes();
                   } catch (NumberFormatException nfe) {
                   }
                 }
@@ -238,17 +254,19 @@ Label myOrientationLabel;
     ta.setEditable(false);
     add(ta);
 
-    addWindowListener (new WindowAdapter() {
+    addWindowListener(new WindowAdapter() {
+         @Override
          public void windowClosing (WindowEvent e) {
-            dispose();
+           dispose();
             System.exit (0);
          }
 
       });
-      setSize (500, 630);
-      setVisible (true);
+    setSize(500, 630);
+    setVisible(true);
   }
 
+  @Override
   public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) {
 
      if (pageIndex > 0) {
@@ -312,10 +330,13 @@ Label myOrientationLabel;
 
 }
 
-class Sysout {
+final class Sysout {
    private static TestDialog dialog;
 
-   public static void createDialogWithInstructions( String[] instructions )
+  private Sysout() {
+  }
+
+  public static void createDialogWithInstructions( String[] instructions )
     {
       dialog = new TestDialog( new Frame(), "Instructions" );
       dialog.printInstructions( instructions );
@@ -356,9 +377,10 @@ class Sysout {
   */
 class TestDialog extends Dialog {
 
-   TextArea instructionsText;
-   TextArea messageText;
-   int maxStringLength = 80;
+  private static final long serialVersionUID = 4421905612345965770L;
+  final TextArea instructionsText;
+   final TextArea messageText;
+   final int maxStringLength = 80;
 
    //DO NOT call this directly, go through Sysout
    public TestDialog( Frame frame, String name )
@@ -366,10 +388,10 @@ class TestDialog extends Dialog {
       super( frame, name );
       int scrollBoth = TextArea.SCROLLBARS_BOTH;
       instructionsText = new TextArea( "", 15, maxStringLength, scrollBoth );
-      add( "North", instructionsText );
+      add(BorderLayout.NORTH, instructionsText);
 
       messageText = new TextArea( "", 5, maxStringLength, scrollBoth );
-      add("Center", messageText);
+      add(BorderLayout.CENTER, messageText);
 
       pack();
 
@@ -385,36 +407,32 @@ class TestDialog extends Dialog {
       //Go down array of instruction strings
 
       String printStr, remainingStr;
-      for( int i=0; i < instructions.length; i++ )
-       {
-         //chop up each into pieces maxSringLength long
-         remainingStr = instructions[ i ];
-         while( remainingStr.length() > 0 )
-          {
-            //if longer than max then chop off first max chars to print
-            if( remainingStr.length() >= maxStringLength )
-             {
-               //Try to chop on a word boundary
-               int posOfSpace = remainingStr.
-                  lastIndexOf( ' ', maxStringLength - 1 );
+      for (String instruction : instructions) {
+        //chop up each into pieces maxSringLength long
+        remainingStr = instruction;
+        while (!remainingStr.isEmpty()) {
+          //if longer than max then chop off first max chars to print
+          if (remainingStr.length() >= maxStringLength) {
+            //Try to chop on a word boundary
+            int posOfSpace = remainingStr.
+                lastIndexOf(' ', maxStringLength - 1);
 
-               if( posOfSpace <= 0 ) posOfSpace = maxStringLength - 1;
+            if (posOfSpace <= 0) {
+              posOfSpace = maxStringLength - 1;
+            }
 
-               printStr = remainingStr.substring( 0, posOfSpace + 1 );
-               remainingStr = remainingStr.substring( posOfSpace + 1 );
-             }
-            //else just print
-            else
-             {
-               printStr = remainingStr;
-               remainingStr = "";
-             }
+            printStr = remainingStr.substring(0, posOfSpace + 1);
+            remainingStr = remainingStr.substring(posOfSpace + 1);
+          }
+          //else just print
+          else {
+            printStr = remainingStr;
+            remainingStr = "";
+          }
 
-            instructionsText.append( printStr + "\n" );
-
-          }// while
-
-       }// for
+          instructionsText.append(printStr + "\n");
+        }// while
+      }// for
 
     }//printInstructions()
 

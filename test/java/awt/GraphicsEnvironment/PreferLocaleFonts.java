@@ -34,27 +34,32 @@ import java.awt.image.*;
 
 public class PreferLocaleFonts extends GraphicsEnvironment {
 
-    public static void main(String args[]) {
-(new PreferLocaleFonts()).preferLocaleFonts();
+    public static void main(String[] args) {
+new PreferLocaleFonts().preferLocaleFonts();
     }
     public PreferLocaleFonts() {
-        super();
     }
+    @Override
     public Graphics2D createGraphics(BufferedImage image) {
         return null;
     }
+    @Override
     public String[] getAvailableFontFamilyNames(Locale locale) {
         return null;
     }
+    @Override
     public String[] getAvailableFontFamilyNames() {
         return null;
     }
+    @Override
     public Font[] getAllFonts() {
         return null;
     }
+    @Override
     public GraphicsDevice getDefaultScreenDevice() throws HeadlessException {
         return null;
     }
+    @Override
     public GraphicsDevice[] getScreenDevices() throws HeadlessException {
         return null;
     }

@@ -23,11 +23,6 @@
 
 import java.awt.*;
 //import java.applet.Applet;
-import javax.swing.BorderFactory;
-import javax.swing.JApplet;
-import javax.swing.JFrame;
-import javax.swing.JLayeredPane;
-import javax.swing.JPanel;
 
 /**
  * @test
@@ -43,7 +38,7 @@ public class CursorOverlappedPanelsTest extends JApplet {
         //Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         String[] instructions = {
             "Verify that the Crosshair cursor from enabled panel"
@@ -64,6 +59,7 @@ public class CursorOverlappedPanelsTest extends JApplet {
         validate();
         try {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     createAndShowGUI();
                 }
@@ -77,7 +73,7 @@ public class CursorOverlappedPanelsTest extends JApplet {
     //Use Sysout.println to communicate with the user NOT System.out!!
     //Sysout.println ("Something Happened!");
     private static JPanel createPanel(Point location, boolean enabled) {
-        final JPanel panel = new JPanel();
+        JPanel panel = new JPanel();
         panel.setOpaque(false);
         panel.setEnabled(enabled);
         panel.setSize(new Dimension(200, 200));
@@ -90,8 +86,8 @@ public class CursorOverlappedPanelsTest extends JApplet {
         return panel;
     }
 
-    private static void createAndShowGUI() {
-        final JFrame frame = new JFrame("Test");
+    static void createAndShowGUI() {
+        JFrame frame = new JFrame("Test");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JLayeredPane layeredPane = new JLayeredPane();
@@ -108,12 +104,12 @@ public class CursorOverlappedPanelsTest extends JApplet {
 }// class BlockedWindowTest
 
 /* Place other classes related to the test after this line */
-/**
- * **************************************************
- * Standard Test Machinery DO NOT modify anything below -- it's a standard chunk
- * of code whose purpose is to make user interaction uniform, and thereby make
- * it simpler to read and understand someone else's test.
- * **************************************************
+/*
+  **************************************************
+  Standard Test Machinery DO NOT modify anything below -- it's a standard chunk
+  of code whose purpose is to make user interaction uniform, and thereby make
+  it simpler to read and understand someone else's test.
+  **************************************************
  */
 /**
  * This is part of the standard test machinery. It creates a dialog (with the
@@ -124,9 +120,12 @@ public class CursorOverlappedPanelsTest extends JApplet {
  * string to be displayed. This mimics System.out.println but works within the
  * test harness as well as standalone.
  */
-class Sysout {
+final class Sysout {
 
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions(String[] instructions) {
         dialog = new TestDialog(new Frame(), "Instructions");
@@ -161,19 +160,20 @@ class Sysout {
  */
 class TestDialog extends Dialog {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = -175121528743417031L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog(Frame frame, String name) {
         super(frame, name);
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea("", 15, maxStringLength, scrollBoth);
-        add("North", instructionsText);
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea("", 5, maxStringLength, scrollBoth);
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -188,15 +188,15 @@ class TestDialog extends Dialog {
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for (int i = 0; i < instructions.length; i++) {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i];
-            while (remainingStr.length() > 0) {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
                 if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                            lastIndexOf(' ', maxStringLength - 1);
+                        lastIndexOf(' ', maxStringLength - 1);
 
                     if (posOfSpace <= 0) {
                         posOfSpace = maxStringLength - 1;
@@ -211,9 +211,7 @@ class TestDialog extends Dialog {
                 }
 
                 instructionsText.append(printStr + "\n");
-
             }// while
-
         }// for
 
     }//printInstructions()

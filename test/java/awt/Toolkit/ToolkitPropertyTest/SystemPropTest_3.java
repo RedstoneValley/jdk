@@ -32,14 +32,17 @@
 //2) Verifies that Toolkit.areExtraMouseButtonsEnabled() returns false if the proprty is set through the command line.
 import java.awt.*;
 
-public class SystemPropTest_3 {
+public final class SystemPropTest_3 {
 
-    public static void main(String []s){
+  private SystemPropTest_3() {
+  }
+
+  public static void main(String []s){
         boolean propValue = Boolean.parseBoolean(System.getProperty("sun.awt.enableExtraMouseButtons"));
         System.out.println("Test System.getProperty = " + System.getProperty("sun.awt.enableExtraMouseButtons"));
         System.out.println("System.getProperty = " + propValue);
         if (propValue){
-            throw new RuntimeException("TEST FAILED : System property sun.awt.enableExtraMouseButtons = " + propValue);
+            throw new RuntimeException("TEST FAILED : System property sun.awt.enableExtraMouseButtons = " + true);
         }
         if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()){
             throw new RuntimeException("TEST FAILED : Toolkit.areExtraMouseButtonsEnabled() returns true");

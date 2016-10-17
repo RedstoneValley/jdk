@@ -31,10 +31,10 @@
   @run main GrabOnUnfocusableToplevel
 */
 
-/**
- * GrabOnUnfocusableToplevel.java
- *
- * summary: JPopupMenu does not display if invoker is instance of JWindow
+/*
+  GrabOnUnfocusableToplevel.java
+
+  summary: JPopupMenu does not display if invoker is instance of JWindow
  */
 
 import java.awt.Robot;
@@ -42,26 +42,24 @@ import java.awt.Robot;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.JButton;
-import javax.swing.JPopupMenu;
-import javax.swing.JWindow;
+public final class GrabOnUnfocusableToplevel {
+  private GrabOnUnfocusableToplevel() {
+  }
 
-import test.java.awt.regtesthelpers.Util;
-
-public class GrabOnUnfocusableToplevel {
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         Robot r = Util.createRobot();
         JWindow w = new JWindow();
         w.setSize(100, 100);
         w.setVisible(true);
         Util.waitForIdle(r);
 
-        final JPopupMenu menu = new JPopupMenu();
+        JPopupMenu menu = new JPopupMenu();
         JButton item = new JButton("A button in popup");
 
         menu.add(item);
 
         w.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent me) {
                 menu.show(me.getComponent(), me.getX(), me.getY());
 

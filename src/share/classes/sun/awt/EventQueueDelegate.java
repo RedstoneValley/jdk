@@ -28,9 +28,12 @@ package sun.awt;
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
 
-public class EventQueueDelegate {
+public final class EventQueueDelegate {
   private static final Object EVENT_QUEUE_DELEGATE_KEY = new StringBuilder(
       "EventQueueDelegate.Delegate");
+
+  private EventQueueDelegate() {
+  }
 
   public static Delegate getDelegate() {
     return (Delegate) AppContext.getAppContext().get(EVENT_QUEUE_DELEGATE_KEY);
@@ -48,7 +51,7 @@ public class EventQueueDelegate {
      * @return next {@code event} for the {@code EventDispatchThread}
      */
 
-    public AWTEvent getNextEvent(EventQueue eventQueue) throws InterruptedException;
+    AWTEvent getNextEvent(EventQueue eventQueue) throws InterruptedException;
 
     /**
      * Notifies delegate before EventQueue.dispatch method.
@@ -58,7 +61,7 @@ public class EventQueueDelegate {
      * @param event to be dispatched by {@code dispatch} method
      * @return handle to be passed to {@code afterDispatch} method
      */
-    public Object beforeDispatch(AWTEvent event) throws InterruptedException;
+    Object beforeDispatch(AWTEvent event) throws InterruptedException;
 
     /**
      * Notifies delegate after EventQueue.dispatch method.
@@ -66,6 +69,6 @@ public class EventQueueDelegate {
      * @param event  {@code event} dispatched by the {@code dispatch} method
      * @param handle object which came from {@code beforeDispatch} method
      */
-    public void afterDispatch(AWTEvent event, Object handle) throws InterruptedException;
+    void afterDispatch(AWTEvent event, Object handle) throws InterruptedException;
   }
 }

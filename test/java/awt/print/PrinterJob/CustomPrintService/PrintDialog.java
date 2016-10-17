@@ -23,7 +23,6 @@
 
 import java.awt.*;
 import java.awt.print.PrinterJob;
-import javax.print.PrintServiceLookup;
 
 /**
  * @test
@@ -32,7 +31,7 @@ import javax.print.PrintServiceLookup;
  * @run main/manual PrintDialog
  * @author reinhapa
  */
-public class PrintDialog {
+public final class PrintDialog {
 
     private static final String instructions =
         "This test shows a non native print dialog having a 'test' print service\n" +
@@ -42,7 +41,10 @@ public class PrintDialog {
         "Appearance: All parts disabled\n\n" +
         "Test passes if the dialog is shown as described above.";
 
-    public static void main(String[] args) throws Exception {
+  private PrintDialog() {
+  }
+
+  public static void main(String[] args) throws Exception {
         // instruction dialog
         Frame instruction = new Frame("Verify that no native print dialog is showed");
         instruction.add(new TextArea(instructions));

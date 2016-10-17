@@ -32,18 +32,18 @@
 import sun.awt.*;
 import java.awt.*;
 import java.awt.event.*;
+import sun.awt.OSInfo.OSType;
 
-public class bug8020209 {
-    static volatile int listenerCallCounter = 0;
+public final class bug8020209 {
+    static volatile int listenerCallCounter;
 
-    static AWTKeyStroke keyStrokes[] = {
-        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_DECIMAL,  InputEvent.META_MASK),
-        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_EQUALS,   InputEvent.META_MASK),
-        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_ESCAPE,   InputEvent.CTRL_MASK),
-    };
+    static final AWTKeyStroke[] keyStrokes = {
+        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_DECIMAL, InputEvent.META_MASK),
+        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_EQUALS, InputEvent.META_MASK),
+        AWTKeyStroke.getAWTKeyStroke(KeyEvent.VK_ESCAPE, InputEvent.CTRL_MASK),};
 
     public static void main(String[] args) throws Exception {
-        if (sun.awt.OSInfo.getOSType() != sun.awt.OSInfo.OSType.MACOSX) {
+        if (OSInfo.getOSType() != OSType.MACOSX) {
             System.out.println("This test is for MacOS only. Automatically passed on other platforms.");
             return;
         }
@@ -57,9 +57,7 @@ public class bug8020209 {
         createAndShowGUI();
         toolkit.realSync();
 
-        for (int i = 0; i < keyStrokes.length; ++i) {
-            AWTKeyStroke ks = keyStrokes[i];
-
+        for (AWTKeyStroke ks : keyStrokes) {
             int modKeyCode = getModKeyCode(ks.getModifiers());
             robot.keyPress(modKeyCode);
 
@@ -71,8 +69,8 @@ public class bug8020209 {
             toolkit.realSync();
 
             if (listenerCallCounter != 4) {
-                throw new Exception("Test failed: KeyListener for '" + ks.toString() +
-                        "' called " + listenerCallCounter + " times instead of 4!");
+                throw new Exception("Test failed: KeyListener for '" + ks +
+                    "' called " + listenerCallCounter + " times instead of 4!");
             }
 
             listenerCallCounter = 0;

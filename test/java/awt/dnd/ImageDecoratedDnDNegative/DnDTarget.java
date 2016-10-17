@@ -33,12 +33,12 @@ import java.io.*;
 
 
 class DnDTarget extends Panel implements DropTargetListener {
-    private int dragOperation = DnDConstants.ACTION_COPY | DnDConstants.ACTION_MOVE;
-    Color bgColor;
-    Color htColor;
+    private static final long serialVersionUID = 1055808460778144775L;
+    private final int dragOperation = DnDConstants.ACTION_COPY | DnDConstants.ACTION_MOVE;
+    final Color bgColor;
+    final Color htColor;
 
     DnDTarget(Color bgColor, Color htColor) {
-        super();
         this.bgColor = bgColor;
         this.htColor = htColor;
         setBackground(bgColor);
@@ -46,16 +46,19 @@ class DnDTarget extends Panel implements DropTargetListener {
     }
 
 
+    @Override
     public void dragEnter(DropTargetDragEvent e) {
         System.out.println("[Target] dragEnter");
         setBackground(htColor);
         repaint();
     }
 
+    @Override
     public void dragOver(DropTargetDragEvent e) {
         System.out.println("[Target] dragOver");
     }
 
+    @Override
     public void dragExit(DropTargetEvent e) {
         System.out.println("[Target] dragExit");
         setBackground(bgColor);
@@ -66,10 +69,12 @@ class DnDTarget extends Panel implements DropTargetListener {
         System.out.println("[Target] dragScroll");
     }
 
+    @Override
     public void dropActionChanged(DropTargetDragEvent e) {
         System.out.println("[Target] dropActionChanged");
     }
 
+    @Override
     public void drop(DropTargetDropEvent dtde) {
         System.out.println("[Target] drop");
         boolean success = false;
@@ -89,13 +94,7 @@ class DnDTarget extends Panel implements DropTargetListener {
                         add(button);
                         success = true;
                     }
-                } catch (IOException ioe) {
-                    System.out.println(ioe.getMessage());
-                    return;
-                } catch (UnsupportedFlavorException ufe) {
-                    System.out.println(ufe.getMessage());
-                    return;
-                }  catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                     return;
                 }

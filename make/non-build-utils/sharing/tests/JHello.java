@@ -25,8 +25,6 @@
 
 
 import java.awt.Font;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 public class JHello extends JFrame {
 
@@ -34,9 +32,9 @@ public class JHello extends JFrame {
         System.out.println("Hello");
 
         new JHello().show();
-        if (args.length == 1 && args[0].equals("quit")) {
+        if (args.length == 1 && "quit".equals(args[0])) {
             try {
-                Thread.currentThread().sleep(1000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
             System.exit(0);
@@ -46,7 +44,7 @@ public class JHello extends JFrame {
 
     JHello() {
         JLabel jlabel = new JLabel("Hello");
-        jlabel.setFont(new Font("Monospaced", Font.PLAIN, 144));
+        jlabel.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 144));
         getContentPane().add(jlabel);
         pack();
     }

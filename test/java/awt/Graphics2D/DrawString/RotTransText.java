@@ -21,8 +21,8 @@
  * questions.
  */
 
-/**
- * @test
+/*
+  @test
  * @bug 6683472 6687298
  * @summary Transformed fonts using drawString and TextLayout should be in
  *          the same position.
@@ -34,7 +34,10 @@ import java.awt.geom.*;
 import java.awt.image.*;
 import java.util.HashMap;
 
-public class RotTransText  {
+public final class RotTransText  {
+
+    private RotTransText() {
+    }
 
     public static void main(String[] args) {
 
@@ -68,7 +71,7 @@ public class RotTransText  {
             AffineTransform aff = AffineTransform.getTranslateInstance(50,90);
             aff.rotate(angle * Math.PI/180.0);
 
-            Font fnt = new Font("SansSerif", Font.PLAIN, 60);
+            Font fnt = new Font(Font.SANS_SERIF, Font.PLAIN, 60);
             fnt = fnt.deriveFont(Font.PLAIN, aff);
             g2d.setFont(fnt);
             g2d.setColor(Color.blue);
@@ -98,10 +101,10 @@ public class RotTransText  {
                     }
                 }
             }
-            if (redCount == 0 || (blueCount/(double)redCount) > 0.1) {
+            if (redCount == 0 || blueCount/(double)redCount > 0.1) {
                 throw new
                     RuntimeException("Ratio of blue to red is too great: " +
-                                     (blueCount/(double)redCount));
+                    blueCount/(double)redCount);
             }
         }
     }

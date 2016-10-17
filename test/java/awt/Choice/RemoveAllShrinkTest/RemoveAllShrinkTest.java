@@ -32,9 +32,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 
-public class RemoveAllShrinkTest {
+public final class RemoveAllShrinkTest {
 
-    public static void main(String[] args) {
+  private RemoveAllShrinkTest() {
+  }
+
+  public static void main(String[] args) {
         Frame f = new Frame();
         Choice choice = new Choice();
 

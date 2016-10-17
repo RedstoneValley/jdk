@@ -31,15 +31,15 @@ import java.awt.*;
 
 public class FontThread extends Thread {
 
-    String fontName = "Dialog";
+    String fontName = OwnedWindowsSerialization.DIALOG_LABEL;
     static FontThread thread1;
     static FontThread thread2;
     static FontThread thread3;
 
-    public static void main(String args[]) throws Exception {
-        thread1 = new FontThread("SansSerif");
-        thread2 = new FontThread("Serif");
-        thread3 = new FontThread("Monospaced");
+    public static void main(String[] args) throws Exception {
+        thread1 = new FontThread(Font.SANS_SERIF);
+        thread2 = new FontThread(Font.SERIF);
+        thread3 = new FontThread(Font.MONOSPACED);
         thread1.dometrics(60); // load classes first
         thread1.start();
         thread2.start();
@@ -53,25 +53,28 @@ public class FontThread extends Thread {
     }
 
     FontThread(String font) {
-        super();
-        this.fontName = font;
+        fontName = font;
     }
 
+    @Override
     public void run() {
-        System.out.println("started "+fontName); System.out.flush();
+        System.out.println("started "+ fontName); System.out.flush();
         dometrics(4000);
-        System.out.println("done "+fontName); System.out.flush();
+        System.out.println("done "+ fontName); System.out.flush();
     }
 
     private void dometrics(int max) {
         Font f = new Font(fontName, Font.PLAIN, 12);
         FontMetrics fm = Toolkit.getDefaultToolkit().getFontMetrics(f);
         for (char i=0;i<max;i++) {
-            if (f.canDisplay(i)) fm.charWidth(i);
+            if (f.canDisplay(i)) {
+                fm.charWidth(i);
+            }
         }
     }
 
     static class InterruptThread extends Thread {
+        @Override
         public void run() {
             while (true) {
                 try {

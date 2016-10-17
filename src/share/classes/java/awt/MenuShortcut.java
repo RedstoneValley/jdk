@@ -25,31 +25,32 @@
 package java.awt;
 
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
 /**
- * The <code>MenuShortcut</code>class represents a keyboard accelerator
+ * The {@code MenuShortcut}class represents a keyboard accelerator
  * for a MenuItem.
  * <p>
  * Menu shortcuts are created using virtual keycodes, not characters.
  * For example, a menu shortcut for Ctrl-a (assuming that Control is
  * the accelerator key) would be created with code like the following:
  * <p>
- * <code>MenuShortcut ms = new MenuShortcut(KeyEvent.VK_A, false);</code>
+ * {@code MenuShortcut ms = new MenuShortcut(KeyEvent.VK_A, false);}
  * <p> or alternatively
  * <p>
- * <code>MenuShortcut ms = new MenuShortcut(KeyEvent.getExtendedKeyCodeForChar('A'), false);</code>
+ * {@code MenuShortcut ms = new MenuShortcut(KeyEvent.getExtendedKeyCodeForChar('A'), false);}
  * <p>
  * Menu shortcuts may also be constructed for a wider set of keycodes
- * using the <code>java.awt.event.KeyEvent.getExtendedKeyCodeForChar</code> call.
+ * using the {@code java.awt.event.KeyEvent.getExtendedKeyCodeForChar} call.
  * For example, a menu shortcut for "Ctrl+cyrillic ef" is created by
  * <p>
- * <code>MenuShortcut ms = new MenuShortcut(KeyEvent.getExtendedKeyCodeForChar('\u0444'), false);
- * </code>
+ * {@code MenuShortcut ms = new MenuShortcut(KeyEvent.getExtendedKeyCodeForChar('\u0444'), false);
+ * }
  * <p>
  * Note that shortcuts created with a keycode or an extended keycode defined as a constant in
- * <code>KeyEvent</code>
+ * {@code KeyEvent}
  * work regardless of the current keyboard layout. However, a shortcut made of
- * an extended keycode not listed in <code>KeyEvent</code>
+ * an extended keycode not listed in {@code KeyEvent}
  * only work if the current keyboard layout produces a corresponding letter.
  * <p>
  * The accelerator key is platform-dependent and may be obtained
@@ -58,7 +59,7 @@ import java.awt.event.KeyEvent;
  * @author Thomas Ball
  * @since JDK1.1
  */
-public class MenuShortcut implements java.io.Serializable {
+public class MenuShortcut implements Serializable {
   /*
    * JDK 1.1 serialVersionUID
    */
@@ -75,10 +76,10 @@ public class MenuShortcut implements java.io.Serializable {
    * @serial
    * @see #getKey()
    * @see #usesShiftModifier()
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    * @since JDK1.1
    */
-  int key;
+  final int key;
   /**
    * Indicates whether the shft key was pressed.
    * If true, the shift key was pressed.
@@ -88,15 +89,15 @@ public class MenuShortcut implements java.io.Serializable {
    * @see #usesShiftModifier()
    * @since JDK1.1
    */
-  boolean usesShift;
+  final boolean usesShift;
 
   /**
    * Constructs a new MenuShortcut for the specified virtual keycode.
    *
    * @param key the raw keycode for this MenuShortcut, as would be returned
-   *            in the keyCode field of a {@link java.awt.event.KeyEvent KeyEvent} if
+   *            in the keyCode field of a {@link KeyEvent KeyEvent} if
    *            this key were pressed.
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    **/
   public MenuShortcut(int key) {
     this(key, false);
@@ -106,22 +107,22 @@ public class MenuShortcut implements java.io.Serializable {
    * Constructs a new MenuShortcut for the specified virtual keycode.
    *
    * @param key              the raw keycode for this MenuShortcut, as would be returned
-   *                         in the keyCode field of a {@link java.awt.event.KeyEvent KeyEvent} if
+   *                         in the keyCode field of a {@link KeyEvent KeyEvent} if
    *                         this key were pressed.
    * @param useShiftModifier indicates whether this MenuShortcut is invoked
    *                         with the SHIFT key down.
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    **/
   public MenuShortcut(int key, boolean useShiftModifier) {
     this.key = key;
-    this.usesShift = useShiftModifier;
+    usesShift = useShiftModifier;
   }
 
   /**
    * Returns the raw keycode of this MenuShortcut.
    *
    * @return the raw keycode of this MenuShortcut.
-   * @see java.awt.event.KeyEvent
+   * @see KeyEvent
    * @since JDK1.1
    */
   public int getKey() {
@@ -131,8 +132,8 @@ public class MenuShortcut implements java.io.Serializable {
   /**
    * Returns whether this MenuShortcut must be invoked using the SHIFT key.
    *
-   * @return <code>true</code> if this MenuShortcut must be invoked using the
-   * SHIFT key, <code>false</code> otherwise.
+   * @return {@code true} if this MenuShortcut must be invoked using the
+   * SHIFT key, {@code false} otherwise.
    * @since JDK1.1
    */
   public boolean usesShiftModifier() {
@@ -145,13 +146,13 @@ public class MenuShortcut implements java.io.Serializable {
    * and both either use or don't use the SHIFT key.
    *
    * @param s the MenuShortcut to compare with this.
-   * @return <code>true</code> if this MenuShortcut is the same as another,
-   * <code>false</code> otherwise.
+   * @return {@code true} if this MenuShortcut is the same as another,
+   * {@code false} otherwise.
    * @since JDK1.1
    */
   public boolean equals(MenuShortcut s) {
-    return (s != null && (s.getKey() == key) &&
-                (s.usesShiftModifier() == usesShift));
+    return s != null && s.getKey() == key &&
+        s.usesShiftModifier() == usesShift;
   }
 
   /**
@@ -160,8 +161,9 @@ public class MenuShortcut implements java.io.Serializable {
    * @return the hashcode for this MenuShortcut.
    * @since 1.2
    */
+  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
-    return (usesShift) ? (~key) : key;
+    return usesShift ? ~key : key;
   }
 
   /**
@@ -170,8 +172,8 @@ public class MenuShortcut implements java.io.Serializable {
    * and both either use or don't use the SHIFT key.
    *
    * @param obj the Object to compare with this.
-   * @return <code>true</code> if this MenuShortcut is the same as another,
-   * <code>false</code> otherwise.
+   * @return {@code true} if this MenuShortcut is the same as another,
+   * {@code false} otherwise.
    * @since 1.2
    */
   public boolean equals(Object obj) {
@@ -188,10 +190,8 @@ public class MenuShortcut implements java.io.Serializable {
    * @since JDK1.1
    */
   public String toString() {
-    int modifiers = 0;
-    if (!GraphicsEnvironment.isHeadless()) {
-      modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-    }
+    int modifiers;
+    modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     if (usesShiftModifier()) {
       modifiers |= Event.SHIFT_MASK;
     }

@@ -46,9 +46,9 @@ import sun.awt.SunToolkit;
 import java.awt.event.*;
 import java.util.Arrays;
 
-public class ModifierPermutation {
-    static boolean failed = false;
-    final static int BUTTONSNUMBER = MouseInfo.getNumberOfButtons();
+public final class ModifierPermutation {
+    static boolean failed;
+    static final int BUTTONSNUMBER = MouseInfo.getNumberOfButtons();
 
 /*
  * Because of some problems with BUTTONx_MASK
@@ -57,10 +57,10 @@ public class ModifierPermutation {
  * containment. After each permutation, make the same thing with
  * array of buttons and array of expected modifiers.
  */
-    static SunToolkit st = (SunToolkit)(Toolkit.getDefaultToolkit());
+    static final SunToolkit st = (SunToolkit) Toolkit.getDefaultToolkit();
     //all button masks
-    static int [] mouseButtons = new int [BUTTONSNUMBER]; //BUTTONx_MASK
-    static int [] mouseButtonsDown = new int [BUTTONSNUMBER]; //BUTTONx_DOWN_MASK
+    static final int [] mouseButtons = new int [BUTTONSNUMBER]; //BUTTONx_MASK
+    static final int [] mouseButtonsDown = new int [BUTTONSNUMBER]; //BUTTONx_DOWN_MASK
 
     //used to store mouse buttons sequences to press/to release
     static int [] affectedButtonsToPressRelease;
@@ -83,7 +83,10 @@ public class ModifierPermutation {
  */
     }
 
-    public static void main(String s[]){
+    private ModifierPermutation() {
+    }
+
+    public static void main(String[] s){
         init();
 
         try {
@@ -135,11 +138,7 @@ public class ModifierPermutation {
         f.addMouseListener(adapterTest1);
     }
     public static int factorial(int t){
-        if (t <=1 ) {
-            return 1;
-        } else {
-            return t*factorial(t-1);
-        }
+        return t <= 1 ? 1 : t * factorial(t - 1);
     }
 
     // use this variable to get current button on EDT in checkModifiers()
@@ -170,18 +169,6 @@ public class ModifierPermutation {
         }
     }
 
-    public static void checkModifiersOnPress(MouseEvent e){
-        System.out.println("checkModifiers. currentButtonIndexUnderAction ="+currentButtonIndexUnderAction);
-        for (int i = 0; i<= currentButtonIndexUnderAction; i++){
-            if ((e.getModifiersEx() & affectedButtonsToPressRelease[i]) == 0){
-                System.out.println("ERROR["+i+"]: PRESSED_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i] +" Event = "+e);
-                ModifierPermutation.failed = true;
-            } else {
-                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i]+ " Event = "+e);
-            }
-        }
-    }
-
     /*======================================================================*/
     public static void dumpValues(int button, int modifiers, int modifiersStandard, int modifiersEx, int modifiersExStandard){
         System.out.println("Button = "+button + "Modifiers = "+ modifiers + " standard = "+ modifiersStandard);
@@ -190,8 +177,8 @@ public class ModifierPermutation {
 
     public static void dumpArray(String id, int [] array){
         System.out.print(id);
-        for (int i = 0; i < array.length; i++){
-            System.out.print(array[i]+" ");
+        for (int anArray : array) {
+            System.out.print(anArray + " ");
         }
         System.out.println();
     }
@@ -231,31 +218,6 @@ public class ModifierPermutation {
         array[leftEl] = array[rightEl];
         array[rightEl] = tmp;
     }
-
-    public static void checkModifiersOnRelease(MouseEvent e){
-        System.out.println("CheckModifiersOnRelease. currentButtonIndexUnderAction ="+currentButtonIndexUnderAction);
-        for (int i = currentButtonIndexUnderAction+1; i<affectedButtonsToPressRelease.length; i++){
-            if ((e.getModifiersEx() & affectedButtonsToPressRelease[i]) == 0){
-                System.out.println("ERROR["+i+"]: RELEASED_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i] +" Event = "+e);
-                ModifierPermutation.failed = true;
-            } else {
-                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i]+ " Event = "+e);
-            }
-        }
-    }
-
-    public static void checkModifiersOnClick(MouseEvent e){
-        System.out.println("CheckModifiersOnClick. currentButtonIndexUnderAction ="+currentButtonIndexUnderAction);
-//Actually the same as in checkModifiersOnRelease()
-        for (int i = currentButtonIndexUnderAction+1; i<affectedButtonsToPressRelease.length; i++){
-            if ((e.getModifiersEx() & affectedButtonsToPressRelease[i]) == 0){
-                System.out.println("ERROR["+i+"]: CLICK_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i] +" Event = "+e);
-                ModifierPermutation.failed = true;
-            } else {
-                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+affectedButtonsToPressRelease[i]+ " Event = "+e);
-            }
-        }
-    }
 }
 ///~ ModifierPermutation clas
 
@@ -265,18 +227,61 @@ public class ModifierPermutation {
 class CheckingAdapter extends MouseAdapter{
     public CheckingAdapter(){}
 
+    public static void checkModifiersOnClick(MouseEvent e){
+        System.out.println("CheckModifiersOnClick. currentButtonIndexUnderAction ="+ ModifierPermutation.currentButtonIndexUnderAction);
+//Actually the same as in checkModifiersOnRelease()
+        for (int i = ModifierPermutation.currentButtonIndexUnderAction+1; i< ModifierPermutation.affectedButtonsToPressRelease.length; i++){
+            if ((e.getModifiersEx() & ModifierPermutation.affectedButtonsToPressRelease[i]) == 0){
+                System.out.println("ERROR["+i+"]: CLICK_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+ ModifierPermutation.affectedButtonsToPressRelease[i] +" Event = "+e);
+                ModifierPermutation.failed = true;
+            } else {
+                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+
+                    ModifierPermutation.affectedButtonsToPressRelease[i]+ " Event = "+e);
+            }
+        }
+    }
+
+    public static void checkModifiersOnRelease(MouseEvent e){
+        System.out.println("CheckModifiersOnRelease. currentButtonIndexUnderAction ="+ ModifierPermutation.currentButtonIndexUnderAction);
+        for (int i = ModifierPermutation.currentButtonIndexUnderAction+1; i< ModifierPermutation.affectedButtonsToPressRelease.length; i++){
+            if ((e.getModifiersEx() & ModifierPermutation.affectedButtonsToPressRelease[i]) == 0){
+                System.out.println("ERROR["+i+"]: RELEASED_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+ ModifierPermutation.affectedButtonsToPressRelease[i] +" Event = "+e);
+                ModifierPermutation.failed = true;
+            } else {
+                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+
+                    ModifierPermutation.affectedButtonsToPressRelease[i]+ " Event = "+e);
+            }
+        }
+    }
+
+    public static void checkModifiersOnPress(MouseEvent e){
+        System.out.println("checkModifiers. currentButtonIndexUnderAction ="+ ModifierPermutation.currentButtonIndexUnderAction);
+        for (int i = 0; i<= ModifierPermutation.currentButtonIndexUnderAction; i++){
+            if ((e.getModifiersEx() & ModifierPermutation.affectedButtonsToPressRelease[i]) == 0){
+                System.out.println("ERROR["+i+"]: PRESSED_EVENT is not filled with correct values. affectedButtonsToPressRelease[i]= "+ ModifierPermutation.affectedButtonsToPressRelease[i] +" Event = "+e);
+                ModifierPermutation.failed = true;
+            } else {
+                System.out.println("CORRECT["+i+"]: affectedButtonsToPressRelease[i]= "+
+                    ModifierPermutation.affectedButtonsToPressRelease[i]+ " Event = "+e);
+            }
+        }
+    }
+
+    @Override
     public void mousePressed(MouseEvent e) {
         System.out.println("PRESSED "+e);
-        ModifierPermutation.checkModifiersOnPress(e);
+        checkModifiersOnPress(e);
     }
+    @Override
     public void mouseReleased(MouseEvent e) {
         System.out.println("RELEASED "+e);
-        ModifierPermutation.checkModifiersOnRelease(e);
+        checkModifiersOnRelease(e);
 
     }
+    @Override
     public void mouseClicked(MouseEvent e) {
         System.out.println("CLICKED "+e);
-        ModifierPermutation.checkModifiersOnClick(e);
+        checkModifiersOnClick(e);
     }
 }
 

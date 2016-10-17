@@ -28,10 +28,11 @@
  * @run main/othervm -Djava.awt.headless=true GE_init4
  */
 
-import java.awt.Toolkit;
+public final class GE_init5 {
+  private GE_init5() {
+  }
 
-public class GE_init5 {
-    public static void main(String[] args) {
+  public static void main(String[] args) {
         GraphicsEnvironment.getLocalGraphicsEnvironment();
     }
 }

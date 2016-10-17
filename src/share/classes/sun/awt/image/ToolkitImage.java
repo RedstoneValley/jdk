@@ -85,6 +85,7 @@ public class ToolkitImage extends Image {
    * If the width isn't known, then the ImageObserver object will be
    * notified when the data is available.
    */
+  @Override
   public synchronized int getWidth(ImageObserver iw) {
     if (src != null) {
       src.checkSecurity(null, false);
@@ -103,6 +104,7 @@ public class ToolkitImage extends Image {
    * If the height isn't known, then the ImageObserver object will be
    * notified when the data is available.
    */
+  @Override
   public synchronized int getHeight(ImageObserver iw) {
     if (src != null) {
       src.checkSecurity(null, false);
@@ -116,6 +118,7 @@ public class ToolkitImage extends Image {
     return height;
   }
 
+  @Override
   public ImageProducer getSource() {
     if (src != null) {
       src.checkSecurity(null, false);
@@ -123,6 +126,7 @@ public class ToolkitImage extends Image {
     return source;
   }
 
+  @Override
   public Graphics getGraphics() {
     throw new UnsupportedOperationException(
         "getGraphics() not valid for images " + "created with createImage(producer)");
@@ -138,6 +142,7 @@ public class ToolkitImage extends Image {
    * be used to store an optional comment which can be presented to
    * the user as a description of the image, its source, or its author.
    */
+  @Override
   public Object getProperty(String name, ImageObserver observer) {
     if (name == null) {
       throw new NullPointerException("null property name is not allowed");
@@ -159,6 +164,7 @@ public class ToolkitImage extends Image {
     return o;
   }
 
+  @Override
   public void flush() {
     if (src != null) {
       src.checkSecurity(null, false);
@@ -178,6 +184,7 @@ public class ToolkitImage extends Image {
     }
   }
 
+  @Override
   public void setAccelerationPriority(float priority) {
     super.setAccelerationPriority(priority);
     ImageRepresentation imageRep = getImageRep();
@@ -209,9 +216,9 @@ public class ToolkitImage extends Image {
     if (src != null) {
       src.checkSecurity(null, false);
     }
-    if ((availinfo & ImageObserver.ERROR) == 0 && ((~availinfo) & (ImageObserver.WIDTH |
-                                                                       ImageObserver.HEIGHT |
-                                                                       ImageObserver.PROPERTIES))
+    if ((availinfo & ImageObserver.ERROR) == 0 && (~availinfo & (ImageObserver.WIDTH |
+                                                                     ImageObserver.HEIGHT |
+                                                                     ImageObserver.PROPERTIES))
         != 0) {
       addWatcher(iw, false);
     }
@@ -283,7 +290,7 @@ public class ToolkitImage extends Image {
 
   synchronized void infoDone(int status) {
     if (status == ImageConsumer.IMAGEERROR
-        || ((~availinfo) & (ImageObserver.WIDTH | ImageObserver.HEIGHT)) != 0) {
+        || (~availinfo & (ImageObserver.WIDTH | ImageObserver.HEIGHT)) != 0) {
       addInfo(ImageObserver.ERROR);
     } else if ((availinfo & ImageObserver.PROPERTIES) == 0) {
       setProperties(null);

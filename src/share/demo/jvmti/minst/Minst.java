@@ -43,11 +43,14 @@
  *    injections of all class files.
  */
 
-public class Minst {
+public final class Minst {
 
     /* Master switch that activates methods. */
 
-  private static int engaged = 0;
+  private static int engaged;
+
+  private Minst() {
+  }
 
     /* At the very beginning of every method, a call to method_entry()
      *     is injected.

@@ -30,10 +30,13 @@
 import java.awt.*;
 import java.awt.image.*;
 
-public class DrawStringCrash {
+public final class DrawStringCrash {
 
-    public static void main(String[] args) {
-        StringBuffer sb = new StringBuffer();
+  private DrawStringCrash() {
+  }
+
+  public static void main(String[] args) {
+        StringBuilder sb = new StringBuilder();
         String s = "abcdefghijklmnopqrstuzwxyz";
         for (int x = 0; x < 100000 ; x++) {
            sb.append(s);
@@ -57,7 +60,7 @@ public class DrawStringCrash {
                 return;
             }
             sb.append(sb);
-            len *= 2;
+          len <<= 1;
         }
         return;
     }

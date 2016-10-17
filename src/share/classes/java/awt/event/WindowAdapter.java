@@ -30,18 +30,18 @@ package java.awt.event;
  * The methods in this class are empty. This class exists as
  * convenience for creating listener objects.
  * <p>
- * Extend this class to create a <code>WindowEvent</code> listener
+ * Extend this class to create a {@code WindowEvent} listener
  * and override the methods for the events of interest. (If you implement the
- * <code>WindowListener</code> interface, you have to define all of
+ * {@code WindowListener} interface, you have to define all of
  * the methods in it. This abstract class defines null methods for them
  * all, so you can only have to define methods for events you care about.)
  * <p>
  * Create a listener object using the extended class and then register it with
- * a Window using the window's <code>addWindowListener</code>
+ * a Window using the window's {@code addWindowListener}
  * method. When the window's status changes by virtue of being opened,
  * closed, activated or deactivated, iconified or deiconified,
  * the relevant method in the listener
- * object is invoked, and the <code>WindowEvent</code> is passed to it.
+ * object is invoked, and the {@code WindowEvent} is passed to it.
  *
  * @author Carl Quinn
  * @author Amy Fowler
@@ -58,6 +58,7 @@ public abstract class WindowAdapter
   /**
    * Invoked when a window has been opened.
    */
+  @Override
   public void windowOpened(WindowEvent e) {
   }
 
@@ -65,36 +66,42 @@ public abstract class WindowAdapter
    * Invoked when a window is in the process of being closed.
    * The close operation can be overridden at this point.
    */
+  @Override
   public void windowClosing(WindowEvent e) {
   }
 
   /**
    * Invoked when a window has been closed.
    */
+  @Override
   public void windowClosed(WindowEvent e) {
   }
 
   /**
    * Invoked when a window is iconified.
    */
+  @Override
   public void windowIconified(WindowEvent e) {
   }
 
   /**
    * Invoked when a window is de-iconified.
    */
+  @Override
   public void windowDeiconified(WindowEvent e) {
   }
 
   /**
    * Invoked when a window is activated.
    */
+  @Override
   public void windowActivated(WindowEvent e) {
   }
 
   /**
    * Invoked when a window is de-activated.
    */
+  @Override
   public void windowDeactivated(WindowEvent e) {
   }
 
@@ -103,6 +110,7 @@ public abstract class WindowAdapter
    *
    * @since 1.4
    */
+  @Override
   public void windowStateChanged(WindowEvent e) {
   }
 
@@ -113,6 +121,7 @@ public abstract class WindowAdapter
    *
    * @since 1.4
    */
+  @Override
   public void windowGainedFocus(WindowEvent e) {
   }
 
@@ -123,6 +132,7 @@ public abstract class WindowAdapter
    *
    * @since 1.4
    */
+  @Override
   public void windowLostFocus(WindowEvent e) {
   }
 }

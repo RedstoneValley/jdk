@@ -31,17 +31,12 @@
   @run      main ResetMostRecentFocusOwnerTest
 */
 
-import java.applet.Applet;
 import java.awt.AWTEvent;
-import java.awt.FlowLayout;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.WindowEvent;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import test.java.awt.regtesthelpers.Util;
 
 public class ResetMostRecentFocusOwnerTest extends Applet {
 
@@ -55,24 +50,25 @@ public class ResetMostRecentFocusOwnerTest extends Applet {
     public void start() {
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.err.println(e);
             }
         }, FocusEvent.FOCUS_EVENT_MASK | WindowEvent.WINDOW_FOCUS_EVENT_MASK);
 
-        boolean gained = false;
-        final Robot robot = Util.createRobot();
+        boolean gained;
+        Robot robot = Util.createRobot();
 
         JFrame frame1 = new JFrame("Main Frame");
-        final JButton b1 = new JButton("button1");
+        JButton b1 = new JButton("button1");
         frame1.add(b1);
         frame1.pack();
         frame1.setLocation(0, 300);
 
         Util.showWindowWait(frame1);
 
-        final JFrame frame2 = new JFrame("Test Frame");
-        final JButton b2 = new JButton("button2");
+        JFrame frame2 = new JFrame("Test Frame");
+        JButton b2 = new JButton("button2");
         frame2.add(b2);
         frame2.pack();
         frame2.setLocation(300, 300);
@@ -90,6 +86,7 @@ public class ResetMostRecentFocusOwnerTest extends Applet {
         //
         if (!b1.hasFocus()) {
             gained = Util.trackFocusGained(b1, new Runnable() {
+                @Override
                 public void run() {
                     Util.clickOnComp(b1, robot);
                 }
@@ -105,8 +102,8 @@ public class ResetMostRecentFocusOwnerTest extends Applet {
         //
         // Click <button2>, check that focus is set on the parent frame.
         //
-        gained = false;
         gained = Util.trackFocusGained(frame2, new Runnable() {
+            @Override
             public void run() {
                 Util.clickOnComp(b2, robot);
             }

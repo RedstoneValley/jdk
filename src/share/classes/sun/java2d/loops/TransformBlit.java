@@ -43,11 +43,11 @@ import sun.java2d.pipe.Region;
  */
 
 public class TransformBlit extends GraphicsPrimitive {
-  public static final String methodSignature = "TransformBlit(...)".toString();
+  public static final String methodSignature = "TransformBlit(...)";
 
   public static final int primTypeID = makePrimTypeID();
 
-  private static RenderCache blitcache = new RenderCache(10);
+  private static final RenderCache blitcache = new RenderCache(10);
 
   // REMIND: do we have a general loop?
   static {
@@ -87,10 +87,13 @@ public class TransformBlit extends GraphicsPrimitive {
     return blit;
   }
 
-  public native void Transform(
+  public void Transform(
       SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
-      int srcx, int srcy, int dstx, int dsty, int width, int height);
+      int srcx, int srcy, int dstx, int dsty, int width, int height) {
+    // TODO: Native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
         /*
@@ -102,18 +105,20 @@ public class TransformBlit extends GraphicsPrimitive {
     return null;
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceTransformBlit(this);
   }
 
   private static class TraceTransformBlit extends TransformBlit {
-    TransformBlit target;
+    final TransformBlit target;
 
     public TraceTransformBlit(TransformBlit target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void Transform(
         SurfaceData src, SurfaceData dst, Composite comp, Region clip, AffineTransform at, int hint,
         int srcx, int srcy, int dstx, int dsty, int width, int height) {
@@ -121,6 +126,7 @@ public class TransformBlit extends GraphicsPrimitive {
       target.Transform(src, dst, comp, clip, at, hint, srcx, srcy, dstx, dsty, width, height);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

@@ -29,9 +29,7 @@
   @run applet ImageDecoratedDnDInOut.html
 */
 
-import java.applet.Applet;
 import java.awt.*;
-import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.dnd.DragSource;
 
@@ -43,7 +41,7 @@ public class ImageDecoratedDnDInOut extends Applet {
         //Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         String[] instructions =
                 {
@@ -82,8 +80,8 @@ public class ImageDecoratedDnDInOut extends Applet {
         dropTarget = new DnDTarget(Color.red, Color.yellow);
         dragSource = new DnDSource("Drag ME! (" + (DragSource.isDragImageSupported()?"with ":"without") + " image)" );
 
-        mainPanel.add(dragSource, "North");
-        mainPanel.add(dropTarget, "Center");
+        mainPanel.add(dragSource, BorderLayout.NORTH);
+        mainPanel.add(dropTarget, BorderLayout.CENTER);
         f.add(mainPanel, BorderLayout.CENTER);
 
         f.setVisible(true);
@@ -134,8 +132,11 @@ public class ImageDecoratedDnDInOut extends Applet {
  * to read and understand someone else's test.
  * **************************************************
  */
-class Sysout {
+final class Sysout {
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions(String[] instructions) {
         dialog = new TestDialog(new Frame(), "Instructions");
@@ -167,19 +168,20 @@ class Sysout {
 
 class TestDialog extends Dialog {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog(Frame frame, String name) {
         super(frame, name);
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea("", 15, maxStringLength, scrollBoth);
-        add("North", instructionsText);
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea("", 5, maxStringLength, scrollBoth);
-        add("South", messageText);
+        add(BorderLayout.SOUTH, messageText);
 
         pack();
 
@@ -194,17 +196,19 @@ class TestDialog extends Dialog {
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for (int i = 0; i < instructions.length; i++) {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[i];
-            while (remainingStr.length() > 0) {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
                 if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
                     int posOfSpace = remainingStr.
-                            lastIndexOf(' ', maxStringLength - 1);
+                        lastIndexOf(' ', maxStringLength - 1);
 
-                    if (posOfSpace <= 0) posOfSpace = maxStringLength - 1;
+                    if (posOfSpace <= 0) {
+                        posOfSpace = maxStringLength - 1;
+                    }
 
                     printStr = remainingStr.substring(0, posOfSpace + 1);
                     remainingStr = remainingStr.substring(posOfSpace + 1);
@@ -216,9 +220,7 @@ class TestDialog extends Dialog {
                 }
 
                 instructionsText.append(printStr + "\n");
-
             }// while
-
         }// for
 
     }//printInstructions()

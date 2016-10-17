@@ -25,34 +25,36 @@
 
 package java.awt.dnd;
 
+import java.util.EventObject;
+
 /**
- * The <code>DropTargetEvent</code> is the base
- * class for both the <code>DropTargetDragEvent</code>
- * and the <code>DropTargetDropEvent</code>.
+ * The {@code DropTargetEvent} is the base
+ * class for both the {@code DropTargetDragEvent}
+ * and the {@code DropTargetDropEvent}.
  * It encapsulates the current state of the Drag and
  * Drop operations, in particular the current
- * <code>DropTargetContext</code>.
+ * {@code DropTargetContext}.
  *
  * @since 1.2
  */
 
-public class DropTargetEvent extends java.util.EventObject {
+public class DropTargetEvent extends EventObject {
 
   private static final long serialVersionUID = 2821229066521922993L;
   /**
-   * The <code>DropTargetContext</code> associated with this
-   * <code>DropTargetEvent</code>.
+   * The {@code DropTargetContext} associated with this
+   * {@code DropTargetEvent}.
    *
    * @serial
    */
-  protected DropTargetContext context;
+  protected final DropTargetContext context;
 
   /**
-   * Construct a <code>DropTargetEvent</code> object with
-   * the specified <code>DropTargetContext</code>.
+   * Construct a {@code DropTargetEvent} object with
+   * the specified {@code DropTargetContext}.
    * <p>
    *
-   * @param dtc The <code>DropTargetContext</code>
+   * @param dtc The {@code DropTargetContext}
    * @throws NullPointerException if {@code dtc} equals {@code null}.
    * @see #getSource()
    * @see #getDropTargetContext()
@@ -65,11 +67,11 @@ public class DropTargetEvent extends java.util.EventObject {
   }
 
   /**
-   * This method returns the <code>DropTargetContext</code>
-   * associated with this <code>DropTargetEvent</code>.
+   * This method returns the {@code DropTargetContext}
+   * associated with this {@code DropTargetEvent}.
    * <p>
    *
-   * @return the <code>DropTargetContext</code>
+   * @return the {@code DropTargetContext}
    */
 
   public DropTargetContext getDropTargetContext() {

@@ -33,15 +33,18 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import static java.awt.font.NumericShaper.*;
 
-public class MTTest {
+public final class MTTest {
     static volatile boolean runrun = true;
-    static volatile boolean err = false;
+    static volatile boolean err;
 
-    final static String text = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -456 (Thai) \u0e01\u0e33 01.23";
-    final static char[] expected1 = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -\u06f4\u06f5\u06f6 (Thai) \u0e01\u0e33 \u0e50\u0e51.\u0e52\u0e53".toCharArray(); // for EASTERN_ARABIC
-    final static char[] expected2 = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -\u0664\u0665\u0666 (Thai) \u0e01\u0e33 \u0e50\u0e51.\u0e52\u0e53".toCharArray(); // for ARABIC
+    static final String text = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -456 (Thai) \u0e01\u0e33 01.23";
+    static final char[] expected1 = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -\u06f4\u06f5\u06f6 (Thai) \u0e01\u0e33 \u0e50\u0e51.\u0e52\u0e53".toCharArray(); // for EASTERN_ARABIC
+    static final char[] expected2 = "-123 (English) 456.00 (Arabic) \u0641\u0642\u0643 -\u0664\u0665\u0666 (Thai) \u0e01\u0e33 \u0e50\u0e51.\u0e52\u0e53".toCharArray(); // for ARABIC
 
     static NumericShaper ns1, ns2, ns3, ns4;
+
+    private MTTest() {
+    }
 
     public static void main(String[] args) {
         System.out.println("original: " + text);
@@ -98,8 +101,8 @@ public class MTTest {
     }
 
     private static class Work implements Runnable {
-        NumericShaper ns;
-        char[] expectedText;
+        final NumericShaper ns;
+        final char[] expectedText;
 
         Work(NumericShaper ns, char[] expectedText) {
             this.ns = ns;
@@ -107,6 +110,7 @@ public class MTTest {
 
         }
 
+        @Override
         public void run() {
             int count = 0;
             while (runrun) {

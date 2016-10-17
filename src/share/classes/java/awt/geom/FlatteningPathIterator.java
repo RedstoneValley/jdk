@@ -28,7 +28,7 @@ package java.awt.geom;
 import java.util.NoSuchElementException;
 
 /**
- * The <code>FlatteningPathIterator</code> class returns a flattened view of
+ * The {@code FlatteningPathIterator} class returns a flattened view of
  * another {@link PathIterator} object.  Other {@link java.awt.Shape Shape}
  * classes can use this class to provide flattening behavior for their paths
  * without having to perform the interpolation calculations themselves.
@@ -45,7 +45,7 @@ public class FlatteningPathIterator implements PathIterator {
 
   int limit;                          // Maximum number of recursion levels
 
-  double hold[] = new double[14];     // The cache of interpolated coords
+  double[] hold = new double[14];     // The cache of interpolated coords
   // Note that this must be long enough
   // to store a full cubic segment and
   // a relative cubic segment to avoid
@@ -71,7 +71,7 @@ public class FlatteningPathIterator implements PathIterator {
   // returned in the next call to
   // currentSegment().
 
-  int levels[];                       // The recursion level at which
+  int[] levels;                       // The recursion level at which
   // each curve being held in storage
   // was generated.
 
@@ -82,7 +82,7 @@ public class FlatteningPathIterator implements PathIterator {
   boolean done;                       // True when iteration is done
 
   /**
-   * Constructs a new <code>FlatteningPathIterator</code> object that
+   * Constructs a new {@code FlatteningPathIterator} object that
    * flattens a path as it iterates over it.  The iterator does not
    * subdivide any curve read from the source iterator to more than
    * 10 levels of subdivision which yields a maximum of 1024 line
@@ -97,14 +97,14 @@ public class FlatteningPathIterator implements PathIterator {
   }
 
   /**
-   * Constructs a new <code>FlatteningPathIterator</code> object
+   * Constructs a new {@code FlatteningPathIterator} object
    * that flattens a path as it iterates over it.
-   * The <code>limit</code> parameter allows you to control the
+   * The {@code limit} parameter allows you to control the
    * maximum number of recursive subdivisions that the iterator
    * can make before it assumes that the curve is flat enough
-   * without measuring against the <code>flatness</code> parameter.
+   * without measuring against the {@code flatness} parameter.
    * The flattened iteration therefore never generates more than
-   * a maximum of <code>(2^limit)</code> line segments per curve.
+   * a maximum of {@code (2^limit)} line segments per curve.
    *
    * @param src      the original unflattened path being iterated over
    * @param flatness the maximum allowable distance between the
@@ -112,7 +112,7 @@ public class FlatteningPathIterator implements PathIterator {
    * @param limit    the maximum number of recursive subdivisions
    *                 allowed for any curved segment
    * @throws IllegalArgumentException if
-   *                                  <code>flatness</code> or <code>limit</code>
+   *                                  {@code flatness} or {@code limit}
    *                                  is less than zero
    */
   public FlatteningPathIterator(PathIterator src, double flatness, int limit) {
@@ -123,9 +123,9 @@ public class FlatteningPathIterator implements PathIterator {
       throw new IllegalArgumentException("limit must be >= 0");
     }
     this.src = src;
-    this.squareflat = flatness * flatness;
+    squareflat = flatness * flatness;
     this.limit = limit;
-    this.levels = new int[limit + 1];
+    levels = new int[limit + 1];
     // prime the first path segment
     next(false);
   }
@@ -133,7 +133,7 @@ public class FlatteningPathIterator implements PathIterator {
   /**
    * Returns the flatness of this iterator.
    *
-   * @return the flatness of this <code>FlatteningPathIterator</code>.
+   * @return the flatness of this {@code FlatteningPathIterator}.
    */
   public double getFlatness() {
     return Math.sqrt(squareflat);
@@ -143,7 +143,7 @@ public class FlatteningPathIterator implements PathIterator {
    * Returns the recursion limit of this iterator.
    *
    * @return the recursion limit of this
-   * <code>FlatteningPathIterator</code>.
+   * {@code FlatteningPathIterator}.
    */
   public int getRecursionLimit() {
     return limit;
@@ -158,6 +158,7 @@ public class FlatteningPathIterator implements PathIterator {
    * @see PathIterator#WIND_EVEN_ODD
    * @see PathIterator#WIND_NON_ZERO
    */
+  @Override
   public int getWindingRule() {
     return src.getWindingRule();
   }
@@ -165,9 +166,10 @@ public class FlatteningPathIterator implements PathIterator {
   /**
    * Tests if the iteration is complete.
    *
-   * @return <code>true</code> if all the segments have
-   * been read; <code>false</code> otherwise.
+   * @return {@code true} if all the segments have
+   * been read; {@code false} otherwise.
    */
+  @Override
   public boolean isDone() {
     return done;
   }
@@ -177,6 +179,7 @@ public class FlatteningPathIterator implements PathIterator {
    * along the primary direction of traversal as long as there are
    * more points in that direction.
    */
+  @Override
   public void next() {
     next(true);
   }
@@ -202,13 +205,14 @@ public class FlatteningPathIterator implements PathIterator {
    * @see PathIterator#SEG_LINETO
    * @see PathIterator#SEG_CLOSE
    */
+  @Override
   public int currentSegment(float[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("flattening iterator out of bounds");
     }
     int type = holdType;
     if (type != SEG_CLOSE) {
-      coords[0] = (float) hold[holdIndex + 0];
+      coords[0] = (float) hold[holdIndex];
       coords[1] = (float) hold[holdIndex + 1];
       if (type != SEG_MOVETO) {
         type = SEG_LINETO;
@@ -238,13 +242,14 @@ public class FlatteningPathIterator implements PathIterator {
    * @see PathIterator#SEG_LINETO
    * @see PathIterator#SEG_CLOSE
    */
+  @Override
   public int currentSegment(double[] coords) {
     if (isDone()) {
       throw new NoSuchElementException("flattening iterator out of bounds");
     }
     int type = holdType;
     if (type != SEG_CLOSE) {
-      coords[0] = hold[holdIndex + 0];
+      coords[0] = hold[holdIndex];
       coords[1] = hold[holdIndex + 1];
       if (type != SEG_MOVETO) {
         type = SEG_LINETO;
@@ -261,7 +266,7 @@ public class FlatteningPathIterator implements PathIterator {
     if (holdIndex - want < 0) {
       int have = hold.length - holdIndex;
       int newsize = hold.length + GROW_SIZE;
-      double newhold[] = new double[newsize];
+      double[] newhold = new double[newsize];
       System.arraycopy(hold, holdIndex, newhold, holdIndex + GROW_SIZE, have);
       hold = newhold;
       holdIndex += GROW_SIZE;
@@ -308,7 +313,7 @@ public class FlatteningPathIterator implements PathIterator {
           // Move the coordinates to the end of the array.
           holdIndex = hold.length - 6;
           holdEnd = hold.length - 2;
-          hold[holdIndex + 0] = curx;
+          hold[holdIndex] = curx;
           hold[holdIndex + 1] = cury;
           hold[holdIndex + 2] = hold[0];
           hold[holdIndex + 3] = hold[1];
@@ -351,7 +356,7 @@ public class FlatteningPathIterator implements PathIterator {
           // Move the coordinates to the end of the array.
           holdIndex = hold.length - 8;
           holdEnd = hold.length - 2;
-          hold[holdIndex + 0] = curx;
+          hold[holdIndex] = curx;
           hold[holdIndex + 1] = cury;
           hold[holdIndex + 2] = hold[0];
           hold[holdIndex + 3] = hold[1];

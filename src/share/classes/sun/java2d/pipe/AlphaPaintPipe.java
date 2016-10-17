@@ -52,6 +52,7 @@ public class AlphaPaintPipe implements CompositePipe {
   static WeakReference cachedLastColorModel;
   static WeakReference cachedLastData;
 
+  @Override
   public Object startSequence(SunGraphics2D sg, Shape s, Rectangle devR, int[] abox) {
     PaintContext paintContext = sg.paint.createContext(sg.getDeviceColorModel(),
         devR,
@@ -61,10 +62,12 @@ public class AlphaPaintPipe implements CompositePipe {
     return new TileContext(sg, paintContext);
   }
 
+  @Override
   public boolean needTile(Object context, int x, int y, int w, int h) {
     return true;
   }
 
+  @Override
   public void renderPathTile(
       Object ctx, byte[] atile, int offset, int tilesize, int x, int y, int w, int h) {
     TileContext context = (TileContext) ctx;
@@ -91,7 +94,7 @@ public class AlphaPaintPipe implements CompositePipe {
         int tw = Math.min(w - relx, TILE_SIZE);
 
         Raster srcRaster = paintCtxt.getRaster(tx, ty, tw, th);
-        if ((srcRaster.getMinX() != 0) || (srcRaster.getMinY() != 0)) {
+        if (srcRaster.getMinX() != 0 || srcRaster.getMinY() != 0) {
           srcRaster = srcRaster.createTranslatedChild(0, 0);
         }
         if (lastRas != srcRaster) {
@@ -151,10 +154,12 @@ public class AlphaPaintPipe implements CompositePipe {
     }
   }
 
+  @Override
   public void skipTile(Object context, int x, int y) {
     return;
   }
 
+  @Override
   public void endSequence(Object ctx) {
     TileContext context = (TileContext) ctx;
     if (context.paintCtxt != null) {
@@ -173,14 +178,14 @@ public class AlphaPaintPipe implements CompositePipe {
   }
 
   static class TileContext {
-    SunGraphics2D sunG2D;
-    PaintContext paintCtxt;
-    ColorModel paintModel;
+    final SunGraphics2D sunG2D;
+    final PaintContext paintCtxt;
+    final ColorModel paintModel;
     WeakReference lastRaster;
     WeakReference lastData;
     MaskBlit lastMask;
     Blit lastBlit;
-    SurfaceData dstData;
+    final SurfaceData dstData;
 
     public TileContext(SunGraphics2D sg, PaintContext pc) {
       sunG2D = sg;
@@ -189,8 +194,8 @@ public class AlphaPaintPipe implements CompositePipe {
       dstData = sg.getSurfaceData();
       synchronized (AlphaPaintPipe.class) {
         if (cachedLastColorModel != null && cachedLastColorModel.get() == paintModel) {
-          this.lastRaster = cachedLastRaster;
-          this.lastData = cachedLastData;
+          lastRaster = cachedLastRaster;
+          lastData = cachedLastData;
         }
       }
     }

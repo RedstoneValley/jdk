@@ -40,9 +40,9 @@ import sun.java2d.SurfaceData;
  * (as specified by proportional amounts of the outer delta vectors)
  */
 public class DrawParallelogram extends GraphicsPrimitive {
-  public final static String methodSignature = "DrawParallelogram(...)".toString();
+  public static final String methodSignature = "DrawParallelogram(...)";
 
-  public final static int primTypeID = makePrimTypeID();
+  public static final int primTypeID = makePrimTypeID();
 
   protected DrawParallelogram(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     super(methodSignature, primTypeID, srctype, comptype, dsttype);
@@ -61,10 +61,13 @@ public class DrawParallelogram extends GraphicsPrimitive {
   /**
    * All DrawParallelogram implementors must have this invoker method
    */
-  public native void DrawParallelogram(
+  public void DrawParallelogram(
       SunGraphics2D sg, SurfaceData dest, double x, double y, double dx1, double dy1, double dx2,
-      double dy2, double lw1, double lw2);
+      double dy2, double lw1, double lw2) {
+    // TODO: This is native in OpenJDK AWT
+  }
 
+  @Override
   public GraphicsPrimitive makePrimitive(
       SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
     // REMIND: iterate with a FillRect primitive?
@@ -72,18 +75,20 @@ public class DrawParallelogram extends GraphicsPrimitive {
         srctype + " with " + comptype);
   }
 
+  @Override
   public GraphicsPrimitive traceWrap() {
     return new TraceDrawParallelogram(this);
   }
 
   private static class TraceDrawParallelogram extends DrawParallelogram {
-    DrawParallelogram target;
+    final DrawParallelogram target;
 
     public TraceDrawParallelogram(DrawParallelogram target) {
       super(target.getSourceType(), target.getCompositeType(), target.getDestType());
       this.target = target;
     }
 
+    @Override
     public void DrawParallelogram(
         SunGraphics2D sg2d, SurfaceData dest, double x, double y, double dx1, double dy1,
         double dx2, double dy2, double lw1, double lw2) {
@@ -91,6 +96,7 @@ public class DrawParallelogram extends GraphicsPrimitive {
       target.DrawParallelogram(sg2d, dest, x, y, dx1, dy1, dx2, dy2, lw1, lw2);
     }
 
+    @Override
     public GraphicsPrimitive traceWrap() {
       return this;
     }

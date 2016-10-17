@@ -34,16 +34,18 @@
 import java.awt.Frame;
 import java.awt.event.InputEvent;
 import java.awt.AWTException;
-import test.java.awt.regtesthelpers.Util;
 import java.awt.Robot;
 import java.awt.Point;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class WindowDragTest {
+public final class WindowDragTest {
 
-    static boolean passed = false;
+    static boolean passed;
+
+    private WindowDragTest() {
+    }
 
     public static void main(String[] args) {
         try {
@@ -73,7 +75,7 @@ public class WindowDragTest {
             Dimension d = frame2.getSize();
 
             // Move cursor to frame2 title bar to drag
-            robot.mouseMove(p.x + (int)(d.getWidth() / 2), p.y + (int)frame2.getInsets().top / 2);
+            robot.mouseMove(p.x + (int)(d.getWidth() / 2), p.y + frame2.getInsets().top / 2);
             Util.waitForIdle(robot);
 
             // Start window dragging

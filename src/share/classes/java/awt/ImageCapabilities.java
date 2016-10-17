@@ -33,7 +33,7 @@ package java.awt;
  */
 public class ImageCapabilities implements Cloneable {
 
-  private boolean accelerated = false;
+  private final boolean accelerated;
 
   /**
    * Creates a new object for specifying image capabilities.
@@ -45,8 +45,8 @@ public class ImageCapabilities implements Cloneable {
   }
 
   /**
-   * Returns <code>true</code> if the object whose capabilities are
-   * encapsulated in this <code>ImageCapabilities</code> can be or is
+   * Returns {@code true} if the object whose capabilities are
+   * encapsulated in this {@code ImageCapabilities} can be or is
    * accelerated.
    *
    * @return whether or not an image can be, or is, accelerated.  There are
@@ -59,8 +59,8 @@ public class ImageCapabilities implements Cloneable {
   }
 
   /**
-   * Returns <code>true</code> if the <code>VolatileImage</code>
-   * described by this <code>ImageCapabilities</code> can lose
+   * Returns {@code true} if the {@code VolatileImage}
+   * described by this {@code ImageCapabilities} can lose
    * its surfaces.
    *
    * @return whether or not a volatile image is subject to losing its surfaces
@@ -73,6 +73,7 @@ public class ImageCapabilities implements Cloneable {
   /**
    * @return a copy of this ImageCapabilities object.
    */
+  @Override
   public Object clone() {
     try {
       return super.clone();

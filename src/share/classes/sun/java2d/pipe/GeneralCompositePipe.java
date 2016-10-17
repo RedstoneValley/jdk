@@ -43,6 +43,7 @@ import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.MaskBlit;
 
 public class GeneralCompositePipe implements CompositePipe {
+  @Override
   public Object startSequence(SunGraphics2D sg, Shape s, Rectangle devR, int[] abox) {
     RenderingHints hints = sg.getRenderingHints();
     ColorModel model = sg.getDeviceColorModel();
@@ -57,6 +58,7 @@ public class GeneralCompositePipe implements CompositePipe {
     return new TileContext(sg, paintContext, compositeContext, model);
   }
 
+  @Override
   public boolean needTile(Object ctx, int x, int y, int w, int h) {
     return true;
   }
@@ -65,6 +67,7 @@ public class GeneralCompositePipe implements CompositePipe {
    * GeneralCompositePipe.renderPathTile works with custom composite operator
    * provided by an application
    */
+  @Override
   public void renderPathTile(
       Object ctx, byte[] atile, int offset, int tilesize, int x, int y, int w, int h) {
     TileContext context = (TileContext) ctx;
@@ -126,10 +129,12 @@ public class GeneralCompositePipe implements CompositePipe {
     }
   }
 
+  @Override
   public void skipTile(Object ctx, int x, int y) {
     return;
   }
 
+  @Override
   public void endSequence(Object ctx) {
     TileContext context = (TileContext) ctx;
     if (context.paintCtxt != null) {
@@ -141,10 +146,10 @@ public class GeneralCompositePipe implements CompositePipe {
   }
 
   class TileContext {
-    SunGraphics2D sunG2D;
-    PaintContext paintCtxt;
-    CompositeContext compCtxt;
-    ColorModel compModel;
+    final SunGraphics2D sunG2D;
+    final PaintContext paintCtxt;
+    final CompositeContext compCtxt;
+    final ColorModel compModel;
     Object pipeState;
 
     public TileContext(

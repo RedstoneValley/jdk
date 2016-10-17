@@ -32,8 +32,11 @@ Cursor.getPredefinedCursor() method
 
 import java.awt.*;
 
-public class PredefinedPrivate {
-    public static void main(String args[]) {
+public final class PredefinedPrivate {
+  private PredefinedPrivate() {
+  }
+
+  public static void main(String[] args) {
         new MyCursor();
         if (Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR) instanceof MyCursor) {
             throw new RuntimeException("Test FAILED: getPredefinedCursor() returned modified cursor");
@@ -42,7 +45,9 @@ public class PredefinedPrivate {
 }
 
 class MyCursor extends Cursor {
-    public MyCursor() {
+  private static final long serialVersionUID = -506769576890782211L;
+
+  public MyCursor() {
         super(DEFAULT_CURSOR);
         Cursor.predefined[DEFAULT_CURSOR] = this;
     }

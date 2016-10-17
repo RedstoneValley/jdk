@@ -21,8 +21,6 @@
  * questions.
  */
 
-import test.java.awt.regtesthelpers.Util;
-
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DragGestureListener;
@@ -32,22 +30,24 @@ import java.awt.dnd.DragGestureEvent;
 
 class SourceFrame extends Frame implements DragGestureListener {
 
-    SourceFrame() {
+  private static final long serialVersionUID = 5182889206929026833L;
+
+  SourceFrame() {
         super("Source File List Frame");
-        initGUI();
+      initGUI();
         new DragSource().createDefaultDragGestureRecognizer(this,
                 DnDConstants.ACTION_COPY,this);
     }
 
     private void initGUI() {
-        this.addWindowListener(Util.getClosingWindowAdapter());
-        this.setLocation(300,250);
-        this.setSize(200,200);
-        this.setVisible(true);
+      addWindowListener(Util.getClosingWindowAdapter());
+      setLocation(300,250);
+      setSize(200,200);
+      setVisible(true);
     }
 
     int getNextLocationX() {
-        return getX()+getWidth();
+        return getX()+ getWidth();
     }
 
     int getNextLocationY() {
@@ -55,13 +55,14 @@ class SourceFrame extends Frame implements DragGestureListener {
     }
 
     int getDragSourcePointX() {
-        return (int)getLocationOnScreen().getX()+(getWidth()/2);
+        return (int) getLocationOnScreen().getX()+ getWidth()/2;
     }
 
    int getDragSourcePointY() {
-        return (int)getLocationOnScreen().getY()+ (getHeight()/2);
+        return (int) getLocationOnScreen().getY()+ getHeight()/2;
     }
 
+    @Override
     public void dragGestureRecognized(DragGestureEvent dge) {
         dge.startDrag(null, new StringSelection("A TEXT"));
     }

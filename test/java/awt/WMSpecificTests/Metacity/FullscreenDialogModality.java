@@ -32,18 +32,19 @@
  * @author vkravets
  */
 
-import test.java.awt.regtesthelpers.Util;
+import java.awt.Dialog.ModalityType;
 
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 
 public class FullscreenDialogModality extends Frame {
 
-    static Robot robot = null;
+    private static final long serialVersionUID = 5929601537551933218L;
+    static Robot robot;
 
     public void enterFS() {
         GraphicsDevice gd = getGraphicsConfiguration().getDevice();
-        final boolean fs = gd.isFullScreenSupported();
+        boolean fs = gd.isFullScreenSupported();
         System.out.println("FullscreenSupported: " + (fs ? "yes" : "no"));
         gd.setFullScreenWindow(this);
         try {
@@ -66,12 +67,13 @@ public class FullscreenDialogModality extends Frame {
 
     public void checkDialogModality() throws InvocationTargetException, InterruptedException {
         // Dialog
-        final Dialog d = new Dialog(FullscreenDialogModality.this, "Modal dialog", Dialog.ModalityType.APPLICATION_MODAL);
+        Dialog d = new Dialog(this, "Modal dialog", ModalityType.APPLICATION_MODAL);
         d.setBounds(500, 500, 160, 160);
         d.setModal(true);
         d.setBackground(Color.red);
         EventQueue.invokeLater(new Runnable()
         {
+            @Override
             public void run()
             {
                 d.setVisible(true);
@@ -79,6 +81,7 @@ public class FullscreenDialogModality extends Frame {
         });
         // Wait until the dialog is shown
         EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 // Empty
             }
@@ -92,7 +95,8 @@ public class FullscreenDialogModality extends Frame {
             System.out.println("Color = " + actual);
             if (actual.getRGB() == Color.GREEN.getRGB()) {
                 throw new RuntimeException("Test FAILED: Modal dialog shown below fullscreen window");
-            } else if (actual.getRGB() == Color.RED.getRGB()) {
+            }
+            if (actual.getRGB() == Color.RED.getRGB()) {
                 System.out.println("Test PASSED: Modal dialog shown above fullscreen window");
             } else {
                 System.out.println("pixelColor " +
@@ -108,14 +112,14 @@ public class FullscreenDialogModality extends Frame {
         }
     }
 
-    public static void main(String args[]) throws InvocationTargetException, InterruptedException {
+    public static void main(String[] args) throws InvocationTargetException, InterruptedException {
         if (Util.getWMID() != Util.METACITY_WM) {
             System.out.println("This test is only useful on Metacity");
             return;
         }
         robot = Util.createRobot();
         Util.waitForIdle(robot);
-        final FullscreenDialogModality frame = new FullscreenDialogModality();
+        FullscreenDialogModality frame = new FullscreenDialogModality();
         frame.setUndecorated(true);
         frame.setBackground(Color.green);
         frame.setSize(500, 500);
@@ -125,6 +129,7 @@ public class FullscreenDialogModality extends Frame {
             Util.waitForIdle(robot);
 
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     frame.enterFS();
                 }
@@ -135,6 +140,7 @@ public class FullscreenDialogModality extends Frame {
             frame.checkDialogModality();
 
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     frame.exitFS();
                 }

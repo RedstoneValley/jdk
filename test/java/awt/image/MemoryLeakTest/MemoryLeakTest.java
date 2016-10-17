@@ -27,46 +27,50 @@
    @run main/manual MemoryLeakTest
 */
 
-import java.applet.Applet;
-import java.lang.*;
 import java.awt.*;
 import java.awt.event.*;
 
-class Globals {
-  static boolean testPassed=false;
-  static Thread mainThread=null;
+final class Globals {
+  static boolean testPassed;
+  static Thread mainThread;
+
+  private Globals() {
+  }
 }
 
 public class MemoryLeakTest extends Applet {
 
-public static void main(String args[]) throws Exception {
+public static void main(String[] args) throws Exception {
   new TestDialog(new Frame(), "MemoryLeakTest").start();
   new MemoryLeak().start();
   Globals.mainThread = Thread.currentThread();
   try {
     Thread.sleep(300000);
   } catch (InterruptedException e) {
-    if (!Globals.testPassed)
+    if (!Globals.testPassed) {
       throw new Exception("MemoryLeakTest failed.");
+    }
   }
 }
 
 }
 
+@SuppressWarnings("MagicNumber")
 class TestDialog extends Dialog
     implements ActionListener {
 
-TextArea output;
-Button passButton;
-Button failButton;
-String name;
+  private static final long serialVersionUID = 320824958097755393L;
+  final TextArea output;
+final Button passButton;
+final Button failButton;
+final String name;
 
 public TestDialog(Frame frame, String name)
 {
   super(frame, name + " Pass/Fail Dialog");
   this.name = name;
   output = new TextArea(11, 50);
-  add("North", output);
+  add(BorderLayout.NORTH, output);
   output.append("Do the following steps on Solaris only.\n");
   output.append("Maximize and minimize the Memory Leak Test window.\n");
   output.append("Execute the following after minimize.\n");
@@ -85,7 +89,7 @@ public TestDialog(Frame frame, String name)
   failButton.addActionListener(this);
   buttonPanel.add(passButton);
   buttonPanel.add(failButton);
-  add("South", buttonPanel);
+  add(BorderLayout.SOUTH, buttonPanel);
   pack();
 }
 
@@ -94,19 +98,21 @@ public void start()
   show();
 }
 
+@Override
 public void actionPerformed(ActionEvent event)
 {
-    if ( event.getSource() == passButton ) {
+    if ( event.getSource() == passButton) {
       Globals.testPassed = true;
       System.err.println(name + " Passed.");
     }
-    else if ( event.getSource() == failButton ) {
+    else if ( event.getSource() == failButton) {
       Globals.testPassed = false;
       System.err.println(name + " Failed.");
     }
-    this.dispose();
-    if (Globals.mainThread != null)
+  dispose();
+    if (Globals.mainThread != null) {
       Globals.mainThread.interrupt();
+    }
 }
 
 }
@@ -114,16 +120,17 @@ public void actionPerformed(ActionEvent event)
 
 class MemoryLeak extends Frame implements ComponentListener
 {
-private Image osImage;
+  private static final long serialVersionUID = -1723946178213298463L;
+  private Image osImage;
 
 public MemoryLeak()
 {
     super("Memory Leak Test");
-    setSize(200, 200);
-    addComponentListener(this);
+  setSize(200, 200);
+  addComponentListener(this);
 }
 
-public static void main(String args[])
+public static void main(String[] args)
 {
    new MemoryLeak().start();
 }
@@ -133,21 +140,24 @@ public void start()
   show();
 }
 
+@Override
 public void paint(Graphics g) {
     if (osImage != null) {
         g.drawImage(osImage, 0, 0, this);
     }
 }
 
+@Override
 public void update(Graphics g)
 {
-    paint(g);
+  paint(g);
 }
 
+@Override
 public void componentResized(ComponentEvent e)
 {
     Image oldimage = osImage;
-    osImage = createImage(getSize().width, getSize().height);
+  osImage = createImage(getSize().width, getSize().height);
     Graphics g = osImage.getGraphics();
     if (oldimage != null) {
         g.drawImage(oldimage, 0, 0, getSize().width, getSize().height, this);
@@ -159,17 +169,20 @@ public void componentResized(ComponentEvent e)
     g.dispose();
 }
 
+@Override
 public void componentMoved(ComponentEvent e) {}
 
+@Override
 public void componentShown(ComponentEvent e)
 {
-    osImage = createImage(getSize().width, getSize().height);
+  osImage = createImage(getSize().width, getSize().height);
     Graphics g = osImage.getGraphics();
     g.setColor(Color.blue);
     g.drawLine(0, 0, getSize().width, getSize().height);
     g.dispose();
 }
 
+@Override
 public void componentHidden(ComponentEvent e) {}
 
 }

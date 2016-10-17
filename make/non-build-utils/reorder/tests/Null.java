@@ -25,8 +25,11 @@
 
 
 
-public class Null {
+public final class Null {
 
-    public static void main(String[] args) {
+  private Null() {
+  }
+
+  public static void main(String[] args) {
     }
 }

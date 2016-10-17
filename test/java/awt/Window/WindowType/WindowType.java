@@ -32,14 +32,17 @@
 */
 
 import java.awt.*;
-import test.java.awt.regtesthelpers.Util;
+import java.awt.Window.Type;
 
 /**
  * WindowType.java
  * Summary: Test showing windows of different types.
  */
-public class WindowType {
-    private static void test(Window window, Window.Type type) {
+public final class WindowType {
+  private WindowType() {
+  }
+
+  private static void test(Window window, Type type) {
         window.setType(type);
 
         window.setVisible(true);
@@ -47,15 +50,15 @@ public class WindowType {
         window.setVisible(false);
     }
 
-    private static void test(Window.Type type) {
-        test(new Window((Frame)null), type);
+    private static void test(Type type) {
+        test(new Window(null), type);
         test(new Frame(), type);
         test(new Dialog((Frame)null), type);
     }
 
     public static void main(String[] args) {
-        test(Window.Type.NORMAL);
-        test(Window.Type.UTILITY);
-        test(Window.Type.POPUP);
+        test(Type.NORMAL);
+        test(Type.UTILITY);
+        test(Type.POPUP);
     }
 }

@@ -33,12 +33,15 @@ import java.awt.*;
 /**
  * Unit test for java.awt.SecondaryLoop implementation
  */
-public class SecondaryLoopTest {
+public final class SecondaryLoopTest {
 
-    private static volatile boolean loopStarted;
-    private static volatile boolean doubleEntered;
-    private static volatile boolean loopActive;
-    private static volatile boolean eventDispatched;
+    static volatile boolean loopStarted;
+    static volatile boolean doubleEntered;
+    static volatile boolean loopActive;
+    static volatile boolean eventDispatched;
+
+    private SecondaryLoopTest() {
+    }
 
     public static void main(String[] args) throws Exception {
         test(true, true);
@@ -47,7 +50,7 @@ public class SecondaryLoopTest {
         test(false, false);
     }
 
-    private static void test(final boolean enterEDT, final boolean exitEDT) throws Exception {
+    private static void test(boolean enterEDT, boolean exitEDT) throws Exception {
         System.out.println("Running test(" + enterEDT + ", " + exitEDT + ")");
         System.err.flush();
         loopStarted = true;
@@ -56,7 +59,7 @@ public class SecondaryLoopTest {
             public void run() {
                 Toolkit tk = Toolkit.getDefaultToolkit();
                 EventQueue eq = tk.getSystemEventQueue();
-                final SecondaryLoop loop = eq.createSecondaryLoop();
+                SecondaryLoop loop = eq.createSecondaryLoop();
                 doubleEntered = false;
                 eventDispatched = false;
                 Runnable eventRun = new Runnable() {
@@ -115,7 +118,7 @@ public class SecondaryLoopTest {
         }
     }
 
-    private static void sleep(long t) {
+    static void sleep(long t) {
         try {
             Thread.sleep(t);
         } catch (InterruptedException e) {

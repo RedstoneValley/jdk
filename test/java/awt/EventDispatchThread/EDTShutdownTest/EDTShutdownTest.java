@@ -35,9 +35,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import sun.awt.AWTAccessor;
 
-public class EDTShutdownTest {
+public final class EDTShutdownTest {
 
-    private static boolean passed = false;
+    private static boolean passed;
+
+    private EDTShutdownTest() {
+    }
 
     public static void main(String[] args) {
         // Force EDT start with InvocationEvent
@@ -53,9 +56,9 @@ public class EDTShutdownTest {
                  * loop in EventDispatchThread.pumpEventsForFilter()
                  */
                 Method stopDispatching = thread.getClass()
-                        .getDeclaredMethod("stopDispatching", null);
+                        .getDeclaredMethod("stopDispatching", (Class<?>) null);
                 stopDispatching.setAccessible(true);
-                stopDispatching.invoke(thread, null);
+                stopDispatching.invoke(thread, (Object) null);
 
                 /*
                  * Post another InvocationEvent that must be handled by another

@@ -31,12 +31,15 @@
 import java.awt.*;
 import java.awt.event.*;
 
-public class PreserveDispatchThread {
+public final class PreserveDispatchThread {
 
-    private static volatile Frame f;
-    private static volatile Dialog d;
+    static volatile Frame f;
+    static volatile Dialog d;
 
     private static volatile boolean isEDT = true;
+
+    private PreserveDispatchThread() {
+    }
 
     public static void main(String[] args) throws Exception {
         f = new Frame("F");
@@ -113,8 +116,8 @@ public class PreserveDispatchThread {
         }
     }
 
-    private static final Object test3Lock = new Object();
-    private static boolean test3Sync = false;
+    static final Object test3Lock = new Object();
+    static boolean test3Sync;
 
     /*
      * A complex test: several nested invokeLater() are called and
@@ -182,22 +185,23 @@ public class PreserveDispatchThread {
         });
     }
 
-    private static void checkEDT() {
+    static void checkEDT() {
         isEDT = isEDT && EventQueue.isDispatchThread();
     }
 
     private static class TestEventQueue extends EventQueue {
         public TestEventQueue() {
-            super();
         }
+        @Override
         public void pop() {
             super.pop();
         }
     }
 
     private static class TestDialog extends Dialog {
-        private volatile boolean dialogShown = false;
-        private volatile boolean paintCalled = false;
+        private static final long serialVersionUID = 56900381818890697L;
+        volatile boolean dialogShown;
+        volatile boolean paintCalled;
         public TestDialog() {
             super(f, true);
             setSize(240, 180);

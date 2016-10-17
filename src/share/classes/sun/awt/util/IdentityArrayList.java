@@ -29,7 +29,6 @@ import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
-import java.util.List;
 import java.util.RandomAccess;
 
 /**
@@ -68,7 +67,7 @@ import java.util.RandomAccess;
  * synchronizing on some object that naturally encapsulates the list.
  * <p>
  * If no such object exists, the list should be "wrapped" using the
- * {@link Collections#synchronizedList Collections.synchronizedList}
+ *
  * method.  This is best done at creation time, to prevent accidental
  * unsynchronized access to the list:<pre>
  *   List list = Collections.synchronizedList(new IdentityArrayList(...));</pre>
@@ -91,7 +90,7 @@ import java.util.RandomAccess;
  * should be used only to detect bugs.</i><p>
  */
 
-public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, RandomAccess {
+public class IdentityArrayList<E> extends AbstractList<E> implements RandomAccess {
 
   /**
    * The array buffer into which the elements of the IdentityArrayList are stored.
@@ -114,11 +113,10 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    *                                  is negative
    */
   public IdentityArrayList(int initialCapacity) {
-    super();
     if (initialCapacity < 0) {
       throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
     }
-    this.elementData = new Object[initialCapacity];
+    elementData = new Object[initialCapacity];
   }
 
   /**
@@ -169,8 +167,8 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
     modCount++;
     int oldCapacity = elementData.length;
     if (minCapacity > oldCapacity) {
-      Object oldData[] = elementData;
-      int newCapacity = (oldCapacity * 3) / 2 + 1;
+      Object[] oldData = elementData;
+      int newCapacity = oldCapacity * 3 / 2 + 1;
       if (newCapacity < minCapacity) {
         newCapacity = minCapacity;
       }
@@ -184,6 +182,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    *
    * @return the number of elements in this list
    */
+  @Override
   public int size() {
     return size;
   }
@@ -193,6 +192,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    *
    * @return <tt>true</tt> if this list contains no elements
    */
+  @Override
   public boolean isEmpty() {
     return size == 0;
   }
@@ -206,6 +206,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @param o element whose presence in this list is to be tested
    * @return <tt>true</tt> if this list contains the specified element
    */
+  @Override
   public boolean contains(Object o) {
     return indexOf(o) >= 0;
   }
@@ -224,6 +225,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @return an array containing all of the elements in this list in
    * proper sequence
    */
+  @Override
   public Object[] toArray() {
     return Arrays.copyOf(elementData, size);
   }
@@ -252,6 +254,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    *                              this list
    * @throws NullPointerException if the specified array is null
    */
+  @Override
   public <T> T[] toArray(T[] a) {
     if (a.length < size)
     // Make a new array of a's runtime type, but my contents:
@@ -278,6 +281,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @param o element to be removed from this list, if present
    * @return <tt>true</tt> if this list contained the specified element
    */
+  @Override
   public boolean remove(Object o) {
     for (int index = 0; index < size; index++) {
       if (o == elementData[index]) {
@@ -301,6 +305,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @return <tt>true</tt> if this list changed as a result of the call
    * @throws NullPointerException if the specified collection is null
    */
+  @Override
   public boolean addAll(Collection<? extends E> c) {
     Object[] a = c.toArray();
     int numNew = a.length;
@@ -318,9 +323,11 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @param e element to be appended to this list
    * @return <tt>true</tt> (as specified by {@link Collection#add})
    */
+  @Override
   public boolean add(E e) {
     ensureCapacity(size + 1);  // Increments modCount!!
-    elementData[size++] = e;
+    elementData[size] = e;
+    size++;
     return true;
   }
 
@@ -331,6 +338,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @return the element at the specified position in this list
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E get(int index) {
     rangeCheck(index);
 
@@ -346,6 +354,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @return the element previously at the specified position
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E set(int index, E element) {
     rangeCheck(index);
 
@@ -363,6 +372,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @param element element to be inserted
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public void add(int index, E element) {
     rangeCheckForAdd(index);
 
@@ -381,6 +391,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @return the element that was removed from the list
    * @throws IndexOutOfBoundsException {@inheritDoc}
    */
+  @Override
   public E remove(int index) {
     rangeCheck(index);
 
@@ -391,7 +402,8 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
     if (numMoved > 0) {
       System.arraycopy(elementData, index + 1, elementData, index, numMoved);
     }
-    elementData[--size] = null; // Let gc do its work
+    --size;
+    elementData[size] = null; // Let gc do its work
 
     return oldValue;
   }
@@ -403,6 +415,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o == get(i))</tt>,
    * or -1 if there is no such index.
    */
+  @Override
   public int indexOf(Object o) {
     for (int i = 0; i < size; i++) {
       if (o == elementData[i]) {
@@ -419,6 +432,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o == get(i))</tt>,
    * or -1 if there is no such index.
    */
+  @Override
   public int lastIndexOf(Object o) {
     for (int i = size - 1; i >= 0; i--) {
       if (o == elementData[i]) {
@@ -432,6 +446,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * Removes all of the elements from this list.  The list will
    * be empty after this call returns.
    */
+  @Override
   public void clear() {
     modCount++;
 
@@ -458,6 +473,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    * @throws IndexOutOfBoundsException {@inheritDoc}
    * @throws NullPointerException      if the specified collection is null
    */
+  @Override
   public boolean addAll(int index, Collection<? extends E> c) {
     rangeCheckForAdd(index);
 
@@ -488,6 +504,7 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
    *                                   range (fromIndex &lt; 0 || fromIndex &gt;= size() || toIndex
    *                                   &gt; size() || toIndex &lt; fromIndex)
    */
+  @Override
   protected void removeRange(int fromIndex, int toIndex) {
     modCount++;
     int numMoved = size - toIndex;
@@ -496,7 +513,8 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
     // Let gc do its work
     int newSize = size - (toIndex - fromIndex);
     while (size != newSize) {
-      elementData[--size] = null;
+      --size;
+      elementData[size] = null;
     }
   }
 
@@ -510,7 +528,8 @@ public class IdentityArrayList<E> extends AbstractList<E> implements List<E>, Ra
     if (numMoved > 0) {
       System.arraycopy(elementData, index + 1, elementData, index, numMoved);
     }
-    elementData[--size] = null; // Let gc do its work
+    --size;
+    elementData[size] = null; // Let gc do its work
   }
 
   /**

@@ -26,11 +26,15 @@
 package java.awt;
 
 import android.util.Log;
+import java.awt.EventFilter.FilterAction;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import sun.awt.EventQueueDelegate;
+import sun.awt.EventQueueDelegate.Delegate;
+import sun.awt.ModalExclude;
+import sun.awt.SunToolkit;
 import sun.awt.dnd.SunDragSourceContextPeer;
 
 /**
@@ -55,9 +59,9 @@ class EventDispatchThread extends Thread {
   private static final String TAG = "EventDispatchThread";
 
   private static final int ANY_EVENT = -1;
+  private final ArrayList<EventFilter> eventFilters = new ArrayList<>();
   private EventQueue theQueue;
   private volatile boolean doDispatch = true;
-  private ArrayList<EventFilter> eventFilters = new ArrayList<EventFilter>();
 
   EventDispatchThread(ThreadGroup group, String name, EventQueue queue) {
     super(group, name);
@@ -71,9 +75,11 @@ class EventDispatchThread extends Thread {
     doDispatch = false;
   }
 
+  @Override
   public void run() {
     try {
       pumpEvents(new Conditional() {
+        @Override
         public boolean evaluate() {
           return true;
         }
@@ -118,7 +124,7 @@ class EventDispatchThread extends Thread {
       if (!eventFilters.contains(filter)) {
         if (filter instanceof ModalEventFilter) {
           ModalEventFilter newFilter = (ModalEventFilter) filter;
-          int k = 0;
+          int k;
           for (k = 0; k < eventFilters.size(); k++) {
             EventFilter f = eventFilters.get(k);
             if (f instanceof ModalEventFilter) {
@@ -144,11 +150,11 @@ class EventDispatchThread extends Thread {
   }
 
   void pumpOneEventForFilters(int id) {
-    AWTEvent event = null;
-    boolean eventOK = false;
+    AWTEvent event;
+    boolean eventOK;
     try {
-      EventQueue eq = null;
-      EventQueueDelegate.Delegate delegate = null;
+      EventQueue eq;
+      Delegate delegate;
       do {
         // EventQueue may change during the dispatching
         eq = getEventQueue();
@@ -157,18 +163,18 @@ class EventDispatchThread extends Thread {
         if (delegate != null && id == ANY_EVENT) {
           event = delegate.getNextEvent(eq);
         } else {
-          event = (id == ANY_EVENT) ? eq.getNextEvent() : eq.getNextEvent(id);
+          event = id == ANY_EVENT ? eq.getNextEvent() : eq.getNextEvent(id);
         }
 
         eventOK = true;
         synchronized (eventFilters) {
           for (int i = eventFilters.size() - 1; i >= 0; i--) {
             EventFilter f = eventFilters.get(i);
-            EventFilter.FilterAction accept = f.acceptEvent(event);
-            if (accept == EventFilter.FilterAction.REJECT) {
+            FilterAction accept = f.acceptEvent(event);
+            if (accept == FilterAction.REJECT) {
               eventOK = false;
               break;
-            } else if (accept == EventFilter.FilterAction.ACCEPT_IMMEDIATELY) {
+            } else if (accept == FilterAction.ACCEPT_IMMEDIATELY) {
               break;
             }
           }
@@ -177,7 +183,7 @@ class EventDispatchThread extends Thread {
         if (!eventOK) {
           event.consume();
         }
-      } while (eventOK == false);
+      } while (!eventOK);
 
       Log.v(TAG, "Dispatching: " + event);
 
@@ -214,28 +220,54 @@ class EventDispatchThread extends Thread {
   }
 
   private static class HierarchyEventFilter implements EventFilter {
-    private Component modalComponent;
+    protected static final String JINTERNAL_FRAME_CLASS = "javax.swing.JInternalFrame";
+    private final Component modalComponent;
 
     public HierarchyEventFilter(Component modalComponent) {
       this.modalComponent = modalComponent;
     }
 
+    /**
+     * Checks that the given object is instance of the given class.
+     *
+     * @param obj       Object to be checked
+     * @param className The name of the class. Must be fully-qualified class name.
+     * @return true, if this object is instanceof given class,
+     * false, otherwise, or if obj or className is null
+     */
+    private static boolean isInstanceOf(Object obj, String className) {
+      if (obj == null) {
+        return false;
+      }
+      if (className == null) {
+        return false;
+      }
+
+      Class<?> cls = obj.getClass();
+      while (cls != null) {
+        if (cls.getName().equals(className)) {
+          return true;
+        }
+        cls = cls.getSuperclass();
+      }
+      return false;
+    }
+
+    @Override
     public FilterAction acceptEvent(AWTEvent event) {
       if (modalComponent != null) {
         int eventID = event.getID();
-        boolean mouseEvent = (eventID >= MouseEvent.MOUSE_FIRST) && (eventID
-                                                                         <= MouseEvent.MOUSE_LAST);
-        boolean actionEvent = (eventID >= ActionEvent.ACTION_FIRST) && (eventID
-                                                                            <= ActionEvent
-            .ACTION_LAST);
-        boolean windowClosingEvent = (eventID == WindowEvent.WINDOW_CLOSING);
+        boolean mouseEvent = eventID >= MouseEvent.MOUSE_FIRST && eventID <= MouseEvent.MOUSE_LAST;
+        boolean actionEvent = eventID >= ActionEvent.ACTION_FIRST
+            && eventID <= ActionEvent.ACTION_LAST;
+        boolean windowClosingEvent = eventID == WindowEvent.WINDOW_CLOSING;
                 /*
                  * filter out MouseEvent and ActionEvent that's outside
                  * the modalComponent hierarchy.
                  * KeyEvent is handled by using enqueueKeyEvent
                  * in Dialog.show
                  */
-        if (Component.isInstanceOf(modalComponent, "javax.swing.JInternalFrame")) {
+        if (isInstanceOf(modalComponent, JINTERNAL_FRAME_CLASS)) {
                     /*
                      * Modal internal frames are handled separately. If event is
                      * for some component from another heavyweight than modalComp,
@@ -246,7 +278,7 @@ class EventDispatchThread extends Thread {
         }
         if (mouseEvent || actionEvent || windowClosingEvent) {
           Object o = event.getSource();
-          if (o instanceof sun.awt.ModalExclude) {
+          if (o instanceof ModalExclude) {
             // Exclude this object from modality and
             // continue to pump it's events.
             return FilterAction.ACCEPT;
@@ -256,7 +288,7 @@ class EventDispatchThread extends Thread {
             boolean modalExcluded = false;
             if (modalComponent instanceof Container) {
               while (c != modalComponent && c != null) {
-                if ((c instanceof Window) && (sun.awt.SunToolkit.isModalExcluded((Window) c))) {
+                if (c instanceof Window && SunToolkit.isModalExcluded((Window) c)) {
                   // Exclude this window and all its children from
                   //  modality and continue to pump it's events.
                   modalExcluded = true;
@@ -265,7 +297,7 @@ class EventDispatchThread extends Thread {
                 c = c.getParent();
               }
             }
-            if (!modalExcluded && (c != modalComponent)) {
+            if (!modalExcluded && c != modalComponent) {
               return FilterAction.REJECT;
             }
           }

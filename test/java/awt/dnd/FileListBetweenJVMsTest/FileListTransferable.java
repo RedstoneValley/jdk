@@ -26,29 +26,35 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 class FileListTransferable implements Transferable {
 
-    final private DataFlavor[] supportedFlavors =
+    private final DataFlavor[] supportedFlavors =
             {DataFlavor.javaFileListFlavor};
 
-    private java.util.List<File> list;
+    private final List<File> list;
 
-    public FileListTransferable(java.util.List<File> list) {
+    public FileListTransferable(List<File> list) {
         this.list = list;
     }
 
+    @Override
     public DataFlavor[] getTransferDataFlavors() {
         return supportedFlavors;
     }
 
+    @Override
     public boolean isDataFlavorSupported(DataFlavor flavor) {
-        for (DataFlavor df:supportedFlavors) {
-            if (df.equals(flavor)) return true;
+        for (DataFlavor df: supportedFlavors) {
+            if (df.equals(flavor)) {
+                return true;
+            }
         }
         return false;
     }
 
+    @Override
     public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
         if (flavor.equals(DataFlavor.javaFileListFlavor)) {
             return list;

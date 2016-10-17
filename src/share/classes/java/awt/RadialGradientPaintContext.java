@@ -47,48 +47,52 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
    */
   private static final float SCALEBACK = .99f;
   // SQRT_LUT_SIZE must be a power of 2 for the test above to work.
-  private static final int SQRT_LUT_SIZE = (1 << 11);
-  private static float sqrtLut[] = new float[SQRT_LUT_SIZE + 1];
+  private static final int SQRT_LUT_SIZE = 1 << 11;
+  private static final float[] sqrtLut = new float[SQRT_LUT_SIZE + 1];
 
   static {
     for (int i = 0; i < sqrtLut.length; i++) {
-      sqrtLut[i] = (float) Math.sqrt(i / ((float) SQRT_LUT_SIZE));
+      sqrtLut[i] = (float) Math.sqrt(i / (float) SQRT_LUT_SIZE);
     }
   }
 
   /**
    * True when (focus == center).
    */
-  private boolean isSimpleFocus = false;
+  private final boolean isSimpleFocus;
   /**
    * True when (cycleMethod == NO_CYCLE).
    */
-  private boolean isNonCyclic = false;
+  private final boolean isNonCyclic;
   /**
    * Radius of the outermost circle defining the 100% gradient stop.
    */
-  private float radius;
+  private final float radius;
   /**
    * Variables representing center and focus points.
    */
-  private float centerX, centerY, focusX, focusY;
+  private final float centerX;
+  private final float centerY;
   /**
    * Radius of the gradient circle squared.
    */
-  private float radiusSq;
+  private final float radiusSq;
   /**
    * Constant part of X, Y user space coordinates.
    */
-  private float constA, constB;
+  private final float constA;
+  private final float constB;
   /**
    * Constant second order delta for simple loop.
    */
-  private float gDeltaDelta;
+  private final float gDeltaDelta;
   /**
    * This value represents the solution when focusX == X.  It is called
    * trivial because it is easier to calculate than the general case.
    */
-  private float trivial;
+  private final float trivial;
+  private float focusX;
+  private float focusY;
 
   /**
    * Constructor for RadialGradientPaintContext.
@@ -146,8 +150,8 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
     focusY = fy;
     radius = r;
 
-    this.isSimpleFocus = (focusX == centerX) && (focusY == centerY);
-    this.isNonCyclic = (cycleMethod == CycleMethod.NO_CYCLE);
+    isSimpleFocus = focusX == centerX && focusY == centerY;
+    isNonCyclic = cycleMethod == CycleMethod.NO_CYCLE;
 
     // for use in the quadractic equation
     radiusSq = radius * radius;
@@ -155,21 +159,21 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
     float dX = focusX - centerX;
     float dY = focusY - centerY;
 
-    double distSq = (dX * dX) + (dY * dY);
+    double distSq = dX * dX + dY * dY;
 
     // test if distance from focus to center is greater than the radius
     if (distSq > radiusSq * SCALEBACK) {
       // clamp focus to radius
       float scalefactor = (float) Math.sqrt(radiusSq * SCALEBACK / distSq);
-      dX = dX * scalefactor;
-      dY = dY * scalefactor;
+      dX *= scalefactor;
+      dY *= scalefactor;
       focusX = centerX + dX;
       focusY = centerY + dY;
     }
 
     // calculate the solution to be used in the case where X == focusX
     // in cyclicCircularGradientFillRaster()
-    trivial = (float) Math.sqrt(radiusSq - (dX * dX));
+    trivial = (float) Math.sqrt(radiusSq - dX * dX);
 
     // constant parts of X, Y user space coordinates
     constA = a02 - centerX;
@@ -186,7 +190,8 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
    * @param x,y,w,h the area in device space for which colors are
    *                generated.
    */
-  protected void fillRaster(int pixels[], int off, int adjust, int x, int y, int w, int h) {
+  @Override
+  protected void fillRaster(int[] pixels, int off, int adjust, int x, int y, int w, int h) {
     if (isSimpleFocus && isNonCyclic && isSimpleLookup) {
       simpleNonCyclicFillRaster(pixels, off, adjust, x, y, w, h);
     } else {
@@ -200,7 +205,7 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
    * fast (single array index, no conversion necessary).
    */
   private void simpleNonCyclicFillRaster(
-      int pixels[], int off, int adjust, int x, int y, int w, int h) {
+      int[] pixels, int off, int adjust, int x, int y, int w, int h) {
         /* We calculate sqrt(X^2 + Y^2) relative to the radius
          * size to get the fraction for the color to use.
          *
@@ -236,8 +241,8 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
          *   SD   /= radiusSq
          */
     // coordinates of UL corner in "user space" relative to center
-    float rowX = (a00 * x) + (a01 * y) + constA;
-    float rowY = (a10 * x) + (a11 * y) + constB;
+    float rowX = a00 * x + a01 * y + constA;
+    float rowY = a10 * x + a11 * y + constB;
 
     // second order delta calculated in constructor
     float gDeltaDelta = this.gDeltaDelta;
@@ -251,7 +256,7 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
     for (int j = 0; j < h; j++) {
       // these values depend on the coordinates of the start of the row
       float gRel = (rowX * rowX + rowY * rowY) / radiusSq;
-      float gDelta = (2 * (a00 * rowX + a10 * rowY) / radiusSq + gDeltaDelta / 2);
+      float gDelta = 2 * (a00 * rowX + a10 * rowY) / radiusSq + gDeltaDelta / 2;
 
             /* Use optimized loops for any cases where gRel >= 1.
              * We do not need to calculate sqrt(gRel) for these
@@ -284,7 +289,7 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
           gIndex = 0;
         } else {
           float fIndex = gRel * SQRT_LUT_SIZE;
-          int iIndex = (int) (fIndex);
+          int iIndex = (int) fIndex;
           float s0 = sqrtLut[iIndex];
           float s1 = sqrtLut[iIndex + 1] - s0;
           fIndex = s0 + (fIndex - iIndex) * s1;
@@ -331,9 +336,9 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
    * been extracted out of the inner loop.
    */
   private void cyclicCircularGradientFillRaster(
-      int pixels[], int off, int adjust, int x, int y, int w, int h) {
+      int[] pixels, int off, int adjust, int x, int y, int w, int h) {
     // constant part of the C factor of the quadratic equation
-    final double constC = -radiusSq + (centerX * centerX) + (centerY * centerY);
+    double constC = -radiusSq + centerX * centerX + centerY * centerY;
 
     // coefficients of the quadratic equation (Ax^2 + Bx + C = 0)
     double A, B, C;
@@ -345,12 +350,12 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
     double solutionX, solutionY;
 
     // constant parts of X, Y coordinates
-    final float constX = (a00 * x) + (a01 * y) + a02;
-    final float constY = (a10 * x) + (a11 * y) + a12;
+    float constX = a00 * x + a01 * y + a02;
+    float constY = a10 * x + a11 * y + a12;
 
     // constants in inner loop quadratic formula
-    final float precalc2 = 2 * centerY;
-    final float precalc3 = -2 * centerX;
+    float precalc2 = 2 * centerY;
+    float precalc3 = -2 * centerX;
 
     // value between 0 and 1 specifying position in the gradient
     float g;
@@ -377,8 +382,8 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
     for (int j = 0; j < h; j++) {
 
       // user space point; these are constant from column to column
-      float X = (a01 * j) + constX;
-      float Y = (a11 * j) + constY;
+      float X = a01 * j + constX;
+      float Y = a11 * j + constY;
 
       // for every column (inner loop begins here)
       for (int i = 0; i < w; i++) {
@@ -387,26 +392,26 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
           // special case to avoid divide by zero
           solutionX = focusX;
           solutionY = centerY;
-          solutionY += (Y > focusY) ? trivial : -trivial;
+          solutionY += Y > focusY ? trivial : -trivial;
         } else {
           // slope and y-intercept of the focus-perimeter line
           slope = (Y - focusY) / (X - focusX);
-          yintcpt = Y - (slope * X);
+          yintcpt = Y - slope * X;
 
           // use the quadratic formula to calculate the
           // intersection point
-          A = (slope * slope) + 1;
-          B = precalc3 + (-2 * slope * (centerY - yintcpt));
-          C = constC + (yintcpt * (yintcpt - precalc2));
+          A = slope * slope + 1;
+          B = precalc3 + -2 * slope * (centerY - yintcpt);
+          C = constC + yintcpt * (yintcpt - precalc2);
 
-          det = (float) Math.sqrt((B * B) - (4 * A * C));
+          det = (float) Math.sqrt(B * B - 4 * A * C);
           solutionX = -B;
 
           // choose the positive or negative root depending
           // on where the X coord lies with respect to the focus
-          solutionX += (X < focusX) ? -det : det;
-          solutionX = solutionX / (2 * A); // divisor
-          solutionY = (slope * solutionX) + yintcpt;
+          solutionX += X < focusX ? -det : det;
+          solutionX /= (2 * A); // divisor
+          solutionY = slope * solutionX + yintcpt;
         }
 
         // Calculate the square of the distance from the current point
@@ -415,18 +420,18 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
         // do 1 square root after division instead of 2 before.
 
         deltaXSq = X - focusX;
-        deltaXSq = deltaXSq * deltaXSq;
+        deltaXSq *= deltaXSq;
 
         deltaYSq = Y - focusY;
-        deltaYSq = deltaYSq * deltaYSq;
+        deltaYSq *= deltaYSq;
 
         currentToFocusSq = deltaXSq + deltaYSq;
 
         deltaXSq = (float) solutionX - focusX;
-        deltaXSq = deltaXSq * deltaXSq;
+        deltaXSq *= deltaXSq;
 
         deltaYSq = (float) solutionY - focusY;
-        deltaYSq = deltaYSq * deltaYSq;
+        deltaYSq *= deltaYSq;
 
         intersectToFocusSq = deltaXSq + deltaYSq;
 

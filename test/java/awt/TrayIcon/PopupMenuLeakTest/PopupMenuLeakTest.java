@@ -30,7 +30,7 @@
  */
 
 import java.awt.*;
-import javax.swing.SwingUtilities;
+import java.util.List;
 import sun.awt.SunToolkit;
 
 import java.awt.image.BufferedImage;
@@ -38,12 +38,17 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PopupMenuLeakTest {
+public final class PopupMenuLeakTest {
 
     static final AtomicReference<WeakReference<TrayIcon>> iconWeakReference = new AtomicReference<>();
     static final AtomicReference<WeakReference<PopupMenu>> popupWeakReference = new AtomicReference<>();
 
-    public static void main(String[] args) throws Exception {
+
+
+  private PopupMenuLeakTest() {
+  }
+
+  public static void main(String[] args) throws Exception {
         SwingUtilities.invokeAndWait(PopupMenuLeakTest::createSystemTrayIcon);
         sleep();
         // To make the test automatic we explicitly call addNotify on a popup to create the peer
@@ -71,8 +76,9 @@ public class PopupMenuLeakTest {
         SystemTray.getSystemTray().remove(icon);
     }
 
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
     private static void assertCollected(WeakReference<?> reference, String message) {
-        java.util.List<byte[]> bytes = new ArrayList<>();
+        List<byte[]> bytes = new ArrayList<>();
         for (int i = 0; i < 5; i ++) {
             try {
                 while (true) {
@@ -88,7 +94,7 @@ public class PopupMenuLeakTest {
     }
 
     private static void createSystemTrayIcon() {
-        final TrayIcon trayIcon = new TrayIcon(createTrayIconImage());
+        TrayIcon trayIcon = new TrayIcon(createTrayIconImage());
         trayIcon.setImageAutoSize(true);
 
         try {
@@ -97,18 +103,18 @@ public class PopupMenuLeakTest {
             SystemTray.getSystemTray().add(trayIcon);
             iconWeakReference.set(new WeakReference<>(trayIcon));
             popupWeakReference.set(new WeakReference<>(trayIcon.getPopupMenu()));
-        } catch (final AWTException awte) {
+        } catch (AWTException awte) {
             awte.printStackTrace();
         }
     }
 
     private static Image createTrayIconImage() {
-        /**
-         * Create a small image of a red circle to use as the icon for the tray icon
+        /*
+          Create a small image of a red circle to use as the icon for the tray icon
          */
         int trayIconImageSize = 32;
-        final BufferedImage trayImage = new BufferedImage(trayIconImageSize, trayIconImageSize, BufferedImage.TYPE_INT_ARGB);
-        final Graphics2D trayImageGraphics = (Graphics2D) trayImage.getGraphics();
+        BufferedImage trayImage = new BufferedImage(trayIconImageSize, trayIconImageSize, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D trayImageGraphics = (Graphics2D) trayImage.getGraphics();
 
         trayImageGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -134,8 +140,8 @@ public class PopupMenuLeakTest {
     }
 
     private static PopupMenu createTrayIconPopupMenu() {
-        final PopupMenu trayIconPopupMenu = new PopupMenu();
-        final MenuItem popupMenuItem = new MenuItem("TEST!");
+        PopupMenu trayIconPopupMenu = new PopupMenu();
+        MenuItem popupMenuItem = new MenuItem("TEST!");
         trayIconPopupMenu.add(popupMenuItem);
         return trayIconPopupMenu;
     }

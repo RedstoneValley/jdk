@@ -23,15 +23,15 @@
  * questions.
  */
 
-/**********************************************************************
- * *********************************************************************
- * *********************************************************************
- * ** COPYRIGHT (c) Eastman Kodak Company, 1997                      ***
- * ** As  an unpublished  work pursuant to Title 17 of the United    ***
- * ** States Code.  All rights reserved.                             ***
- * *********************************************************************
- * *********************************************************************
- **********************************************************************/
+/*********************************************************************
+ *********************************************************************
+ *********************************************************************
+ ** COPYRIGHT (c) Eastman Kodak Company, 1997                      ***
+ ** As  an unpublished  work pursuant to Title 17 of the United    ***
+ ** States Code.  All rights reserved.                             ***
+ *********************************************************************
+ *********************************************************************
+ */
 
 package sun.java2d.cmm.lcms;
 
@@ -58,14 +58,14 @@ public class LCMSTransform implements ColorTransform {
   }
 
   long ID;
-  ICC_Profile[] profiles;
-  LCMSProfile[] lcmsProfiles;
-  int renderType;
+  final ICC_Profile[] profiles;
+  final LCMSProfile[] lcmsProfiles;
+  final int renderType;
   int transformType;
-  private int inFormatter = 0;
-  private boolean isInIntPacked = false;
-  private int outFormatter = 0;
-  private boolean isOutIntPacked = false;
+  private int inFormatter;
+  private boolean isInIntPacked;
+  private int outFormatter;
+  private boolean isOutIntPacked;
   private int numInComponents = -1;
   private int numOutComponents = -1;
   private Object disposerReferent = new Object();
@@ -75,8 +75,8 @@ public class LCMSTransform implements ColorTransform {
     profiles = new ICC_Profile[1];
     profiles[0] = profile;
     lcmsProfiles = new LCMSProfile[1];
-    lcmsProfiles[0] = LCMS.getProfileID(profile);
-    this.renderType = (renderType == ColorTransform.Any) ? ICC_Profile.icPerceptual : renderType;
+    lcmsProfiles[0] = getProfileID(profile);
+    this.renderType = renderType == ColorTransform.Any ? ICC_Profile.icPerceptual : renderType;
     this.transformType = transformType;
 
         /* Note that ICC_Profile.getNumComponents() is quite expensive
@@ -90,14 +90,14 @@ public class LCMSTransform implements ColorTransform {
 
   public LCMSTransform(ColorTransform[] transforms) {
     int size = 0;
-    for (int i = 0; i < transforms.length; i++) {
-      size += ((LCMSTransform) transforms[i]).profiles.length;
+    for (ColorTransform transform1 : transforms) {
+      size += ((LCMSTransform) transform1).profiles.length;
     }
     profiles = new ICC_Profile[size];
     lcmsProfiles = new LCMSProfile[size];
     int j = 0;
-    for (int i = 0; i < transforms.length; i++) {
-      LCMSTransform curTrans = (LCMSTransform) transforms[i];
+    for (ColorTransform transform : transforms) {
+      LCMSTransform curTrans = (LCMSTransform) transform;
       System.arraycopy(curTrans.profiles, 0, profiles, j, curTrans.profiles.length);
       System.arraycopy(curTrans.lcmsProfiles, 0, lcmsProfiles, j, curTrans.lcmsProfiles.length);
       j += curTrans.profiles.length;
@@ -113,14 +113,23 @@ public class LCMSTransform implements ColorTransform {
     numOutComponents = profiles[profiles.length - 1].getNumComponents();
   }
 
+  /* methods invoked from LCMSTransform */
+  public static native void colorConvert(
+      LCMSTransform trans, LCMSImageLayout src, LCMSImageLayout dest);
+
+  public static synchronized native LCMSProfile getProfileID(ICC_Profile profile);
+
+  @Override
   public int getNumInComponents() {
     return numInComponents;
   }
 
+  @Override
   public int getNumOutComponents() {
     return numOutComponents;
   }
 
+  @Override
   public void colorConvert(BufferedImage src, BufferedImage dst) {
     LCMSImageLayout srcIL, dstIL;
     try {
@@ -178,11 +187,7 @@ public class LCMSTransform implements ColorTransform {
     boolean dstHasAlpha = dstCM.hasAlpha();
     boolean needSrcAlpha = srcCM.hasAlpha() && dstHasAlpha;
     float[] dstColor;
-    if (dstHasAlpha) {
-      dstColor = new float[dstNumComp + 1];
-    } else {
-      dstColor = new float[dstNumComp];
-    }
+    dstColor = dstHasAlpha ? new float[dstNumComp + 1] : new float[dstNumComp];
     if (precision == 8) {
       byte[] srcLine = new byte[w * srcNumComp];
       byte[] dstLine = new byte[w * dstNumComp];
@@ -195,13 +200,11 @@ public class LCMSTransform implements ColorTransform {
       int idx;
       // TODO check for src npixels = dst npixels
       try {
-        srcIL = new LCMSImageLayout(
-            srcLine,
+        srcIL = new LCMSImageLayout(srcLine,
             srcLine.length / getNumInComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(1),
             getNumInComponents());
-        dstIL = new LCMSImageLayout(
-            dstLine,
+        dstIL = new LCMSImageLayout(dstLine,
             dstLine.length / getNumOutComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(1),
             getNumOutComponents());
@@ -218,7 +221,8 @@ public class LCMSTransform implements ColorTransform {
           pixel = srcRas.getDataElements(x, y, pixel);
           color = srcCM.getNormalizedComponents(pixel, color, 0);
           for (int i = 0; i < srcNumComp; i++) {
-            srcLine[idx++] = (byte) ((color[i] - srcMinVal[i]) * srcInvDiffMinMax[i] + 0.5f);
+            srcLine[idx] = (byte) ((color[i] - srcMinVal[i]) * srcInvDiffMinMax[i] + 0.5f);
+            idx++;
           }
           if (needSrcAlpha) {
             alpha[x] = color[srcNumComp];
@@ -232,7 +236,8 @@ public class LCMSTransform implements ColorTransform {
         idx = 0;
         for (int x = 0; x < w; x++) {
           for (int i = 0; i < dstNumComp; i++) {
-            dstColor[i] = ((float) (dstLine[idx++] & 0xff)) * dstDiffMinMax[i] + dstMinVal[i];
+            dstColor[i] = (float) (dstLine[idx] & 0xff) * dstDiffMinMax[i] + dstMinVal[i];
+            idx++;
           }
           if (needSrcAlpha) {
             dstColor[dstNumComp] = alpha[x];
@@ -254,17 +259,15 @@ public class LCMSTransform implements ColorTransform {
       }
       int idx;
       try {
-        srcIL = new LCMSImageLayout(
-            srcLine,
+        srcIL = new LCMSImageLayout(srcLine,
             srcLine.length / getNumInComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(2),
-            getNumInComponents() * 2);
+            getNumInComponents() << 1);
 
-        dstIL = new LCMSImageLayout(
-            dstLine,
+        dstIL = new LCMSImageLayout(dstLine,
             dstLine.length / getNumOutComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(2),
-            getNumOutComponents() * 2);
+            getNumOutComponents() << 1);
       } catch (ImageLayoutException e) {
         throw new CMMException("Unable to convert images");
       }
@@ -278,7 +281,8 @@ public class LCMSTransform implements ColorTransform {
           pixel = srcRas.getDataElements(x, y, pixel);
           color = srcCM.getNormalizedComponents(pixel, color, 0);
           for (int i = 0; i < srcNumComp; i++) {
-            srcLine[idx++] = (short) ((color[i] - srcMinVal[i]) * srcInvDiffMinMax[i] + 0.5f);
+            srcLine[idx] = (short) ((color[i] - srcMinVal[i]) * srcInvDiffMinMax[i] + 0.5f);
+            idx++;
           }
           if (needSrcAlpha) {
             alpha[x] = color[srcNumComp];
@@ -292,7 +296,8 @@ public class LCMSTransform implements ColorTransform {
         idx = 0;
         for (int x = 0; x < w; x++) {
           for (int i = 0; i < dstNumComp; i++) {
-            dstColor[i] = ((float) (dstLine[idx++] & 0xffff)) * dstDiffMinMax[i] + dstMinVal[i];
+            dstColor[i] = (float) (dstLine[idx] & 0xffff) * dstDiffMinMax[i] + dstMinVal[i];
+            idx++;
           }
           if (needSrcAlpha) {
             dstColor[dstNumComp] = alpha[x];
@@ -306,6 +311,7 @@ public class LCMSTransform implements ColorTransform {
     }
   }
 
+  @Override
   public void colorConvert(
       Raster src, WritableRaster dst, float[] srcMinVal, float[] srcMaxVal, float[] dstMinVal,
       float[] dstMaxVal) {
@@ -317,16 +323,10 @@ public class LCMSTransform implements ColorTransform {
     int srcTransferType = src.getTransferType();
     int dstTransferType = dst.getTransferType();
     boolean srcIsFloat, dstIsFloat;
-    if ((srcTransferType == DataBuffer.TYPE_FLOAT) || (srcTransferType == DataBuffer.TYPE_DOUBLE)) {
-      srcIsFloat = true;
-    } else {
-      srcIsFloat = false;
-    }
-    if ((dstTransferType == DataBuffer.TYPE_FLOAT) || (dstTransferType == DataBuffer.TYPE_DOUBLE)) {
-      dstIsFloat = true;
-    } else {
-      dstIsFloat = false;
-    }
+    srcIsFloat = srcTransferType == DataBuffer.TYPE_FLOAT
+        || srcTransferType == DataBuffer.TYPE_DOUBLE;
+    dstIsFloat = dstTransferType == DataBuffer.TYPE_FLOAT
+        || dstTransferType == DataBuffer.TYPE_DOUBLE;
     int w = src.getWidth();
     int h = src.getHeight();
     int srcNumBands = src.getNumBands();
@@ -340,11 +340,8 @@ public class LCMSTransform implements ColorTransform {
         srcScaleFactor[i] = 65535.0f / (srcMaxVal[i] - srcMinVal[i]);
         srcUseMinVal[i] = srcMinVal[i];
       } else {
-        if (srcTransferType == DataBuffer.TYPE_SHORT) {
-          srcScaleFactor[i] = 65535.0f / 32767.0f;
-        } else {
-          srcScaleFactor[i] = 65535.0f / ((float) ((1 << srcSM.getSampleSize(i)) - 1));
-        }
+        srcScaleFactor[i] = srcTransferType == DataBuffer.TYPE_SHORT ? 65535.0f / 32767.0f
+            : 65535.0f / (float) ((1 << srcSM.getSampleSize(i)) - 1);
         srcUseMinVal[i] = 0.0f;
       }
     }
@@ -353,11 +350,8 @@ public class LCMSTransform implements ColorTransform {
         dstScaleFactor[i] = (dstMaxVal[i] - dstMinVal[i]) / 65535.0f;
         dstUseMinVal[i] = dstMinVal[i];
       } else {
-        if (dstTransferType == DataBuffer.TYPE_SHORT) {
-          dstScaleFactor[i] = 32767.0f / 65535.0f;
-        } else {
-          dstScaleFactor[i] = ((float) ((1 << dstSM.getSampleSize(i)) - 1)) / 65535.0f;
-        }
+        dstScaleFactor[i] = dstTransferType == DataBuffer.TYPE_SHORT ? 32767.0f / 65535.0f
+            : (float) ((1 << dstSM.getSampleSize(i)) - 1) / 65535.0f;
         dstUseMinVal[i] = 0.0f;
       }
     }
@@ -369,17 +363,15 @@ public class LCMSTransform implements ColorTransform {
     short[] dstLine = new short[w * dstNumBands];
     int idx;
     try {
-      srcIL = new LCMSImageLayout(
-          srcLine,
+      srcIL = new LCMSImageLayout(srcLine,
           srcLine.length / getNumInComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(2),
-          getNumInComponents() * 2);
+          getNumInComponents() << 1);
 
-      dstIL = new LCMSImageLayout(
-          dstLine,
+      dstIL = new LCMSImageLayout(dstLine,
           dstLine.length / getNumOutComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(2),
-          getNumOutComponents() * 2);
+          getNumOutComponents() << 1);
     } catch (ImageLayoutException e) {
       throw new CMMException("Unable to convert rasters");
     }
@@ -391,7 +383,8 @@ public class LCMSTransform implements ColorTransform {
       for (int x = 0; x < w; x++, xs++) {
         for (int i = 0; i < srcNumBands; i++) {
           sample = src.getSampleFloat(xs, ys, i);
-          srcLine[idx++] = (short) ((sample - srcUseMinVal[i]) * srcScaleFactor[i] + 0.5f);
+          srcLine[idx] = (short) ((sample - srcUseMinVal[i]) * srcScaleFactor[i] + 0.5f);
+          idx++;
         }
       }
 
@@ -403,13 +396,15 @@ public class LCMSTransform implements ColorTransform {
       idx = 0;
       for (int x = 0; x < w; x++, xd++) {
         for (int i = 0; i < dstNumBands; i++) {
-          sample = ((dstLine[idx++] & 0xffff) * dstScaleFactor[i]) + dstUseMinVal[i];
+          sample = (dstLine[idx] & 0xffff) * dstScaleFactor[i] + dstUseMinVal[i];
+          idx++;
           dst.setSample(xd, yd, i, sample);
         }
       }
     }
   }
 
+  @Override
   public void colorConvert(Raster src, WritableRaster dst) {
 
     LCMSImageLayout srcIL, dstIL;
@@ -447,18 +442,12 @@ public class LCMSTransform implements ColorTransform {
     float[] srcScaleFactor = new float[srcNumBands];
     float[] dstScaleFactor = new float[dstNumBands];
     for (int i = 0; i < srcNumBands; i++) {
-      if (srcTransferType == DataBuffer.TYPE_SHORT) {
-        srcScaleFactor[i] = maxNum / 32767.0f;
-      } else {
-        srcScaleFactor[i] = maxNum / ((float) ((1 << srcSM.getSampleSize(i)) - 1));
-      }
+      srcScaleFactor[i] = srcTransferType == DataBuffer.TYPE_SHORT ? maxNum / 32767.0f
+          : maxNum / (float) ((1 << srcSM.getSampleSize(i)) - 1);
     }
     for (int i = 0; i < dstNumBands; i++) {
-      if (dstTransferType == DataBuffer.TYPE_SHORT) {
-        dstScaleFactor[i] = 32767.0f / maxNum;
-      } else {
-        dstScaleFactor[i] = ((float) ((1 << dstSM.getSampleSize(i)) - 1)) / maxNum;
-      }
+      dstScaleFactor[i] = dstTransferType == DataBuffer.TYPE_SHORT ? 32767.0f / maxNum
+          : (float) ((1 << dstSM.getSampleSize(i)) - 1) / maxNum;
     }
     int ys = src.getMinY();
     int yd = dst.getMinY();
@@ -470,13 +459,11 @@ public class LCMSTransform implements ColorTransform {
       int idx;
       // TODO check for src npixels = dst npixels
       try {
-        srcIL = new LCMSImageLayout(
-            srcLine,
+        srcIL = new LCMSImageLayout(srcLine,
             srcLine.length / getNumInComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(1),
             getNumInComponents());
-        dstIL = new LCMSImageLayout(
-            dstLine,
+        dstIL = new LCMSImageLayout(dstLine,
             dstLine.length / getNumOutComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(1),
             getNumOutComponents());
@@ -491,7 +478,8 @@ public class LCMSTransform implements ColorTransform {
         for (int x = 0; x < w; x++, xs++) {
           for (int i = 0; i < srcNumBands; i++) {
             sample = src.getSample(xs, ys, i);
-            srcLine[idx++] = (byte) ((sample * srcScaleFactor[i]) + 0.5f);
+            srcLine[idx] = (byte) (sample * srcScaleFactor[i] + 0.5f);
+            idx++;
           }
         }
 
@@ -503,7 +491,8 @@ public class LCMSTransform implements ColorTransform {
         idx = 0;
         for (int x = 0; x < w; x++, xd++) {
           for (int i = 0; i < dstNumBands; i++) {
-            sample = (int) (((dstLine[idx++] & 0xff) * dstScaleFactor[i]) + 0.5f);
+            sample = (int) ((dstLine[idx] & 0xff) * dstScaleFactor[i] + 0.5f);
+            idx++;
             dst.setSample(xd, yd, i, sample);
           }
         }
@@ -514,17 +503,15 @@ public class LCMSTransform implements ColorTransform {
       int idx;
 
       try {
-        srcIL = new LCMSImageLayout(
-            srcLine,
+        srcIL = new LCMSImageLayout(srcLine,
             srcLine.length / getNumInComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(2),
-            getNumInComponents() * 2);
+            getNumInComponents() << 1);
 
-        dstIL = new LCMSImageLayout(
-            dstLine,
+        dstIL = new LCMSImageLayout(dstLine,
             dstLine.length / getNumOutComponents(),
             LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(2),
-            getNumOutComponents() * 2);
+            getNumOutComponents() << 1);
       } catch (ImageLayoutException e) {
         throw new CMMException("Unable to convert rasters");
       }
@@ -536,7 +523,8 @@ public class LCMSTransform implements ColorTransform {
         for (int x = 0; x < w; x++, xs++) {
           for (int i = 0; i < srcNumBands; i++) {
             sample = src.getSample(xs, ys, i);
-            srcLine[idx++] = (short) ((sample * srcScaleFactor[i]) + 0.5f);
+            srcLine[idx] = (short) (sample * srcScaleFactor[i] + 0.5f);
+            idx++;
           }
         }
 
@@ -548,7 +536,8 @@ public class LCMSTransform implements ColorTransform {
         idx = 0;
         for (int x = 0; x < w; x++, xd++) {
           for (int i = 0; i < dstNumBands; i++) {
-            sample = (int) (((dstLine[idx++] & 0xffff) * dstScaleFactor[i]) + 0.5f);
+            sample = (int) ((dstLine[idx] & 0xffff) * dstScaleFactor[i] + 0.5f);
+            idx++;
             dst.setSample(xd, yd, i, sample);
           }
         }
@@ -560,24 +549,23 @@ public class LCMSTransform implements ColorTransform {
     /* each color is a contiguous set of array elements */
     /* the number of colors is (size of the array) / (number of input/output
        components */
+  @Override
   public short[] colorConvert(short[] src, short[] dst) {
 
     if (dst == null) {
-      dst = new short[(src.length / getNumInComponents()) * getNumOutComponents()];
+      dst = new short[src.length / getNumInComponents() * getNumOutComponents()];
     }
 
     try {
-      LCMSImageLayout srcIL = new LCMSImageLayout(
-          src,
+      LCMSImageLayout srcIL = new LCMSImageLayout(src,
           src.length / getNumInComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(2),
-          getNumInComponents() * 2);
+          getNumInComponents() << 1);
 
-      LCMSImageLayout dstIL = new LCMSImageLayout(
-          dst,
+      LCMSImageLayout dstIL = new LCMSImageLayout(dst,
           dst.length / getNumOutComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(2),
-          getNumOutComponents() * 2);
+          getNumOutComponents() << 1);
 
       doTransform(srcIL, dstIL);
 
@@ -587,20 +575,19 @@ public class LCMSTransform implements ColorTransform {
     }
   }
 
+  @Override
   public byte[] colorConvert(byte[] src, byte[] dst) {
     if (dst == null) {
-      dst = new byte[(src.length / getNumInComponents()) * getNumOutComponents()];
+      dst = new byte[src.length / getNumInComponents() * getNumOutComponents()];
     }
 
     try {
-      LCMSImageLayout srcIL = new LCMSImageLayout(
-          src,
+      LCMSImageLayout srcIL = new LCMSImageLayout(src,
           src.length / getNumInComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumInComponents()) | LCMSImageLayout.BYTES_SH(1),
           getNumInComponents());
 
-      LCMSImageLayout dstIL = new LCMSImageLayout(
-          dst,
+      LCMSImageLayout dstIL = new LCMSImageLayout(dst,
           dst.length / getNumOutComponents(),
           LCMSImageLayout.CHANNELS_SH(getNumOutComponents()) | LCMSImageLayout.BYTES_SH(1),
           getNumOutComponents());
@@ -629,8 +616,7 @@ public class LCMSTransform implements ColorTransform {
       outFormatter = out.pixelType;
       isOutIntPacked = out.isIntPacked;
 
-      ID = LCMS.createTransform(
-          lcmsProfiles,
+      ID = LCMS.createTransform(lcmsProfiles,
           renderType,
           inFormatter,
           isInIntPacked,
@@ -639,6 +625,6 @@ public class LCMSTransform implements ColorTransform {
           disposerReferent);
     }
 
-    LCMS.colorConvert(this, in, out);
+    colorConvert(this, in, out);
   }
 }

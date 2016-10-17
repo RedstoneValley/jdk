@@ -25,27 +25,32 @@ import java.lang.reflect.*;
 import java.awt.Rectangle;
 import java.util.logging.*;
 
-public class TesterClient {
+public final class TesterClient {
     private static final Logger log = Logger.getLogger("test.xembed.TesterClient");
     private static Method test;
-    private static boolean passed = false;
+    private static boolean passed;
+
+    private TesterClient() {
+    }
+
     public static void main(String[] args) throws Throwable {
         // First parameter is the name of the test, second is the window, the rest are rectangles
         Class cl = Class.forName("sun.awt.X11.XEmbedServerTester");
-        test = cl.getMethod(args[0], new Class[0]);
+        test = cl.getMethod(args[0]);
         long window = Long.parseLong(args[1]);
-        Rectangle r[] = new Rectangle[(args.length-2)/4];
+        Rectangle[] r = new Rectangle[(args.length - 2) / 4];
         for (int i = 0; i < r.length; i++) {
-            r[i] = new Rectangle(Integer.parseInt(args[2+i*4]), Integer.parseInt(args[2+i*4+1]),
-                                 Integer.parseInt(args[2+i*4+2]), Integer.parseInt(args[2+i*4+3]));
+            r[i] = new Rectangle(Integer.parseInt(args[2+ (i << 2)]), Integer.parseInt(args[2+ (i << 2) +1]),
+                                 Integer.parseInt(args[2+ (i << 2) +2]), Integer.parseInt(args[2+ (i << 2)
+                +3]));
         }
         startClient(r, window);
     }
 
-    public static void startClient(Rectangle bounds[], long window) throws Throwable {
+    public static void startClient(Rectangle[] bounds, long window) throws Throwable {
         Method m_getTester = Class.forName("sun.awt.X11.XEmbedServerTester").
-            getMethod("getTester", new Class[] {bounds.getClass(), Long.TYPE});
-        final Object tester = m_getTester.invoke(null, new Object[] {bounds, window});
+            getMethod("getTester", bounds.getClass(), Long.TYPE);
+        Object tester = m_getTester.invoke(null, bounds, window);
         try {
             log.info("Starting test " + test.getName());
             test.invoke(tester, (Object[])null);

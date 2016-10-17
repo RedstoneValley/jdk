@@ -30,9 +30,13 @@
 
 import java.awt.Font;
 
-public class FontPrivilege {
+@SuppressWarnings("MagicNumber")
+public final class FontPrivilege {
 
-    public static void main(String[] args) throws Exception {
+  private FontPrivilege() {
+  }
+
+  public static void main(String[] args) throws Exception {
         System.setSecurityManager(new SecurityManager());
 
         new Font("Helvetica", Font.PLAIN, 12).getFamily();

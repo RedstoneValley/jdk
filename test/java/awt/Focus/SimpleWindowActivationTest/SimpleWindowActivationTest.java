@@ -32,12 +32,9 @@
  */
 import java.awt.*;
 import java.awt.event.*;
-import java.util.concurrent.Callable;
-import javax.swing.SwingUtilities;
 import sun.awt.SunToolkit;
-import test.java.awt.regtesthelpers.Util;
 
-public class SimpleWindowActivationTest {
+public final class SimpleWindowActivationTest {
 
     private static Frame frame;
     private static Window window;
@@ -46,6 +43,9 @@ public class SimpleWindowActivationTest {
     private static Label label;
     private static Robot robot;
     private static SunToolkit toolkit;
+
+    private SimpleWindowActivationTest() {
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -60,6 +60,7 @@ public class SimpleWindowActivationTest {
 
         Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
 
+            @Override
             public void eventDispatched(AWTEvent e) {
                 System.out.println(e);
             }
@@ -113,7 +114,7 @@ public class SimpleWindowActivationTest {
         frame = new Frame("Test Frame");
         window = new Window(frame);
         wbutton = new Button("wbutton");
-        label = new Label("label");
+        label = new Label(Label.base);
 
         window.setBounds(800, 200, 300, 100);
         window.setLayout(new FlowLayout());
@@ -152,6 +153,6 @@ public class SimpleWindowActivationTest {
     static Point getClickPoint(Frame frame) {
         Point p = frame.getLocationOnScreen();
         Dimension d = frame.getSize();
-        return new Point(p.x + (int) (d.getWidth() / 2), p.y + (frame.getInsets().top / 2));
+        return new Point(p.x + (int) (d.getWidth() / 2), p.y + frame.getInsets().top / 2);
     }
 }

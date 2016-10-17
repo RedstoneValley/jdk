@@ -47,9 +47,16 @@ public class BytePackedRaster extends SunWritableRaster {
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    initIDs();
   }
 
+  /**
+   * A cached copy of minX + width for use in bounds checks.
+   */
+  private final int maxX;
+  /**
+   * A cached copy of minY + height for use in bounds checks.
+   */
+  private final int maxY;
   /**
    * The data bit offset for each pixel.
    */
@@ -76,14 +83,6 @@ public class BytePackedRaster extends SunWritableRaster {
    */
   int shiftOffset;
   int type;
-  /**
-   * A cached copy of minX + width for use in bounds checks.
-   */
-  private int maxX;
-  /**
-   * A cached copy of minY + height for use in bounds checks.
-   */
-  private int maxY;
 
   /**
    * Constructs a BytePackedRaster with the given SampleModel.
@@ -147,14 +146,14 @@ public class BytePackedRaster extends SunWritableRaster {
       SampleModel sampleModel, DataBuffer dataBuffer, Rectangle aRegion, Point origin,
       BytePackedRaster parent) {
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
 
     if (!(dataBuffer instanceof DataBufferByte)) {
       throw new RasterFormatException("BytePackedRasters must have" + "byte DataBuffers");
     }
     DataBufferByte dbb = (DataBufferByte) dataBuffer;
-    this.data = stealData(dbb, 0);
+    data = stealData(dbb, 0);
     if (dbb.getNumBanks() != 1) {
       throw new RasterFormatException(
           "DataBuffer for BytePackedRasters" + " must only have 1 bank.");
@@ -163,7 +162,7 @@ public class BytePackedRaster extends SunWritableRaster {
 
     if (sampleModel instanceof MultiPixelPackedSampleModel) {
       MultiPixelPackedSampleModel mppsm = (MultiPixelPackedSampleModel) sampleModel;
-      this.type = IntegerComponentRaster.TYPE_BYTE_BINARY_SAMPLES;
+      type = IntegerComponentRaster.TYPE_BYTE_BINARY_SAMPLES;
       pixelBitStride = mppsm.getPixelBitStride();
       if (pixelBitStride != 1 &&
           pixelBitStride != 2 &&
@@ -171,7 +170,7 @@ public class BytePackedRaster extends SunWritableRaster {
         throw new RasterFormatException("BytePackedRasters must have a bit depth of 1, 2, or 4");
       }
       scanlineStride = mppsm.getScanlineStride();
-      dataBitOffset = mppsm.getDataBitOffset() + dbOffset * 8;
+      dataBitOffset = mppsm.getDataBitOffset() + (dbOffset << 3);
       int xOffset = aRegion.x - origin.x;
       int yOffset = aRegion.y - origin.y;
       dataBitOffset += xOffset * pixelBitStride + yOffset * scanlineStride * 8;
@@ -183,8 +182,6 @@ public class BytePackedRaster extends SunWritableRaster {
     }
     verify(false);
   }
-
-  static private native void initIDs();
 
   /**
    * Returns the data bit offset for the Raster.  The data
@@ -236,37 +233,28 @@ public class BytePackedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
   public Object getPixelData(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte outData[];
-    if (obj == null) {
-      outData = new byte[numDataElements * w * h];
-    } else {
-      outData = (byte[]) obj;
-    }
+    byte[] outData;
+    outData = obj == null ? new byte[numDataElements * w * h] : (byte[]) obj;
     int pixbits = pixelBitStride;
     int scanbit = dataBitOffset + (x - minX) * pixbits;
     int index = (y - minY) * scanlineStride;
     int outindex = 0;
-    byte data[] = this.data;
+    byte[] data = this.data;
 
     for (int j = 0; j < h; j++) {
       int bitnum = scanbit;
       for (int i = 0; i < w; i++) {
         int shift = shiftOffset - (bitnum & 7);
-        outData[outindex++] = (byte) (bitMask & (data[index + (bitnum >> 3)] >> shift));
+        outData[outindex] = (byte) (bitMask & data[index + (bitnum >> 3)] >> shift);
+        outindex++;
         bitnum += pixbits;
       }
       index += scanlineStride;
@@ -287,8 +275,6 @@ public class BytePackedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param band    The band to return, is ignored.
    * @param outData If non-null, data elements
    *                at the specified locations are returned in this array.
@@ -312,15 +298,13 @@ public class BytePackedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param outData If non-null, data elements
    *                at the specified locations are returned in this array.
    * @return Byte array with data elements.
    */
   public byte[] getByteData(int x, int y, int w, int h, byte[] outData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
@@ -330,7 +314,7 @@ public class BytePackedRaster extends SunWritableRaster {
     int scanbit = dataBitOffset + (x - minX) * pixbits;
     int index = (y - minY) * scanlineStride;
     int outindex = 0;
-    byte data[] = this.data;
+    byte[] data = this.data;
 
     for (int j = 0; j < h; j++) {
       int bitnum = scanbit;
@@ -338,9 +322,10 @@ public class BytePackedRaster extends SunWritableRaster {
 
       // Process initial portion of scanline
       int i = 0;
-      while ((i < w) && ((bitnum & 7) != 0)) {
+      while (i < w && (bitnum & 7) != 0) {
         int shift = shiftOffset - (bitnum & 7);
-        outData[outindex++] = (byte) (bitMask & (data[index + (bitnum >> 3)] >> shift));
+        outData[outindex] = (byte) (bitMask & data[index + (bitnum >> 3)] >> shift);
+        outindex++;
         bitnum += pixbits;
         i++;
       }
@@ -350,32 +335,51 @@ public class BytePackedRaster extends SunWritableRaster {
       switch (pixbits) {
         case 1:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 7) & 1);
-            outData[outindex++] = (byte) ((element >> 6) & 1);
-            outData[outindex++] = (byte) ((element >> 5) & 1);
-            outData[outindex++] = (byte) ((element >> 4) & 1);
-            outData[outindex++] = (byte) ((element >> 3) & 1);
-            outData[outindex++] = (byte) ((element >> 2) & 1);
-            outData[outindex++] = (byte) ((element >> 1) & 1);
-            outData[outindex++] = (byte) (element & 1);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 7 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 6 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 5 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 4 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 3 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 2 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element >> 1 & 1);
+            outindex++;
+            outData[outindex] = (byte) (element & 1);
+            outindex++;
             bitnum += 8;
           }
           break;
 
         case 2:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 6) & 3);
-            outData[outindex++] = (byte) ((element >> 4) & 3);
-            outData[outindex++] = (byte) ((element >> 2) & 3);
-            outData[outindex++] = (byte) (element & 3);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 6 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element >> 4 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element >> 2 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element & 3);
+            outindex++;
 
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 6) & 3);
-            outData[outindex++] = (byte) ((element >> 4) & 3);
-            outData[outindex++] = (byte) ((element >> 2) & 3);
-            outData[outindex++] = (byte) (element & 3);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 6 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element >> 4 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element >> 2 & 3);
+            outindex++;
+            outData[outindex] = (byte) (element & 3);
+            outindex++;
 
             bitnum += 16;
           }
@@ -383,21 +387,33 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 4:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 4) & 0xf);
-            outData[outindex++] = (byte) (element & 0xf);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 4 & 0xf);
+            outindex++;
+            outData[outindex] = (byte) (element & 0xf);
+            outindex++;
 
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 4) & 0xf);
-            outData[outindex++] = (byte) (element & 0xf);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 4 & 0xf);
+            outindex++;
+            outData[outindex] = (byte) (element & 0xf);
+            outindex++;
 
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 4) & 0xf);
-            outData[outindex++] = (byte) (element & 0xf);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 4 & 0xf);
+            outindex++;
+            outData[outindex] = (byte) (element & 0xf);
+            outindex++;
 
-            element = data[inIndex++];
-            outData[outindex++] = (byte) ((element >> 4) & 0xf);
-            outData[outindex++] = (byte) (element & 0xf);
+            element = data[inIndex];
+            inIndex++;
+            outData[outindex] = (byte) (element >> 4 & 0xf);
+            outindex++;
+            outData[outindex] = (byte) (element & 0xf);
+            outindex++;
 
             bitnum += 32;
           }
@@ -407,7 +423,8 @@ public class BytePackedRaster extends SunWritableRaster {
       // Process final portion of scanline
       for (; i < w; i++) {
         int shift = shiftOffset - (bitnum & 7);
-        outData[outindex++] = (byte) (bitMask & (data[index + (bitnum >> 3)] >> shift));
+        outData[outindex] = (byte) (bitMask & data[index + (bitnum >> 3)] >> shift);
+        outindex++;
         bitnum += pixbits;
       }
 
@@ -442,16 +459,16 @@ public class BytePackedRaster extends SunWritableRaster {
     }
 
     byte[] inData = inRaster.data;
-    byte[] outData = this.data;
+    byte[] outData = data;
 
     int inscan = inRaster.scanlineStride;
-    int outscan = this.scanlineStride;
+    int outscan = scanlineStride;
     int inbit = inRaster.dataBitOffset +
         8 * (srcY - inRaster.minY) * inscan +
         (srcX - inRaster.minX) * inRaster.pixelBitStride;
-    int outbit = (this.dataBitOffset +
-                      8 * (dstY - minY) * outscan +
-                      (dstX - minX) * this.pixelBitStride);
+    int outbit = dataBitOffset +
+        8 * (dstY - minY) * outscan +
+        (dstX - minX) * pixelBitStride;
     int copybits = width * pixelBitStride;
 
     // Check whether the same bit alignment is present in both
@@ -475,13 +492,13 @@ public class BytePackedRaster extends SunWritableRaster {
           // 'bits' bits set to '1'.  We want it to have a total
           // of 'copybits' bits set, therefore we want to introduce
           // 'bits - copybits' zeroes on the right.
-          mask &= 0xff << (bits - copybits);
+          mask &= 0xff << bits - copybits;
           bits = copybits;
         }
         for (int j = 0; j < height; j++) {
           int element = outData[outbyte];
           element &= ~mask;
-          element |= (inData[inbyte] & mask);
+          element |= inData[inbyte] & mask;
           outData[outbyte] = (byte) element;
           inbyte += inscan;
           outbyte += outscan;
@@ -505,7 +522,7 @@ public class BytePackedRaster extends SunWritableRaster {
           }
         }
 
-        int bits = copybytes * 8;
+        int bits = copybytes << 3;
         inbit += bits;
         outbit += bits;
         copybits -= bits;
@@ -514,11 +531,11 @@ public class BytePackedRaster extends SunWritableRaster {
         // Copy partial bytes on right
         int inbyte = inbit >> 3;
         int outbyte = outbit >> 3;
-        int mask = (0xff00 >> copybits) & 0xff;
+        int mask = 0xff00 >> copybits & 0xff;
         for (int j = 0; j < height; j++) {
           int element = outData[outbyte];
           element &= ~mask;
-          element |= (inData[inbyte] & mask);
+          element |= inData[inbyte] & mask;
           outData[outbyte] = (byte) element;
           inbyte += inscan;
           outbyte += outscan;
@@ -542,7 +559,7 @@ public class BytePackedRaster extends SunWritableRaster {
         int mask = 0xff >> bitpos;
         if (copybits < bits) {
           // Fix mask if we're only writing a partial byte
-          mask &= 0xff << (bits - copybits);
+          mask &= 0xff << bits - copybits;
           bits = copybits;
         }
         int lastByte = inData.length - 1;
@@ -559,7 +576,7 @@ public class BytePackedRaster extends SunWritableRaster {
           // Insert the new bits into the output
           int element = outData[outbyte];
           element &= ~mask;
-          element |= (((inData0 << lshift) | ((inData1 & 0xff) >> rshift)) >> bitpos) & mask;
+          element |= (inData0 << lshift | (inData1 & 0xff) >> rshift) >> bitpos & mask;
           outData[outbyte] = (byte) element;
           inbyte += inscan;
           outbyte += outscan;
@@ -590,7 +607,7 @@ public class BytePackedRaster extends SunWritableRaster {
           // Combine adjacent bytes while 8 or more bits left
           for (int i = 0; i < copybytes; i++) {
             int inData1 = inData[ibyte + 1];
-            int val = (inData0 << lshift) | ((inData1 & 0xff) >> rshift);
+            int val = inData0 << lshift | (inData1 & 0xff) >> rshift;
             outData[obyte] = (byte) val;
             inData0 = inData1;
 
@@ -599,7 +616,7 @@ public class BytePackedRaster extends SunWritableRaster {
           }
         }
 
-        int bits = copybytes * 8;
+        int bits = copybytes << 3;
         inbit += bits;
         outbit += bits;
         copybits -= bits;
@@ -609,7 +626,7 @@ public class BytePackedRaster extends SunWritableRaster {
       if (copybits > 0) {
         int inbyte = inbit >> 3;
         int outbyte = outbit >> 3;
-        int mask = (0xff00 >> copybits) & 0xff;
+        int mask = 0xff00 >> copybits & 0xff;
         int lshift = inbit & 7;
         int rshift = 8 - lshift;
 
@@ -624,7 +641,7 @@ public class BytePackedRaster extends SunWritableRaster {
           // Insert the new bits into the output
           int element = outData[outbyte];
           element &= ~mask;
-          element |= ((inData0 << lshift) | ((inData1 & 0xff) >> rshift)) & mask;
+          element |= (inData0 << lshift | (inData1 & 0xff) >> rshift) & mask;
           outData[outbyte] = (byte) element;
 
           inbyte += inscan;
@@ -678,8 +695,8 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param inData The data elements to be stored.
    */
   public void putByteData(int x, int y, int w, int h, byte[] inData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (w == 0 || h == 0) {
@@ -690,18 +707,19 @@ public class BytePackedRaster extends SunWritableRaster {
     int scanbit = dataBitOffset + (x - minX) * pixbits;
     int index = (y - minY) * scanlineStride;
     int outindex = 0;
-    byte data[] = this.data;
+    byte[] data = this.data;
     for (int j = 0; j < h; j++) {
       int bitnum = scanbit;
       int element;
 
       // Process initial portion of scanline
       int i = 0;
-      while ((i < w) && ((bitnum & 7) != 0)) {
+      while (i < w && (bitnum & 7) != 0) {
         int shift = shiftOffset - (bitnum & 7);
         element = data[index + (bitnum >> 3)];
         element &= ~(bitMask << shift);
-        element |= (inData[outindex++] & bitMask) << shift;
+        element |= (inData[outindex] & bitMask) << shift;
+        outindex++;
         data[index + (bitnum >> 3)] = (byte) element;
 
         bitnum += pixbits;
@@ -713,16 +731,25 @@ public class BytePackedRaster extends SunWritableRaster {
       switch (pixbits) {
         case 1:
           for (; i < w - 7; i += 8) {
-            element = (inData[outindex++] & 1) << 7;
-            element |= (inData[outindex++] & 1) << 6;
-            element |= (inData[outindex++] & 1) << 5;
-            element |= (inData[outindex++] & 1) << 4;
-            element |= (inData[outindex++] & 1) << 3;
-            element |= (inData[outindex++] & 1) << 2;
-            element |= (inData[outindex++] & 1) << 1;
-            element |= (inData[outindex++] & 1);
+            element = (inData[outindex] & 1) << 7;
+            outindex++;
+            element |= (inData[outindex] & 1) << 6;
+            outindex++;
+            element |= (inData[outindex] & 1) << 5;
+            outindex++;
+            element |= (inData[outindex] & 1) << 4;
+            outindex++;
+            element |= (inData[outindex] & 1) << 3;
+            outindex++;
+            element |= (inData[outindex] & 1) << 2;
+            outindex++;
+            element |= (inData[outindex] & 1) << 1;
+            outindex++;
+            element |= inData[outindex] & 1;
+            outindex++;
 
-            data[inIndex++] = (byte) element;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 8;
           }
@@ -730,17 +757,27 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 2:
           for (; i < w - 7; i += 8) {
-            element = (inData[outindex++] & 3) << 6;
-            element |= (inData[outindex++] & 3) << 4;
-            element |= (inData[outindex++] & 3) << 2;
-            element |= (inData[outindex++] & 3);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 3) << 6;
+            outindex++;
+            element |= (inData[outindex] & 3) << 4;
+            outindex++;
+            element |= (inData[outindex] & 3) << 2;
+            outindex++;
+            element |= inData[outindex] & 3;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (inData[outindex++] & 3) << 6;
-            element |= (inData[outindex++] & 3) << 4;
-            element |= (inData[outindex++] & 3) << 2;
-            element |= (inData[outindex++] & 3);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 3) << 6;
+            outindex++;
+            element |= (inData[outindex] & 3) << 4;
+            outindex++;
+            element |= (inData[outindex] & 3) << 2;
+            outindex++;
+            element |= inData[outindex] & 3;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 16;
           }
@@ -748,21 +785,33 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 4:
           for (; i < w - 7; i += 8) {
-            element = (inData[outindex++] & 0xf) << 4;
-            element |= (inData[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 0xf) << 4;
+            outindex++;
+            element |= inData[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (inData[outindex++] & 0xf) << 4;
-            element |= (inData[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 0xf) << 4;
+            outindex++;
+            element |= inData[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (inData[outindex++] & 0xf) << 4;
-            element |= (inData[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 0xf) << 4;
+            outindex++;
+            element |= inData[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (inData[outindex++] & 0xf) << 4;
-            element |= (inData[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (inData[outindex] & 0xf) << 4;
+            outindex++;
+            element |= inData[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 32;
           }
@@ -775,7 +824,8 @@ public class BytePackedRaster extends SunWritableRaster {
 
         element = data[index + (bitnum >> 3)];
         element &= ~(bitMask << shift);
-        element |= (inData[outindex++] & bitMask) << shift;
+        element |= (inData[outindex] & bitMask) << shift;
+        outindex++;
         data[index + (bitnum >> 3)] = (byte) element;
 
         bitnum += pixbits;
@@ -805,28 +855,25 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent Raster.
    */
+  @Override
   public WritableRaster createWritableChild(
       int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    if (x < this.minX) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside the raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside the raster");
     }
-    if ((x + width < x) || (x + width > this.minX + this.width)) {
+    if (x + width < x || x + width > minX + this.width) {
       throw new RasterFormatException("(x + width) is outside of Raster");
     }
-    if ((y + height < y) || (y + height > this.minY + this.height)) {
+    if (y + height < y || y + height > minY + this.height) {
       throw new RasterFormatException("(y + height) is outside of Raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
@@ -847,16 +894,14 @@ public class BytePackedRaster extends SunWritableRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte inData[] = (byte[]) obj;
+    byte[] inData = (byte[]) obj;
     int bitnum = dataBitOffset + (x - minX) * pixelBitStride;
     int index = (y - minY) * scanlineStride + (bitnum >> 3);
     int shift = shiftOffset - (bitnum & 7);
@@ -878,6 +923,7 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     // Check if we can use fast code
     if (!(inRaster instanceof BytePackedRaster)
@@ -892,8 +938,8 @@ public class BytePackedRaster extends SunWritableRaster {
     int dstOffY = srcOffY + y;
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     setDataElements(dstOffX, dstOffY, srcOffX, srcOffY, width, height, (BytePackedRaster) inRaster);
@@ -917,11 +963,8 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
     putByteData(x, y, w, h, (byte[]) obj);
   }
@@ -942,6 +985,7 @@ public class BytePackedRaster extends SunWritableRaster {
    *                  of the copy.
    * @param srcRaster The Raster from which to copy pixels.
    */
+  @Override
   public void setRect(int dx, int dy, Raster srcRaster) {
     // Check if we can use fast code
     if (!(srcRaster instanceof BytePackedRaster)
@@ -958,23 +1002,23 @@ public class BytePackedRaster extends SunWritableRaster {
     int dstOffY = dy + srcOffY;
 
     // Clip to this raster
-    if (dstOffX < this.minX) {
-      int skipX = this.minX - dstOffX;
+    if (dstOffX < minX) {
+      int skipX = minX - dstOffX;
       width -= skipX;
       srcOffX += skipX;
-      dstOffX = this.minX;
+      dstOffX = minX;
     }
-    if (dstOffY < this.minY) {
-      int skipY = this.minY - dstOffY;
+    if (dstOffY < minY) {
+      int skipY = minY - dstOffY;
       height -= skipY;
       srcOffY += skipY;
-      dstOffY = this.minY;
+      dstOffY = minY;
     }
-    if (dstOffX + width > this.maxX) {
-      width = this.maxX - dstOffX;
+    if (dstOffX + width > maxX) {
+      width = maxX - dstOffX;
     }
-    if (dstOffY + height > this.maxY) {
-      height = this.maxY - dstOffY;
+    if (dstOffY + height > maxY) {
+      height = maxY - dstOffY;
     }
 
     setDataElements(dstOffX,
@@ -998,27 +1042,29 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param h      Height of the pixel rectangle.
    * @param iArray The input int pixel array.
    */
-  public void setPixels(int x, int y, int w, int h, int iArray[]) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+  @Override
+  public void setPixels(int x, int y, int w, int h, int[] iArray) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int pixbits = pixelBitStride;
     int scanbit = dataBitOffset + (x - minX) * pixbits;
     int index = (y - minY) * scanlineStride;
     int outindex = 0;
-    byte data[] = this.data;
+    byte[] data = this.data;
     for (int j = 0; j < h; j++) {
       int bitnum = scanbit;
       int element;
 
       // Process initial portion of scanline
       int i = 0;
-      while ((i < w) && ((bitnum & 7) != 0)) {
+      while (i < w && (bitnum & 7) != 0) {
         int shift = shiftOffset - (bitnum & 7);
         element = data[index + (bitnum >> 3)];
         element &= ~(bitMask << shift);
-        element |= (iArray[outindex++] & bitMask) << shift;
+        element |= (iArray[outindex] & bitMask) << shift;
+        outindex++;
         data[index + (bitnum >> 3)] = (byte) element;
 
         bitnum += pixbits;
@@ -1030,15 +1076,24 @@ public class BytePackedRaster extends SunWritableRaster {
       switch (pixbits) {
         case 1:
           for (; i < w - 7; i += 8) {
-            element = (iArray[outindex++] & 1) << 7;
-            element |= (iArray[outindex++] & 1) << 6;
-            element |= (iArray[outindex++] & 1) << 5;
-            element |= (iArray[outindex++] & 1) << 4;
-            element |= (iArray[outindex++] & 1) << 3;
-            element |= (iArray[outindex++] & 1) << 2;
-            element |= (iArray[outindex++] & 1) << 1;
-            element |= (iArray[outindex++] & 1);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 1) << 7;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 6;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 5;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 4;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 3;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 2;
+            outindex++;
+            element |= (iArray[outindex] & 1) << 1;
+            outindex++;
+            element |= iArray[outindex] & 1;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 8;
           }
@@ -1046,17 +1101,27 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 2:
           for (; i < w - 7; i += 8) {
-            element = (iArray[outindex++] & 3) << 6;
-            element |= (iArray[outindex++] & 3) << 4;
-            element |= (iArray[outindex++] & 3) << 2;
-            element |= (iArray[outindex++] & 3);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 3) << 6;
+            outindex++;
+            element |= (iArray[outindex] & 3) << 4;
+            outindex++;
+            element |= (iArray[outindex] & 3) << 2;
+            outindex++;
+            element |= iArray[outindex] & 3;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (iArray[outindex++] & 3) << 6;
-            element |= (iArray[outindex++] & 3) << 4;
-            element |= (iArray[outindex++] & 3) << 2;
-            element |= (iArray[outindex++] & 3);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 3) << 6;
+            outindex++;
+            element |= (iArray[outindex] & 3) << 4;
+            outindex++;
+            element |= (iArray[outindex] & 3) << 2;
+            outindex++;
+            element |= iArray[outindex] & 3;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 16;
           }
@@ -1064,21 +1129,33 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 4:
           for (; i < w - 7; i += 8) {
-            element = (iArray[outindex++] & 0xf) << 4;
-            element |= (iArray[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 0xf) << 4;
+            outindex++;
+            element |= iArray[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (iArray[outindex++] & 0xf) << 4;
-            element |= (iArray[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 0xf) << 4;
+            outindex++;
+            element |= iArray[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (iArray[outindex++] & 0xf) << 4;
-            element |= (iArray[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 0xf) << 4;
+            outindex++;
+            element |= iArray[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
-            element = (iArray[outindex++] & 0xf) << 4;
-            element |= (iArray[outindex++] & 0xf);
-            data[inIndex++] = (byte) element;
+            element = (iArray[outindex] & 0xf) << 4;
+            outindex++;
+            element |= iArray[outindex] & 0xf;
+            outindex++;
+            data[inIndex] = (byte) element;
+            inIndex++;
 
             bitnum += 32;
           }
@@ -1091,7 +1168,8 @@ public class BytePackedRaster extends SunWritableRaster {
 
         element = data[index + (bitnum >> 3)];
         element &= ~(bitMask << shift);
-        element |= (iArray[outindex++] & bitMask) << shift;
+        element |= (iArray[outindex] & bitMask) << shift;
+        outindex++;
         data[index + (bitnum >> 3)] = (byte) element;
 
         bitnum += pixbits;
@@ -1107,6 +1185,7 @@ public class BytePackedRaster extends SunWritableRaster {
    * Creates a raster with the same layout and the same
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -1115,9 +1194,10 @@ public class BytePackedRaster extends SunWritableRaster {
    * Creates a raster with the same layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -1142,9 +1222,9 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    WritableRaster newRaster = createWritableChild(x, y, width, height, x0, y0, bandList);
-    return (Raster) newRaster;
+    return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
   /**
@@ -1157,29 +1237,22 @@ public class BytePackedRaster extends SunWritableRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    byte outData[];
-    if (obj == null) {
-      outData = new byte[numDataElements];
-    } else {
-      outData = (byte[]) obj;
-    }
+    byte[] outData;
+    outData = obj == null ? new byte[numDataElements] : (byte[]) obj;
     int bitnum = dataBitOffset + (x - minX) * pixelBitStride;
     // Fix 4184283
     int element = data[(y - minY) * scanlineStride + (bitnum >> 3)] & 0xff;
     int shift = shiftOffset - (bitnum & 7);
-    outData[0] = (byte) ((element >> shift) & bitMask);
+    outData[0] = (byte) (element >> shift & bitMask);
     return outData;
   }
 
@@ -1206,8 +1279,9 @@ public class BytePackedRaster extends SunWritableRaster {
    *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the requested pixel data.
-   * @see java.awt.image.SampleModel#getDataElements(int, int, int, int, Object, DataBuffer)
+   * @see SampleModel#getDataElements(int, int, int, int, Object, DataBuffer)
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object outData) {
     return getByteData(x, y, w, h, (byte[]) outData);
   }
@@ -1224,9 +1298,10 @@ public class BytePackedRaster extends SunWritableRaster {
    * @param iArray    An optionally pre-allocated int array
    * @return the samples for the specified rectangle of pixels.
    */
-  public int[] getPixels(int x, int y, int w, int h, int iArray[]) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+  @Override
+  public int[] getPixels(int x, int y, int w, int h, int[] iArray) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (iArray == null) {
@@ -1236,7 +1311,7 @@ public class BytePackedRaster extends SunWritableRaster {
     int scanbit = dataBitOffset + (x - minX) * pixbits;
     int index = (y - minY) * scanlineStride;
     int outindex = 0;
-    byte data[] = this.data;
+    byte[] data = this.data;
 
     for (int j = 0; j < h; j++) {
       int bitnum = scanbit;
@@ -1244,9 +1319,10 @@ public class BytePackedRaster extends SunWritableRaster {
 
       // Process initial portion of scanline
       int i = 0;
-      while ((i < w) && ((bitnum & 7) != 0)) {
+      while (i < w && (bitnum & 7) != 0) {
         int shift = shiftOffset - (bitnum & 7);
-        iArray[outindex++] = bitMask & (data[index + (bitnum >> 3)] >> shift);
+        iArray[outindex] = bitMask & data[index + (bitnum >> 3)] >> shift;
+        outindex++;
         bitnum += pixbits;
         i++;
       }
@@ -1256,32 +1332,51 @@ public class BytePackedRaster extends SunWritableRaster {
       switch (pixbits) {
         case 1:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 7) & 1;
-            iArray[outindex++] = (element >> 6) & 1;
-            iArray[outindex++] = (element >> 5) & 1;
-            iArray[outindex++] = (element >> 4) & 1;
-            iArray[outindex++] = (element >> 3) & 1;
-            iArray[outindex++] = (element >> 2) & 1;
-            iArray[outindex++] = (element >> 1) & 1;
-            iArray[outindex++] = element & 1;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 7 & 1;
+            outindex++;
+            iArray[outindex] = element >> 6 & 1;
+            outindex++;
+            iArray[outindex] = element >> 5 & 1;
+            outindex++;
+            iArray[outindex] = element >> 4 & 1;
+            outindex++;
+            iArray[outindex] = element >> 3 & 1;
+            outindex++;
+            iArray[outindex] = element >> 2 & 1;
+            outindex++;
+            iArray[outindex] = element >> 1 & 1;
+            outindex++;
+            iArray[outindex] = element & 1;
+            outindex++;
             bitnum += 8;
           }
           break;
 
         case 2:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 6) & 3;
-            iArray[outindex++] = (element >> 4) & 3;
-            iArray[outindex++] = (element >> 2) & 3;
-            iArray[outindex++] = element & 3;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 6 & 3;
+            outindex++;
+            iArray[outindex] = element >> 4 & 3;
+            outindex++;
+            iArray[outindex] = element >> 2 & 3;
+            outindex++;
+            iArray[outindex] = element & 3;
+            outindex++;
 
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 6) & 3;
-            iArray[outindex++] = (element >> 4) & 3;
-            iArray[outindex++] = (element >> 2) & 3;
-            iArray[outindex++] = element & 3;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 6 & 3;
+            outindex++;
+            iArray[outindex] = element >> 4 & 3;
+            outindex++;
+            iArray[outindex] = element >> 2 & 3;
+            outindex++;
+            iArray[outindex] = element & 3;
+            outindex++;
 
             bitnum += 16;
           }
@@ -1289,21 +1384,33 @@ public class BytePackedRaster extends SunWritableRaster {
 
         case 4:
           for (; i < w - 7; i += 8) {
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 4) & 0xf;
-            iArray[outindex++] = element & 0xf;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 4 & 0xf;
+            outindex++;
+            iArray[outindex] = element & 0xf;
+            outindex++;
 
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 4) & 0xf;
-            iArray[outindex++] = element & 0xf;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 4 & 0xf;
+            outindex++;
+            iArray[outindex] = element & 0xf;
+            outindex++;
 
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 4) & 0xf;
-            iArray[outindex++] = element & 0xf;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 4 & 0xf;
+            outindex++;
+            iArray[outindex] = element & 0xf;
+            outindex++;
 
-            element = data[inIndex++];
-            iArray[outindex++] = (element >> 4) & 0xf;
-            iArray[outindex++] = element & 0xf;
+            element = data[inIndex];
+            inIndex++;
+            iArray[outindex] = element >> 4 & 0xf;
+            outindex++;
+            iArray[outindex] = element & 0xf;
+            outindex++;
 
             bitnum += 32;
           }
@@ -1313,7 +1420,8 @@ public class BytePackedRaster extends SunWritableRaster {
       // Process final portion of scanline
       for (; i < w; i++) {
         int shift = shiftOffset - (bitnum & 7);
-        iArray[outindex++] = bitMask & (data[index + (bitnum >> 3)] >> shift);
+        iArray[outindex] = bitMask & data[index + (bitnum >> 3)] >> shift;
+        outindex++;
         bitnum += pixbits;
       }
 
@@ -1344,7 +1452,7 @@ public class BytePackedRaster extends SunWritableRaster {
          * specified to the constructor
          */
     if (width <= 0 || height <= 0 ||
-        height > (Integer.MAX_VALUE / width)) {
+        height > Integer.MAX_VALUE / width) {
       throw new RasterFormatException("Invalid raster dimension");
     }
 
@@ -1353,7 +1461,7 @@ public class BytePackedRaster extends SunWritableRaster {
          * pixelBitstride was verified in constructor, so just make
          * sure that it is safe to multiply it by width.
          */
-    if ((width - 1) > Integer.MAX_VALUE / pixelBitStride) {
+    if (width - 1 > Integer.MAX_VALUE / pixelBitStride) {
       throw new RasterFormatException("Invalid raster dimension");
     }
 
@@ -1364,7 +1472,7 @@ public class BytePackedRaster extends SunWritableRaster {
           sampleModelTranslateX + ", " + sampleModelTranslateY + ")");
     }
 
-    if (scanlineStride < 0 || scanlineStride > (Integer.MAX_VALUE / height)) {
+    if (scanlineStride < 0 || scanlineStride > Integer.MAX_VALUE / height) {
       throw new RasterFormatException("Invalid scanline stride");
     }
 
@@ -1391,8 +1499,7 @@ public class BytePackedRaster extends SunWritableRaster {
   }
 
   public String toString() {
-    return new String(
-        "BytePackedRaster: width = " + width + " height = " + height + " #channels " + numBands
-            + " xOff = " + sampleModelTranslateX + " yOff = " + sampleModelTranslateY);
+    return "BytePackedRaster: width = " + width + " height = " + height + " #channels " + numBands
+        + " xOff = " + sampleModelTranslateX + " yOff = " + sampleModelTranslateY;
   }
 }

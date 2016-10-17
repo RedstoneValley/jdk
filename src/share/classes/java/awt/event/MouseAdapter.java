@@ -66,59 +66,32 @@ package java.awt.event;
  * Writing a Mouse Listener</a>
  * @since 1.1
  */
-public abstract class MouseAdapter
-    implements MouseListener, MouseWheelListener, MouseMotionListener {
-  /**
-   * {@inheritDoc}
-   */
+public abstract class MouseAdapter extends MouseMotionAdapter
+    implements MouseListener, MouseWheelListener {
+  @Override
   public void mouseClicked(MouseEvent e) {
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void mousePressed(MouseEvent e) {
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void mouseReleased(MouseEvent e) {
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void mouseEntered(MouseEvent e) {
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
   public void mouseExited(MouseEvent e) {
   }
 
   /**
-   * {@inheritDoc}
-   *
    * @since 1.6
    */
+  @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @since 1.6
-   */
-  public void mouseDragged(MouseEvent e) {
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @since 1.6
-   */
-  public void mouseMoved(MouseEvent e) {
   }
 }

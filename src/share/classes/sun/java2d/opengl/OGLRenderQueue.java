@@ -32,7 +32,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.java2d.pipe.RenderBuffer;
 import sun.java2d.pipe.RenderQueue;
-import sun.misc.ThreadGroupUtils;
 
 /**
  * OGL-specific implementation of RenderQueue.  This class provides a
@@ -117,9 +116,10 @@ public class OGLRenderQueue extends RenderQueue {
    * Returns true if the current thread is the OGL QueueFlusher thread.
    */
   public static boolean isQueueFlusherThread() {
-    return (Thread.currentThread() == getInstance().flusher);
+    return Thread.currentThread() == getInstance().flusher;
   }
 
+  @Override
   public void flushNow() {
     // assert lock.isHeldByCurrentThread();
     try {
@@ -130,6 +130,7 @@ public class OGLRenderQueue extends RenderQueue {
     }
   }
 
+  @Override
   public void flushAndInvokeNow(Runnable r) {
     // assert lock.isHeldByCurrentThread();
     try {
@@ -140,9 +141,11 @@ public class OGLRenderQueue extends RenderQueue {
     }
   }
 
-  private native void flushBuffer(long buf, int limit);
+  private void flushBuffer(long buf, int limit) {
+    // TODO: Native in OpenJDK AWT
+  }
 
-  private void flushBuffer() {
+  void flushBuffer() {
     // assert lock.isHeldByCurrentThread();
     int limit = buf.position();
     if (limit > 0) {
@@ -191,6 +194,7 @@ public class OGLRenderQueue extends RenderQueue {
       flushNow();
     }
 
+    @Override
     public synchronized void run() {
       boolean timedOut = false;
       while (true) {

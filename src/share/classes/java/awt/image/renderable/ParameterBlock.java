@@ -27,20 +27,21 @@ package java.awt.image.renderable;
 
 import java.awt.image.RenderedImage;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 /**
- * A <code>ParameterBlock</code> encapsulates all the information about sources and
+ * A {@code ParameterBlock} encapsulates all the information about sources and
  * parameters (Objects) required by a RenderableImageOp, or other
  * classes that process images.
  * <p>
  * <p> Although it is possible to place arbitrary objects in the
  * source Vector, users of this class may impose semantic constraints
  * such as requiring all sources to be RenderedImages or
- * RenderableImage.  <code>ParameterBlock</code> itself is merely a container and
+ * RenderableImage.  {@code ParameterBlock} itself is merely a container and
  * performs no checking on source or parameter types.
  * <p>
- * <p> All parameters in a <code>ParameterBlock</code> are objects; convenience
+ * <p> All parameters in a {@code ParameterBlock} are objects; convenience
  * add and set methods are available that take arguments of base type and
  * construct the appropriate subclass of Number (such as
  * Integer or Float).  Corresponding get methods perform a
@@ -51,8 +52,8 @@ import java.util.Vector;
  * <p>
  * <p> Note that the get and set methods operate on references.
  * Therefore, one must be careful not to share references between
- * <code>ParameterBlock</code>s when this is inappropriate.  For example, to create
- * a new <code>ParameterBlock</code> that is equal to an old one except for an
+ * {@code ParameterBlock}s when this is inappropriate.  For example, to create
+ * a new {@code ParameterBlock} that is equal to an old one except for an
  * added source, one might be tempted to write:
  * <p>
  * <pre>
@@ -64,7 +65,7 @@ import java.util.Vector;
  * </pre>
  * <p>
  * <p> This code will have the side effect of altering the original
- * <code>ParameterBlock</code>, since the getSources operation returned a reference
+ * {@code ParameterBlock}, since the getSources operation returned a reference
  * to its source Vector.  Both pb and pb1 share their source Vector,
  * and a change in either is visible to both.
  * <p>
@@ -79,7 +80,7 @@ import java.util.Vector;
  * }
  * </pre>
  * <p>
- * <p> The clone method of <code>ParameterBlock</code> has been defined to
+ * <p> The clone method of {@code ParameterBlock} has been defined to
  * perform a clone of both the source and parameter Vectors for
  * this reason.  A standard, shallow clone is available as
  * shallowClone.
@@ -94,15 +95,16 @@ import java.util.Vector;
  * </pre>
  */
 public class ParameterBlock implements Cloneable, Serializable {
+  private static final long serialVersionUID = -1664103370440877926L;
   /**
    * A Vector of sources, stored as arbitrary Objects.
    */
-  protected Vector<Object> sources = new Vector<Object>();
+  protected Vector<Object> sources = new Vector<>();
 
   /**
    * A Vector of non-source parameters, stored as arbitrary Objects.
    */
-  protected Vector<Object> parameters = new Vector<Object>();
+  protected Vector<Object> parameters = new Vector<>();
 
   /**
    * A dummy constructor.
@@ -111,21 +113,21 @@ public class ParameterBlock implements Cloneable, Serializable {
   }
 
   /**
-   * Constructs a <code>ParameterBlock</code> with a given Vector
+   * Constructs a {@code ParameterBlock} with a given Vector
    * of sources.
    *
-   * @param sources a <code>Vector</code> of source images
+   * @param sources a {@code Vector} of source images
    */
   public ParameterBlock(Vector<Object> sources) {
     setSources(sources);
   }
 
   /**
-   * Constructs a <code>ParameterBlock</code> with a given Vector of sources and
+   * Constructs a {@code ParameterBlock} with a given Vector of sources and
    * Vector of parameters.
    *
-   * @param sources    a <code>Vector</code> of source images
-   * @param parameters a <code>Vector</code> of parameters to be used in the
+   * @param sources    a {@code Vector} of source images
+   * @param parameters a {@code Vector} of parameters to be used in the
    *                   rendering operation
    */
   public ParameterBlock(
@@ -135,11 +137,11 @@ public class ParameterBlock implements Cloneable, Serializable {
   }
 
   /**
-   * Creates a shallow copy of a <code>ParameterBlock</code>.  The source and
+   * Creates a shallow copy of a {@code ParameterBlock}.  The source and
    * parameter Vectors are copied by reference -- additions or
    * changes will be visible to both versions.
    *
-   * @return an Object clone of the <code>ParameterBlock</code>.
+   * @return an Object clone of the {@code ParameterBlock}.
    */
   public Object shallowClone() {
     try {
@@ -151,15 +153,16 @@ public class ParameterBlock implements Cloneable, Serializable {
   }
 
   /**
-   * Creates a copy of a <code>ParameterBlock</code>.  The source and parameter
+   * Creates a copy of a {@code ParameterBlock}.  The source and parameter
    * Vectors are cloned, but the actual sources and parameters are
    * copied by reference.  This allows modifications to the order
    * and number of sources and parameters in the clone to be invisible
-   * to the original <code>ParameterBlock</code>.  Changes to the shared sources or
+   * to the original {@code ParameterBlock}.  Changes to the shared sources or
    * parameters themselves will still be visible.
    *
-   * @return an Object clone of the <code>ParameterBlock</code>.
+   * @return an Object clone of the {@code ParameterBlock}.
    */
+  @Override
   public Object clone() {
     ParameterBlock theClone;
 
@@ -176,7 +179,7 @@ public class ParameterBlock implements Cloneable, Serializable {
     if (parameters != null) {
       theClone.setParameters((Vector) parameters.clone());
     }
-    return (Object) theClone;
+    return theClone;
   }
 
   /**
@@ -185,8 +188,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * future.
    *
    * @param source an image object to be stored in the source list.
-   * @return a new <code>ParameterBlock</code> containing the specified
-   * <code>source</code>.
+   * @return a new {@code ParameterBlock} containing the specified
+   * {@code source}.
    */
   public ParameterBlock addSource(Object source) {
     sources.addElement(source);
@@ -198,9 +201,9 @@ public class ParameterBlock implements Cloneable, Serializable {
    * an appropriate type.
    *
    * @param index the index of the source to be returned.
-   * @return an <code>Object</code> that represents the source located
-   * at the specified index in the <code>sources</code>
-   * <code>Vector</code>.
+   * @return an {@code Object} that represents the source located
+   * at the specified index in the {@code sources}
+   * {@code Vector}.
    * @see #setSource(Object, int)
    */
   public Object getSource(int index) {
@@ -213,12 +216,12 @@ public class ParameterBlock implements Cloneable, Serializable {
    * the list is extended with nulls as needed.
    *
    * @param source the specified source image
-   * @param index  the index into the <code>sources</code>
-   *               <code>Vector</code> at which to
-   *               insert the specified <code>source</code>
-   * @return a new <code>ParameterBlock</code> that contains the
-   * specified <code>source</code> at the specified
-   * <code>index</code>.
+   * @param index  the index into the {@code sources}
+   *               {@code Vector} at which to
+   *               insert the specified {@code source}
+   * @return a new {@code ParameterBlock} that contains the
+   * specified {@code source} at the specified
+   * {@code index}.
    * @see #getSource(int)
    */
   public ParameterBlock setSource(Object source, int index) {
@@ -232,14 +235,14 @@ public class ParameterBlock implements Cloneable, Serializable {
   }
 
   /**
-   * Returns a source as a <code>RenderedImage</code>.  This method is
+   * Returns a source as a {@code RenderedImage}.  This method is
    * a convenience method.
    * An exception will be thrown if the source is not a RenderedImage.
    *
    * @param index the index of the source to be returned
-   * @return a <code>RenderedImage</code> that represents the source
+   * @return a {@code RenderedImage} that represents the source
    * image that is at the specified index in the
-   * <code>sources</code> <code>Vector</code>.
+   * {@code sources} {@code Vector}.
    */
   public RenderedImage getRenderedSource(int index) {
     return (RenderedImage) sources.elementAt(index);
@@ -251,9 +254,9 @@ public class ParameterBlock implements Cloneable, Serializable {
    * An exception will be thrown if the sources is not a RenderableImage.
    *
    * @param index the index of the source to be returned
-   * @return a <code>RenderableImage</code> that represents the source
+   * @return a {@code RenderableImage} that represents the source
    * image that is at the specified index in the
-   * <code>sources</code> <code>Vector</code>.
+   * {@code sources} {@code Vector}.
    */
   public RenderableImage getRenderableSource(int index) {
     return (RenderableImage) sources.elementAt(index);
@@ -262,8 +265,8 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * Returns the number of source images.
    *
-   * @return the number of source images in the <code>sources</code>
-   * <code>Vector</code>.
+   * @return the number of source images in the {@code sources}
+   * {@code Vector}.
    */
   public int getNumSources() {
     return sources.size();
@@ -272,17 +275,17 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * Returns the entire Vector of sources.
    *
-   * @return the <code>sources</code> <code>Vector</code>.
+   * @return the {@code sources} {@code Vector}.
    * @see #setSources(Vector)
    */
-  public Vector<Object> getSources() {
+  public List<Object> getSources() {
     return sources;
   }
 
   /**
    * Sets the entire Vector of sources to a given Vector.
    *
-   * @param sources the <code>Vector</code> of source images
+   * @param sources the {@code Vector} of source images
    * @see #getSources
    */
   public void setSources(Vector<Object> sources) {
@@ -299,8 +302,8 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * Returns the number of parameters (not including source images).
    *
-   * @return the number of parameters in the <code>parameters</code>
-   * <code>Vector</code>.
+   * @return the number of parameters in the {@code parameters}
+   * {@code Vector}.
    */
   public int getNumParameters() {
     return parameters.size();
@@ -309,17 +312,17 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * Returns the entire Vector of parameters.
    *
-   * @return the <code>parameters</code> <code>Vector</code>.
+   * @return the {@code parameters} {@code Vector}.
    * @see #setParameters(Vector)
    */
-  public Vector<Object> getParameters() {
+  public List<Object> getParameters() {
     return parameters;
   }
 
   /**
    * Sets the entire Vector of parameters to a given Vector.
    *
-   * @param parameters the specified <code>Vector</code> of
+   * @param parameters the specified {@code Vector} of
    *                   parameters
    * @see #getParameters
    */
@@ -337,9 +340,9 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * Adds an object to the list of parameters.
    *
-   * @param obj the <code>Object</code> to add to the
-   *            <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   * @param obj the {@code Object} to add to the
+   *            {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(Object obj) {
@@ -351,8 +354,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Byte to the list of parameters.
    *
    * @param b the byte to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(byte b) {
@@ -363,8 +366,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Character to the list of parameters.
    *
    * @param c the char to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(char c) {
@@ -375,8 +378,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Short to the list of parameters.
    *
    * @param s the short to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(short s) {
@@ -387,8 +390,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Integer to the list of parameters.
    *
    * @param i the int to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(int i) {
@@ -399,8 +402,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Long to the list of parameters.
    *
    * @param l the long to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(long l) {
@@ -411,8 +414,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Float to the list of parameters.
    *
    * @param f the float to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(float f) {
@@ -423,8 +426,8 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Adds a Double to the list of parameters.
    *
    * @param d the double to add to the
-   *          <code>parameters</code> <code>Vector</code>
-   * @return a new <code>ParameterBlock</code> containing
+   *          {@code parameters} {@code Vector}
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock add(double d) {
@@ -438,10 +441,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param obj   the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(Object obj, int index) {
@@ -461,10 +464,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param b     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(byte b, int index) {
@@ -478,10 +481,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param c     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(char c, int index) {
@@ -495,10 +498,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param s     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(short s, int index) {
@@ -512,10 +515,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param i     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(int i, int index) {
@@ -529,10 +532,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param l     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(long l, int index) {
@@ -546,10 +549,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param f     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(float f, int index) {
@@ -563,10 +566,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    *
    * @param d     the parameter that replaces the
    *              parameter at the specified index in the
-   *              <code>parameters</code> <code>Vector</code>
+   *              {@code parameters} {@code Vector}
    * @param index the index of the parameter to be
    *              replaced with the specified parameter
-   * @return a new <code>ParameterBlock</code> containing
+   * @return a new {@code ParameterBlock} containing
    * the specified parameter.
    */
   public ParameterBlock set(double d, int index) {
@@ -577,10 +580,10 @@ public class ParameterBlock implements Cloneable, Serializable {
    * Gets a parameter as an object.
    *
    * @param index the index of the parameter to get
-   * @return an <code>Object</code> representing the
+   * @return an {@code Object} representing the
    * the parameter at the specified index
-   * into the <code>parameters</code>
-   * <code>Vector</code>.
+   * into the {@code parameters}
+   * {@code Vector}.
    */
   public Object getObjectParameter(int index) {
     return parameters.elementAt(index);
@@ -589,148 +592,148 @@ public class ParameterBlock implements Cloneable, Serializable {
   /**
    * A convenience method to return a parameter as a byte.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Byte</code>.
+   * {@code null} or not a {@code Byte}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>byte</code> value.
+   * as a {@code byte} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Byte</code>
+   *                                        specified index is not a {@code Byte}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public byte getByteParameter(int index) {
-    return ((Byte) parameters.elementAt(index)).byteValue();
+    return (Byte) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as a char.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Character</code>.
+   * {@code null} or not a {@code Character}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>char</code> value.
+   * as a {@code char} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Character</code>
+   *                                        specified index is not a {@code Character}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public char getCharParameter(int index) {
-    return ((Character) parameters.elementAt(index)).charValue();
+    return (Character) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as a short.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Short</code>.
+   * {@code null} or not a {@code Short}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>short</code> value.
+   * as a {@code short} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Short</code>
+   *                                        specified index is not a {@code Short}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public short getShortParameter(int index) {
-    return ((Short) parameters.elementAt(index)).shortValue();
+    return (Short) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as an int.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not an <code>Integer</code>.
+   * {@code null} or not an {@code Integer}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>int</code> value.
+   * as a {@code int} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Integer</code>
+   *                                        specified index is not a {@code Integer}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public int getIntParameter(int index) {
-    return ((Integer) parameters.elementAt(index)).intValue();
+    return (Integer) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as a long.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Long</code>.
+   * {@code null} or not a {@code Long}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>long</code> value.
+   * as a {@code long} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Long</code>
+   *                                        specified index is not a {@code Long}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public long getLongParameter(int index) {
-    return ((Long) parameters.elementAt(index)).longValue();
+    return (Long) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as a float.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Float</code>.
+   * {@code null} or not a {@code Float}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>float</code> value.
+   * as a {@code float} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Float</code>
+   *                                        specified index is not a {@code Float}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public float getFloatParameter(int index) {
-    return ((Float) parameters.elementAt(index)).floatValue();
+    return (Float) parameters.elementAt(index);
   }
 
   /**
    * A convenience method to return a parameter as a double.  An
    * exception is thrown if the parameter is
-   * <code>null</code> or not a <code>Double</code>.
+   * {@code null} or not a {@code Double}.
    *
    * @param index the index of the parameter to be returned.
    * @return the parameter at the specified index
-   * as a <code>double</code> value.
+   * as a {@code double} value.
    * @throws ClassCastException             if the parameter at the
-   *                                        specified index is not a <code>Double</code>
+   *                                        specified index is not a {@code Double}
    * @throws NullPointerException           if the parameter at the specified
-   *                                        index is <code>null</code>
-   * @throws ArrayIndexOutOfBoundsException if <code>index</code>
+   *                                        index is {@code null}
+   * @throws ArrayIndexOutOfBoundsException if {@code index}
    *                                        is negative or not less than the current size of this
-   *                                        <code>ParameterBlock</code> object
+   *                                        {@code ParameterBlock} object
    */
   public double getDoubleParameter(int index) {
-    return ((Double) parameters.elementAt(index)).doubleValue();
+    return (Double) parameters.elementAt(index);
   }
 
   /**
    * Returns an array of Class objects describing the types
    * of the parameters.
    *
-   * @return an array of <code>Class</code> objects.
+   * @return an array of {@code Class} objects.
    */
   public Class[] getParamClasses() {
     int numParams = getNumParameters();

@@ -30,7 +30,6 @@ import java.util.Arrays;
 /**
  * An object used to cache pre-rendered complex paths.
  *
- * @see PiscesRenderer#render
  */
 final class PiscesCache {
 
@@ -68,8 +67,8 @@ final class PiscesCache {
     x0 = 0;
     y0 = -1; // -1 makes the first assert in startRow succeed
     // the ceiling of (maxy - miny + 1) / TILE_SIZE;
-    int nyTiles = (maxy - miny + TILE_SIZE) >> TILE_SIZE_LG;
-    int nxTiles = (maxx - minx + TILE_SIZE) >> TILE_SIZE_LG;
+    int nyTiles = maxy - miny + TILE_SIZE >> TILE_SIZE_LG;
+    int nxTiles = maxx - minx + TILE_SIZE >> TILE_SIZE_LG;
 
     touchedTile = new int[nyTiles][nxTiles];
   }
@@ -81,7 +80,7 @@ final class PiscesCache {
         // the x and y of the current row, minus bboxX0, bboxY0
         int tx = x0 >> TILE_SIZE_LG;
         int ty = y0 >> TILE_SIZE_LG;
-        int tx1 = (x0 + runLen - 1) >> TILE_SIZE_LG;
+        int tx1 = x0 + runLen - 1 >> TILE_SIZE_LG;
         // while we forbid rows from starting before bboxx0, our users
         // can still store rows that go beyond bboxx1 (although this
         // shouldn't happen), so it's a good idea to check that i
@@ -90,19 +89,16 @@ final class PiscesCache {
           tx1 = touchedTile[ty].length - 1;
         }
         if (tx <= tx1) {
-          int nextTileXCoord = (tx + 1) << TILE_SIZE_LG;
-          if (nextTileXCoord > x0 + runLen) {
-            touchedTile[ty][tx] += val * runLen;
-          } else {
-            touchedTile[ty][tx] += val * (nextTileXCoord - x0);
-          }
+          int nextTileXCoord = tx + 1 << TILE_SIZE_LG;
+          touchedTile[ty][tx] += nextTileXCoord > x0 + runLen ? val * runLen
+              : val * (nextTileXCoord - x0);
           tx++;
         }
         // don't go all the way to tx1 - we need to handle the last
         // tile as a special case (just like we did with the first
         for (; tx < tx1; tx++) {
           //                    try {
-          touchedTile[ty][tx] += (val << TILE_SIZE_LG);
+          touchedTile[ty][tx] += val << TILE_SIZE_LG;
           //                    } catch (RuntimeException e) {
           //                        System.out.println("x0, y0: " + x0 + ", " + y0);
           //                        System.out.printf("tx, ty, tx1: %d, %d, %d %n", tx, ty, tx1);
@@ -113,7 +109,7 @@ final class PiscesCache {
         }
         // they will be equal unless x0>>TILE_SIZE_LG == tx1
         if (tx == tx1) {
-          int lastXCoord = Math.min(x0 + runLen, (tx + 1) << TILE_SIZE_LG);
+          int lastXCoord = Math.min(x0 + runLen, tx + 1 << TILE_SIZE_LG);
           int txXCoord = tx << TILE_SIZE_LG;
           touchedTile[ty][tx] += val * (lastXCoord - txXCoord);
         }
@@ -158,8 +154,10 @@ final class PiscesCache {
   private void addTupleToRow(int row, int a, int b) {
     int end = rowAARLE[row][1];
     rowAARLE[row] = Helpers.widenArray(rowAARLE[row], end, 2);
-    rowAARLE[row][end++] = a;
-    rowAARLE[row][end++] = b;
+    rowAARLE[row][end] = a;
+    end++;
+    rowAARLE[row][end] = b;
+    end++;
     rowAARLE[row][1] = end;
   }
 
@@ -169,12 +167,8 @@ final class PiscesCache {
         bboxX0 + ", " + bboxY0 + " => " +
         bboxX1 + ", " + bboxY1 + "]\n";
     for (int[] row : rowAARLE) {
-      if (row != null) {
-        ret += ("minTouchedX=" + row[0] +
-                    "\tRLE Entries: " + Arrays.toString(Arrays.copyOfRange(row, 2, row[1])) + "\n");
-      } else {
-        ret += "[]\n";
-      }
+      ret += row != null ? "minTouchedX=" + row[0] +
+          "\tRLE Entries: " + Arrays.toString(Arrays.copyOfRange(row, 2, row[1])) + "\n" : "[]\n";
     }
     return ret;
   }

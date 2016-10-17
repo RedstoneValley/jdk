@@ -32,16 +32,20 @@ import java.lang.reflect.InvocationTargetException;
  * Used by the UninitializedDisplayModeChangeTest to change the
  * display mode.
  */
-public class DisplayModeChanger {
+public final class DisplayModeChanger {
+
+    private DisplayModeChanger() {
+    }
 
     public static void main(String[] args)
         throws InterruptedException, InvocationTargetException
     {
-        final GraphicsDevice gd =
+        GraphicsDevice gd =
             GraphicsEnvironment.getLocalGraphicsEnvironment().
                 getDefaultScreenDevice();
 
         EventQueue.invokeAndWait(new Runnable() {
+            @Override
             public void run() {
                 Frame f = null;
                 if (gd.isFullScreenSupported()) {
@@ -50,9 +54,7 @@ public class DisplayModeChanger {
                         gd.setFullScreenWindow(f);
                         if (gd.isDisplayChangeSupported()) {
                             DisplayMode dm = findDisplayMode(gd);
-                            if (gd != null) {
-                                gd.setDisplayMode(dm);
-                            }
+                            gd.setDisplayMode(dm);
                         }
                         try {
                             Thread.sleep(1000);
@@ -74,8 +76,8 @@ public class DisplayModeChanger {
      * Finds a display mode that is different from the current display
      * mode and is likely to cause a display change event.
      */
-    private static DisplayMode findDisplayMode(GraphicsDevice gd) {
-        DisplayMode dms[] = gd.getDisplayModes();
+    static DisplayMode findDisplayMode(GraphicsDevice gd) {
+        DisplayMode[] dms = gd.getDisplayModes();
         DisplayMode currentDM = gd.getDisplayMode();
         for (DisplayMode dm : dms) {
             if (!dm.equals(currentDM) &&

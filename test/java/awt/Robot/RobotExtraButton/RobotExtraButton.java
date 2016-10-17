@@ -33,21 +33,24 @@
 
 import java.awt.*;
 import java.awt.event.*;
-import test.java.awt.regtesthelpers.Util;
 
 public class RobotExtraButton extends Frame {
+    private static final long serialVersionUID = 1395927084404499720L;
     static Robot robot;
     public static void main(String []s){
         RobotExtraButton frame = new RobotExtraButton();
         frame.setSize(300, 300);
         frame.setVisible(true);
         frame.addMouseListener(new MouseAdapter() {
+                @Override
                 public void mousePressed(MouseEvent e) {
                     System.out.println("PRESSED "+e);
                 }
+                @Override
                 public void mouseReleased(MouseEvent e) {
                     System.out.println("RELEASED "+e);
                 }
+                @Override
                 public void mouseClicked(MouseEvent e) {
                     System.out.println("CLICKED "+e);
                 }

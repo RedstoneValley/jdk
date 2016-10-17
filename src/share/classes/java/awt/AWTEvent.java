@@ -42,8 +42,10 @@ import java.awt.peer.LightweightPeer;
 import java.lang.reflect.Field;
 import java.security.AccessControlContext;
 import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.EventObject;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.AWTEventAccessor;
 
 /**
  * The root event class for all AWT events.
@@ -67,153 +69,163 @@ import sun.awt.AWTAccessor;
  * @author Amy Fowler
  * @see Component#enableEvents
  * @see Toolkit#addAWTEventListener
- * @see java.awt.event.ActionEvent
- * @see java.awt.event.AdjustmentEvent
- * @see java.awt.event.ComponentEvent
+ * @see ActionEvent
+ * @see AdjustmentEvent
+ * @see ComponentEvent
  * @see java.awt.event.ContainerEvent
- * @see java.awt.event.FocusEvent
- * @see java.awt.event.InputMethodEvent
+ * @see FocusEvent
+ * @see InputMethodEvent
  * @see java.awt.event.InvocationEvent
- * @see java.awt.event.ItemEvent
+ * @see ItemEvent
  * @see java.awt.event.HierarchyEvent
- * @see java.awt.event.KeyEvent
- * @see java.awt.event.MouseEvent
+ * @see KeyEvent
+ * @see MouseEvent
  * @see java.awt.event.MouseWheelEvent
  * @see java.awt.event.PaintEvent
- * @see java.awt.event.TextEvent
- * @see java.awt.event.WindowEvent
+ * @see TextEvent
+ * @see WindowEvent
  * @since 1.1
  */
 public abstract class AWTEvent extends EventObject {
   /**
    * The event mask for selecting component events.
    */
-  public final static long COMPONENT_EVENT_MASK = 0x01;
+  public static final long COMPONENT_EVENT_MASK = 0x01;
   /**
    * The event mask for selecting container events.
    */
-  public final static long CONTAINER_EVENT_MASK = 0x02;
+  public static final long CONTAINER_EVENT_MASK = 0x02;
   /**
    * The event mask for selecting focus events.
    */
-  public final static long FOCUS_EVENT_MASK = 0x04;
+  public static final long FOCUS_EVENT_MASK = 0x04;
   /**
    * The event mask for selecting key events.
    */
-  public final static long KEY_EVENT_MASK = 0x08;
+  public static final long KEY_EVENT_MASK = 0x08;
   /**
    * The event mask for selecting mouse events.
    */
-  public final static long MOUSE_EVENT_MASK = 0x10;
+  public static final long MOUSE_EVENT_MASK = 0x10;
   /**
    * The event mask for selecting mouse motion events.
    */
-  public final static long MOUSE_MOTION_EVENT_MASK = 0x20;
+  public static final long MOUSE_MOTION_EVENT_MASK = 0x20;
   /**
    * The event mask for selecting window events.
    */
-  public final static long WINDOW_EVENT_MASK = 0x40;
+  public static final long WINDOW_EVENT_MASK = 0x40;
   /**
    * The event mask for selecting action events.
    */
-  public final static long ACTION_EVENT_MASK = 0x80;
+  public static final long ACTION_EVENT_MASK = 0x80;
   /**
    * The event mask for selecting adjustment events.
    */
-  public final static long ADJUSTMENT_EVENT_MASK = 0x100;
+  public static final long ADJUSTMENT_EVENT_MASK = 0x100;
   /**
    * The event mask for selecting item events.
    */
-  public final static long ITEM_EVENT_MASK = 0x200;
+  public static final long ITEM_EVENT_MASK = 0x200;
   /**
    * The event mask for selecting text events.
    */
-  public final static long TEXT_EVENT_MASK = 0x400;
+  public static final long TEXT_EVENT_MASK = 0x400;
   /**
    * The event mask for selecting input method events.
    */
-  public final static long INPUT_METHOD_EVENT_MASK = 0x800;
+  public static final long INPUT_METHOD_EVENT_MASK = 0x800;
   /**
    * The event mask for selecting paint events.
    */
-  public final static long PAINT_EVENT_MASK = 0x2000;
+  public static final long PAINT_EVENT_MASK = 0x2000;
   /**
    * The event mask for selecting invocation events.
    */
-  public final static long INVOCATION_EVENT_MASK = 0x4000;
+  public static final long INVOCATION_EVENT_MASK = 0x4000;
   /**
    * The event mask for selecting hierarchy events.
    */
-  public final static long HIERARCHY_EVENT_MASK = 0x8000;
+  public static final long HIERARCHY_EVENT_MASK = 0x8000;
   /**
    * The event mask for selecting hierarchy bounds events.
    */
-  public final static long HIERARCHY_BOUNDS_EVENT_MASK = 0x10000;
+  public static final long HIERARCHY_BOUNDS_EVENT_MASK = 0x10000;
   /**
    * The event mask for selecting mouse wheel events.
    *
    * @since 1.4
    */
-  public final static long MOUSE_WHEEL_EVENT_MASK = 0x20000;
+  public static final long MOUSE_WHEEL_EVENT_MASK = 0x20000;
   /**
    * The event mask for selecting window state events.
    *
    * @since 1.4
    */
-  public final static long WINDOW_STATE_EVENT_MASK = 0x40000;
+  public static final long WINDOW_STATE_EVENT_MASK = 0x40000;
   /**
    * The event mask for selecting window focus events.
    *
    * @since 1.4
    */
-  public final static long WINDOW_FOCUS_EVENT_MASK = 0x80000;
+  public static final long WINDOW_FOCUS_EVENT_MASK = 0x80000;
   /**
    * The maximum value for reserved AWT event IDs. Programs defining
    * their own event IDs should use IDs greater than this value.
    */
-  public final static int RESERVED_ID_MAX = 1999;
+  public static final int RESERVED_ID_MAX = 1999;
   /**
    * The pseudo event mask for enabling input methods.
    * We're using one bit in the eventMask so we don't need
    * a separate field inputMethodsEnabled.
    */
-  final static long INPUT_METHODS_ENABLED_MASK = 0x1000;
+  static final long INPUT_METHODS_ENABLED_MASK = 0x1000;
   private static final String TAG = "java.awt.AWTEvent";
   /*
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = -1825314779160409405L;
   // security stuff
-  private static Field inputEvent_CanAccessSystemClipboard_Field = null;
+  private static Field inputEvent_CanAccessSystemClipboard_Field;
 
   static {
-    AWTAccessor.setAWTEventAccessor(new AWTAccessor.AWTEventAccessor() {
+    AWTAccessor.setAWTEventAccessor(new AWTEventAccessor() {
+      @Override
       public void setPosted(AWTEvent ev) {
         ev.isPosted = true;
       }
 
+      @Override
       public void setSystemGenerated(AWTEvent ev) {
         ev.isSystemGenerated = true;
       }
 
+      @Override
       public boolean isSystemGenerated(AWTEvent ev) {
         return ev.isSystemGenerated;
       }
 
+      @Override
       public AccessControlContext getAccessControlContext(AWTEvent ev) {
         return ev.getAccessControlContext();
       }
 
+      @Override
       public byte[] getBData(AWTEvent ev) {
         return ev.bdata;
       }
 
+      @Override
       public void setBData(AWTEvent ev, byte[] bdata) {
         ev.bdata = bdata;
       }
     });
   }
 
+  /*
+   * The event's AccessControlContext.
+   */
+  private final transient AccessControlContext acc = AccessController.getContext();
   /**
    * The event's id.
    *
@@ -221,7 +233,7 @@ public abstract class AWTEvent extends EventObject {
    * @see #getID()
    * @see #AWTEvent
    */
-  protected int id;
+  protected final int id;
   /**
    * Controls whether or not the event is sent back down to the peer once the
    * source has processed it - false means it's sent to the peer; true means
@@ -232,24 +244,19 @@ public abstract class AWTEvent extends EventObject {
    * @see #consume
    * @see #isConsumed
    */
-  protected boolean consumed = false;
-  transient boolean focusManagerIsDispatching = false;
+  protected boolean consumed;
+  transient boolean focusManagerIsDispatching;
   transient boolean isPosted;
-
   /**
    * WARNING: there are more mask defined privately.  See
    * SunToolkit.GRAB_EVENT_MASK.
    */
-  private byte bdata[];
-  /*
-   * The event's AccessControlContext.
-   */
-  private transient volatile AccessControlContext acc = AccessController.getContext();
+  byte[] bdata;
   /**
    * Indicates whether this AWTEvent was generated by the system as
    * opposed to by user code.
    */
-  private transient boolean isSystemGenerated;
+  transient boolean isSystemGenerated;
 
   /**
    * Constructs an AWTEvent object from the parameters of a 1.0-style event.
@@ -283,10 +290,10 @@ public abstract class AWTEvent extends EventObject {
   private static synchronized Field get_InputEvent_CanAccessSystemClipboard() {
     if (inputEvent_CanAccessSystemClipboard_Field == null) {
       inputEvent_CanAccessSystemClipboard_Field
-          = java.security.AccessController.doPrivileged(new java.security.PrivilegedAction<Field>
-          () {
+          = AccessController.doPrivileged(new PrivilegedAction<Field>() {
+        @Override
         public Field run() {
-          Field field = null;
+          Field field;
           try {
             field = InputEvent.class.
                 getDeclaredField("canAccessSystemClipboard");
@@ -310,12 +317,6 @@ public abstract class AWTEvent extends EventObject {
 
     return inputEvent_CanAccessSystemClipboard_Field;
   }
-
-  /**
-   * Initialize JNI field and method IDs for fields that may be
-   * accessed from C.
-   */
-  private static native void initIDs();
 
   /*
    * Returns the acc this event was constructed with.
@@ -348,7 +349,7 @@ public abstract class AWTEvent extends EventObject {
     if (newSource instanceof Component) {
       comp = (Component) newSource;
       while (comp != null && comp.peer != null &&
-          (comp.peer instanceof LightweightPeer)) {
+          comp.peer instanceof LightweightPeer) {
         comp = comp.parent;
       }
     }
@@ -364,7 +365,9 @@ public abstract class AWTEvent extends EventObject {
     }
   }
 
-  private native void nativeSetSource(ComponentPeer peer);
+  private void nativeSetSource(ComponentPeer peer) {
+    // TODO: This was a native method in OpenJDK AWT
+  }
 
   /**
    * Returns the event type.
@@ -388,11 +391,11 @@ public abstract class AWTEvent extends EventObject {
   }
 
   /**
-   * Returns a string representing the state of this <code>Event</code>.
+   * Returns a string representing the state of this {@code Event}.
    * This method is intended to be used only for debugging purposes, and the
    * content and format of the returned string may vary between
    * implementations. The returned string may be empty but may not be
-   * <code>null</code>.
+   * {@code null}.
    *
    * @return a string representation of this event
    */
@@ -449,7 +452,7 @@ public abstract class AWTEvent extends EventObject {
       case KeyEvent.KEY_RELEASED:
         KeyEvent ke = (KeyEvent) this;
         if (ke.isActionKey()) {
-          newid = (id == KeyEvent.KEY_PRESSED ? Event.KEY_ACTION : Event.KEY_ACTION_RELEASE);
+          newid = id == KeyEvent.KEY_PRESSED ? Event.KEY_ACTION : Event.KEY_ACTION_RELEASE;
         }
         int keyCode = ke.getKeyCode();
         if (keyCode == KeyEvent.VK_SHIFT ||
@@ -465,7 +468,7 @@ public abstract class AWTEvent extends EventObject {
             0,
             0,
             Event.getOldEventKey(ke),
-            (ke.getModifiers() & ~InputEvent.BUTTON1_MASK));
+            ke.getModifiers() & ~InputEvent.BUTTON1_MASK);
 
       case MouseEvent.MOUSE_PRESSED:
       case MouseEvent.MOUSE_RELEASED:
@@ -482,7 +485,7 @@ public abstract class AWTEvent extends EventObject {
             me.getX(),
             me.getY(),
             0,
-            (me.getModifiers() & ~InputEvent.BUTTON1_MASK));
+            me.getModifiers() & ~InputEvent.BUTTON1_MASK);
         olde.clickCount = me.getClickCount();
         return olde;
 
@@ -520,16 +523,13 @@ public abstract class AWTEvent extends EventObject {
         ItemEvent ie = (ItemEvent) this;
         Object arg;
         if (src instanceof List) {
-          newid = (ie.getStateChange() == ItemEvent.SELECTED ? Event.LIST_SELECT
-                       : Event.LIST_DESELECT);
+          newid = ie.getStateChange() == ItemEvent.SELECTED ? Event.LIST_SELECT
+              : Event.LIST_DESELECT;
           arg = ie.getItem();
         } else {
           newid = Event.ACTION_EVENT;
-          if (src instanceof Choice) {
-            arg = ie.getItem();
-          } else { // Checkbox
-            arg = Boolean.valueOf(ie.getStateChange() == ItemEvent.SELECTED);
-          }
+          arg = src instanceof Choice ? ie.getItem()
+              : Boolean.valueOf(ie.getStateChange() == ItemEvent.SELECTED);
         }
         return new Event(src, newid, arg);
 
@@ -549,16 +549,12 @@ public abstract class AWTEvent extends EventObject {
             newid = Event.SCROLL_PAGE_UP;
             break;
           case AdjustmentEvent.TRACK:
-            if (aje.getValueIsAdjusting()) {
-              newid = Event.SCROLL_ABSOLUTE;
-            } else {
-              newid = Event.SCROLL_END;
-            }
+            newid = aje.getValueIsAdjusting() ? Event.SCROLL_ABSOLUTE : Event.SCROLL_END;
             break;
           default:
             return null;
         }
-        return new Event(src, newid, Integer.valueOf(aje.getValue()));
+        return new Event(src, newid, aje.getValue());
 
       default:
     }
@@ -572,7 +568,7 @@ public abstract class AWTEvent extends EventObject {
    * this event is not changed.
    */
   void copyPrivateDataInto(AWTEvent that) {
-    that.bdata = this.bdata;
+    that.bdata = bdata;
     // Copy canAccessSystemClipboard value from this into that.
     if (this instanceof InputEvent && that instanceof InputEvent) {
       Field field = get_InputEvent_CanAccessSystemClipboard();
@@ -585,7 +581,7 @@ public abstract class AWTEvent extends EventObject {
         }
       }
     }
-    that.isSystemGenerated = this.isSystemGenerated;
+    that.isSystemGenerated = isSystemGenerated;
   }
 
   void dispatched() {

@@ -29,11 +29,10 @@
    @run main CheckZOrderChange
 */
 import java.awt.*;
-import java.awt.event.*;
 
-public class CheckZOrderChange {
+public final class CheckZOrderChange {
 
-    private static Button content[] = new Button[]{new Button("Button 1"), new Button("Button 2"), new Button("Button 3"), new Button("Button 4")};
+    private static final Button[] content = {new Button("Button 1"), new Button("Button 2"), new Button("Button 3"), new Button("Button 4")};
     private static Frame frame;
 
     public static void main(String[] args) {

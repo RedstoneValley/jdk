@@ -30,6 +30,7 @@
  * @run main/othervm -Dsun.java2d.d3d=false NoResizeEventOnDMChangeTest
  */
 
+import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Component;
@@ -45,9 +46,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class NoResizeEventOnDMChangeTest {
-    public static void main(String[] args) {
-        final GraphicsDevice gd = GraphicsEnvironment.
+public final class NoResizeEventOnDMChangeTest {
+  private NoResizeEventOnDMChangeTest() {
+  }
+
+  public static void main(String[] args) {
+        GraphicsDevice gd = GraphicsEnvironment.
             getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
         if (!gd.isFullScreenSupported()) {
@@ -56,7 +60,7 @@ public class NoResizeEventOnDMChangeTest {
         }
 
         DisplayMode dm = gd.getDisplayMode();
-        final DisplayMode dms[] = new DisplayMode[2];
+        DisplayMode[] dms = new DisplayMode[2];
         for (DisplayMode dm1 : gd.getDisplayModes()) {
             if (dm1.getWidth()  != dm.getWidth() ||
                 dm1.getHeight() != dm.getHeight())
@@ -72,7 +76,9 @@ public class NoResizeEventOnDMChangeTest {
         dms[1] = dm;
 
         Frame f = new Frame() {
-            @Override
+          private static final long serialVersionUID = -1751141287514988095L;
+
+          @Override
             public void paint(Graphics g) {
                 g.setColor(Color.red);
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -84,7 +90,9 @@ public class NoResizeEventOnDMChangeTest {
         testFSWindow(gd, dms, f);
 
         Window w = new Window(f) {
-            @Override
+          private static final long serialVersionUID = 2077109640829521531L;
+
+          @Override
             public void paint(Graphics g) {
                 g.setColor(Color.magenta);
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -96,13 +104,15 @@ public class NoResizeEventOnDMChangeTest {
         System.out.println("Test Passed.");
     }
 
-    private static void testFSWindow(final GraphicsDevice gd,
-                                     final DisplayMode dms[],
-                                     final Window fsWin)
+    private static void testFSWindow(
+        GraphicsDevice gd, DisplayMode[] dms,
+                                     Window fsWin)
     {
         System.out.println("Testing FS window: "+fsWin);
         Component c = new Canvas() {
-            @Override
+          private static final long serialVersionUID = 2951914356542008405L;
+
+          @Override
             public void paint(Graphics g) {
                 g.setColor(Color.blue);
                 g.fillRect(0, 0, getWidth(), getHeight());
@@ -110,13 +120,12 @@ public class NoResizeEventOnDMChangeTest {
                 g.drawRect(0, 0, getWidth()-1, getHeight()-1);
                 g.setColor(Color.red);
                 g.drawString("FS Window   : " + fsWin, 50, 50);
-                DisplayMode dm =
-                    getGraphicsConfiguration().getDevice().getDisplayMode();
+                DisplayMode dm = getGraphicsConfiguration().getDevice().getDisplayMode();
                 g.drawString("Display Mode: " +
                              dm.getWidth() + "x" + dm.getHeight(), 50, 75);
             }
         };
-        fsWin.add("Center", c);
+        fsWin.add(BorderLayout.CENTER, c);
         fsWin.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -129,6 +138,7 @@ public class NoResizeEventOnDMChangeTest {
 
         try {
             EventQueue.invokeAndWait(new Runnable() {
+                @Override
                 public void run() {
                     gd.setFullScreenWindow(fsWin);
                 }
@@ -137,15 +147,16 @@ public class NoResizeEventOnDMChangeTest {
 
         sleep(1000);
 
-        final ResizeEventChecker r1 = new ResizeEventChecker();
-        final ResizeEventChecker r2 = new ResizeEventChecker();
+        ResizeEventChecker r1 = new ResizeEventChecker();
+        ResizeEventChecker r2 = new ResizeEventChecker();
 
         if (gd.isDisplayChangeSupported()) {
             fsWin.addComponentListener(r1);
             c.addComponentListener(r2);
-            for (final DisplayMode dm1 : dms) {
+            for (DisplayMode dm1 : dms) {
                 try {
                     EventQueue.invokeAndWait(new Runnable() {
+                        @Override
                         public void run() {
                             System.err.printf("----------- Setting DM %dx%d:\n",
                                               dm1.getWidth(), dm1.getHeight());
@@ -167,6 +178,7 @@ public class NoResizeEventOnDMChangeTest {
         }
         try {
            EventQueue.invokeAndWait(new Runnable() {
+               @Override
                public void run() {
                    gd.setFullScreenWindow(null);
                     fsWin.dispose();

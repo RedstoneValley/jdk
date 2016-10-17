@@ -37,6 +37,7 @@ public class Symbol extends Charset {
     super("Symbol", null);
   }
 
+  @Override
   public boolean contains(Charset cs) {
     return cs instanceof Symbol;
   }
@@ -44,77 +45,64 @@ public class Symbol extends Charset {
   /* Seems like supporting a decoder is required, but we aren't going
    * to be publically exposing this class, so no need to waste work
    */
+  @Override
   public CharsetDecoder newDecoder() {
     throw new Error("Decoder is not implemented for Symbol Charset");
   }
 
+  @Override
   public CharsetEncoder newEncoder() {
     return new Encoder(this);
   }
 
   private static class Encoder extends CharsetEncoder {
-    private static byte[] table_math = {
-        (byte) 0042, (byte) 0000, (byte) 0144, (byte) 0044, (byte) 0000, (byte) 0306, (byte) 0104,
-        (byte) 0321,    // 00
-        (byte) 0316, (byte) 0317, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0047, (byte) 0000,
-        (byte) 0120, (byte) 0000, (byte) 0345, (byte) 0055, (byte) 0000, (byte) 0000, (byte) 0244,
-        (byte) 0000, (byte) 0052,    // 10
-        (byte) 0260, (byte) 0267, (byte) 0326, (byte) 0000, (byte) 0000, (byte) 0265, (byte) 0245,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0275, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0331,    // 20
-        (byte) 0332, (byte) 0307, (byte) 0310, (byte) 0362, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0134, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // 30
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0176, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0100,
-        (byte) 0000, (byte) 0000,    // 40
-        (byte) 0273, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // 50
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0271, (byte) 0272, (byte) 0000, (byte) 0000, (byte) 0243, (byte) 0263,
-        (byte) 0000, (byte) 0000,    // 60
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // 70
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0314, (byte) 0311, (byte) 0313, (byte) 0000,
-        (byte) 0315, (byte) 0312,    // 80
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0305,
-        (byte) 0000, (byte) 0304,    // 90
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0136,
-        (byte) 0000, (byte) 0000,    // a0
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // b0
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0340, (byte) 0327,
-        (byte) 0000, (byte) 0000,    // c0
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // d0
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000,    // e0
-        (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0274,};
-    private static byte[] table_greek = {
-        (byte) 0101, (byte) 0102, (byte) 0107, (byte) 0104, (byte) 0105, (byte) 0132, (byte) 0110,
+    private static final byte[] table_math = {
+        (byte) 34, (byte) 0, (byte) 100, (byte) 36, (byte) 0, (byte) 198, (byte) 68, (byte) 209,
+        // 00
+        (byte) 206, (byte) 207, (byte) 0, (byte) 0, (byte) 0, (byte) 39, (byte) 0, (byte) 80,
+        (byte) 0, (byte) 229, (byte) 45, (byte) 0, (byte) 0, (byte) 164, (byte) 0, (byte) 42,
+        // 10
+        (byte) 176, (byte) 183, (byte) 214, (byte) 0, (byte) 0, (byte) 181, (byte) 165, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 189, (byte) 0, (byte) 0, (byte) 0, (byte) 217,    // 20
+        (byte) 218, (byte) 199, (byte) 200, (byte) 242, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 92, (byte) 0, (byte) 0, (byte) 0,    // 30
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 126, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 64, (byte) 0, (byte) 0,    // 40
+        (byte) 187, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,    // 50
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 185,
+        (byte) 186, (byte) 0, (byte) 0, (byte) 163, (byte) 179, (byte) 0, (byte) 0,    // 60
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,    // 70
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 204, (byte) 201, (byte) 203, (byte) 0, (byte) 205, (byte) 202,    // 80
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 197, (byte) 0, (byte) 196,    // 90
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 94, (byte) 0, (byte) 0,    // a0
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,    // b0
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 224, (byte) 215, (byte) 0, (byte) 0,    // c0
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,    // d0
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,    // e0
+        (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 188,};
+    private static final byte[] table_greek = {
+        (byte) 65, (byte) 66, (byte) 71, (byte) 68, (byte) 69, (byte) 90, (byte) 72,
         // 90
-        (byte) 0121, (byte) 0111, (byte) 0113, (byte) 0114, (byte) 0115, (byte) 0116, (byte) 0130,
-        (byte) 0117, (byte) 0120, (byte) 0122, (byte) 0000, (byte) 0123, (byte) 0124, (byte) 0125,
-        (byte) 0106, (byte) 0103,    // a0
-        (byte) 0131, (byte) 0127, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0141, (byte) 0142, (byte) 0147, (byte) 0144, (byte) 0145,
-        (byte) 0172, (byte) 0150,    // b0
-        (byte) 0161, (byte) 0151, (byte) 0153, (byte) 0154, (byte) 0155, (byte) 0156, (byte) 0170,
-        (byte) 0157, (byte) 0160, (byte) 0162, (byte) 0126, (byte) 0163, (byte) 0164, (byte) 0165,
-        (byte) 0146, (byte) 0143,    // c0
-        (byte) 0171, (byte) 0167, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000, (byte) 0000,
-        (byte) 0000, (byte) 0000, (byte) 0112, (byte) 0241, (byte) 0000, (byte) 0000, (byte) 0152,
-        (byte) 0166,                // d0
+        (byte) 81, (byte) 73, (byte) 75, (byte) 76, (byte) 77, (byte) 78, (byte) 88, (byte) 79,
+        (byte) 80, (byte) 82, (byte) 0, (byte) 83, (byte) 84, (byte) 85, (byte) 70, (byte) 67,
+        // a0
+        (byte) 89, (byte) 87, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 97, (byte) 98, (byte) 103, (byte) 100, (byte) 101, (byte) 122, (byte) 104,    // b0
+        (byte) 113, (byte) 105, (byte) 107, (byte) 108, (byte) 109, (byte) 110, (byte) 120,
+        (byte) 111, (byte) 112, (byte) 114, (byte) 86, (byte) 115, (byte) 116, (byte) 117,
+        (byte) 102, (byte) 99,    // c0
+        (byte) 121, (byte) 119, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+        (byte) 0, (byte) 74, (byte) 161, (byte) 0, (byte) 0, (byte) 106, (byte) 118,
+        // d0
     };
 
     public Encoder(Charset cs) {
@@ -122,21 +110,23 @@ public class Symbol extends Charset {
     }
 
     /* The default implementation creates a decoder and we don't have one */
+    @Override
     public boolean isLegalReplacement(byte[] repl) {
       return true;
     }
 
+    @Override
     protected CoderResult encodeLoop(CharBuffer src, ByteBuffer dst) {
       char[] sa = src.array();
       int sp = src.arrayOffset() + src.position();
       int sl = src.arrayOffset() + src.limit();
-      assert (sp <= sl);
-      sp = (sp <= sl ? sp : sl);
+      assert sp <= sl;
+      sp = sp <= sl ? sp : sl;
       byte[] da = dst.array();
       int dp = dst.arrayOffset() + dst.position();
       int dl = dst.arrayOffset() + dst.limit();
-      assert (dp <= dl);
-      dp = (dp <= dl ? dp : dl);
+      assert dp <= dl;
+      dp = dp <= dl ? dp : dl;
 
       try {
         while (sp < sl) {
@@ -149,9 +139,11 @@ public class Symbol extends Charset {
           }
           sp++;
           if (c >= 0x2200 && c <= 0x22ef) {
-            da[dp++] = table_math[c - 0x2200];
+            da[dp] = table_math[c - 0x2200];
+            dp++;
           } else if (c >= 0x0391 && c <= 0x03d6) {
-            da[dp++] = table_greek[c - 0x0391];
+            da[dp] = table_greek[c - 0x0391];
+            dp++;
           }
         }
         return CoderResult.UNDERFLOW;
@@ -161,6 +153,7 @@ public class Symbol extends Charset {
       }
     }
 
+    @Override
     public boolean canEncode(char c) {
       if (c >= 0x2200 && c <= 0x22ef) {
         if (table_math[c - 0x2200] != 0x00) {

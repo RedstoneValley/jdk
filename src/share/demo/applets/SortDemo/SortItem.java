@@ -57,7 +57,7 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
   /**
    * The array that is being sorted.
    */
-  int arr[];
+  int[] arr;
   /**
    * The high water mark.
    */
@@ -74,7 +74,7 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
    * The sorting algorithm (or null).
    */
   SortAlgorithm algorithm;
-  Dimension initialSize = null;
+  Dimension initialSize;
   /**
    * The thread that is sorting (or null).
    */
@@ -85,17 +85,19 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
    */
   void scramble() {
     initialSize = getSize();
-    int a[] = new int[initialSize.height / 2];
+    int[] a = new int[initialSize.height / 2];
     double f = initialSize.width / (double) a.length;
 
-    for (int i = a.length; --i >= 0; ) {
+    for (int i = a.length; i >= 0; ) {
       a[i] = (int) (i * f);
+      --i;
     }
-    for (int i = a.length; --i >= 0; ) {
+    for (int i = a.length; i >= 0; ) {
       int j = (int) (i * Math.random());
       int t = a[i];
       a[i] = a[j];
       a[j] = t;
+      --i;
     }
     arr = a;
   }
@@ -174,8 +176,8 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
    */
   @Override
   public void paint(Graphics g) {
-    int a[] = arr;
-    int y = 0;
+    int[] a = arr;
+    int y;
     int deltaY = 0, deltaX = 0, evenY = 0;
 
     Dimension currentSize = getSize();
@@ -207,25 +209,27 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
     // Erase old lines
     g.setColor(getBackground());
     y = currentHeight - deltaY - 1;
-    for (int i = a.length; --i >= 0; y -= 2) {
+    for (int i = a.length; i >= 0; y -= 2) {
       g.drawLine(deltaX + arr[i], y, currentWidth, y);
+      --i;
     }
 
     // Draw new lines
     g.setColor(Color.black);
     y = currentHeight - deltaY - 1;
-    for (int i = a.length; --i >= 0; y -= 2) {
+    for (int i = a.length; i >= 0; y -= 2) {
       g.drawLine(deltaX, y, deltaX + arr[i], y);
+      --i;
     }
 
     if (h1 >= 0) {
       g.setColor(Color.red);
-      y = deltaY + evenY + h1 * 2 + 1;
+      y = deltaY + evenY + (h1 << 1) + 1;
       g.drawLine(deltaX, y, deltaX + initialSize.width, y);
     }
     if (h2 >= 0) {
       g.setColor(Color.blue);
-      y = deltaY + evenY + h2 * 2 + 1;
+      y = deltaY + evenY + (h2 << 1) + 1;
       g.drawLine(deltaX, y, deltaX + initialSize.width, y);
     }
   }
@@ -243,8 +247,7 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
    * called by class Thread once the sorting algorithm
    * is started.
    *
-   * @see java.lang.Thread#run
-   * @see SortItem#mouseUp
+   * @see Thread#run
    */
   @Override
   public void run() {
@@ -325,13 +328,12 @@ public class SortItem extends java.applet.Applet implements Runnable, MouseListe
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {
             "alg", "string",
             "The name of the algorithm to run.  You can choose from the provided algorithms or "
                 + "suppply your own, as long as the classes are runnable as threads and their "
                 + "names end in 'Algorithm.'  BubbleSort is the default.  Example:  Use 'QSort' "
                 + "to run the QSortAlgorithm class."}};
-    return info;
   }
 }

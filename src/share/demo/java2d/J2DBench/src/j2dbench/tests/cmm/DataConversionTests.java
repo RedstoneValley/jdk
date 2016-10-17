@@ -69,18 +69,18 @@ public class DataConversionTests extends ColorConversionTests {
 
   protected static class Context {
 
-    ColorSpace cs;
-    int numComponents;
-    float[] val;
-    float[] rgb;
-    float[] cie;
-    TestEnvironment env;
-    Result res;
+    final ColorSpace cs;
+    final int numComponents;
+    final float[] val;
+    final float[] rgb;
+    final float[] cie;
+    final TestEnvironment env;
+    final Result res;
 
     public Context(TestEnvironment env, Result result, ColorSpace cs) {
       this.cs = cs;
       this.env = env;
-      this.res = result;
+      res = result;
 
       numComponents = cs.getNumComponents();
 
@@ -104,21 +104,22 @@ public class DataConversionTests extends ColorConversionTests {
       super(dataConvRoot, "fromRGB", "ColorSpace.fromRGB()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ColorSpace cs = ictx.cs;
+      Context ictx = (Context) ctx;
+      ColorSpace cs = ictx.cs;
 
-      final float[] rgb = ictx.rgb;
+      float[] rgb = ictx.rgb;
+      --numReps;
       do {
         try {
           cs.fromRGB(rgb);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
-  }  @Override
-  public void cleanupTest(TestEnvironment te, Object o) {
   }
 
   private static class FromCIEXYZTest extends DataConversionTests {
@@ -127,19 +128,24 @@ public class DataConversionTests extends ColorConversionTests {
       super(dataConvRoot, "fromCIEXYZ", "ColorSpace.fromCIEXYZ()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ColorSpace cs = ictx.cs;
+      Context ictx = (Context) ctx;
+      ColorSpace cs = ictx.cs;
 
-      final float[] val = ictx.cie;
+      float[] val = ictx.cie;
+      --numReps;
       do {
         try {
           cs.fromCIEXYZ(val);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
+  }  @Override
+  public void cleanupTest(TestEnvironment te, Object o) {
   }
 
   private static class ToCIEXYZTest extends DataConversionTests {
@@ -148,19 +154,22 @@ public class DataConversionTests extends ColorConversionTests {
       super(dataConvRoot, "toCIEXYZ", "ColorSpace.toCIEXYZ()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ColorSpace cs = ictx.cs;
+      Context ictx = (Context) ctx;
+      ColorSpace cs = ictx.cs;
 
-      final float[] val = ictx.val;
+      float[] val = ictx.val;
 
+      --numReps;
       do {
         try {
           cs.toCIEXYZ(val);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 
@@ -170,19 +179,22 @@ public class DataConversionTests extends ColorConversionTests {
       super(dataConvRoot, "toRGB", "ColorSpace.toRGB()");
     }
 
+    @Override
     public void runTest(Object ctx, int numReps) {
-      final Context ictx = (Context) ctx;
-      final ColorSpace cs = ictx.cs;
+      Context ictx = (Context) ctx;
+      ColorSpace cs = ictx.cs;
 
-      final float[] val = ictx.val;
+      float[] val = ictx.val;
 
+      --numReps;
       do {
         try {
           cs.toRGB(val);
         } catch (Exception e) {
           e.printStackTrace();
         }
-      } while (--numReps >= 0);
+        --numReps;
+      } while (numReps >= 0);
     }
   }
 

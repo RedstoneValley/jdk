@@ -35,8 +35,8 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JApplet;
 import sun.awt.OSInfo;
+import sun.awt.OSInfo.OSType;
 import sun.awt.image.MultiResolutionImage;
 
 /**
@@ -49,16 +49,16 @@ import sun.awt.image.MultiResolutionImage;
 public class MultiResolutionCursorTest extends JApplet {
     //Declare things used in the test, like buttons and labels here
 
-    static final int sizes[] = {16, 32, 128};
-    static final Color colors[] = {Color.WHITE, Color.RED, Color.GREEN, Color.BLUE};
+    static final int[] sizes = {16, 32, 128};
+    static final Color[] colors = {Color.WHITE, Color.RED, Color.GREEN, Color.BLUE};
 
     public void init() {
         //Create instructions for the user here, as well as set up
         // the environment -- set the layout manager, add buttons,
         // etc.
-        this.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
-        if (OSInfo.getOSType().equals(OSInfo.OSType.MACOSX)) {
+        if (OSInfo.getOSType() == OSType.MACOSX) {
             String[] instructions = {
                 "Verify that high resolution custom cursor is used"
                 + " on HiDPI displays.",
@@ -84,7 +84,7 @@ public class MultiResolutionCursorTest extends JApplet {
         setVisible(true);
         validate();
 
-        final Image image = new MultiResolutionCursor();
+        Image image = new MultiResolutionCursor();
 
         int center = sizes[0] / 2;
         Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor(
@@ -101,7 +101,7 @@ public class MultiResolutionCursorTest extends JApplet {
 
     static class MultiResolutionCursor extends BufferedImage implements MultiResolutionImage {
 
-        List<Image> highResolutionImages;
+        final List<Image> highResolutionImages;
 
         public MultiResolutionCursor() {
             super(sizes[0], sizes[0], BufferedImage.TYPE_INT_RGB);
@@ -149,12 +149,12 @@ public class MultiResolutionCursorTest extends JApplet {
 }// class BlockedWindowTest
 
 /* Place other classes related to the test after this line */
-/**
- * **************************************************
- * Standard Test Machinery DO NOT modify anything below -- it's a standard chunk
- * of code whose purpose is to make user interaction uniform, and thereby make
- * it simpler to read and understand someone else's test.
- * **************************************************
+/*
+  **************************************************
+  Standard Test Machinery DO NOT modify anything below -- it's a standard chunk
+  of code whose purpose is to make user interaction uniform, and thereby make
+  it simpler to read and understand someone else's test.
+  **************************************************
  */
 /**
  * This is part of the standard test machinery. It creates a dialog (with the
@@ -165,9 +165,12 @@ public class MultiResolutionCursorTest extends JApplet {
  * string to be displayed. This mimics System.out.println but works within the
  * test harness as well as standalone.
  */
-class Sysout {
+final class Sysout {
 
     private static TestDialog dialog;
+
+    private Sysout() {
+    }
 
     public static void createDialogWithInstructions(String[] instructions) {
         dialog = new TestDialog(new Frame(), "Instructions");
@@ -202,19 +205,20 @@ class Sysout {
  */
 class TestDialog extends Dialog {
 
-    TextArea instructionsText;
-    TextArea messageText;
-    int maxStringLength = 80;
+    private static final long serialVersionUID = 4421905612345965770L;
+    final TextArea instructionsText;
+    final TextArea messageText;
+    final int maxStringLength = 80;
 
     //DO NOT call this directly, go through Sysout
     public TestDialog(Frame frame, String name) {
         super(frame, name);
         int scrollBoth = TextArea.SCROLLBARS_BOTH;
         instructionsText = new TextArea("", 15, maxStringLength, scrollBoth);
-        add("North", instructionsText);
+        add(BorderLayout.NORTH, instructionsText);
 
         messageText = new TextArea("", 5, maxStringLength, scrollBoth);
-        add("Center", messageText);
+        add(BorderLayout.CENTER, messageText);
 
         pack();
 
@@ -229,10 +233,10 @@ class TestDialog extends Dialog {
         //Go down array of instruction strings
 
         String printStr, remainingStr;
-        for (int i = 0; i < instructions.length; i++) {
+        for (String instruction : instructions) {
             //chop up each into pieces maxSringLength long
-            remainingStr = instructions[ i];
-            while (remainingStr.length() > 0) {
+            remainingStr = instruction;
+            while (!remainingStr.isEmpty()) {
                 //if longer than max then chop off first max chars to print
                 if (remainingStr.length() >= maxStringLength) {
                     //Try to chop on a word boundary
@@ -251,9 +255,7 @@ class TestDialog extends Dialog {
                 }
 
                 instructionsText.append(printStr + "\n");
-
             }// while
-
         }// for
 
     }//printInstructions()

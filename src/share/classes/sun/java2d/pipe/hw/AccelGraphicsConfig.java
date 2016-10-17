@@ -44,8 +44,8 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    * Note: if {@link AccelSurface#TEXTURE} type is requested, rendering
    * to the image will be denied by throwing
    * {@code UnsupportedOperationException }
-   * from {@link java.awt.image.VolatileImage#getGraphics} and
-   * {@link java.awt.image.VolatileImage#createGraphics}
+   * from {@link VolatileImage#getGraphics} and
+   * {@link VolatileImage#createGraphics}
    *
    * @param width        the width of the returned {@code VolatileImage}
    * @param height       the height of the returned {@code VolatileImage}
@@ -59,7 +59,7 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    * @see AccelSurface#RT_PLAIN
    * @see AccelSurface#RT_TEXTURE
    */
-  public VolatileImage createCompatibleVolatileImage(
+  VolatileImage createCompatibleVolatileImage(
       int width, int height, int transparency, int type);
 
   /**
@@ -69,7 +69,7 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    * @return ContextCapabilities object representing caps
    * @see ContextCapabilities
    */
-  public ContextCapabilities getContextCapabilities();
+  ContextCapabilities getContextCapabilities();
 
   /**
    * Adds an {@code AccelDeviceEventListener} to listen to accelerated
@@ -77,12 +77,12 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    * events.
    * <p>
    * Note: a hard link to the listener may be kept so it must be explicitly
-   * removed via {@link #removeDeviceEventListener()}.
+   * removed via .
    *
    * @param l the listener
    * @see AccelDeviceEventListener
    */
-  public void addDeviceEventListener(AccelDeviceEventListener l);
+  void addDeviceEventListener(AccelDeviceEventListener l);
 
   /**
    * Removes an {@code AccelDeviceEventListener} from the list of listeners
@@ -91,5 +91,5 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    * @param l the listener
    * @see AccelDeviceEventListener
    */
-  public void removeDeviceEventListener(AccelDeviceEventListener l);
+  void removeDeviceEventListener(AccelDeviceEventListener l);
 }

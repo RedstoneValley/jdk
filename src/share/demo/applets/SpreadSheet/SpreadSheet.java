@@ -37,7 +37,6 @@
  * this sample code.
  */
 
-import java.applet.Applet;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -60,12 +59,12 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
   Font titleFont;
   Color cellColor;
   Color inputColor;
-  int cellWidth = 100;
-  int cellHeight = 15;
-  int titleHeight = 15;
-  int rowLabelWidth = 15;
+  final int cellWidth = 100;
+  final int cellHeight = 15;
+  final int titleHeight = 15;
+  final int rowLabelWidth = 15;
   Font inputFont;
-  boolean isStopped = false;
+  boolean isStopped;
   boolean fullUpdate = true;
   int rows;
   int columns;
@@ -73,8 +72,8 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
   int selectedRow = -1;
   int selectedColumn = -1;
   SpreadSheetInput inputArea;
-  Cell cells[][];
-  Cell current = null;
+  Cell[][] cells;
+  Cell current;
 
   @Override
   public synchronized void init() {
@@ -82,26 +81,18 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
 
     cellColor = Color.white;
     inputColor = new Color(100, 100, 225);
-    inputFont = new Font("Monospaced", Font.PLAIN, 10);
-    titleFont = new Font("Monospaced", Font.BOLD, 12);
+    inputFont = new Font(Font.MONOSPACED, Font.PLAIN, 10);
+    titleFont = new Font(Font.MONOSPACED, Font.BOLD, 12);
     title = getParameter("title");
     if (title == null) {
       title = "Spreadsheet";
     }
     rs = getParameter("rows");
-    if (rs == null) {
-      rows = 9;
-    } else {
-      rows = Integer.parseInt(rs);
-    }
+    rows = rs == null ? 9 : Integer.parseInt(rs);
     rs = getParameter("columns");
-    if (rs == null) {
-      columns = 5;
-    } else {
-      columns = Integer.parseInt(rs);
-    }
+    columns = rs == null ? 5 : Integer.parseInt(rs);
     cells = new Cell[rows][columns];
-    char l[] = new char[1];
+    char[] l = new char[1];
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < columns; j++) {
 
@@ -177,8 +168,8 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
       for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
           if (cells[i][j].needRedisplay) {
-            cx = (j * cellWidth) + 2 + rowLabelWidth;
-            cy = ((i + 1) * cellHeight) + 2 + titleHeight;
+            cx = j * cellWidth + 2 + rowLabelWidth;
+            cy = (i + 1) * cellHeight + 2 + titleHeight;
             cells[i][j].paint(g, cx, cy);
           }
         }
@@ -251,13 +242,13 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
   public synchronized void paint(Graphics g) {
     int i, j;
     int cx, cy;
-    char l[] = new char[1];
+    char[] l = new char[1];
 
     Dimension d = getSize();
 
     g.setFont(titleFont);
     i = g.getFontMetrics().stringWidth(title);
-    g.drawString((title == null) ? "Spreadsheet" : title, (d.width - i) / 2, 12);
+    g.drawString(title == null ? "Spreadsheet" : title, (d.width - i) / 2, 12);
     g.setColor(inputColor);
     g.fillRect(0, cellHeight, d.width, cellHeight);
     g.setFont(titleFont);
@@ -272,7 +263,7 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
     }
 
     g.setColor(Color.red);
-    cy = (rows + 3) * cellHeight + (cellHeight / 2);
+    cy = (rows + 3) * cellHeight + cellHeight / 2;
     for (i = 0; i < columns; i++) {
       cx = i * cellWidth;
       g.setColor(getBackground());
@@ -280,14 +271,14 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
       if (i < columns) {
         g.setColor(Color.red);
         l[0] = (char) ((int) 'A' + i);
-        g.drawString(new String(l), cx + rowLabelWidth + (cellWidth / 2), cy);
+        g.drawString(new String(l), cx + rowLabelWidth + cellWidth / 2, cy);
       }
     }
 
     for (i = 0; i < rows; i++) {
       for (j = 0; j < columns; j++) {
-        cx = (j * cellWidth) + 2 + rowLabelWidth;
-        cy = ((i + 1) * cellHeight) + 2 + titleHeight;
+        cx = j * cellWidth + 2 + rowLabelWidth;
+        cy = (i + 1) * cellHeight + 2 + titleHeight;
         if (cells[i][j] != null) {
           cells[i][j].paint(g, cx, cy);
         }
@@ -309,7 +300,7 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
     int x = e.getX();
     int y = e.getY();
     Cell cell;
-    if (y < (titleHeight + cellHeight)) {
+    if (y < titleHeight + cellHeight) {
       selectedRow = -1;
       if (y <= titleHeight && current != null) {
         current.deselect();
@@ -325,7 +316,7 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
       }
       e.consume();
     }
-    selectedRow = ((y - cellHeight - titleHeight) / cellHeight);
+    selectedRow = (y - cellHeight - titleHeight) / cellHeight;
     selectedColumn = (x - rowLabelWidth) / cellWidth;
     if (selectedRow > rows || selectedColumn >= columns) {
       selectedRow = -1;
@@ -392,19 +383,18 @@ public class SpreadSheet extends Applet implements MouseListener, KeyListener {
 
   @Override
   public String[][] getParameterInfo() {
-    String[][] info = {
+    return new String[][]{
         {"title", "string", "The title of the spread sheet.  Default is 'Spreadsheet'"},
         {"rows", "int", "The number of rows.  Default is 9."},
         {"columns", "int", "The number of columns.  Default is 5."}};
-    return info;
   }
 }
 
 class CellUpdater extends Thread {
 
   public volatile boolean run = true;
-  Cell target;
-  InputStream dataStream = null;
+  final Cell target;
+  InputStream dataStream;
   StreamTokenizer tokenStream;
 
   public CellUpdater(Cell c) {
@@ -451,22 +441,24 @@ class Cell {
   public static final int LABEL = 1;
   public static final int URL = 2;
   public static final int FORMULA = 3;
-  public int type = Cell.VALUE;
+  protected static final char DECIMAL_SEPARATOR = '.';
+  protected static final char FIRST_COLUMN_NAME = 'A';
+  public int type = VALUE;
   Node parseRoot;
   boolean needRedisplay;
-  boolean selected = false;
-  boolean transientValue = false;
+  boolean selected;
+  boolean transientValue;
   String valueString = "";
   String printString = "v";
   float value;
-  Color bgColor;
-  Color fgColor;
-  Color highlightColor;
-  int width;
-  int height;
-  SpreadSheet app;
+  final Color bgColor;
+  final Color fgColor;
+  final Color highlightColor;
+  final int width;
+  final int height;
+  final SpreadSheet app;
   CellUpdater updaterThread;
-  boolean paused = false;
+  boolean paused;
 
   public Cell(
       SpreadSheet app, Color bgColor, Color fgColor, Color highlightColor, int width, int height) {
@@ -487,7 +479,7 @@ class Cell {
   public void setValue(float f) {
     setRawValue(f);
     printString = "v" + valueString;
-    type = Cell.VALUE;
+    type = VALUE;
     paused = false;
     app.recalculate();
     needRedisplay = true;
@@ -503,16 +495,16 @@ class Cell {
   public void setUnparsedValue(String s) {
     switch (s.charAt(0)) {
       case 'v':
-        setValue(Cell.VALUE, s.substring(1));
+        setValue(VALUE, s.substring(1));
         break;
       case 'f':
-        setValue(Cell.FORMULA, s.substring(1));
+        setValue(FORMULA, s.substring(1));
         break;
       case 'l':
-        setValue(Cell.LABEL, s.substring(1));
+        setValue(LABEL, s.substring(1));
         break;
       case 'u':
-        setValue(Cell.URL, s.substring(1));
+        setValue(URL, s.substring(1));
         break;
     }
   }
@@ -540,7 +532,7 @@ class Cell {
     }
     subformula = parseValue(formula, node);
     //System.out.println("subformula = " + subformula);
-    if (subformula == null || subformula.length() == 0) {
+    if (subformula == null || subformula.isEmpty()) {
       //System.out.println("Parse succeeded");
       return null;
     }
@@ -564,7 +556,7 @@ class Cell {
         restFormula = subformula.substring(1);
         subformula = parseValue(restFormula, right = new Node());
         //System.out.println("subformula(2) = " + subformula);
-        if (subformula == null ? restFormula != null : !subformula.
+        if (subformula == null || !subformula.
             equals(restFormula)) {
           //System.out.println("Parse succeeded");
           left = new Node(node);
@@ -602,23 +594,24 @@ class Cell {
       if (subformula == null || subformula.length() == restFormula.length()) {
         //System.out.println("Failed");
         return formula;
-      } else if (!(subformula.charAt(0) == ')')) {
+      }
+      if (!(subformula.charAt(0) == ')')) {
         //System.out.println("Failed (missing parentheses)");
         return formula;
       }
       restFormula = subformula;
-    } else if (c >= '0' && c <= '9') {
+    } else if (Character.isDigit(c)) {
       int i;
 
       //System.out.println("formula=" + formula);
       for (i = 0; i < formula.length(); i++) {
         c = formula.charAt(i);
-        if ((c < '0' || c > '9') && c != '.') {
+        if (!Character.isDigit(c) && c != DECIMAL_SEPARATOR) {
           break;
         }
       }
       try {
-        _value = Float.valueOf(formula.substring(0, i)).floatValue();
+        _value = Float.valueOf(formula.substring(0, i));
       } catch (NumberFormatException e) {
         //System.out.println("Failed (number format error)");
         return formula;
@@ -630,14 +623,14 @@ class Cell {
       //System.out.println("value= " + value + " i=" + i +
       //                     " rest = " + restFormula);
       return restFormula;
-    } else if (c >= 'A' && c <= 'Z') {
+    } else if (Character.isUpperCase(c)) {
       int i;
 
-      column = c - 'A';
+      column = c - FIRST_COLUMN_NAME;
       restFormula = formula.substring(1);
       for (i = 0; i < restFormula.length(); i++) {
         c = restFormula.charAt(i);
-        if (c < '0' || c > '9') {
+        if (!Character.isDigit(c)) {
           break;
         }
       }
@@ -662,7 +655,7 @@ class Cell {
 
   public void setValue(int type, String s) {
     paused = false;
-    if (this.type == Cell.URL) {
+    if (this.type == URL) {
       updaterThread.run = false;
       updaterThread = null;
     }
@@ -671,18 +664,18 @@ class Cell {
     this.type = type;
     needRedisplay = true;
     switch (type) {
-      case Cell.VALUE:
-        setValue(Float.valueOf(s).floatValue());
+      case VALUE:
+        setValue(Float.valueOf(s));
         break;
-      case Cell.LABEL:
+      case LABEL:
         printString = "l" + valueString;
         break;
-      case Cell.URL:
+      case URL:
         printString = "u" + valueString;
         updaterThread = new CellUpdater(this);
         updaterThread.start();
         break;
-      case Cell.FORMULA:
+      case FORMULA:
         parseFormula(valueString, parseRoot = new Node());
         printString = "f" + valueString;
         break;
@@ -719,24 +712,24 @@ class Cell {
     g.fillRect(x, y, width - 1, height);
     if (valueString != null) {
       switch (type) {
-        case Cell.VALUE:
-        case Cell.LABEL:
+        case VALUE:
+        case LABEL:
           g.setColor(fgColor);
           break;
-        case Cell.FORMULA:
+        case FORMULA:
           g.setColor(Color.red);
           break;
-        case Cell.URL:
+        case URL:
           g.setColor(Color.blue);
           break;
       }
       if (transientValue) {
-        g.drawString("" + value, x, y + (height / 2) + 5);
+        g.drawString("" + value, x, y + height / 2 + 5);
       } else {
         if (valueString.length() > 14) {
-          g.drawString(valueString.substring(0, 14), x, y + (height / 2) + 5);
+          g.drawString(valueString.substring(0, 14), x, y + height / 2 + 5);
         } else {
-          g.drawString(valueString, x, y + (height / 2) + 5);
+          g.drawString(valueString, x, y + height / 2 + 5);
         }
       }
     }
@@ -764,7 +757,7 @@ class Node {
     row = -1;
     column = -1;
     op = 0;
-    type = Node.VALUE;
+    type = VALUE;
   }
 
   public Node(Node n) {
@@ -784,19 +777,19 @@ class Node {
   }
 
   public void print(int indentLevel) {
-    char l[] = new char[1];
+    char[] l = new char[1];
     indent(indentLevel);
     System.out.println("NODE type=" + type);
     indent(indentLevel);
     switch (type) {
-      case Node.VALUE:
+      case VALUE:
         System.out.println(" value=" + value);
         break;
-      case Node.CELL:
+      case CELL:
         l[0] = (char) ((int) 'A' + column);
         System.out.println(" cell=" + new String(l) + (row + 1));
         break;
-      case Node.OP:
+      case OP:
         System.out.println(" op=" + op);
         left.print(indentLevel + 3);
         right.print(indentLevel + 3);
@@ -807,16 +800,19 @@ class Node {
 
 class InputField {
 
-  int maxchars = 50;
-  int cursorPos = 0;
-  Applet app;
+  protected static final char DELETE = '\b';
+  protected static final char NEWLINE = '\n';
+  protected static final char FIRST_DIGIT = '0';
+  final int maxchars = 50;
+  int cursorPos;
+  final Applet app;
   String sval;
-  char buffer[];
+  final char[] buffer;
   int nChars;
-  int width;
-  int height;
-  Color bgColor;
-  Color fgColor;
+  final int width;
+  final int height;
+  final Color bgColor;
+  final Color fgColor;
 
   public InputField(
       String initValue, Applet app, int width, int height, Color bgColor, Color fgColor) {
@@ -828,7 +824,7 @@ class InputField {
     buffer = new char[maxchars];
     nChars = 0;
     if (initValue != null) {
-      initValue.getChars(0, initValue.length(), this.buffer, 0);
+      initValue.getChars(0, initValue.length(), buffer, 0);
       nChars = initValue.length();
     }
     sval = initValue;
@@ -840,11 +836,7 @@ class InputField {
     for (i = 0; i < maxchars; i++) {
       buffer[i] = 0;
     }
-    if (val == null) {
-      sval = "";
-    } else {
-      sval = val;
-    }
+    sval = val == null ? "" : val;
     nChars = sval.length();
     sval.getChars(0, sval.length(), buffer, 0);
   }
@@ -858,25 +850,27 @@ class InputField {
     g.fillRect(x, y, width, height);
     if (sval != null) {
       g.setColor(fgColor);
-      g.drawString(sval, x, y + (height / 2) + 3);
+      g.drawString(sval, x, y + height / 2 + 3);
     }
   }
 
+  @SuppressWarnings("CharacterComparison")
   public void processKey(KeyEvent e) {
     char ch = e.getKeyChar();
     switch (ch) {
-      case '\b': // delete
+      case DELETE: // delete
         if (nChars > 0) {
           nChars--;
           sval = new String(buffer, 0, nChars);
         }
         break;
-      case '\n': // return
+      case NEWLINE: // return
         selected();
         break;
       default:
-        if (nChars < maxchars && ch >= '0') {
-          buffer[nChars++] = ch;
+        if (nChars < maxchars && ch >= FIRST_DIGIT) {
+          buffer[nChars] = ch;
+          nChars++;
           sval = new String(buffer, 0, nChars);
         }
     }
@@ -900,7 +894,7 @@ class SpreadSheetInput extends InputField {
   @Override
   public void selected() {
     float f;
-    sval = ("".equals(sval)) ? "v" : sval;
+    sval = "".equals(sval) ? "v" : sval;
     switch (sval.charAt(0)) {
       case 'v':
         String s = sval.substring(1);
@@ -908,12 +902,12 @@ class SpreadSheetInput extends InputField {
           int i;
           for (i = 0; i < s.length(); i++) {
             char c = s.charAt(i);
-            if (c < '0' || c > '9') {
+            if (!Character.isDigit(c)) {
               break;
             }
           }
           s = s.substring(0, i);
-          f = Float.valueOf(s).floatValue();
+          f = Float.valueOf(s);
           ((SpreadSheet) app).setCurrentValue(f);
         } catch (NumberFormatException e) {
           System.out.println("Not a float: '" + s + "'");

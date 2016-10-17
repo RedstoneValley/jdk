@@ -36,7 +36,7 @@ public class SimpleInputMethodWindow extends Frame implements InputMethodWindow 
 
   // Proclaim serial compatibility with 1.7.0
   private static final long serialVersionUID = 5093376647036461555L;
-  InputContext inputContext = null;
+  InputContext inputContext;
 
   /**
    * Constructs a simple input method window.
@@ -44,19 +44,17 @@ public class SimpleInputMethodWindow extends Frame implements InputMethodWindow 
   public SimpleInputMethodWindow(String title, InputContext context) {
     super(title);
     if (context != null) {
-      this.inputContext = context;
+      inputContext = context;
     }
     setFocusableWindowState(false);
   }
 
+  @Override
   public java.awt.im.InputContext getInputContext() {
-    if (inputContext != null) {
-      return inputContext;
-    } else {
-      return super.getInputContext();
-    }
+    return inputContext != null ? inputContext : super.getInputContext();
   }
 
+  @Override
   public void setInputContext(InputContext inputContext) {
     this.inputContext = inputContext;
   }

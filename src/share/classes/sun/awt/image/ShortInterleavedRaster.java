@@ -56,12 +56,12 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
   /**
    * A cached copy of minX + width for use in bounds checks.
    */
-  private int maxX;
+  private final int maxX;
 
   /**
    * A cached copy of minY + height for use in bounds checks.
    */
-  private int maxY;
+  private final int maxY;
 
   /**
    * Constructs a ShortInterleavedRaster with the given SampleModel.
@@ -74,8 +74,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param origin      The Point that specified the origin.
    */
   public ShortInterleavedRaster(SampleModel sampleModel, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         sampleModel.createDataBuffer(),
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -95,8 +94,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param origin      The Point that specifies the origin.
    */
   public ShortInterleavedRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(
-        sampleModel,
+    this(sampleModel,
         dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
@@ -127,24 +125,24 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       ShortInterleavedRaster parent) {
 
     super(sampleModel, dataBuffer, aRegion, origin, parent);
-    this.maxX = minX + width;
-    this.maxY = minY + height;
+    maxX = minX + width;
+    maxY = minY + height;
 
     if (!(dataBuffer instanceof DataBufferUShort)) {
       throw new RasterFormatException("ShortInterleavedRasters must " + "have ushort DataBuffers");
     }
 
     DataBufferUShort dbus = (DataBufferUShort) dataBuffer;
-    this.data = stealData(dbus, 0);
+    data = stealData(dbus, 0);
 
     // REMIND: need case for interleaved ComponentSampleModel
-    if ((sampleModel instanceof PixelInterleavedSampleModel) || (
-        sampleModel instanceof ComponentSampleModel && sampleModel.getNumBands() == 1)) {
+    if (sampleModel instanceof PixelInterleavedSampleModel
+        || sampleModel instanceof ComponentSampleModel && sampleModel.getNumBands() == 1) {
       ComponentSampleModel csm = (ComponentSampleModel) sampleModel;
 
-      this.scanlineStride = csm.getScanlineStride();
-      this.pixelStride = csm.getPixelStride();
-      this.dataOffsets = csm.getBandOffsets();
+      scanlineStride = csm.getScanlineStride();
+      pixelStride = csm.getPixelStride();
+      dataOffsets = csm.getBandOffsets();
       int xOffset = aRegion.x - origin.x;
       int yOffset = aRegion.y - origin.y;
       for (int i = 0; i < getNumDataElements(); i++) {
@@ -152,10 +150,10 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       }
     } else if (sampleModel instanceof SinglePixelPackedSampleModel) {
       SinglePixelPackedSampleModel sppsm = (SinglePixelPackedSampleModel) sampleModel;
-      this.scanlineStride = sppsm.getScanlineStride();
-      this.pixelStride = 1;
-      this.dataOffsets = new int[1];
-      this.dataOffsets[0] = dbus.getOffset();
+      scanlineStride = sppsm.getScanlineStride();
+      pixelStride = 1;
+      dataOffsets = new int[1];
+      dataOffsets[0] = dbus.getOffset();
       int xOffset = aRegion.x - origin.x;
       int yOffset = aRegion.y - origin.y;
       dataOffsets[0] += xOffset + yOffset * scanlineStride;
@@ -165,17 +163,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
           " or 1 band ComponentSampleModel.  Sample model is " +
           sampleModel);
     }
-    this.bandOffset = this.dataOffsets[0];
+    bandOffset = dataOffsets[0];
     verify();
-  }
-
-  /**
-   * Returns a copy of the data offsets array. For each band the data offset
-   * is the index into the band's data array, of the first sample of the
-   * band.
-   */
-  public int[] getDataOffsets() {
-    return (int[]) dataOffsets.clone();
   }
 
   /**
@@ -185,6 +174,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param band The band whose offset is returned.
    */
+  @Override
   public int getDataOffset(int band) {
     return dataOffsets[band];
   }
@@ -193,6 +183,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * Returns the scanline stride -- the number of data array elements between
    * a given sample and the same sample in the same column of the next row.
    */
+  @Override
   public int getScanlineStride() {
     return scanlineStride;
   }
@@ -201,6 +192,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * Returns pixel stride -- the number of data array elements  between two
    * samples for the same band on the same scanline.
    */
+  @Override
   public int getPixelStride() {
     return pixelStride;
   }
@@ -208,6 +200,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
   /**
    * Returns a reference to the data array.
    */
+  @Override
   public short[] getDataStorage() {
     return data;
   }
@@ -225,17 +218,16 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the sample rectangle.
-   * @param height  Height of the sample rectangle.
    * @param band    The band to return.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
    * @return Data array with data elements for all bands.
    */
+  @Override
   public short[] getShortData(int x, int y, int w, int h, int band, short[] outData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
@@ -261,7 +253,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off++] = data[xoff];
+          outData[off] = data[xoff];
+          off++;
         }
       }
     }
@@ -285,15 +278,14 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
    * @param outData If non-null, data elements for all bands
    *                at the specified location are returned in this array.
    * @return Data array with data elements for all bands.
    */
+  @Override
   public short[] getShortData(int x, int y, int w, int h, short[] outData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     if (outData == null) {
@@ -309,7 +301,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          outData[off++] = data[dataOffsets[c] + xoff];
+          outData[off] = data[dataOffsets[c] + xoff];
+          off++;
         }
       }
     }
@@ -336,10 +329,11 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param band   The band to set.
    * @param inData The data elements to be stored.
    */
+  @Override
   public void putShortData(int x, int y, int w, int h, int band, short[] inData) {
     // Bounds check for 'band' will be performed automatically
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int yoff = (y - minY) * scanlineStride +
@@ -362,7 +356,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
         xoff = yoff;
         for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off++];
+          data[xoff] = inData[off];
+          off++;
         }
       }
     }
@@ -388,9 +383,10 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param h      Height of the pixel rectangle.
    * @param inData The data elements to be stored.
    */
+  @Override
   public void putShortData(int x, int y, int w, int h, short[] inData) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
@@ -403,7 +399,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          data[dataOffsets[c] + xoff] = inData[off++];
+          data[dataOffsets[c] + xoff] = inData[off];
+          off++;
         }
       }
     }
@@ -430,34 +427,30 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent Raster.
    */
+  @Override
   public WritableRaster createWritableChild(
       int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    if (x < this.minX) {
+    if (x < minX) {
       throw new RasterFormatException("x lies outside the raster");
     }
-    if (y < this.minY) {
+    if (y < minY) {
       throw new RasterFormatException("y lies outside the raster");
     }
-    if ((x + width < x) || (x + width > this.minX + this.width)) {
+    if (x + width < x || x + width > minX + this.width) {
       throw new RasterFormatException("(x + width) is outside of Raster");
     }
-    if ((y + height < y) || (y + height > this.minY + this.height)) {
+    if (y + height < y || y + height > minY + this.height) {
       throw new RasterFormatException("(y + height) is outside of Raster");
     }
 
     SampleModel sm;
 
-    if (bandList != null) {
-      sm = sampleModel.createSubsetSampleModel(bandList);
-    } else {
-      sm = sampleModel;
-    }
+    sm = bandList != null ? sampleModel.createSubsetSampleModel(bandList) : sampleModel;
 
     int deltaX = x0 - x;
     int deltaY = y0 - y;
 
-    return new ShortInterleavedRaster(
-        sm,
+    return new ShortInterleavedRaster(sm,
         dataBuffer,
         new Rectangle(x0, y0, width, height),
         new Point(sampleModelTranslateX + deltaX, sampleModelTranslateY + deltaY),
@@ -473,19 +466,17 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param x      The X coordinate of the pixel location.
    * @param y      The Y coordinate of the pixel location.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length getNumDataElements()
-   *               containing the pixel data to place at x,y.
    */
+  @Override
   public void setDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    short inData[] = (short[]) obj;
+    short[] inData = (short[]) obj;
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
     for (int i = 0; i < numDataElements; i++) {
-      data[dataOffsets[i] + off] = (short) inData[i];
+      data[dataOffsets[i] + off] = inData[i];
     }
     markDirty();
   }
@@ -499,13 +490,14 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param y        The Y coordinate of the pixel location.
    * @param inRaster Raster of data to place at x,y location.
    */
+  @Override
   public void setDataElements(int x, int y, Raster inRaster) {
     int dstOffX = x + inRaster.getMinX();
     int dstOffY = y + inRaster.getMinY();
     int width = inRaster.getWidth();
     int height = inRaster.getHeight();
-    if ((dstOffX < this.minX) || (dstOffY < this.minY) ||
-        (dstOffX + width > this.maxX) || (dstOffY + height > this.maxY)) {
+    if (dstOffX < minX || dstOffY < minY ||
+        dstOffX + width > maxX || dstOffY + height > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
 
@@ -530,17 +522,14 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param y      The Y coordinate of the upper left pixel location.
    * @param w      Width of the pixel rectangle.
    * @param h      Height of the pixel rectangle.
-   * @param inData An object reference to an array of type defined by
-   *               getTransferType() and length w*h*getNumDataElements()
-   *               containing the pixel data to place between x,y and
-   *               x+h, y+h.
    */
+  @Override
   public void setDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    short inData[] = (short[]) obj;
+    short[] inData = (short[]) obj;
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
     int xoff;
     int off = 0;
@@ -551,7 +540,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          data[dataOffsets[c] + xoff] = (short) inData[off++];
+          data[dataOffsets[c] + xoff] = inData[off];
+          off++;
         }
       }
     }
@@ -565,6 +555,7 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * the Raster is a subRaster, this will call
    * createCompatibleRaster(width, height).
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster() {
     return createCompatibleWritableRaster(width, height);
   }
@@ -573,9 +564,10 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * Creates a Raster with the same layout but using a different
    * width and height, and with new zeroed data arrays.
    */
+  @Override
   public WritableRaster createCompatibleWritableRaster(int w, int h) {
     if (w <= 0 || h <= 0) {
-      throw new RasterFormatException("negative " + ((w <= 0) ? "width" : "height"));
+      throw new RasterFormatException("negative " + (w <= 0 ? "width" : "height"));
     }
 
     SampleModel sm = sampleModel.createCompatibleSampleModel(w, h);
@@ -602,9 +594,9 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    * @param bandList Array of band indices.
    * @throws RasterFormatException if the specified bounding box is outside of the parent raster.
    */
+  @Override
   public Raster createChild(int x, int y, int width, int height, int x0, int y0, int[] bandList) {
-    WritableRaster newRaster = createWritableChild(x, y, width, height, x0, y0, bandList);
-    return (Raster) newRaster;
+    return createWritableChild(x, y, width, height, x0, y0, bandList);
   }
 
   /**
@@ -617,24 +609,17 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param x       The X coordinate of the pixel location.
    * @param y       The Y coordinate of the pixel location.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x >= this.maxX) || (y >= this.maxY)) {
+    if (x < minX || y < minY ||
+        x >= maxX || y >= maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    short outData[];
-    if (obj == null) {
-      outData = new short[numDataElements];
-    } else {
-      outData = (short[]) obj;
-    }
+    short[] outData;
+    outData = obj == null ? new short[numDataElements] : (short[]) obj;
     int off = (y - minY) * scanlineStride + (x - minX) * pixelStride;
 
     for (int band = 0; band < numDataElements; band++) {
@@ -662,26 +647,17 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
    *
    * @param x       The X coordinate of the upper left pixel location.
    * @param y       The Y coordinate of the upper left pixel location.
-   * @param width   Width of the pixel rectangle.
-   * @param height  Height of the pixel rectangle.
-   * @param outData An object reference to an array of type defined by
-   *                getTransferType() and length w*h*getNumDataElements().
-   *                If null an array of appropriate type and size will be
-   *                allocated.
    * @return An object reference to an array of type defined by
    * getTransferType() with the request pixel data.
    */
+  @Override
   public Object getDataElements(int x, int y, int w, int h, Object obj) {
-    if ((x < this.minX) || (y < this.minY) ||
-        (x + w > this.maxX) || (y + h > this.maxY)) {
+    if (x < minX || y < minY ||
+        x + w > maxX || y + h > maxY) {
       throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
     }
-    short outData[];
-    if (obj == null) {
-      outData = new short[w * h * numDataElements];
-    } else {
-      outData = (short[]) obj;
-    }
+    short[] outData;
+    outData = obj == null ? new short[w * h * numDataElements] : (short[]) obj;
     int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
 
     int xoff;
@@ -693,7 +669,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
       xoff = yoff;
       for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
         for (int c = 0; c < numDataElements; c++) {
-          outData[off++] = data[dataOffsets[c] + xoff];
+          outData[off] = data[dataOffsets[c] + xoff];
+          off++;
         }
       }
     }
@@ -702,9 +679,8 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
   }
 
   public String toString() {
-    return new String(
-        "ShortInterleavedRaster: width = " + width + " height = " + height + " #numDataElements "
-            + numDataElements);
+    return "ShortInterleavedRaster: width = " + width + " height = " + height + " #numDataElements "
+        + numDataElements;
     // +" xOff = "+xOffset+" yOff = "+yOffset);
   }
 

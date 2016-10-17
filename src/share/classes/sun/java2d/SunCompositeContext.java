@@ -52,8 +52,8 @@ public class SunCompositeContext implements CompositeContext {
     }
     srcCM = s;
     dstCM = d;
-    this.composite = ac;
-    this.comptype = CompositeType.forAlphaComposite(ac);
+    composite = ac;
+    comptype = CompositeType.forAlphaComposite(ac);
   }
 
   public SunCompositeContext(XORComposite xc, ColorModel s, ColorModel d) {
@@ -65,13 +65,14 @@ public class SunCompositeContext implements CompositeContext {
     }
     srcCM = s;
     dstCM = d;
-    this.composite = xc;
-    this.comptype = CompositeType.Xor;
+    composite = xc;
+    comptype = CompositeType.Xor;
   }
 
   /**
    * Release resources allocated for context.
    */
+  @Override
   public void dispose() {
   }
 
@@ -81,10 +82,8 @@ public class SunCompositeContext implements CompositeContext {
    * the destination can be the same object as either
    * the first or second source.
    *
-   * @param src1 The first source tile for the compositing operation.
-   * @param src2 The second source tile for the compositing operation.
-   * @param dst  The tile where the result of the operation is stored.
    */
+  @Override
   public void compose(Raster srcArg, Raster dstIn, WritableRaster dstOut) {
     WritableRaster src;
     int w;

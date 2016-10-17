@@ -34,9 +34,6 @@ import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import static java.awt.geom.Rectangle2D.Double;
 
@@ -50,8 +47,8 @@ import static java.awt.geom.Rectangle2D.Double;
  */
 public final class IncorrectClipSurface2SW {
 
-    private static int[] SCALES = {1, 2, 4};
-    private static int[] SIZES = {127, 3, 2, 1};
+    private static final int[] SCALES = {1, 2, 4};
+    private static final int[] SIZES = {127, 3, 2, 1};
     private static final Shape[] SHAPES = {new Rectangle(0, 0, 0, 0),
                                            new Rectangle(0, 0, 1, 1),
                                            new Rectangle(0, 1, 1, 1),
@@ -78,15 +75,18 @@ public final class IncorrectClipSurface2SW {
                                            new Double(.75, .10, .20, .20),
                                            new Double(.10, .75, .20, .20),};
 
-    public static void main(final String[] args) throws IOException {
+    private IncorrectClipSurface2SW() {
+    }
+
+    public static void main(String[] args) {
         GraphicsEnvironment ge = GraphicsEnvironment
                 .getLocalGraphicsEnvironment();
         GraphicsConfiguration gc = ge.getDefaultScreenDevice()
                                      .getDefaultConfiguration();
         AffineTransform at;
-        for (final int size : SIZES) {
-            for (final int scale : SCALES) {
-                final int sw = size * scale;
+        for (int size : SIZES) {
+            for (int scale : SCALES) {
+                int sw = size * scale;
                 at = AffineTransform.getScaleInstance(sw, sw);
                 for (Shape clip : SHAPES) {
                     clip = at.createTransformedShape(clip);
@@ -151,8 +151,7 @@ public final class IncorrectClipSurface2SW {
         return image;
     }
 
-    private static void validate(BufferedImage bi, BufferedImage goldbi)
-            throws IOException {
+    private static void validate(BufferedImage bi, BufferedImage goldbi) {
         for (int x = 0; x < bi.getWidth(); ++x) {
             for (int y = 0; y < bi.getHeight(); ++y) {
                 if (goldbi.getRGB(x, y) != bi.getRGB(x, y)) {

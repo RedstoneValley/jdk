@@ -21,15 +21,14 @@
  * questions.
  */
 
-/**
- *
- * @bug 4959409
+/*
+
+  @bug 4959409
  * @author Naoto Sato
  */
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 public class bug4959409 extends javax.swing.JApplet {
     public void init() {
@@ -38,8 +37,8 @@ public class bug4959409 extends javax.swing.JApplet {
 }
 
 class TestFrame extends JFrame implements KeyListener {
-    JTextField text;
-    JLabel label;
+    final JTextField text;
+    final JLabel label;
 
     TestFrame () {
         text = new JTextField();
@@ -54,6 +53,7 @@ class TestFrame extends JFrame implements KeyListener {
         setVisible(true);
     }
 
+    @Override
     public void keyPressed(KeyEvent e) {
         int code = e.getKeyCode();
         int mods = e.getModifiers();
@@ -64,9 +64,11 @@ class TestFrame extends JFrame implements KeyListener {
         }
     }
 
+    @Override
     public void keyTyped(KeyEvent e) {
     }
 
+    @Override
     public void keyReleased(KeyEvent e) {
     }
 }

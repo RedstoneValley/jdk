@@ -25,13 +25,17 @@
 
 package java.awt.geom;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * <CODE>Arc2D</CODE> is the abstract superclass for all objects that
+ * {@code Arc2D} is the abstract superclass for all objects that
  * store a 2D arc defined by a framing rectangle,
  * start angle, angular extent (length of the arc), and a closure type
- * (<CODE>OPEN</CODE>, <CODE>CHORD</CODE>, or <CODE>PIE</CODE>).
+ * ({@code OPEN}, {@code CHORD}, or {@code PIE}).
  * <p>
  * <a name="inscribes">
  * The arc is a partial section of a full ellipse which
@@ -53,6 +57,7 @@ import java.io.Serializable;
  * @author Jim Graham
  * @since 1.2
  */
+@SuppressWarnings("MagicNumber")
 public abstract class Arc2D extends RectangularShape {
 
   /**
@@ -61,7 +66,7 @@ public abstract class Arc2D extends RectangularShape {
    *
    * @since 1.2
    */
-  public final static int OPEN = 0;
+  public static final int OPEN = 0;
 
   /**
    * The closure type for an arc closed by drawing a straight
@@ -70,7 +75,7 @@ public abstract class Arc2D extends RectangularShape {
    *
    * @since 1.2
    */
-  public final static int CHORD = 1;
+  public static final int CHORD = 1;
 
   /**
    * The closure type for an arc closed by drawing straight line
@@ -79,7 +84,7 @@ public abstract class Arc2D extends RectangularShape {
    *
    * @since 1.2
    */
-  public final static int PIE = 2;
+  public static final int PIE = 2;
   private int type;
 
   /**
@@ -93,8 +98,8 @@ public abstract class Arc2D extends RectangularShape {
    * type of {@link #OPEN}.  It is provided only to enable
    * serialization of subclasses.
    *
-   * @see java.awt.geom.Arc2D.Float
-   * @see java.awt.geom.Arc2D.Double
+   * @see Float
+   * @see Double
    */
   protected Arc2D() {
     this(OPEN);
@@ -109,8 +114,8 @@ public abstract class Arc2D extends RectangularShape {
    *
    * @param type The closure type of this arc:
    *             {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
-   * @see java.awt.geom.Arc2D.Float
-   * @see java.awt.geom.Arc2D.Double
+   * @see Float
+   * @see Double
    * @since 1.2
    */
   protected Arc2D(int type) {
@@ -122,8 +127,8 @@ public abstract class Arc2D extends RectangularShape {
    */
   static double normalizeDegrees(double angle) {
     if (angle > 180.0) {
-      if (angle <= (180.0 + 360.0)) {
-        angle = angle - 360.0;
+      if (angle <= 180.0 + 360.0) {
+        angle -= 360.0;
       } else {
         angle = Math.IEEEremainder(angle, 360.0);
         // IEEEremainder can return -180 here for some input values...
@@ -132,8 +137,8 @@ public abstract class Arc2D extends RectangularShape {
         }
       }
     } else if (angle <= -180.0) {
-      if (angle > (-180.0 - 360.0)) {
-        angle = angle + 360.0;
+      if (angle > -180.0 - 360.0) {
+        angle += 360.0;
       } else {
         angle = Math.IEEEremainder(angle, 360.0);
         // IEEEremainder can return -180 here for some input values...
@@ -156,6 +161,23 @@ public abstract class Arc2D extends RectangularShape {
   public abstract double getAngleStart();
 
   /**
+   * Sets the starting angle of this arc to the angle that the
+   * specified point defines relative to the center of this arc.
+   * The angular extent of the arc will remain the same.
+   *
+   * @param p The {@code Point2D} that defines the starting angle.
+   * @see #getAngleStart
+   * @since 1.2
+   */
+  @SuppressWarnings("unused")
+  public void setAngleStart(Point2D p) {
+    // Bias the dx and dy by the height and width of the oval.
+    double dx = getHeight() * (p.getX() - getCenterX());
+    double dy = getWidth() * (p.getY() - getCenterY());
+    setAngleStart(-Math.toDegrees(Math.atan2(dy, dx)));
+  }
+
+  /**
    * Sets the starting angle of this arc to the specified double
    * value.
    *
@@ -164,22 +186,6 @@ public abstract class Arc2D extends RectangularShape {
    * @since 1.2
    */
   public abstract void setAngleStart(double angSt);
-
-  /**
-   * Sets the starting angle of this arc to the angle that the
-   * specified point defines relative to the center of this arc.
-   * The angular extent of the arc will remain the same.
-   *
-   * @param p The <CODE>Point2D</CODE> that defines the starting angle.
-   * @see #getAngleStart
-   * @since 1.2
-   */
-  public void setAngleStart(Point2D p) {
-    // Bias the dx and dy by the height and width of the oval.
-    double dx = getHeight() * (p.getX() - getCenterX());
-    double dy = getWidth() * (p.getY() - getCenterY());
-    setAngleStart(-Math.toDegrees(Math.atan2(dy, dx)));
-  }
 
   /**
    * Returns the angular extent of the arc.
@@ -216,12 +222,12 @@ public abstract class Arc2D extends RectangularShape {
 
   /**
    * Sets the closure type of this arc to the specified value:
-   * <CODE>OPEN</CODE>, <CODE>CHORD</CODE>, or <CODE>PIE</CODE>.
+   * {@code OPEN}, {@code CHORD}, or {@code PIE}.
    *
    * @param type The integer constant that represents the closure
    *             type of this arc: {@link #OPEN}, {@link #CHORD}, or
    *             {@link #PIE}.
-   * @throws IllegalArgumentException if <code>type</code> is not
+   * @throws IllegalArgumentException if {@code type} is not
    *                                  0, 1, or 2.+
    * @see #getArcType
    * @since 1.2
@@ -238,7 +244,7 @@ public abstract class Arc2D extends RectangularShape {
    * intersection of the ray from the center defined by the
    * starting angle and the elliptical boundary of the arc.
    *
-   * @return A <CODE>Point2D</CODE> object representing the
+   * @return A {@code Point2D} object representing the
    * x,y coordinates of the starting point of the arc.
    * @since 1.2
    */
@@ -255,7 +261,7 @@ public abstract class Arc2D extends RectangularShape {
    * starting angle plus the angular extent of the arc and the
    * elliptical boundary of the arc.
    *
-   * @return A <CODE>Point2D</CODE> object representing the
+   * @return A {@code Point2D} object representing the
    * x,y coordinates  of the ending point of the arc.
    * @since 1.2
    */
@@ -289,9 +295,9 @@ public abstract class Arc2D extends RectangularShape {
    * Sets the location, size, angular extents, and closure type of
    * this arc to the specified values.
    *
-   * @param loc     The <CODE>Point2D</CODE> representing the coordinates of
+   * @param loc     The {@code Point2D} representing the coordinates of
    *                the upper-left corner of the arc.
-   * @param size    The <CODE>Dimension2D</CODE> representing the width
+   * @param size    The {@code Dimension2D} representing the width
    *                and height of the full ellipse of which this arc is
    *                a partial section.
    * @param angSt   The starting angle of the arc in degrees.
@@ -300,6 +306,7 @@ public abstract class Arc2D extends RectangularShape {
    *                {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
    * @since 1.2
    */
+  @SuppressWarnings("unused")
   public void setArc(Point2D loc, Dimension2D size, double angSt, double angExt, int closure) {
     setArc(loc.getX(), loc.getY(), size.getWidth(), size.getHeight(), angSt, angExt, closure);
   }
@@ -317,6 +324,7 @@ public abstract class Arc2D extends RectangularShape {
    *                {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
    * @since 1.2
    */
+  @SuppressWarnings("unused")
   public void setArc(Rectangle2D rect, double angSt, double angExt, int closure) {
     setArc(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), angSt, angExt, closure);
   }
@@ -324,9 +332,10 @@ public abstract class Arc2D extends RectangularShape {
   /**
    * Sets this arc to be the same as the specified arc.
    *
-   * @param a The <CODE>Arc2D</CODE> to use to set the arc's values.
+   * @param a The {@code Arc2D} to use to set the arc's values.
    * @since 1.2
    */
+  @SuppressWarnings("unused")
   public void setArc(Arc2D a) {
     setArc(a.getX(),
         a.getY(),
@@ -374,6 +383,7 @@ public abstract class Arc2D extends RectangularShape {
    * @param radius The radius of the arc.
    * @since 1.2
    */
+  @SuppressWarnings("unused")
   public void setArcByTangent(Point2D p1, Point2D p2, Point2D p3, double radius) {
     double ang1 = Math.atan2(p1.getY() - p2.getY(), p1.getX() - p2.getX());
     double ang2 = Math.atan2(p3.getY() - p2.getY(), p3.getX() - p2.getX());
@@ -449,32 +459,34 @@ public abstract class Arc2D extends RectangularShape {
    * The arc will always be non-empty and extend counterclockwise
    * from the first point around to the second point.
    *
-   * @param p1 The <CODE>Point2D</CODE> that defines the arc's
+   * @param p1 The {@code Point2D} that defines the arc's
    *           starting point.
-   * @param p2 The <CODE>Point2D</CODE> that defines the arc's
+   * @param p2 The {@code Point2D} that defines the arc's
    *           ending point.
    * @since 1.2
    */
+  @SuppressWarnings("unused")
   public void setAngles(Point2D p1, Point2D p2) {
     setAngles(p1.getX(), p1.getY(), p2.getX(), p2.getY());
   }
 
   /**
    * Returns the high-precision framing rectangle of the arc.  The framing
-   * rectangle contains only the part of this <code>Arc2D</code> that is
+   * rectangle contains only the part of this {@code Arc2D} that is
    * in between the starting and ending angles and contains the pie
-   * wedge, if this <code>Arc2D</code> has a <code>PIE</code> closure type.
+   * wedge, if this {@code Arc2D} has a {@code PIE} closure type.
    * <p>
    * This method differs from the
    * {@link RectangularShape#getBounds() getBounds} in that the
-   * <code>getBounds</code> method only returns the bounds of the
-   * enclosing ellipse of this <code>Arc2D</code> without considering
-   * the starting and ending angles of this <code>Arc2D</code>.
+   * {@code getBounds} method only returns the bounds of the
+   * enclosing ellipse of this {@code Arc2D} without considering
+   * the starting and ending angles of this {@code Arc2D}.
    *
-   * @return the <CODE>Rectangle2D</CODE> that represents the arc's
+   * @return the {@code Rectangle2D} that represents the arc's
    * framing rectangle.
    * @since 1.2
    */
+  @Override
   public Rectangle2D getBounds2D() {
     if (isEmpty()) {
       return makeBounds(getX(), getY(), getWidth(), getHeight());
@@ -524,11 +536,12 @@ public abstract class Arc2D extends RectangularShape {
    *
    * @param x The X coordinate of the point to test.
    * @param y The Y coordinate of the point to test.
-   * @return <CODE>true</CODE> if the point lies within the bound of
-   * the arc, <CODE>false</CODE> if the point lies outside of the
+   * @return {@code true} if the point lies within the bound of
+   * the arc, {@code false} if the point lies outside of the
    * arc's bounds.
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y) {
     // Normalize the coordinates compared to the ellipse
     // having a center at 0,0 and a radius of 0.5.
@@ -542,7 +555,7 @@ public abstract class Arc2D extends RectangularShape {
       return false;
     }
     double normy = (y - getY()) / ellh - 0.5;
-    double distSq = (normx * normx + normy * normy);
+    double distSq = normx * normx + normy * normy;
     if (distSq >= 0.25) {
       return false;
     }
@@ -574,14 +587,14 @@ public abstract class Arc2D extends RectangularShape {
     angle += Math.toRadians(-getAngleExtent());
     double x2 = Math.cos(angle);
     double y2 = Math.sin(angle);
-    boolean inside = (Line2D.relativeCCW(x1, y1, x2, y2, 2 * normx, 2 * normy) * Line2D.relativeCCW(
+    boolean inside = Line2D.relativeCCW(x1, y1, x2, y2, 2 * normx, 2 * normy) * Line2D.relativeCCW(
         x1,
         y1,
         x2,
         y2,
         0,
-        0) >= 0);
-    return inarc ? !inside : inside;
+        0) >= 0;
+    return inarc != inside;
   }
 
   /**
@@ -592,10 +605,11 @@ public abstract class Arc2D extends RectangularShape {
    * @param y The Y coordinate of the rectangle's upper-left corner.
    * @param w The width of the rectangle.
    * @param h The height of the rectangle.
-   * @return <CODE>true</CODE> if the arc intersects the rectangle,
-   * <CODE>false</CODE> if the arc doesn't intersect the rectangle.
+   * @return {@code true} if the arc intersects the rectangle,
+   * {@code false} if the arc doesn't intersect the rectangle.
    * @since 1.2
    */
+  @Override
   public boolean intersects(double x, double y, double w, double h) {
 
     double aw = getWidth();
@@ -642,16 +656,16 @@ public abstract class Arc2D extends RectangularShape {
          * So we'll check axis segments outside of rectangle above.
          */
     if (ayc >= y && ayc <= yh) { // 0 and 180
-      if ((sx < xw && ex < xw && axc < xw &&
-               axw > x && containsAngle(0)) || (sx > x && ex > x && axc > x &&
-                                                    ax < xw && containsAngle(180))) {
+      if (sx < xw && ex < xw && axc < xw &&
+          axw > x && containsAngle(0) || sx > x && ex > x && axc > x &&
+          ax < xw && containsAngle(180)) {
         return true;
       }
     }
     if (axc >= x && axc <= xw) { // 90 and 270
-      if ((sy > y && ey > y && ayc > y &&
-               ay < yh && containsAngle(90)) || (sy < yh && ey < yh && ayc < yh &&
-                                                     ayh > y && containsAngle(270))) {
+      if (sy > y && ey > y && ayc > y &&
+          ay < yh && containsAngle(90) || sy < yh && ey < yh && ayc < yh &&
+          ayh > y && containsAngle(270)) {
         return true;
       }
     }
@@ -677,22 +691,8 @@ public abstract class Arc2D extends RectangularShape {
     }
 
     // finally check the rectangle corners inside the arc
-    if (contains(x, y) || contains(x + w, y) ||
-        contains(x, y + h) || contains(x + w, y + h)) {
-      return true;
-    }
-
-    return false;
-  }  /**
-   * {@inheritDoc}
-   * Note that the arc
-   * <a href="Arc2D.html#inscribes">partially inscribes</a>
-   * the framing rectangle of this {@code RectangularShape}.
-   *
-   * @since 1.2
-   */
-  public void setFrame(double x, double y, double w, double h) {
-    setArc(x, y, w, h, getAngleStart(), getAngleExtent(), type);
+    return contains(x, y) || contains(x + w, y) ||
+        contains(x, y + h) || contains(x + w, y + h);
   }
 
   /**
@@ -703,35 +703,48 @@ public abstract class Arc2D extends RectangularShape {
    * @param y The Y coordinate of the rectangle's upper-left corner.
    * @param w The width of the rectangle.
    * @param h The height of the rectangle.
-   * @return <CODE>true</CODE> if the arc contains the rectangle,
-   * <CODE>false</CODE> if the arc doesn't contain the rectangle.
+   * @return {@code true} if the arc contains the rectangle,
+   * {@code false} if the arc doesn't contain the rectangle.
    * @since 1.2
    */
+  @Override
   public boolean contains(double x, double y, double w, double h) {
     return contains(x, y, w, h, null);
+  }  /**
+   * {@inheritDoc}
+   * Note that the arc
+   * <a href="Arc2D.html#inscribes">partially inscribes</a>
+   * the framing rectangle of this {@code RectangularShape}.
+   *
+   * @since 1.2
+   */
+  @Override
+  public void setFrame(double x, double y, double w, double h) {
+    setArc(x, y, w, h, getAngleStart(), getAngleExtent(), type);
   }
 
   /**
    * Returns an iteration object that defines the boundary of the
    * arc.
    * This iterator is multithread safe.
-   * <code>Arc2D</code> guarantees that
+   * {@code Arc2D} guarantees that
    * modifications to the geometry of the arc
    * do not affect any iterations of that geometry that
    * are already in process.
    *
-   * @param at an optional <CODE>AffineTransform</CODE> to be applied
+   * @param at an optional {@code AffineTransform} to be applied
    *           to the coordinates as they are returned in the iteration, or null
    *           if the untransformed coordinates are desired.
-   * @return A <CODE>PathIterator</CODE> that defines the arc's boundary.
+   * @return A {@code PathIterator} that defines the arc's boundary.
    * @since 1.2
    */
+  @Override
   public PathIterator getPathIterator(AffineTransform at) {
     return new ArcIterator(this, at);
   }
 
   /**
-   * Constructs a <code>Rectangle2D</code> of the appropriate precision
+   * Constructs a {@code Rectangle2D} of the appropriate precision
    * to hold the parameters calculated to be the framing rectangle
    * of this arc.
    *
@@ -741,7 +754,7 @@ public abstract class Arc2D extends RectangularShape {
    *          framing rectangle.
    * @param w The width of the framing rectangle.
    * @param h The height of the framing rectangle.
-   * @return a <code>Rectangle2D</code> that is the framing rectangle
+   * @return a {@code Rectangle2D} that is the framing rectangle
    * of this arc.
    * @since 1.2
    */
@@ -752,13 +765,13 @@ public abstract class Arc2D extends RectangularShape {
    * angular extents of the arc.
    *
    * @param angle The angle to test.
-   * @return <CODE>true</CODE> if the arc contains the angle,
-   * <CODE>false</CODE> if the arc doesn't contain the angle.
+   * @return {@code true} if the arc contains the angle,
+   * {@code false} if the arc doesn't contain the angle.
    * @since 1.2
    */
   public boolean containsAngle(double angle) {
     double angExt = getAngleExtent();
-    boolean backwards = (angExt < 0.0);
+    boolean backwards = angExt < 0.0;
     if (backwards) {
       angExt = -angExt;
     }
@@ -773,7 +786,7 @@ public abstract class Arc2D extends RectangularShape {
       angle += 360.0;
     }
 
-    return (angle >= 0.0) && (angle < angExt);
+    return angle >= 0.0 && angle < angExt;
   }
 
   private boolean contains(double x, double y, double w, double h, Rectangle2D origrect) {
@@ -815,9 +828,9 @@ public abstract class Arc2D extends RectangularShape {
   }
 
   /**
-   * Returns the hashcode for this <code>Arc2D</code>.
+   * Returns the hashcode for this {@code Arc2D}.
    *
-   * @return the hashcode for this <code>Arc2D</code>.
+   * @return the hashcode for this {@code Arc2D}.
    * @since 1.6
    */
   public int hashCode() {
@@ -828,22 +841,22 @@ public abstract class Arc2D extends RectangularShape {
     bits += java.lang.Double.doubleToLongBits(getAngleStart()) * 53;
     bits += java.lang.Double.doubleToLongBits(getAngleExtent()) * 59;
     bits += getArcType() * 61;
-    return (((int) bits) ^ ((int) (bits >> 32)));
+    return (int) bits ^ (int) (bits >> 32);
   }
 
   /**
-   * Determines whether or not the specified <code>Object</code> is
-   * equal to this <code>Arc2D</code>.  The specified
-   * <code>Object</code> is equal to this <code>Arc2D</code>
-   * if it is an instance of <code>Arc2D</code> and if its
+   * Determines whether or not the specified {@code Object} is
+   * equal to this {@code Arc2D}.  The specified
+   * {@code Object} is equal to this {@code Arc2D}
+   * if it is an instance of {@code Arc2D} and if its
    * location, size, arc extents and type are the same as this
-   * <code>Arc2D</code>.
+   * {@code Arc2D}.
    *
-   * @param obj an <code>Object</code> to be compared with this
-   *            <code>Arc2D</code>.
-   * @return <code>true</code> if <code>obj</code> is an instance
-   * of <code>Arc2D</code> and has the same values;
-   * <code>false</code> otherwise.
+   * @param obj an {@code Object} to be compared with this
+   *            {@code Arc2D}.
+   * @return {@code true} if {@code obj} is an instance
+   * of {@code Arc2D} and has the same values;
+   * {@code false} otherwise.
    * @since 1.6
    */
   public boolean equals(Object obj) {
@@ -852,13 +865,13 @@ public abstract class Arc2D extends RectangularShape {
     }
     if (obj instanceof Arc2D) {
       Arc2D a2d = (Arc2D) obj;
-      return ((getX() == a2d.getX()) &&
-                  (getY() == a2d.getY()) &&
-                  (getWidth() == a2d.getWidth()) &&
-                  (getHeight() == a2d.getHeight()) &&
-                  (getAngleStart() == a2d.getAngleStart()) &&
-                  (getAngleExtent() == a2d.getAngleExtent()) &&
-                  (getArcType() == a2d.getArcType()));
+      return getX() == a2d.getX() &&
+          getY() == a2d.getY() &&
+          getWidth() == a2d.getWidth() &&
+          getHeight() == a2d.getHeight() &&
+          getAngleStart() == a2d.getAngleStart() &&
+          getAngleExtent() == a2d.getAngleExtent() &&
+          getArcType() == a2d.getArcType();
     }
     return false;
   }
@@ -941,6 +954,7 @@ public abstract class Arc2D extends RectangularShape {
      *             {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * @since 1.2
      */
+    @SuppressWarnings("unused")
     public Float(int type) {
       super(type);
     }
@@ -967,8 +981,8 @@ public abstract class Arc2D extends RectangularShape {
       super(type);
       this.x = x;
       this.y = y;
-      this.width = w;
-      this.height = h;
+      width = w;
+      height = h;
       this.start = start;
       this.extent = extent;
     }
@@ -986,12 +1000,13 @@ public abstract class Arc2D extends RectangularShape {
      *                      {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * @since 1.2
      */
+    @SuppressWarnings("unused")
     public Float(Rectangle2D ellipseBounds, float start, float extent, int type) {
       super(type);
-      this.x = (float) ellipseBounds.getX();
-      this.y = (float) ellipseBounds.getY();
-      this.width = (float) ellipseBounds.getWidth();
-      this.height = (float) ellipseBounds.getHeight();
+      x = (float) ellipseBounds.getX();
+      y = (float) ellipseBounds.getY();
+      width = (float) ellipseBounds.getWidth();
+      height = (float) ellipseBounds.getHeight();
       this.start = start;
       this.extent = extent;
     }
@@ -1004,17 +1019,25 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getX() {
       return (double) x;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getAngleStart() {
       return (double) start;
+    }
+
+    /**
+     * @since 1.2
+     */
+    @Override
+    public void setAngleStart(double angSt) {
+      start = (float) angSt;
     }    /**
      * {@inheritDoc}
      * Note that the arc
@@ -1023,69 +1046,50 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getY() {
       return (double) y;
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * @since 1.2
-     */
-    public void setAngleStart(double angSt) {
-      this.start = (float) angSt;
-    }
-
-    /**
      * Writes the default serializable fields to the
-     * <code>ObjectOutputStream</code> followed by a byte
-     * indicating the arc type of this <code>Arc2D</code>
+     * {@code ObjectOutputStream} followed by a byte
+     * indicating the arc type of this {@code Arc2D}
      * instance.
      *
      * @serialData <ol>
      * <li>The default serializable fields.
      * <li>
-     * followed by a <code>byte</code> indicating the arc type
+     * followed by a {@code byte} indicating the arc type
      * {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * </ol>
      */
-    private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
+    private void writeObject(ObjectOutputStream s) throws IOException {
       s.defaultWriteObject();
 
       s.writeByte(getArcType());
-    }    /**
-     * {@inheritDoc}
-     * Note that the arc
-     * <a href="Arc2D.html#inscribes">partially inscribes</a>
-     * the framing rectangle of this {@code RectangularShape}.
-     *
-     * @since 1.2
-     */
-    public double getWidth() {
-      return (double) width;
     }
 
     /**
      * Reads the default serializable fields from the
-     * <code>ObjectInputStream</code> followed by a byte
-     * indicating the arc type of this <code>Arc2D</code>
+     * {@code ObjectInputStream} followed by a byte
+     * indicating the arc type of this {@code Arc2D}
      * instance.
      *
      * @serialData <ol>
      * <li>The default serializable fields.
      * <li>
-     * followed by a <code>byte</code> indicating the arc type
+     * followed by a {@code byte} indicating the arc type
      * {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * </ol>
      */
-    private void readObject(java.io.ObjectInputStream s)
-        throws java.lang.ClassNotFoundException, java.io.IOException {
+    private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
       s.defaultReadObject();
 
       try {
         setArcType(s.readByte());
       } catch (IllegalArgumentException iae) {
-        throw new java.io.InvalidObjectException(iae.getMessage());
+        throw new InvalidObjectException(iae.getMessage());
       }
     }
 
@@ -1097,62 +1101,69 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
-    public double getHeight() {
-      return (double) height;
+    @Override
+    public double getWidth() {
+      return (double) width;
     }
-
-
 
 
 
     /**
      * {@inheritDoc}
+     * Note that the arc
+     * <a href="Arc2D.html#inscribes">partially inscribes</a>
+     * the framing rectangle of this {@code RectangularShape}.
      *
      * @since 1.2
      */
+    @Override
+    public double getHeight() {
+      return (double) height;
+    }
+
+    /**
+     * @since 1.2
+     */
+    @Override
     public double getAngleExtent() {
       return (double) extent;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public boolean isEmpty() {
-      return (width <= 0.0 || height <= 0.0);
+      return width <= 0.0 || height <= 0.0;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setArc(
         double x, double y, double w, double h, double angSt, double angExt, int closure) {
-      this.setArcType(closure);
+      setArcType(closure);
       this.x = (float) x;
       this.y = (float) y;
-      this.width = (float) w;
-      this.height = (float) h;
-      this.start = (float) angSt;
-      this.extent = (float) angExt;
+      width = (float) w;
+      height = (float) h;
+      start = (float) angSt;
+      extent = (float) angExt;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setAngleExtent(double angExt) {
-      this.extent = (float) angExt;
+      extent = (float) angExt;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     protected Rectangle2D makeBounds(double x, double y, double w, double h) {
       return new Rectangle2D.Float((float) x, (float) y, (float) w, (float) h);
     }
@@ -1234,6 +1245,7 @@ public abstract class Arc2D extends RectangularShape {
      *             {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * @since 1.2
      */
+    @SuppressWarnings("unused")
     public Double(int type) {
       super(type);
     }
@@ -1256,12 +1268,13 @@ public abstract class Arc2D extends RectangularShape {
      *               {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * @since 1.2
      */
+    @SuppressWarnings("unused")
     public Double(double x, double y, double w, double h, double start, double extent, int type) {
       super(type);
       this.x = x;
       this.y = y;
-      this.width = w;
-      this.height = h;
+      width = w;
+      height = h;
       this.start = start;
       this.extent = extent;
     }
@@ -1279,33 +1292,57 @@ public abstract class Arc2D extends RectangularShape {
      *                      {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * @since 1.2
      */
+    @SuppressWarnings("unused")
     public Double(Rectangle2D ellipseBounds, double start, double extent, int type) {
       super(type);
-      this.x = ellipseBounds.getX();
-      this.y = ellipseBounds.getY();
-      this.width = ellipseBounds.getWidth();
-      this.height = ellipseBounds.getHeight();
+      x = ellipseBounds.getX();
+      y = ellipseBounds.getY();
+      width = ellipseBounds.getWidth();
+      height = ellipseBounds.getHeight();
       this.start = start;
       this.extent = extent;
     }
 
     /**
      * Writes the default serializable fields to the
-     * <code>ObjectOutputStream</code> followed by a byte
-     * indicating the arc type of this <code>Arc2D</code>
+     * {@code ObjectOutputStream} followed by a byte
+     * indicating the arc type of this {@code Arc2D}
      * instance.
      *
      * @serialData <ol>
      * <li>The default serializable fields.
      * <li>
-     * followed by a <code>byte</code> indicating the arc type
+     * followed by a {@code byte} indicating the arc type
      * {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
      * </ol>
      */
-    private void writeObject(java.io.ObjectOutputStream s) throws java.io.IOException {
+    private void writeObject(ObjectOutputStream s) throws IOException {
       s.defaultWriteObject();
 
       s.writeByte(getArcType());
+    }
+
+    /**
+     * Reads the default serializable fields from the
+     * {@code ObjectInputStream} followed by a byte
+     * indicating the arc type of this {@code Arc2D}
+     * instance.
+     *
+     * @serialData <ol>
+     * <li>The default serializable fields.
+     * <li>
+     * followed by a {@code byte} indicating the arc type
+     * {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
+     * </ol>
+     */
+    private void readObject(ObjectInputStream s) throws ClassNotFoundException, IOException {
+      s.defaultReadObject();
+
+      try {
+        setArcType(s.readByte());
+      } catch (IllegalArgumentException iae) {
+        throw new InvalidObjectException(iae.getMessage());
+      }
     }    /**
      * {@inheritDoc}
      * Note that the arc
@@ -1314,33 +1351,12 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getX() {
       return x;
     }
 
-    /**
-     * Reads the default serializable fields from the
-     * <code>ObjectInputStream</code> followed by a byte
-     * indicating the arc type of this <code>Arc2D</code>
-     * instance.
-     *
-     * @serialData <ol>
-     * <li>The default serializable fields.
-     * <li>
-     * followed by a <code>byte</code> indicating the arc type
-     * {@link #OPEN}, {@link #CHORD}, or {@link #PIE}.
-     * </ol>
-     */
-    private void readObject(java.io.ObjectInputStream s)
-        throws java.lang.ClassNotFoundException, java.io.IOException {
-      s.defaultReadObject();
 
-      try {
-        setArcType(s.readByte());
-      } catch (IllegalArgumentException iae) {
-        throw new java.io.InvalidObjectException(iae.getMessage());
-      }
-    }
 
     /**
      * {@inheritDoc}
@@ -1350,12 +1366,11 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getY() {
       return y;
     }
 
-
-
     /**
      * {@inheritDoc}
      * Note that the arc
@@ -1364,6 +1379,7 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getWidth() {
       return width;
     }
@@ -1376,93 +1392,88 @@ public abstract class Arc2D extends RectangularShape {
      *
      * @since 1.2
      */
+    @Override
     public double getHeight() {
       return height;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getAngleStart() {
       return start;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public double getAngleExtent() {
       return extent;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public boolean isEmpty() {
-      return (width <= 0.0 || height <= 0.0);
+      return width <= 0.0 || height <= 0.0;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setArc(
         double x, double y, double w, double h, double angSt, double angExt, int closure) {
-      this.setArcType(closure);
+      setArcType(closure);
       this.x = x;
       this.y = y;
-      this.width = w;
-      this.height = h;
-      this.start = angSt;
-      this.extent = angExt;
+      width = w;
+      height = h;
+      start = angSt;
+      extent = angExt;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setAngleStart(double angSt) {
-      this.start = angSt;
+      start = angSt;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     public void setAngleExtent(double angExt) {
-      this.extent = angExt;
+      extent = angExt;
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @since 1.2
      */
+    @Override
     protected Rectangle2D makeBounds(double x, double y, double w, double h) {
       return new Rectangle2D.Double(x, y, w, h);
     }
-  }  /**
-   * Determines whether or not the interior of the arc entirely contains
-   * the specified rectangle.
-   *
-   * @param r The <CODE>Rectangle2D</CODE> to test.
-   * @return <CODE>true</CODE> if the arc contains the rectangle,
-   * <CODE>false</CODE> if the arc doesn't contain the rectangle.
-   * @since 1.2
-   */
-  public boolean contains(Rectangle2D r) {
-    return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight(), r);
   }
 
 
 
-
+  /**
+   * Determines whether or not the interior of the arc entirely contains
+   * the specified rectangle.
+   *
+   * @param r The {@code Rectangle2D} to test.
+   * @return {@code true} if the arc contains the rectangle,
+   * {@code false} if the arc doesn't contain the rectangle.
+   * @since 1.2
+   */
+  @Override
+  public boolean contains(Rectangle2D r) {
+    return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight(), r);
+  }
 }
