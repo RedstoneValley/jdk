@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -44,34 +43,8 @@ import java.util.concurrent.Callable;
  */
 
 public abstract class ShellFolder extends File {
-  private static final String COLUMN_NAME = "FileChooser.fileNameHeaderText";
-  private static final String COLUMN_SIZE = "FileChooser.fileSizeHeaderText";
-  private static final String COLUMN_DATE = "FileChooser.fileDateHeaderText";
   private static final ShellFolderManager shellFolderManager;
   private static final Invoker invoker;
-  /**
-   * Provides a default comparator for the default column set
-   */
-  private static final Comparator DEFAULT_COMPARATOR = new Comparator() {
-    @Override
-    public int compare(Object o1, Object o2) {
-      int gt;
-
-      if (o1 == null && o2 == null) {
-        gt = 0;
-      } else if (o1 != null && o2 == null) {
-        gt = 1;
-      } else if (o1 == null) {
-        gt = -1;
-      } else if (o1 instanceof Comparable) {
-        gt = ((Comparable) o1).compareTo(o2);
-      } else {
-        gt = 0;
-      }
-
-      return gt;
-    }
-  };
   static final Comparator<File> FILE_COMPARATOR = new Comparator<File>() {
     @Override
     public int compare(File f1, File f2) {
@@ -114,7 +87,7 @@ public abstract class ShellFolder extends File {
         getDesktopProperty("Shell.shellFolderManager");
     Class<ShellFolderManager> managerClass = null;
     try {
-      managerClass = Class.forName(managerClassName, false, null);
+      managerClass = (Class<ShellFolderManager>) Class.forName(managerClassName, false, null);
       if (!ShellFolderManager.class.isAssignableFrom(managerClass)) {
         managerClass = null;
       }
@@ -147,21 +120,6 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * Return a shell folder from a file object
-   *
-   * @throws FileNotFoundException if file does not exist
-   */
-  public static ShellFolder getShellFolder(File file) throws FileNotFoundException {
-    if (file instanceof ShellFolder) {
-      return (ShellFolder) file;
-    }
-    if (!file.exists()) {
-      throw new FileNotFoundException();
-    }
-    return shellFolderManager.createShellFolder(file);
-  }
-
-  /**
    * @param key a {@code String}
    * @return An Object matching the string {@code key}.
    * @see ShellFolderManager#get(String)
@@ -171,33 +129,10 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * Does {@code dir} represent a "computer" such as a node on the network, or
-   * "My Computer" on the desktop.
-   */
-  public static boolean isComputerNode(File dir) {
-    return shellFolderManager.isComputerNode(dir);
-  }
-
-  /**
    * @return Whether this is a file system root directory
    */
   public static boolean isFileSystemRoot(File dir) {
     return shellFolderManager.isFileSystemRoot(dir);
-  }
-
-  /**
-   * Canonicalizes files that don't have symbolic links in their path.
-   * Normalizes files that do, preserving symbolic links from being resolved.
-   */
-  public static File getNormalizedFile(File f) throws IOException {
-    File canonical = f.getCanonicalFile();
-    if (f.equals(canonical)) {
-      // path of f doesn't contain symbolic links
-      return canonical;
-    }
-
-    // preserve symbolic links from being resolved
-    return new File(f.toURI().normalize());
   }
 
   public static void sort(List<? extends File> files) {
@@ -244,68 +179,6 @@ public abstract class ShellFolder extends File {
         return null;
       }
     });
-  }
-
-  public static ShellFolderColumnInfo[] getFolderColumns(File dir) {
-    ShellFolderColumnInfo[] columns = null;
-
-    if (dir instanceof ShellFolder) {
-      columns = ((ShellFolder) dir).getFolderColumns();
-    }
-
-    if (columns == null) {
-      columns = new ShellFolderColumnInfo[]{
-          new ShellFolderColumnInfo(COLUMN_NAME,
-              150,
-              SwingConstants.LEADING,
-              true,
-              null,
-              FILE_COMPARATOR), new ShellFolderColumnInfo(COLUMN_SIZE,
-          75,
-          SwingConstants.RIGHT,
-          true,
-          DEFAULT_COMPARATOR,
-          true), new ShellFolderColumnInfo(COLUMN_DATE,
-          130,
-          SwingConstants.LEADING,
-          true,
-          DEFAULT_COMPARATOR,
-          true)};
-    }
-
-    return columns;
-  }
-
-  public static Object getFolderColumnValue(File file, int column) {
-    if (file instanceof ShellFolder) {
-      Object value = ((ShellFolder) file).getFolderColumnValue(column);
-      if (value != null) {
-        return value;
-      }
-    }
-
-    if (file == null || !file.exists()) {
-      return null;
-    }
-
-    switch (column) {
-      case 0:
-        // By default, file name will be rendered using getSystemDisplayName()
-        return file;
-
-      case 1: // size
-        return file.isDirectory() ? null : file.length();
-
-      case 2: // date
-        if (isFileSystemRoot(file)) {
-          return null;
-        }
-        long time = file.lastModified();
-        return time == 0L ? null : new Date(time);
-
-      default:
-        return null;
-    }
   }
 
   // Static
@@ -597,14 +470,6 @@ public abstract class ShellFolder extends File {
         return null;
       }
     });
-  }
-
-  public ShellFolderColumnInfo[] getFolderColumns() {
-    return null;
-  }
-
-  public Object getFolderColumnValue(int column) {
-    return null;
   }
 
   @Override

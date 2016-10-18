@@ -76,8 +76,7 @@ public final class CMSManager {
       throw new CMMException("Cannot initialize Color Management System." + "No CM module found");
     }
 
-    GetPropertyAction gpa = new GetPropertyAction("sun.java2d.cmm.trace");
-    String cmmTrace = AccessController.doPrivileged(gpa);
+    String cmmTrace = System.getProperty("sun.java2d.cmm.trace");
     if (cmmTrace != null) {
       cmmImpl = new CMMTracer(cmmImpl);
     }

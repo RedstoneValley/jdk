@@ -32,7 +32,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectOutputStream.PutField;
 import java.io.ObjectStreamField;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * A {@code CardLayout} object is a layout manager for a
@@ -58,6 +60,7 @@ import java.util.*;
 public class CardLayout implements LayoutManager2, Serializable {
 
   private static final long serialVersionUID = -4328196481005934313L;
+  private static final String CONTENT_VECTOR = "vector";
   /**
    * @serialField tab         Hashtable
    * deprectated, for forward compatibility only
@@ -68,7 +71,8 @@ public class CardLayout implements LayoutManager2, Serializable {
    */
   private static final ObjectStreamField[] serialPersistentFields = {
       new ObjectStreamField("tab", Hashtable.class), new ObjectStreamField("hgap", Integer.TYPE),
-      new ObjectStreamField("vgap", Integer.TYPE), new ObjectStreamField(IIOTests.CONTENT_VECTOR, Vector.class),
+      new ObjectStreamField("vgap", Integer.TYPE),
+      new ObjectStreamField(CONTENT_VECTOR, Vector.class),
       new ObjectStreamField("currentCard", Integer.TYPE)};
   /*
    * This creates a Vector to store associated
@@ -567,7 +571,7 @@ public class CardLayout implements LayoutManager2, Serializable {
     hgap = f.get("hgap", 0);
     vgap = f.get("vgap", 0);
 
-    if (f.defaulted(IIOTests.CONTENT_VECTOR)) {
+    if (f.defaulted(CONTENT_VECTOR)) {
       //  pre-1.4 stream
       Hashtable<String, Component> tab = (Hashtable) f.get("tab", null);
       vector = new Vector<>();
@@ -582,7 +586,7 @@ public class CardLayout implements LayoutManager2, Serializable {
         }
       }
     } else {
-      vector = (Vector) f.get(IIOTests.CONTENT_VECTOR, null);
+      vector = (Vector) f.get(CONTENT_VECTOR, null);
       currentCard = f.get("currentCard", 0);
     }
   }
@@ -601,7 +605,7 @@ public class CardLayout implements LayoutManager2, Serializable {
     PutField f = s.putFields();
     f.put("hgap", hgap);
     f.put("vgap", vgap);
-    f.put(IIOTests.CONTENT_VECTOR, vector);
+    f.put(CONTENT_VECTOR, vector);
     f.put("currentCard", currentCard);
     f.put("tab", tab);
     s.writeFields();

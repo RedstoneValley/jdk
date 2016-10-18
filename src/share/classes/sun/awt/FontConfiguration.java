@@ -154,7 +154,6 @@ public abstract class FontConfiguration {
   static final int[] EMPTY_INT_ARRAY = new int[0];
   static final String[] EMPTY_STRING_ARRAY = new String[0];
   static final short[] EMPTY_SHORT_ARRAY = new short[0];
-  private static final String UNDEFINED_COMPONENT_FONT = ResultSet.unknown;
   public static boolean verbose;
   //static global runtime env
   protected static String osVersion;

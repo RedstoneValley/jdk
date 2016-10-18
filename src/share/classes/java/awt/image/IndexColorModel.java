@@ -29,7 +29,6 @@ import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.math.BigInteger;
 import java.util.Arrays;
-import sun.awt.image.BufImgSurfaceData.ICMColorData;
 
 /**
  * The {@code IndexColorModel} class is a {@code ColorModel}
@@ -132,7 +131,6 @@ public class IndexColorModel extends ColorModel {
     ColorModel.loadLibraries();
   }
 
-  private final ICMColorData colorData;
   private final int[] lookupcache = new int[CACHESIZE];
   private int[] rgb;
   private int map_size;

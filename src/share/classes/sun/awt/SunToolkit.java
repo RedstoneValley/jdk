@@ -144,6 +144,7 @@ import sun.awt.image.ImageRepresentation;
 import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.ToolkitImage;
 import sun.awt.image.URLImageSource;
+import sun.font.FontDesignMetrics;
 
 public abstract class SunToolkit extends Toolkit
     implements WindowClosingSupport, WindowClosingListener, ComponentFactory, InputMethodSupport,
@@ -1117,12 +1118,12 @@ public abstract class SunToolkit extends Toolkit
     Uri fileUri = Uri.fromFile(file);
     FileInputStream fileInputStream = new FileInputStream(file);
     try {
-      String mime = URLConnection.guessContentTypeFromStream();
+      String mime = URLConnection.guessContentTypeFromStream(fileInputStream);
       if (mime == null) {
         mime = URLConnection.guessContentTypeFromName(file.getName());
       }
       intentToOpen.setDataAndType(fileUri, mime);
-      androidContext.startActivity(intentToOpen);
+      getAndroidContext().startActivity(intentToOpen);
     } finally {
       fileInputStream.close();
     }
@@ -1378,10 +1379,6 @@ public abstract class SunToolkit extends Toolkit
       // Therefore, we dispatch them as long as there is something
       // to dispatch.
       int iters = 0;
-      while (false) {
-        syncNativeQueue(timeout);
-        iters++;
-      }
       while (syncNativeQueue(timeout) && iters < MAX_ITERS) {
         iters++;
       }
@@ -1397,10 +1394,6 @@ public abstract class SunToolkit extends Toolkit
       // some other events could have been generated.  So, after
       // waitForIdle, we may end up with full EventQueue
       iters = 0;
-      while (false) {
-        waitForIdle(timeout);
-        iters++;
-      }
       while (waitForIdle(timeout) && iters < MAX_ITERS) {
         iters++;
       }
@@ -1454,10 +1447,6 @@ public abstract class SunToolkit extends Toolkit
               // generated.  First, dispatch them.  Then,
               // flush Java events again.
               int iters = 0;
-              while (false) {
-                syncNativeQueue(timeout);
-                iters++;
-              }
               while (syncNativeQueue(timeout) && iters < MAX_ITERS) {
                 iters++;
               }
@@ -1716,14 +1705,14 @@ public abstract class SunToolkit extends Toolkit
     public void mail(URI mailtoURL) throws IOException {
       Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
       mailIntent.setData(Uri.parse(mailtoURL.toString()));
-      androidContext.startActivity(mailIntent);
+      getAndroidContext().startActivity(mailIntent);
     }
 
     @Override
     public void browse(URI uri) throws IOException {
       Intent browseIntent = new Intent(Intent.ACTION_VIEW);
       browseIntent.setData(Uri.parse(uri.toString()));
-      androidContext.startActivity(browseIntent);
+      getAndroidContext().startActivity(browseIntent);
     }
   }
 } // class SunToolkit

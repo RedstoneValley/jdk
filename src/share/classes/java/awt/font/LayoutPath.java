@@ -27,6 +27,8 @@
  */
 package java.awt.font;
 
+import java.awt.Shape;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import sun.java2d.pipe.Region;
@@ -89,4 +91,8 @@ public abstract class LayoutPath {
   protected abstract Region mapShape(Rectangle2D r2d);
 
   protected abstract void pathToPoint(float loc, float loc1, boolean b, Point2D pt);
+
+  public abstract GeneralPath mapShape(GeneralPath result);
+
+  public abstract Shape mapShape(Shape result);
 }

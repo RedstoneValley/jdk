@@ -153,7 +153,7 @@ public class BufferCapabilities implements Cloneable {
   public static final class FlipContents extends AttributeValue {
 
     private static final String[] NAMES = {"undefined", "background", "prior", "copied"};
-    private static final int I_UNDEFINED;
+    private static final int I_UNDEFINED = 0;
     /**
      * When flip contents are {@code UNDEFINED}, the
      * contents of the back buffer are undefined after flipping.

@@ -27,9 +27,18 @@
  * @summary Scaled graphics causes overlapped LCD glyphs on Windows
  */
 
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 
 public class LCDScale extends Component {
 
@@ -58,7 +67,7 @@ public class LCDScale extends Component {
                  RenderingHints.KEY_TEXT_ANTIALIASING,
                  RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
-        Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 40);
+        Font f = new Font(Font.DIALOG, Font.PLAIN, 40);
         g.setFont(f);
         FontRenderContext frc = g2d.getFontRenderContext();
         GlyphVector gv = f.createGlyphVector(frc, "Help");

@@ -93,21 +93,6 @@ public final class TextMeasurer implements Cloneable {
   // Number of lines to format to.
   private static final float EST_LINES = (float) 2.1;
 
-  /*
-  static {
-      String s = System.getProperty("estLines");
-      if (s != null) {
-          try {
-              Float f = new Float(s);
-              EST_LINES = f.floatValue();
-          }
-          catch(NumberFormatException e) {
-          }
-      }
-      //System.out.println("EST_LINES="+EST_LINES);
-  }
-  */
-  private static final boolean wantStats;/*"true".equals(System.getProperty("collectStats"));*/
   private final FontRenderContext fFrc;
   int layoutCount;
   int layoutCharCount;
@@ -628,9 +613,6 @@ public final class TextMeasurer implements Cloneable {
 
     if (collectStats) {
       printStats();
-    }
-    if (wantStats) {
-      collectStats = true;
     }
 
     fStart = newParagraph.getBeginIndex();

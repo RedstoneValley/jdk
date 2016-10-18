@@ -934,7 +934,6 @@ public class KeyEvent extends InputEvent {
     });
   }
 
-  private final transient long scancode; // for MS Windows only
   /**
    * The original event source.
    * <p>
@@ -1799,7 +1798,6 @@ public class KeyEvent extends InputEvent {
     }
     str.append(",rawCode=").append(rawCode);
     str.append(",primaryLevelUnicode=").append(primaryLevelUnicode);
-    str.append(",scancode=").append(scancode);
     str.append(",extendedKeyCode=0x").append(Long.toHexString(extendedKeyCode));
 
     return str.toString();

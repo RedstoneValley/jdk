@@ -1,6 +1,5 @@
 package sun.awt;
 
-import android.util.Pair;
 import java.lang.ref.SoftReference;
 import java.util.AbstractMap;
 import java.util.HashSet;
@@ -11,28 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link ConcurrentHashMap} wrapper that stores its values as {@link SoftReference}s.
  */
 public class SoftCache<K, V> extends AbstractMap<K, V> {
-  private static class PairAsEntry<K, V> extends Pair<K, V> implements Entry<K, V> {
-    public PairAsEntry(K first, V second) {
-      super(first, second);
-    }
-
-    @Override
-    public K getKey() {
-      return first;
-    }
-
-    @Override
-    public V getValue() {
-      return second;
-    }
-
-    @Override
-    public V setValue(V value) {
-      V old = second;
-      second = value;
-      return old;
-    }
-  }
 
   private ConcurrentHashMap<K, SoftReference<V>> hashMap = new ConcurrentHashMap<>();
 
@@ -56,10 +33,24 @@ public class SoftCache<K, V> extends AbstractMap<K, V> {
   @Override
   public Set<Entry<K, V>> entrySet() {
     Set<Entry<K, V>> entrySet = new HashSet<>();
-    for (Entry<K, SoftReference<V>> softEntry : hashMap.entrySet()) {
-      V value = softEntry.getValue().get();
-      if (value != null) {
-        entrySet.add(new PairAsEntry<>(softEntry.getKey(), value));
+    for (K key : hashMap.keySet()) {
+      if (get(key) != null) {
+        entrySet.add(new Entry<K, V>() {
+          @Override
+          public K getKey() {
+            return key;
+          }
+
+          @Override
+          public V getValue() {
+            return get(key);
+          }
+
+          @Override
+          public V setValue(V value) {
+            return put(key, value);
+          }
+        });
       }
     }
     return entrySet;

@@ -211,6 +211,7 @@ public final class ShapeSpanIterator implements SpanIterator, PathConsumer2D {
   @Override
   public long getNativeIterator() {
     // TODO: This is native in OpenJDK AWT
+    return 0;
   }
 
   /*

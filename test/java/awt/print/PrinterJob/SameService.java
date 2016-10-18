@@ -28,8 +28,12 @@
  * @run main SameService
  */
 
-import java.awt.*;
-import java.awt.print.*;
+import java.awt.Graphics;
+import java.awt.print.PageFormat;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import sun.awt.print.PrintService;
 
 public class SameService implements Printable {
 

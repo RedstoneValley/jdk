@@ -69,12 +69,6 @@ public final class MouseInfo {
    * @since 1.5
    */
   public static PointerInfo getPointerInfo() throws HeadlessException {
-
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-      security.checkPermission(SecurityConstants.AWT.WATCH_MOUSE_PERMISSION);
-    }
-
     Point point = new Point(0, 0);
     int deviceNum = Toolkit.getDefaultToolkit().getMouseInfoPeer().fillPointWithCoords(point);
     GraphicsDevice[] gds = GraphicsEnvironment.getLocalGraphicsEnvironment().

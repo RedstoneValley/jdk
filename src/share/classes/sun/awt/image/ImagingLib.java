@@ -58,7 +58,7 @@ public final class ImagingLib {
   private static final int AFFINE_OP = 1;
   private static final int CONVOLVE_OP = 2;
   private static final Class[] nativeOpClass = new Class[NUM_NATIVE_OPS];
-  static final boolean useLib = true;
+  static final boolean useLib;
   static boolean verbose;
 
   static {

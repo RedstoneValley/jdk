@@ -26,7 +26,8 @@
 package java.awt.image;
 
 import java.awt.Rectangle;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An ImageFilter class for cropping images.
@@ -95,8 +96,9 @@ public class CropImageFilter extends ImageFilter {
    * with the filtering operation.
    */
   @Override
-  public void setProperties(Hashtable<?, ?> props) {
-    Hashtable<Object, Object> p = (Hashtable<Object, Object>) props.clone();
+  public void setProperties(Map<?, ?> props) {
+    HashMap<Object, Object> p = new HashMap<>();
+    p.putAll(props);
     p.put("croprect", new Rectangle(cropX, cropY, cropW, cropH));
     super.setProperties(p);
   }

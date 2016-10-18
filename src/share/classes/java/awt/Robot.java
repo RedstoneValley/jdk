@@ -155,15 +155,7 @@ public class Robot {
     }
   }
 
-  private static void checkScreenCaptureAllowed() {
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-      security.checkPermission(SecurityConstants.AWT.READ_DISPLAY_PIXELS_PERMISSION);
-    }
-  }
-
   private void init(GraphicsDevice screen) throws AWTException {
-    checkRobotAllowed();
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     if (toolkit instanceof ComponentFactory) {
       peer = ((ComponentFactory) toolkit).createRobot(this, screen);
@@ -171,14 +163,6 @@ public class Robot {
       Disposer.addRecord(anchor, disposer);
     }
     initLegalButtonMask();
-  }
-
-  /* determine if the security policy allows Robot's to be created */
-  private void checkRobotAllowed() {
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-      security.checkPermission(SecurityConstants.AWT.CREATE_ROBOT_PERMISSION);
-    }
   }
 
   /* check if the given device is a screen device */
@@ -433,7 +417,6 @@ public class Robot {
    * @see AWTPermission
    */
   public synchronized BufferedImage createScreenCapture(Rectangle screenRect) {
-    checkScreenCaptureAllowed();
 
     checkValidRect(screenRect);
 

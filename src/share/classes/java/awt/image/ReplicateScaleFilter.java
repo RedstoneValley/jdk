@@ -25,7 +25,8 @@
 
 package java.awt.image;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An ImageFilter class for scaling images using the simplest algorithm.
@@ -148,8 +149,9 @@ public class ReplicateScaleFilter extends ImageFilter {
    * with the filtering operation.
    */
   @Override
-  public void setProperties(Hashtable<?, ?> props) {
-    Hashtable<Object, Object> p = (Hashtable<Object, Object>) props.clone();
+  public void setProperties(Map<?, ?> props) {
+    HashMap<Object, Object> p = new HashMap<>();
+    p.putAll(props);
     String key = "rescale";
     String val = destWidth + "x" + destHeight;
     Object o = p.get(key);

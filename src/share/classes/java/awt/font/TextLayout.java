@@ -254,11 +254,6 @@ public final class TextLayout implements Cloneable {
   // instances.
   private static float dx;
   private static float dy;
-  /*
-   * flag to supress/allow carets inside of ligatures when hit testing or
-   * arrow-keying
-   */
-  private final boolean caretsInLigaturesAreAllowed;
   private int characterCount;
   private boolean isVerticalLine;
   private byte baseline;
@@ -503,7 +498,7 @@ public final class TextLayout implements Cloneable {
     }
 
     if (lp != null) {
-      result = (GeneralPath) lp.mapShape(result);
+      result = lp.mapShape(result);
     }
     return result;
   }

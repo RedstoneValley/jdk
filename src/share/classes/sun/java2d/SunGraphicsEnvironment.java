@@ -32,6 +32,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.SkinJob;
 import java.awt.image.BufferedImage;
 import java.awt.peer.ComponentPeer;
 import java.io.BufferedReader;
@@ -57,7 +58,6 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
     implements DisplayChangedListener {
 
   public static boolean isOpenSolaris;
-  static Font defaultFont;
   protected GraphicsDevice[] screens;
   protected final SunDisplayChanger displayChanger = new SunDisplayChanger();
 
@@ -88,8 +88,6 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
       }
     } catch (Exception e) {
     }
-    /* Establish the default font to be used by SG2D etc */
-    defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
   }
 
   /* Modifies the behaviour of a subsequent call to preferLocaleFonts()
@@ -144,7 +142,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
       throw new NullPointerException("BufferedImage cannot be null");
     }
     SurfaceData sd = SurfaceData.getPrimarySurfaceData(img);
-    return new SunGraphics2D(sd, Color.white, Color.black, defaultFont);
+    return new SunGraphics2D(sd, Color.white, Color.black, SkinJob.defaultFont);
   }
 
   /**

@@ -18,5 +18,6 @@ public class GlyphLayout {
   public StandardGlyphVector layout(
       Font font, FontRenderContext frc, char[] text, int start, int i, int flags, Object o) {
     // TODO
+    return new StandardGlyphVector(font, text, frc);
   }
 }

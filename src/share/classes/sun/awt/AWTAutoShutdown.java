@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import sun.awt.AppContext.CreateThreadAction;
 import sun.awt.AppContext.PostShutdownEventRunnable;
+import sun.java2d.opengl.ThreadGroupUtils;
 
 /**
  * This class is to let AWT shutdown automatically when a user is done
@@ -219,29 +220,6 @@ public final class AWTAutoShutdown implements Runnable {
   }
 
   /**
-   * Notify that the peermap has been updated, that means a new peer
-   * has been created or some existing peer has been disposed.
-   *
-   * @see AWTAutoShutdown#isReadyToShutdown
-   */
-  @SuppressWarnings("NestedSynchronizedStatement")
-  void notifyPeerMapUpdated() {
-    synchronized (activationLock) {
-      synchronized (mainLock) {
-        if (!isReadyToShutdown() && blockerThread == null) {
-          AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-            activateBlockerThread();
-            return null;
-          });
-        } else {
-          mainLock.notifyAll();
-          timeoutPassed = false;
-        }
-      }
-    }
-  }
-
-  /**
    * Determine whether AWT is currently in ready-to-shutdown state.
    * AWT is considered to be in ready-to-shutdown state if
    * {@code peerMap} is empty and {@code toolkitThreadBusy}
@@ -359,37 +337,6 @@ public final class AWTAutoShutdown implements Runnable {
     } catch (InterruptedException e) {
       System.err.println("AWT blocker activation interrupted:");
       e.printStackTrace();
-    }
-  }
-
-  @SuppressWarnings("NestedSynchronizedStatement")
-  void registerPeer(Object target, Object peer) {
-    synchronized (activationLock) {
-      synchronized (mainLock) {
-        peerMap.put(target, peer);
-        notifyPeerMapUpdated();
-      }
-    }
-  }
-
-  @SuppressWarnings("NestedSynchronizedStatement")
-  void unregisterPeer(Object target, Object peer) {
-    synchronized (activationLock) {
-      synchronized (mainLock) {
-        if (peerMap.get(target) == peer) {
-          peerMap.remove(target);
-          notifyPeerMapUpdated();
-        }
-      }
-    }
-  }
-
-  @SuppressWarnings("NestedSynchronizedStatement")
-  Object getPeer(Object target) {
-    synchronized (activationLock) {
-      synchronized (mainLock) {
-        return peerMap.get(target);
-      }
     }
   }
 } // class AWTAutoShutdown

@@ -1,7 +1,9 @@
 package sun.font;
 
+import java.awt.Shape;
 import java.awt.font.LayoutPath;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import sun.java2d.pipe.Region;
@@ -36,6 +38,18 @@ public class LayoutPathImpl extends LayoutPath {
   @Override
   public void pathToPoint(float loc, float loc1, boolean b, Point2D pt) {
     // TODO
+  }
+
+  @Override
+  public GeneralPath mapShape(GeneralPath result) {
+    // TODO
+    return null;
+  }
+
+  @Override
+  public Shape mapShape(Shape result) {
+    // TODO
+    return null;
   }
 
   /**

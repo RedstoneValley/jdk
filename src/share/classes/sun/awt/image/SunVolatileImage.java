@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.ImageCapabilities;
+import java.awt.SkinJob;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -167,7 +168,7 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
       return comp.getFont();
     } else {
       if (defaultFont == null) {
-        defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+        defaultFont = new Font(Font.DIALOG, Font.PLAIN, SkinJob.defaultFontSize);
       }
       return defaultFont;
     }

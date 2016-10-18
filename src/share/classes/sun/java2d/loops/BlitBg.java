@@ -28,7 +28,7 @@ package sun.java2d.loops;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.Font;
+import java.awt.SkinJob;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
@@ -118,7 +118,6 @@ public class BlitBg extends GraphicsPrimitive {
   }
 
   private static class General extends BlitBg {
-    private static final Font defaultFont = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12);
     final CompositeType compositeType;
 
     public General(SurfaceType srctype, CompositeType comptype, SurfaceType dsttype) {
@@ -141,7 +140,7 @@ public class BlitBg extends GraphicsPrimitive {
       BufferedImage bimg = new BufferedImage(dstModel, wr, isPremult, null);
       SurfaceData tmpData = BufImgSurfaceData.createData(bimg);
       Color bgColor = new Color(bgArgb, bgHasAlpha);
-      SunGraphics2D sg2d = new SunGraphics2D(tmpData, bgColor, bgColor, defaultFont);
+      SunGraphics2D sg2d = new SunGraphics2D(tmpData, bgColor, bgColor, SkinJob.defaultFont);
       FillRect fillop = FillRect.locate(SurfaceType.AnyColor,
           CompositeType.SrcNoEa,
           tmpData.getSurfaceType());

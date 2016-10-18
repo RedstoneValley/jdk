@@ -27,11 +27,13 @@
  * @summary IllegalArgumentException when using Graphics.drawString( "", 0, 0 )
  */
 
-import java.awt.*;
-import java.awt.font.*;
-import java.awt.image.*;
-import java.text.*;
-import java.util.*;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
+import java.text.AttributedString;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class EmptyAttrString {
 
@@ -42,7 +44,7 @@ public final class EmptyAttrString {
         BufferedImage bi =
            new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
-        Font f = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12 );
+        Font f = new Font(Font.DIALOG, Font.PLAIN, 12);
         Map map = new HashMap();
         map.put(TextAttribute.STRIKETHROUGH, TextAttribute.STRIKETHROUGH_ON);
         f = f.deriveFont(map);

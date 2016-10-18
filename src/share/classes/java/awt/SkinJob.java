@@ -16,6 +16,7 @@ import java.lang.reflect.Method;
  * certain behaviors of wrapped Android objects that aren't fully specified by AWT's implementation
  * contract.
  */
+@SuppressWarnings("MagicNumber")
 public final class SkinJob {
 
   /**
@@ -35,7 +36,7 @@ public final class SkinJob {
    * BasicStroke#BasicStroke(float, int, int, float)} when called from another constructor that
    * doesn't take that parameter. OpenJDK AWT uses 10.0f.
    */
-  @SuppressWarnings("MagicNumber") public static final float defaultMiterLimit = 10.0f;
+  public static final float defaultMiterLimit = 10.0f;
 
   /**
    * Since Android only recognizes normal and bold, font weights greater than or equal to this
@@ -53,7 +54,7 @@ public final class SkinJob {
    * component in front of the other component, as a multiple of
    * {@link android.util.DisplayMetrics#density}.
    */
-  @SuppressWarnings("MagicNumber") public static final float layerZSpacing = 100.0f;
+  public static final float layerZSpacing = 100.0f;
   public static final View menuDivider;
   public static final int menuTextColor = systemResources.getColor(
       color.primary_text_dark,
@@ -73,9 +74,10 @@ public final class SkinJob {
    * text where a lot of characters have high code-point values (e.g. those in non-Latin alphabets).
    * Should never exceed 0x10FFFD, since that's the highest Unicode point. OpenJDK AWT uses 256.
    */
-  @SuppressWarnings("MagicNumber") public static volatile int precomputedCharacterWidthArraySize
-      = 256;
-  public static int defaultDragThreshold = 5;
+  public static volatile int precomputedCharacterWidthArraySize = 256;
+  public static volatile int defaultDragThreshold = 5;
+  public static volatile int defaultFontSize = 12;
+  public static volatile Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, defaultFontSize);
 
   static {
     Context context = getAndroidApplicationContext();

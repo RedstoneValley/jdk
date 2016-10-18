@@ -491,6 +491,7 @@ public class Font implements Serializable {
     androidPaint = new Paint();
     androidPaint.setTypeface(typeface);
     androidPaint.setTextSize(size);
+    values = new AttributeValues();
   }
 
   /* used to implement Font.createFont */
@@ -849,7 +850,7 @@ public class Font implements Serializable {
   public static Font decode(String str) {
     String fontName;
     String styleName;
-    int fontSize = 12;
+    int fontSize = SkinJob.defaultFontSize;
     int fontStyle = PLAIN;
 
     if (str == null) {

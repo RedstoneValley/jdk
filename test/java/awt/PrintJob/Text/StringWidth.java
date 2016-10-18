@@ -21,7 +21,12 @@
  * questions.
  */
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.PrintJob;
 import java.util.Properties;
 
 public class StringWidth extends Frame {
@@ -29,8 +34,8 @@ public class StringWidth extends Frame {
   private static final long serialVersionUID = -1894237269619198704L;
 
   public StringWidth() {
-    Font plain = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 10);
-    Font bold = new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 10);
+    Font plain = new Font(Font.DIALOG, Font.PLAIN, 10);
+    Font bold = new Font(Font.DIALOG, Font.BOLD, 10);
     Properties props = new Properties();
     int x, y;
 

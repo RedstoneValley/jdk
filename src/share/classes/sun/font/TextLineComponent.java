@@ -12,6 +12,10 @@ import java.awt.geom.Rectangle2D;
  * Created by cryoc on 2016-10-15.
  */
 public class TextLineComponent {
+  public static final int LEFT_TO_RIGHT = 1;
+  public static final int RIGHT_TO_LEFT = -1;
+  public static final int UNCHANGED = 0;
+
   public boolean isSimple() {
     // TODO
     return false;
@@ -106,5 +110,15 @@ public class TextLineComponent {
       totalAdvance += getCharAdvance(i);
     }
     return totalAdvance;
+  }
+
+  public int getLineBreakIndex(int i, float width) {
+    // TODO
+    return 0;
+  }
+
+  public TextLineComponent getSubset(int i, int i1, int subsetFlag) {
+    // TODO
+    return null;
   }
 }

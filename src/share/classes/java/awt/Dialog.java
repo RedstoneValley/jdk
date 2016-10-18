@@ -105,7 +105,7 @@ public class Dialog extends Window {
    * @since 1.6
    */
   public static final ModalityType DEFAULT_MODALITY_TYPE = ModalityType.APPLICATION_MODAL;
-  static final String base = "dialog";
+  public static final String base = "dialog";
   /*
    * JDK 1.1 serialVersionUID
    */

@@ -47,6 +47,7 @@ final class SerializationTester {
         }
       });
     } catch (IOException cannotHappen) {
+      throw new RuntimeException(cannotHappen);
     }
   }
 

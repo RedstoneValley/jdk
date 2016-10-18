@@ -65,6 +65,7 @@ final class LCMSProfile extends Profile {
 
     static byte[] getTagNative(long profileID, int signature) {
       // TODO: Native in OpenJDK AWT
+      return new byte[0];
     }
 
     TagData getTag(int sig) {

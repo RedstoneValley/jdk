@@ -31,9 +31,17 @@
   @run main MTGraphicsAccessTest
  */
 
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.geom.*;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.Paint;
+import java.awt.RenderingHints;
+import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 
 public class MTGraphicsAccessTest {
 
@@ -57,8 +65,8 @@ public class MTGraphicsAccessTest {
         Color.red, new Color(0x7f, 0xff, 0x00, 0x7f),
         new GradientPaint(0, 0, Color.red, 50, 50, new Color(0x7f, 0xff, 0x00, 0x7f)),};
     static final Font[] fonts = {
-        new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.PLAIN, 12), new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.BOLD, 16),
-        new Font(OwnedWindowsSerialization.DIALOG_LABEL, Font.ITALIC, 18),};
+        new Font(Font.DIALOG, Font.PLAIN, 12), new Font(Font.DIALOG, Font.BOLD, 16),
+        new Font(Font.DIALOG, Font.ITALIC, 18),};
     static final AlphaComposite[] comps = {
         AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f), AlphaComposite.Src,
         AlphaComposite.Xor, AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f), null,};

@@ -27,7 +27,12 @@
  * @summary Tests creating page format from attributes
  * @run main PageFormatFromAttributes
  */
-import java.awt.print.*;
+
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.print.PrintRequestAttributeSet;
+import java.awt.print.PrinterJob;
+import sun.awt.print.PrintService;
 
 public final class PageFormatFromAttributes {
 

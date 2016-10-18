@@ -85,7 +85,7 @@ public class StandardGlyphVector extends GlyphVector {
 
   private void append(char c) {
     spannableString.append(c);
-    Point2D newCharPosition;
+    Point2D newCharPosition = null;
     // TODO
     glyphPositions.add(newCharPosition);
   }

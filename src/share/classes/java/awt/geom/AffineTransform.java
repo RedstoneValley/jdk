@@ -1056,9 +1056,6 @@ public class AffineTransform implements Cloneable, Serializable {
    */
   public double getDeterminant() {
     switch (state) {
-      case APPLY_SHEAR | APPLY_SCALE | APPLY_TRANSLATE:
-      case APPLY_SHEAR | APPLY_SCALE:
-        return m00 * m11 - m01 * m10;
       case APPLY_SHEAR | APPLY_TRANSLATE:
       case APPLY_SHEAR:
         return -(m01 * m10);
@@ -1069,7 +1066,7 @@ public class AffineTransform implements Cloneable, Serializable {
       case APPLY_IDENTITY:
         return 1.0;
       default:
-        stateError();
+        return m00 * m11 - m01 * m10;
     }
   }
 

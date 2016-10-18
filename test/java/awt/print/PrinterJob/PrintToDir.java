@@ -26,12 +26,32 @@
    @run main PrintToDir
    @summary Must throw exception when printing to an invalid filename - a dir.
 */
+
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.JobAttributes;
 import java.awt.JobAttributes.DestinationType;
-import java.io.*;
-import java.net.*;
-import java.awt.*;
-import java.awt.print.*;
+import java.awt.Label;
+import java.awt.PageAttributes;
+import java.awt.Panel;
+import java.awt.PrintJob;
+import java.awt.Shape;
+import java.awt.TextField;
+import java.awt.Toolkit;
+import java.awt.print.PageFormat;
+import java.awt.print.PrintRequestAttributeSet;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.FilePermission;
+import java.net.URI;
 import java.util.PropertyPermission;
+import sun.awt.print.PrintService;
 
 public class PrintToDir extends Frame implements Printable {
 

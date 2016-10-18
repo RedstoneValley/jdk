@@ -47,6 +47,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.RenderingHints.Key;
 import java.awt.Shape;
+import java.awt.SkinJob;
 import java.awt.Stroke;
 import java.awt.TexturePaint;
 import java.awt.Transparency;
@@ -161,7 +162,10 @@ public final class SunGraphics2D extends Graphics2D
       | AffineTransform.TYPE_GENERAL_SCALE;
   static final int NON_RECTILINEAR_TRANSFORM_MASK = AffineTransform.TYPE_GENERAL_TRANSFORM
       | AffineTransform.TYPE_GENERAL_ROTATION;
-  private static final Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+  private static final Font defaultFont = new Font(
+      Font.DIALOG,
+      Font.PLAIN,
+      SkinJob.defaultFontSize);
   private static final int slowTextTransformMask = AffineTransform.TYPE_GENERAL_TRANSFORM
       | AffineTransform.TYPE_MASK_ROTATION | TYPE_FLIP;
   private static final double[] IDENT_MATRIX = {1, 0, 0, 1};

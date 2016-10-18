@@ -33,6 +33,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import sun.java2d.opengl.ThreadGroupUtils;
 
 /**
  * This class is used for registering and disposing the native
@@ -54,7 +55,7 @@ public class Disposer implements Runnable {
   private static final ReferenceQueue queue = new ReferenceQueue();
   private static final Hashtable records = new Hashtable();
   private static final Disposer disposerInstance;
-  public static final int refType = PHANTOM;
+  public static int refType = PHANTOM;
   /*
    * Set to indicate the queue is presently being polled.
    */
@@ -99,18 +100,6 @@ public class Disposer implements Runnable {
   /**
    * Registers the object and the native data for later disposal.
    *
-   * @param target        Object to be registered
-   * @param disposeMethod pointer to the native disposal method
-   * @param pData         pointer to the data to be passed to the
-   *                      native disposal method
-   */
-  public static void addRecord(Object target, long disposeMethod, long pData) {
-    disposerInstance.add(target, new DefaultDisposerRecord(disposeMethod, pData));
-  }
-
-  /**
-   * Registers the object and the native data for later disposal.
-   *
    * @param target Object to be registered
    * @param rec    the associated DisposerRecord object
    * @see DisposerRecord
@@ -132,65 +121,6 @@ public class Disposer implements Runnable {
       }
     }
     deferredRecords.clear();
-  }
-
-  /*
-   * The pollRemove() method is called back from a dispose method
-   * that is running on the toolkit thread and wants to
-   * dispose any pending refs that are safe to be disposed
-   * on that thread.
-   */
-  public static void pollRemove() {
-
-        /* This should never be called recursively, so this check
-         * is just a safeguard against the unexpected.
-         */
-    if (pollingQueue) {
-      return;
-    }
-    Object obj;
-    pollingQueue = true;
-    int freed = 0;
-    int deferred = 0;
-    try {
-      while ((obj = queue.poll()) != null && freed < 10000 && deferred < 100) {
-        freed++;
-        ((Reference) obj).clear();
-        DisposerRecord rec = (DisposerRecord) records.remove(obj);
-        if (rec instanceof PollDisposable) {
-          rec.dispose();
-        } else {
-          if (rec == null) { // shouldn't happen, but just in case.
-            continue;
-          }
-          deferred++;
-          if (deferredRecords == null) {
-            deferredRecords = new ArrayList<>(5);
-          }
-          deferredRecords.add(rec);
-        }
-      }
-    } catch (Exception e) {
-      System.out.println("Exception while removing reference.");
-    } finally {
-      pollingQueue = false;
-    }
-  }
-
-  /*
-   * This was added for use by the 2D font implementation to avoid creation
-   * of an additional disposer thread.
-   * WARNING: this thread class monitors a specific queue, so a reference
-   * added here must have been created with this queue. Failure to do
-   * so will clutter the records hashmap and no one will be cleaning up
-   * the reference queue.
-   */
-  public static void addReference(Reference ref, DisposerRecord rec) {
-    records.put(ref, rec);
-  }
-
-  public static void addObjectRecord(Object obj, DisposerRecord rec) {
-    records.put(new WeakReference(obj, queue), rec);
   }
 
   /* This is intended for use in conjunction with addReference(..)
@@ -231,14 +161,5 @@ public class Disposer implements Runnable {
         System.out.println("Exception while removing reference.");
       }
     }
-  }
-
-  /*
-   * This is a marker interface that, if implemented, means it
-   * doesn't acquire any special locks, and is safe to
-   * be disposed in the poll loop on whatever thread
-   * which happens to be the Toolkit thread, is in use.
-   */
-  public interface PollDisposable {
   }
 }

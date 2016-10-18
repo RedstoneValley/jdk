@@ -12,4 +12,9 @@ public class FontDesignMetrics {
     // TODO
     return null;
   }
+
+  public static FontMetrics getMetrics(Font font) {
+    // TODO
+    return null;
+  }
 }

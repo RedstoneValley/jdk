@@ -1,5 +1,8 @@
 package java.awt;
 
+import static android.os.Process.myPid;
+import static android.os.Process.myUid;
+
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -42,7 +45,7 @@ class SkinJobDesktopPeer implements DesktopPeer {
     Uri fileUri = Uri.fromFile(file);
     FileInputStream fileInputStream = new FileInputStream(file);
     try {
-      String mime = URLConnection.guessContentTypeFromStream();
+      String mime = URLConnection.guessContentTypeFromStream(fileInputStream);
       if (mime == null) {
         mime = URLConnection.guessContentTypeFromName(file.getName());
       }
@@ -55,10 +58,12 @@ class SkinJobDesktopPeer implements DesktopPeer {
 
   @Override
   public boolean isSupported(Action action) {
+    int myPid = myPid();
+    int myUid = myUid();
     if (action == Action.PRINT) {
-      return ContextCompat.checkSelfPermission(androidContext, permission.INTERNET)
+      return androidContext.checkPermission(permission.READ_CONTACTS, myPid, myUid)
           == PackageManager.PERMISSION_GRANTED
-          && ContextCompat.checkSelfPermission(androidContext, permission.READ_CONTACTS)
+          && androidContext.checkPermission(permission.INTERNET, myPid, myUid)
           == PackageManager.PERMISSION_GRANTED;
     }
     return true;

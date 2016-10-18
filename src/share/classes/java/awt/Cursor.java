@@ -318,15 +318,9 @@ public class Cursor implements Serializable {
       }
 
       try {
-
-        cursor = AccessController.doPrivileged(new PrivilegedExceptionAction<Cursor>() {
-          @Override
-          public Cursor run() throws Exception {
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
-            Image image = toolkit.getImage(systemCustomCursorDirPrefix + fileName);
-            return toolkit.createCustomCursor(image, new Point(x, y), localized);
-          }
-        });
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Image image = toolkit.getImage(systemCustomCursorDirPrefix + fileName);
+        cursor = toolkit.createCustomCursor(image, new Point(x, y), localized);
       } catch (Exception e) {
         throw new AWTException("Exception: " + e.getClass() + " " + e.getMessage() +
             " occurred while creating cursor " + name);

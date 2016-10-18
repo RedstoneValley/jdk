@@ -28,7 +28,9 @@
  * @run main/manual PageFormatChange
  */
 
-import java.awt.print.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterJob;
+import sun.awt.print.PrintService;
 
 public final class PageFormatChange {
 

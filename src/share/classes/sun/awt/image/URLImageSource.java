@@ -25,15 +25,12 @@
 
 package sun.awt.image;
 
-import java.io.FilePermission;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.SocketPermission;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.Permission;
 
 public class URLImageSource extends InputStreamImageSource {
   URL url;
@@ -42,30 +39,6 @@ public class URLImageSource extends InputStreamImageSource {
   int actualPort;
 
   public URLImageSource(URL u) {
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      try {
-        Permission perm = URLUtil.getConnectPermission(u);
-        if (perm != null) {
-          try {
-            sm.checkPermission(perm);
-          } catch (SecurityException se) {
-            // fallback to checkRead/checkConnect for pre 1.2
-            // security managers
-            if (perm instanceof FilePermission && perm.getActions().contains("read")) {
-              sm.checkRead(perm.getName());
-            } else if (perm instanceof SocketPermission
-                && perm.getActions().contains("connect")) {
-              sm.checkConnect(u.getHost(), u.getPort());
-            } else {
-              throw se;
-            }
-          }
-        }
-      } catch (IOException ioe) {
-        sm.checkConnect(u.getHost(), u.getPort());
-      }
-    }
     url = u;
   }
 

@@ -13,7 +13,7 @@ public class CoreMetrics {
   public final float[] baselineOffsets;
   public final float ssOffset;
   public final float italicAngle;
-  private final float height;
+  public final float height;
   private final float strikethroughOffset;
   private final float strikethroughThickness;
   private final float underlineOffset;

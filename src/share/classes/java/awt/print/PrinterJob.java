@@ -31,6 +31,10 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.awt.DocFlavor;
 import sun.awt.PrintServiceLookup;
+import sun.awt.print.Media;
+import sun.awt.print.MediaPrintableArea;
+import sun.awt.print.OrientationRequested;
+import sun.awt.print.PrintService;
 
 /**
  * The {@code PrinterJob} class is the principal class that controls
@@ -39,6 +43,7 @@ import sun.awt.PrintServiceLookup;
  * the pages of the job.
  */
 public abstract class PrinterJob {
+  protected static final float POINTS_PER_INCH = 72.0f;
 
  /* Public Class Methods */
 
@@ -431,13 +436,10 @@ public abstract class PrinterJob {
       }
     }
 
-    if (media != null && service.isAttributeValueSupported(media, null, attributes)) {
-    }
-
     if (mpa != null && service.isAttributeValueSupported(mpa, null, attributes)) {
       float[] printableArea = mpa.getPrintableArea(MediaPrintableArea.INCH);
       for (int i = 0; i < printableArea.length; i++) {
-        printableArea[i] *= 72.0f;
+        printableArea[i] *= POINTS_PER_INCH;
       }
       paper.setImageableArea(printableArea[0],
           printableArea[1],

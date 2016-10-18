@@ -12,4 +12,9 @@ public class GraphicComponent extends TextLineComponent {
       int pos, int chunkLimit, AffineTransform baseRot) {
     // TODO
   }
+
+  public static CoreMetrics createCoreMetrics(GraphicAttribute graphic) {
+    // TODO
+    return null;
+  }
 }

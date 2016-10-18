@@ -1,8 +1,12 @@
 package sun.font;
 
+import java.awt.font.NumericShaper;
+import java.awt.font.NumericShaper.Range;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.text.AttributedCharacterIterator.Attribute;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by cryoc on 2016-10-11.
@@ -116,5 +120,15 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
   public int getBidiEmbedding() {
     // TODO
     return 0;
+  }
+
+  public static float getJustification(Map<? extends Attribute, ?> paragraphAttrs) {
+    Float justification = (Float) paragraphAttrs.get(TextAttribute.JUSTIFICATION);
+    return justification == null ? TextAttribute.JUSTIFICATION_NONE : justification;
+  }
+
+  public static NumericShaper getNumericShaping(Map<? extends Attribute, ?> paragraphAttrs) {
+    NumericShaper shaping = (NumericShaper) paragraphAttrs.get(TextAttribute.NUMERIC_SHAPING);
+    return shaping == null ? NumericShaper.getShaper(Range.EUROPEAN) : shaping;
   }
 }
