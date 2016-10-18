@@ -78,6 +78,7 @@ import sun.awt.image.MultiResolutionImage;
 import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.SurfaceManager;
 import sun.awt.image.ToolkitImage;
+import sun.font.FontDesignMetrics;
 import sun.java2d.loops.Blit;
 import sun.java2d.loops.CompositeType;
 import sun.java2d.loops.FontInfo;
@@ -111,41 +112,41 @@ public final class SunGraphics2D extends Graphics2D
      * Attribute States
      */
     /* Paint */
-  @Native public static final int PAINT_CUSTOM = 6; /* Any other Paint object */
-  @Native public static final int PAINT_TEXTURE = 5; /* Tiled Image */
-  @Native public static final int PAINT_RAD_GRADIENT = 4; /* Color RadialGradient */
-  @Native public static final int PAINT_LIN_GRADIENT = 3; /* Color LinearGradient */
-  @Native public static final int PAINT_GRADIENT = 2; /* Color Gradient */
-  @Native public static final int PAINT_ALPHACOLOR = 1; /* Non-opaque Color */
-  @Native public static final int PAINT_OPAQUECOLOR = 0; /* Opaque Color */
+  public static final int PAINT_CUSTOM = 6; /* Any other Paint object */
+  public static final int PAINT_TEXTURE = 5; /* Tiled Image */
+  public static final int PAINT_RAD_GRADIENT = 4; /* Color RadialGradient */
+  public static final int PAINT_LIN_GRADIENT = 3; /* Color LinearGradient */
+  public static final int PAINT_GRADIENT = 2; /* Color Gradient */
+  public static final int PAINT_ALPHACOLOR = 1; /* Non-opaque Color */
+  public static final int PAINT_OPAQUECOLOR = 0; /* Opaque Color */
 
   /* Composite*/
-  @Native public static final int COMP_CUSTOM = 3;/* Custom Composite */
-  @Native public static final int COMP_XOR = 2;/* XOR Mode Composite */
-  @Native public static final int COMP_ALPHA = 1;/* AlphaComposite */
-  @Native public static final int COMP_ISCOPY = 0;/* simple stores into destination,
+  public static final int COMP_CUSTOM = 3;/* Custom Composite */
+  public static final int COMP_XOR = 2;/* XOR Mode Composite */
+  public static final int COMP_ALPHA = 1;/* AlphaComposite */
+  public static final int COMP_ISCOPY = 0;/* simple stores into destination,
                                              * i.e. Src, SrcOverNoEa, and other
                                              * alpha modes which replace
                                              * the destination.
                                              */
 
   /* Stroke */
-  @Native public static final int STROKE_CUSTOM = 3; /* custom Stroke */
-  @Native public static final int STROKE_WIDE = 2; /* BasicStroke */
-  @Native public static final int STROKE_THINDASHED = 1; /* BasicStroke */
-  @Native public static final int STROKE_THIN = 0; /* BasicStroke */
+  public static final int STROKE_CUSTOM = 3; /* custom Stroke */
+  public static final int STROKE_WIDE = 2; /* BasicStroke */
+  public static final int STROKE_THINDASHED = 1; /* BasicStroke */
+  public static final int STROKE_THIN = 0; /* BasicStroke */
 
   /* Transform */
-  @Native public static final int TRANSFORM_GENERIC = 4; /* any 3x2 */
-  @Native public static final int TRANSFORM_TRANSLATESCALE = 3; /* scale XY */
-  @Native public static final int TRANSFORM_ANY_TRANSLATE = 2; /* non-int translate */
-  @Native public static final int TRANSFORM_INT_TRANSLATE = 1; /* int translate */
-  @Native public static final int TRANSFORM_ISIDENT = 0; /* Identity */
+  public static final int TRANSFORM_GENERIC = 4; /* any 3x2 */
+  public static final int TRANSFORM_TRANSLATESCALE = 3; /* scale XY */
+  public static final int TRANSFORM_ANY_TRANSLATE = 2; /* non-int translate */
+  public static final int TRANSFORM_INT_TRANSLATE = 1; /* int translate */
+  public static final int TRANSFORM_ISIDENT = 0; /* Identity */
 
   /* Clipping */
-  @Native public static final int CLIP_SHAPE = 2; /* arbitrary clip */
-  @Native public static final int CLIP_RECTANGULAR = 1; /* rectangular clip */
-  @Native public static final int CLIP_DEVICE = 0; /* no clipping set */
+  public static final int CLIP_SHAPE = 2; /* arbitrary clip */
+  public static final int CLIP_RECTANGULAR = 1; /* rectangular clip */
+  public static final int CLIP_DEVICE = 0; /* no clipping set */
   public static final double MinPenSizeAA = RenderingEngine.getInstance().getMinimumAAPenSize();
   public static final double MinPenSizeAASquared = MinPenSizeAA * MinPenSizeAA;
   // Since inaccuracies in the trig package can cause us to
@@ -171,12 +172,6 @@ public final class SunGraphics2D extends Graphics2D
   private static final double[][] textTxArr = new double[TEXTARRSIZE][];
   private static final AffineTransform[] textAtArr = new AffineTransform[TEXTARRSIZE];
   protected static final ValidatePipe invalidpipe = new ValidatePipe();
-
-  static {
-    if (PerformanceLogger.loggingEnabled()) {
-      PerformanceLogger.setTime("SunGraphics2D static initialization");
-    }
-  }
 
   static {
     for (int i = MINALLOCATED; i < TEXTARRSIZE; i++) {
@@ -455,14 +450,8 @@ public final class SunGraphics2D extends Graphics2D
   }
 
   public static ImageObserver getResolutionVariantObserver(
-      Image image, ImageObserver observer, int imgWidth, int imgHeight, int rvWidth, int rvHeight) {
-    return MultiResolutionToolkitImage.getResolutionVariantObserver(image,
-        observer,
-        imgWidth,
-        imgHeight,
-        rvWidth,
-        rvHeight,
-        false);
+      Image image, ImageObserver observer) {
+    return MultiResolutionToolkitImage.getResolutionVariantObserver(image, observer, false);
   }
 
   @Override
@@ -3295,7 +3284,7 @@ public final class SunGraphics2D extends Graphics2D
       if (resolutionVariant != img && resolutionVariant != null) {
         // recalculate source region for the resolution variant
 
-        ImageObserver rvObserver = getResolutionVariantObserver(img, observer, width, height, -1, -1);
+        ImageObserver rvObserver = getResolutionVariantObserver(img, observer);
 
         int rvWidth = resolutionVariant.getWidth(rvObserver);
         int rvHeight = resolutionVariant.getHeight(rvObserver);

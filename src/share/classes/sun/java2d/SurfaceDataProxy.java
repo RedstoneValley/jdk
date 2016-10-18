@@ -29,7 +29,6 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-import java.security.AccessController;
 import sun.awt.DisplayChangedListener;
 import sun.awt.image.SurfaceManager.FlushableCacheData;
 import sun.java2d.StateTrackable.State;
@@ -100,15 +99,14 @@ public abstract class SurfaceDataProxy implements DisplayChangedListener, Flusha
 
   static {
     cachingAllowed = true;
-    String manimg
-        = AccessController.doPrivileged(new GetPropertyAction("sun.java2d.managedimages"));
+    String manimg = System.getProperty("sun.java2d.managedimages");
     if ("false".equals(manimg)) {
       cachingAllowed = false;
       System.out.println("Disabling managed images");
     }
 
     defaultThreshold = 1;
-    String num = AccessController.doPrivileged(new GetPropertyAction("sun.java2d.accthreshold"));
+    String num = System.getProperty("sun.java2d.accthreshold");
     if (num != null) {
       try {
         int parsed = Integer.parseInt(num);

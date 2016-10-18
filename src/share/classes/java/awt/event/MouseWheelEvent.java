@@ -104,7 +104,7 @@ public class MouseWheelEvent extends MouseEvent {
    *
    * @see #getScrollType
    */
-  @Native public static final int WHEEL_UNIT_SCROLL = 0;
+  public static final int WHEEL_UNIT_SCROLL = 0;
 
   /**
    * Constant representing scrolling by a "block" (like scrolling
@@ -112,7 +112,7 @@ public class MouseWheelEvent extends MouseEvent {
    *
    * @see #getScrollType
    */
-  @Native public static final int WHEEL_BLOCK_SCROLL = 1;
+  public static final int WHEEL_BLOCK_SCROLL = 1;
   private static final long serialVersionUID = 6459879390515399677L;
   /**
    * Indicates what sort of scrolling should take place in response to this

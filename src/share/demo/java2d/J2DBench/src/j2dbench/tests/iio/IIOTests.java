@@ -155,7 +155,7 @@ public abstract class IIOTests extends Test {
         g.dispose();
         break;
       }
-      case CONTENT_PHOTO: {
+      case CONTENT_PHOTO:
         Image photo = null;
         try {
           photo = Toolkit
@@ -172,7 +172,6 @@ public abstract class IIOTests extends Test {
         g.drawImage(photo, 0, 0, width, height, null);
         g.dispose();
         break;
-      }
       default:  // CONTENT_BLANK
         // leave the image empty
         break;

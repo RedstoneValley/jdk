@@ -32,17 +32,12 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.awt.peer.ComponentPeer;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.TreeMap;
@@ -67,52 +62,34 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
   protected final SunDisplayChanger displayChanger = new SunDisplayChanger();
 
   public SunGraphicsEnvironment() {
-    AccessController.doPrivileged(new PrivilegedAction() {
-      @Override
-      public Object run() {
-        String version = System.getProperty(OSInfo.OS_VERSION, "0.0");
-        try {
-          float ver = Float.parseFloat(version);
-          if (ver > 5.10f) {
-            File f = new File("/etc/release");
-            FileInputStream fis = new FileInputStream(f);
-            InputStreamReader isr = new InputStreamReader(fis, "ISO-8859-1");
-            BufferedReader br = new BufferedReader(isr);
-            String line = br.readLine();
-            if (line.contains("OpenSolaris")) {
-              isOpenSolaris = true;
-            } else {
-                                /* We are using isOpenSolaris as meaning
-                                 * we know the Solaris commercial fonts aren't
-                                 * present. "Solaris Next" (03/10) did not
-                                 * include these even though its was not
-                                 * OpenSolaris. Need to revisit how this is
-                                 * handled but for now as in 6ux, we'll use
-                                 * the test for a standard font resource as
-                                 * being an indicator as to whether we need
-                                 * to treat this as OpenSolaris from a font
-                                 * config perspective.
-                                 */
-              String courierNew = "/usr/openwin/lib/X11/fonts/TrueType/CourierNew.ttf";
-              File courierFile = new File(courierNew);
-              isOpenSolaris = !courierFile.exists();
-            }
-            fis.close();
-          }
-        } catch (Exception e) {
+    String version = System.getProperty(OSInfo.OS_VERSION, "0.0");
+    try {
+      float ver = Float.parseFloat(version);
+      if (ver > 5.10f) {
+        File f = new File("/etc/release");
+        FileInputStream fis = new FileInputStream(f);
+        InputStreamReader isr = new InputStreamReader(fis, "ISO-8859-1");
+        BufferedReader br = new BufferedReader(isr);
+        String line = br.readLine();
+        if (line.contains("OpenSolaris")) {
+          isOpenSolaris = true;
+        } else {
+          /* We are using isOpenSolaris as meaning we know the Solaris commercial fonts aren't
+           * present. "Solaris Next" (03/10) did not include these even though its was not
+           * OpenSolaris. Need to revisit how this is handled but for now as in 6ux, we'll use
+           * the test for a standard font resource as being an indicator as to whether we need
+           * to treat this as OpenSolaris from a font config perspective.
+           */
+          String courierNew = "/usr/openwin/lib/X11/fonts/TrueType/CourierNew.ttf";
+          File courierFile = new File(courierNew);
+          isOpenSolaris = !courierFile.exists();
         }
-
-                /* Establish the default font to be used by SG2D etc */
-        defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
-
-        return null;
+        fis.close();
       }
-    });
-  }
-
-  public static FontManagerForSGE getFontManagerForSGE() {
-    FontManager fm = FontManager.getInstance();
-    return (FontManagerForSGE) fm;
+    } catch (Exception e) {
+    }
+    /* Establish the default font to be used by SG2D etc */
+    defaultFont = new Font(Font.DIALOG, Font.PLAIN, 12);
   }
 
   /* Modifies the behaviour of a subsequent call to preferLocaleFonts()
@@ -123,7 +100,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    * ITS USED BY SOME NON-JRE INTERNAL CODE.
    */
   public static void useAlternateFontforJALocales() {
-    getFontManagerForSGE().useAlternateFontforJALocales();
+    FontManager.getInstance().useAlternateFontforJALocales();
   }
 
   /**
@@ -175,7 +152,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    */
   @Override
   public Font[] getAllFonts() {
-    FontManagerForSGE fm = getFontManagerForSGE();
+    FontManager fm = FontManager.getInstance();
     Font[] installedFonts = fm.getAllInstalledFonts();
     Font[] created = fm.getCreatedFonts();
     if (created == null || created.length == 0) {
@@ -195,7 +172,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
 
   @Override
   public String[] getAvailableFontFamilyNames(Locale requestedLocale) {
-    FontManagerForSGE fm = getFontManagerForSGE();
+    FontManager fm = FontManager.getInstance();
     String[] installed = fm.getInstalledFontFamilyNames(requestedLocale);
         /* Use a new TreeMap as used in getInstalledFontFamilyNames
          * and insert all the keys in lower case, so that the sort order
@@ -270,13 +247,6 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
      */
 
   /**
-   * Returns true when the display is local, false for remote displays.
-   *
-   * @return true when the display is local, false for remote displays
-   */
-  public abstract boolean isDisplayLocal();
-
-  /**
    * Add a DisplayChangeListener to be notified when the display settings
    * are changed.
    */
@@ -284,14 +254,7 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
     displayChanger.add(client);
   }
 
-  /**
-   * Remove a DisplayChangeListener from Win32GraphicsEnvironment
-   */
-  public void removeDisplayChangedListener(DisplayChangedListener client) {
-    displayChanger.remove(client);
-  }
-
-    /*
+  /*
      * ----END DISPLAY CHANGE SUPPORT----
      */
 

@@ -24,8 +24,6 @@
  */
 package java.awt;
 
-import android.content.Context;
-import android.view.View;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.peer.ChoicePeer;
@@ -81,8 +79,7 @@ public class Choice extends Component implements ItemSelectable {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-        /* initialize JNI field and method ids */
+    /* initialize JNI field and method ids */
   }
 
   /*

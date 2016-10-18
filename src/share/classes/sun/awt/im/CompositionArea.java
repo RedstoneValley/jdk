@@ -54,7 +54,7 @@ import java.text.AttributedCharacterIterator;
  */
 
 // This class is final due to the 6607310 fix. Refer to the CR for details.
-public final class CompositionArea extends JPanel implements InputMethodListener {
+public final class CompositionArea implements InputMethodListener {
 
   private static final int TEXT_ORIGIN_X = 5;
   private static final int TEXT_ORIGIN_Y = 15;

@@ -227,7 +227,7 @@ public class Font implements Serializable {
    *
    * @since 1.6
    */
-  public static final String DIALOG = OwnedWindowsSerialization.DIALOG_LABEL;
+  public static final String DIALOG = "Dialog";
   /**
    * A String constant for the canonical family name of the
    * logical font "DialogInput". It is useful in Font construction
@@ -350,7 +350,7 @@ public class Font implements Serializable {
   private static final long serialVersionUID = -4206021311591459213L;
   private static final float[] ssinfo = {
       0.0f, 0.375f, 0.625f, 0.7916667f, 0.9027778f, 0.9768519f, 1.0262346f, 1.0591564f,};
-  private transient final AttributeValues values;
+  private final transient AttributeValues values;
   /**
    * The {@code Font} Serializable Data Form.
    *
@@ -2357,5 +2357,9 @@ public class Font implements Serializable {
     StandardGlyphVector gv = gl.layout(this, frc, text, start, limit - start, flags, null);
     GlyphLayout.done(gl);
     return gv;
+  }
+
+  public boolean isCreated() {
+    return createdFont;
   }
 }

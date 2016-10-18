@@ -64,7 +64,7 @@ public interface PathIterator {
    * path if a ray drawn in any direction from that point to
    * infinity is crossed by path segments an odd number of times.
    */
-  @Native int WIND_EVEN_ODD = 0;
+  int WIND_EVEN_ODD = 0;
 
   /**
    * The winding rule constant for specifying a non-zero rule
@@ -75,20 +75,20 @@ public interface PathIterator {
    * of times in the counter-clockwise direction than the
    * clockwise direction.
    */
-  @Native int WIND_NON_ZERO = 1;
+  int WIND_NON_ZERO = 1;
 
   /**
    * The segment type constant for a point that specifies the
    * starting location for a new subpath.
    */
-  @Native int SEG_MOVETO = 0;
+  int SEG_MOVETO = 0;
 
   /**
    * The segment type constant for a point that specifies the
    * end point of a line to be drawn from the most recently
    * specified point.
    */
-  @Native int SEG_LINETO = 1;
+  int SEG_LINETO = 1;
 
   /**
    * The segment type constant for the pair of points that specify
@@ -110,7 +110,7 @@ public interface PathIterator {
    *               = n! / (m! * (n-m)!)
    * </pre>
    */
-  @Native int SEG_QUADTO = 2;
+  int SEG_QUADTO = 2;
 
   /**
    * The segment type constant for the set of 3 points that specify
@@ -134,14 +134,14 @@ public interface PathIterator {
    * </pre>
    * This form of curve is commonly known as a B&eacute;zier curve.
    */
-  @Native int SEG_CUBICTO = 3;
+  int SEG_CUBICTO = 3;
 
   /**
    * The segment type constant that specifies that
    * the preceding subpath should be closed by appending a line segment
    * back to the point corresponding to the most recent SEG_MOVETO.
    */
-  @Native int SEG_CLOSE = 4;
+  int SEG_CLOSE = 4;
 
   /**
    * Returns the winding rule for determining the interior of the

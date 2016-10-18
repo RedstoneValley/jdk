@@ -153,7 +153,6 @@ public class Dimension extends Dimension2D implements Serializable {
    * @see Component#getSize
    * @since 1.1
    */
-  @Transient
   public Dimension getSize() {
     return new Dimension(width, height);
   }

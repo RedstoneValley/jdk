@@ -149,67 +149,14 @@ abstract class InputMethodPopupMenu implements ActionListener {
   }
 }
 
-class JInputMethodPopupMenu extends InputMethodPopupMenu {
-  static JPopupMenu delegate;
-
-  synchronized JInputMethodPopupMenu(String title) {
-    if (delegate == null) {
-      delegate = new JPopupMenu(title);
-    }
-  }
-
-  @Override
-  void show(Component c, int x, int y) {
-    delegate.show(c, x, y);
-  }
-
-  @Override
-  void removeAll() {
-    delegate.removeAll();
-  }
-
-  @Override
-  void addSeparator() {
-    delegate.addSeparator();
-  }
-
-  @Override
-  void addToComponent(Component c) {
-  }
-
-  @Override
-  Object createSubmenu(String label) {
-    return new JMenu(label);
-  }
-
-  @Override
-  void add(Object menuItem) {
-    delegate.add((JMenuItem) menuItem);
-  }
-
-  @Override
-  void addMenuItem(String label, String command, String currentSelection) {
-    addMenuItem(delegate, label, command, currentSelection);
-  }
-
-  @Override
-  void addMenuItem(Object targetMenu, String label, String command, String currentSelection) {
-    JMenuItem menuItem;
-    menuItem = isSelected(command, currentSelection) ? new JCheckBoxMenuItem(label, true)
-        : new JMenuItem(label);
-    menuItem.setActionCommand(command);
-    menuItem.addActionListener(this);
-    menuItem.setEnabled(command != null);
-    ((JPopupMenu) targetMenu).add(menuItem);
-  }
-}
-
 class AWTInputMethodPopupMenu extends InputMethodPopupMenu {
   static PopupMenu delegate;
 
-  synchronized AWTInputMethodPopupMenu(String title) {
-    if (delegate == null) {
-      delegate = new PopupMenu(title);
+  AWTInputMethodPopupMenu(String title) {
+    synchronized (AWTInputMethodPopupMenu.class) {
+      if (delegate == null) {
+        delegate = new PopupMenu(title);
+      }
     }
   }
 

@@ -563,294 +563,6 @@ public final class PageAttributes implements Cloneable {
    * @since 1.3
    */
   public static final class MediaType extends AttributeValue {
-    /**
-     * An alias for ISO_A0.
-     */
-    public static final MediaType A0 = ISO_A0;
-    /**
-     * An alias for ISO_A1.
-     */
-    public static final MediaType A1 = ISO_A1;
-    /**
-     * An alias for ISO_A2.
-     */
-    public static final MediaType A2 = ISO_A2;
-    /**
-     * An alias for ISO_A3.
-     */
-    public static final MediaType A3 = ISO_A3;
-    /**
-     * An alias for ISO_A4.
-     */
-    public static final MediaType A4 = ISO_A4;
-    /**
-     * An alias for ISO_A5.
-     */
-    public static final MediaType A5 = ISO_A5;
-    /**
-     * An alias for ISO_A6.
-     */
-    public static final MediaType A6 = ISO_A6;
-    /**
-     * An alias for ISO_A7.
-     */
-    public static final MediaType A7 = ISO_A7;
-    /**
-     * An alias for ISO_A8.
-     */
-    public static final MediaType A8 = ISO_A8;
-    /**
-     * An alias for ISO_A9.
-     */
-    public static final MediaType A9 = ISO_A9;
-    /**
-     * An alias for ISO_A10.
-     */
-    public static final MediaType A10 = ISO_A10;
-    /**
-     * An alias for ISO_B0.
-     */
-    public static final MediaType B0 = ISO_B0;
-    /**
-     * An alias for ISO_B1.
-     */
-    public static final MediaType B1 = ISO_B1;
-    /**
-     * An alias for ISO_B2.
-     */
-    public static final MediaType B2 = ISO_B2;
-    /**
-     * An alias for ISO_B3.
-     */
-    public static final MediaType B3 = ISO_B3;
-    /**
-     * An alias for ISO_B4.
-     */
-    public static final MediaType B4 = ISO_B4;
-    /**
-     * An alias for ISO_B4.
-     */
-    public static final MediaType ISO_B4_ENVELOPE = ISO_B4;
-    /**
-     * An alias for ISO_B5.
-     */
-    public static final MediaType B5 = ISO_B5;
-    /**
-     * An alias for ISO_B5.
-     */
-    public static final MediaType ISO_B5_ENVELOPE = ISO_B5;
-    /**
-     * An alias for ISO_B6.
-     */
-    public static final MediaType B6 = ISO_B6;
-    /**
-     * An alias for ISO_B7.
-     */
-    public static final MediaType B7 = ISO_B7;
-    /**
-     * An alias for ISO_B8.
-     */
-    public static final MediaType B8 = ISO_B8;
-    /**
-     * An alias for ISO_B9.
-     */
-    public static final MediaType B9 = ISO_B9;
-    /**
-     * An alias for ISO_B10.
-     */
-    public static final MediaType B10 = ISO_B10;
-    /**
-     * An alias for ISO_C0.
-     */
-    public static final MediaType C0 = ISO_C0;
-    /**
-     * An alias for ISO_C0.
-     */
-    public static final MediaType ISO_C0_ENVELOPE = ISO_C0;
-    /**
-     * An alias for ISO_C1.
-     */
-    public static final MediaType C1 = ISO_C1;
-    /**
-     * An alias for ISO_C1.
-     */
-    public static final MediaType ISO_C1_ENVELOPE = ISO_C1;
-    /**
-     * An alias for ISO_C2.
-     */
-    public static final MediaType C2 = ISO_C2;
-    /**
-     * An alias for ISO_C2.
-     */
-    public static final MediaType ISO_C2_ENVELOPE = ISO_C2;
-    /**
-     * An alias for ISO_C3.
-     */
-    public static final MediaType C3 = ISO_C3;
-    /**
-     * An alias for ISO_C3.
-     */
-    public static final MediaType ISO_C3_ENVELOPE = ISO_C3;
-    /**
-     * An alias for ISO_C4.
-     */
-    public static final MediaType C4 = ISO_C4;
-    /**
-     * An alias for ISO_C4.
-     */
-    public static final MediaType ISO_C4_ENVELOPE = ISO_C4;
-    /**
-     * An alias for ISO_C5.
-     */
-    public static final MediaType C5 = ISO_C5;
-    /**
-     * An alias for ISO_C5.
-     */
-    public static final MediaType ISO_C5_ENVELOPE = ISO_C5;
-    /**
-     * An alias for ISO_C6.
-     */
-    public static final MediaType C6 = ISO_C6;
-    /**
-     * An alias for ISO_C6.
-     */
-    public static final MediaType ISO_C6_ENVELOPE = ISO_C6;
-    /**
-     * An alias for ISO_C7.
-     */
-    public static final MediaType C7 = ISO_C7;
-    /**
-     * An alias for ISO_C7.
-     */
-    public static final MediaType ISO_C7_ENVELOPE = ISO_C7;
-    /**
-     * An alias for ISO_C8.
-     */
-    public static final MediaType C8 = ISO_C8;
-    /**
-     * An alias for ISO_C8.
-     */
-    public static final MediaType ISO_C8_ENVELOPE = ISO_C8;
-    /**
-     * An alias for ISO_C9.
-     */
-    public static final MediaType C9 = ISO_C9;
-    /**
-     * An alias for ISO_C9.
-     */
-    public static final MediaType ISO_C9_ENVELOPE = ISO_C9;
-    /**
-     * An alias for ISO_C10.
-     */
-    public static final MediaType C10 = ISO_C10;
-    /**
-     * An alias for ISO_C10.
-     */
-    public static final MediaType ISO_C10_ENVELOPE = ISO_C10;
-    /**
-     * An alias for ISO_DESIGNATED_LONG.
-     */
-    public static final MediaType ISO_DESIGNATED_LONG_ENVELOPE = ISO_DESIGNATED_LONG;
-    /**
-     * An alias for INVOICE.
-     */
-    public static final MediaType STATEMENT = INVOICE;
-    /**
-     * An alias for LEDGER.
-     */
-    public static final MediaType TABLOID = LEDGER;
-    /**
-     * An alias for NA_LETTER.
-     */
-    public static final MediaType LETTER = NA_LETTER;
-    /**
-     * An alias for NA_LETTER.
-     */
-    public static final MediaType NOTE = NA_LETTER;
-    /**
-     * An alias for NA_LEGAL.
-     */
-    public static final MediaType LEGAL = NA_LEGAL;
-    /**
-     * An alias for NA_10X15_ENVELOPE.
-     */
-    public static final MediaType ENV_10X15 = NA_10X15_ENVELOPE;
-    /**
-     * An alias for NA_10X14_ENVELOPE.
-     */
-    public static final MediaType ENV_10X14 = NA_10X14_ENVELOPE;
-    /**
-     * An alias for NA_10X13_ENVELOPE.
-     */
-    public static final MediaType ENV_10X13 = NA_10X13_ENVELOPE;
-    /**
-     * An alias for NA_9X12_ENVELOPE.
-     */
-    public static final MediaType ENV_9X12 = NA_9X12_ENVELOPE;
-    /**
-     * An alias for NA_9X11_ENVELOPE.
-     */
-    public static final MediaType ENV_9X11 = NA_9X11_ENVELOPE;
-    /**
-     * An alias for NA_7X9_ENVELOPE.
-     */
-    public static final MediaType ENV_7X9 = NA_7X9_ENVELOPE;
-    /**
-     * An alias for NA_6X9_ENVELOPE.
-     */
-    public static final MediaType ENV_6X9 = NA_6X9_ENVELOPE;
-    /**
-     * An alias for NA_NUMBER_9_ENVELOPE.
-     */
-    public static final MediaType ENV_9 = NA_NUMBER_9_ENVELOPE;
-    /**
-     * An alias for NA_NUMBER_10_ENVELOPE.
-     */
-    public static final MediaType ENV_10 = NA_NUMBER_10_ENVELOPE;
-    /**
-     * An alias for NA_NUMBER_11_ENVELOPE.
-     */
-    public static final MediaType ENV_11 = NA_NUMBER_11_ENVELOPE;
-    /**
-     * An alias for NA_NUMBER_12_ENVELOPE.
-     */
-    public static final MediaType ENV_12 = NA_NUMBER_12_ENVELOPE;
-    /**
-     * An alias for NA_NUMBER_14_ENVELOPE.
-     */
-    public static final MediaType ENV_14 = NA_NUMBER_14_ENVELOPE;
-    /**
-     * An alias for INVITE_ENVELOPE.
-     */
-    public static final MediaType ENV_INVITE = INVITE_ENVELOPE;
-    /**
-     * An alias for INVITE_ENVELOPE.
-     */
-    public static final MediaType INVITE = INVITE_ENVELOPE;
-    /**
-     * An alias for ITALY_ENVELOPE.
-     */
-    public static final MediaType ENV_ITALY = ITALY_ENVELOPE;
-    /**
-     * An alias for ITALY_ENVELOPE.
-     */
-    public static final MediaType ITALY = ITALY_ENVELOPE;
-    /**
-     * An alias for MONARCH_ENVELOPE.
-     */
-    public static final MediaType ENV_MONARCH = MONARCH_ENVELOPE;
-    /**
-     * An alias for MONARCH_ENVELOPE.
-     */
-    public static final MediaType MONARCH = MONARCH_ENVELOPE;
-    /**
-     * An alias for PERSONAL_ENVELOPE.
-     */
-    public static final MediaType ENV_PERSONAL = PERSONAL_ENVELOPE;
-    /**
-     * An alias for PERSONAL_ENVELOPE.
-     */
-    public static final MediaType PERSONAL = PERSONAL_ENVELOPE;
     private static final int I_ISO_4A0 = 0;
     /**
      * The MediaType instance for ISO/DIN and JIS 4A0, 1682 x 2378 mm.
@@ -1231,6 +943,294 @@ public final class PageAttributes implements Cloneable {
      * The MediaType instance for 6 3/4 envelope, 3 5/8 x 6 1/2 in.
      */
     public static final MediaType PERSONAL_ENVELOPE = new MediaType(I_PERSONAL_ENVELOPE);
+    /**
+     * An alias for ISO_A0.
+     */
+    public static final MediaType A0 = ISO_A0;
+    /**
+     * An alias for ISO_A1.
+     */
+    public static final MediaType A1 = ISO_A1;
+    /**
+     * An alias for ISO_A2.
+     */
+    public static final MediaType A2 = ISO_A2;
+    /**
+     * An alias for ISO_A3.
+     */
+    public static final MediaType A3 = ISO_A3;
+    /**
+     * An alias for ISO_A4.
+     */
+    public static final MediaType A4 = ISO_A4;
+    /**
+     * An alias for ISO_A5.
+     */
+    public static final MediaType A5 = ISO_A5;
+    /**
+     * An alias for ISO_A6.
+     */
+    public static final MediaType A6 = ISO_A6;
+    /**
+     * An alias for ISO_A7.
+     */
+    public static final MediaType A7 = ISO_A7;
+    /**
+     * An alias for ISO_A8.
+     */
+    public static final MediaType A8 = ISO_A8;
+    /**
+     * An alias for ISO_A9.
+     */
+    public static final MediaType A9 = ISO_A9;
+    /**
+     * An alias for ISO_A10.
+     */
+    public static final MediaType A10 = ISO_A10;
+    /**
+     * An alias for ISO_B0.
+     */
+    public static final MediaType B0 = ISO_B0;
+    /**
+     * An alias for ISO_B1.
+     */
+    public static final MediaType B1 = ISO_B1;
+    /**
+     * An alias for ISO_B2.
+     */
+    public static final MediaType B2 = ISO_B2;
+    /**
+     * An alias for ISO_B3.
+     */
+    public static final MediaType B3 = ISO_B3;
+    /**
+     * An alias for ISO_B4.
+     */
+    public static final MediaType B4 = ISO_B4;
+    /**
+     * An alias for ISO_B4.
+     */
+    public static final MediaType ISO_B4_ENVELOPE = ISO_B4;
+    /**
+     * An alias for ISO_B5.
+     */
+    public static final MediaType B5 = ISO_B5;
+    /**
+     * An alias for ISO_B5.
+     */
+    public static final MediaType ISO_B5_ENVELOPE = ISO_B5;
+    /**
+     * An alias for ISO_B6.
+     */
+    public static final MediaType B6 = ISO_B6;
+    /**
+     * An alias for ISO_B7.
+     */
+    public static final MediaType B7 = ISO_B7;
+    /**
+     * An alias for ISO_B8.
+     */
+    public static final MediaType B8 = ISO_B8;
+    /**
+     * An alias for ISO_B9.
+     */
+    public static final MediaType B9 = ISO_B9;
+    /**
+     * An alias for ISO_B10.
+     */
+    public static final MediaType B10 = ISO_B10;
+    /**
+     * An alias for ISO_C0.
+     */
+    public static final MediaType C0 = ISO_C0;
+    /**
+     * An alias for ISO_C0.
+     */
+    public static final MediaType ISO_C0_ENVELOPE = ISO_C0;
+    /**
+     * An alias for ISO_C1.
+     */
+    public static final MediaType C1 = ISO_C1;
+    /**
+     * An alias for ISO_C1.
+     */
+    public static final MediaType ISO_C1_ENVELOPE = ISO_C1;
+    /**
+     * An alias for ISO_C2.
+     */
+    public static final MediaType C2 = ISO_C2;
+    /**
+     * An alias for ISO_C2.
+     */
+    public static final MediaType ISO_C2_ENVELOPE = ISO_C2;
+    /**
+     * An alias for ISO_C3.
+     */
+    public static final MediaType C3 = ISO_C3;
+    /**
+     * An alias for ISO_C3.
+     */
+    public static final MediaType ISO_C3_ENVELOPE = ISO_C3;
+    /**
+     * An alias for ISO_C4.
+     */
+    public static final MediaType C4 = ISO_C4;
+    /**
+     * An alias for ISO_C4.
+     */
+    public static final MediaType ISO_C4_ENVELOPE = ISO_C4;
+    /**
+     * An alias for ISO_C5.
+     */
+    public static final MediaType C5 = ISO_C5;
+    /**
+     * An alias for ISO_C5.
+     */
+    public static final MediaType ISO_C5_ENVELOPE = ISO_C5;
+    /**
+     * An alias for ISO_C6.
+     */
+    public static final MediaType C6 = ISO_C6;
+    /**
+     * An alias for ISO_C6.
+     */
+    public static final MediaType ISO_C6_ENVELOPE = ISO_C6;
+    /**
+     * An alias for ISO_C7.
+     */
+    public static final MediaType C7 = ISO_C7;
+    /**
+     * An alias for ISO_C7.
+     */
+    public static final MediaType ISO_C7_ENVELOPE = ISO_C7;
+    /**
+     * An alias for ISO_C8.
+     */
+    public static final MediaType C8 = ISO_C8;
+    /**
+     * An alias for ISO_C8.
+     */
+    public static final MediaType ISO_C8_ENVELOPE = ISO_C8;
+    /**
+     * An alias for ISO_C9.
+     */
+    public static final MediaType C9 = ISO_C9;
+    /**
+     * An alias for ISO_C9.
+     */
+    public static final MediaType ISO_C9_ENVELOPE = ISO_C9;
+    /**
+     * An alias for ISO_C10.
+     */
+    public static final MediaType C10 = ISO_C10;
+    /**
+     * An alias for ISO_C10.
+     */
+    public static final MediaType ISO_C10_ENVELOPE = ISO_C10;
+    /**
+     * An alias for ISO_DESIGNATED_LONG.
+     */
+    public static final MediaType ISO_DESIGNATED_LONG_ENVELOPE = ISO_DESIGNATED_LONG;
+    /**
+     * An alias for INVOICE.
+     */
+    public static final MediaType STATEMENT = INVOICE;
+    /**
+     * An alias for LEDGER.
+     */
+    public static final MediaType TABLOID = LEDGER;
+    /**
+     * An alias for NA_LETTER.
+     */
+    public static final MediaType LETTER = NA_LETTER;
+    /**
+     * An alias for NA_LETTER.
+     */
+    public static final MediaType NOTE = NA_LETTER;
+    /**
+     * An alias for NA_LEGAL.
+     */
+    public static final MediaType LEGAL = NA_LEGAL;
+    /**
+     * An alias for NA_10X15_ENVELOPE.
+     */
+    public static final MediaType ENV_10X15 = NA_10X15_ENVELOPE;
+    /**
+     * An alias for NA_10X14_ENVELOPE.
+     */
+    public static final MediaType ENV_10X14 = NA_10X14_ENVELOPE;
+    /**
+     * An alias for NA_10X13_ENVELOPE.
+     */
+    public static final MediaType ENV_10X13 = NA_10X13_ENVELOPE;
+    /**
+     * An alias for NA_9X12_ENVELOPE.
+     */
+    public static final MediaType ENV_9X12 = NA_9X12_ENVELOPE;
+    /**
+     * An alias for NA_9X11_ENVELOPE.
+     */
+    public static final MediaType ENV_9X11 = NA_9X11_ENVELOPE;
+    /**
+     * An alias for NA_7X9_ENVELOPE.
+     */
+    public static final MediaType ENV_7X9 = NA_7X9_ENVELOPE;
+    /**
+     * An alias for NA_6X9_ENVELOPE.
+     */
+    public static final MediaType ENV_6X9 = NA_6X9_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_9_ENVELOPE.
+     */
+    public static final MediaType ENV_9 = NA_NUMBER_9_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_10_ENVELOPE.
+     */
+    public static final MediaType ENV_10 = NA_NUMBER_10_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_11_ENVELOPE.
+     */
+    public static final MediaType ENV_11 = NA_NUMBER_11_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_12_ENVELOPE.
+     */
+    public static final MediaType ENV_12 = NA_NUMBER_12_ENVELOPE;
+    /**
+     * An alias for NA_NUMBER_14_ENVELOPE.
+     */
+    public static final MediaType ENV_14 = NA_NUMBER_14_ENVELOPE;
+    /**
+     * An alias for INVITE_ENVELOPE.
+     */
+    public static final MediaType ENV_INVITE = INVITE_ENVELOPE;
+    /**
+     * An alias for INVITE_ENVELOPE.
+     */
+    public static final MediaType INVITE = INVITE_ENVELOPE;
+    /**
+     * An alias for ITALY_ENVELOPE.
+     */
+    public static final MediaType ENV_ITALY = ITALY_ENVELOPE;
+    /**
+     * An alias for ITALY_ENVELOPE.
+     */
+    public static final MediaType ITALY = ITALY_ENVELOPE;
+    /**
+     * An alias for MONARCH_ENVELOPE.
+     */
+    public static final MediaType ENV_MONARCH = MONARCH_ENVELOPE;
+    /**
+     * An alias for MONARCH_ENVELOPE.
+     */
+    public static final MediaType MONARCH = MONARCH_ENVELOPE;
+    /**
+     * An alias for PERSONAL_ENVELOPE.
+     */
+    public static final MediaType ENV_PERSONAL = PERSONAL_ENVELOPE;
+    /**
+     * An alias for PERSONAL_ENVELOPE.
+     */
+    public static final MediaType PERSONAL = PERSONAL_ENVELOPE;
     private static final String[] NAMES = {
         "iso-4a0", "iso-2a0", "iso-a0", "iso-a1", "iso-a2", "iso-a3", "iso-a4", "iso-a5", "iso-a6",
         "iso-a7", "iso-a8", "iso-a9", "iso-a10", "iso-b0", "iso-b1", "iso-b2", "iso-b3", "iso-b4",

@@ -107,7 +107,6 @@ public abstract class FontMetrics implements Serializable {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
   }
 
   /**

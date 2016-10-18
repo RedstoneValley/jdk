@@ -58,12 +58,12 @@ final class OGLBlitLoops {
    * createPackedParams().  (They are also used at the native level when
    * unpacking the params.)
    */
-  @Native private static final int OFFSET_SRCTYPE = 16;
-  @Native private static final int OFFSET_HINT = 8;
-  @Native private static final int OFFSET_TEXTURE = 3;
-  @Native private static final int OFFSET_RTT = 2;
-  @Native private static final int OFFSET_XFORM = 1;
-  @Native private static final int OFFSET_ISOBLIT = 0;
+  private static final int OFFSET_SRCTYPE = 16;
+  private static final int OFFSET_HINT = 8;
+  private static final int OFFSET_TEXTURE = 3;
+  private static final int OFFSET_RTT = 2;
+  private static final int OFFSET_XFORM = 1;
+  private static final int OFFSET_ISOBLIT = 0;
 
   private OGLBlitLoops() {
   }

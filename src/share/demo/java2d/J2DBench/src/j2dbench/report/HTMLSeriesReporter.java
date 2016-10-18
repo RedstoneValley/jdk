@@ -188,30 +188,28 @@ public final class HTMLSeriesReporter {
       uniqueProps[i] = m;
     }
 
-    {
-      Iterator iter = propKeys.iterator();
-      loop:
-      while (iter.hasNext()) {
-        Object k = iter.next();
-        Object v = null;
-        for (int i = 0; i < uniqueProps.length; ++i) {
-          Map props = uniqueProps[i];
-          if (i == 0) {
-            v = props.get(k);
-          } else {
-            Object mv = props.get(k);
-            if (v == null ? null != mv : !v.equals(mv)) {
-              // not common, keep this key
-              continue loop;
-            }
+    Iterator iter = propKeys.iterator();
+    loop:
+    while (iter.hasNext()) {
+      Object k = iter.next();
+      Object v = null;
+      for (int i = 0; i < uniqueProps.length; ++i) {
+        Map props = uniqueProps[i];
+        if (i == 0) {
+          v = props.get(k);
+        } else {
+          Object mv = props.get(k);
+          if (v == null ? null != mv : !v.equals(mv)) {
+            // not common, keep this key
+            continue loop;
           }
         }
+      }
 
-        // common, so put value in commonProps and remove this key
-        commonProps.put(k, v);
-        for (Map uniqueProp : uniqueProps) {
-          uniqueProp.remove(k);
-        }
+      // common, so put value in commonProps and remove this key
+      commonProps.put(k, v);
+      for (Map uniqueProp : uniqueProps) {
+        uniqueProp.remove(k);
       }
     }
 
@@ -258,13 +256,11 @@ public final class HTMLSeriesReporter {
     }
     w.println("<tr><th colspan='2'>&nbsp;</th></tr>");
     w.println("<tr><th colspan='2' bgcolor='#aaaaaa'>Common Test Options</th></tr>");
-    {
-      TreeSet ts = new TreeSet(String.CASE_INSENSITIVE_ORDER);
-      ts.addAll(ResultHolder.commonkeys.keySet());
-      for (Object key : ts) {
-        Object val = ResultHolder.commonkeymap.get(key);
-        w.println("<tr><td width='30%'><b>" + key + "</b></td><td>" + val + "</td></tr>");
-      }
+    TreeSet ts = new TreeSet(String.CASE_INSENSITIVE_ORDER);
+    ts.addAll(ResultHolder.commonkeys.keySet());
+    for (Object key : ts) {
+      Object val = ResultHolder.commonkeymap.get(key);
+      w.println("<tr><td width='30%'><b>" + key + "</b></td><td>" + val + "</td></tr>");
     }
     w.println("</table>");
 

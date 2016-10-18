@@ -178,7 +178,6 @@ public class SystemTray {
    * @see AWTPermission
    */
   public static SystemTray getSystemTray() {
-    checkSystemTrayAllowed();
 
     initializeSystemTrayIfNeeded();
 
@@ -227,13 +226,6 @@ public class SystemTray {
       return ((HeadlessToolkit) toolkit).isTraySupported();
     } else {
       return false;
-    }
-  }
-
-  static void checkSystemTrayAllowed() {
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-      security.checkPermission(SecurityConstants.AWT.ACCESS_SYSTEM_TRAY_PERMISSION);
     }
   }
 

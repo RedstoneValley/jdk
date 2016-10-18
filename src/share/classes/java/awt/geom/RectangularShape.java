@@ -182,7 +182,6 @@ public abstract class RectangularShape implements Shape, Cloneable {
    * @see #setFrame(Rectangle2D)
    * @since 1.2
    */
-  @Transient
   public Rectangle2D getFrame() {
     return new Rectangle2D.Double(getX(), getY(), getWidth(), getHeight());
   }

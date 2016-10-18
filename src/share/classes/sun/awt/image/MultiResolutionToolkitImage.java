@@ -26,8 +26,10 @@ package sun.awt.image;
 
 import java.awt.Image;
 import java.awt.image.ImageObserver;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+import sun.awt.SoftCache;
 
 public class MultiResolutionToolkitImage extends ToolkitImage implements MultiResolutionImage {
 
@@ -41,8 +43,7 @@ public class MultiResolutionToolkitImage extends ToolkitImage implements MultiRe
   }
 
   public static ImageObserver getResolutionVariantObserver(
-      Image image, ImageObserver observer, int imgWidth, int imgHeight, int rvWidth, int rvHeight,
-      boolean concatenateInfo) {
+      Image image, ImageObserver observer, boolean concatenateInfo) {
 
     if (observer == null) {
       return null;
@@ -98,6 +99,6 @@ public class MultiResolutionToolkitImage extends ToolkitImage implements MultiRe
 
   private static final class ObserverCache {
 
-    static final SoftCache INSTANCE = new SoftCache();
+    static final SoftCache INSTANCE = new SoftCache<URL, Image>();
   }
 }

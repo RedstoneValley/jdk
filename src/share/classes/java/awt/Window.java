@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.content.Context;
 import android.util.Log;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsDevice.WindowTranslucency;
@@ -49,6 +50,7 @@ import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -155,6 +157,7 @@ import sun.java2d.pipe.Region;
  * @see BorderLayout
  * @since JDK1.0
  */
+@SuppressWarnings("unchecked")
 public class Window extends Container {
 
   static final int OPENED = 0x01;
@@ -177,11 +180,21 @@ public class Window extends Container {
   static final boolean systemSyncLWRequests;
   private static int nameCounter;
 
+  // TODO: Can this class be gotten at through the actual API?
+  private static final Constructor<? extends android.view.Window> ANDROID_WINDOW_IMPL_CTOR;
+
   static {
     String s = System.getProperty("java.awt.syncLWRequests");
     systemSyncLWRequests = "true".equals(s);
     s = System.getProperty("java.awt.Window.locationByPlatform");
     locationByPlatformProp = "true".equals(s);
+    try {
+      ANDROID_WINDOW_IMPL_CTOR = (Constructor<? extends android.view.Window>) Class
+          .forName("com.android.internal.policy.impl.PhoneWindow")
+          .getConstructor(Context.class);
+    } catch (ClassNotFoundException | NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   static {
@@ -794,6 +807,9 @@ public class Window extends Container {
     Disposer.addRecord(anchor, disposerRecord);
 
     SunToolkit.checkAndSetPolicy(this);
+
+    androidContext = SkinJob.getAndroidApplicationContext();
+    createAndroidWindow();
   }
 
   private void ownedInit(Window owner) {
@@ -2933,7 +2949,6 @@ public class Window extends Container {
   //
   private void initDeserializedWindow() {
     setWarningString();
-    inputContextLock = new Object();
 
     // Deserialized Windows are not yet visible.
     visible = false;
@@ -3059,6 +3074,16 @@ public class Window extends Container {
     securityWarningAlignmentY = TOP_ALIGNMENT;
 
     deserializeResources(s);
+    androidContext = SkinJob.getAndroidApplicationContext();
+    createAndroidWindow();
+  }
+
+  protected void createAndroidWindow() {
+    try {
+      androidWindow = ANDROID_WINDOW_IMPL_CTOR.newInstance(androidContext);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

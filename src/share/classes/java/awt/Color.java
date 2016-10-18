@@ -317,7 +317,7 @@ public class Color implements Paint, Serializable {
     value = (a & 0xFF) << 24 |
         (r & 0xFF) << 16 |
         (g & 0xFF) << 8 |
-        (b & 0xFF);
+        b & 0xFF;
     testColorValueRange(r, g, b, a);
   }
 
@@ -469,7 +469,7 @@ public class Color implements Paint, Serializable {
     value = ((int) (falpha * 255) & 0xFF) << 24 |
         ((int) (frgbvalue[0] * 255) & 0xFF) << 16 |
         ((int) (frgbvalue[1] * 255) & 0xFF) << 8 |
-        ((int) (frgbvalue[2] * 255) & 0xFF);
+        (int) (frgbvalue[2] * 255) & 0xFF;
   }
 
   /**

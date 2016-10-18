@@ -125,7 +125,6 @@ public class Rectangle extends Rectangle2D implements Serializable {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
   }
 
   /**
@@ -333,7 +332,6 @@ public class Rectangle extends Rectangle2D implements Serializable {
    * @since 1.1
    */
   @Override
-  @Transient
   public Rectangle getBounds() {
     return new Rectangle(x, y, width, height);
   }

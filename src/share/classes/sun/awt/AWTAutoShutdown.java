@@ -31,6 +31,8 @@ import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import sun.awt.AppContext.CreateThreadAction;
+import sun.awt.AppContext.PostShutdownEventRunnable;
 
 /**
  * This class is to let AWT shutdown automatically when a user is done
@@ -149,13 +151,13 @@ public final class AWTAutoShutdown implements Runnable {
       if (appContext.isDisposed()) {
         continue;
       }
-      Runnable r = new AppContext.PostShutdownEventRunnable(appContext);
+      Runnable r = new PostShutdownEventRunnable(appContext);
       // For security reasons EventQueue.postEvent should only be called
       // on a thread that belongs to the corresponding thread group.
       if (appContext != AppContext.getAppContext()) {
         // Create a thread that belongs to the thread group associated
         // with the AppContext and invokes EventQueue.postEvent.
-        PrivilegedAction<Thread> action = new AppContext.CreateThreadAction(appContext, r);
+        PrivilegedAction<Thread> action = new CreateThreadAction(appContext, r);
         Thread thread = AccessController.doPrivileged(action);
         thread.start();
       } else {

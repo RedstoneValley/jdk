@@ -71,19 +71,19 @@ public abstract class BufferedContext {
   /**
    * Indicates that no flags are needed; take all default code paths.
    */
-  @Native public static final int NO_CONTEXT_FLAGS = 0;
+  public static final int NO_CONTEXT_FLAGS = 0;
   /**
    * Indicates that the source surface (or color value, if it is a simple
    * rendering operation) is opaque (has an alpha value of 1.0).  If this
    * flag is present, it allows us to disable blending in certain
    * situations in order to improve performance.
    */
-  @Native public static final int SRC_IS_OPAQUE = 1;
+  public static final int SRC_IS_OPAQUE = 1;
   /**
    * Indicates that the operation uses an alpha mask, which may determine
    * the code path that is used when setting up the current paint state.
    */
-  @Native public static final int USE_MASK = 1 << 1;
+  public static final int USE_MASK = 1 << 1;
 
   protected static final int OPSIZE_SET_RECT_CLIP = 20;
   protected static final int OPSIZE_SET_NONRECT_CLIP = 28;

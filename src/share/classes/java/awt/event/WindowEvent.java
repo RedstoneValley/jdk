@@ -66,7 +66,7 @@ public class WindowEvent extends ComponentEvent {
    * The window opened event.  This event is delivered only
    * the first time a window is made visible.
    */
-  @Native public static final int WINDOW_OPENED = WINDOW_FIRST; // 200
+  public static final int WINDOW_OPENED = WINDOW_FIRST; // 200
 
   /**
    * The "window is closing" event. This event is delivered when
@@ -75,7 +75,7 @@ public class WindowEvent extends ComponentEvent {
    * while processing this event, the window close operation will be
    * cancelled.
    */
-  @Native public static final int WINDOW_CLOSING = 1 + WINDOW_FIRST; //Event.WINDOW_DESTROY
+  public static final int WINDOW_CLOSING = 1 + WINDOW_FIRST; //Event.WINDOW_DESTROY
 
   /**
    * The window closed event. This event is delivered after the displayable
@@ -84,7 +84,7 @@ public class WindowEvent extends ComponentEvent {
    * @see java.awt.Component#isDisplayable
    * @see Window#dispose
    */
-  @Native public static final int WINDOW_CLOSED = 2 + WINDOW_FIRST;
+  public static final int WINDOW_CLOSED = 2 + WINDOW_FIRST;
 
   /**
    * The window iconified event. This event is delivered when
@@ -94,13 +94,13 @@ public class WindowEvent extends ComponentEvent {
    *
    * @see java.awt.Frame#setIconImage
    */
-  @Native public static final int WINDOW_ICONIFIED = 3 + WINDOW_FIRST; //Event.WINDOW_ICONIFY
+  public static final int WINDOW_ICONIFIED = 3 + WINDOW_FIRST; //Event.WINDOW_ICONIFY
 
   /**
    * The window deiconified event type. This event is delivered when
    * the window has been changed from a minimized to a normal state.
    */
-  @Native public static final int WINDOW_DEICONIFIED = 4 + WINDOW_FIRST; //Event.WINDOW_DEICONIFY
+  public static final int WINDOW_DEICONIFIED = 4 + WINDOW_FIRST; //Event.WINDOW_DEICONIFY
 
   /**
    * The window-activated event type. This event is delivered when the Window
@@ -110,7 +110,7 @@ public class WindowEvent extends ComponentEvent {
    * active Window is always either the focused Window, or the first Frame or
    * Dialog that is an owner of the focused Window.
    */
-  @Native public static final int WINDOW_ACTIVATED = 5 + WINDOW_FIRST;
+  public static final int WINDOW_ACTIVATED = 5 + WINDOW_FIRST;
 
   /**
    * The window-deactivated event type. This event is delivered when the
@@ -120,21 +120,21 @@ public class WindowEvent extends ComponentEvent {
    * title bar. The active Window is always either the focused Window, or the
    * first Frame or Dialog that is an owner of the focused Window.
    */
-  @Native public static final int WINDOW_DEACTIVATED = 6 + WINDOW_FIRST;
+  public static final int WINDOW_DEACTIVATED = 6 + WINDOW_FIRST;
 
   /**
    * The window-gained-focus event type. This event is delivered when the
    * Window becomes the focused Window, which means that the Window, or one
    * of its subcomponents, will receive keyboard events.
    */
-  @Native public static final int WINDOW_GAINED_FOCUS = 7 + WINDOW_FIRST;
+  public static final int WINDOW_GAINED_FOCUS = 7 + WINDOW_FIRST;
 
   /**
    * The window-lost-focus event type. This event is delivered when a Window
    * is no longer the focused Window, which means keyboard events will no
    * longer be delivered to the Window or any of its subcomponents.
    */
-  @Native public static final int WINDOW_LOST_FOCUS = 8 + WINDOW_FIRST;
+  public static final int WINDOW_LOST_FOCUS = 8 + WINDOW_FIRST;
 
   /**
    * The window-state-changed event type.  This event is delivered
@@ -143,7 +143,7 @@ public class WindowEvent extends ComponentEvent {
    *
    * @since 1.4
    */
-  @Native public static final int WINDOW_STATE_CHANGED = 9 + WINDOW_FIRST;
+  public static final int WINDOW_STATE_CHANGED = 9 + WINDOW_FIRST;
 
   /**
    * The last number in the range of ids used for window events.

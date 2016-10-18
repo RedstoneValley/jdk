@@ -81,7 +81,7 @@ public final class SystemFlavorMap implements FlavorTable {
   /**
    * A String representing text/plain MIME type.
    */
-  private static final String TEXT_PLAIN_BASE_TYPE = "text/plain";
+  public static final String TEXT_PLAIN_BASE_TYPE = "text/plain";
   /**
    * A String representing text/html MIME type.
    */

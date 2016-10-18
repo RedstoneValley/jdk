@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import sun.awt.SunHints;
+import sun.awt.SunHints.Value;
 
 /**
  * The {@code RenderingHints} class defines and manages collections of
@@ -105,20 +106,20 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_ON = SunHints.Value.VALUE_ANTIALIAS_ON;
+  public static final Object VALUE_ANTIALIAS_ON = Value.VALUE_ANTIALIAS_ON;
   /**
    * Antialiasing hint value -- rendering is done without antialiasing.
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_OFF = SunHints.Value.VALUE_ANTIALIAS_OFF;
+  public static final Object VALUE_ANTIALIAS_OFF = Value.VALUE_ANTIALIAS_OFF;
   /**
    * Antialiasing hint value -- rendering is done with a default
    * antialiasing mode chosen by the implementation.
    *
    * @see #KEY_ANTIALIASING
    */
-  public static final Object VALUE_ANTIALIAS_DEFAULT = SunHints.Value.VALUE_ANTIALIAS_DEFAULT;
+  public static final Object VALUE_ANTIALIAS_DEFAULT = Value.VALUE_ANTIALIAS_DEFAULT;
   /**
    * Rendering hint key.
    * The {@code RENDERING} hint is a general hint that provides
@@ -142,14 +143,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_SPEED = SunHints.Value.VALUE_RENDER_SPEED;
+  public static final Object VALUE_RENDER_SPEED = Value.VALUE_RENDER_SPEED;
   /**
    * Rendering hint value -- rendering algorithms are chosen
    * with a preference for output quality.
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_QUALITY = SunHints.Value.VALUE_RENDER_QUALITY;
+  public static final Object VALUE_RENDER_QUALITY = Value.VALUE_RENDER_QUALITY;
   /**
    * Rendering hint value -- rendering algorithms are chosen
    * by the implementation for a good tradeoff of performance
@@ -157,7 +158,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_RENDERING
    */
-  public static final Object VALUE_RENDER_DEFAULT = SunHints.Value.VALUE_RENDER_DEFAULT;
+  public static final Object VALUE_RENDER_DEFAULT = Value.VALUE_RENDER_DEFAULT;
   /**
    * Dithering hint key.
    * The {@code DITHERING} hint controls how closely to approximate
@@ -187,20 +188,20 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_DISABLE = SunHints.Value.VALUE_DITHER_DISABLE;
+  public static final Object VALUE_DITHER_DISABLE = Value.VALUE_DITHER_DISABLE;
   /**
    * Dithering hint value -- dither when rendering geometry, if needed.
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_ENABLE = SunHints.Value.VALUE_DITHER_ENABLE;
+  public static final Object VALUE_DITHER_ENABLE = Value.VALUE_DITHER_ENABLE;
   /**
    * Dithering hint value -- use a default for dithering chosen by
    * the implementation.
    *
    * @see #KEY_DITHERING
    */
-  public static final Object VALUE_DITHER_DEFAULT = SunHints.Value.VALUE_DITHER_DEFAULT;
+  public static final Object VALUE_DITHER_DEFAULT = Value.VALUE_DITHER_DEFAULT;
   /**
    * Text antialiasing hint key.
    * The {@code TEXT_ANTIALIASING} hint can control the use of
@@ -236,14 +237,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_ON = SunHints.Value.VALUE_TEXT_ANTIALIAS_ON;
+  public static final Object VALUE_TEXT_ANTIALIAS_ON = Value.VALUE_TEXT_ANTIALIAS_ON;
   /**
    * Text antialiasing hint value -- text rendering is done without
    * any form of antialiasing.
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_OFF = SunHints.Value.VALUE_TEXT_ANTIALIAS_OFF;
+  public static final Object VALUE_TEXT_ANTIALIAS_OFF = Value.VALUE_TEXT_ANTIALIAS_OFF;
   /**
    * Text antialiasing hint value -- text rendering is done according
    * to the {@link #KEY_ANTIALIASING} hint or a default chosen by the
@@ -251,7 +252,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_TEXT_ANTIALIASING
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_DEFAULT = SunHints.Value.VALUE_TEXT_ANTIALIAS_DEFAULT;
+  public static final Object VALUE_TEXT_ANTIALIAS_DEFAULT = Value.VALUE_TEXT_ANTIALIAS_DEFAULT;
   /**
    * Text antialiasing hint value -- text rendering is requested to
    * use information in the font resource which specifies for each point
@@ -276,7 +277,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_GASP = SunHints.Value.VALUE_TEXT_ANTIALIAS_GASP;
+  public static final Object VALUE_TEXT_ANTIALIAS_GASP = Value.VALUE_TEXT_ANTIALIAS_GASP;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixels in order from display
@@ -321,7 +322,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HRGB = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HRGB = Value.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixels in order from display
@@ -336,7 +337,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HBGR = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_HBGR = Value.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixel organisation from display
@@ -352,7 +353,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VRGB = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VRGB = Value.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
   /**
    * Text antialiasing hint value -- request that text be displayed
    * optimised for an LCD display with subpixel organisation from display
@@ -368,7 +369,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_TEXT_ANTIALIASING
    * @since 1.6
    */
-  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VBGR = SunHints.Value.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+  public static final Object VALUE_TEXT_ANTIALIAS_LCD_VBGR = Value.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
   /**
    * LCD text contrast rendering hint key.
    * The value is an {@code Integer} object which is used as a text
@@ -490,14 +491,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_FRACTIONALMETRICS
    */
-  public static final Object VALUE_FRACTIONALMETRICS_OFF = SunHints.Value.VALUE_FRACTIONALMETRICS_OFF;
+  public static final Object VALUE_FRACTIONALMETRICS_OFF = Value.VALUE_FRACTIONALMETRICS_OFF;
   /**
    * Font fractional metrics hint value -- character glyphs are
    * positioned with sub-pixel accuracy.
    *
    * @see #KEY_FRACTIONALMETRICS
    */
-  public static final Object VALUE_FRACTIONALMETRICS_ON = SunHints.Value.VALUE_FRACTIONALMETRICS_ON;
+  public static final Object VALUE_FRACTIONALMETRICS_ON = Value.VALUE_FRACTIONALMETRICS_ON;
   /**
    * Font fractional metrics hint value -- character glyphs are
    * positioned with accuracy chosen by the implementation.
@@ -505,7 +506,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_FRACTIONALMETRICS
    */
   public static final Object VALUE_FRACTIONALMETRICS_DEFAULT
-      = SunHints.Value.VALUE_FRACTIONALMETRICS_DEFAULT;
+      = Value.VALUE_FRACTIONALMETRICS_DEFAULT;
   /**
    * Interpolation hint key.
    * The {@code INTERPOLATION} hint controls how image pixels are
@@ -552,7 +553,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_INTERPOLATION
    */
   public static final Object VALUE_INTERPOLATION_NEAREST_NEIGHBOR
-      = SunHints.Value.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+      = Value.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
   /**
    * Interpolation hint value -- the color samples of the 4 nearest
    * neighboring integer coordinate samples in the image are
@@ -577,7 +578,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_INTERPOLATION
    */
-  public static final Object VALUE_INTERPOLATION_BILINEAR = SunHints.Value.VALUE_INTERPOLATION_BILINEAR;
+  public static final Object VALUE_INTERPOLATION_BILINEAR = Value.VALUE_INTERPOLATION_BILINEAR;
   /**
    * Interpolation hint value -- the color samples of 9 nearby
    * integer coordinate samples in the image are interpolated using
@@ -598,7 +599,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_INTERPOLATION
    */
-  public static final Object VALUE_INTERPOLATION_BICUBIC = SunHints.Value.VALUE_INTERPOLATION_BICUBIC;
+  public static final Object VALUE_INTERPOLATION_BICUBIC = Value.VALUE_INTERPOLATION_BICUBIC;
   /**
    * Alpha interpolation hint key.
    * The {@code ALPHA_INTERPOLATION} hint is a general hint that
@@ -629,7 +630,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_SPEED
-      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_SPEED;
+      = Value.VALUE_ALPHA_INTERPOLATION_SPEED;
   /**
    * Alpha interpolation hint value -- alpha blending algorithms
    * are chosen with a preference for precision and visual quality.
@@ -637,7 +638,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_QUALITY
-      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_QUALITY;
+      = Value.VALUE_ALPHA_INTERPOLATION_QUALITY;
   /**
    * Alpha interpolation hint value -- alpha blending algorithms
    * are chosen by the implementation for a good tradeoff of
@@ -646,7 +647,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_ALPHA_INTERPOLATION
    */
   public static final Object VALUE_ALPHA_INTERPOLATION_DEFAULT
-      = SunHints.Value.VALUE_ALPHA_INTERPOLATION_DEFAULT;
+      = Value.VALUE_ALPHA_INTERPOLATION_DEFAULT;
   /**
    * Color rendering hint key.
    * The {@code COLOR_RENDERING} hint controls the accuracy of
@@ -702,14 +703,14 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_SPEED = SunHints.Value.VALUE_COLOR_RENDER_SPEED;
+  public static final Object VALUE_COLOR_RENDER_SPEED = Value.VALUE_COLOR_RENDER_SPEED;
   /**
    * Color rendering hint value -- perform the color conversion
    * calculations with the highest accuracy and visual quality.
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_QUALITY = SunHints.Value.VALUE_COLOR_RENDER_QUALITY;
+  public static final Object VALUE_COLOR_RENDER_QUALITY = Value.VALUE_COLOR_RENDER_QUALITY;
   /**
    * Color rendering hint value -- perform color conversion
    * calculations as chosen by the implementation to represent
@@ -718,7 +719,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    *
    * @see #KEY_COLOR_RENDERING
    */
-  public static final Object VALUE_COLOR_RENDER_DEFAULT = SunHints.Value.VALUE_COLOR_RENDER_DEFAULT;
+  public static final Object VALUE_COLOR_RENDER_DEFAULT = Value.VALUE_COLOR_RENDER_DEFAULT;
   /**
    * Stroke normalization control hint key.
    * The {@code STROKE_CONTROL} hint controls whether a rendering
@@ -759,7 +760,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_DEFAULT = SunHints.Value.VALUE_STROKE_DEFAULT;
+  public static final Object VALUE_STROKE_DEFAULT = Value.VALUE_STROKE_DEFAULT;
   /**
    * Stroke normalization control hint value -- geometry should
    * be normalized to improve uniformity or spacing of lines and
@@ -770,7 +771,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_NORMALIZE = SunHints.Value.VALUE_STROKE_NORMALIZE;
+  public static final Object VALUE_STROKE_NORMALIZE = Value.VALUE_STROKE_NORMALIZE;
   /**
    * Stroke normalization control hint value -- geometry should
    * be left unmodified and rendered with sub-pixel accuracy.
@@ -778,7 +779,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    * @see #KEY_STROKE_CONTROL
    * @since 1.3
    */
-  public static final Object VALUE_STROKE_PURE = SunHints.Value.VALUE_STROKE_PURE;
+  public static final Object VALUE_STROKE_PURE = Value.VALUE_STROKE_PURE;
   HashMap<Object, Object> hintmap = new HashMap<>(7);
 
   /**

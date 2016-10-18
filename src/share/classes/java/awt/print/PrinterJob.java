@@ -29,6 +29,8 @@ import java.awt.AWTError;
 import java.awt.HeadlessException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import sun.awt.DocFlavor;
+import sun.awt.PrintServiceLookup;
 
 /**
  * The {@code PrinterJob} class is the principal class that controls

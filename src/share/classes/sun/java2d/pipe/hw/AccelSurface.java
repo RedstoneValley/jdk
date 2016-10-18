@@ -34,30 +34,30 @@ public interface AccelSurface extends BufferedContextProvider, Surface {
   /**
    * Undefined
    */
-  @Native int UNDEFINED = 0;
+  int UNDEFINED = 0;
   /**
    * Window (or window substitute) surface
    */
-  @Native int WINDOW = 1;
+  int WINDOW = 1;
   /**
    * Render-To Plain surface (pbuffer for OpenGL, Render Target surface
    * for Direct3D)
    */
-  @Native int RT_PLAIN = 2;
+  int RT_PLAIN = 2;
   /**
    * Texture surface
    */
-  @Native int TEXTURE = 3;
+  int TEXTURE = 3;
   /**
    * A back-buffer surface (SwapChain surface for Direct3D, backbuffer for
    * OpenGL)
    */
-  @Native int FLIP_BACKBUFFER = 4;
+  int FLIP_BACKBUFFER = 4;
   /**
    * Render-To Texture surface (fbobject for OpenGL, texture with render-to
    * attribute for Direct3D)
    */
-  @Native int RT_TEXTURE = 5;
+  int RT_TEXTURE = 5;
 
   /**
    * Returns a pointer to the native surface data associated with this

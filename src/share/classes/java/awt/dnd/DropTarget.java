@@ -795,7 +795,8 @@ public class DropTarget implements DropTargetListener, Serializable {
 
     protected DropTargetAutoScroller(Component cComponent, Autoscroll cAutoscroll, Point p) {
 
-      component = (Component) c;
+      component = cComponent;
+      autoScroll = cAutoscroll;
 
       Toolkit t = Toolkit.getDefaultToolkit();
 

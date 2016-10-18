@@ -36,20 +36,20 @@ public final class DnDConstants {
   /**
    * An {@code int} representing no action.
    */
-  @Native public static final int ACTION_NONE = 0x0;
+  public static final int ACTION_NONE = 0x0;
   /**
    * An {@code int} representing a &quot;copy&quot; action.
    */
-  @Native public static final int ACTION_COPY = 0x1;
+  public static final int ACTION_COPY = 0x1;
   /**
    * An {@code int} representing a &quot;move&quot; action.
    */
-  @Native public static final int ACTION_MOVE = 0x2;
+  public static final int ACTION_MOVE = 0x2;
   /**
    * An {@code int} representing a &quot;copy&quot; or
    * &quot;move&quot; action.
    */
-  @Native public static final int ACTION_COPY_OR_MOVE = ACTION_COPY | ACTION_MOVE;
+  public static final int ACTION_COPY_OR_MOVE = ACTION_COPY | ACTION_MOVE;
   /**
    * An {@code int} representing a &quot;link&quot; action.
    * <p>
@@ -66,12 +66,12 @@ public final class DnDConstants {
    * results for the user.
    */
 
-  @Native public static final int ACTION_LINK = 0x40000000;
+  public static final int ACTION_LINK = 0x40000000;
   /**
    * An {@code int} representing a &quot;reference&quot;
    * action (synonym for ACTION_LINK).
    */
-  @Native public static final int ACTION_REFERENCE = ACTION_LINK;
+  public static final int ACTION_REFERENCE = ACTION_LINK;
 
   private DnDConstants() {
   } // define null private constructor.

@@ -394,7 +394,6 @@ public class Event implements Serializable {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
   }
 
   private final transient long data;

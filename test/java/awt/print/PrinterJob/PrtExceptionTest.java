@@ -27,8 +27,15 @@
   @run main PrtExceptionTest
 */
 
-import java.awt.*;
-import java.awt.print.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.PrintService;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import sun.awt.PrintServiceLookup;
 
 public class PrtExceptionTest implements Printable {
     PrinterJob pj;

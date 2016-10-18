@@ -124,22 +124,15 @@ import java.awt.peer.TrayIconPeer;
 import java.awt.peer.WindowPeer;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilePermission;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.net.SocketPermission;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.AccessController;
-import java.security.Permission;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 import java.util.WeakHashMap;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import sun.awt.AWTAccessor.SequencedEventAccessor;
@@ -178,7 +171,7 @@ public abstract class SunToolkit extends Toolkit
   public static final int DEFAULT_WAIT_TIME = 10000;
   /* A variable defined for the convenience of JDK code */
   public static final String DESKTOPFONTHINTS = "awt.font.desktophints";
-  static final SoftCache imgCache = new SoftCache();
+  static final SoftCache imgCache = new SoftCache<URL, Image>();
   /* The key to put()/get() the PostEventQueue into/from the AppContext.
    */
   private static final String POST_EVENT_QUEUE_KEY = "PostEventQueue";
@@ -268,7 +261,7 @@ public abstract class SunToolkit extends Toolkit
   private static void initEQ(AppContext appContext) {
     EventQueue eventQueue;
 
-    String eqName = System.getProperty("AWT.EventQueueClass", EventQueue.TAG);
+    String eqName = System.getProperty("AWT.EventQueueClass", "java.awt.EventQueue");
 
     try {
       eventQueue = (EventQueue) Class.forName(eqName).newInstance();
@@ -301,33 +294,6 @@ public abstract class SunToolkit extends Toolkit
     initEQ(appContext);
 
     return appContext;
-  }
-
-  /*
-   * Fetch the peer associated with the given target (as specified
-   * in the peer creation method).  This can be used to determine
-   * things like what the parent peer is.  If the target is null
-   * or the target can't be found (either because the a peer was
-   * never created for it or the peer was disposed), a null will
-   * be returned.
-   */
-  protected static Object targetToPeer(Object target) {
-    if (target != null) {
-      return AWTAutoShutdown.getInstance().getPeer(target);
-    }
-    return null;
-  }
-
-  protected static void targetCreatedPeer(Object target, Object peer) {
-    if (target != null && peer != null) {
-      AWTAutoShutdown.getInstance().registerPeer(target, peer);
-    }
-  }
-
-  protected static void targetDisposedPeer(Object target, Object peer) {
-    if (target != null && peer != null) {
-      AWTAutoShutdown.getInstance().unregisterPeer(target, peer);
-    }
   }
 
   /**
@@ -380,34 +346,6 @@ public abstract class SunToolkit extends Toolkit
       context = appContextMap.get(target);
     }
     return context;
-  }
-
-  /**
-   * Sets the synchronous status of focus requests on lightweight
-   * components in the specified window to the specified value.
-   * If the boolean parameter is {@code true} then the focus
-   * requests on lightweight components will be performed
-   * synchronously, if it is {@code false}, then asynchronously.
-   * By default, all windows have their lightweight request status
-   * set to asynchronous.
-   * <p>
-   * The application can only set the status of lightweight focus
-   * requests to synchronous for any of its windows if it doesn't
-   * perform focus transfers between different heavyweight containers.
-   * In this case the observable focus behaviour is the same as with
-   * asynchronous status.
-   * <p>
-   * If the application performs focus transfer between different
-   * heavyweight containers and sets the lightweight focus request
-   * status to synchronous for any of its windows, then further focus
-   * behaviour is unspecified.
-   * <p>
-   *
-   * @param status the value of lightweight focus request status
-   */
-
-  public static void setLWRequestStatus(Window changed, boolean status) {
-    AWTAccessor.getWindowAccessor().setLWRequestStatus(changed, status);
   }
 
   public static void checkAndSetPolicy(Container cont) {
@@ -511,21 +449,6 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /*
-   * Fixed 5064013: the InvocationEvent time should be equals
-   * the time of the ActionEvent
-   */
-  @SuppressWarnings("serial")
-  public static void executeOnEventHandlerThread(
-      Object target, Runnable runnable, long when) {
-    executeOnEventHandlerThread(new PeerEvent(target, runnable, PeerEvent.PRIORITY_EVENT) {
-      @Override
-      public long getWhen() {
-        return when;
-      }
-    });
-  }
-
-  /*
    * Execute a chunk of code on the Java event handler thread for the
    * given target.  Does not wait for the execution to occur before
    * returning to the caller.
@@ -534,52 +457,7 @@ public abstract class SunToolkit extends Toolkit
     postEvent(targetToAppContext(peerEvent.getSource()), peerEvent);
   }
 
-  /*
-   * Execute a chunk of code on the Java event handler thread for the
-   * given target.  Waits for the execution to occur before returning
-   * to the caller.
-   */
-  public static void executeOnEDTAndWait(Object target, Runnable runnable)
-      throws InterruptedException, InvocationTargetException {
-    if (EventQueue.isDispatchThread()) {
-      throw new Error("Cannot call executeOnEDTAndWait from any event dispatcher thread");
-    }
-
-    Object lock = new Object();
-
-    PeerEvent event = new PeerEvent(target, runnable, lock, true, PeerEvent.PRIORITY_EVENT);
-
-    synchronized (lock) {
-      executeOnEventHandlerThread(event);
-      while (!event.isDispatched()) {
-        lock.wait();
-      }
-    }
-
-    Throwable eventThrowable = event.getThrowable();
-    if (eventThrowable != null) {
-      throw new InvocationTargetException(eventThrowable);
-    }
-  }
-
-  /**
-   * Returns the value of "sun.awt.noerasebackground" property. Default
-   * value is {@code false}.
-   */
-  public static boolean getSunAwtNoerasebackground() {
-    return Boolean.valueOf(System.getProperty("sun.awt.noerasebackground"));
-  }
-
-  /**
-   * Returns the value of "sun.awt.erasebackgroundonresize" property. Default
-   * value is {@code false}.
-   */
-  public static boolean getSunAwtErasebackgroundonresize() {
-    return Boolean.valueOf(System.getProperty("sun.awt.erasebackgroundonresize"));
-  }
-
   static Image getImageFromHash(Toolkit tk, URL url) {
-    checkPermissions(url);
     synchronized (imgCache) {
       Image img = (Image) imgCache.get(url);
       if (img == null) {
@@ -623,59 +501,10 @@ public abstract class SunToolkit extends Toolkit
     return null;
   }
 
-  protected static boolean imageCached(Object key) {
-    return imgCache.containsKey(key);
-  }
-
-  protected static boolean imageExists(String filename) {
-    checkPermissions(filename);
-    return filename != null && new File(filename).exists();
-  }
-
-  @SuppressWarnings("try")
-  protected static boolean imageExists(URL url) {
-    checkPermissions(url);
-    if (url != null) {
-      try (InputStream is = url.openStream()) {
-        return true;
-      } catch (IOException e) {
-        return false;
-      }
-    }
-    return false;
-  }
-
   private static void checkPermissions(String filename) {
     SecurityManager security = System.getSecurityManager();
     if (security != null) {
       security.checkRead(filename);
-    }
-  }
-
-  private static void checkPermissions(URL url) {
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      try {
-        Permission perm = URLUtil.getConnectPermission(url);
-        if (perm != null) {
-          try {
-            sm.checkPermission(perm);
-          } catch (SecurityException se) {
-            // fallback to checkRead/checkConnect for pre 1.2
-            // security managers
-            if (perm instanceof FilePermission && perm.getActions().contains("read")) {
-              sm.checkRead(perm.getName());
-            } else if (perm instanceof SocketPermission
-                && perm.getActions().contains("connect")) {
-              sm.checkConnect(url.getHost(), url.getPort());
-            } else {
-              throw se;
-            }
-          }
-        }
-      } catch (IOException ioe) {
-        sm.checkConnect(url.getHost(), url.getPort());
-      }
     }
   }
 
@@ -810,34 +639,14 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /**
-   * Give native peers the ability to query the native container
-   * given a native component (eg the direct parent may be lightweight).
-   */
-  public static Container getNativeContainer(Component c) {
-    return Toolkit.getNativeContainer(c);
-  }
-
-  /**
-   * Gives native peers the ability to query the closest HW component.
-   * If the given component is heavyweight, then it returns this. Otherwise,
-   * it goes one level up in the hierarchy and tests next component.
-   */
-  public static Component getHeavyweightComponent(Component c) {
-    while (c != null && AWTAccessor.getComponentAccessor().isLightweight(c)) {
-      c = AWTAccessor.getComponentAccessor().getParent(c);
-    }
-    return c;
-  }
-
-  /**
    * Returns the locale in which the runtime was started.
    */
   public static Locale getStartupLocale() {
     if (startupLocale == null) {
       String language, region, country, variant;
-      language = AccessController.doPrivileged(new GetPropertyAction("user.language", "en"));
+      language = System.getProperty("user.language", "en");
       // for compatibility, check for old user.region property
-      region = AccessController.doPrivileged(new GetPropertyAction("user.region"));
+      region = System.getProperty("user.region");
       if (region != null) {
         // region can be of form country, country_variant, or _variant
         int i = region.indexOf('_');
@@ -849,67 +658,12 @@ public abstract class SunToolkit extends Toolkit
           variant = "";
         }
       } else {
-        country = AccessController.doPrivileged(new GetPropertyAction("user.country", ""));
-        variant = AccessController.doPrivileged(new GetPropertyAction("user.variant", ""));
+        country = System.getProperty("user.country", "");
+        variant = System.getProperty("user.variant", "");
       }
       startupLocale = new Locale(language, country, variant);
     }
     return startupLocale;
-  }
-
-  /**
-   * Returns whether default toolkit needs the support of the xembed
-   * from embedding host(if any).
-   *
-   * @return {@code true}, if XEmbed is needed, {@code false} otherwise
-   */
-  public static boolean needsXEmbed() {
-    String noxembed = AccessController.
-        doPrivileged(new GetPropertyAction("sun.awt.noxembed", "false"));
-    if ("true".equals(noxembed)) {
-      return false;
-    }
-
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    return tk instanceof SunToolkit ? ((SunToolkit) tk).needsXEmbedImpl() : false;
-  }
-
-  /**
-   * Returns whether the modal exclusion API is supported by the current toolkit.
-   * When it isn't supported, calling {@code setModalExcluded} has no
-   * effect, and {@code isModalExcluded} returns false for all windows.
-   *
-   * @return true if modal exclusion is supported by the toolkit, false otherwise
-   * @see SunToolkit#setModalExcluded(Window)
-   * @see SunToolkit#isModalExcluded(Window)
-   * @since 1.5
-   */
-  public static boolean isModalExcludedSupported() {
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    return tk.isModalExclusionTypeSupported(DEFAULT_MODAL_EXCLUSION_TYPE);
-  }
-
-  /*
-   * Sets this window to be excluded from being modally blocked. When the
-   * toolkit supports modal exclusion and this method is called, input
-   * events, focus transfer and z-order will continue to work for the
-   * window, it's owned windows and child components, even in the
-   * presence of a modal dialog.
-   * For details on which <code>Window</code>s are normally blocked
-   * by modal dialog, see {@link java.awt.Dialog}.
-   * Invoking this method when the modal exclusion API is not supported by
-   * the current toolkit has no effect.
-   * @param window Window to be marked as not modally blocked
-   * @see java.awt.Dialog
-   * @see java.awt.Dialog#setModal(boolean)
-   * @see sun.awt.SunToolkit#isModalExcludedSupported
-   * @see sun.awt.SunToolkit#isModalExcluded(java.awt.Window)
-   */
-  public static void setModalExcluded(Window window) {
-    if (DEFAULT_MODAL_EXCLUSION_TYPE == null) {
-      DEFAULT_MODAL_EXCLUSION_TYPE = ModalExclusionType.APPLICATION_EXCLUDE;
-    }
-    window.setModalExclusionType(DEFAULT_MODAL_EXCLUSION_TYPE);
   }
 
   /*
@@ -1237,7 +991,7 @@ public abstract class SunToolkit extends Toolkit
     // Ignore the resolution variant in case of error
     return rvImage == null || rvImage.hasError() ? 0xFFFF
         : checkImage(rvImage, rvw, rvh, MultiResolutionToolkitImage.
-            getResolutionVariantObserver(img, o, w, h, rvw, rvh, true));
+            getResolutionVariantObserver(img, o, true));
   }
 
   private boolean prepareResolutionVariant(Image img, int w, int h, ImageObserver o) {
@@ -1248,8 +1002,7 @@ public abstract class SunToolkit extends Toolkit
     // Ignore the resolution variant in case of error
     return rvImage == null || rvImage.hasError() || prepareImage(rvImage,
         rvw,
-        rvh,
-        MultiResolutionToolkitImage.getResolutionVariantObserver(img, o, w, h, rvw, rvh, true));
+        rvh, MultiResolutionToolkitImage.getResolutionVariantObserver(img, o, true));
   }
 
   /**
@@ -1303,16 +1056,6 @@ public abstract class SunToolkit extends Toolkit
   public RuntimeException windowClosingDelivered(WindowEvent event) {
     return windowClosingListener != null ? windowClosingListener.windowClosingDelivered(event)
         : null;
-  }
-
-  /**
-   * Returns whether this toolkit needs the support of the xembed
-   * from embedding host(if any).
-   *
-   * @return {@code true}, if XEmbed is needed, {@code false} otherwise
-   */
-  protected boolean needsXEmbedImpl() {
-    return false;
   }
 
   /**
@@ -1516,7 +1259,6 @@ public abstract class SunToolkit extends Toolkit
 
   @Override
   public Image createImage(URL url) {
-    checkPermissions(url);
     return createImage(new URLImageSource(url));
   }
 

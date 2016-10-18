@@ -416,9 +416,6 @@ public final class RadialGradientPaint extends MultipleGradientPaint {
    *                                  or the {@code fractions} are not provided in strictly
    *                                  increasing order
    */
-  @ConstructorProperties({
-      "centerPoint", "radius", "focusPoint", "fractions", "colors", "cycleMethod", "colorSpace",
-      "transform"})
   public RadialGradientPaint(
       Point2D center, float radius, Point2D focus, float[] fractions, Color[] colors,
       CycleMethod cycleMethod, ColorSpaceType colorSpace, AffineTransform gradientTransform) {

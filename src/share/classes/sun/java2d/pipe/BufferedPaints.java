@@ -68,7 +68,7 @@ public final class BufferedPaints {
    * shaders.  So for now we will cap this value at 12, but we can
    * re-evaluate this in the future as hardware becomes more capable.
    */
-  @Native public static final int MULTI_MAX_FRACTIONS = 12;
+  public static final int MULTI_MAX_FRACTIONS = 12;
   protected static final int OPSIZE_SET_GRADIENT_PAINT = 44;
   protected static final int OPALIGN_SET_GRADIENT_PAINT = 12;
   protected static final int OPSIZE_SET_TEXTURE_PAINT = 68;

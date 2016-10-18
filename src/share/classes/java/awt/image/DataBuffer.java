@@ -72,37 +72,37 @@ public abstract class DataBuffer {
   /**
    * Tag for unsigned byte data.
    */
-  @Native public static final int TYPE_BYTE = 0;
+  public static final int TYPE_BYTE = 0;
 
   /**
    * Tag for unsigned short data.
    */
-  @Native public static final int TYPE_USHORT = 1;
+  public static final int TYPE_USHORT = 1;
 
   /**
    * Tag for signed short data.  Placeholder for future use.
    */
-  @Native public static final int TYPE_SHORT = 2;
+  public static final int TYPE_SHORT = 2;
 
   /**
    * Tag for int data.
    */
-  @Native public static final int TYPE_INT = 3;
+  public static final int TYPE_INT = 3;
 
   /**
    * Tag for float data.  Placeholder for future use.
    */
-  @Native public static final int TYPE_FLOAT = 4;
+  public static final int TYPE_FLOAT = 4;
 
   /**
    * Tag for double data.  Placeholder for future use.
    */
-  @Native public static final int TYPE_DOUBLE = 5;
+  public static final int TYPE_DOUBLE = 5;
 
   /**
    * Tag for undefined data.
    */
-  @Native public static final int TYPE_UNDEFINED = 32;
+  public static final int TYPE_UNDEFINED = 32;
   /**
    * Size of the data types indexed by DataType tags defined above.
    */

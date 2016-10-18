@@ -114,10 +114,15 @@ public class LCMSTransform implements ColorTransform {
   }
 
   /* methods invoked from LCMSTransform */
-  public static native void colorConvert(
-      LCMSTransform trans, LCMSImageLayout src, LCMSImageLayout dest);
+  public static void colorConvert(
+      LCMSTransform trans, LCMSImageLayout src, LCMSImageLayout dest) {
+    // TODO: Native in OpenJDK AWT
+  }
 
-  public static synchronized native LCMSProfile getProfileID(ICC_Profile profile);
+  public static synchronized LCMSProfile getProfileID(ICC_Profile profile) {
+    // TODO: Native in OpenJDK AWT
+    return null;
+  }
 
   @Override
   public int getNumInComponents() {

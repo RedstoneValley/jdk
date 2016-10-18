@@ -28,11 +28,30 @@
  * @run main/manual=yesno/timeout=900 ClippedImages
  */
 
-import java.awt.*;
-import java.awt.geom.*;
-import java.awt.event.*;
-import java.awt.print.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Panel;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Pageable;
+import java.awt.print.PrintRequestAttributeSet;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 
 public class ClippedImages extends Frame implements ActionListener {
 
@@ -117,7 +136,7 @@ public class ClippedImages extends Frame implements ActionListener {
         PrinterJob pj = PrinterJob.getPrinterJob();
 
         PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-        if (pj != null && (pj.printDialog(attrs))) {
+        if (pj != null && pj.printDialog(attrs)) {
             c.setPrinterJob(pj, false);
             pj.setPrintable(c);
             try {
@@ -134,7 +153,7 @@ public class ClippedImages extends Frame implements ActionListener {
     private void printAll() {
         PrinterJob pj = PrinterJob.getPrinterJob();
         PrintRequestAttributeSet attrs = new HashPrintRequestAttributeSet();
-        if (pj != null && (pj.printDialog(attrs))) {
+        if (pj != null && pj.printDialog(attrs)) {
             c.setPrinterJob(pj, true);
             pj.setPageable(c);
             try {

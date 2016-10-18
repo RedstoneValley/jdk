@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectInputStream.GetField;
 import java.security.AccessControlException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
@@ -107,7 +105,7 @@ public class Dialog extends Window {
    * @since 1.6
    */
   public static final ModalityType DEFAULT_MODALITY_TYPE = ModalityType.APPLICATION_MODAL;
-  private static final String base = "dialog";
+  static final String base = "dialog";
   /*
    * JDK 1.1 serialVersionUID
    */

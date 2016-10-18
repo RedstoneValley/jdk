@@ -130,7 +130,7 @@ public class XbmImageDecoder extends ImageDecoder {
           }
           for (int mask = 1; mask <= 0x80; mask <<= 1) {
             if (x < W) {
-              raster[x] = (n & mask) != 0 ? 1 : 0;
+              raster[x] = (byte) ((n & mask) != 0 ? 1 : 0);
             }
             x++;
           }

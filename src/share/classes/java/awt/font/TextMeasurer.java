@@ -61,7 +61,7 @@ import sun.font.TextLineComponent;
  * methods for incremental editing of paragraphs.
  * <p>
  * A {@code TextMeasurer} object is constructed with an
- * {@link java.text.AttributedCharacterIterator AttributedCharacterIterator}
+ * {@link AttributedCharacterIterator AttributedCharacterIterator}
  * representing a single paragraph of text.  The value returned by the
  * {@link AttributedCharacterIterator#getBeginIndex() getBeginIndex}
  * method of {@code AttributedCharacterIterator}
@@ -73,9 +73,9 @@ import sun.font.TextLineComponent;
  * use in calls to the {@code TextMeasurer}.  For example, calls to
  * get the advance of a range of text or the line break of a range of text
  * must use indexes between the beginning and end index values.  Calls to
- * {@link #insertChar(java.text.AttributedCharacterIterator, int) insertChar}
+ * {@link #insertChar(AttributedCharacterIterator, int) insertChar}
  * and
- * {@link #deleteChar(java.text.AttributedCharacterIterator, int) deleteChar}
+ * {@link #deleteChar(AttributedCharacterIterator, int) deleteChar}
  * reset the {@code TextMeasurer} to use the beginning index and end
  * index of the {@code AttributedCharacterIterator} passed in those calls.
  * <p>

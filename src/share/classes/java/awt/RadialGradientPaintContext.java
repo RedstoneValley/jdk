@@ -410,7 +410,7 @@ final class RadialGradientPaintContext extends MultipleGradientPaintContext {
           // choose the positive or negative root depending
           // on where the X coord lies with respect to the focus
           solutionX += X < focusX ? -det : det;
-          solutionX /= (2 * A); // divisor
+          solutionX /= 2 * A; // divisor
           solutionY = slope * solutionX + yintcpt;
         }
 

@@ -51,7 +51,6 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
   private static final long serialVersionUID = -3359745691033257079L;
 
   static {
-    Toolkit.loadLibraries();
     AWTAccessor.setScrollPaneAdjustableAccessor(new ScrollPaneAdjustableAccessor() {
       @Override
       public void setTypedValue(ScrollPaneAdjustable adj, int v, int type) {

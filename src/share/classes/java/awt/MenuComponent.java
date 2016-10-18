@@ -69,7 +69,6 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
   }
 
   static {

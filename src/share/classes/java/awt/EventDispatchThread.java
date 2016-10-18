@@ -219,7 +219,7 @@ class EventDispatchThread extends Thread {
     theQueue = eq;
   }
 
-  private static class HierarchyEventFilter implements EventFilter {
+  static class HierarchyEventFilter implements EventFilter {
     protected static final String JINTERNAL_FRAME_CLASS = "javax.swing.JInternalFrame";
     private final Component modalComponent;
 

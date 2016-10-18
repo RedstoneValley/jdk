@@ -128,6 +128,7 @@ public class DataFlavor implements Externalizable, Cloneable {
    * </pre>
    */
   public static final DataFlavor stringFlavor = createConstant(String.class, "Unicode" + " String");
+  private static final String imageSuffix = "Image";
   /**
    * The {@code DataFlavor} representing a Java Image class,
    * where:
@@ -136,8 +137,8 @@ public class DataFlavor implements Externalizable, Cloneable {
    *     mimeType            = "image/x-java-image"
    * </pre>
    */
-  public static final DataFlavor imageFlavor = createConstant("image/x-java-image; class=java" +
-      ".awt.Image", Notepad.imageSuffix);
+  public static final DataFlavor imageFlavor = createConstant("image/x-java-image; class=java" + ".awt.Image",
+      imageSuffix);
   /**
    * The {@code DataFlavor} representing plain text with Unicode
    * encoding, where:
@@ -1405,7 +1406,7 @@ public class DataFlavor implements Externalizable, Cloneable {
     return mimeType;
   }
 
-  static class TextFlavorComparator extends DataFlavorComparator implements Serializable {
+  static class TextFlavorComparator extends DataFlavorComparator {
 
     private static final long serialVersionUID = 2230621387020128686L;
 

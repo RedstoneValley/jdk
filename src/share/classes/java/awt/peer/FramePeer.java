@@ -28,7 +28,6 @@ package java.awt.peer;
 import java.awt.Frame;
 import java.awt.MenuBar;
 import java.awt.Rectangle;
-import sun.awt.EmbeddedFrame;
 
 /**
  * The peer interface for {@link Frame}. This adds a couple of frame specific

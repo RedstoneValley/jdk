@@ -159,20 +159,18 @@ final class TextLine {
     }
 
     // get bottom
-    {
-      int[] buf = new int[w];
-      --b;
-      while (b > t) {
-        im.getRGB(0, b, buf.length, 1, buf, 0, w); // w ignored
-        for (int aBuf : buf) {
-          if (aBuf != -1) {
-            break;
-          }
+    int[] buf = new int[w];
+    --b;
+    while (b > t) {
+      im.getRGB(0, b, buf.length, 1, buf, 0, w); // w ignored
+      for (int aBuf : buf) {
+        if (aBuf != -1) {
+          break;
         }
-        --b;
       }
-      ++b;
+      --b;
     }
+    ++b;
 
     // get left
     ++l;

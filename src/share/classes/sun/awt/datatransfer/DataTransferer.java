@@ -26,7 +26,6 @@
 package sun.awt.datatransfer;
 
 import android.util.Log;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -1871,7 +1870,7 @@ public abstract class DataTransferer {
   protected byte[] imageToStandardBytesImpl(RenderedImage renderedImage, String mimeType)
       throws IOException {
 
-    Iterator writerIterator = ImageIO.getImageWritersByMIMEType(mimeType);
+    Iterator<ImageWriter> writerIterator = ImageIO.getImageWritersByMIMEType(mimeType);
 
     ImageTypeSpecifier typeSpecifier = new ImageTypeSpecifier(renderedImage);
 
@@ -2035,22 +2034,6 @@ public abstract class DataTransferer {
     return ret;
   }
 
-  public void processDataConversionRequests() {
-    if (EventQueue.isDispatchThread()) {
-      AppContext appContext = AppContext.getAppContext();
-      getToolkitThreadBlockedHandler().lock();
-      try {
-        Runnable dataConverter = (Runnable) appContext.get(DATA_CONVERTER_KEY);
-        if (dataConverter != null) {
-          dataConverter.run();
-          appContext.remove(DATA_CONVERTER_KEY);
-        }
-      } finally {
-        getToolkitThreadBlockedHandler().unlock();
-      }
-    }
-  }
-
   public abstract ToolkitThreadBlockedHandler getToolkitThreadBlockedHandler();
 
   /**
@@ -2181,7 +2164,7 @@ public abstract class DataTransferer {
    * in alphabetical order, charsets are not automatically converted to their
    * canonical forms.
    */
-  public static class CharsetComparator extends IndexedComparator implements Serializable {
+  public static class CharsetComparator extends IndexedComparator {
     private static final Map charsets;
     private static final Integer DEFAULT_CHARSET_INDEX = 2;
     private static final Integer OTHER_CHARSET_INDEX = 1;
@@ -2329,7 +2312,7 @@ public abstract class DataTransferer {
    * most descriptive one. For flavors which are otherwise equal, the
    * flavors' string representation are compared in the alphabetical order.
    */
-  public static class DataFlavorComparator extends IndexedComparator implements Serializable {
+  public static class DataFlavorComparator extends IndexedComparator {
 
     private static final Map exactTypes;
     private static final Map primaryTypes;
@@ -2553,7 +2536,7 @@ public abstract class DataTransferer {
    * reverse index-based order: an object A is greater than an object B if and
    * only if A is less than B with the direct index-based order.
    */
-  public static class IndexOrderComparator extends IndexedComparator implements Serializable {
+  public static class IndexOrderComparator extends IndexedComparator {
     private static final Integer FALLBACK_INDEX = Integer.MIN_VALUE;
     private static final long serialVersionUID = -4855480188670929103L;
     private final Map indexMap;

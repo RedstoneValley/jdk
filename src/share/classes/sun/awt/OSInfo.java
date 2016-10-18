@@ -53,7 +53,7 @@ public final class OSInfo {
   public static final WindowsVersion WINDOWS_2003 = new WindowsVersion(5, 2);
   public static final WindowsVersion WINDOWS_VISTA = new WindowsVersion(6, 0);
   private static final String OS_NAME = "os.name";
-  private static final String OS_VERSION = "os.version";
+  public static final String OS_VERSION = "os.version";
   private static final Map<String, WindowsVersion> windowsVersionMap
       = new HashMap<>();
   private static final PrivilegedAction<OSType> osTypeAction = new PrivilegedAction<OSType>() {

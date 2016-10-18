@@ -239,7 +239,7 @@ public abstract class RGBImageFilter extends ImageFilter {
       }
       r[i] = (byte) (rgb >> 16);
       g[i] = (byte) (rgb >> 8);
-      b[i] = (byte) (rgb);
+      b[i] = (byte) rgb;
     }
     return needalpha ? new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, a)
         : new IndexColorModel(icm.getPixelSize(), mapsize, r, g, b, trans);

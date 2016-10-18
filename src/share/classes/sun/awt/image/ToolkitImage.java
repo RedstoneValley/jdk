@@ -33,6 +33,7 @@ import java.awt.image.ImageConsumer;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class ToolkitImage extends Image {
 
@@ -50,7 +51,7 @@ public class ToolkitImage extends Image {
   ImageRepresentation imagerep;
   private int width = -1;
   private int height = -1;
-  private Hashtable properties;
+  private Map<?, ?> properties;
   private int availinfo;
 
   protected ToolkitImage() {
@@ -280,9 +281,9 @@ public class ToolkitImage extends Image {
     addInfo(ImageObserver.WIDTH | ImageObserver.HEIGHT);
   }
 
-  void setProperties(Hashtable props) {
+  void setProperties(Map<?, ?> props) {
     if (props == null) {
-      props = new Hashtable();
+      props = new Hashtable<>();
     }
     properties = props;
     addInfo(ImageObserver.PROPERTIES);

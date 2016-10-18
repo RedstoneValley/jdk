@@ -93,7 +93,6 @@ public class TextArea extends TextComponent {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
     forwardTraversalKeys = initFocusTraversalKeysSet("ctrl TAB",
         new HashSet<>());
     backwardTraversalKeys = initFocusTraversalKeysSet("ctrl shift TAB",

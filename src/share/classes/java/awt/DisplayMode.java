@@ -52,13 +52,13 @@ public final class DisplayMode {
    *
    * @see #getBitDepth
    */
-  @Native public static final int BIT_DEPTH_MULTI = -1;
+  public static final int BIT_DEPTH_MULTI = -1;
   /**
    * Value of the refresh rate if not known.
    *
    * @see #getRefreshRate
    */
-  @Native public static final int REFRESH_RATE_UNKNOWN = 0;
+  public static final int REFRESH_RATE_UNKNOWN = 0;
   private final Dimension size;
   private final int bitDepth;
   private final int refreshRate;

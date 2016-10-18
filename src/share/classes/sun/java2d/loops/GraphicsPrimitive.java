@@ -63,8 +63,7 @@ public abstract class GraphicsPrimitive {
   private static int unusedPrimID = 1;
 
   static {
-    GetPropertyAction gpa = new GetPropertyAction("sun.java2d.trace");
-    String trace = AccessController.doPrivileged(gpa);
+    String trace = System.getProperty("sun.java2d.trace");
     if (trace != null) {
       boolean verbose = false;
       int traceflags = 0;

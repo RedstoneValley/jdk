@@ -188,8 +188,6 @@ public class BasicStroke implements Stroke {
    *                                  {@code dash} is zero
    * @throws IllegalArgumentException if dash lengths are all zero.
    */
-  @ConstructorProperties(
-      {"lineWidth", "endCap", "lineJoin", "miterLimit", "dashArray", "dashPhase"})
   public BasicStroke(
       float width, int cap, int join, float miterlimit, float[] dash, float dash_phase) {
     if (width < 0.0f) {

@@ -157,7 +157,6 @@ public class GradientPaint implements Paint {
    * @throws NullPointerException if either one of colors or points
    *                              is null
    */
-  @ConstructorProperties({"point1", "color1", "point2", "color2", "cyclic"})
   public GradientPaint(Point2D pt1, Color color1, Point2D pt2, Color color2, boolean cyclic) {
     this(pt1, color1, pt2, color2);
     this.cyclic = cyclic;

@@ -250,11 +250,6 @@ public abstract class Toolkit {
     return c.getNativeContainer();
   }
 
-  @Deprecated
-  static void loadLibraries() {
-    // No-op, included for backward compatibility.
-  }
-
   /**
    * Gets a property with the specified key and default.
    * This method returns defaultValue if the property is not found.

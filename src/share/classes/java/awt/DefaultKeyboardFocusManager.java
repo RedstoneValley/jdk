@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Set;
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.DefaultKeyboardFocusManagerAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.CausedFocusEvent.Cause;

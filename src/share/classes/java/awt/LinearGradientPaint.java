@@ -258,8 +258,6 @@ public final class LinearGradientPaint extends MultipleGradientPaint {
    *                                  or the {@code fractions} are not provided in strictly
    *                                  increasing order
    */
-  @ConstructorProperties(
-      {"startPoint", "endPoint", "fractions", "colors", "cycleMethod", "colorSpace", "transform"})
   public LinearGradientPaint(
       Point2D start, Point2D end, float[] fractions, Color[] colors, CycleMethod cycleMethod,
       ColorSpaceType colorSpace, AffineTransform gradientTransform) {

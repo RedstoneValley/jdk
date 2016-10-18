@@ -3,6 +3,7 @@ package sun.font;
 import java.awt.Font;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.util.Map;
+import sun.text.CodePointIterator;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -23,5 +24,10 @@ public class FontResolver {
       int fontIndex, Map<? extends Attribute, ?> attributes) {
     // TODO
     return null;
+  }
+
+  public int nextFontRunIndex(CodePointIterator iter) {
+    // TODO
+    return 0;
   }
 }

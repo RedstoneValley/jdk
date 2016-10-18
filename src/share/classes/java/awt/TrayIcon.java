@@ -89,7 +89,6 @@ import sun.awt.SunToolkit;
 public class TrayIcon {
 
   static {
-    Toolkit.loadLibraries();
 
     AWTAccessor.setTrayIconAccessor(new TrayIconAccessor() {
       @Override
@@ -123,7 +122,6 @@ public class TrayIcon {
   private transient TrayIconPeer peer;
 
   private TrayIcon() throws UnsupportedOperationException, SecurityException {
-    SystemTray.checkSystemTrayAllowed();
     if (!SystemTray.isSupported()) {
       throw new UnsupportedOperationException();
     }
@@ -213,16 +211,6 @@ public class TrayIcon {
   public TrayIcon(Image image, String tooltip, PopupMenu popup) {
     this(image, tooltip);
     setPopupMenu(popup);
-  }
-
-  /*
-   * Returns the acc this tray icon was constructed with.
-   */
-  final AccessControlContext getAccessControlContext() {
-    if (acc == null) {
-      throw new SecurityException("TrayIcon is missing AccessControlContext");
-    }
-    return acc;
   }
 
   /**

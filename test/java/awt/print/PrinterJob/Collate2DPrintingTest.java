@@ -27,10 +27,26 @@
  * @summary Collation should work.
  * @run main/manual Collate2DPrintingTest
  */
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.print.*;
-import java.io.*;
+
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Dialog;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Panel;
+import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.print.PageFormat;
+import java.awt.print.PrintService;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.InputStream;
+import java.io.Reader;
+import sun.awt.PrintServiceLookup;
 
 public class Collate2DPrintingTest
     extends Frame implements Doc, Printable, ActionListener {

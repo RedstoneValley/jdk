@@ -8552,7 +8552,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see BufferStrategy
    * @since 1.4
    */
-  protected class FlipBufferStrategy extends BufferStrategy {
+  public class FlipBufferStrategy extends BufferStrategy {
     /**
      * The number of buffers
      */

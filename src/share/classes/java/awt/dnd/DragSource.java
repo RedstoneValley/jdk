@@ -32,6 +32,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.SystemFlavorMap;
@@ -41,7 +42,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.AccessController;
 import java.util.EventListener;
 import sun.awt.dnd.SunDragSourceContextPeer;
 
@@ -255,18 +255,19 @@ public class DragSource implements Serializable {
    * @since 1.5
    */
   public static int getDragThreshold() {
-    int ts = AccessController
-        .doPrivileged(new GetIntegerAction("awt.dnd.drag.threshold", 0))
-        .intValue();
-    if (ts > 0) {
-      return ts;
+    try {
+      int ts = Integer.parseInt(System.getProperty("awt.dnd.drag.threshold", "0"));
+      if (ts > 0) {
+        return ts;
+      }
+    } catch (NumberFormatException ignored) {
     }
     Integer td = (Integer) Toolkit.getDefaultToolkit().
         getDesktopProperty("DnD.gestureMotionThreshold");
     if (td != null) {
       return td;
     }
-    return 5;
+    return SkinJob.defaultDragThreshold;
   }
 
   /**

@@ -81,7 +81,6 @@ public class MenuBar extends MenuComponent implements MenuContainer {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
     AWTAccessor.setMenuBarAccessor(new MenuBarAccessor() {
       @Override
       public Menu getHelpMenu(MenuBar menuBar) {

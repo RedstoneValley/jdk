@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.util.Log;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics;

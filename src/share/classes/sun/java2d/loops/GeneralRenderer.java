@@ -41,6 +41,7 @@ import sun.java2d.loops.XorPixelWriter.DoubleData;
 import sun.java2d.loops.XorPixelWriter.FloatData;
 import sun.java2d.loops.XorPixelWriter.IntData;
 import sun.java2d.loops.XorPixelWriter.ShortData;
+import sun.java2d.pipe.GlyphList;
 import sun.java2d.pipe.Region;
 import sun.java2d.pipe.SpanIterator;
 
@@ -519,7 +520,7 @@ public final class GeneralRenderer {
             if (xmajor) {
               xsteps += ay - ax - 1;
             }
-            xsteps /= (2 * ay);
+            xsteps /= 2 * ay;
             if (dx < 0) {
               xsteps = -xsteps;
             }
@@ -534,7 +535,7 @@ public final class GeneralRenderer {
             if (!xmajor) {
               ysteps += ax - ay - 1;
             }
-            ysteps /= (2 * ax);
+            ysteps /= 2 * ax;
             if (dy < 0) {
               ysteps = -ysteps;
             }
@@ -554,7 +555,7 @@ public final class GeneralRenderer {
             } else {
               xsteps -= 1;
             }
-            xsteps /= (2 * ay);
+            xsteps /= 2 * ay;
             if (dx > 0) {
               xsteps = -xsteps;
             }
@@ -571,7 +572,7 @@ public final class GeneralRenderer {
             } else {
               ysteps += ax - ay;
             }
-            ysteps /= (2 * ax);
+            ysteps /= 2 * ax;
             if (dy > 0) {
               ysteps = -ysteps;
             }
@@ -897,30 +898,6 @@ class XorDrawRectANY extends DrawRect {
     PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
 
     GeneralRenderer.doDrawRect(pw, sg2d, sData, x, y, w, h);
-  }
-}
-
-class XorDrawGlyphListANY extends DrawGlyphList {
-  XorDrawGlyphListANY() {
-    super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
-  }
-
-  @Override
-  public void DrawGlyphList(SunGraphics2D sg2d, SurfaceData sData, GlyphList gl) {
-    PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
-    GeneralRenderer.doDrawGlyphList(sData, pw, gl, sg2d.getCompClip());
-  }
-}
-
-class XorDrawGlyphListAAANY extends DrawGlyphListAA {
-  XorDrawGlyphListAAANY() {
-    super(SurfaceType.AnyColor, CompositeType.Xor, SurfaceType.Any);
-  }
-
-  @Override
-  public void DrawGlyphListAA(SunGraphics2D sg2d, SurfaceData sData, GlyphList gl) {
-    PixelWriter pw = GeneralRenderer.createXorPixelWriter(sg2d, sData);
-    GeneralRenderer.doDrawGlyphList(sData, pw, gl, sg2d.getCompClip());
   }
 }
 

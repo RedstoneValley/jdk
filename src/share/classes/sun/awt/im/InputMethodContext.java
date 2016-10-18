@@ -81,9 +81,6 @@ public class InputMethodContext extends InputContext implements java.awt.im.spi.
   }
 
   static Window createInputMethodWindow(String title, InputContext context, boolean isSwing) {
-    if (isSwing) {
-      return new InputMethodJFrame(title, context);
-    }
     Toolkit toolkit = Toolkit.getDefaultToolkit();
     if (toolkit instanceof InputMethodSupport) {
       return ((InputMethodSupport) toolkit).createInputMethodWindow(title, context);
@@ -136,13 +133,6 @@ public class InputMethodContext extends InputContext implements java.awt.im.spi.
   public Window createInputMethodWindow(String title, boolean attachToInputContext) {
     InputContext context = attachToInputContext ? this : null;
     return createInputMethodWindow(title, context, false);
-  }
-
-  // implements java.awt.im.spi.InputMethodContext.createInputMethodJFrame
-  @Override
-  public JFrame createInputMethodJFrame(String title, boolean attachToInputContext) {
-    InputContext context = attachToInputContext ? this : null;
-    return (JFrame) createInputMethodWindow(title, context, true);
   }
 
   /**

@@ -104,7 +104,6 @@ public class TextField extends TextComponent {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
     initIDs();
   }
 

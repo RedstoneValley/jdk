@@ -37,84 +37,84 @@ public final class SunHints {
   /**
    * Rendering hint key and values
    */
-  @Native public static final int INTKEY_RENDERING = 0;
-  @Native public static final int INTVAL_RENDER_DEFAULT = 0;
-  @Native public static final int INTVAL_RENDER_SPEED = 1;
-  @Native public static final int INTVAL_RENDER_QUALITY = 2;
+  public static final int INTKEY_RENDERING = 0;
+  public static final int INTVAL_RENDER_DEFAULT = 0;
+  public static final int INTVAL_RENDER_SPEED = 1;
+  public static final int INTVAL_RENDER_QUALITY = 2;
   /**
    * Antialiasing hint key and values
    */
-  @Native public static final int INTKEY_ANTIALIASING = 1;
-  @Native public static final int INTVAL_ANTIALIAS_DEFAULT = 0;
-  @Native public static final int INTVAL_ANTIALIAS_OFF = 1;
-  @Native public static final int INTVAL_ANTIALIAS_ON = 2;
+  public static final int INTKEY_ANTIALIASING = 1;
+  public static final int INTVAL_ANTIALIAS_DEFAULT = 0;
+  public static final int INTVAL_ANTIALIAS_OFF = 1;
+  public static final int INTVAL_ANTIALIAS_ON = 2;
   /**
    * Text antialiasing hint key and values
    */
-  @Native public static final int INTKEY_TEXT_ANTIALIASING = 2;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_DEFAULT = 0;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_OFF = 1;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_ON = 2;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_GASP = 3;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_LCD_HRGB = 4;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_LCD_HBGR = 5;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_LCD_VRGB = 6;
-  @Native public static final int INTVAL_TEXT_ANTIALIAS_LCD_VBGR = 7;
+  public static final int INTKEY_TEXT_ANTIALIASING = 2;
+  public static final int INTVAL_TEXT_ANTIALIAS_DEFAULT = 0;
+  public static final int INTVAL_TEXT_ANTIALIAS_OFF = 1;
+  public static final int INTVAL_TEXT_ANTIALIAS_ON = 2;
+  public static final int INTVAL_TEXT_ANTIALIAS_GASP = 3;
+  public static final int INTVAL_TEXT_ANTIALIAS_LCD_HRGB = 4;
+  public static final int INTVAL_TEXT_ANTIALIAS_LCD_HBGR = 5;
+  public static final int INTVAL_TEXT_ANTIALIAS_LCD_VRGB = 6;
+  public static final int INTVAL_TEXT_ANTIALIAS_LCD_VBGR = 7;
   /**
    * Font fractional metrics hint key and values
    */
-  @Native public static final int INTKEY_FRACTIONALMETRICS = 3;
-  @Native public static final int INTVAL_FRACTIONALMETRICS_DEFAULT = 0;
-  @Native public static final int INTVAL_FRACTIONALMETRICS_OFF = 1;
-  @Native public static final int INTVAL_FRACTIONALMETRICS_ON = 2;
+  public static final int INTKEY_FRACTIONALMETRICS = 3;
+  public static final int INTVAL_FRACTIONALMETRICS_DEFAULT = 0;
+  public static final int INTVAL_FRACTIONALMETRICS_OFF = 1;
+  public static final int INTVAL_FRACTIONALMETRICS_ON = 2;
   /**
    * Dithering hint key and values
    */
-  @Native public static final int INTKEY_DITHERING = 4;
-  @Native public static final int INTVAL_DITHER_DEFAULT = 0;
-  @Native public static final int INTVAL_DITHER_DISABLE = 1;
-  @Native public static final int INTVAL_DITHER_ENABLE = 2;
+  public static final int INTKEY_DITHERING = 4;
+  public static final int INTVAL_DITHER_DEFAULT = 0;
+  public static final int INTVAL_DITHER_DISABLE = 1;
+  public static final int INTVAL_DITHER_ENABLE = 2;
   /**
    * Interpolation hint key and values
    */
-  @Native public static final int INTKEY_INTERPOLATION = 5;
-  @Native public static final int INTVAL_INTERPOLATION_NEAREST_NEIGHBOR = 0;
-  @Native public static final int INTVAL_INTERPOLATION_BILINEAR = 1;
-  @Native public static final int INTVAL_INTERPOLATION_BICUBIC = 2;
+  public static final int INTKEY_INTERPOLATION = 5;
+  public static final int INTVAL_INTERPOLATION_NEAREST_NEIGHBOR = 0;
+  public static final int INTVAL_INTERPOLATION_BILINEAR = 1;
+  public static final int INTVAL_INTERPOLATION_BICUBIC = 2;
   /**
    * Alpha interpolation hint key and values
    */
-  @Native public static final int INTKEY_ALPHA_INTERPOLATION = 6;
-  @Native public static final int INTVAL_ALPHA_INTERPOLATION_DEFAULT = 0;
-  @Native public static final int INTVAL_ALPHA_INTERPOLATION_SPEED = 1;
-  @Native public static final int INTVAL_ALPHA_INTERPOLATION_QUALITY = 2;
+  public static final int INTKEY_ALPHA_INTERPOLATION = 6;
+  public static final int INTVAL_ALPHA_INTERPOLATION_DEFAULT = 0;
+  public static final int INTVAL_ALPHA_INTERPOLATION_SPEED = 1;
+  public static final int INTVAL_ALPHA_INTERPOLATION_QUALITY = 2;
   /**
    * Color rendering hint key and values
    */
-  @Native public static final int INTKEY_COLOR_RENDERING = 7;
-  @Native public static final int INTVAL_COLOR_RENDER_DEFAULT = 0;
-  @Native public static final int INTVAL_COLOR_RENDER_SPEED = 1;
-  @Native public static final int INTVAL_COLOR_RENDER_QUALITY = 2;
+  public static final int INTKEY_COLOR_RENDERING = 7;
+  public static final int INTVAL_COLOR_RENDER_DEFAULT = 0;
+  public static final int INTVAL_COLOR_RENDER_SPEED = 1;
+  public static final int INTVAL_COLOR_RENDER_QUALITY = 2;
   /**
    * Stroke normalization control hint key and values
    */
-  @Native public static final int INTKEY_STROKE_CONTROL = 8;
-  @Native public static final int INTVAL_STROKE_DEFAULT = 0;
-  @Native public static final int INTVAL_STROKE_NORMALIZE = 1;
-  @Native public static final int INTVAL_STROKE_PURE = 2;
+  public static final int INTKEY_STROKE_CONTROL = 8;
+  public static final int INTVAL_STROKE_DEFAULT = 0;
+  public static final int INTVAL_STROKE_NORMALIZE = 1;
+  public static final int INTVAL_STROKE_PURE = 2;
   /**
    * Image scaling hint key and values
    */
-  @Native public static final int INTKEY_RESOLUTION_VARIANT = 9;
-  @Native public static final int INTVAL_RESOLUTION_VARIANT_DEFAULT = 0;
-  @Native public static final int INTVAL_RESOLUTION_VARIANT_OFF = 1;
-  @Native public static final int INTVAL_RESOLUTION_VARIANT_ON = 2;
+  public static final int INTKEY_RESOLUTION_VARIANT = 9;
+  public static final int INTVAL_RESOLUTION_VARIANT_DEFAULT = 0;
+  public static final int INTVAL_RESOLUTION_VARIANT_OFF = 1;
+  public static final int INTVAL_RESOLUTION_VARIANT_ON = 2;
   /**
    * LCD text contrast control hint key.
    * Value is "100" to make discontiguous with the others which
    * are all enumerative and are of a different class.
    */
-  @Native public static final int INTKEY_AATEXT_LCD_CONTRAST = 100;
+  public static final int INTKEY_AATEXT_LCD_CONTRAST = 100;
   /**
    * Rendering hint key and value objects
    */
@@ -237,7 +237,7 @@ public final class SunHints {
    * tests for matches can be made using the == operator instead
    * of the more expensive equals() method.
    */
-  public static enum Value {
+  public enum Value {
     VALUE_RENDER_SPEED(KEY_RENDERING,
         INTVAL_RENDER_SPEED,
         "Fastest rendering methods"),

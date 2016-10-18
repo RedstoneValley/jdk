@@ -41,21 +41,21 @@ public class PageFormat implements Cloneable {
    * Note that this is not the Macintosh landscape but
    * is the Window's and PostScript landscape.
    */
-  @Native public static final int LANDSCAPE = 0;
+  public static final int LANDSCAPE = 0;
 
   /**
    * The origin is at the top left of the paper with
    * x running to the right and y running down the
    * paper.
    */
-  @Native public static final int PORTRAIT = 1;
+  public static final int PORTRAIT = 1;
 
   /**
    * The origin is at the top right of the paper with x
    * running top to bottom and y running right to left.
    * Note that this is the Macintosh landscape.
    */
-  @Native public static final int REVERSE_LANDSCAPE = 2;
+  public static final int REVERSE_LANDSCAPE = 2;
 
  /* Instance Variables */
 

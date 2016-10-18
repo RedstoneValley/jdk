@@ -160,7 +160,6 @@ public class Point extends Point2D implements Serializable {
    * @see Point#setLocation(int, int)
    * @since 1.1
    */
-  @Transient
   public Point getLocation() {
     return new Point(x, y);
   }

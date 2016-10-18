@@ -26,7 +26,6 @@
 package java.awt;
 
 import java.awt.image.BufferedImage;
-import java.security.AccessController;
 import java.util.Locale;
 import sun.font.FontManager;
 
@@ -86,7 +85,7 @@ public class GraphicsEnvironment {
    */
   private static GraphicsEnvironment createGE() {
     GraphicsEnvironment ge;
-    String nm = AccessController.doPrivileged(new GetPropertyAction("java.awt.graphicsenv", null));
+    String nm = System.getProperty("java.awt.graphicsenv");
     if (nm == null) {
       return new GraphicsEnvironment();
     }
@@ -187,10 +186,12 @@ public class GraphicsEnvironment {
    *
    * @return an array containing all the {@code GraphicsDevice}
    * objects that represent screen devices
-   * @throws HeadlessException if isHeadless() returns true
    * @see #isHeadless()
    */
-  public abstract GraphicsDevice[] getScreenDevices() throws HeadlessException;
+  public GraphicsDevice[] getScreenDevices() {
+    // TODO
+    return new GraphicsDevice[0];
+  }
 
   /**
    * Returns the default screen {@code GraphicsDevice}.
@@ -200,8 +201,10 @@ public class GraphicsEnvironment {
    * @throws HeadlessException if isHeadless() returns true
    * @see #isHeadless()
    */
-  public abstract GraphicsDevice getDefaultScreenDevice() throws HeadlessException;
-
+  public GraphicsDevice getDefaultScreenDevice() {
+    // TODO
+    return null;
+  }
   /**
    * Returns a {@code Graphics2D} object for rendering into the
    * specified {@link BufferedImage}.
@@ -211,7 +214,10 @@ public class GraphicsEnvironment {
    * the specified {@code BufferedImage}
    * @throws NullPointerException if {@code img} is null
    */
-  public abstract Graphics2D createGraphics(BufferedImage img);
+  public Graphics2D createGraphics(BufferedImage img) {
+    // TODO
+    return null;
+  }
 
   /**
    * Returns an array containing a one-point size instance of all fonts
@@ -239,7 +245,9 @@ public class GraphicsEnvironment {
    * @see Font#getFontName
    * @since 1.2
    */
-  public abstract Font[] getAllFonts();
+  public Font[] getAllFonts() {
+    return FontManager.getInstance().getAllInstalledFonts();
+  }
 
   /**
    * Returns an array containing the names of all font families in this
@@ -260,7 +268,9 @@ public class GraphicsEnvironment {
    * @see Font#getFamily
    * @since 1.2
    */
-  public abstract String[] getAvailableFontFamilyNames();
+  public String[] getAvailableFontFamilyNames() {
+    return FontManager.getInstance().getInstalledFontFamilyNames(Locale.getDefault());
+  }
 
   /**
    * Returns an array containing the names of all font families in this
@@ -284,7 +294,9 @@ public class GraphicsEnvironment {
    * @see Font#getFamily
    * @since 1.2
    */
-  public abstract String[] getAvailableFontFamilyNames(Locale l);
+  public String[] getAvailableFontFamilyNames(Locale l) {
+    return FontManager.getInstance().getInstalledFontFamilyNames(l);
+  }
 
   /**
    * Registers a <i>created</i> {@code Font}in this

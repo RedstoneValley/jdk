@@ -66,15 +66,15 @@ public class AffineTransformOp implements BufferedImageOp, RasterOp {
   /**
    * Nearest-neighbor interpolation type.
    */
-  @Native public static final int TYPE_NEAREST_NEIGHBOR = 1;
+  public static final int TYPE_NEAREST_NEIGHBOR = 1;
   /**
    * Bilinear interpolation type.
    */
-  @Native public static final int TYPE_BILINEAR = 2;
+  public static final int TYPE_BILINEAR = 2;
   /**
    * Bicubic interpolation type.
    */
-  @Native public static final int TYPE_BICUBIC = 3;
+  public static final int TYPE_BICUBIC = 3;
   private final AffineTransform xform;
   RenderingHints hints;
   int interpolationType = TYPE_NEAREST_NEIGHBOR;

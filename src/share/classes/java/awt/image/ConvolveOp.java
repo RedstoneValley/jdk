@@ -70,13 +70,14 @@ public class ConvolveOp implements BufferedImageOp, RasterOp {
    * Pixels at the edge of the destination image are set to zero.  This
    * is the default.
    */
+  public static final int EDGE_ZERO_FILL = 0;
 
-  @Native public static final int EDGE_ZERO_FILL = 0;
   /**
    * Pixels at the edge of the source image are copied to
    * the corresponding pixels in the destination without modification.
    */
-  @Native public static final int EDGE_NO_OP = 1;
+  public static final int EDGE_NO_OP = 1;
+
   final Kernel kernel;
   /**
    * Edge condition constants.

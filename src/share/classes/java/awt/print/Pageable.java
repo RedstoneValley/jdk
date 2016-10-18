@@ -42,7 +42,7 @@ public interface Pageable {
    * method if a {@code Pageable} implementation does not know
    * the number of pages in its set.
    */
-  @Native int UNKNOWN_NUMBER_OF_PAGES = -1;
+  int UNKNOWN_NUMBER_OF_PAGES = -1;
 
   /**
    * Returns the number of pages in the set.

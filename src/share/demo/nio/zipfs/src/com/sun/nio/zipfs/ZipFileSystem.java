@@ -100,7 +100,7 @@ import static com.sun.nio.zipfs.ZipUtils.writeLong;
 import static com.sun.nio.zipfs.ZipUtils.writeShort;
 import static java.lang.Boolean.TRUE;
 
-import android.provider.MediaStore;
+import android.provider.MediaStore.Files;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -990,7 +990,7 @@ public class ZipFileSystem extends FileSystem {
       Entry e = getEntry0(path);
       if (e != null) {
         try (InputStream is = newInputStream(path)) {
-          MediaStore.Files.copy(is, tmpPath, REPLACE_EXISTING);
+          Files.copy(is, tmpPath, REPLACE_EXISTING);
         }
       }
     }

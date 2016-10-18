@@ -25,7 +25,6 @@
 
 package java.awt.event;
 
-import android.util.Log;
 import java.awt.Component;
 import java.awt.Event;
 import java.awt.Toolkit;
@@ -241,7 +240,7 @@ public abstract class InputEvent extends ComponentEvent {
     super(source, id);
     this.when = when;
     this.modifiers = modifiers;
-    canAccessSystemClipboard = canAccessSystemClipboard();
+    canAccessSystemClipboard = true;
   }
 
   /**
@@ -371,24 +370,6 @@ public abstract class InputEvent extends ComponentEvent {
       buf.setLength(buf.length() - 1); // remove trailing '+'
     }
     return buf.toString();
-  }
-
-  private boolean canAccessSystemClipboard() {
-    boolean b = false;
-
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      try {
-        sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
-        b = true;
-      } catch (SecurityException se) {
-        Log.d(TAG, "InputEvent.canAccessSystemClipboard() got SecurityException ", se);
-      }
-    } else {
-      b = true;
-    }
-
-    return b;
   }
 
   /**

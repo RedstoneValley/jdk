@@ -61,35 +61,4 @@ public interface AccelGraphicsConfig extends BufferedContextProvider {
    */
   VolatileImage createCompatibleVolatileImage(
       int width, int height, int transparency, int type);
-
-  /**
-   * Returns object representing capabilities of the context associated
-   * with this {@code AccelGraphicsConfig}.
-   *
-   * @return ContextCapabilities object representing caps
-   * @see ContextCapabilities
-   */
-  ContextCapabilities getContextCapabilities();
-
-  /**
-   * Adds an {@code AccelDeviceEventListener} to listen to accelerated
-   * device's (which is associated with this {@code AccelGraphicsConfig})
-   * events.
-   * <p>
-   * Note: a hard link to the listener may be kept so it must be explicitly
-   * removed via .
-   *
-   * @param l the listener
-   * @see AccelDeviceEventListener
-   */
-  void addDeviceEventListener(AccelDeviceEventListener l);
-
-  /**
-   * Removes an {@code AccelDeviceEventListener} from the list of listeners
-   * for this device's events.
-   *
-   * @param l the listener
-   * @see AccelDeviceEventListener
-   */
-  void removeDeviceEventListener(AccelDeviceEventListener l);
 }

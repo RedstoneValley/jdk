@@ -55,7 +55,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#desktop
    */
-  @Native public static final int DESKTOP = 0;
+  public static final int DESKTOP = 0;
 
   /**
    * The array index for the
@@ -63,7 +63,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#activeCaption
    */
-  @Native public static final int ACTIVE_CAPTION = 1;
+  public static final int ACTIVE_CAPTION = 1;
 
   /**
    * The array index for the
@@ -71,7 +71,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#activeCaptionText
    */
-  @Native public static final int ACTIVE_CAPTION_TEXT = 2;
+  public static final int ACTIVE_CAPTION_TEXT = 2;
 
   /**
    * The array index for the
@@ -79,7 +79,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#activeCaptionBorder
    */
-  @Native public static final int ACTIVE_CAPTION_BORDER = 3;
+  public static final int ACTIVE_CAPTION_BORDER = 3;
 
   /**
    * The array index for the
@@ -87,7 +87,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#inactiveCaption
    */
-  @Native public static final int INACTIVE_CAPTION = 4;
+  public static final int INACTIVE_CAPTION = 4;
 
   /**
    * The array index for the
@@ -95,7 +95,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#inactiveCaptionText
    */
-  @Native public static final int INACTIVE_CAPTION_TEXT = 5;
+  public static final int INACTIVE_CAPTION_TEXT = 5;
 
   /**
    * The array index for the
@@ -103,7 +103,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#inactiveCaptionBorder
    */
-  @Native public static final int INACTIVE_CAPTION_BORDER = 6;
+  public static final int INACTIVE_CAPTION_BORDER = 6;
 
   /**
    * The array index for the
@@ -111,7 +111,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#window
    */
-  @Native public static final int WINDOW = 7;
+  public static final int WINDOW = 7;
 
   /**
    * The array index for the
@@ -119,7 +119,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#windowBorder
    */
-  @Native public static final int WINDOW_BORDER = 8;
+  public static final int WINDOW_BORDER = 8;
 
   /**
    * The array index for the
@@ -127,7 +127,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#windowText
    */
-  @Native public static final int WINDOW_TEXT = 9;
+  public static final int WINDOW_TEXT = 9;
 
   /**
    * The array index for the
@@ -135,7 +135,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#menu
    */
-  @Native public static final int MENU = 10;
+  public static final int MENU = 10;
 
   /**
    * The array index for the
@@ -143,7 +143,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#menuText
    */
-  @Native public static final int MENU_TEXT = 11;
+  public static final int MENU_TEXT = 11;
 
   /**
    * The array index for the
@@ -151,7 +151,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#text
    */
-  @Native public static final int TEXT = 12;
+  public static final int TEXT = 12;
 
   /**
    * The array index for the
@@ -159,7 +159,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#textText
    */
-  @Native public static final int TEXT_TEXT = 13;
+  public static final int TEXT_TEXT = 13;
 
   /**
    * The array index for the
@@ -167,7 +167,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#textHighlight
    */
-  @Native public static final int TEXT_HIGHLIGHT = 14;
+  public static final int TEXT_HIGHLIGHT = 14;
 
   /**
    * The array index for the
@@ -175,7 +175,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#textHighlightText
    */
-  @Native public static final int TEXT_HIGHLIGHT_TEXT = 15;
+  public static final int TEXT_HIGHLIGHT_TEXT = 15;
 
   /**
    * The array index for the
@@ -183,7 +183,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#textInactiveText
    */
-  @Native public static final int TEXT_INACTIVE_TEXT = 16;
+  public static final int TEXT_INACTIVE_TEXT = 16;
 
   /**
    * The array index for the
@@ -191,7 +191,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#control
    */
-  @Native public static final int CONTROL = 17;
+  public static final int CONTROL = 17;
 
   /**
    * The array index for the
@@ -199,7 +199,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#controlText
    */
-  @Native public static final int CONTROL_TEXT = 18;
+  public static final int CONTROL_TEXT = 18;
 
   /**
    * The array index for the
@@ -207,7 +207,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#controlHighlight
    */
-  @Native public static final int CONTROL_HIGHLIGHT = 19;
+  public static final int CONTROL_HIGHLIGHT = 19;
 
   /**
    * The array index for the
@@ -215,7 +215,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#controlLtHighlight
    */
-  @Native public static final int CONTROL_LT_HIGHLIGHT = 20;
+  public static final int CONTROL_LT_HIGHLIGHT = 20;
 
   /**
    * The array index for the
@@ -223,7 +223,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#controlShadow
    */
-  @Native public static final int CONTROL_SHADOW = 21;
+  public static final int CONTROL_SHADOW = 21;
 
   /**
    * The array index for the
@@ -231,7 +231,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#controlDkShadow
    */
-  @Native public static final int CONTROL_DK_SHADOW = 22;
+  public static final int CONTROL_DK_SHADOW = 22;
 
   /**
    * The array index for the
@@ -239,7 +239,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#scrollbar
    */
-  @Native public static final int SCROLLBAR = 23;
+  public static final int SCROLLBAR = 23;
 
   /**
    * The array index for the
@@ -247,7 +247,7 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#info
    */
-  @Native public static final int INFO = 24;
+  public static final int INFO = 24;
 
   /**
    * The array index for the
@@ -255,12 +255,12 @@ public final class SystemColor extends Color {
    *
    * @see SystemColor#infoText
    */
-  @Native public static final int INFO_TEXT = 25;
+  public static final int INFO_TEXT = 25;
 
   /**
    * The number of system colors in the array.
    */
-  @Native public static final int NUM_COLORS = 26;
+  public static final int NUM_COLORS = 26;
   /**
    * The color rendered for the background of the desktop.
    */

@@ -46,11 +46,6 @@ public class Insets implements Cloneable, Serializable {
    */
   private static final long serialVersionUID = -2272572637695466749L;
 
-  static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-  }
-
   /**
    * The inset from the top.
    * This value is added to the Top of the rectangle

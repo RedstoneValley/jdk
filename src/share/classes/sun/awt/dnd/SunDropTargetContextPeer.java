@@ -150,17 +150,6 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   public Object getTransferData(DataFlavor df)
       throws UnsupportedFlavorException, IOException, InvalidDnDOperationException {
 
-    SecurityManager sm = System.getSecurityManager();
-    try {
-      if (!dropInProcess && sm != null) {
-        sm.checkPermission(SecurityConstants.AWT.ACCESS_CLIPBOARD_PERMISSION);
-      }
-    } catch (Exception e) {
-      Thread currentThread = Thread.currentThread();
-      currentThread.getUncaughtExceptionHandler().uncaughtException(currentThread, e);
-      return null;
-    }
-
     Long lFormat;
     Transferable localTransferable = local;
 

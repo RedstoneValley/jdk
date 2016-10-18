@@ -42,6 +42,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class ImageRepresentation extends ImageWatched implements ImageConsumer {
   static final boolean s_useNative = true;
@@ -146,7 +147,7 @@ public class ImageRepresentation extends ImageWatched implements ImageConsumer {
   }
 
   @Override
-  public void setProperties(Hashtable<?, ?> props) {
+  public void setProperties(Map<?, ?> props) {
     if (src != null) {
       src.checkSecurity(null, false);
     }

@@ -78,11 +78,6 @@ public class AWTKeyStroke implements Serializable {
    */
   private static VKCollection vks;
 
-  static {
-        /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
-  }
-
   private char keyChar = KeyEvent.CHAR_UNDEFINED;
   private int keyCode = KeyEvent.VK_UNDEFINED;
   private int modifiers;

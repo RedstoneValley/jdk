@@ -27,7 +27,6 @@ package java.awt;
 
 import java.awt.peer.DesktopPeer;
 import java.io.File;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -227,7 +226,6 @@ public class Desktop {
    */
   public void open(File file) throws IOException {
     checkAWTPermission();
-    checkExec();
     checkActionSupport(Action.OPEN);
     checkFileValidation(file);
 
@@ -260,7 +258,6 @@ public class Desktop {
    */
   public void edit(File file) throws IOException {
     checkAWTPermission();
-    checkExec();
     checkActionSupport(Action.EDIT);
     file.canWrite();
     checkFileValidation(file);
@@ -292,7 +289,6 @@ public class Desktop {
    *                                       allowed to create a subprocess
    */
   public void print(File file) throws IOException {
-    checkExec();
     SecurityManager sm = System.getSecurityManager();
     if (sm != null) {
       sm.checkPrintJobAccess();
@@ -347,7 +343,6 @@ public class Desktop {
     SecurityException securityException = null;
     try {
       checkAWTPermission();
-      checkExec();
     } catch (SecurityException e) {
       securityException = e;
     }
@@ -396,7 +391,6 @@ public class Desktop {
    */
   public void mail() throws IOException {
     checkAWTPermission();
-    checkExec();
     checkActionSupport(Action.MAIL);
     URI mailtoURI;
     try {
@@ -440,7 +434,6 @@ public class Desktop {
    */
   public void mail(URI mailtoURI) throws IOException {
     checkAWTPermission();
-    checkExec();
     checkActionSupport(Action.MAIL);
     if (mailtoURI == null) {
       throw new NullPointerException();
@@ -451,14 +444,6 @@ public class Desktop {
     }
 
     peer.mail(mailtoURI);
-  }
-
-  private void checkExec() throws SecurityException {
-    SecurityManager sm = System.getSecurityManager();
-    if (sm != null) {
-      sm.checkPermission(new FilePermission("<<ALL FILES>>",
-          SecurityConstants.FILE_EXECUTE_ACTION));
-    }
   }
 
   /**

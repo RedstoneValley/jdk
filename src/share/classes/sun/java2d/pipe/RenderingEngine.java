@@ -151,8 +151,7 @@ public abstract class RenderingEngine {
       throw new InternalError("No RenderingEngine module found");
     }
 
-    GetPropertyAction gpa = new GetPropertyAction("sun.java2d.renderer.trace");
-    String reTrace = AccessController.doPrivileged(gpa);
+    String reTrace = System.getProperty("sun.java2d.renderer.trace");
     if (reTrace != null) {
       reImpl = new Tracer(reImpl);
     }

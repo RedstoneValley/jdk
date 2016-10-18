@@ -184,7 +184,6 @@ public class Scrollbar extends Component implements Adjustable {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    Toolkit.loadLibraries();
   }
 
   /**

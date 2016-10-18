@@ -364,7 +364,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = 0
    * </pre>
    */
-  @Native public static final int CLEAR = 1;
+  public static final int CLEAR = 1;
 
   /**
    * The source is copied to the destination
@@ -377,7 +377,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = <em>C<sub>s</sub></em>
    * </pre>
    */
-  @Native public static final int SRC = 2;
+  public static final int SRC = 2;
 
   /**
    * The destination is left untouched
@@ -391,7 +391,7 @@ public final class AlphaComposite implements Composite {
    *
    * @since 1.4
    */
-  @Native public static final int DST = 9;
+  public static final int DST = 9;
   // Note that DST was added in 1.4 so it is numbered out of order...
 
   /**
@@ -406,7 +406,7 @@ public final class AlphaComposite implements Composite {
    *  (1-<em>A<sub>s</sub></em>)
    * </pre>
    */
-  @Native public static final int SRC_OVER = 3;
+  public static final int SRC_OVER = 3;
 
   /**
    * The destination is composited over the source and
@@ -421,7 +421,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>d</sub></em>
    * </pre>
    */
-  @Native public static final int DST_OVER = 4;
+  public static final int DST_OVER = 4;
 
   /**
    * The part of the source lying inside of the destination replaces
@@ -434,7 +434,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = <em>C<sub>s</sub></em>*<em>A<sub>d</sub></em>
    * </pre>
    */
-  @Native public static final int SRC_IN = 5;
+  public static final int SRC_IN = 5;
 
   /**
    * The part of the destination lying inside of the source
@@ -447,7 +447,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = <em>C<sub>d</sub></em>*<em>A<sub>s</sub></em>
    * </pre>
    */
-  @Native public static final int DST_IN = 6;
+  public static final int DST_IN = 6;
 
   /**
    * The part of the source lying outside of the destination
@@ -460,7 +460,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = <em>C<sub>s</sub></em>*(1-<em>A<sub>d</sub></em>)
    * </pre>
    */
-  @Native public static final int SRC_OUT = 7;
+  public static final int SRC_OUT = 7;
 
   /**
    * The part of the destination lying outside of the source
@@ -473,7 +473,7 @@ public final class AlphaComposite implements Composite {
    *  <em>C<sub>r</sub></em> = <em>C<sub>d</sub></em>*(1-<em>A<sub>s</sub></em>)
    * </pre>
    */
-  @Native public static final int DST_OUT = 8;
+  public static final int DST_OUT = 8;
 
   // Rule 9 is DST which is defined above where it fits into the
   // list logically, rather than numerically
@@ -496,7 +496,7 @@ public final class AlphaComposite implements Composite {
    *
    * @since 1.4
    */
-  @Native public static final int SRC_ATOP = 10;
+  public static final int SRC_ATOP = 10;
 
   /**
    * The part of the destination lying inside of the source
@@ -514,7 +514,7 @@ public final class AlphaComposite implements Composite {
    *
    * @since 1.4
    */
-  @Native public static final int DST_ATOP = 11;
+  public static final int DST_ATOP = 11;
 
   /**
    * The part of the source that lies outside of the destination
@@ -533,7 +533,7 @@ public final class AlphaComposite implements Composite {
    *
    * @since 1.4
    */
-  @Native public static final int XOR = 12;
+  public static final int XOR = 12;
 
   /**
    * {@code AlphaComposite} object that implements the opaque CLEAR rule
@@ -635,8 +635,8 @@ public final class AlphaComposite implements Composite {
    */
   public static final AlphaComposite Xor = new AlphaComposite(XOR);
 
-  @Native private static final int MIN_RULE = CLEAR;
-  @Native private static final int MAX_RULE = XOR;
+  private static final int MIN_RULE = CLEAR;
+  private static final int MAX_RULE = XOR;
 
   float extraAlpha;
   int rule;

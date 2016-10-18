@@ -25,7 +25,8 @@
 
 package java.awt.image;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class implements a filter for the set of interface methods that
@@ -105,8 +106,9 @@ public class ImageFilter implements ImageConsumer, Cloneable {
    * @throws NullPointerException if {@code props} is null
    */
   @Override
-  public void setProperties(Hashtable<?, ?> props) {
-    Hashtable<Object, Object> p = (Hashtable<Object, Object>) props.clone();
+  public void setProperties(Map<?, ?> props) {
+    HashMap<Object, Object> p = new HashMap<>();
+    p.putAll(props);
     Object o = p.get("filters");
     if (o == null) {
       p.put("filters", toString());

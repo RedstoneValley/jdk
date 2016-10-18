@@ -26,17 +26,8 @@
 package sun.java2d.loops;
 
 import java.awt.image.ColorModel;
-import java.util.HashMap;
+import java.util.WeakHashMap;
 import sun.awt.image.PixelConverter;
-import sun.awt.image.PixelConverter.Argb;
-import sun.awt.image.PixelConverter.ArgbBm;
-import sun.awt.image.PixelConverter.ArgbPre;
-import sun.awt.image.PixelConverter.Bgrx;
-import sun.awt.image.PixelConverter.Rgba;
-import sun.awt.image.PixelConverter.RgbaPre;
-import sun.awt.image.PixelConverter.Rgbx;
-import sun.awt.image.PixelConverter.Xbgr;
-import sun.awt.image.PixelConverter.Xrgb;
 
 /**
  * A SurfaceType object provides a chained description of a type of
@@ -188,83 +179,130 @@ public final class SurfaceType {
    */
   public static final SurfaceType AnyShort = Any.deriveSubType(DESC_ANY_SHORT);
 
-  /*
-   * START OF SurfaceType OBJECTS FOR THE VARIOUS CONSTANTS
-   */
+    /*
+     * START OF SurfaceType OBJECTS FOR THE VARIOUS CONSTANTS
+     */
+
   public static final SurfaceType AnyByte = Any.deriveSubType(DESC_ANY_BYTE);
   public static final SurfaceType AnyByteBinary = Any.deriveSubType(DESC_BYTE_BINARY);
   public static final SurfaceType Any3Byte = Any.deriveSubType(DESC_ANY_3BYTE);
   public static final SurfaceType Any4Byte = Any.deriveSubType(DESC_ANY_4BYTE);
   public static final SurfaceType AnyDcm = AnyInt.deriveSubType(DESC_ANY_INT_DCM);
+
   public static final SurfaceType Custom = Any;
-  public static final SurfaceType IntRgb = AnyDcm.deriveSubType(DESC_INT_RGB, Xrgb.instance);
-  public static final SurfaceType IntArgb = AnyDcm.deriveSubType(DESC_INT_ARGB, Argb.instance);
+  public static final SurfaceType IntRgb = AnyDcm.deriveSubType(
+      DESC_INT_RGB,
+      PixelConverter.Xrgb.instance);
+
+  public static final SurfaceType IntArgb = AnyDcm.deriveSubType(
+      DESC_INT_ARGB,
+      PixelConverter.Argb.instance);
+
   public static final SurfaceType IntArgbPre = AnyDcm.deriveSubType(DESC_INT_ARGB_PRE,
-      ArgbPre.instance);
-  public static final SurfaceType IntBgr = AnyDcm.deriveSubType(DESC_INT_BGR, Xbgr.instance);
-  public static final SurfaceType ThreeByteBgr = Any3Byte.deriveSubType(DESC_3BYTE_BGR,
-      Xrgb.instance);
-  public static final SurfaceType FourByteAbgr = Any4Byte.deriveSubType(DESC_4BYTE_ABGR,
-      Rgba.instance);
+      PixelConverter.ArgbPre.instance);
+
+  public static final SurfaceType IntBgr = AnyDcm.deriveSubType(
+      DESC_INT_BGR,
+      PixelConverter.Xbgr.instance);
+
+  public static final SurfaceType ThreeByteBgr = Any3Byte.deriveSubType(
+      DESC_3BYTE_BGR,
+      PixelConverter.Xrgb.instance);
+
+  public static final SurfaceType FourByteAbgr = Any4Byte.deriveSubType(
+      DESC_4BYTE_ABGR,
+      PixelConverter.Rgba.instance);
+
   public static final SurfaceType FourByteAbgrPre = Any4Byte.deriveSubType(DESC_4BYTE_ABGR_PRE,
-      RgbaPre.instance);
+      PixelConverter.RgbaPre.instance);
+
   public static final SurfaceType Ushort565Rgb = AnyShort.deriveSubType(DESC_USHORT_565_RGB,
-      Ushort565Rgb.instance);
+      PixelConverter.Ushort565Rgb.instance);
+
   public static final SurfaceType Ushort555Rgb = AnyShort.deriveSubType(DESC_USHORT_555_RGB,
-      Ushort555Rgb.instance);
+      PixelConverter.Ushort555Rgb.instance);
+
   public static final SurfaceType Ushort555Rgbx = AnyShort.deriveSubType(DESC_USHORT_555_RGBx,
-      Ushort555Rgbx.instance);
+      PixelConverter.Ushort555Rgbx.instance);
+
   public static final SurfaceType Ushort4444Argb = AnyShort.deriveSubType(DESC_USHORT_4444_ARGB,
-      Ushort4444Argb.instance);
+      PixelConverter.Ushort4444Argb.instance);
+
   public static final SurfaceType UshortIndexed = AnyShort.deriveSubType(DESC_USHORT_INDEXED);
+
   public static final SurfaceType ByteGray = AnyByte.deriveSubType(DESC_BYTE_GRAY,
-      ByteGray.instance);
+      PixelConverter.ByteGray.instance);
+
   public static final SurfaceType UshortGray = AnyShort.deriveSubType(DESC_USHORT_GRAY,
-      UshortGray.instance);
+      PixelConverter.UshortGray.instance);
+
   public static final SurfaceType ByteBinary1Bit
       = AnyByteBinary.deriveSubType(DESC_BYTE_BINARY_1BIT);
   public static final SurfaceType ByteBinary2Bit
       = AnyByteBinary.deriveSubType(DESC_BYTE_BINARY_2BIT);
   public static final SurfaceType ByteBinary4Bit
       = AnyByteBinary.deriveSubType(DESC_BYTE_BINARY_4BIT);
+
   public static final SurfaceType ByteIndexed = AnyByte.deriveSubType(DESC_BYTE_INDEXED);
-  public static final SurfaceType IntRgbx = AnyDcm.deriveSubType(DESC_INT_RGBx, Rgbx.instance);
-  public static final SurfaceType IntBgrx = AnyDcm.deriveSubType(DESC_INT_BGRx, Bgrx.instance);
-  public static final SurfaceType ThreeByteRgb = Any3Byte.deriveSubType(DESC_3BYTE_RGB,
-      Xbgr.instance);
-  public static final SurfaceType IntArgbBm = AnyDcm.deriveSubType(DESC_INT_ARGB_BM,
-      ArgbBm.instance);
+
+  public static final SurfaceType IntRgbx = AnyDcm.deriveSubType(
+      DESC_INT_RGBx,
+      PixelConverter.Rgbx.instance);
+
+  public static final SurfaceType IntBgrx = AnyDcm.deriveSubType(
+      DESC_INT_BGRx,
+      PixelConverter.Bgrx.instance);
+
+  public static final SurfaceType ThreeByteRgb = Any3Byte.deriveSubType(
+      DESC_3BYTE_RGB,
+      PixelConverter.Xbgr.instance);
+
+  public static final SurfaceType IntArgbBm = AnyDcm.deriveSubType(
+      DESC_INT_ARGB_BM,
+      PixelConverter.ArgbBm.instance);
+
   public static final SurfaceType ByteIndexedBm = ByteIndexed.deriveSubType(DESC_BYTE_INDEXED_BM);
+
   public static final SurfaceType ByteIndexedOpaque = ByteIndexedBm.deriveSubType(
       DESC_BYTE_INDEXED_OPAQUE);
+
   public static final SurfaceType Index8Gray = ByteIndexedOpaque.deriveSubType(DESC_INDEX8_GRAY);
+
   public static final SurfaceType Index12Gray = Any.deriveSubType(DESC_INDEX12_GRAY);
+
   public static final SurfaceType AnyPaint = Any.deriveSubType(DESC_ANY_PAINT);
+
   public static final SurfaceType AnyColor = AnyPaint.deriveSubType(DESC_ANY_COLOR);
+
   public static final SurfaceType OpaqueColor = AnyColor.deriveSubType(DESC_OPAQUE_COLOR);
+
   public static final SurfaceType GradientPaint = AnyPaint.deriveSubType(DESC_GRADIENT_PAINT);
   public static final SurfaceType OpaqueGradientPaint = GradientPaint.deriveSubType(
       DESC_OPAQUE_GRADIENT_PAINT);
+
   public static final SurfaceType LinearGradientPaint = AnyPaint.deriveSubType(
       DESC_LINEAR_GRADIENT_PAINT);
   public static final SurfaceType OpaqueLinearGradientPaint = LinearGradientPaint.deriveSubType(
       DESC_OPAQUE_LINEAR_GRADIENT_PAINT);
+
   public static final SurfaceType RadialGradientPaint = AnyPaint.deriveSubType(
       DESC_RADIAL_GRADIENT_PAINT);
   public static final SurfaceType OpaqueRadialGradientPaint = RadialGradientPaint.deriveSubType(
       DESC_OPAQUE_RADIAL_GRADIENT_PAINT);
+
   public static final SurfaceType TexturePaint = AnyPaint.deriveSubType(DESC_TEXTURE_PAINT);
   public static final SurfaceType OpaqueTexturePaint = TexturePaint.deriveSubType(
       DESC_OPAQUE_TEXTURE_PAINT);
-  private static final HashMap<String, Integer> surfaceUIDMap = new HashMap<>(100);
-  private static int unusedUID = 1;
-  private final int uniqueID;
-  private final String desc;
+  private static WeakHashMap<String, Integer> surfaceUIDMap = new WeakHashMap<>();
+  private static int unusedUID;
   private final SurfaceType next;
-  /*
-   * END OF SurfaceType OBJECTS FOR THE VARIOUS CONSTANTS
-   */
-  protected final PixelConverter pixelConverter;
+  private final String desc;
+  private final int uniqueID;
+  private final PixelConverter pixelConverter;
+
+    /*
+     * END OF SurfaceType OBJECTS FOR THE VARIOUS CONSTANTS
+     */
 
   private SurfaceType(SurfaceType parent, String desc, PixelConverter pixelConverter) {
     next = parent;
@@ -313,16 +351,8 @@ public final class SurfaceType {
     return uniqueID;
   }
 
-  public String getDescriptor() {
-    return desc;
-  }
-
   public SurfaceType getSuperType() {
     return next;
-  }
-
-  public PixelConverter getPixelConverter() {
-    return pixelConverter;
   }
 
   public int pixelFor(int rgb, ColorModel cm) {

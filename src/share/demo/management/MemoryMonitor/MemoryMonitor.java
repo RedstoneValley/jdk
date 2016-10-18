@@ -307,7 +307,7 @@ public class MemoryMonitor extends JPanel {
       big.setBackground(getBackground());
       big.clearRect(0, 0, w, h);
 
-      h /= ((numPools + numPools % 2) / 2);
+      h /= (numPools + numPools % 2) / 2;
       w /= 2;
 
       int k = 0; // index of memory pool.

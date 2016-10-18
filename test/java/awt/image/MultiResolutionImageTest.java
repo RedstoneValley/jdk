@@ -25,19 +25,20 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.MediaTracker;
 import java.awt.Toolkit;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import sun.awt.OSInfo;
 import sun.awt.OSInfo.OSType;
 import sun.awt.SunHints;
-import java.awt.MediaTracker;
-import java.awt.geom.AffineTransform;
-import java.awt.image.ImageObserver;
-import java.util.Arrays;
-import java.util.List;
+import sun.awt.SunHints.Value;
 import sun.awt.SunToolkit;
 import sun.awt.image.MultiResolutionImage;
 
@@ -439,8 +440,7 @@ public final class MultiResolutionImageTest {
 
     static void setImageScalingHint(Graphics2D g2d, boolean enableImageScaling) {
         g2d.setRenderingHint(SunHints.KEY_RESOLUTION_VARIANT, enableImageScaling
-                ? SunHints.Value.VALUE_RESOLUTION_VARIANT_ON
-                : SunHints.Value.VALUE_RESOLUTION_VARIANT_OFF);
+            ? Value.VALUE_RESOLUTION_VARIANT_ON : Value.VALUE_RESOLUTION_VARIANT_OFF);
     }
 
     static void checkColor(int rgb, boolean isImageScaled) {

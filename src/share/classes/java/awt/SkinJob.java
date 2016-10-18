@@ -2,7 +2,6 @@ package java.awt;
 
 import android.R.color;
 import android.R.drawable;
-import android.app.Application;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
@@ -28,22 +27,27 @@ public final class SkinJob {
    * concentric true circles of radius 1.0 and radius 1.00027253.
    */
   public static final double maxDegreesPerArcSegment = 90.0;
+
   private static final Resources systemResources = Resources.getSystem();
+
   /**
    * Default value for the miterLimit parameter of {@link
    * BasicStroke#BasicStroke(float, int, int, float)} when called from another constructor that
    * doesn't take that parameter. OpenJDK AWT uses 10.0f.
    */
   @SuppressWarnings("MagicNumber") public static final float defaultMiterLimit = 10.0f;
+
   /**
    * Since Android only recognizes normal and bold, font weights greater than or equal to this
    * value become bold and the rest become normal.
    */
   public static final float boldThreshold = TextAttribute.WEIGHT_MEDIUM;
+
   /**
    * Whether {@link SkinJobListPeer#select(int)} should be animated.
    */
   public static final boolean animateListAutoSelection = true;
+
   /**
    * How far {@link SkinJobComponentPeerForView#setZOrder(ComponentPeer)} should place a
    * component in front of the other component, as a multiple of
@@ -54,12 +58,14 @@ public final class SkinJob {
   public static final int menuTextColor = systemResources.getColor(
       color.primary_text_dark,
       systemResources.newTheme());
+
   /**
    * Height at which {@link FontMetrics} should report text is struck through, as a multiple of
    * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
    * strikethrough, but must exist for backward-compatibility.
    */
-  public static final float strikeThroughOffset = 0.5f;
+  public static volatile float strikeThroughOffset = 0.5f;
+
   /*
    * Size of the array of precomputed character widths in each {@link FontMetrics}. Code points
    * lower than this value will be stored in the array; the rest will be recalculated on demand.
@@ -67,8 +73,9 @@ public final class SkinJob {
    * text where a lot of characters have high code-point values (e.g. those in non-Latin alphabets).
    * Should never exceed 0x10FFFD, since that's the highest Unicode point. OpenJDK AWT uses 256.
    */
-  @SuppressWarnings("MagicNumber") protected static final int precomputedCharacterWidthArraySize
+  @SuppressWarnings("MagicNumber") public static volatile int precomputedCharacterWidthArraySize
       = 256;
+  public static int defaultDragThreshold = 5;
 
   static {
     Context context = getAndroidApplicationContext();
@@ -78,12 +85,23 @@ public final class SkinJob {
   }
 
   /**
+   * The application's {@link Context} instance. To maintain backward compatibility with AWT apps
+   * not designed for Android, SkinJob will look up the {@code Context} on demand if the application
+   * hasn't set this variable.
+   */
+  public static volatile Context registeredAndroidContext = null;
+
+  /**
    * Do not instantiate.
    */
   private SkinJob() {
   }
 
   public static Context getAndroidApplicationContext() {
+    Context context = registeredAndroidContext;
+    if (context != null) {
+      return context;
+    }
     try {
       Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
       Method method = activityThreadClass.getMethod("currentApplication");
