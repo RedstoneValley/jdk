@@ -26,18 +26,12 @@
 package sun.awt;
 
 import java.awt.AWTException;
-import java.awt.Button;
-import java.awt.Checkbox;
-import java.awt.CheckboxMenuItem;
-import java.awt.Choice;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
-import java.awt.Dialog;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
-import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
@@ -45,57 +39,27 @@ import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.JobAttributes;
-import java.awt.Label;
-import java.awt.List;
-import java.awt.Menu;
-import java.awt.MenuBar;
-import java.awt.MenuItem;
 import java.awt.PageAttributes;
 import java.awt.Point;
-import java.awt.PopupMenu;
 import java.awt.PrintJob;
 import java.awt.Robot;
-import java.awt.ScrollPane;
-import java.awt.Scrollbar;
 import java.awt.SystemTray;
-import java.awt.TextArea;
-import java.awt.TextField;
 import java.awt.TrayIcon;
 import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
-import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragGestureRecognizer;
 import java.awt.dnd.DragSource;
-import java.awt.dnd.InvalidDnDOperationException;
-import java.awt.dnd.peer.DragSourceContextPeer;
 import java.awt.im.InputMethodHighlight;
 import java.awt.im.spi.InputMethodDescriptor;
 import java.awt.image.ColorModel;
-import java.awt.peer.ButtonPeer;
-import java.awt.peer.CheckboxMenuItemPeer;
-import java.awt.peer.CheckboxPeer;
-import java.awt.peer.ChoicePeer;
 import java.awt.peer.DesktopPeer;
-import java.awt.peer.DialogPeer;
-import java.awt.peer.FileDialogPeer;
 import java.awt.peer.FontPeer;
 import java.awt.peer.FramePeer;
 import java.awt.peer.KeyboardFocusManagerPeer;
-import java.awt.peer.LabelPeer;
-import java.awt.peer.ListPeer;
-import java.awt.peer.MenuBarPeer;
-import java.awt.peer.MenuItemPeer;
-import java.awt.peer.MenuPeer;
-import java.awt.peer.PopupMenuPeer;
 import java.awt.peer.RobotPeer;
-import java.awt.peer.ScrollPanePeer;
-import java.awt.peer.ScrollbarPeer;
 import java.awt.peer.SystemTrayPeer;
-import java.awt.peer.TextAreaPeer;
-import java.awt.peer.TextFieldPeer;
 import java.awt.peer.TrayIconPeer;
-import java.awt.peer.WindowPeer;
 import java.util.Map;
 import java.util.Properties;
 import sun.awt.datatransfer.DataTransferer;
@@ -185,97 +149,6 @@ public class HToolkit extends SunToolkit {
     throw new HeadlessException();
   }
 
-  @Override
-  public ButtonPeer createButton(Button target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public TextFieldPeer createTextField(TextField target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public LabelPeer createLabel(Label target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public ListPeer createList(List target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public TextAreaPeer createTextArea(TextArea target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public ChoicePeer createChoice(Choice target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public FramePeer createFrame(Frame target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public WindowPeer createWindow(Window target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public DialogPeer createDialog(Dialog target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public MenuPeer createMenu(Menu target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException {
-    throw new HeadlessException();
-  }
-
-  @Override
-  public CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target)
-      throws HeadlessException {
-    throw new HeadlessException();
-  }
-
   /*
    * Fonts
    */
@@ -287,12 +160,6 @@ public class HToolkit extends SunToolkit {
   @Override
   public Dimension getScreenSize() throws HeadlessException {
     throw new HeadlessException();
-  }
-
-  @Override
-  public DragSourceContextPeer createDragSourceContextPeer(
-      DragGestureEvent dge) throws InvalidDnDOperationException {
-    throw new InvalidDnDOperationException("Headless environment");
   }
 
   /*

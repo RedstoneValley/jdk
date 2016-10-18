@@ -34,10 +34,6 @@ public class ByteArrayImageSource extends InputStreamImageSource {
   final int imageoffset;
   final int imagelength;
 
-  public ByteArrayImageSource(byte[] data) {
-    this(data, 0, data.length);
-  }
-
   public ByteArrayImageSource(byte[] data, int offset, int length) {
     imagedata = data;
     imageoffset = offset;

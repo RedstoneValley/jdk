@@ -28,9 +28,12 @@
  * @run main PreferLocaleFonts
  */
 
-import java.util.*;
-import java.awt.*;
-import java.awt.image.*;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.image.BufferedImage;
+import java.util.Locale;
 
 public class PreferLocaleFonts extends GraphicsEnvironment {
 
@@ -56,11 +59,11 @@ new PreferLocaleFonts().preferLocaleFonts();
         return null;
     }
     @Override
-    public GraphicsDevice getDefaultScreenDevice() throws HeadlessException {
+    public GraphicsDevice getDefaultScreenDevice() {
         return null;
     }
     @Override
-    public GraphicsDevice[] getScreenDevices() throws HeadlessException {
+    public GraphicsDevice[] getScreenDevices() {
         return null;
     }
 }

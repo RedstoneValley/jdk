@@ -202,86 +202,10 @@ public class BytePackedRaster extends SunWritableRaster {
   }
 
   /**
-   * Returns pixel bit stride -- the number of bits between two
-   * samples on the same scanline.
-   */
-  public int getPixelBitStride() {
-    return pixelBitStride;
-  }
-
-  /**
    * Returns a reference to the entire data array.
    */
   public byte[] getDataStorage() {
     return data;
-  }
-
-  /**
-   * Returns an array  of data elements from the specified rectangular
-   * region.
-   * <p>
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * A ClassCastException will be thrown if the input object is non null
-   * and references anything other than an array of transferType.
-   * <pre>
-   *       byte[] bandData = (byte[])raster.getPixelData(x, y, w, h, null);
-   *       int pixel;
-   *       // To find a data element at location (x2, y2)
-   *       pixel = bandData[((y2-y)*w + (x2-x))];
-   * </pre>
-   *
-   * @param x       The X coordinate of the upper left pixel location.
-   * @param y       The Y coordinate of the upper left pixel location.
-   * @return An object reference to an array of type defined by
-   * getTransferType() with the request pixel data.
-   */
-  public Object getPixelData(int x, int y, int w, int h, Object obj) {
-    if (x < minX || y < minY ||
-        x + w > maxX || y + h > maxY) {
-      throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
-    }
-    byte[] outData;
-    outData = obj == null ? new byte[numDataElements * w * h] : (byte[]) obj;
-    int pixbits = pixelBitStride;
-    int scanbit = dataBitOffset + (x - minX) * pixbits;
-    int index = (y - minY) * scanlineStride;
-    int outindex = 0;
-    byte[] data = this.data;
-
-    for (int j = 0; j < h; j++) {
-      int bitnum = scanbit;
-      for (int i = 0; i < w; i++) {
-        int shift = shiftOffset - (bitnum & 7);
-        outData[outindex] = (byte) (bitMask & data[index + (bitnum >> 3)] >> shift);
-        outindex++;
-        bitnum += pixbits;
-      }
-      index += scanlineStride;
-    }
-    return outData;
-  }
-
-  /**
-   * Returns a byte array containing the specified data elements
-   * from the data array.  The band index will be ignored.
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * <pre>
-   *       byte[] byteData = getByteData(x, y, band, w, h, null);
-   *       // To find a data element at location (x2, y2)
-   *       byte element = byteData[(y2-y)*w + (x2-x)];
-   * </pre>
-   *
-   * @param x       The X coordinate of the upper left pixel location.
-   * @param y       The Y coordinate of the upper left pixel location.
-   * @param band    The band to return, is ignored.
-   * @param outData If non-null, data elements
-   *                at the specified locations are returned in this array.
-   * @return Byte array with data elements.
-   */
-  public byte[] getByteData(int x, int y, int w, int h, int band, byte[] outData) {
-    return getByteData(x, y, w, h, outData);
   }
 
   /**
@@ -651,29 +575,6 @@ public class BytePackedRaster extends SunWritableRaster {
     }
 
     markDirty();
-  }
-
-  /**
-   * Stores a byte array of data elements into the specified rectangular
-   * region.  The band index will be ignored.
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * The data elements in the
-   * data array are assumed to be packed.  That is, a data element
-   * at location (x2, y2) would be found at:
-   * <pre>
-   *      inData[((y2-y)*w + (x2-x))]
-   * </pre>
-   *
-   * @param x      The X coordinate of the upper left pixel location.
-   * @param y      The Y coordinate of the upper left pixel location.
-   * @param w      Width of the pixel rectangle.
-   * @param h      Height of the pixel rectangle.
-   * @param band   The band to set, is ignored.
-   * @param inData The data elements to be stored.
-   */
-  public void putByteData(int x, int y, int w, int h, int band, byte[] inData) {
-    putByteData(x, y, w, h, inData);
   }
 
   /**

@@ -145,7 +145,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
 
   @SuppressWarnings("MagicNumber")
   private void accumPixels(
-      int x, int y, int w, int h, ColorModel model, Object pixels, int off, int scansize) {
+      int y, int w, int h, ColorModel model, Object pixels, int off, int scansize) {
     if (reds == null) {
       makeAccumBuffers();
     }
@@ -250,7 +250,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
     if (passthrough) {
       super.setPixels(x, y, w, h, model, pixels, off, scansize);
     } else {
-      accumPixels(x, y, w, h, model, pixels, off, scansize);
+      accumPixels(y, w, h, model, pixels, off, scansize);
     }
   }
 
@@ -277,7 +277,7 @@ public class AreaAveragingScaleFilter extends ReplicateScaleFilter {
     if (passthrough) {
       super.setPixels(x, y, w, h, model, pixels, off, scansize);
     } else {
-      accumPixels(x, y, w, h, model, pixels, off, scansize);
+      accumPixels(y, w, h, model, pixels, off, scansize);
     }
   }
 }

@@ -69,7 +69,7 @@ public class InputContext extends java.awt.im.InputContext
     implements ComponentListener, WindowListener {
   private static final String inputMethodSelectionKeyPath = "/java/awt/im/selectionKey";
   private static final String inputMethodSelectionKeyCodeName = "keyCode";
-  private static final String inputMethodSelectionKeyModifiersName = "modifiers";
+  public static final String inputMethodSelectionKeyModifiersName = "modifiers";
   private static final String TAG = "sun.awt.im.InputContext";
   // The input context for whose input method we may have to call hideWindows
   private static InputContext inputMethodWindowContext;

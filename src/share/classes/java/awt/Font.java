@@ -1216,7 +1216,8 @@ public class Font implements Serializable {
    * @since 1.2
    */
   public String getPSName() {
-    return getFont2D().getPostscriptName();
+    // TODO
+    return null;
   }
 
   /**

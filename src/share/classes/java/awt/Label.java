@@ -157,7 +157,6 @@ public class Label extends Component {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
   }
 

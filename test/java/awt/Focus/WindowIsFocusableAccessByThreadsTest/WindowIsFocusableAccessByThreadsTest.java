@@ -31,7 +31,11 @@
   @run      main WindowIsFocusableAccessByThreadsTest
 */
 
-import java.awt.*;
+import java.awt.Button;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Robot;
+import java.awt.Window;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class WindowIsFocusableAccessByThreadsTest {
@@ -101,7 +105,7 @@ public final class WindowIsFocusableAccessByThreadsTest {
     private static class TestFrame extends Frame {
         private static final long serialVersionUID = 5742206965325985746L;
 
-        TestFrame(String title) throws HeadlessException {
+        TestFrame(String title) {
             super(title);
         }
 

@@ -1133,72 +1133,52 @@ public abstract class SunToolkit extends Toolkit
     return new DesktopPeerImpl();
   }
 
-  @Override
   public abstract ButtonPeer createButton(Button target) throws HeadlessException;
 
-  @Override
   public abstract TextFieldPeer createTextField(TextField target) throws HeadlessException;
 
-  @Override
   public abstract LabelPeer createLabel(Label target) throws HeadlessException;
 
-  @Override
   public abstract ListPeer createList(List target) throws HeadlessException;
 
-  @Override
   public abstract CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException;
 
-  @Override
   public abstract ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException;
 
-  @Override
   public abstract ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException;
 
   ///////////////////////////////////////////////////////////////////////////
   // End Plug-in code
   ///////////////////////////////////////////////////////////////////////////
 
-  @Override
   public abstract TextAreaPeer createTextArea(TextArea target) throws HeadlessException;
 
-  @Override
   public abstract ChoicePeer createChoice(Choice target) throws HeadlessException;
 
-  @Override
   public abstract FramePeer createFrame(Frame target) throws HeadlessException;
 
-  @Override
   public CanvasPeer createCanvas(Canvas target) {
     return (CanvasPeer) createComponent(target);
   }
 
-  @Override
   public PanelPeer createPanel(Panel target) {
     return (PanelPeer) createComponent(target);
   }
 
-  @Override
   public abstract WindowPeer createWindow(Window target) throws HeadlessException;
 
-  @Override
   public abstract DialogPeer createDialog(Dialog target) throws HeadlessException;
 
-  @Override
   public abstract MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException;
 
-  @Override
   public abstract MenuPeer createMenu(Menu target) throws HeadlessException;
 
-  @Override
   public abstract PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException;
 
-  @Override
   public abstract MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException;
 
-  @Override
   public abstract FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException;
 
-  @Override
   public abstract CheckboxMenuItemPeer createCheckboxMenuItem(
       CheckboxMenuItem target) throws HeadlessException;
 
@@ -1311,7 +1291,6 @@ public abstract class SunToolkit extends Toolkit
     return getSystemEventQueueImplPP();
   }
 
-  @Override
   public abstract DragSourceContextPeer createDragSourceContextPeer(
       DragGestureEvent dge) throws InvalidDnDOperationException;
 

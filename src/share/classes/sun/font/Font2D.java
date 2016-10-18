@@ -8,13 +8,6 @@ import java.util.Locale;
  * Created by cryoc on 2016-10-11.
  */
 public class Font2D {
-  private String postscriptName;
-
-  public static void getFontMetrics(
-      Font font, AffineTransform identityTx, Object antiAliasingHint, Object fractionalMetricsHint,
-      float[] metrics) {
-    // TODO
-  }
 
   public String getFamilyName(Locale l) {
     // TODO
@@ -29,11 +22,6 @@ public class Font2D {
   public float getItalicAngle(Font font, AffineTransform identityTx, Object aa, Object fm) {
     // TODO
     return 0;
-  }
-
-  public String getPostscriptName() {
-    // TODO
-    return postscriptName;
   }
 
   public boolean useAAForPtSize(int pixelHeight) {

@@ -1,6 +1,5 @@
 package sun.font;
 
-import java.awt.Font;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
@@ -41,10 +40,6 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
 
   public void setPosture(float posture) {
     put(TextAttribute.POSTURE, posture);
-  }
-
-  public Font getFont() {
-    return (Font) get(TextAttribute.FONT);
   }
 
   public AffineTransform getTransform() {

@@ -99,7 +99,6 @@ public interface FramePeer extends WindowPeer {
    * @param y      the Y location
    * @param width  the width of the frame
    * @param height the height of the frame
-   * @see EmbeddedFrame#setBoundsPrivate(int, int, int, int)
    */
   // TODO: This is only used in EmbeddedFrame, and should probably be moved
   // into an EmbeddedFramePeer which would extend FramePeer
@@ -111,7 +110,6 @@ public interface FramePeer extends WindowPeer {
    * backwards compatibility.
    *
    * @return the bounds of an embedded frame
-   * @see EmbeddedFrame#getBoundsPrivate()
    */
   // TODO: This is only used in EmbeddedFrame, and should probably be moved
   // into an EmbeddedFramePeer which would extend FramePeer

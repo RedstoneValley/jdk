@@ -344,14 +344,6 @@ public final class AppContext {
   // once for dispose(), and once
   // to clear the EventQueue).
 
-  private static AppContext getExecutionAppContext() {
-    SecurityManager securityManager = System.getSecurityManager();
-    if (securityManager != null && securityManager instanceof AWTSecurityManager) {
-      AWTSecurityManager awtSecMgr = (AWTSecurityManager) securityManager;
-      return awtSecMgr.getAppContext(); // Return what we're told
-    }
-    return null;
-  }
   // Default to 1-second timeout for all
   // interrupted Threads to exit, and another
   // 1 second for all stopped Threads to die.

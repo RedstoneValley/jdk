@@ -640,7 +640,6 @@ public abstract class Toolkit {
    * @since JDK1.1
    */
   protected void loadSystemColors(int[] systemColors) throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
   }
 
   /**
@@ -674,7 +673,6 @@ public abstract class Toolkit {
    * @since 1.4
    */
   public void setDynamicLayout(boolean dynamic) throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     if (this != getDefaultToolkit()) {
       getDefaultToolkit().setDynamicLayout(dynamic);
     }
@@ -700,7 +698,6 @@ public abstract class Toolkit {
    * @since 1.4
    */
   protected boolean isDynamicLayoutSet() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     return this != getDefaultToolkit() ? getDefaultToolkit().isDynamicLayoutSet() : false;
   }
@@ -732,7 +729,6 @@ public abstract class Toolkit {
    * @since 1.4
    */
   public boolean isDynamicLayoutActive() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     return this != getDefaultToolkit() ? getDefaultToolkit().isDynamicLayoutActive() : false;
   }
@@ -773,7 +769,6 @@ public abstract class Toolkit {
    * @since 1.4
    */
   public Insets getScreenInsets(GraphicsConfiguration gc) throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     return this != getDefaultToolkit() ? getDefaultToolkit().getScreenInsets(gc)
         : new Insets(0, 0, 0, 0);
   }
@@ -1277,12 +1272,10 @@ public abstract class Toolkit {
    * @since 1.4
    */
   public Clipboard getSystemSelection() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     if (this != getDefaultToolkit()) {
       return getDefaultToolkit().getSystemSelection();
     } else {
-      GraphicsEnvironment.checkHeadless();
       return null;
     }
   }
@@ -1309,7 +1302,6 @@ public abstract class Toolkit {
    * @since JDK1.1
    */
   public int getMenuShortcutKeyMask() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     return Event.CTRL_MASK;
   }
@@ -1335,7 +1327,6 @@ public abstract class Toolkit {
    * @since 1.3
    */
   public boolean getLockingKeyState(int keyCode) throws UnsupportedOperationException {
-    GraphicsEnvironment.checkHeadless();
 
     if (!(keyCode == KeyEvent.VK_CAPS_LOCK || keyCode == KeyEvent.VK_NUM_LOCK ||
               keyCode == KeyEvent.VK_SCROLL_LOCK || keyCode == KeyEvent.VK_KANA_LOCK)) {
@@ -1368,7 +1359,6 @@ public abstract class Toolkit {
    * @since 1.3
    */
   public void setLockingKeyState(int keyCode, boolean on) throws UnsupportedOperationException {
-    GraphicsEnvironment.checkHeadless();
 
     if (!(keyCode == KeyEvent.VK_CAPS_LOCK || keyCode == KeyEvent.VK_NUM_LOCK ||
               keyCode == KeyEvent.VK_SCROLL_LOCK || keyCode == KeyEvent.VK_KANA_LOCK)) {
@@ -1430,7 +1420,6 @@ public abstract class Toolkit {
    */
   public Dimension getBestCursorSize(int preferredWidth, int preferredHeight)
       throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     // Override to implement custom cursor support.
     return this != getDefaultToolkit() ? getDefaultToolkit().
@@ -1455,7 +1444,6 @@ public abstract class Toolkit {
    * @since 1.2
    */
   public int getMaximumCursorColors() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     // Override to implement custom cursor support.
     return this != getDefaultToolkit() ? getDefaultToolkit().getMaximumCursorColors() : 0;
@@ -1499,7 +1487,6 @@ public abstract class Toolkit {
    * @since 1.4
    */
   public boolean isFrameStateSupported(int state) throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     return this != getDefaultToolkit() ? getDefaultToolkit().
         isFrameStateSupported(state) : state == Frame.NORMAL;
@@ -2043,7 +2030,6 @@ public abstract class Toolkit {
    * @since 1.7
    */
   public boolean areExtraMouseButtonsEnabled() throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     return getDefaultToolkit().areExtraMouseButtonsEnabled();
   }

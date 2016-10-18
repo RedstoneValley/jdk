@@ -438,7 +438,6 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
 
     acc = AccessController.getContext();
 

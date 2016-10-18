@@ -179,7 +179,6 @@ public class ScrollPane extends Container {
    * @see GraphicsEnvironment#isHeadless
    */
   public ScrollPane(int scrollbarDisplayPolicy) throws HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     layoutMgr = null;
     width = 100;
     height = 100;
@@ -694,7 +693,6 @@ public class ScrollPane extends Container {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     // 4352819: Gotcha!  Cannot use s.defaultReadObject here and
     // then continue with reading optional data.  Use GetField instead.
     GetField f = s.readFields();

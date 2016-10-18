@@ -67,10 +67,6 @@ public class ByteComponentRaster extends SunWritableRaster {
    */
   private final int maxY;
   /**
-   * private band offset for use by native code
-   */
-  protected int bandOffset;
-  /**
    * Data offsets for each band of image data.
    */
   protected int[] dataOffsets;
@@ -191,18 +187,8 @@ public class ByteComponentRaster extends SunWritableRaster {
       throw new RasterFormatException("IntegerComponentRasters must "
           + "have ComponentSampleModel or SinglePixelPackedSampleModel");
     }
-    bandOffset = dataOffsets[0];
 
     verify();
-  }
-
-  /**
-   * Returns a copy of the data offsets array. For each band the data offset
-   * is the index into the band's data array, of the first sample of the
-   * band.
-   */
-  public int[] getDataOffsets() {
-    return dataOffsets.clone();
   }
 
   /**
@@ -238,110 +224,6 @@ public class ByteComponentRaster extends SunWritableRaster {
    */
   public byte[] getDataStorage() {
     return data;
-  }
-
-  /**
-   * Returns a byte array of data elements from the specified rectangular
-   * region for the specified band.
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * <pre>
-   *       byte[] bandData = raster.getByteData(x, y, w, h, null);
-   *       // To find the data element at location (x2, y2)
-   *       byte bandElement = bandData[((y2-y)*w + (x2-x))];
-   * </pre>
-   *
-   * @param x       The X coordinate of the upper left pixel location.
-   * @param y       The Y coordinate of the upper left pixel location.
-   * @param band    The band to return.
-   * @param outData If non-null, data elements for all bands
-   *                at the specified location are returned in this array.
-   * @return Data array with data elements for all bands.
-   */
-  public byte[] getByteData(int x, int y, int w, int h, int band, byte[] outData) {
-    // Bounds check for 'band' will be performed automatically
-    if (x < minX || y < minY ||
-        x + w > maxX || y + h > maxY) {
-      throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
-    }
-    if (outData == null) {
-      outData = new byte[scanlineStride * h];
-    }
-    int yoff = (y - minY) * scanlineStride +
-        (x - minX) * pixelStride + dataOffsets[band];
-    int xoff;
-    int off = 0;
-    int xstart;
-    int ystart;
-
-    if (pixelStride == 1) {
-      if (scanlineStride == w) {
-        System.arraycopy(data, yoff, outData, 0, w * h);
-      } else {
-        for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
-          System.arraycopy(data, yoff, outData, off, w);
-          off += w;
-        }
-      }
-    } else {
-      for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
-        xoff = yoff;
-        for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          outData[off] = data[xoff];
-          off++;
-        }
-      }
-    }
-
-    return outData;
-  }
-
-  /**
-   * Returns a byte array of data elements from the specified rectangular
-   * region.
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * <pre>
-   *       byte[] bandData = raster.getByteData(x, y, w, h, null);
-   *       int numDataElements = raster.getnumDataElements();
-   *       byte[] pixel = new byte[numDataElements];
-   *       // To find a data element at location (x2, y2)
-   *       System.arraycopy(bandData, ((y2-y)*w + (x2-x))*numDataElements,
-   *                        pixel, 0, numDataElements);
-   * </pre>
-   *
-   * @param x       The X coordinate of the upper left pixel location.
-   * @param y       The Y coordinate of the upper left pixel location.
-   * @param outData If non-null, data elements for all bands
-   *                at the specified location are returned in this array.
-   * @return Data array with data elements for all bands.
-   */
-  public byte[] getByteData(int x, int y, int w, int h, byte[] outData) {
-    if (x < minX || y < minY ||
-        x + w > maxX || y + h > maxY) {
-      throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
-    }
-    if (outData == null) {
-      outData = new byte[numDataElements * scanlineStride * h];
-    }
-    int yoff = (y - minY) * scanlineStride + (x - minX) * pixelStride;
-    int xoff;
-    int off = 0;
-    int xstart;
-    int ystart;
-
-    // REMIND: Should keep track if dataOffsets are in a nice order
-    for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
-      xoff = yoff;
-      for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-        for (int c = 0; c < numDataElements; c++) {
-          outData[off] = data[dataOffsets[c] + xoff];
-          off++;
-        }
-      }
-    }
-
-    return outData;
   }
 
   /**
@@ -397,60 +279,6 @@ public class ByteComponentRaster extends SunWritableRaster {
       tdata = inRaster.getDataElements(srcOffX, srcOffY + startY, width, 1, tdata);
       setDataElements(dstX, dstY + startY, width, 1, tdata);
     }
-  }
-
-  /**
-   * Stores a byte array of data elements into the specified rectangular
-   * region for the specified band.
-   * An ArrayIndexOutOfBounds exception will be thrown at runtime
-   * if the pixel coordinates are out of bounds.
-   * The data elements in the
-   * data array are assumed to be packed.  That is, a data element
-   * at location (x2, y2) would be found at:
-   * <pre>
-   *      inData[((y2-y)*w + (x2-x)) + n]
-   * </pre>
-   *
-   * @param x      The X coordinate of the upper left pixel location.
-   * @param y      The Y coordinate of the upper left pixel location.
-   * @param w      Width of the pixel rectangle.
-   * @param h      Height of the pixel rectangle.
-   * @param band   The band to set.
-   * @param inData The data elements to be stored.
-   */
-  public void putByteData(int x, int y, int w, int h, int band, byte[] inData) {
-    // Bounds check for 'band' will be performed automatically
-    if (x < minX || y < minY ||
-        x + w > maxX || y + h > maxY) {
-      throw new ArrayIndexOutOfBoundsException("Coordinate out of bounds!");
-    }
-    int yoff = (y - minY) * scanlineStride +
-        (x - minX) * pixelStride + dataOffsets[band];
-    int xoff;
-    int off = 0;
-    int xstart;
-    int ystart;
-
-    if (pixelStride == 1) {
-      if (scanlineStride == w) {
-        System.arraycopy(inData, 0, data, yoff, w * h);
-      } else {
-        for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
-          System.arraycopy(inData, off, data, yoff, w);
-          off += w;
-        }
-      }
-    } else {
-      for (ystart = 0; ystart < h; ystart++, yoff += scanlineStride) {
-        xoff = yoff;
-        for (xstart = 0; xstart < w; xstart++, xoff += pixelStride) {
-          data[xoff] = inData[off];
-          off++;
-        }
-      }
-    }
-
-    markDirty();
   }
 
   /**

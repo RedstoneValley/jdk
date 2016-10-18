@@ -86,7 +86,7 @@ import java.util.EventListener;
  */
 public class Button extends Component {
 
-  private static final String base = "button";
+  public static final String base = "button";
   /*
    * JDK 1.1 serialVersionUID
    */
@@ -470,7 +470,6 @@ public class Button extends Component {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
 
     Object keyOrNull;

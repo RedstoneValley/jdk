@@ -392,7 +392,6 @@ public class Scrollbar extends Component implements Adjustable {
   public Scrollbar(
       int orientation, int value, int visible, int minimum, int maximum) throws HeadlessException {
     super(ScrollView.class);
-    GraphicsEnvironment.checkHeadless();
     switch (orientation) {
       case HORIZONTAL:
       case VERTICAL:
@@ -1168,7 +1167,6 @@ public class Scrollbar extends Component implements Adjustable {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
 
     Object keyOrNull;

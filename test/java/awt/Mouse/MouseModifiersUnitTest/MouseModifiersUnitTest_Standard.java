@@ -29,8 +29,16 @@
   @run main MouseModifiersUnitTest_Standard
  */
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Button;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -40,7 +48,6 @@ import sun.awt.im.InputContext;
 //the test verifies:
 // 1) verifies that modifiers are correct for standard (1, 2, 3) mouse buttons
 // TODO: 2) verifies that modifiers are correct for wheel
-// TODO: 3)
 // Case1. the test posts BUTTONx_MASK and verifies that paramString() contains correct modifiers and exModifiers
 // Case2. the test posts BUTTONx_DOWN_MASK and verifies that paramString() contains correct modifiers and exModifiers
 // Case3. the test posts getMaskForButton(n) and verifies that paramString() contains correct modifiers and exModifiers

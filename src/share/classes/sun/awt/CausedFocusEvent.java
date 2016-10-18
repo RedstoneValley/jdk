@@ -48,27 +48,6 @@ public class CausedFocusEvent extends FocusEvent {
     this.cause = cause;
   }
 
-  /**
-   * Retargets the original focus event to the new target.  If the
-   * original focus event is CausedFocusEvent, it remains such and
-   * cause is copied.  Otherwise, new CausedFocusEvent is created,
-   * with cause as RETARGETED.
-   *
-   * @return retargeted event, or null if e is null
-   */
-  public static FocusEvent retarget(FocusEvent e, Component newSource) {
-    if (e == null) {
-      return null;
-    }
-
-    return new CausedFocusEvent(
-        newSource,
-        e.getID(),
-        e.isTemporary(),
-        e.getOppositeComponent(),
-        e instanceof CausedFocusEvent ? ((CausedFocusEvent) e).getCause() : Cause.RETARGETED);
-  }
-
   public Cause getCause() {
     return cause;
   }
@@ -79,14 +58,10 @@ public class CausedFocusEvent extends FocusEvent {
 
   public enum Cause {
     UNKNOWN,
-    MOUSE_EVENT,
-    TRAVERSAL,
     TRAVERSAL_UP,
     TRAVERSAL_DOWN,
     TRAVERSAL_FORWARD,
     TRAVERSAL_BACKWARD,
-    MANUAL_REQUEST,
-    AUTOMATIC_TRAVERSE,
     ROLLBACK,
     NATIVE_SYSTEM,
     ACTIVATION,

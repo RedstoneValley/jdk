@@ -760,7 +760,6 @@ public class Window extends Container {
   }
 
   private GraphicsConfiguration initGC(GraphicsConfiguration gc) {
-    GraphicsEnvironment.checkHeadless();
 
     if (gc == null) {
       gc = GraphicsEnvironment.getLocalGraphicsEnvironment().
@@ -772,7 +771,6 @@ public class Window extends Container {
   }
 
   private void init(GraphicsConfiguration gc) {
-    GraphicsEnvironment.checkHeadless();
 
     syncLWRequests = systemSyncLWRequests;
 
@@ -3045,7 +3043,6 @@ public class Window extends Container {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     initDeserializedWindow();
     GetField f = s.readFields();
 

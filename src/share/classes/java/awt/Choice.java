@@ -710,7 +710,6 @@ public class Choice extends Component implements ItemSelectable {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
 
     Object keyOrNull;

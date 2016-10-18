@@ -235,102 +235,82 @@ public class HeadlessToolkit extends Toolkit
     throw new HeadlessException();
   }
 
-  @Override
   public ButtonPeer createButton(Button target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public TextFieldPeer createTextField(TextField target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public LabelPeer createLabel(Label target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public ListPeer createList(List target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public TextAreaPeer createTextArea(TextArea target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public ChoicePeer createChoice(Choice target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public FramePeer createFrame(Frame target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public CanvasPeer createCanvas(Canvas target) {
     return (CanvasPeer) createComponent(target);
   }
 
-  @Override
   public PanelPeer createPanel(Panel target) {
     return (PanelPeer) createComponent(target);
   }
 
-  @Override
   public WindowPeer createWindow(Window target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public DialogPeer createDialog(Dialog target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public MenuPeer createMenu(Menu target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target)
       throws HeadlessException {
     throw new HeadlessException();
@@ -534,7 +514,6 @@ public class HeadlessToolkit extends Toolkit
     return SunToolkit.getSystemEventQueueImplPP();
   }
 
-  @Override
   public DragSourceContextPeer createDragSourceContextPeer(
       DragGestureEvent dge) throws InvalidDnDOperationException {
     throw new InvalidDnDOperationException("Headless environment");

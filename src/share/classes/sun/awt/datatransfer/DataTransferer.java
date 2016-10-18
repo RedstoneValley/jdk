@@ -1878,7 +1878,7 @@ public abstract class DataTransferer {
     IOException ioe = null;
 
     while (writerIterator.hasNext()) {
-      ImageWriter imageWriter = (ImageWriter) writerIterator.next();
+      ImageWriter imageWriter = writerIterator.next();
       ImageWriterSpi writerSpi = imageWriter.getOriginatingProvider();
 
       if (!writerSpi.canEncodeImage(typeSpecifier)) {

@@ -776,7 +776,6 @@ public class TextComponent extends Component {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
 
     // Make sure the state we just read in for text,

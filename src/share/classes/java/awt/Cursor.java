@@ -270,7 +270,6 @@ public class Cursor implements Serializable {
    *                           {@code GraphicsEnvironment.isHeadless} returns true
    */
   public static Cursor getSystemCustomCursor(String name) throws AWTException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     Cursor cursor = systemCustomCursors.get(name);
 
     if (cursor == null) {

@@ -236,7 +236,6 @@ public class List extends Component implements ItemSelectable {
    */
   public List(int rows, boolean multipleMode) throws HeadlessException {
     super(Spinner.class);
-    GraphicsEnvironment.checkHeadless();
     this.rows = rows == 0 ? DEFAULT_VISIBLE_ROWS : rows;
     this.multipleMode = multipleMode;
   }
@@ -1246,7 +1245,6 @@ public class List extends Component implements ItemSelectable {
    */
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
-    GraphicsEnvironment.checkHeadless();
     s.defaultReadObject();
 
     Object keyOrNull;

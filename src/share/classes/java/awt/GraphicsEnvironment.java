@@ -54,11 +54,6 @@ public class GraphicsEnvironment {
   private static Boolean headless;
 
   /**
-   * The headless state assumed by default
-   */
-  private static Boolean defaultHeadless;
-
-  /**
    * Singleton unless subclassed.
    */
   protected GraphicsEnvironment() {
@@ -123,34 +118,6 @@ public class GraphicsEnvironment {
    */
   public static boolean isHeadless() {
     return false;
-  }
-
-  /**
-   * @return warning message if headless state is assumed by default;
-   * null otherwise
-   * @since 1.5
-   */
-  static String getHeadlessMessage() {
-    if (headless == null) {
-      getHeadlessProperty(); // initialize the values
-    }
-    return defaultHeadless == Boolean.TRUE ? "\nNo X11 DISPLAY variable was set, "
-        + "but this program performed an operation which requires it." : null;
-  }
-
-  /**
-   * TODO: Inline this method.
-   */
-  private static boolean getHeadlessProperty() {
-    return false;
-  }
-
-  /**
-   * No-op included for backward-compatibility.
-   *
-   * @since 1.4
-   */
-  static void checkHeadless() throws HeadlessException {
   }
 
   /**

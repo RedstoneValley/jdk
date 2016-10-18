@@ -30,14 +30,19 @@ package java.awt;
  * is called in an environment that does not support a keyboard, display,
  * or mouse.
  *
+ * Can't be thrown within SkinJob, but is part of the AWT API, so third-party code may need to be
+ * able to throw one.
+ *
  * @author Michael Martak
  * @since 1.4
  */
 public class HeadlessException extends UnsupportedOperationException {
   /*
-   * JDK 1.4 serialVersionUID
-   */
+     * JDK 1.4 serialVersionUID
+     */
   private static final long serialVersionUID = 167183644944358563L;
+  protected static final String HEADLESS_MESSAGE = "\nNo X11 DISPLAY variable was set, "
+      + "but this program performed an operation which requires it.";
 
   public HeadlessException() {
   }
@@ -49,14 +54,7 @@ public class HeadlessException extends UnsupportedOperationException {
   @Override
   public String getMessage() {
     String superMessage = super.getMessage();
-    String headlessMessage = GraphicsEnvironment.getHeadlessMessage();
 
-    if (superMessage == null) {
-      return headlessMessage;
-    } else if (headlessMessage == null) {
-      return superMessage;
-    } else {
-      return superMessage + headlessMessage;
-    }
+    return (superMessage == null ? "" : superMessage) + HEADLESS_MESSAGE;
   }
 }
