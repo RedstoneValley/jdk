@@ -57,13 +57,14 @@ public abstract class GraphicsPrimitive {
   public static final int TRACETIMESTAMP = 2;
   public static final int TRACECOUNTS = 4;
   public static int traceflags;
-  public static final String tracefile;
+  public static String tracefile;
   public static PrintStream traceout;
   static Map traceMap;
   private static int unusedPrimID = 1;
 
   static {
     String trace = System.getProperty("sun.java2d.trace");
+    String tracefile = null;
     if (trace != null) {
       boolean verbose = false;
       int traceflags = 0;
@@ -117,6 +118,7 @@ public abstract class GraphicsPrimitive {
       }
       GraphicsPrimitive.traceflags = traceflags;
     }
+    GraphicsPrimitive.tracefile = tracefile;
   }
 
   /**

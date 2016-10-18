@@ -26,6 +26,7 @@
 package sun.awt.im;
 
 import java.awt.Frame;
+import java.awt.geom.Area;
 
 /**
  * Implements a simple input method window that provides the minimal
@@ -37,6 +38,7 @@ public class SimpleInputMethodWindow extends Frame implements InputMethodWindow 
   // Proclaim serial compatibility with 1.7.0
   private static final long serialVersionUID = 5093376647036461555L;
   InputContext inputContext;
+  private Area contentPane;
 
   /**
    * Constructs a simple input method window.
@@ -57,5 +59,9 @@ public class SimpleInputMethodWindow extends Frame implements InputMethodWindow 
   @Override
   public void setInputContext(InputContext inputContext) {
     this.inputContext = inputContext;
+  }
+
+  public Area getContentPane() {
+    return contentPane;
   }
 }
