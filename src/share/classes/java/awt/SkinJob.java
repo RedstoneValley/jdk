@@ -19,6 +19,8 @@ import java.lang.reflect.Method;
 @SuppressWarnings("MagicNumber")
 public final class SkinJob {
 
+  private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
+
   /**
    * Conversion from an elliptical arc to a cubic Bezier spline is inherently approximate, and is
    * used in {@link java.awt.geom.ArcIterator}. The more segment endpoints the spline has, the
@@ -56,7 +58,8 @@ public final class SkinJob {
    */
   public static final float layerZSpacing = 100.0f;
   public static final View menuDivider;
-  public static final int menuTextColor = systemResources.getColor(
+
+  public static volatile int defaultForegroundColor = systemResources.getColor(
       color.primary_text_dark,
       systemResources.newTheme());
 
@@ -111,6 +114,27 @@ public final class SkinJob {
     } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
         | ClassNotFoundException e) {
       throw new AWTError(e.toString());
+    }
+  }
+
+  public static synchronized SkinJobGraphicsEnvironment getGraphicsEnvironment() {
+    if (graphicsEnvironment == null) {
+      graphicsEnvironment = new SkinJobGraphicsEnvironment(getAndroidApplicationContext());
+    }
+    return graphicsEnvironment;
+  }
+
+  public static ThreadGroup getRootThreadGroup() {
+    ThreadGroup group = Thread.currentThread().getThreadGroup();
+    if (group == null) {
+      return null;
+    }
+    while (true) {
+      ThreadGroup parent = group.getParent();
+      if (parent == null || parent.equals(group)) {
+        return group;
+      }
+      group = parent;
     }
   }
 }

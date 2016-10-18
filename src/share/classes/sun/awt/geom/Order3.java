@@ -29,7 +29,6 @@ import java.awt.geom.PathIterator;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Vector;
 
 final class Order3 extends Curve {
   private final double x0;
@@ -95,7 +94,7 @@ final class Order3 extends Curve {
   }
 
   public static void insert(
-      Vector curves, double[] tmp, double x0, double y0, double cx0, double cy0, double cx1,
+      List curves, double[] tmp, double x0, double y0, double cx0, double cy0, double cx1,
       double cy1, double x1, double y1, int direction) {
     int numparams = getHorizontalParams(y0, cy0, cy1, y1, tmp);
     if (numparams == 0) {

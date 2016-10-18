@@ -6,7 +6,7 @@ import android.view.View;
 /**
  * Created by cryoc on 2016-10-16.
  */
-class SkinJobNullWidgetSupplier implements WrappedAndroidObjectsSupplier<View> {
+final class SkinJobNullWidgetSupplier implements WrappedAndroidObjectsSupplier<View> {
   private static final SkinJobNullWidgetSupplier instance = new SkinJobNullWidgetSupplier();
 
   public static SkinJobNullWidgetSupplier getInstance() {

@@ -113,44 +113,6 @@ public abstract class PrinterJob {
  /* Public Methods */
 
   /**
-   * A convenience method which locates factories for stream print
-   * services which can image 2D graphics.
-   * Sample usage :
-   * <pre>{@code
-   * FileOutputStream outstream;
-   * StreamPrintService psPrinter;
-   * String psMimeType = "application/postscript";
-   * PrinterJob pj = PrinterJob.getPrinterJob();
-   *
-   * StreamPrintServiceFactory[] factories =
-   *     PrinterJob.lookupStreamPrintServices(psMimeType);
-   * if (factories.length > 0) {
-   *     try {
-   *         outstream = new File("out.ps");
-   *         psPrinter =  factories[0].getPrintService(outstream);
-   *         // psPrinter can now be set as the service on a PrinterJob
-   *         pj.setPrintService(psPrinter)
-   *     } catch (Exception e) {
-   *         e.printStackTrace();
-   *     }
-   * }
-   * }</pre>
-   * Services returned from this method may be installed on
-   * {@code PrinterJob} instances which support print services.
-   * Calling this method is equivalent to calling
-   *  and specifying a Pageable DocFlavor.
-   *
-   * @param mimeType the required output format, or null to mean any format.
-   * @return a possibly empty array of 2D stream print service factories.
-   * @since 1.4
-   */
-  public static StreamPrintServiceFactory[] lookupStreamPrintServices(String mimeType) {
-    return StreamPrintServiceFactory.lookupStreamPrintServiceFactories(DocFlavor
-        .SERVICE_FORMATTED.PAGEABLE,
-        mimeType);
-  }
-
-  /**
    * Returns the service (printer) for this printer job.
    * Implementations of this class which do not support print services
    * may return null.  null will also be returned if no printers are

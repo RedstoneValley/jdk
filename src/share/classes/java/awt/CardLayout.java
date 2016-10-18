@@ -586,7 +586,7 @@ public class CardLayout implements LayoutManager2, Serializable {
         }
       }
     } else {
-      vector = (Vector) f.get(CONTENT_VECTOR, null);
+      vector = (java.util.List<Card>) f.get(CONTENT_VECTOR, null);
       currentCard = f.get("currentCard", 0);
     }
   }

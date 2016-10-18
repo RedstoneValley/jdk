@@ -73,7 +73,7 @@ import sun.awt.SunToolkit;
  * @author George Zhang
  * @since 1.6
  */
-public class Desktop {
+public final class Desktop {
 
   private final DesktopPeer peer;
 

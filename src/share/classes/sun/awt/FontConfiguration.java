@@ -803,7 +803,7 @@ public abstract class FontConfiguration {
     }
   }
 
-  static short[] toList(HashMap<String, Short> map) {
+  static short[] toList(Map<String, Short> map) {
     short[] list = new short[map.size()];
     Arrays.fill(list, (short) -1);
     for (Entry<String, Short> entry : map.entrySet()) {

@@ -32,8 +32,12 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
+import sun.font.FontManager;
 
 public class PreferLocaleFonts extends GraphicsEnvironment {
 
@@ -46,11 +50,9 @@ new PreferLocaleFonts().preferLocaleFonts();
     public Graphics2D createGraphics(BufferedImage image) {
         return null;
     }
-    @Override
     public String[] getAvailableFontFamilyNames(Locale locale) {
         return null;
     }
-    @Override
     public String[] getAvailableFontFamilyNames() {
         return null;
     }
@@ -66,5 +68,47 @@ new PreferLocaleFonts().preferLocaleFonts();
     public GraphicsDevice[] getScreenDevices() {
         return null;
     }
+
+  @Override
+  public boolean isHeadlessInstance() {
+    return false;
+  }
+
+  @Override
+  public boolean registerFont(Font font) {
+    if (font == null) {
+      throw new NullPointerException("font cannot be null.");
+    }
+    FontManager fm = FontManager.getInstance();
+    return fm.registerFont(font);
+  }
+
+  @Override
+  public void preferLocaleFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferLocaleFonts();
+  }
+
+  @Override
+  public void preferProportionalFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferProportionalFonts();
+  }
+
+  @Override
+  public Point getCenterPoint() throws HeadlessException {
+    // Default implementation: return the center of the usable bounds of the
+    // default screen device.
+    Rectangle usableBounds = getUsableBounds(getDefaultScreenDevice());
+    return new Point(usableBounds.width / 2 + usableBounds.x,
+        usableBounds.height / 2 + usableBounds.y);
+  }
+
+  @Override
+  public Rectangle getMaximumWindowBounds() throws HeadlessException {
+    // Default implementation: return the usable bounds of the default screen
+    // device.  This is correct for Microsoft Windows and non-Xinerama X11.
+    return getUsableBounds(getDefaultScreenDevice());
+  }
 }
 

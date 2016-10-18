@@ -14,8 +14,12 @@ import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import sun.awt.datatransfer.ImageOutputStream;
 
 /**
  * <p>An AWT clipboard that wraps the Android clipboard, and also stores its contents privately so
@@ -116,7 +120,24 @@ public class SkinJobClipboard extends Clipboard implements OnPrimaryClipChangedL
       } else if (contentsWithFlavor instanceof URI) {
         String uriString = contentsWithFlavor.toString();
         return ClipData.newUri(contentResolver, uriString, Uri.parse(uriString));
-        // TODO: Find some way to handle AWT classes such as RenderedImage?
+      } else if (contentsWithFlavor instanceof RenderedImage) {
+        try {
+          File tempFile = File.createTempFile("copied_image_", ".png");
+          FileOutputStream fileOut = new FileOutputStream(tempFile);
+          try {
+            ImageOutputStream imageOut = new ImageOutputStream(fileOut);
+            try {
+              imageOut.write((RenderedImage) contentsWithFlavor);
+            } finally {
+              imageOut.close();
+            }
+          } finally {
+            fileOut.close();
+          }
+          return ClipData.newUri(contentResolver, tempFile.getName(), Uri.fromFile(tempFile));
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
       } else if (contentsWithFlavor instanceof CharSequence) {
         CharSequence contentsChars = (CharSequence) contentsWithFlavor;
         if (htmlFallback == null && flavor

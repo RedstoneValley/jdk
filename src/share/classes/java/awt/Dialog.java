@@ -989,8 +989,6 @@ public class Dialog extends Window {
       return;
     }
 
-    checkModalityPermission(type);
-
     modalityType = type;
     modal = modalityType != ModalityType.MODELESS;
   }
@@ -1484,22 +1482,12 @@ public class Dialog extends Window {
     }
   }
 
-  private void checkModalityPermission(ModalityType mt) {
-    // TODO
-  }
-
   private void readObject(ObjectInputStream s)
       throws ClassNotFoundException, IOException, HeadlessException {
 
     GetField fields = s.readFields();
 
     ModalityType localModalityType = (ModalityType) fields.get("modalityType", null);
-
-    try {
-      checkModalityPermission(localModalityType);
-    } catch (AccessControlException ace) {
-      localModalityType = DEFAULT_MODALITY_TYPE;
-    }
 
     // in 1.5 or earlier modalityType was absent, so use "modal" instead
     if (localModalityType == null) {

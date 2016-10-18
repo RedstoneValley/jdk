@@ -28,7 +28,6 @@ package sun.awt.geom;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Vector;
 
 final class Order2 extends Curve {
   private final double x0;
@@ -74,7 +73,7 @@ final class Order2 extends Curve {
   }
 
   public static void insert(
-      Vector curves, double[] tmp, double x0, double y0, double cx0, double cy0, double x1,
+      List curves, double[] tmp, double x0, double y0, double cx0, double cy0, double x1,
       double y1, int direction) {
     int numparams = getHorizontalParams(y0, cy0, y1, tmp);
     if (numparams == 0) {

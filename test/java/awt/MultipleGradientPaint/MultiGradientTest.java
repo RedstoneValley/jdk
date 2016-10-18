@@ -43,21 +43,21 @@ import java.awt.Paint;
 import java.awt.Polygon;
 import java.awt.RadialGradientPaint;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
-import java.awt.geom.Point2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-public class MultiGradientTest extends JPanel {
+public final class MultiGradientTest extends JPanel {
 
     static final Color[] COLORS = {
         new Color(0, 0, 0),

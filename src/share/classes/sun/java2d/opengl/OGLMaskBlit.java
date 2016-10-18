@@ -42,7 +42,7 @@ import sun.java2d.pipe.BufferedContext;
 import sun.java2d.pipe.BufferedMaskBlit;
 import sun.java2d.pipe.Region;
 
-class OGLMaskBlit extends BufferedMaskBlit {
+final class OGLMaskBlit extends BufferedMaskBlit {
 
   private OGLMaskBlit(SurfaceType srcType, CompositeType compType) {
     super(OGLRenderQueue.getInstance(), srcType, compType, OGLSurfaceData.OpenGLSurface);

@@ -55,8 +55,15 @@ import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.PeerEvent;
+import sun.awt.SunGraphicsCallback;
 import sun.awt.SunToolkit;
 import sun.awt.dnd.SunDropTargetEvent;
+import sun.awt.graphicscallback.PaintAllCallback;
+import sun.awt.graphicscallback.PaintCallback;
+import sun.awt.graphicscallback.PaintHeavyweightComponentsCallback;
+import sun.awt.graphicscallback.PrintAllCallback;
+import sun.awt.graphicscallback.PrintCallback;
+import sun.awt.graphicscallback.PrintHeavyweightComponentsCallback;
 import sun.java2d.pipe.Region;
 
 /**
@@ -755,8 +762,8 @@ public class Container extends Component {
 
       // super.paint(); -- Don't bother, since it's a NOP.
 
-      GraphicsCallback.PaintCallback.getInstance().
-          runComponents(getComponentsSync(), g, GraphicsCallback.LIGHTWEIGHTS);
+      PaintCallback.getInstance().
+          runComponents(getComponentsSync(), g, SunGraphicsCallback.LIGHTWEIGHTS);
     }
   }
 
@@ -788,7 +795,7 @@ public class Container extends Component {
    * @see Component#printAll
    * @see #printComponents
    */
-  void lightweightPaint(Graphics g) {
+  public void lightweightPaint(Graphics g) {
     super.lightweightPaint(g);
     paintHeavyweightComponents(g);
   }
@@ -796,12 +803,12 @@ public class Container extends Component {
   /**
    * Prints all the heavyweight subcomponents.
    */
-  void paintHeavyweightComponents(Graphics g) {
+  public void paintHeavyweightComponents(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PaintHeavyweightComponentsCallback.getInstance().
+      PaintHeavyweightComponentsCallback.getInstance().
           runComponents(getComponentsSync(),
               g,
-              GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
+              SunGraphicsCallback.LIGHTWEIGHTS | SunGraphicsCallback.HEAVYWEIGHTS);
     }
   }
 
@@ -835,8 +842,8 @@ public class Container extends Component {
         }
       }
 
-      GraphicsCallback.PrintCallback.getInstance().
-          runComponents(getComponentsSync(), g, GraphicsCallback.LIGHTWEIGHTS);
+      PrintCallback.getInstance().
+          runComponents(getComponentsSync(), g, SunGraphicsCallback.LIGHTWEIGHTS);
     }
   }
 
@@ -848,7 +855,7 @@ public class Container extends Component {
    * @see Component#printAll
    * @see #printComponents
    */
-  void lightweightPrint(Graphics g) {
+  public void lightweightPrint(Graphics g) {
     super.lightweightPrint(g);
     printHeavyweightComponents(g);
   }
@@ -856,12 +863,12 @@ public class Container extends Component {
   /**
    * Prints all the heavyweight subcomponents.
    */
-  void printHeavyweightComponents(Graphics g) {
+  public void printHeavyweightComponents(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PrintHeavyweightComponentsCallback.getInstance().
+      PrintHeavyweightComponentsCallback.getInstance().
           runComponents(getComponentsSync(),
               g,
-              GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
+              SunGraphicsCallback.LIGHTWEIGHTS | SunGraphicsCallback.HEAVYWEIGHTS);
     }
   }
 
@@ -2892,8 +2899,8 @@ public class Container extends Component {
    */
   public void paintComponents(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PaintAllCallback.getInstance().
-          runComponents(getComponentsSync(), g, GraphicsCallback.TWO_PASSES);
+      PaintAllCallback.getInstance().
+          runComponents(getComponentsSync(), g, SunGraphicsCallback.TWO_PASSES);
     }
   }
 
@@ -2908,8 +2915,8 @@ public class Container extends Component {
    */
   public void printComponents(Graphics g) {
     if (isShowing()) {
-      GraphicsCallback.PrintAllCallback.getInstance().
-          runComponents(getComponentsSync(), g, GraphicsCallback.TWO_PASSES);
+      PrintAllCallback.getInstance().
+          runComponents(getComponentsSync(), g, SunGraphicsCallback.TWO_PASSES);
     }
   }
 

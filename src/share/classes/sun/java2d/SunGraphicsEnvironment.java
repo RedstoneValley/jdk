@@ -32,6 +32,9 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SkinJob;
 import java.awt.image.BufferedImage;
 import java.awt.peer.ComponentPeer;
@@ -163,12 +166,10 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
     }
   }
 
-  @Override
   public String[] getAvailableFontFamilyNames() {
     return getAvailableFontFamilyNames(Locale.getDefault());
   }
 
-  @Override
   public String[] getAvailableFontFamilyNames(Locale requestedLocale) {
     FontManager fm = FontManager.getInstance();
     String[] installed = fm.getInstalledFontFamilyNames(requestedLocale);
@@ -268,5 +269,47 @@ public abstract class SunGraphicsEnvironment extends GraphicsEnvironment
    */
   public boolean isFlipStrategyPreferred(ComponentPeer peer) {
     return false;
+  }
+
+  @Override
+  public boolean isHeadlessInstance() {
+    return false;
+  }
+
+  @Override
+  public boolean registerFont(Font font) {
+    if (font == null) {
+      throw new NullPointerException("font cannot be null.");
+    }
+    FontManager fm = FontManager.getInstance();
+    return fm.registerFont(font);
+  }
+
+  @Override
+  public void preferLocaleFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferLocaleFonts();
+  }
+
+  @Override
+  public void preferProportionalFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferProportionalFonts();
+  }
+
+  @Override
+  public Point getCenterPoint() throws HeadlessException {
+    // Default implementation: return the center of the usable bounds of the
+    // default screen device.
+    Rectangle usableBounds = getUsableBounds(getDefaultScreenDevice());
+    return new Point(usableBounds.width / 2 + usableBounds.x,
+        usableBounds.height / 2 + usableBounds.y);
+  }
+
+  @Override
+  public Rectangle getMaximumWindowBounds() throws HeadlessException {
+    // Default implementation: return the usable bounds of the default screen
+    // device.  This is correct for Microsoft Windows and non-Xinerama X11.
+    return getUsableBounds(getDefaultScreenDevice());
   }
 }

@@ -379,20 +379,6 @@ public class Cursor implements Serializable {
     // TODO: This is native in OpenJDK AWT
   }
 
-  private void setPData(long pData) {
-    this.pData = pData;
-    if (disposer == null) {
-      disposer = new CursorDisposer(pData);
-      // anchor is null after deserialization
-      if (anchor == null) {
-        anchor = new Object();
-      }
-      Disposer.addRecord(anchor, disposer);
-    } else {
-      disposer.pData = pData;
-    }
-  }
-
   /**
    * Returns the type for this cursor.
    */

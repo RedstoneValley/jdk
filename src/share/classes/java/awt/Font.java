@@ -1596,11 +1596,9 @@ public class Font implements Serializable {
     // TODO i18n: Check whether this covers all scripts.
     if (Character.isIdeographic(c)) {
       return CENTER_BASELINE;
+    } else if (UnicodeScript.of(c) == UnicodeScript.DEVANAGARI) {
+      return HANGING_BASELINE;
     } else {
-      UnicodeScript script = UnicodeScript.of(c);
-      if (script == UnicodeScript.DEVANAGARI) {
-        return HANGING_BASELINE;
-      }
       return ROMAN_BASELINE;
     }
   }

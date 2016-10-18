@@ -2,7 +2,7 @@ package java.awt;
 
 import android.widget.AdapterView;
 import android.widget.TextView;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created by cryoc on 2016-10-11.

@@ -19,6 +19,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
 
   protected final T androidWidget;
   protected GraphicsConfiguration graphicsConfiguration;
+  protected volatile int foregroundColor = SkinJob.defaultForegroundColor;
 
   public SkinJobComponentPeer(T androidWidget, GraphicsConfiguration configuration) {
     this.androidWidget = androidWidget;
@@ -72,7 +73,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
 
   @Override
   public void setForeground(Color c) {
-    // TODO
+    foregroundColor = c.getRGB();
   }
 
   @Override

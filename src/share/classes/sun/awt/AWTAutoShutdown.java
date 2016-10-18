@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import java.awt.SkinJob;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import java.util.Map;
 import java.util.Set;
 import sun.awt.AppContext.CreateThreadAction;
 import sun.awt.AppContext.PostShutdownEventRunnable;
-import sun.java2d.opengl.ThreadGroupUtils;
 
 /**
  * This class is to let AWT shutdown automatically when a user is done
@@ -326,7 +326,7 @@ public final class AWTAutoShutdown implements Runnable {
    * Must be called with
    */
   private void activateBlockerThread() {
-    Thread thread = new Thread(ThreadGroupUtils.getRootThreadGroup(), this, "AWT-Shutdown");
+    Thread thread = new Thread(SkinJob.getRootThreadGroup(), this, "AWT-Shutdown");
     thread.setContextClassLoader(null);
     thread.setDaemon(false);
     blockerThread = thread;

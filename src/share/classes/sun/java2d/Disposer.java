@@ -25,6 +25,7 @@
 
 package sun.java2d;
 
+import java.awt.SkinJob;
 import java.lang.ref.PhantomReference;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -33,7 +34,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Hashtable;
-import sun.java2d.opengl.ThreadGroupUtils;
 
 /**
  * This class is used for registering and disposing the native
@@ -56,11 +56,7 @@ public class Disposer implements Runnable {
   private static final Hashtable records = new Hashtable();
   private static final Disposer disposerInstance;
   public static int refType = PHANTOM;
-  /*
-   * Set to indicate the queue is presently being polled.
-   */
-  public static volatile boolean pollingQueue;
-  private static ArrayList<DisposerRecord> deferredRecords;
+  private static ArrayList<DisposerRecord> deferredRecords = new ArrayList<>();
 
   static {
     AccessController.doPrivileged(new PrivilegedAction<Void>() {
@@ -70,8 +66,7 @@ public class Disposer implements Runnable {
         return null;
       }
     });
-    String type = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(
-        "sun.java2d.reftype"));
+    String type = System.getProperty("sun.java2d.reftype");
     if (type != null) {
       if ("weak".equals(type)) {
         refType = WEAK;
@@ -87,7 +82,7 @@ public class Disposer implements Runnable {
                      * which will not get GCed before VM exit.
                      * Make its parent the top-level thread group.
                      */
-      ThreadGroup rootTG = ThreadGroupUtils.getRootThreadGroup();
+      ThreadGroup rootTG = SkinJob.getRootThreadGroup();
       Thread t = new Thread(rootTG, disposerInstance, "Java2D Disposer");
       t.setContextClassLoader(null);
       t.setDaemon(true);

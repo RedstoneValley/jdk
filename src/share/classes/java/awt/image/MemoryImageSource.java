@@ -27,6 +27,7 @@ package java.awt.image;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -107,7 +108,7 @@ public class MemoryImageSource implements ImageProducer {
   Object pixels;
   int pixeloffset;
   int pixelscan;
-  Hashtable properties;
+  Map properties;
   final Vector theConsumers = new Vector();
   boolean animating;
   boolean fullbuffers;

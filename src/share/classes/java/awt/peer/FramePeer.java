@@ -95,13 +95,14 @@ public interface FramePeer extends WindowPeer {
    * setLocation() and setBounds() always set the frame to (0,0) for
    * backwards compatibility.
    *
+   * @deprecated OpenJDK AWT says: "This is only used in EmbeddedFrame, and should probably be moved
+   *     into an EmbeddedFramePeer which would extend FramePeer."
    * @param x      the X location
    * @param y      the Y location
    * @param width  the width of the frame
    * @param height the height of the frame
    */
-  // TODO: This is only used in EmbeddedFrame, and should probably be moved
-  // into an EmbeddedFramePeer which would extend FramePeer
+  @Deprecated
   void setBoundsPrivate(int x, int y, int width, int height);
 
   /**
@@ -109,10 +110,11 @@ public interface FramePeer extends WindowPeer {
    * setLocation() and setBounds() always set the frame to (0,0) for
    * backwards compatibility.
    *
+   * @deprecated OpenJDK AWT says: "This is only used in EmbeddedFrame, and should probably be moved
+   *     into an EmbeddedFramePeer which would extend FramePeer."
    * @return the bounds of an embedded frame
    */
-  // TODO: This is only used in EmbeddedFrame, and should probably be moved
-  // into an EmbeddedFramePeer which would extend FramePeer
+  @Deprecated
   Rectangle getBoundsPrivate();
 
   /**

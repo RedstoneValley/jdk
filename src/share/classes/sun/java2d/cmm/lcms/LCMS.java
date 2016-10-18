@@ -34,7 +34,7 @@ import sun.java2d.cmm.PCMM;
 import sun.java2d.cmm.Profile;
 import sun.java2d.cmm.lcms.LCMSProfile.TagData;
 
-public class LCMS implements PCMM {
+public final class LCMS implements PCMM {
 
   private static LCMS theLcms;
 

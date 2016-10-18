@@ -34,12 +34,13 @@ import java.awt.image.ImageProducer;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.util.Hashtable;
+import java.util.Map;
 
 public class OffScreenImageSource implements ImageProducer {
   final BufferedImage image;
   final int width;
   final int height;
-  final Hashtable properties;
+  final Map properties;
   // We can only have one consumer since we immediately return the data...
   private ImageConsumer theConsumer;
 

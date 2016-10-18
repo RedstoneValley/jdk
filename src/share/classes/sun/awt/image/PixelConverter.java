@@ -120,7 +120,7 @@ public class PixelConverter {
    * pixels[2] = r;    // high order byte of an Xrgb pixel
    */
 
-  public static class Rgbx extends PixelConverter {
+  public static final class Rgbx extends PixelConverter {
     public static final PixelConverter instance = new Rgbx();
 
     private Rgbx() {
@@ -137,7 +137,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Xrgb extends PixelConverter {
+  public static final class Xrgb extends PixelConverter {
     public static final PixelConverter instance = new Xrgb();
 
     private Xrgb() {
@@ -154,7 +154,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Argb extends PixelConverter {
+  public static final class Argb extends PixelConverter {
     public static final PixelConverter instance = new Argb();
 
     private Argb() {
@@ -172,7 +172,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Ushort565Rgb extends PixelConverter {
+  public static final class Ushort565Rgb extends PixelConverter {
     public static final PixelConverter instance = new Ushort565Rgb();
 
     private Ushort565Rgb() {
@@ -198,7 +198,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Ushort555Rgbx extends PixelConverter {
+  public static final class Ushort555Rgbx extends PixelConverter {
     public static final PixelConverter instance = new Ushort555Rgbx();
 
     private Ushort555Rgbx() {
@@ -224,7 +224,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Ushort555Rgb extends PixelConverter {
+  public static final class Ushort555Rgb extends PixelConverter {
     public static final PixelConverter instance = new Ushort555Rgb();
 
     private Ushort555Rgb() {
@@ -250,7 +250,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Ushort4444Argb extends PixelConverter {
+  public static final class Ushort4444Argb extends PixelConverter {
     public static final PixelConverter instance = new Ushort4444Argb();
 
     private Ushort4444Argb() {
@@ -283,7 +283,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Xbgr extends PixelConverter {
+  public static final class Xbgr extends PixelConverter {
     public static final PixelConverter instance = new Xbgr();
 
     private Xbgr() {
@@ -305,7 +305,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Bgrx extends PixelConverter {
+  public static final class Bgrx extends PixelConverter {
     public static final PixelConverter instance = new Bgrx();
 
     private Bgrx() {
@@ -327,7 +327,7 @@ public class PixelConverter {
     }
   }
 
-  public static class Rgba extends PixelConverter {
+  public static final class Rgba extends PixelConverter {
     public static final PixelConverter instance = new Rgba();
 
     private Rgba() {
@@ -345,7 +345,7 @@ public class PixelConverter {
     }
   }
 
-  public static class RgbaPre extends PixelConverter {
+  public static final class RgbaPre extends PixelConverter {
     public static final PixelConverter instance = new RgbaPre();
 
     private RgbaPre() {
@@ -384,7 +384,7 @@ public class PixelConverter {
     }
   }
 
-  public static class ArgbPre extends PixelConverter {
+  public static final class ArgbPre extends PixelConverter {
     public static final PixelConverter instance = new ArgbPre();
 
     private ArgbPre() {
@@ -423,7 +423,7 @@ public class PixelConverter {
     }
   }
 
-  public static class ArgbBm extends PixelConverter {
+  public static final class ArgbBm extends PixelConverter {
     public static final PixelConverter instance = new ArgbBm();
 
     private ArgbBm() {
@@ -466,7 +466,7 @@ public class PixelConverter {
     }
   }
 
-  public static class UshortGray extends ByteGray {
+  public static final class UshortGray extends ByteGray {
     public static final PixelConverter instance = new UshortGray();
     static final double SHORT_MULT = 257.0; // (65535.0 / 255.0);
     static final double USHORT_RED_MULT = RED_MULT * SHORT_MULT;

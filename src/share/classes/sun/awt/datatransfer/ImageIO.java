@@ -24,7 +24,6 @@ public class ImageIO {
   }
 
   public static ImageOutputStream createImageOutputStream(ByteArrayOutputStream baos) {
-    // TODO
-    return null;
+    return new ImageOutputStream(baos);
   }
 }

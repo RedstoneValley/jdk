@@ -36,7 +36,7 @@ import java.awt.event.MouseWheelEvent;
  * scrolling on a java.awt.ScrollPane.  It contains only static methods.
  * No objects of this class may be instantiated, thus it is declared abstract.
  */
-public abstract class ScrollPaneWheelScroller {
+public final class ScrollPaneWheelScroller {
   private static final String TAG = "ScrollPaneWheelScroller";
 
   private ScrollPaneWheelScroller() {

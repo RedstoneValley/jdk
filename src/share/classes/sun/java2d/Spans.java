@@ -370,7 +370,7 @@ public class Spans {
    * {@code SpanIntersection.instance} to
    * get the single instance of this class.
    */
-  static class SpanIntersection implements Comparator, Serializable {
+  static final class SpanIntersection implements Comparator, Serializable {
 
     /**
      * This class is a Singleton and the following

@@ -37,7 +37,7 @@ import sun.java2d.pipe.NullPipe;
  * abstract superclass.  All operations on it translate into NOP
  * or harmless operations.
  */
-public class NullSurfaceData extends SurfaceData {
+public final class NullSurfaceData extends SurfaceData {
   public static final SurfaceData theInstance = new NullSurfaceData();
   private static final NullPipe nullpipe = new NullPipe();
 

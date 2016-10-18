@@ -12,16 +12,12 @@ class SkinJobButtonPeer extends SkinJobComponentPeerForView<android.widget.Butto
     super(androidComponent);
   }
 
-  public SkinJobButtonPeer(Button androidComponent, GraphicsConfiguration configuration) {
-    super(androidComponent, configuration);
-  }
-
   public SkinJobButtonPeer(java.awt.Button target) {
     this((Button) target.androidWidget);
   }
 
   @Override
   public void setLabel(String label) {
-    // TODO
+    androidWidget.setText(label);
   }
 }

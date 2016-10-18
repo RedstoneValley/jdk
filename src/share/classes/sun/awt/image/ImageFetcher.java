@@ -329,7 +329,7 @@ class ImageFetcher extends Thread {
  * information.  This includes the array of ImageFetchers, as well as
  * the queue of ImageFetchable objects.
  */
-class FetcherInfo {
+final class FetcherInfo {
   static final int MAX_NUM_FETCHERS_PER_APPCONTEXT = 4;
   /* The key to put()/get() the FetcherInfo into/from the AppContext. */
   private static final Object FETCHER_INFO_KEY = new StringBuffer("FetcherInfo");

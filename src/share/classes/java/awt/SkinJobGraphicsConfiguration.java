@@ -1,6 +1,5 @@
 package java.awt;
 
-import android.hardware.display.DisplayManager;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import java.awt.geom.AffineTransform;
@@ -14,10 +13,7 @@ public class SkinJobGraphicsConfiguration extends GraphicsConfiguration {
   protected static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
   private static final WeakHashMap<Display, SkinJobGraphicsConfiguration> INSTANCES
       = new WeakHashMap<>();
-  private static final Display DEFAULT_DISPLAY = SkinJob
-      .getAndroidApplicationContext()
-      .getSystemService(DisplayManager.class)
-      .getDisplay(Display.DEFAULT_DISPLAY);
+  private static SkinJobGraphicsConfiguration defaultInstance;
   protected final AffineTransform scale72DpiInput;
   protected final Rectangle displayBounds;
   protected final GraphicsDevice device;
@@ -47,7 +43,11 @@ public class SkinJobGraphicsConfiguration extends GraphicsConfiguration {
   }
 
   public static SkinJobGraphicsConfiguration getDefault() {
-    return get(DEFAULT_DISPLAY);
+    if (defaultInstance == null) {
+      defaultInstance = new SkinJobGraphicsConfiguration(
+          SkinJob.getGraphicsEnvironment().getDefaultDisplay());
+    }
+    return defaultInstance;
   }
 
   @Override

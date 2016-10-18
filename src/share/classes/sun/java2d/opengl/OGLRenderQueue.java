@@ -28,6 +28,7 @@ package sun.java2d.opengl;
 import static sun.java2d.pipe.BufferedOpCodes.DISPOSE_CONFIG;
 import static sun.java2d.pipe.BufferedOpCodes.SYNC;
 
+import java.awt.SkinJob;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.java2d.pipe.RenderBuffer;
@@ -39,7 +40,7 @@ import sun.java2d.pipe.RenderQueue;
  * the queue, thus ensuring that only one thread communicates with the native
  * OpenGL libraries for the entire process.
  */
-public class OGLRenderQueue extends RenderQueue {
+public final class OGLRenderQueue extends RenderQueue {
 
   private static OGLRenderQueue theInstance;
   private final QueueFlusher flusher;
@@ -50,7 +51,7 @@ public class OGLRenderQueue extends RenderQueue {
          * which will not get GCed before VM exit.
          */
     flusher = AccessController.doPrivileged((PrivilegedAction<QueueFlusher>) () -> {
-      return new QueueFlusher(ThreadGroupUtils.getRootThreadGroup());
+      return new QueueFlusher(SkinJob.getRootThreadGroup());
     });
   }
 

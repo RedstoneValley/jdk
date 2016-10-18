@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Hashtable;
+import java.util.Map;
 
 public abstract class ImageDecoder {
   final InputStreamImageSource source;
@@ -85,7 +85,7 @@ public abstract class ImageDecoder {
     return count;
   }
 
-  protected int setProperties(Hashtable props) {
+  protected int setProperties(Map props) {
     ImageConsumerQueue cq = null;
     int count = 0;
     while ((cq = nextConsumer(cq)) != null) {

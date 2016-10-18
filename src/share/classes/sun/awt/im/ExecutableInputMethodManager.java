@@ -39,6 +39,7 @@ import java.security.PrivilegedAction;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Vector;
@@ -63,7 +64,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   private static final String preferredIMNode = "/sun/awt/im/preferredInputMethod";
   private static final String descriptorKey = "descriptor";
   private static String selectInputMethodMenuTitle;
-  final Vector<InputMethodLocator> javaInputMethodLocatorList;
+  final List<InputMethodLocator> javaInputMethodLocatorList;
   private final Hashtable<String, InputMethodLocator> preferredLocatorCache = new Hashtable<>();
   // the input context that's informed about selections from the user interface
   private InputContext currentInputContext;

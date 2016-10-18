@@ -9,7 +9,6 @@ import java.util.TreeSet;
 /**
  * Created by cryoc on 2016-10-11.
  */
-@Deprecated
 public class FontManager {
   private static final FontManager INSTANCE = new FontManager();
   protected static final Font[] A_FONT_ARRAY = new Font[0];

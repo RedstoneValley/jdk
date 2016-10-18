@@ -1,6 +1,5 @@
 package java.awt;
 
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import java.awt.peer.CheckboxPeer;
 

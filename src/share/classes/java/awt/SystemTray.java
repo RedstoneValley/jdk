@@ -126,7 +126,7 @@ import sun.awt.SunToolkit;
  * @see TrayIcon
  * @since 1.6
  */
-public class SystemTray {
+public final class SystemTray {
   private static final TrayIcon[] EMPTY_TRAY_ARRAY = new TrayIcon[0];
   private static SystemTray systemTray;
 

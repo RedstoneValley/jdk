@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
 /**
  * Created by cryoc on 2016-10-15.
  */
-public class CodePointIterator implements Iterator<Integer> {
+public final class CodePointIterator implements Iterator<Integer> {
   public static final int DONE = CharacterIterator.DONE;
   private final CharacterIterator aci;
   private int index = 0;

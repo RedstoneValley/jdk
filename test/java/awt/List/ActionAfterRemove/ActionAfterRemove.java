@@ -31,19 +31,18 @@
   @run main ActionAfterRemove
 */
 
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.List;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import sun.awt.SunToolkit;
 
 @SuppressWarnings("MagicNumber")
 public class ActionAfterRemove
 {
     private static volatile boolean passed = true;
-
-    // handle the uncaught exception
-    public void handle(Throwable e) {
-        e.printStackTrace();
-        passed = false;
-    }
 
     public static final void main(String[] args)
     {

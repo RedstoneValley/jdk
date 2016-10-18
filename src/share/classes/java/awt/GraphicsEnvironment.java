@@ -25,6 +25,7 @@
 
 package java.awt;
 
+import android.view.Display;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
 import sun.font.FontManager;
@@ -45,13 +46,8 @@ import sun.font.FontManager;
  * @see GraphicsConfiguration
  */
 
-public class GraphicsEnvironment {
+public abstract class GraphicsEnvironment {
   private static GraphicsEnvironment localEnv;
-
-  /**
-   * The headless state of the Toolkit and GraphicsEnvironment
-   */
-  private static Boolean headless;
 
   /**
    * Singleton unless subclassed.
@@ -82,7 +78,7 @@ public class GraphicsEnvironment {
     GraphicsEnvironment ge;
     String nm = System.getProperty("java.awt.graphicsenv");
     if (nm == null) {
-      return new GraphicsEnvironment();
+      return new SkinJobGraphicsEnvironment(SkinJob.getAndroidApplicationContext());
     }
     try {
       //          long t0 = System.currentTimeMillis();
@@ -143,9 +139,7 @@ public class GraphicsEnvironment {
    * @return false
    * @since 1.4
    */
-  public boolean isHeadlessInstance() {
-    return false;
-  }
+  public abstract boolean isHeadlessInstance();
 
   /**
    * Returns an array of all of the screen {@code GraphicsDevice}
@@ -155,10 +149,7 @@ public class GraphicsEnvironment {
    * objects that represent screen devices
    * @see #isHeadless()
    */
-  public GraphicsDevice[] getScreenDevices() {
-    // TODO
-    return new GraphicsDevice[0];
-  }
+  public abstract GraphicsDevice[] getScreenDevices();
 
   /**
    * Returns the default screen {@code GraphicsDevice}.
@@ -168,10 +159,8 @@ public class GraphicsEnvironment {
    * @throws HeadlessException if isHeadless() returns true
    * @see #isHeadless()
    */
-  public GraphicsDevice getDefaultScreenDevice() {
-    // TODO
-    return null;
-  }
+  public abstract GraphicsDevice getDefaultScreenDevice();
+
   /**
    * Returns a {@code Graphics2D} object for rendering into the
    * specified {@link BufferedImage}.
@@ -181,10 +170,7 @@ public class GraphicsEnvironment {
    * the specified {@code BufferedImage}
    * @throws NullPointerException if {@code img} is null
    */
-  public Graphics2D createGraphics(BufferedImage img) {
-    // TODO
-    return null;
-  }
+  public abstract Graphics2D createGraphics(BufferedImage img);
 
   /**
    * Returns an array containing a one-point size instance of all fonts
@@ -212,9 +198,7 @@ public class GraphicsEnvironment {
    * @see Font#getFontName
    * @since 1.2
    */
-  public Font[] getAllFonts() {
-    return FontManager.getInstance().getAllInstalledFonts();
-  }
+  public abstract Font[] getAllFonts();
 
   /**
    * Returns an array containing the names of all font families in this
@@ -235,9 +219,7 @@ public class GraphicsEnvironment {
    * @see Font#getFamily
    * @since 1.2
    */
-  public String[] getAvailableFontFamilyNames() {
-    return FontManager.getInstance().getInstalledFontFamilyNames(Locale.getDefault());
-  }
+  public abstract String[] getAvailableFontFamilyNames();
 
   /**
    * Returns an array containing the names of all font families in this
@@ -261,9 +243,7 @@ public class GraphicsEnvironment {
    * @see Font#getFamily
    * @since 1.2
    */
-  public String[] getAvailableFontFamilyNames(Locale l) {
-    return FontManager.getInstance().getInstalledFontFamilyNames(l);
-  }
+  public abstract String[] getAvailableFontFamilyNames(Locale l);
 
   /**
    * Registers a <i>created</i> {@code Font}in this
@@ -297,13 +277,7 @@ public class GraphicsEnvironment {
    * @throws NullPointerException if {@code font} is null
    * @since 1.6
    */
-  public boolean registerFont(Font font) {
-    if (font == null) {
-      throw new NullPointerException("font cannot be null.");
-    }
-    FontManager fm = FontManager.getInstance();
-    return fm.registerFont(font);
-  }
+  public abstract boolean registerFont(Font font);
 
   /**
    * Indicates a preference for locale-specific fonts in the mapping of
@@ -326,10 +300,7 @@ public class GraphicsEnvironment {
    *
    * @since 1.5
    */
-  public void preferLocaleFonts() {
-    FontManager fm = FontManager.getInstance();
-    fm.preferLocaleFonts();
-  }
+  public abstract void preferLocaleFonts();
 
   /**
    * Indicates a preference for proportional over non-proportional (e.g.
@@ -348,10 +319,7 @@ public class GraphicsEnvironment {
    *
    * @since 1.5
    */
-  public void preferProportionalFonts() {
-    FontManager fm = FontManager.getInstance();
-    fm.preferProportionalFonts();
-  }
+  public abstract void preferProportionalFonts();
 
   /**
    * Returns the Point where Windows should be centered.
@@ -363,13 +331,7 @@ public class GraphicsEnvironment {
    * @see #getMaximumWindowBounds
    * @since 1.4
    */
-  public Point getCenterPoint() throws HeadlessException {
-    // Default implementation: return the center of the usable bounds of the
-    // default screen device.
-    Rectangle usableBounds = getUsableBounds(getDefaultScreenDevice());
-    return new Point(usableBounds.width / 2 + usableBounds.x,
-        usableBounds.height / 2 + usableBounds.y);
-  }
+  public abstract Point getCenterPoint() throws HeadlessException;
 
   /**
    * Returns the maximum bounds for centered Windows.
@@ -390,9 +352,5 @@ public class GraphicsEnvironment {
    * @see Toolkit#getScreenInsets
    * @since 1.4
    */
-  public Rectangle getMaximumWindowBounds() throws HeadlessException {
-    // Default implementation: return the usable bounds of the default screen
-    // device.  This is correct for Microsoft Windows and non-Xinerama X11.
-    return getUsableBounds(getDefaultScreenDevice());
-  }
+  public abstract Rectangle getMaximumWindowBounds() throws HeadlessException;
 }

@@ -34,6 +34,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
+import sun.font.FontManager;
 
 /**
  * Headless decorator implementation of a SunGraphicsEnvironment
@@ -67,22 +68,18 @@ public class HeadlessGraphicsEnvironment extends GraphicsEnvironment {
     return ge.getAllFonts();
   }
 
-  @Override
   public String[] getAvailableFontFamilyNames() {
     return ge.getAvailableFontFamilyNames();
   }
 
-  @Override
   public String[] getAvailableFontFamilyNames(Locale l) {
     return ge.getAvailableFontFamilyNames(l);
   }
 
-  @Override
   public Point getCenterPoint() throws HeadlessException {
     throw new HeadlessException();
   }
 
-  @Override
   public Rectangle getMaximumWindowBounds() throws HeadlessException {
     throw new HeadlessException();
   }
@@ -90,5 +87,31 @@ public class HeadlessGraphicsEnvironment extends GraphicsEnvironment {
   /* Used by FontManager : internal API */
   public GraphicsEnvironment getSunGraphicsEnvironment() {
     return ge;
+  }
+
+  @Override
+  public boolean isHeadlessInstance() {
+    return false;
+  }
+
+  @Override
+  public boolean registerFont(Font font) {
+    if (font == null) {
+      throw new NullPointerException("font cannot be null.");
+    }
+    FontManager fm = FontManager.getInstance();
+    return fm.registerFont(font);
+  }
+
+  @Override
+  public void preferLocaleFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferLocaleFonts();
+  }
+
+  @Override
+  public void preferProportionalFonts() {
+    FontManager fm = FontManager.getInstance();
+    fm.preferProportionalFonts();
   }
 }

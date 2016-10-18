@@ -27,17 +27,16 @@ package sun.awt;
 
 import android.util.Log;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
 public abstract class SunGraphicsCallback {
+
   public static final int HEAVYWEIGHTS = 0x1;
   public static final int LIGHTWEIGHTS = 0x2;
   public static final int TWO_PASSES = 0x4;
-
   private static final String TAG = "SunGraphicsCallback";
 
   public abstract void run(Component comp, Graphics cg);
@@ -114,48 +113,6 @@ public abstract class SunGraphicsCallback {
     } else {
       for (int i = ncomponents - 1; i >= 0; i--) {
         runOneComponent(comps[i], null, g, clip, weightFlags);
-      }
-    }
-  }
-
-  public static final class PaintHeavyweightComponentsCallback extends SunGraphicsCallback {
-    private static final PaintHeavyweightComponentsCallback instance
-        = new PaintHeavyweightComponentsCallback();
-
-    private PaintHeavyweightComponentsCallback() {
-    }
-
-    public static PaintHeavyweightComponentsCallback getInstance() {
-      return instance;
-    }
-
-    @Override
-    public void run(Component comp, Graphics cg) {
-      if (!comp.isLightweight()) {
-        comp.paintAll(cg);
-      } else if (comp instanceof Container) {
-        runComponents(((Container) comp).getComponents(), cg, LIGHTWEIGHTS | HEAVYWEIGHTS);
-      }
-    }
-  }
-
-  public static final class PrintHeavyweightComponentsCallback extends SunGraphicsCallback {
-    private static final PrintHeavyweightComponentsCallback instance
-        = new PrintHeavyweightComponentsCallback();
-
-    private PrintHeavyweightComponentsCallback() {
-    }
-
-    public static PrintHeavyweightComponentsCallback getInstance() {
-      return instance;
-    }
-
-    @Override
-    public void run(Component comp, Graphics cg) {
-      if (!comp.isLightweight()) {
-        comp.printAll(cg);
-      } else if (comp instanceof Container) {
-        runComponents(((Container) comp).getComponents(), cg, LIGHTWEIGHTS | HEAVYWEIGHTS);
       }
     }
   }

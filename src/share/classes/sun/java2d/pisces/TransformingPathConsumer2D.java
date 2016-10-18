@@ -25,7 +25,6 @@
 
 package sun.java2d.pisces;
 
-import java.awt.geom.AffineTransform;
 import sun.awt.geom.PathConsumer2D;
 
 final class TransformingPathConsumer2D {

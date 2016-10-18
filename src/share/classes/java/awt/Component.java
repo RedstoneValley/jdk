@@ -30,8 +30,6 @@ import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.VSYNC_ON;
 import android.util.Log;
 import android.view.View;
 import java.awt.BufferCapabilities.FlipContents;
-import java.awt.GraphicsCallback.PeerPaintCallback;
-import java.awt.GraphicsCallback.PeerPrintCallback;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
@@ -96,9 +94,12 @@ import sun.awt.ConstrainableGraphics;
 import sun.awt.EventQueueItem;
 import sun.awt.RequestFocusController;
 import sun.awt.SubRegionShowable;
+import sun.awt.SunGraphicsCallback;
 import sun.awt.SunToolkit;
 import sun.awt.WindowClosingListener;
 import sun.awt.dnd.SunDropTargetEvent;
+import sun.awt.graphicscallback.PeerPaintCallback;
+import sun.awt.graphicscallback.PeerPrintCallback;
 import sun.awt.image.VSyncedBSManager;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SunGraphicsEnvironment;
@@ -250,7 +251,7 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @see #getTreeLock
    */
-  static final Object LOCK = new AWTTreeLock();
+  static final Object LOCK = new Object();
   /**
    * Internal, constants for serialization
    */
@@ -528,7 +529,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * @see #addNotify
    * @see #removeNotify
    */
-  transient ComponentPeer peer;
+  public transient ComponentPeer peer;
   /**
    * The parent of the object. It may be {@code null}
    * for top-level components.
@@ -3323,7 +3324,7 @@ public abstract class Component extends ComponentOrMenuComponent
               new Rectangle(0, 0, width, height),
               g,
               g.getClip(),
-              GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
+              SunGraphicsCallback.LIGHTWEIGHTS | SunGraphicsCallback.HEAVYWEIGHTS);
     }
   }
 
@@ -3334,14 +3335,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param g the graphics context to use for painting
    * @see #paintAll
    */
-  void lightweightPaint(Graphics g) {
+  public void lightweightPaint(Graphics g) {
     paint(g);
   }
 
   /**
    * Paints all the heavyweight subcomponents.
    */
-  void paintHeavyweightComponents(Graphics g) {
+  public void paintHeavyweightComponents(Graphics g) {
   }
 
   /**
@@ -3510,7 +3511,7 @@ public abstract class Component extends ComponentOrMenuComponent
               new Rectangle(0, 0, width, height),
               g,
               g.getClip(),
-              GraphicsCallback.LIGHTWEIGHTS | GraphicsCallback.HEAVYWEIGHTS);
+              SunGraphicsCallback.LIGHTWEIGHTS | SunGraphicsCallback.HEAVYWEIGHTS);
     }
   }
 
@@ -3521,14 +3522,14 @@ public abstract class Component extends ComponentOrMenuComponent
    * @param g the graphics context to use for printing
    * @see #printAll
    */
-  void lightweightPrint(Graphics g) {
+  public void lightweightPrint(Graphics g) {
     print(g);
   }
 
   /**
    * Prints all the heavyweight subcomponents.
    */
-  void printHeavyweightComponents(Graphics g) {
+  public void printHeavyweightComponents(Graphics g) {
   }
 
   Insets getInsets_NoClientCode() {
@@ -8505,9 +8506,6 @@ public abstract class Component extends ComponentOrMenuComponent
      * by components that do not have a baseline.
      */
     OTHER
-  }
-
-  static class AWTTreeLock {
   }
 
   // Swing access this method through reflection to implement InputVerifier's functionality.

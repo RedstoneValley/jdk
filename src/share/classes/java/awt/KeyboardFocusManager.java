@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.KeyboardFocusManagerAccessor;
