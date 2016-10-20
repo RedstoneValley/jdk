@@ -99,10 +99,6 @@ public abstract class SunGraphicsCallback {
     // even if they are at the top of the Z order. We emulate this
     // behavior by making two printing passes: the first for lightweights;
     // the second for heavyweights.
-    //
-    // ToDo(dpm): Either build a list of heavyweights during the
-    // lightweight pass, or redesign the components array to keep
-    // lightweights and heavyweights separate.
     if ((weightFlags & TWO_PASSES) != 0) {
       for (int i = ncomponents - 1; i >= 0; i--) {
         runOneComponent(comps[i], null, g, clip, LIGHTWEIGHTS);

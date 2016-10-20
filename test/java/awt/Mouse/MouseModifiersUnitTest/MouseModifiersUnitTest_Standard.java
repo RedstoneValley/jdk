@@ -47,7 +47,6 @@ import sun.awt.im.InputContext;
 
 //the test verifies:
 // 1) verifies that modifiers are correct for standard (1, 2, 3) mouse buttons
-// TODO: 2) verifies that modifiers are correct for wheel
 // Case1. the test posts BUTTONx_MASK and verifies that paramString() contains correct modifiers and exModifiers
 // Case2. the test posts BUTTONx_DOWN_MASK and verifies that paramString() contains correct modifiers and exModifiers
 // Case3. the test posts getMaskForButton(n) and verifies that paramString() contains correct modifiers and exModifiers
@@ -59,15 +58,6 @@ public final class MouseModifiersUnitTest_Standard {
     static final int SHIFT = 1;
     static final int CTRL = 2;
     static final int ALT = 3;
-    static boolean debug = true; //dump all errors (debug) or throw first(under jtreg) exception
-    static boolean autorun; //use robot or manual run
-    static int testModifier = NONE;
-    //    static String testModifier = "NONE";
-    static CheckingModifierAdapter adapterTest1;
-    static CheckingModifierAdapter adapterTest2;
-    static CheckingModifierAdapter adapterTest3;
-    static CheckingModifierAdapter adapterTest4;
-    static Frame f;
     static final int [] mouseButtons = {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON2_MASK, MouseEvent.BUTTON3_MASK};
     // BUTTON1, 2, 3 press-release.
     static final int [] modifiersStandardTestNONE = {MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK, MouseEvent.BUTTON1_MASK,
@@ -90,7 +80,6 @@ public final class MouseModifiersUnitTest_Standard {
     static final int [] modifiersExStandardTestCTRL = {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK,
     MouseEvent.BUTTON2_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK,
     MouseEvent.BUTTON3_DOWN_MASK|InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK, InputEvent.CTRL_DOWN_MASK};
-
     // BUTTON1, 2, 3 press-release with ALT modifier
     static final int [] modifiersStandardTestALT = {MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON1_MASK|InputEvent.ALT_MASK,
     MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK, MouseEvent.BUTTON2_MASK|InputEvent.ALT_MASK,
@@ -98,7 +87,15 @@ public final class MouseModifiersUnitTest_Standard {
     static final int [] modifiersExStandardTestALT = {MouseEvent.BUTTON1_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK,
     MouseEvent.BUTTON2_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK,
     MouseEvent.BUTTON3_DOWN_MASK|InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK, InputEvent.ALT_DOWN_MASK};
-
+    static boolean debug = true; //dump all errors (debug) or throw first(under jtreg) exception
+    static boolean autorun; //use robot or manual run
+    static int testModifier = NONE;
+    //    static String testModifier = "NONE";
+    static CheckingModifierAdapter adapterTest1;
+    static CheckingModifierAdapter adapterTest2;
+    static CheckingModifierAdapter adapterTest3;
+    static CheckingModifierAdapter adapterTest4;
+    static Frame f;
     static Robot robot;
 
     private MouseModifiersUnitTest_Standard() {
@@ -616,30 +613,38 @@ class CheckingModifierAdapter extends MouseAdapter{
     }
 
     @Override
-    public void mousePressed(MouseEvent e) {
-        System.out.println("PRESSED "+e);
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("CLICKED " + e);
         if (e.getButton() > MouseEvent.BUTTON3) {
             System.out.println("Extra button affected. Skip.");
         } else {
-            MouseModifiersUnitTest_Standard.checkPressedModifiersTest(modifier, e); // e.getButton(), e.getModifiers(), e.getModifiersEx(),
+            MouseModifiersUnitTest_Standard.checkClickedModifiersTest(
+                modifier,
+                e); //e.getButton(), e.getModifiers(), e.getModifiersEx()
         }
     }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        System.out.println("PRESSED " + e);
+        if (e.getButton() > MouseEvent.BUTTON3) {
+            System.out.println("Extra button affected. Skip.");
+        } else {
+            MouseModifiersUnitTest_Standard.checkPressedModifiersTest(
+                modifier,
+                e); // e.getButton(), e.getModifiers(), e.getModifiersEx(),
+        }
+    }
+
     @Override
     public void mouseReleased(MouseEvent e) {
-        System.out.println("RELEASED "+e);
+        System.out.println("RELEASED " + e);
         if (e.getButton() > MouseEvent.BUTTON3) {
             System.out.println("Extra button affected. Skip.");
         } else {
-            MouseModifiersUnitTest_Standard.checkReleasedModifiersTest(modifier, e); // e.getButton(), e.getModifiers(), e.getModifiersEx()
-        }
-    }
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("CLICKED "+e);
-        if (e.getButton() > MouseEvent.BUTTON3) {
-            System.out.println("Extra button affected. Skip.");
-        } else {
-            MouseModifiersUnitTest_Standard.checkClickedModifiersTest(modifier, e); //e.getButton(), e.getModifiers(), e.getModifiersEx()
+            MouseModifiersUnitTest_Standard.checkReleasedModifiersTest(
+                modifier,
+                e); // e.getButton(), e.getModifiers(), e.getModifiersEx()
         }
     }
 }

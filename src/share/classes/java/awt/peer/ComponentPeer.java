@@ -100,8 +100,6 @@ public interface ComponentPeer {
    * Resets the setBounds() operation to DEFAULT_OPERATION. This is not
    * passed into {@link #setBounds(int, int, int, int, int)}.
    * <p>
-   * TODO: This is only used internally and should probably be moved outside
-   * the peer interface.
    *
    * @see Component#setBoundsOp
    */
@@ -110,16 +108,12 @@ public interface ComponentPeer {
   /**
    * A flag that is used to suppress checks for embedded frames.
    * <p>
-   * TODO: This is only used internally and should probably be moved outside
-   * the peer interface.
    */
   int NO_EMBEDDED_CHECK = 1 << 14;
 
   /**
    * The default operation, which is to set size and location.
    * <p>
-   * TODO: This is only used internally and should probably be moved outside
-   * the peer interface.
    *
    * @see Component#setBoundsOp
    */
@@ -262,8 +256,6 @@ public interface ComponentPeer {
    * @return a graphics object to paint on the component
    * @see Component#getGraphics()
    */
-  // TODO: Maybe change this to force Graphics2D, since many things will
-  // break with plain Graphics nowadays.
   Graphics getGraphics();
 
   /**
@@ -364,8 +356,6 @@ public interface ComponentPeer {
    * @return the created image
    * @see Component#createImage(int, int)
    */
-  // TODO: Maybe make that return a BufferedImage, because some stuff will
-  // break if a different kind of image is returned.
   Image createImage(int width, int height);
 
   /**
@@ -378,7 +368,6 @@ public interface ComponentPeer {
    * @return the created volatile image
    * @see Component#createVolatileImage(int, int)
    */
-  // TODO: Include capabilities here and fix Component#createVolatileImage
   VolatileImage createVolatileImage(int width, int height);
 
   /**

@@ -171,7 +171,7 @@ BUNDLE_UP_AND_EXIT = \
     runc="`$(CAT) $(RUNLIST)      | $(WC) -l | $(AWK) '{print $$1;}'`"; \
     passc="`$(CAT) $(PASSLIST)    | $(WC) -l | $(AWK) '{print $$1;}'`"; \
     failc="`$(CAT) $(FAILLIST)    | $(WC) -l | $(AWK) '{print $$1;}'`"; \
-    exclc="FIXME CODETOOLS-7900176"; \
+    exclc=""; \
     $(ECHO) "TEST STATS: name=$(UNIQUE_DIR)  run=$${runc}  pass=$${passc}  fail=$${failc}" \
       >> $(STATS_TXT); \
   else \

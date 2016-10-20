@@ -70,6 +70,9 @@ public final class SkinJob {
    */
   public static final float layerZSpacing = 100.0f;
   public static final View menuDivider;
+  public static final int inputMethodMenuX = 60;
+  public static final int inputMethodMenuY = 80;
+
   private static final Resources systemResources = Resources.getSystem();
   public static volatile int defaultForegroundColor = systemResources.getColor(
       color.primary_text_dark,

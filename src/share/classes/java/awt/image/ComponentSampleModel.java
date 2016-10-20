@@ -84,6 +84,16 @@ public class ComponentSampleModel extends SampleModel {
    */
   protected final int[] bandOffsets;
   /**
+   * Line stride (in data array elements) of the region of image
+   * data described by this ComponentSampleModel.
+   */
+  protected final int scanlineStride;
+  /**
+   * Pixel stride (in data array elements) of the region of image
+   * data described by this ComponentSampleModel.
+   */
+  protected final int pixelStride;
+  /**
    * Index for each bank storing a band of image data.
    */
   protected int[] bankIndices;
@@ -97,16 +107,6 @@ public class ComponentSampleModel extends SampleModel {
    * {@code ComponentSampleModel}.
    */
   protected int numBanks = 1;
-  /**
-   * Line stride (in data array elements) of the region of image
-   * data described by this ComponentSampleModel.
-   */
-  protected final int scanlineStride;
-  /**
-   * Pixel stride (in data array elements) of the region of image
-   * data described by this ComponentSampleModel.
-   */
-  protected final int pixelStride;
 
   /**
    * Constructs a ComponentSampleModel with the specified parameters.
@@ -148,7 +148,6 @@ public class ComponentSampleModel extends SampleModel {
     if (pixelStride < 0) {
       throw new IllegalArgumentException("Pixel stride must be >= 0");
     }
-    // TODO - bug 4296691 - remove this check
     if (scanlineStride < 0) {
       throw new IllegalArgumentException("Scanline stride must be >= 0");
     }
@@ -206,7 +205,6 @@ public class ComponentSampleModel extends SampleModel {
     if (pixelStride < 0) {
       throw new IllegalArgumentException("Pixel stride must be >= 0");
     }
-    // TODO - bug 4296691 - remove this check
     if (scanlineStride < 0) {
       throw new IllegalArgumentException("Scanline stride must be >= 0");
     }

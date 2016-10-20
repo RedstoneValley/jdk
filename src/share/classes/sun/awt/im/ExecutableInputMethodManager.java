@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.event.InvocationEvent;
 import java.awt.im.spi.InputMethodDescriptor;
@@ -160,7 +161,22 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
 
     requestComponent = comp;
     notify();
-  }  @Override
+  }
+
+  @Override
+  public synchronized void notifyChangeRequestByHotKey(Component comp) {
+    while (!(comp instanceof Frame || comp instanceof Dialog)) {
+      if (comp == null) {
+        // no Frame or Dialog found in containment hierarchy.
+        return;
+      }
+      comp = comp.getParent();
+    }
+
+    notifyChangeRequest(comp);
+  }
+
+  @Override
   public void run() {
     // If there are no multiple input methods to choose from, wait forever
     while (!hasMultipleInputMethods()) {
@@ -191,19 +207,6 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       } catch (InterruptedException | InvocationTargetException ie) {
       }
     }
-  }
-
-  @Override
-  public synchronized void notifyChangeRequestByHotKey(Component comp) {
-    while (!(comp instanceof Frame || comp instanceof Dialog)) {
-      if (comp == null) {
-        // no Frame or Dialog found in containment hierarchy.
-        return;
-      }
-      comp = comp.getParent();
-    }
-
-    notifyChangeRequest(comp);
   }
 
   @Override
@@ -334,7 +337,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     synchronized (this) {
       selectionMenu.addToComponent(requestComponent);
       requestInputContext = currentInputContext;
-      selectionMenu.show(requestComponent, 60, 80); // TODO: get proper x, y...
+      selectionMenu.show(requestComponent, SkinJob.inputMethodMenuX, SkinJob.inputMethodMenuY);
       requestComponent = null;
     }
   }
@@ -617,6 +620,4 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
 
     return advertised;
   }
-
-
 }

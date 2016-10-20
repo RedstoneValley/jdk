@@ -41,15 +41,18 @@ Only sequences alike below are possible : <P1, P2, R2, R1>.
 Sequences like <P1, P2, R1, R2> will not be covered by this test due to its probable complexity.
  */
 
-import java.awt.*;
-import sun.awt.SunToolkit;
-import java.awt.event.*;
+import java.awt.Frame;
+import java.awt.MouseInfo;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import sun.awt.SunToolkit;
 
 public final class ModifierPermutation {
-    static boolean failed;
     static final int BUTTONSNUMBER = MouseInfo.getNumberOfButtons();
-
 /*
  * Because of some problems with BUTTONx_MASK
  * (they are not ordered. Instead, their values are: 16 8 4)
@@ -61,7 +64,7 @@ public final class ModifierPermutation {
     //all button masks
     static final int [] mouseButtons = new int [BUTTONSNUMBER]; //BUTTONx_MASK
     static final int [] mouseButtonsDown = new int [BUTTONSNUMBER]; //BUTTONx_DOWN_MASK
-
+    static boolean failed;
     //used to store mouse buttons sequences to press/to release
     static int [] affectedButtonsToPressRelease;
 //    static int [] buttonsToRelease;
@@ -70,6 +73,8 @@ public final class ModifierPermutation {
     static Robot robot;
     static CheckingAdapter adapterTest1;
     static Frame f;
+    // use this variable to get current button on EDT in checkModifiers()
+    static volatile int currentButtonIndexUnderAction;
 
     static {
         for (int i = 0; i < BUTTONSNUMBER; i++){
@@ -116,10 +121,6 @@ public final class ModifierPermutation {
                 pressAllButtons(affectedButtonsToPressRelease);
                 releaseAllButtonsForwardOrder(affectedButtonsToPressRelease);
 //                    nextPermutation(i, buttonsToRelease);
-                //TODO: press buttons and release them backward
-                //All I have to add is :
-//                pressAllButtons(affectedButtonsToPressRelease);
-//                releaseAllButtonsBackwardOrder(affectedButtonsToPressRelease);
 
                 System.out.println("<<<");
             }
@@ -137,12 +138,10 @@ public final class ModifierPermutation {
         f.setVisible(true);
         f.addMouseListener(adapterTest1);
     }
+
     public static int factorial(int t){
         return t <= 1 ? 1 : t * factorial(t - 1);
     }
-
-    // use this variable to get current button on EDT in checkModifiers()
-    static volatile int currentButtonIndexUnderAction;
 
     public static void pressAllButtons(int []array){
         for (int i = 0; i <array.length; i ++){
@@ -268,20 +267,22 @@ class CheckingAdapter extends MouseAdapter{
     }
 
     @Override
+    public void mouseClicked(MouseEvent e) {
+        System.out.println("CLICKED " + e);
+        checkModifiersOnClick(e);
+    }
+
+    @Override
     public void mousePressed(MouseEvent e) {
         System.out.println("PRESSED "+e);
         checkModifiersOnPress(e);
     }
+
     @Override
     public void mouseReleased(MouseEvent e) {
         System.out.println("RELEASED "+e);
         checkModifiersOnRelease(e);
 
-    }
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        System.out.println("CLICKED "+e);
-        checkModifiersOnClick(e);
     }
 }
 

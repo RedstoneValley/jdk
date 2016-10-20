@@ -293,6 +293,32 @@ public class MouseEvent extends InputEvent {
   }
 
   /**
+   * Indicates the number of quick consecutive clicks of
+   * a mouse button.
+   * clickCount will be valid for only three mouse events :<BR>
+   * {@code MOUSE_CLICKED},
+   * {@code MOUSE_PRESSED} and
+   * {@code MOUSE_RELEASED}.
+   * For the above, the {@code clickCount} will be at least 1.
+   * For all other events the count will be 0.
+   *
+   * @serial
+   * @see #getClickCount()
+   */
+  final int clickCount;
+  /**
+   * A property used to indicate whether a Popup Menu
+   * should appear  with a certain gestures.
+   * If {@code popupTrigger} = {@code false},
+   * no popup menu should appear.  If it is {@code true}
+   * then a popup menu should appear.
+   *
+   * @serial
+   * @see java.awt.PopupMenu
+   * @see #isPopupTrigger()
+   */
+  final boolean popupTrigger;
+  /**
    * The mouse event's x coordinate.
    * The x value is relative to the component that fired the event.
    *
@@ -308,20 +334,6 @@ public class MouseEvent extends InputEvent {
    * @see #getY()
    */
   int y;
-  /**
-   * Indicates the number of quick consecutive clicks of
-   * a mouse button.
-   * clickCount will be valid for only three mouse events :<BR>
-   * {@code MOUSE_CLICKED},
-   * {@code MOUSE_PRESSED} and
-   * {@code MOUSE_RELEASED}.
-   * For the above, the {@code clickCount} will be at least 1.
-   * For all other events the count will be 0.
-   *
-   * @serial
-   * @see #getClickCount()
-   */
-  final int clickCount;
   /**
    * Indicates which, if any, of the mouse buttons has changed state.
    * <p>
@@ -354,18 +366,6 @@ public class MouseEvent extends InputEvent {
    * @see Toolkit#areExtraMouseButtonsEnabled()
    */
   int button;
-  /**
-   * A property used to indicate whether a Popup Menu
-   * should appear  with a certain gestures.
-   * If {@code popupTrigger} = {@code false},
-   * no popup menu should appear.  If it is {@code true}
-   * then a popup menu should appear.
-   *
-   * @serial
-   * @see java.awt.PopupMenu
-   * @see #isPopupTrigger()
-   */
-  final boolean popupTrigger;
   /**
    * The mouse event's x absolute coordinate.
    * In a virtual device multi-screen environment in which the
@@ -767,11 +767,6 @@ public class MouseEvent extends InputEvent {
 
     int mask;
 
-    // TODO: add a toolkit field that holds a number of button on the mouse.
-    // As the method getMouseModifiersText() is static and obtain
-    // an integer as a parameter then we may not restrict this with the number
-    // of buttons installed on the mouse.
-    // It's a temporary solution. We need to somehow hold the number of buttons somewhere else.
     for (int i = 1; i <= cachedNumberOfButtons; i++) {
       mask = InputEvent.getMaskForButton(i);
       if ((modifiers & mask) != 0

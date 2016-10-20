@@ -556,7 +556,6 @@ public abstract class GraphicsDevice {
       return false;
     }
 
-    // TODO: cache translucency capable GC
     return getTranslucencyCapableGC() != null;
   }
 
