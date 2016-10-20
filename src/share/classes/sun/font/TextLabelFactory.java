@@ -22,11 +22,12 @@ public class TextLabelFactory {
   }
 
   public TextLineComponent createExtended(
-      Font font, CoreMetrics cm, Decoration decorator, int startPos, int i) {
-    TextLineComponent textLineComponent = new TextLineComponent(SkinJob.substringChars(
-        chars,
-        startPos,
-        i), font, cm, decorator);
+      Font font, CoreMetrics cm, Decoration decorator, int startPos, int length) {
+    return new TextLineComponent(
+        SkinJob.rangeMaybeCopy(chars, startPos, length),
+        font,
+        cm,
+        decorator);
   }
 
   public FontRenderContext getFontRenderContext() {
@@ -38,6 +39,7 @@ public class TextLabelFactory {
   }
 
   public Bidi getLineBidi() {
+    // TODO
     return bidi;
   }
 }

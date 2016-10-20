@@ -33,6 +33,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.InputMethodEvent;
@@ -57,16 +58,17 @@ import java.text.AttributedCharacterIterator;
 // This class is final due to the 6607310 fix. Refer to the CR for details.
 public final class CompositionArea extends Window implements InputMethodListener {
 
-  private CompositionAreaHandler handler;
-
-  private TextLayout composedTextLayout;
-  private TextHitInfo caret = null;
-  private Window compositionWindow; // was javax.swing.JFrame
   private final static int TEXT_ORIGIN_X = 5;
   private final static int TEXT_ORIGIN_Y = 15;
   private final static int PASSIVE_WIDTH = 480;
   private final static int WIDTH_MARGIN = 10;
   private final static int HEIGHT_MARGIN = 3;
+  // Proclaim serial compatibility with 1.7.0
+  private static final long serialVersionUID = -1057247068746557444L;
+  private CompositionAreaHandler handler;
+  private TextLayout composedTextLayout;
+  private TextHitInfo caret = null;
+  private Window compositionWindow; // was javax.swing.JFrame
 
   CompositionArea() {
     super(null); // TODO: Should this have an owner? If so, what?
@@ -74,10 +76,9 @@ public final class CompositionArea extends Window implements InputMethodListener
     String windowTitle = Toolkit.getProperty("AWT.CompositionWindowTitle", "Input Window");
     compositionWindow = InputMethodContext.createInputMethodWindow(windowTitle, null, true);
 
-    setVisible(true); // was setOpaque(true);
-    // setBorder(LineBorder.createGrayLineBorder());
-    setForeground(Color.black);
-    setBackground(Color.white);
+    setVisible(true); // was: setOpaque(true); setBorder(LineBorder.createGrayLineBorder());
+    setForeground(new Color(SkinJob.defaultForegroundColor));
+    setBackground(new Color(SkinJob.defaultBackgroundColor));
 
     // if we get the focus, we still want to let the client's
     // input context handle the event
@@ -147,21 +148,14 @@ public final class CompositionArea extends Window implements InputMethodListener
     }
   }
 
-  // shows/hides the composition window
-  void setCompositionAreaVisible(boolean visible) {
-    compositionWindow.setVisible(visible);
-  }
-
   // returns true if composition area is visible
   boolean isCompositionAreaVisible() {
     return compositionWindow.isVisible();
   }
 
-  // workaround for the Solaris focus lost problem
-  class FrameWindowAdapter extends WindowAdapter {
-    public void windowActivated(WindowEvent e) {
-      requestFocus();
-    }
+  // shows/hides the composition window
+  void setCompositionAreaVisible(boolean visible) {
+    compositionWindow.setVisible(visible);
   }
 
   // InputMethodListener methods - just forward to the current handler
@@ -311,6 +305,10 @@ public final class CompositionArea extends Window implements InputMethodListener
     compositionWindow.pack();
   }
 
-  // Proclaim serial compatibility with 1.7.0
-  private static final long serialVersionUID = -1057247068746557444L;
+  // workaround for the Solaris focus lost problem
+  class FrameWindowAdapter extends WindowAdapter {
+    public void windowActivated(WindowEvent e) {
+      requestFocus();
+    }
+  }
 }

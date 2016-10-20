@@ -23,12 +23,15 @@ import android.R.color;
 import android.R.drawable;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Rect;
 import android.view.View;
 import android.widget.ListView;
 import java.awt.font.TextAttribute;
+import java.awt.geom.Rectangle2D;
 import java.awt.peer.ComponentPeer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -36,7 +39,7 @@ import java.util.HashMap;
  * certain behaviors of wrapped Android objects that aren't fully specified by AWT's implementation
  * contract.
  */
-@SuppressWarnings("MagicNumber") // "magic" numbers are only used as default-defaults
+@SuppressWarnings("MagicNumber") // "magic" numbers are only used as factory defaults
 public final class SkinJob {
 
   /**
@@ -70,20 +73,35 @@ public final class SkinJob {
    */
   public static final float layerZSpacing = 100.0f;
   public static final View menuDivider;
+  /**
+   * X-coordinate of the point where
+   * {@link sun.awt.im.ExecutableInputMethodManager#showInputMethodMenu()} will pop up the menu.
+   */
   public static final int inputMethodMenuX = 60;
+  /**
+   * Y-coordinate of the point where
+   * {@link sun.awt.im.ExecutableInputMethodManager#showInputMethodMenu()} will pop up the menu.
+   */
   public static final int inputMethodMenuY = 80;
-
   private static final Resources systemResources = Resources.getSystem();
+  /**
+   * RGBA value of the foreground color used in AWT components when a color isn't specified.
+   */
   public static volatile int defaultForegroundColor = systemResources.getColor(
       color.primary_text_dark,
       systemResources.newTheme());
+  /**
+   * RGBA value of the background color used in AWT components when a color isn't specified and an
+   * opaque background is necessary.
+   */
+  public static volatile int defaultBackgroundColor
+      = systemResources.getColor(color.background_light, systemResources.newTheme());
   /**
    * Height at which {@link FontMetrics} should report text is struck through, as a multiple of
    * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
    * strikethrough, but must exist for backward-compatibility.
    */
   public static volatile float strikeThroughOffset = 0.5f;
-
   /**
    * Size of the array of precomputed character widths in each {@link FontMetrics}. Code points
    * lower than this value will be stored in the array; the rest will be recalculated on demand.
@@ -92,18 +110,32 @@ public final class SkinJob {
    * Should never exceed {@link Character#MAX_CODE_POINT}, or it'll be wasting memory.
    */
   public static volatile int precomputedCharacterWidthArraySize = 256;
+  /**
+   * The application's {@link Context} instance. Applications SHOULD set this variable to the
+   * application context. To maintain backward compatibility with AWT apps not designed for
+   * Android, SkinJob has a fallback mechanism in {@link #getAndroidApplicationContext()} that's
+   * used to look up the application context when this field is left null. That fallback method's
+   * output is not cached.
+   */
+  public static volatile Context applicationContext = null;
+  /**
+   * Delay in milliseconds between when a {@link java.awt.dnd.DropTarget.DropTargetAutoScroller}
+   * gets created or changes state, and the start of its first refresh.
+   */
+  public static volatile int autoscrollInitialDelayMs = 100;
+  /**
+   * Refresh interval in milliseconds for a {@link java.awt.dnd.DropTarget.DropTargetAutoScroller}.
+   */
+  public static volatile int autoscrollRefreshIntervalMs = 100;
   public static volatile int defaultDragThreshold = 5;
   public static volatile int defaultFontSize = 12;
   public static volatile Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, defaultFontSize);
-  public static volatile RenderingHints defaultRenderingHints;
   /**
-   * The application's {@link Context} instance. To maintain backward compatibility with AWT apps
-   * not designed for Android, SkinJob will look up the {@code Context} on demand if the application
-   * hasn't set this variable.
+   * Default instance of {@link RenderingHints}. By factory default, prioritizes quality over
+   * speed, and prioritizes good appearance at the current display resolution over accurate "scale
+   * modelling" of higher resolutions.
    */
-  public static volatile Context registeredAndroidContext = null;
-  public static volatile int defaultAutoscrollInitialDelayMs = 100;
-  public static volatile int defaultAutoscrollIntervalMs = 100;
+  public static volatile RenderingHints defaultRenderingHints;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
 
   static {
@@ -132,7 +164,7 @@ public final class SkinJob {
   }
 
   public static Context getAndroidApplicationContext() {
-    Context context = registeredAndroidContext;
+    Context context = applicationContext;
     if (context != null) {
       return context;
     }
@@ -167,14 +199,28 @@ public final class SkinJob {
     }
   }
 
-  public static char[] substringChars(char[] text, int start, int length) {
-    char[] substring;
-    if (start > 0 || length < substring.length) {
-      substring = new char[length];
-      System.arraycopy(text, start, substring, 0, length);
+  /**
+   * @param text   A character array to copy from.
+   * @param start  The index of the first character to copy.
+   * @param length The length of the substring of {@code char}s to copy.
+   * @return {@code text} if {@code start == 0 && length == text.length};
+   * {@link Arrays#copyOfRange(char[], int, int)}(text, start, length) otherwise.
+   */
+  public static char[] rangeMaybeCopy(char[] text, int start, int length) {
+    if (start == 0 && length == text.length) {
+      return text;
     } else {
-      substring = text;
+      return Arrays.copyOfRange(text, start, length);
     }
-    return substring;
+  }
+
+  /**
+   * Converts the given {@link Rect} (Android class) to a {@link Rectangle2D.Double} (AWT class).
+   *
+   * @param rect A {@link Rect} to convert.
+   * @return A {@link Rectangle2D.Double} representing the same area.
+   */
+  public static Rectangle2D.Double androidRectToRectangle2D(Rect rect) {
+    return new Rectangle2D.Double(rect.left, rect.top, rect.width(), rect.height());
   }
 }

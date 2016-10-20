@@ -19,7 +19,7 @@ public class GlyphLayout {
   public StandardGlyphVector layout(
       Font font, FontRenderContext frc, char[] text, int start, int length, int flags, Object o) {
     // TODO: Find and implement the contract for handling flags and o
-    char[] substring = SkinJob.substringChars(text, start, length);
+    char[] substring = SkinJob.rangeMaybeCopy(text, start, length);
     return new StandardGlyphVector(font, substring, frc);
   }
 }

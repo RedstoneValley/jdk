@@ -786,8 +786,8 @@ public class DropTarget implements DropTargetListener, Serializable {
     private Point locn;
     private Point prev;
     private int hysteresis = 10;
-    private Integer initial = SkinJob.defaultAutoscrollInitialDelayMs;
-    private Integer interval = SkinJob.defaultAutoscrollIntervalMs;
+    private Integer initial = SkinJob.autoscrollInitialDelayMs;
+    private Integer interval = SkinJob.autoscrollRefreshIntervalMs;
 
     /**
      * construct a DropTargetAutoScroller
