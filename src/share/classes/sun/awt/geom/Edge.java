@@ -26,8 +26,6 @@
 package sun.awt.geom;
 
 final class Edge {
-  static final int INIT_PARTS = 4;
-  static final int GROW_PARTS = 10;
 
   final Curve curve;
   final int ctag;

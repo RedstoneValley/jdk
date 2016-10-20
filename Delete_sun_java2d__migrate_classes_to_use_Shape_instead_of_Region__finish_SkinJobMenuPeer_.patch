@@ -1,0 +1,458 @@
+Index: src/share/classes/sun/awt/SunToolkit.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/share/classes/sun/awt/SunToolkit.java	(date 1476797905000)
++++ src/share/classes/sun/awt/SunToolkit.java	(revision )
+@@ -25,14 +25,6 @@
+ 
+ package sun.awt;
+ 
+-import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_GASP;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+-import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
+-
+ import android.content.Context;
+ import android.content.Intent;
+ import android.net.Uri;
+@@ -45,7 +37,6 @@
+ import java.awt.Choice;
+ import java.awt.Component;
+ import java.awt.Container;
+-import java.awt.DefaultKeyboardFocusManager;
+ import java.awt.Desktop;
+ import java.awt.Desktop.Action;
+ import java.awt.Dialog;
+@@ -58,7 +49,6 @@
+ import java.awt.Font;
+ import java.awt.FontMetrics;
+ import java.awt.Frame;
+-import java.awt.Graphics2D;
+ import java.awt.GraphicsConfiguration;
+ import java.awt.GraphicsDevice;
+ import java.awt.GraphicsDevice.WindowTranslucency;
+@@ -73,7 +63,6 @@
+ import java.awt.MenuItem;
+ import java.awt.Panel;
+ import java.awt.PopupMenu;
+-import java.awt.RenderingHints;
+ import java.awt.Robot;
+ import java.awt.ScrollPane;
+ import java.awt.Scrollbar;
+@@ -87,14 +76,9 @@
+ import java.awt.dnd.DragGestureEvent;
+ import java.awt.dnd.InvalidDnDOperationException;
+ import java.awt.dnd.peer.DragSourceContextPeer;
+-import java.awt.event.KeyEvent;
+ import java.awt.event.WindowEvent;
+-import java.awt.image.BufferedImage;
+-import java.awt.image.DataBuffer;
+-import java.awt.image.DataBufferInt;
+ import java.awt.image.ImageObserver;
+ import java.awt.image.ImageProducer;
+-import java.awt.image.Raster;
+ import java.awt.peer.ButtonPeer;
+ import java.awt.peer.CanvasPeer;
+ import java.awt.peer.CheckboxMenuItemPeer;
+@@ -172,10 +156,6 @@
+   public static final int DEFAULT_WAIT_TIME = 10000;
+   /* A variable defined for the convenience of JDK code */
+   public static final String DESKTOPFONTHINTS = "awt.font.desktophints";
+-  static final SoftCache imgCache = new SoftCache<URL, Image>();
+-  /* The key to put()/get() the PostEventQueue into/from the AppContext.
+-   */
+-  private static final String POST_EVENT_QUEUE_KEY = "PostEventQueue";
+   /**
+    * The AWT lock is typically only used on Unix platforms to synchronize
+    * access to Xlib, OpenGL, etc.  However, these methods are implemented
+@@ -207,8 +187,11 @@
+    * }
+    * }
+    */
+-
+   public static final ReentrantLock AWT_LOCK = new ReentrantLock();
++  static final SoftCache imgCache = new SoftCache<URL, Image>();
++  /* The key to put()/get() the PostEventQueue into/from the AppContext.
++   */
++  private static final String POST_EVENT_QUEUE_KEY = "PostEventQueue";
+   private static final Condition AWT_LOCK_COND = AWT_LOCK.newCondition();
+   // Maps from non-Component/MenuComponent to AppContext.
+   // WeakHashMap<Component,AppContext>
+@@ -218,19 +201,9 @@
+   private static final int MIN_ITERS = 0;
+   private static final int MINIMAL_EDELAY = 0;
+   private static final Object DEACTIVATION_TIMES_MAP_KEY = new Object();
+-  /**
+-   * Number of buttons.
+-   * By default it's taken from the system. If system value does not
+-   * fit into int type range, use our own MAX_BUTTONS_SUPPORT value.
+-   */
+-  protected static int numberOfButtons;
+   private static Locale startupLocale;
+   private static DefaultMouseInfoPeer mPeer;
+   private static ModalExclusionType DEFAULT_MODAL_EXCLUSION_TYPE;
+-  private static boolean checkedSystemAAFontSettings;
+-  private static boolean useSystemAAFontSettings;
+-  private static boolean lastExtraCondition = true;
+-  private static RenderingHints desktopFontHints;
+   private static Boolean sunAwtDisableMixing;
+ 
+   /* Load debug settings for native code */
+@@ -242,10 +215,10 @@
+ 
+   final Object waitLock = "Wait Lock";
+   private final ModalityListenerList modalityListeners = new ModalityListenerList();
+-  // Support for window closing event notifications
+-  private transient WindowClosingListener windowClosingListener;
+   boolean eventDispatched;
+   boolean queueEmpty;
++  // Support for window closing event notifications
++  private transient WindowClosingListener windowClosingListener;
+ 
+   public SunToolkit() {
+   }
+@@ -509,127 +482,6 @@
+     }
+   }
+ 
+-  /**
+-   * Scans {@code imageList} for best-looking image of specified dimensions.
+-   * Image can be scaled and/or padded with transparency.
+-   */
+-  public static BufferedImage getScaledIconImage(
+-      java.util.List<Image> imageList, int width, int height) {
+-    if (width == 0 || height == 0) {
+-      return null;
+-    }
+-    Image bestImage = null;
+-    int bestWidth = 0;
+-    int bestHeight = 0;
+-    double bestSimilarity = 3; //Impossibly high value
+-    double bestScaleFactor = 0;
+-    for (Image im : imageList) {
+-      //Iterate imageList looking for best matching image.
+-      //'Similarity' measure is defined as good scale factor and small insets.
+-      //best possible similarity is 0 (no scale, no insets).
+-      //It's found while the experiments that good-looking result is achieved
+-      //with scale factors x1, x3/4, x2/3, xN, x1/N.
+-      if (im == null) {
+-        continue;
+-      }
+-      if (im instanceof ToolkitImage) {
+-        ImageRepresentation ir = ((ToolkitImage) im).getImageRep();
+-        ir.reconstruct(ImageObserver.ALLBITS);
+-      }
+-      int iw;
+-      int ih;
+-      try {
+-        iw = im.getWidth(null);
+-        ih = im.getHeight(null);
+-      } catch (Exception e) {
+-        continue;
+-      }
+-      if (iw > 0 && ih > 0) {
+-        //Calc scale factor
+-        double scaleFactor = Math.min((double) width / (double) iw, (double) height / (double) ih);
+-        //Calculate scaled image dimensions
+-        //adjusting scale factor to nearest "good" value
+-        int adjw;
+-        int adjh;
+-        double scaleMeasure; //0 - best (no) scale, 1 - impossibly bad
+-        if (scaleFactor >= 2) {
+-          //Need to enlarge image more than twice
+-          //Round down scale factor to multiply by integer value
+-          scaleFactor = Math.floor(scaleFactor);
+-          adjw = iw * (int) scaleFactor;
+-          adjh = ih * (int) scaleFactor;
+-          scaleMeasure = 1.0 - 0.5 / scaleFactor;
+-        } else if (scaleFactor >= 1) {
+-          //Don't scale
+-          scaleFactor = 1.0;
+-          adjw = iw;
+-          adjh = ih;
+-          scaleMeasure = 0;
+-        } else if (scaleFactor >= 0.75) {
+-          //Multiply by 3/4
+-          scaleFactor = 0.75;
+-          adjw = iw * 3 / 4;
+-          adjh = ih * 3 / 4;
+-          scaleMeasure = 0.3;
+-        } else if (scaleFactor >= 0.6666) {
+-          //Multiply by 2/3
+-          scaleFactor = 0.6666;
+-          adjw = (iw << 1) / 3;
+-          adjh = (ih << 1) / 3;
+-          scaleMeasure = 0.33;
+-        } else {
+-          //Multiply size by 1/scaleDivider
+-          //where scaleDivider is minimum possible integer
+-          //larger than 1/scaleFactor
+-          double scaleDivider = Math.ceil(1.0 / scaleFactor);
+-          scaleFactor = 1.0 / scaleDivider;
+-          adjw = (int) Math.round((double) iw / scaleDivider);
+-          adjh = (int) Math.round((double) ih / scaleDivider);
+-          scaleMeasure = 1.0 - 1.0 / scaleDivider;
+-        }
+-        double similarity = ((double) width - (double) adjw) / (double) width +
+-            ((double) height - (double) adjh) / (double) height + //Large padding is bad
+-            scaleMeasure; //Large rescale is bad
+-        if (similarity < bestSimilarity) {
+-          bestSimilarity = similarity;
+-          bestImage = im;
+-          bestWidth = adjw;
+-          bestHeight = adjh;
+-        }
+-        if (similarity == 0) {
+-          break;
+-        }
+-      }
+-    }
+-    if (bestImage == null) {
+-      //No images were found, possibly all are broken
+-      return null;
+-    }
+-    BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+-    Graphics2D g = bimage.createGraphics();
+-    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+-        RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+-    try {
+-      int x = (width - bestWidth) / 2;
+-      int y = (height - bestHeight) / 2;
+-      g.drawImage(bestImage, x, y, bestWidth, bestHeight, null);
+-    } finally {
+-      g.dispose();
+-    }
+-    return bimage;
+-  }
+-
+-  public static DataBufferInt getScaledIconData(
+-      java.util.List<Image> imageList, int width, int height) {
+-    BufferedImage bimage = getScaledIconImage(imageList, width, height);
+-    if (bimage == null) {
+-      return null;
+-    }
+-    Raster raster = bimage.getRaster();
+-    DataBuffer buffer = raster.getDataBuffer();
+-    return (DataBufferInt) buffer;
+-  }
+-
+   // Package private implementation
+   static EventQueue getSystemEventQueueImplPP() {
+     return getSystemEventQueueImplPP(AppContext.getAppContext());
+@@ -701,151 +553,6 @@
+     // TODO: Native in OpenJDK AWT
+   }
+ 
+-  /* Since Swing is the reason for this "extra condition" logic its
+-   * worth documenting it in some detail.
+-   * First, a goal is for Swing and applications to both retrieve and
+-   * use the same desktop property value so that there is complete
+-   * consistency between the settings used by JDK's Swing implementation
+-   * and 3rd party custom Swing components, custom L&Fs and any general
+-   * text rendering that wants to be consistent with these.
+-   * But by default on Solaris & Linux Swing will not use AA text over
+-   * remote X11 display (unless Xrender can be used which is TBD and may not
+-   * always be available anyway) as that is a noticeable performance hit.
+-   * So there needs to be a way to express that extra condition so that
+-   * it is seen by all clients of the desktop property API.
+-   * If this were the only condition it could be handled here as it would
+-   * be the same for any L&F and could reasonably be considered to be
+-   * a static behaviour of those systems.
+-   * But GTK currently has an additional test based on locale which is
+-   * not applied by Metal. So mixing GTK in a few locales with Metal
+-   * would mean the last one wins.
+-   * This could be stored per-app context which would work
+-   * for different applets, but wouldn't help for a single application
+-   * using GTK and some other L&F concurrently.
+-   * But it is expected this will be addressed within GTK and the font
+-   * system so is a temporary and somewhat unlikely harmless corner case.
+-   */
+-  public static void setAAFontSettingsCondition(boolean extraCondition) {
+-    if (extraCondition != lastExtraCondition) {
+-      lastExtraCondition = extraCondition;
+-      if (checkedSystemAAFontSettings) {
+-                /* Someone already asked for this info, under a different
+-                 * condition.
+-                 * We'll force re-evaluation instead of replicating the
+-                 * logic, then notify any listeners of any change.
+-                 */
+-        checkedSystemAAFontSettings = false;
+-        Toolkit tk = Toolkit.getDefaultToolkit();
+-        if (tk instanceof SunToolkit) {
+-          ((SunToolkit) tk).fireDesktopFontPropertyChanges();
+-        }
+-      }
+-    }
+-  }
+-
+-  /* "false", "off", ""default" aren't explicitly tested, they
+-   * just fall through to produce a null return which all are equated to
+-   * "false".
+-   */
+-  private static RenderingHints getDesktopAAHintsByName(String hintname) {
+-    Object aaHint = null;
+-    hintname = hintname.toLowerCase(Locale.ENGLISH);
+-    if ("on".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_ON;
+-    } else if ("gasp".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_GASP;
+-    } else if ("lcd".equals(hintname) || "lcd_hrgb".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_LCD_HRGB;
+-    } else if ("lcd_hbgr".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_LCD_HBGR;
+-    } else if ("lcd_vrgb".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_LCD_VRGB;
+-    } else if ("lcd_vbgr".equals(hintname)) {
+-      aaHint = VALUE_TEXT_ANTIALIAS_LCD_VBGR;
+-    }
+-    if (aaHint != null) {
+-      RenderingHints map = new RenderingHints(null);
+-      map.put(KEY_TEXT_ANTIALIASING, aaHint);
+-      return map;
+-    } else {
+-      return null;
+-    }
+-  }
+-
+-  /* This method determines whether to use the system font settings,
+-   * or ignore them if a L&F has specified they should be ignored, or
+-   * to override both of these with a system property specified value.
+-   * If the toolkit isn't a SunToolkit, (eg may be headless) then that
+-   * system property isn't applied as desktop properties are considered
+-   * to be inapplicable in that case. In that headless case although
+-   * this method will return "true" the toolkit will return a null map.
+-   */
+-  private static boolean useSystemAAFontSettings() {
+-    if (!checkedSystemAAFontSettings) {
+-      useSystemAAFontSettings = true; /* initially set this true */
+-      String systemAAFonts = null;
+-      Toolkit tk = Toolkit.getDefaultToolkit();
+-      if (tk instanceof SunToolkit) {
+-        systemAAFonts = System.getProperty("awt.useSystemAAFontSettings");
+-      }
+-      if (systemAAFonts != null) {
+-        useSystemAAFontSettings = Boolean.valueOf(systemAAFonts);
+-                /* If it is anything other than "true", then it may be
+-                 * a hint name , or it may be "off, "default", etc.
+-                 */
+-        if (!useSystemAAFontSettings) {
+-          desktopFontHints = getDesktopAAHintsByName(systemAAFonts);
+-        }
+-      }
+-            /* If its still true, apply the extra condition */
+-      if (useSystemAAFontSettings) {
+-        useSystemAAFontSettings = lastExtraCondition;
+-      }
+-      checkedSystemAAFontSettings = true;
+-    }
+-    return useSystemAAFontSettings;
+-  }
+-
+-  /* Subclass desktop property loading methods call this which
+-   * in turn calls the appropriate subclass implementation of
+-   * getDesktopAAHints() when system settings are being used.
+-   * Its public rather than protected because subclasses may delegate
+-   * to a helper class.
+-   */
+-  public static RenderingHints getDesktopFontHints() {
+-    if (useSystemAAFontSettings()) {
+-      Toolkit tk = Toolkit.getDefaultToolkit();
+-      if (tk instanceof SunToolkit) {
+-        Object map = ((SunToolkit) tk).getDesktopAAHints();
+-        return (RenderingHints) map;
+-      } else { /* Headless Toolkit */
+-        return null;
+-      }
+-    } else if (desktopFontHints != null) {
+-            /* cloning not necessary as the return value is cloned later, but
+-             * its harmless.
+-             */
+-      return (RenderingHints) desktopFontHints.clone();
+-    } else {
+-      return null;
+-    }
+-  }
+-
+-  /*
+-   * consumeNextKeyTyped() method is not currently used,
+-   * however Swing could use it in the future.
+-   */
+-  public static synchronized void consumeNextKeyTyped(KeyEvent keyEvent) {
+-    try {
+-      AWTAccessor
+-          .getDefaultKeyboardFocusManagerAccessor()
+-          .consumeNextKeyTyped((DefaultKeyboardFocusManager) KeyboardFocusManager.
+-              getCurrentKeyboardFocusManager(), keyEvent);
+-    } catch (ClassCastException cce) {
+-      cce.printStackTrace();
+-    }
+-  }
+-
+   /**
+    * Returns the {@code Window} ancestor of the component {@code comp}.
+    *
+@@ -1501,16 +1208,6 @@
+    * Forces ungrab.  No event will be sent.
+    */
+   public abstract void ungrab(Window w);
+-
+-  /* Need an instance method because setDesktopProperty(..) is protected. */
+-  private void fireDesktopFontPropertyChanges() {
+-    setDesktopProperty(DESKTOPFONTHINTS, getDesktopFontHints());
+-  }
+-
+-  /* Overridden by subclasses to return platform/desktop specific values */
+-  protected RenderingHints getDesktopAAHints() {
+-    return null;
+-  }
+ 
+   public abstract boolean isDesktopSupported();
+ 
+Index: src/share/classes/java/awt/Window.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/share/classes/java/awt/Window.java	(date 1476797905000)
++++ src/share/classes/java/awt/Window.java	(revision )
+@@ -170,8 +170,8 @@
+   private static final IdentityArrayList<Window> allWindows = new IdentityArrayList<>();
+   private static final String base = "win";
+   /*
+-     * JDK 1.1 serialVersionUID
+-     */
++   * JDK 1.1 serialVersionUID
++   */
+   private static final long serialVersionUID = 4497834738069338734L;
+   private static final boolean locationByPlatformProp;
+   private static final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
+@@ -181,12 +181,13 @@
+ 
+   static {
+     String s = System.getProperty("java.awt.syncLWRequests");
+-    systemSyncLWRequests = "true".equals(s);
++    systemSyncLWRequests = Boolean.valueOf(s);
+     s = System.getProperty("java.awt.Window.locationByPlatform");
+-    locationByPlatformProp = "true".equals(s);
++    locationByPlatformProp = Boolean.valueOf(s);
+     try {
+-      ANDROID_WINDOW_IMPL_CTOR = (Constructor<? extends android.view.Window>) Class
++      ANDROID_WINDOW_IMPL_CTOR = Class
+           .forName("com.android.internal.policy.impl.PhoneWindow")
++          .asSubclass(android.view.Window.class)
+           .getConstructor(Context.class);
+     } catch (ClassNotFoundException | NoSuchMethodException e) {
+       throw new RuntimeException(e);
+Index: src/share/classes/java/awt/peer/ComponentPeer.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/share/classes/java/awt/peer/ComponentPeer.java	(date 1476797905000)
++++ src/share/classes/java/awt/peer/ComponentPeer.java	(revision )
+@@ -1,0 +1,0 @@

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="native">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/javax/management/loading/LibraryLoader/native.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

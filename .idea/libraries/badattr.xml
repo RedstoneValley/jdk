@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="badattr">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/tools/pack200/badattr.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

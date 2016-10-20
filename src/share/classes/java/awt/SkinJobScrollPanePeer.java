@@ -41,30 +41,4 @@ public class SkinJobScrollPanePeer extends SkinJobComponentPeerForView<ScrollVie
   public void setValue(Adjustable adj, int v) {
     // TODO
   }
-
-  @Override
-  public Insets getInsets() {
-    return null;
-    // TODO
-  }
-
-  @Override
-  public void beginValidate() {
-    // No-op.
-  }
-
-  @Override
-  public void endValidate() {
-    // No-op.
-  }
-
-  @Override
-  public void beginLayout() {
-    // No-op.
-  }
-
-  @Override
-  public void endLayout() {
-    // No-op.
-  }
 }

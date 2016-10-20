@@ -47,20 +47,6 @@ import java.awt.im.spi.InputMethod;
 
 public abstract class InputMethodAdapter implements InputMethod {
 
-  private Component clientComponent;
-
-  protected Component getClientComponent() {
-    return clientComponent;
-  }
-
-  void setClientComponent(Component client) {
-    clientComponent = client;
-  }
-
-  protected boolean haveActiveClient() {
-    return clientComponent != null && clientComponent.getInputMethodRequests() != null;
-  }
-
   /**
    * Informs the input method adapter about the component that has the AWT
    * focus if it's using the input context owning this adapter instance.
@@ -102,14 +88,6 @@ public abstract class InputMethodAdapter implements InputMethod {
   @Override
   public void notifyClientWindowChange(Rectangle location) {
   }
-
-  /**
-   * Disable the native input method. This method is provided for explicitly
-   * turning off the native IM. The native IM is not turned off
-   * when the native input method is deactivated. This method is
-   * always called on AWT EDT. See details in bug 6226489.
-   */
-  public abstract void disableInputMethod();
 
   /**
    * Returns a string with information about the native input method, or

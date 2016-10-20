@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="jarsigner">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/sun/security/tools/jarsigner/JarSigning_RU.jar!/" />
+      <root url="jar://$PROJECT_DIR$/test/sun/security/tools/jarsigner/JavaApplication1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/test/sun/security/tools/jarsigner/AlgOptions.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

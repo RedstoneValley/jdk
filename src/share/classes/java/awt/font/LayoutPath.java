@@ -31,7 +31,6 @@ import java.awt.Shape;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import sun.java2d.pipe.Region;
 
 /**
  * LayoutPath provides a mapping between locations relative to the
@@ -88,7 +87,7 @@ public abstract class LayoutPath {
   public abstract void pathToPoint(
       Point2D location, boolean preceding, Point2D point);
 
-  protected abstract Region mapShape(Rectangle2D r2d);
+  protected abstract Rectangle2D mapShape(Rectangle2D r2d);
 
   protected abstract void pathToPoint(float loc, float loc1, boolean b, Point2D pt);
 

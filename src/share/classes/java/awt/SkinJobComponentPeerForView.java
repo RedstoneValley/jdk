@@ -3,12 +3,14 @@ package java.awt;
 import android.util.DisplayMetrics;
 import android.view.View;
 import java.awt.peer.ComponentPeer;
+import java.awt.peer.ContainerPeer;
 import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * Skeletal implementation of {@link SkinJobComponentPeer}&lt;T extends {@link View}&gt;.
  */
-public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T> {
+public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T>
+    implements ContainerPeer {
 
   protected final Graphics graphics;
 
@@ -113,5 +115,33 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
       }
     }
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Insets getInsets() {
+    return new Insets(
+        androidWidget.getTop(),
+        androidWidget.getLeft(),
+        androidWidget.getBottom(),
+        androidWidget.getRight());
+  }
+
+  @Override
+  public void beginValidate() {
+    // No-op.
+  }
+
+  @Override
+  public void endValidate() {
+    // No-op.
+  }
+
+  public void beginLayout() {
+    androidWidget.requestLayout();
+  }
+
+  @Override
+  public void endLayout() {
+    // No-op.
   }
 }

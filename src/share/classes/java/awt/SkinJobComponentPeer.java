@@ -9,7 +9,6 @@ import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.ContainerPeer;
-import sun.java2d.pipe.Region;
 
 /**
  * Created by cryoc on 2016-10-10.
@@ -20,6 +19,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
   protected final T androidWidget;
   protected GraphicsConfiguration graphicsConfiguration;
   protected volatile int foregroundColor = SkinJob.defaultForegroundColor;
+  protected Font font = SkinJob.defaultFont;
 
   public SkinJobComponentPeer(T androidWidget, GraphicsConfiguration configuration) {
     this.androidWidget = androidWidget;
@@ -78,7 +78,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
 
   @Override
   public void setFont(Font f) {
-    // TODO
+    font = f;
   }
 
   @Override
@@ -159,7 +159,7 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
   }
 
   @Override
-  public void applyShape(Region shape) {
+  public void applyShape(Shape shape) {
     // TODO
   }
 

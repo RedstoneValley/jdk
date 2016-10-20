@@ -14,16 +14,16 @@ public class SkinJobMenuBarPeer extends SkinJobComponentPeerForView<ListView>
 
   @Override
   public void addMenu(Menu m) {
-    // TODO
+    androidWidget.addView(m.androidWidget);
   }
 
   @Override
   public void delMenu(int index) {
-    // TODO
+    androidWidget.removeViews(index, 1);
   }
 
   @Override
   public void addHelpMenu(Menu m) {
-    // TODO
+    androidWidget.addFooterView(m.androidWidget);
   }
 }

@@ -33,16 +33,31 @@
  * The test may not crash for several times so iteratively continue up to some limit.
  */
 
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
 import java.awt.BufferCapabilities.FlipContents;
-import java.awt.peer.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.Toolkit;
 import java.awt.event.PaintEvent;
-import java.awt.image.ImageProducer;
-import java.awt.image.ImageObserver;
 import java.awt.image.ColorModel;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
+import java.awt.peer.ComponentPeer;
+import java.awt.peer.ContainerPeer;
 import sun.awt.CausedFocusEvent.Cause;
-import sun.java2d.pipe.Region;
 
 public final class StubPeerCrash {
     public static final int ITERATIONS = 20;
@@ -74,13 +89,13 @@ class AHeavyweightComponent extends Component {
     }
 
     @Override
-    public boolean isLightweight() {
-        return false;
+    public ComponentPeer getPeer() {
+        return peer;
     }
 
     @Override
-    public ComponentPeer getPeer(){
-        return peer;
+    public boolean isLightweight() {
+        return false;
     }
 }
 
@@ -99,8 +114,6 @@ class StubComponentPeer implements ComponentPeer {
 
     @Override
     public void                paint(Graphics g){}
-
-    public void                repaint(long tm, int x, int y, int width, int height){}
 
     @Override
     public void                print(Graphics g){}
@@ -125,8 +138,6 @@ class StubComponentPeer implements ComponentPeer {
 
     @Override
     public ColorModel          getColorModel(){return null;}
-
-    public Toolkit             getToolkit(){return null;}
 
     @Override
     public Graphics            getGraphics(){return null;}
@@ -218,14 +229,25 @@ class StubComponentPeer implements ComponentPeer {
     @Override
     public void        layout(){}
 
-    public    Rectangle getBounds(){return null;}
-
     /**
      * Applies the shape to the native component window.
      * @since 1.7
+     * @param shape
      */
     @Override
-    public void applyShape(Region shape){}
+    public void applyShape(Shape shape) {
+    }
+
+    public void repaint(long tm, int x, int y, int width, int height) {
+    }
+
+    public Toolkit getToolkit() {
+        return null;
+    }
+
+    public Rectangle getBounds() {
+        return null;
+    }
 
     /**
      * DEPRECATED:  Replaced by getPreferredSize().

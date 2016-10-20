@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="JarInputStream">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/util/jar/JarInputStream/signed.jar!/" />
+      <root url="jar://$PROJECT_DIR$/test/java/util/jar/JarInputStream/BadSignedJar.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

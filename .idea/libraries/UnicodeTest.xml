@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="UnicodeTest">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/tools/launcher/UnicodeTest.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

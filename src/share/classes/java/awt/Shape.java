@@ -75,6 +75,16 @@ import java.awt.geom.Rectangle2D;
  * @since 1.2
  */
 public interface Shape {
+  Shape EMPTY = new Empty();
+
+  static Shape translate(Shape orig, int offsetX, int offsetY) {
+    return new Translated(orig, offsetX, offsetY);
+  }
+
+  static boolean isEmpty(Shape shape) {
+    return shape.getPathIterator(new AffineTransform()).isDone();
+  }
+
   /**
    * Returns an integer {@link Rectangle} that completely encloses the
    * {@code Shape}.  Note that there is no guarantee that the
@@ -414,4 +424,132 @@ public interface Shape {
    * @since 1.2
    */
   PathIterator getPathIterator(AffineTransform at, double flatness);
+
+  class Empty implements Shape {
+    @Override
+    public Rectangle getBounds() {
+      return new Rectangle(0, 0, 0, 0);
+    }
+
+    @Override
+    public Rectangle2D getBounds2D() {
+      return new Rectangle2D.Float(0, 0, 0, 0);
+    }
+
+    @Override
+    public boolean contains(double x, double y) {
+      return false;
+    }
+
+    @Override
+    public boolean contains(Point2D p) {
+      return false;
+    }
+
+    @Override
+    public boolean intersects(double x, double y, double w, double h) {
+      return false;
+    }
+
+    @Override
+    public boolean intersects(Rectangle2D r) {
+      return false;
+    }
+
+    @Override
+    public boolean contains(double x, double y, double w, double h) {
+      return false;
+    }
+
+    @Override
+    public boolean contains(Rectangle2D r) {
+      return false;
+    }
+
+    @Override
+    public PathIterator getPathIterator(AffineTransform at) {
+      return new PathIterator.Empty();
+    }
+
+    @Override
+    public PathIterator getPathIterator(AffineTransform at, double flatness) {
+      return new PathIterator.Empty();
+    }
+  }
+
+  class Translated implements Shape {
+    private final Shape orig;
+    private final int offsetX;
+    private final int offsetY;
+
+    public Translated(Shape orig, int offsetX, int offsetY) {
+      this.orig = orig;
+      this.offsetX = offsetX;
+      this.offsetY = offsetY;
+    }
+
+    @Override
+    public Rectangle getBounds() {
+      Rectangle origBounds = orig.getBounds();
+      return new Rectangle(
+          origBounds.x + offsetX,
+          origBounds.y + offsetY,
+          origBounds.width,
+          origBounds.height);
+    }
+
+    @Override
+    public Rectangle2D getBounds2D() {
+      Rectangle2D origBounds = orig.getBounds2D();
+      return new Rectangle2D.Double(
+          origBounds.getX(),
+          origBounds.getY(),
+          origBounds.getWidth(),
+          origBounds.getHeight());
+    }
+
+    @Override
+    public boolean contains(double x, double y) {
+      return orig.contains(x - offsetX, y - offsetY);
+    }
+
+    @Override
+    public boolean contains(Point2D p) {
+      return contains(p.getX(), p.getY());
+    }
+
+    @Override
+    public boolean intersects(double x, double y, double w, double h) {
+      return orig.intersects(x - offsetX, y - offsetY, w, h);
+    }
+
+    @Override
+    public boolean intersects(Rectangle2D r) {
+      return intersects(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+    }
+
+    @Override
+    public boolean contains(double x, double y, double w, double h) {
+      return orig.contains(x - offsetX, y - offsetY, w, h);
+    }
+
+    @Override
+    public boolean contains(Rectangle2D r) {
+      return contains(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+    }
+
+    @Override
+    public PathIterator getPathIterator(AffineTransform at) {
+      AffineTransform combinedTransform = new AffineTransform(at);
+      combinedTransform.translate(offsetX, offsetY);
+      return orig.getPathIterator(combinedTransform);
+    }
+
+    @Override
+    public PathIterator getPathIterator(AffineTransform at, double flatness) {
+      AffineTransform combinedTransform = new AffineTransform(at);
+      combinedTransform.translate(offsetX, offsetY);
+      return orig.getPathIterator(combinedTransform, flatness);
+    }
+  }
 }

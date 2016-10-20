@@ -42,6 +42,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
@@ -53,7 +54,6 @@ import java.awt.peer.ContainerPeer;
 import java.awt.peer.LightweightPeer;
 import java.awt.peer.PanelPeer;
 import sun.awt.CausedFocusEvent.Cause;
-import sun.java2d.pipe.Region;
 
 /**
  * Implements the LightweightPeer interface for use in lightweight components
@@ -258,9 +258,10 @@ public class NullComponentPeer implements LightweightPeer, CanvasPeer, PanelPeer
    * Applies the shape to the native component window.
    *
    * @since 1.7
+   * @param shape
    */
   @Override
-  public void applyShape(Region shape) {
+  public void applyShape(Shape shape) {
   }
 
   /**

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Deadlock">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/security/Security/ClassLoaderDeadlock/Deadlock.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

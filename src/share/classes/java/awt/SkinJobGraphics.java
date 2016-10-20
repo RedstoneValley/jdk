@@ -1,12 +1,30 @@
 package java.awt;
 
+import static java.awt.BasicStroke.CAP_BUTT;
+import static java.awt.BasicStroke.CAP_ROUND;
+import static java.awt.BasicStroke.CAP_SQUARE;
+import static java.awt.BasicStroke.JOIN_BEVEL;
+import static java.awt.BasicStroke.JOIN_MITER;
+import static java.awt.BasicStroke.JOIN_ROUND;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Paint.Cap;
+import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.text.SpannableStringBuilder;
+import android.util.Log;
 import android.widget.TextView;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderableImage;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
@@ -19,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * SkinJob Android implementation of {@link Graphics}.
  */
-public class SkinJobGraphics extends Graphics {
+public class SkinJobGraphics extends Graphics2D {
   private static final String TAG = "SkinJobGraphics";
   private final Set<CancelableImageObserver> pendingObservers = Collections.synchronizedSet(
       Collections.newSetFromMap(new WeakHashMap<>()));
@@ -27,7 +45,13 @@ public class SkinJobGraphics extends Graphics {
   private final android.graphics.Paint pen;
   private final android.graphics.Paint brush;
   private final android.graphics.Paint eraser;
+  private final RenderingHints renderingHints = SkinJob.defaultRenderingHints;
+  private Stroke stroke = new BasicStroke();
+  private java.awt.Paint awtPaint;
   private int color = Color.BLACK.getRGB();
+  private Shape clip;
+  private AffineTransform transform = new AffineTransform();
+  private Font font = SkinJob.defaultFont;
 
   public SkinJobGraphics(Bitmap androidBitmap) {
     pen = new android.graphics.Paint();
@@ -39,16 +63,12 @@ public class SkinJobGraphics extends Graphics {
     eraser.setStyle(Style.FILL);
     eraser.setAlpha(0);
     canvas = new Canvas(androidBitmap);
+    clip = new Rectangle2D.Double(0, 0, androidBitmap.getWidth(), androidBitmap.getHeight());
   }
 
   @Override
   public Graphics create() {
     return null;
-  }
-
-  @Override
-  public void translate(int x, int y) {
-    canvas.translate(x, y);
   }
 
   @Override
@@ -58,9 +78,7 @@ public class SkinJobGraphics extends Graphics {
 
   @Override
   public synchronized void setColor(Color c) {
-    color = c.getRGB();
-    pen.setColor(color);
-    brush.setColor(color);
+    setColor(c.getRGB());
   }
 
   @Override
@@ -75,12 +93,12 @@ public class SkinJobGraphics extends Graphics {
 
   @Override
   public Font getFont() {
-    return null;
+    return font;
   }
 
   @Override
   public void setFont(Font font) {
-
+    this.font = font;
   }
 
   @Override
@@ -90,32 +108,33 @@ public class SkinJobGraphics extends Graphics {
 
   @Override
   public Rectangle getClipBounds() {
-    return null;
+    // TODO
+    return clip.getBounds();
   }
 
   @Override
   public void clipRect(int x, int y, int width, int height) {
-
+    // TODO
   }
 
   @Override
   public void setClip(int x, int y, int width, int height) {
-
+    clip = new Rectangle2D.Double(x, y, width, height);
   }
 
   @Override
   public Shape getClip() {
-    return null;
+    return clip;
   }
 
   @Override
   public void setClip(Shape clip) {
-
+    this.clip = clip;
   }
 
   @Override
   public void copyArea(int x, int y, int width, int height, int dx, int dy) {
-
+    // TODO
   }
 
   @Override
@@ -179,31 +198,6 @@ public class SkinJobGraphics extends Graphics {
   @Override
   public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints) {
     // TODO
-  }
-
-  @Override
-  public void drawString(String str, int x, int y) {
-    canvas.drawText(str, x, y, brush);
-  }
-
-  @Override
-  public synchronized void drawString(AttributedCharacterIterator iterator, int x, int y) {
-    SpannableStringBuilder formattedText = new SpannableStringBuilder();
-    int charsWritten = 0;
-    for (char c = iterator.first(); c != CharacterIterator.DONE; c = iterator.next()) {
-      formattedText.append(c);
-      charsWritten++;
-      Map<Attribute, Object> attributes = iterator.getAttributes();
-      if (!attributes.isEmpty()) {
-        new SkinJobTextAttributesDecoder(color)
-            .addAttributes(attributes)
-            .applyTo(formattedText, charsWritten - 1, charsWritten);
-      }
-    }
-    TextView formattedTextView = new TextView(SkinJob.getAndroidApplicationContext());
-    formattedTextView.setText(formattedText);
-    formattedTextView.layout(x, y, canvas.getWidth(), canvas.getHeight());
-    formattedTextView.draw(canvas);
   }
 
   @Override
@@ -276,6 +270,265 @@ public class SkinJobGraphics extends Graphics {
     for (CancelableImageObserver observer : pendingObservers) {
       observer.cancel();
     }
+  }
+
+  public synchronized void setColor(int color) {
+    pen.setColor(color);
+    brush.setColor(color);
+  }
+
+  @Override
+  public void draw(Shape s) {
+    fill(stroke.createStrokedShape(s));
+  }
+
+  @Override
+  public boolean drawImage(
+      Image img, AffineTransform xform, ImageObserver obs) {
+    // TODO
+    return false;
+  }
+
+  @Override
+  public void drawImage(
+      BufferedImage img, BufferedImageOp op, int x, int y) {
+    Rectangle2D filteredSize = op.getBounds2D(img);
+    BufferedImage filtered = new BufferedImage((int) filteredSize.getWidth(),
+        (int) filteredSize.getHeight(),
+        img.getType());
+    op.filter(img, filtered);
+    drawImage(filtered, x, y, null);
+  }
+
+  @Override
+  public void drawRenderedImage(RenderedImage img, AffineTransform xform) {
+    // TODO
+  }
+
+  @Override
+  public void drawRenderableImage(
+      RenderableImage img, AffineTransform xform) {
+    // TODO
+  }
+
+  @Override
+  public void drawString(String str, float x, float y) {
+    canvas.drawText(str, x, y, brush);
+  }
+
+  @Override
+  public void drawString(AttributedCharacterIterator iterator, float x, float y) {
+    drawString(iterator, (int) x, (int) y);
+  }
+
+  @Override
+  public void drawGlyphVector(GlyphVector g, float x, float y) {
+    // TODO
+  }
+
+  @Override
+  public void fill(Shape s) {
+    // TODO
+  }
+
+  @Override
+  public boolean hit(Rectangle rect, Shape s, boolean onStroke) {
+    // TODO
+    return false;
+  }
+
+  @Override
+  public GraphicsConfiguration getDeviceConfiguration() {
+    return null;
+  }
+
+  @Override
+  public void setRenderingHint(RenderingHints.Key hintKey, Object hintValue) {
+    renderingHints.put(hintKey, hintValue);
+  }
+
+  @Override
+  public Object getRenderingHint(RenderingHints.Key hintKey) {
+    return renderingHints.get(hintKey);
+  }
+
+  @Override
+  public void addRenderingHints(Map<?, ?> hints) {
+    renderingHints.putAll(hints);
+  }
+
+  @Override
+  public RenderingHints getRenderingHints() {
+    return renderingHints;
+  }
+
+  @Override
+  public void setRenderingHints(Map<?, ?> hints) {
+    renderingHints.clear();
+    renderingHints.putAll(hints);
+  }
+
+  @Override
+  public void translate(int x, int y) {
+    canvas.translate(x, y);
+  }
+
+  @Override
+  public void drawString(String str, int x, int y) {
+    drawString(str, (float) x, (float) y);
+  }
+
+  @Override
+  public synchronized void drawString(AttributedCharacterIterator iterator, int x, int y) {
+    SpannableStringBuilder formattedText = new SpannableStringBuilder();
+    int charsWritten = 0;
+    for (char c = iterator.first(); c != CharacterIterator.DONE; c = iterator.next()) {
+      formattedText.append(c);
+      charsWritten++;
+      Map<Attribute, Object> attributes = iterator.getAttributes();
+      if (!attributes.isEmpty()) {
+        new SkinJobTextAttributesDecoder(color)
+            .addAttributes(attributes)
+            .applyTo(formattedText, charsWritten - 1, charsWritten);
+      }
+    }
+    TextView formattedTextView = new TextView(SkinJob.getAndroidApplicationContext());
+    formattedTextView.setText(formattedText);
+    formattedTextView.layout(x, y, canvas.getWidth(), canvas.getHeight());
+    formattedTextView.draw(canvas);
+  }
+
+  @Override
+  public void translate(double tx, double ty) {
+    // TODO
+  }
+
+  @Override
+  public void rotate(double theta) {
+    // TODO
+  }
+
+  @Override
+  public void rotate(double theta, double x, double y) {
+    // TODO
+  }
+
+  @Override
+  public void scale(double sx, double sy) {
+    // TODO
+  }
+
+  @Override
+  public void shear(double shx, double shy) {
+    // TODO
+  }
+
+  @Override
+  public void transform(AffineTransform Tx) {
+    transform.concatenate(Tx);
+  }
+
+  @Override
+  public AffineTransform getTransform() {
+    return transform;
+  }
+
+  @Override
+  public void setTransform(AffineTransform Tx) {
+    transform = Tx;
+  }
+
+  @Override
+  public java.awt.Paint getPaint() {
+    return awtPaint;
+  }
+
+  @Override
+  public void setPaint(java.awt.Paint paint) {
+    awtPaint = paint;
+  }
+
+  @Override
+  public Composite getComposite() {
+    // TODO
+    return null;
+  }
+
+  @Override
+  public void setComposite(Composite comp) {
+    // TODO
+  }
+
+  @Override
+  public Color getBackground() {
+    // TODO
+    return null;
+  }
+
+  @Override
+  public void setBackground(Color color) {
+    // TODO
+  }
+
+  @Override
+  public synchronized Stroke getStroke() {
+    return stroke;
+  }
+
+  /**
+   * Support for this method is almost but not quite complete. {@link Stroke#createStrokedShape}
+   * will be called only from {@link #draw(Shape)}. However, if the stroke is a {@link BasicStroke},
+   * even through a subclass, then its line width, miter limit, join type and cap type (but not
+   * dashes) will be applied in other {@code draw*} methods as well.
+   *
+   * @param s the {@code Stroke} object to be used to stroke a
+   *          {@code Shape} during the rendering process
+   */
+  @Override
+  public synchronized void setStroke(Stroke s) {
+    stroke = s;
+    if (s instanceof BasicStroke) {
+      pen.setStrokeWidth(((BasicStroke) s).getLineWidth());
+      pen.setStrokeMiter(((BasicStroke) s).getMiterLimit());
+      int join = ((BasicStroke) s).getLineJoin();
+      switch (join) {
+        case JOIN_BEVEL:
+          pen.setStrokeJoin(Join.BEVEL);
+          break;
+        case JOIN_MITER:
+          pen.setStrokeJoin(Join.MITER);
+          break;
+        case JOIN_ROUND:
+          pen.setStrokeJoin(Join.ROUND);
+          break;
+        default:
+          Log.w(TAG, "Ignoring unknown stroke join type " + join);
+      }
+      int cap = ((BasicStroke) s).getEndCap();
+      switch (cap) {
+        case CAP_BUTT:
+          pen.setStrokeCap(Cap.BUTT);
+          break;
+        case CAP_ROUND:
+          pen.setStrokeCap(Cap.ROUND);
+          break;
+        case CAP_SQUARE:
+          pen.setStrokeCap(Cap.SQUARE);
+          break;
+        default:
+          Log.w(TAG, "Ignoring unknown stroke cap type " + join);
+      }
+    }
+  }
+
+  @Override
+  public void clip(Shape s) {
+    // TODO
+  }
+
+  @Override
+  public FontRenderContext getFontRenderContext() {
+    return null;
   }
 
   public Canvas getCanvas() {

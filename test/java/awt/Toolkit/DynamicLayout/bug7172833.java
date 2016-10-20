@@ -21,16 +21,52 @@
  * questions.
  */
 
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-
-import java.awt.*;
+import java.awt.AWTEvent;
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
 import java.awt.BufferCapabilities.FlipContents;
+import java.awt.Button;
+import java.awt.Canvas;
+import java.awt.Checkbox;
+import java.awt.CheckboxMenuItem;
+import java.awt.Choice;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Desktop.Action;
+import java.awt.Dialog;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dialog.ModalityType;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.FileDialog;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Label;
+import java.awt.List;
+import java.awt.Menu;
+import java.awt.MenuBar;
+import java.awt.MenuItem;
+import java.awt.Panel;
+import java.awt.Point;
+import java.awt.PopupMenu;
+import java.awt.PrintJob;
+import java.awt.ScrollPane;
+import java.awt.Scrollbar;
+import java.awt.Shape;
+import java.awt.SkinJob;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.InvalidDnDOperationException;
@@ -43,7 +79,30 @@ import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
-import java.awt.peer.*;
+import java.awt.peer.ButtonPeer;
+import java.awt.peer.CanvasPeer;
+import java.awt.peer.CheckboxMenuItemPeer;
+import java.awt.peer.CheckboxPeer;
+import java.awt.peer.ChoicePeer;
+import java.awt.peer.ComponentPeer;
+import java.awt.peer.ContainerPeer;
+import java.awt.peer.DesktopPeer;
+import java.awt.peer.DialogPeer;
+import java.awt.peer.FileDialogPeer;
+import java.awt.peer.FontPeer;
+import java.awt.peer.FramePeer;
+import java.awt.peer.LabelPeer;
+import java.awt.peer.ListPeer;
+import java.awt.peer.MenuBarPeer;
+import java.awt.peer.MenuItemPeer;
+import java.awt.peer.MenuPeer;
+import java.awt.peer.PanelPeer;
+import java.awt.peer.PopupMenuPeer;
+import java.awt.peer.ScrollPanePeer;
+import java.awt.peer.ScrollbarPeer;
+import java.awt.peer.TextAreaPeer;
+import java.awt.peer.TextFieldPeer;
+import java.awt.peer.WindowPeer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -52,7 +111,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
-
 import sun.awt.CausedFocusEvent.Cause;
 
 /**
@@ -78,11 +136,6 @@ public final class bug7172833 {
     }
 
     static final class StubbedToolkit extends Toolkit {
-
-        @Override
-        protected boolean isDynamicLayoutSet() throws HeadlessException {
-            return super.isDynamicLayoutSet();
-        }
 
         @Override
         protected DesktopPeer createDesktopPeer(Desktop target)
@@ -207,6 +260,11 @@ public final class bug7172833 {
         @Override
         protected FontPeer getFontPeer(String name, int style) {
             return null;
+        }
+
+        @Override
+        protected boolean isDynamicLayoutSet() throws HeadlessException {
+            return super.isDynamicLayoutSet();
         }
 
         @Override
@@ -542,7 +600,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void applyShape(Region shape) {
+            public void applyShape(Shape shape) {
 
             }
 
@@ -608,13 +666,13 @@ public final class bug7172833 {
             }
 
             @Override
-            public void setCaretPosition(int pos) {
-
+            public int getCaretPosition() {
+                return 0;
             }
 
             @Override
-            public int getCaretPosition() {
-                return 0;
+            public void setCaretPosition(int pos) {
+
             }
 
             @Override
@@ -803,7 +861,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void applyShape(Region shape) {
+            public void applyShape(Shape shape) {
 
             }
 
@@ -1010,7 +1068,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void applyShape(Region shape) {
+            public void applyShape(Shape shape) {
 
             }
 
@@ -1261,7 +1319,7 @@ public final class bug7172833 {
             }
 
             @Override
-            public void applyShape(Region shape) {
+            public void applyShape(Shape shape) {
 
             }
 

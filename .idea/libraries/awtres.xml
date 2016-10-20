@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="awtres">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/util/ResourceBundle/awtres.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

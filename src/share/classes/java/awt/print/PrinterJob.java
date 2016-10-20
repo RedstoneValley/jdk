@@ -31,7 +31,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import sun.awt.DocFlavor;
 import sun.awt.PrintServiceLookup;
-import sun.awt.print.Media;
 import sun.awt.print.MediaPrintableArea;
 import sun.awt.print.OrientationRequested;
 import sun.awt.print.PrintService;
@@ -375,12 +374,11 @@ public abstract class PrinterJob {
       return pf;
     }
 
-    Media media = (Media) attributes.get(Media.class);
     MediaPrintableArea mpa = (MediaPrintableArea) attributes.get(MediaPrintableArea.class);
     OrientationRequested orientReq
         = (OrientationRequested) attributes.get(OrientationRequested.class);
 
-    if (media == null && mpa == null && orientReq == null) {
+    if (mpa == null && orientReq == null) {
       return pf;
     }
     Paper paper = pf.getPaper();
@@ -388,7 +386,7 @@ public abstract class PrinterJob {
         /* If there's a media but no media printable area, we can try
          * to retrieve the default value for mpa and use that.
          */
-    if (mpa == null && media != null &&
+    if (mpa == null &&
         service.isAttributeCategorySupported(MediaPrintableArea.class)) {
       Object mpaVals = service.getSupportedAttributeValues(MediaPrintableArea.class,
           null,

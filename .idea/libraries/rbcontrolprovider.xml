@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="rbcontrolprovider">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/util/spi/ResourceBundleControlProvider/rbcontrolprovider.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

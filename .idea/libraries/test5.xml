@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="test5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/net/URLClassLoader/getresourceasstream/test.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

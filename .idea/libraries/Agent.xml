@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Agent">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/lang/instrument/PremainClass/Agent.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

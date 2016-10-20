@@ -40,13 +40,13 @@ import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.Shape;
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
 import sun.awt.CausedFocusEvent.Cause;
-import sun.java2d.pipe.Region;
 
 /**
  * The peer interface for {@link Component}. This is the top level peer
@@ -498,8 +498,9 @@ public interface ComponentPeer {
    *
    * @see Component#applyCompoundShape
    * @since 1.7
+   * @param shape
    */
-  void applyShape(Region shape);
+  void applyShape(Shape shape);
 
   /**
    * Lowers this component at the bottom of the above HW peer. If the above parameter

@@ -169,6 +169,9 @@ public class EventQueue {
     });
   }
 
+  final ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
+  final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+  final String name = "AWT-EventQueue-" + threadInitNumber.getAndIncrement();
   /*
    * A single lock to synchronize the push()/pop() and related operations with
    * all the EventQueues from the AppContext. Synchronization on any particular
@@ -176,13 +179,10 @@ public class EventQueue {
    */
   private final Lock pushPopLock;
   private final Condition pushPopCond;
-  final ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
-  final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
   /*
    * AppContext corresponding to the queue.
    */
   private final AppContext appContext;
-  final String name = "AWT-EventQueue-" + threadInitNumber.getAndIncrement();
   /*
    * We maintain one Queue for each priority that the EventQueue supports.
    * That is, the EventQueue object is actually implemented as
@@ -1271,15 +1271,16 @@ public class EventQueue {
       fwDispatcher = dispatcher;
     }
   }
+
+  /**
+   * The Queue object holds pointers to the beginning and end of one internal
+   * queue. An EventQueue object is composed of multiple internal Queues, one
+   * for each priority supported by the EventQueue. All Events on a particular
+   * internal Queue have identical priority.
+   */
+  static class Queue {
+    EventQueueItem head;
+    EventQueueItem tail;
+  }
 }
 
-/**
- * The Queue object holds pointers to the beginning and end of one internal
- * queue. An EventQueue object is composed of multiple internal Queues, one
- * for each priority supported by the EventQueue. All Events on a particular
- * internal Queue have identical priority.
- */
-class Queue {
-  EventQueueItem head;
-  EventQueueItem tail;
-}

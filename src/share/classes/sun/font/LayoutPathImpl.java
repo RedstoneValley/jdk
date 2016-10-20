@@ -6,7 +6,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import sun.java2d.pipe.Region;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -30,7 +29,7 @@ public class LayoutPathImpl extends LayoutPath {
   }
 
   @Override
-  public Region mapShape(Rectangle2D r2d) {
+  public Rectangle2D mapShape(Rectangle2D r2d) {
     // TODO
     return null;
   }

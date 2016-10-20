@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="golden">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/tools/pack200/pack200-verifier/data/golden.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

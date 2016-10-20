@@ -41,6 +41,12 @@ import sun.java2d.loops.RenderLoops;
 import sun.java2d.loops.SurfaceType;
 
 public class BufImgSurfaceData extends SurfaceData {
+  public static final int PAINT_ALPHACOLOR = 1; /* Non-opaque Color */
+  public static final int COMP_ISCOPY = 0;/* simple stores into destination,
+                                             * i.e. Src, SrcOverNoEa, and other
+                                             * alpha modes which replace
+                                             * the destination.
+                                             */
   private static final int DCM_RGBX_RED_MASK = 0xff000000;
   private static final int DCM_RGBX_GREEN_MASK = 0x00ff0000;
   private static final int DCM_RGBX_BLUE_MASK = 0x0000ff00;
@@ -341,8 +347,7 @@ public class BufImgSurfaceData extends SurfaceData {
 
   @Override
   public RenderLoops getRenderLoops(SunGraphics2D sg2d) {
-    if (sg2d.paintState <= SunGraphics2D.PAINT_ALPHACOLOR
-        && sg2d.compositeState <= SunGraphics2D.COMP_ISCOPY) {
+    if (sg2d.paintState <= PAINT_ALPHACOLOR && sg2d.compositeState <= COMP_ISCOPY) {
       return solidloops;
     }
     return super.getRenderLoops(sg2d);

@@ -103,7 +103,6 @@ import sun.awt.graphicscallback.PeerPrintCallback;
 import sun.awt.image.VSyncedBSManager;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.SunGraphicsEnvironment;
-import sun.java2d.pipe.Region;
 import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
 
 /**
@@ -273,6 +272,13 @@ public abstract class Component extends ComponentOrMenuComponent
   static final String hierarchyBoundsListenerK = "hierarchyBoundsL";
   static final String windowStateListenerK = "windowStateL";
   static final String windowFocusListenerK = "windowFocusL";
+  /**
+   * Static properties for incremental drawing.
+   *
+   * @see #imageUpdate
+   */
+  static final boolean isInc;
+  static final int incRate;
   private static final String TAG = "java.awt.Component";
   private static final int FOCUS_TRAVERSABLE_UNKNOWN = 0;
   private static final int FOCUS_TRAVERSABLE_DEFAULT = 1;
@@ -295,13 +301,6 @@ public abstract class Component extends ComponentOrMenuComponent
    */
   private static final Class[] coalesceEventsParams = {
       AWTEvent.class, AWTEvent.class};
-  /**
-   * Static properties for incremental drawing.
-   *
-   * @see #imageUpdate
-   */
-  static final boolean isInc;
-  static final int incRate;
   private static RequestFocusController requestFocusController = new DummyRequestFocusController();
 
   static {
@@ -334,7 +333,6 @@ public abstract class Component extends ComponentOrMenuComponent
 
       @Override
       public void setMixingCutoutShape(Component comp, Shape shape) {
-        Region region = shape == null ? null : Region.getInstance(shape, null);
 
         synchronized (comp.getTreeLock()) {
           boolean needShowing = false;
@@ -344,7 +342,7 @@ public abstract class Component extends ComponentOrMenuComponent
             needHiding = true;
           }
 
-          comp.mixingCutoutRegion = region;
+          comp.mixingCutoutRegion = shape;
 
           if (!comp.isNonOpaqueForMixing()) {
             needShowing = true;
@@ -767,6 +765,14 @@ public abstract class Component extends ComponentOrMenuComponent
   // of the peer and therefore the call to XSetBackground.
   transient boolean backgroundEraseDisabled;
   transient EventQueueItem[] eventCache;
+  /*
+     * Represents the shape of this lightweight component to be cut out from
+     * heavyweight components should they intersect. Possible values:
+     *    1. null - consider the shape rectangular
+     *    2. EMPTY_REGION - nothing gets cut out (children still get cut out)
+     *    3. non-empty - this shape gets cut out.
+     */
+  transient Shape mixingCutoutRegion;
   /**
    * A reference to a {@code GraphicsConfiguration} object
    * used to describe the characteristics of a graphics
@@ -882,15 +888,7 @@ public abstract class Component extends ComponentOrMenuComponent
      * The 'null' value means the component has normal shape (or has no shape at all)
      * and applyCompoundShape() will skip the following shape identical to normal.
      */
-  private transient Region compoundShape;
-  /*
-     * Represents the shape of this lightweight component to be cut out from
-     * heavyweight components should they intersect. Possible values:
-     *    1. null - consider the shape rectangular
-     *    2. EMPTY_REGION - nothing gets cut out (children still get cut out)
-     *    3. non-empty - this shape gets cut out.
-     */
-  transient Region mixingCutoutRegion;
+  private transient Shape compoundShape;
   /*
      * Indicates whether addNotify() is complete
      * (i.e. the peer is created).
@@ -995,6 +993,16 @@ public abstract class Component extends ComponentOrMenuComponent
         }
       }
     }
+  }
+
+  static Shape getIntersection(Shape s, Shape normalShape) {
+    // TODO
+    return null;
+  }
+
+  private static Shape getDifference(Shape s, Shape opaqueShape) {
+    // TODO
+    return null;
   }
 
   Object getObjectLock() {
@@ -4339,6 +4347,8 @@ public abstract class Component extends ComponentOrMenuComponent
   void autoProcessMouseWheel(MouseWheelEvent e) {
   }
 
+  // Event source interfaces
+
   /*
      * Dispatch given MouseWheelEvent to the first ancestor for which
      * MouseWheelEvents are enabled.
@@ -4425,8 +4435,6 @@ public abstract class Component extends ComponentOrMenuComponent
     }
     return false;
   }
-
-  // Event source interfaces
 
   boolean areInputMethodsEnabled() {
     // in 1.2, we assume input method support is required for all
@@ -7946,6 +7954,8 @@ public abstract class Component extends ComponentOrMenuComponent
     invalidateIfValid();
   }
 
+  // Serialization support.
+
   /**
    * Sets the {@code ComponentOrientation} property of this component
    * and all components contained within it.
@@ -7972,8 +7982,6 @@ public abstract class Component extends ComponentOrMenuComponent
     // It is enabled, visible, focusable.
     return isEnabled() && isDisplayable() && isVisible() && isFocusable();
   }
-
-  // Serialization support.
 
   /**
    * Checks that this component meets the prerequesites to be focus owner:
@@ -8048,7 +8056,7 @@ public abstract class Component extends ComponentOrMenuComponent
    *
    * @param shape Shape to be applied to the component
    */
-  void applyCompoundShape(Region shape) {
+  void applyCompoundShape(Shape shape) {
     checkTreeLock();
 
     if (!areBoundsValid()) {
@@ -8059,15 +8067,6 @@ public abstract class Component extends ComponentOrMenuComponent
     if (!isLightweight()) {
       ComponentPeer peer = getPeer();
       if (peer != null) {
-        // The Region class has some optimizations. That's why
-        // we should manually check whether it's empty and
-        // substitute the object ourselves. Otherwise we end up
-        // with some incorrect Region object with loX being
-        // greater than the hiX for instance.
-        if (shape.isEmpty()) {
-          shape = Region.EMPTY_REGION;
-        }
-
         // Note: the shape is not really copied/cloned. We create
         // the Region object ourselves, so there's no any possibility
         // to modify the object outside of the mixing code.
@@ -8087,7 +8086,7 @@ public abstract class Component extends ComponentOrMenuComponent
           Point compAbsolute = getLocationOnWindow();
           Log.d(TAG, "this = " + this +
               "; compAbsolute=" + compAbsolute + "; shape=" + shape);
-          peer.applyShape(shape.getTranslatedRegion(-compAbsolute.x, -compAbsolute.y));
+          peer.applyShape(Shape.translate(shape, -compAbsolute.x, -compAbsolute.y));
         }
       }
     }
@@ -8098,7 +8097,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * If the component is LW or no shape was applied yet,
    * the method returns the normal shape.
    */
-  private Region getAppliedShape() {
+  private Shape getAppliedShape() {
     checkTreeLock();
     //XXX: if we allow LW components to have a shape, this must be changed
     return compoundShape == null || isLightweight() ? getNormalShape() : compoundShape;
@@ -8120,11 +8119,12 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * Returns the full shape of the component located in window coordinates
    */
-  final Region getNormalShape() {
+  final Shape getNormalShape() {
     checkTreeLock();
     //XXX: we may take into account a user-specified shape for this component
     Point compAbsolute = getLocationOnWindow();
-    return Region.getInstanceXYWH(compAbsolute.x, compAbsolute.y, getWidth(), getHeight());
+    return new Rectangle(compAbsolute.x, compAbsolute.y, getWidth(), getHeight()) {
+    };
   }
 
   /**
@@ -8139,7 +8139,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * <p>
    * See 6637655 for details.
    */
-  Region getOpaqueShape() {
+  Shape getOpaqueShape() {
     checkTreeLock();
     return mixingCutoutRegion != null ? mixingCutoutRegion : getNormalShape();
   }
@@ -8155,6 +8155,8 @@ public abstract class Component extends ComponentOrMenuComponent
 
     return nextAbove < 0 ? -1 : nextAbove;
   }
+
+  // ************************** MIXING CODE *******************************
 
   final ComponentPeer getHWPeerAboveMe() {
     checkTreeLock();
@@ -8196,15 +8198,13 @@ public abstract class Component extends ComponentOrMenuComponent
     return nextBelow >= parent.getComponentCount() ? -1 : nextBelow;
   }
 
-  // ************************** MIXING CODE *******************************
-
   final boolean isNonOpaqueForMixing() {
-    return mixingCutoutRegion != null && mixingCutoutRegion.isEmpty();
+    return mixingCutoutRegion != null && !Shape.isEmpty(mixingCutoutRegion);
   }
 
-  private Region calculateCurrentShape() {
+  private Shape calculateCurrentShape() {
     checkTreeLock();
-    Region s = getNormalShape();
+    Shape s = getNormalShape();
 
     Log.d(TAG, "this = " + this + "; normalShape=" + s);
 
@@ -8223,12 +8223,12 @@ public abstract class Component extends ComponentOrMenuComponent
                      */
           Component c = cont.getComponent(index);
           if (c.isLightweight() && c.isShowing()) {
-            s = s.getDifference(c.getOpaqueShape());
+            s = getDifference(s, c.getOpaqueShape());
           }
         }
 
         if (cont.isLightweight()) {
-          s = s.getIntersection(cont.getNormalShape());
+          s = getIntersection(s, cont.getNormalShape());
         } else {
           break;
         }
@@ -8253,12 +8253,12 @@ public abstract class Component extends ComponentOrMenuComponent
     applyCompoundShape(calculateCurrentShape());
   }
 
-  final void subtractAndApplyShape(Region s) {
+  final void subtractAndApplyShape(Shape s) {
     checkTreeLock();
 
     Log.d(TAG, "this = " + this + "; s=" + s);
 
-    applyCompoundShape(getAppliedShape().getDifference(s));
+    applyCompoundShape(getDifference(getAppliedShape(), s));
   }
 
   private final void applyCurrentShapeBelowMe() {
@@ -8283,7 +8283,7 @@ public abstract class Component extends ComponentOrMenuComponent
     checkTreeLock();
     Container parent = getContainer();
     if (parent != null && isShowing()) {
-      Region opaqueShape = getOpaqueShape();
+      Shape opaqueShape = getOpaqueShape();
 
       // First, cut my siblings
       parent.recursiveSubtractAndApplyShape(opaqueShape, getSiblingIndexBelow());
@@ -8368,12 +8368,12 @@ public abstract class Component extends ComponentOrMenuComponent
           applyCurrentShape();
         } else {
           if (parent != null) {
-            Region shape = getAppliedShape();
+            Shape shape = getAppliedShape();
 
             for (int index = oldZorder; index < newZorder; index++) {
               Component c = parent.getComponent(index);
               if (c.isLightweight() && c.isShowing()) {
-                shape = shape.getDifference(c.getOpaqueShape());
+                shape = getDifference(shape, c.getOpaqueShape());
               }
             }
             applyCompoundShape(shape);
@@ -8979,7 +8979,16 @@ public abstract class Component extends ComponentOrMenuComponent
           g.dispose();
         }
       }
-    }    /**
+    }
+
+    /**
+     * Restore the drawing buffer if it has been lost
+     */
+    protected void revalidate() {
+      revalidate(true);
+    }
+
+    /**
      * @since 1.6
      */
     @Override
@@ -8995,13 +9004,6 @@ public abstract class Component extends ComponentOrMenuComponent
       if (bufferStrategy == this) {
         bufferStrategy = null;
       }
-    }
-
-    /**
-     * Restore the drawing buffer if it has been lost
-     */
-    protected void revalidate() {
-      revalidate(true);
     }
 
     void revalidate(boolean checkSize) {
@@ -9039,8 +9041,6 @@ public abstract class Component extends ComponentOrMenuComponent
         validatedContents = true;
       }
     }
-
-
 
     /**
      * @return the buffering capabilities of this strategy

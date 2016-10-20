@@ -801,32 +801,36 @@ public class AWTKeyStroke implements Serializable {
     }
     return this;
   }
+
+  /**
+   * Created by cryoc on 2016-10-18.
+   */
+  static class VKCollection {
+    final Map<Integer, String> code2name;
+    final Map<String, Integer> name2code;
+
+    public VKCollection() {
+      code2name = new HashMap<>();
+      name2code = new HashMap<>();
+    }
+
+    public synchronized void put(String name, Integer code) {
+      assert name != null && code != null;
+      assert findName(code) == null;
+      assert findCode(name) == null;
+      code2name.put(code, name);
+      name2code.put(name, code);
+    }
+
+    public synchronized Integer findCode(String name) {
+      assert name != null;
+      return name2code.get(name);
+    }
+
+    public synchronized String findName(Integer code) {
+      assert code != null;
+      return code2name.get(code);
+    }
+  }
 }
 
-class VKCollection {
-  final Map<Integer, String> code2name;
-  final Map<String, Integer> name2code;
-
-  public VKCollection() {
-    code2name = new HashMap<>();
-    name2code = new HashMap<>();
-  }
-
-  public synchronized void put(String name, Integer code) {
-    assert name != null && code != null;
-    assert findName(code) == null;
-    assert findCode(name) == null;
-    code2name.put(code, name);
-    name2code.put(name, code);
-  }
-
-  public synchronized Integer findCode(String name) {
-    assert name != null;
-    return name2code.get(name);
-  }
-
-  public synchronized String findName(Integer code) {
-    assert code != null;
-    return code2name.get(code);
-  }
-}

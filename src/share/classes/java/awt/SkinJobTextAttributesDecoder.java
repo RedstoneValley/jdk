@@ -6,6 +6,7 @@ import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ScaleXSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SubscriptSpan;
@@ -30,7 +31,7 @@ public class SkinJobTextAttributesDecoder {
   private int fgColor;
   private int bgColor;
   private boolean swapColors;
-  private String fontFamily = "Default";
+  private String fontFamily = SkinJob.defaultFont.getFamily();
   private int fontStyle;
 
   public SkinJobTextAttributesDecoder(int defaultColor) {
@@ -113,7 +114,7 @@ public class SkinJobTextAttributesDecoder {
           fontStyle &= ~Typeface.BOLD;
         }
       } else if (attribute.equals(TextAttribute.WIDTH)) {
-        // TODO
+        attributeSpans.add(new ScaleXSpan((Float) attributes.get(attribute)));
       } else {
         Log.w(TAG, "Ignoring unknown text attribute " + attribute);
       }

@@ -67,17 +67,17 @@ import sun.awt.SunToolkit;
 
 public class InputContext extends java.awt.im.InputContext
     implements ComponentListener, WindowListener {
+  public static final String inputMethodSelectionKeyModifiersName = "modifiers";
   private static final String inputMethodSelectionKeyPath = "/java/awt/im/selectionKey";
   private static final String inputMethodSelectionKeyCodeName = "keyCode";
-  public static final String inputMethodSelectionKeyModifiersName = "modifiers";
   private static final String TAG = "sun.awt.im.InputContext";
+  // Input Method selection hot key stuff
+  static AWTKeyStroke inputMethodSelectionKey;
   // The input context for whose input method we may have to call hideWindows
   private static InputContext inputMethodWindowContext;
   // Previously active input method to decide whether we need to call
   // InputMethodAdapter.stopListening() on activateInputMethod()
   private static InputMethod previousInputMethod;
-  // Input Method selection hot key stuff
-  static AWTKeyStroke inputMethodSelectionKey;
   private static boolean inputMethodSelectionKeyInitialized;
   // The current input method is represented by two objects:
   // a locator is used to keep information about the selected
@@ -307,9 +307,6 @@ public class InputContext extends java.awt.im.InputContext
         removeClientWindowListeners();
       }
       currentClientComponent = null;
-      if (inputMethod instanceof InputMethodAdapter) {
-        ((InputMethodAdapter) inputMethod).setClientComponent(null);
-      }
 
       // removeNotify() can be issued from a thread other than the event dispatch
       // thread.  In that case, avoid possible deadlock between Component.AWTTreeLock
@@ -509,9 +506,6 @@ public class InputContext extends java.awt.im.InputContext
       previousInputMethod = null;
 
       Log.d(TAG, "Current client component " + currentClientComponent);
-      if (inputMethod instanceof InputMethodAdapter) {
-        ((InputMethodAdapter) inputMethod).setClientComponent(currentClientComponent);
-      }
       inputMethod.activate();
       isInputMethodActive = true;
 
@@ -653,9 +647,6 @@ public class InputContext extends java.awt.im.InputContext
         }
         endComposition();
         deactivateInputMethod(false);
-        if (inputMethod instanceof InputMethodAdapter) {
-          ((InputMethodAdapter) inputMethod).setClientComponent(null);
-        }
       }
       savedLocale = inputMethod.getLocale();
 

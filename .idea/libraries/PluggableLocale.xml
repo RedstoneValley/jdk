@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="PluggableLocale">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/test/java/util/PluggableLocale/barprovider.jar!/" />
+      <root url="jar://$PROJECT_DIR$/test/java/util/PluggableLocale/fooprovider.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

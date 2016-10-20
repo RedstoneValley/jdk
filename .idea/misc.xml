@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="EntryPointsManager">
+    <entry_points version="2.0">
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getRotateInstance(double vecx, double vecy, double anchorx, double anchory)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void transform(java.awt.geom.Point2D[] ptSrc, int srcOff, java.awt.geom.Point2D[] ptDst, int dstOff, int numPts)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void setToIdentity()" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void quadrantRotate(int numquadrants, double anchorx, double anchory)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void quadrantRotate(int numquadrants)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void rotate(double vecx, double vecy, double anchorx, double anchory)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getQuadrantRotateInstance(int numquadrants, double anchorx, double anchory)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getQuadrantRotateInstance(int numquadrants)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getRotateInstance(double vecx, double vecy)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double m00, double m10, double m01, double m11, double m02, double m12, int state)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform()" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(java.awt.geom.AffineTransform Tx)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(float scaleX, float shearY, float shearX, float scaleY, float translateX, float translateY)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(float[] flatmatrix)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double m00, double m10, double m01, double m11, double m02, double m12)" />
+      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double[] flatmatrix)" />
+      <entry_point TYPE="class" FQNAME="java.awt.geom.AffineTransform" />
+    </entry_points>
+  </component>
+  <component name="NullableNotNullManager">
+    <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
+    <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />
+    <option name="myNullables">
+      <value>
+        <list size="4">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
+          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.Nullable" />
+        </list>
+      </value>
+    </option>
+    <option name="myNotNulls">
+      <value>
+        <list size="4">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
+          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.NonNull" />
+        </list>
+      </value>
+    </option>
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="Android API 24 Platform" project-jdk-type="Android SDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

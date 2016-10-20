@@ -68,9 +68,6 @@ import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.SunToolkit;
 import sun.awt.util.IdentityArrayList;
-import sun.java2d.Disposer;
-import sun.java2d.DisposerRecord;
-import sun.java2d.pipe.Region;
 
 /**
  * A {@code Window} object is a top-level window with no borders and no
@@ -161,6 +158,7 @@ import sun.java2d.pipe.Region;
 public class Window extends Container {
 
   static final int OPENED = 0x01;
+  static final boolean systemSyncLWRequests;
   private static final String TAG = "java.awt.Window";
   /**
    * Contains all the windows that have a peer object associated,
@@ -172,25 +170,24 @@ public class Window extends Container {
   private static final IdentityArrayList<Window> allWindows = new IdentityArrayList<>();
   private static final String base = "win";
   /*
-     * JDK 1.1 serialVersionUID
-     */
+   * JDK 1.1 serialVersionUID
+   */
   private static final long serialVersionUID = 4497834738069338734L;
   private static final boolean locationByPlatformProp;
   private static final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
-  static final boolean systemSyncLWRequests;
-  private static int nameCounter;
-
   // TODO: Can this class be gotten at through the actual API?
   private static final Constructor<? extends android.view.Window> ANDROID_WINDOW_IMPL_CTOR;
+  private static int nameCounter;
 
   static {
     String s = System.getProperty("java.awt.syncLWRequests");
-    systemSyncLWRequests = "true".equals(s);
+    systemSyncLWRequests = Boolean.valueOf(s);
     s = System.getProperty("java.awt.Window.locationByPlatform");
-    locationByPlatformProp = "true".equals(s);
+    locationByPlatformProp = Boolean.valueOf(s);
     try {
-      ANDROID_WINDOW_IMPL_CTOR = (Constructor<? extends android.view.Window>) Class
+      ANDROID_WINDOW_IMPL_CTOR = Class
           .forName("com.android.internal.policy.impl.PhoneWindow")
+          .asSubclass(android.view.Window.class)
           .getConstructor(Context.class);
     } catch (ClassNotFoundException | NoSuchMethodException e) {
       throw new RuntimeException(e);
@@ -362,43 +359,13 @@ public class Window extends Container {
   transient boolean isInShow;
   transient boolean isTrayIconWindow;
   transient Object anchor = new Object();
-  /**
-   * Holds the reference to the component which last had focus in this window
-   * before it lost focus.
-   */
-  private transient Component temporaryLostComponent;
   transient boolean disposing;
-  /**
-   * A boolean value representing Window always-on-top state
-   *
-   * @serial
-   * @see #setAlwaysOnTop
-   * @see #isAlwaysOnTop
-   * @since 1.5
-   */
-  private boolean alwaysOnTop;
   /*
      * We insert a weak reference into the Vector of all Windows in AppContext
      * instead of 'this' so that garbage collection can still take place
      * correctly.
      */
   transient WeakReference<Window> weakThis;
-  /**
-   * Unused. Maintained for serialization backward-compatibility.
-   *
-   * @serial
-   * @since 1.2
-   */
-  private FocusManager focusMgr;
-  /**
-   * Indicates whether this Window can become the focused Window.
-   *
-   * @serial
-   * @see #getFocusableWindowState
-   * @see #setFocusableWindowState
-   * @since 1.4
-   */
-  private boolean focusableWindowState = true;
   /**
    * Indicates whether this window should receive focus on
    * subsequently being shown (with a call to {@code setVisible(true)}), or
@@ -420,16 +387,6 @@ public class Window extends Container {
    */
   float opacity = 1.0f;
   /**
-   * The shape assigned to this window. This field is set to {@code null} if
-   * no shape is set (rectangular window).
-   *
-   * @serial
-   * @see #getShape()
-   * @see #setShape(Shape)
-   * @since 1.7
-   */
-  private Shape shape;
-  /**
    * These fields are initialized in the native peer code
    * or via AWTAccessor's WindowAccessor.
    */
@@ -444,6 +401,46 @@ public class Window extends Container {
   transient double securityWarningPointY;
   transient float securityWarningAlignmentX = RIGHT_ALIGNMENT;
   transient float securityWarningAlignmentY = TOP_ALIGNMENT;
+  /**
+   * Holds the reference to the component which last had focus in this window
+   * before it lost focus.
+   */
+  private transient Component temporaryLostComponent;
+  /**
+   * A boolean value representing Window always-on-top state
+   *
+   * @serial
+   * @see #setAlwaysOnTop
+   * @see #isAlwaysOnTop
+   * @since 1.5
+   */
+  private boolean alwaysOnTop;
+  /**
+   * Unused. Maintained for serialization backward-compatibility.
+   *
+   * @serial
+   * @since 1.2
+   */
+  private FocusManager focusMgr;
+  /**
+   * Indicates whether this Window can become the focused Window.
+   *
+   * @serial
+   * @see #getFocusableWindowState
+   * @see #setFocusableWindowState
+   * @since 1.4
+   */
+  private boolean focusableWindowState = true;
+  /**
+   * The shape assigned to this window. This field is set to {@code null} if
+   * no shape is set (rectangular window).
+   *
+   * @serial
+   * @see #getShape()
+   * @see #setShape(Shape)
+   * @since 1.7
+   */
+  private Shape shape;
   /**
    * Window type.
    * <p>
@@ -461,17 +458,11 @@ public class Window extends Container {
   /**
    * Constructs a new, initially invisible window in default size with the
    * specified {@code GraphicsConfiguration}.
-   * <p>
-   * If there is a security manager, then it is invoked to check
-   * {@code AWTPermission("showWindowWithoutWarningBanner")}
-   * to determine whether or not the window must be displayed with
-   * a warning banner.
    *
    * @param gc the {@code GraphicsConfiguration} of the target screen
    *           device. If {@code gc} is {@code null}, the system default
    *           {@code GraphicsConfiguration} is assumed
-   * @throws IllegalArgumentException if {@code gc}
-   *                                  is not from a screen device
+   * @throws IllegalArgumentException if {@code gc} is not from a screen device
    * @throws HeadlessException        when
    *                                  {@code GraphicsEnvironment.isHeadless()} returns {@code true}
    * @see GraphicsEnvironment#isHeadless
@@ -487,10 +478,6 @@ public class Window extends Container {
    * {@code AWTPermission("showWindowWithoutWarningBanner")}.
    * If that check fails with a {@code SecurityException} then a warning
    * banner is created.
-   *
-   * @throws HeadlessException when
-   *                           {@code GraphicsEnvironment.isHeadless()} returns {@code true}
-   * @see GraphicsEnvironment#isHeadless
    */
   Window() throws HeadlessException {
     this((GraphicsConfiguration) null);
@@ -802,7 +789,6 @@ public class Window extends Container {
 
     modalExclusionType = ModalExclusionType.NO_EXCLUDE;
     disposerRecord = new WindowDisposerRecord(appContext, this);
-    Disposer.addRecord(anchor, disposerRecord);
 
     SunToolkit.checkAndSetPolicy(this);
 
@@ -1539,17 +1525,6 @@ public class Window extends Container {
     return null;
   }
 
-  /**
-   * Applies the shape to the component
-   *
-   * @param shape Shape to be applied to the component
-   */
-  @Override
-  final void applyCompoundShape(Region shape) {
-    // The shape calculated by mixing code is not intended to be applied
-    // to windows or frames
-  }
-
   @Override
   final Point getLocationOnWindow() {
     return new Point(0, 0);
@@ -1747,6 +1722,7 @@ public class Window extends Container {
    */
   public void dispose() {
     doDispose();
+    disposerRecord.dispose();
   }
 
   /*
@@ -2954,8 +2930,10 @@ public class Window extends Container {
     weakThis = new WeakReference<>(this);
 
     anchor = new Object();
+    if (disposerRecord != null) {
+      disposerRecord.dispose();
+    }
     disposerRecord = new WindowDisposerRecord(appContext, this);
-    Disposer.addRecord(anchor, disposerRecord);
 
     addToWindowList();
     initGC(null);
@@ -3866,7 +3844,7 @@ public class Window extends Container {
       this.shape = shape == null ? null : new Path2D.Float(shape);
       WindowPeer peer = (WindowPeer) getPeer();
       if (peer != null) {
-        peer.applyShape(shape == null ? null : Region.getInstance(shape, null));
+        peer.applyShape(shape);
       }
     }
   }
@@ -3962,7 +3940,7 @@ public class Window extends Container {
     POPUP
   }
 
-  static class WindowDisposerRecord implements DisposerRecord {
+  static class WindowDisposerRecord {
     final WeakReference<Window> weakThis;
     final WeakReference<AppContext> context;
     WeakReference<Window> owner;
@@ -3977,7 +3955,6 @@ public class Window extends Container {
       owner = victim == null ? null : new WeakReference<>(victim.getOwner());
     }
 
-    @Override
     public void dispose() {
       if (owner != null) {
         Window parent = owner.get();
@@ -3993,17 +3970,18 @@ public class Window extends Container {
   }
 
   // ****************** END OF MIXING CODE ********************************
+
+  /**
+   * This class is no longer used, but is maintained for Serialization
+   * backward-compatibility.
+   */
+  static class FocusManager implements Serializable {
+    /*
+       * JDK 1.1 serialVersionUID
+       */
+    static final long serialVersionUID = 2491878825643557906L;
+    Container focusRoot;
+    Component focusOwner;
+  }
 } // class Window
 
-/**
- * This class is no longer used, but is maintained for Serialization
- * backward-compatibility.
- */
-class FocusManager implements Serializable {
-  /*
-     * JDK 1.1 serialVersionUID
-     */
-  static final long serialVersionUID = 2491878825643557906L;
-  Container focusRoot;
-  Component focusOwner;
-}

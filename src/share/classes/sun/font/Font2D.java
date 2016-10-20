@@ -9,6 +9,8 @@ import java.util.Locale;
  */
 public class Font2D {
 
+  private static final int UNICODE_WHITE_VERTICAL_RECTANGLE = 0x25AF;
+
   public String getFamilyName(Locale l) {
     // TODO
     return "(Font with unknown name)";
@@ -24,17 +26,12 @@ public class Font2D {
     return 0;
   }
 
-  public boolean useAAForPtSize(int pixelHeight) {
-    // TODO
-    return true;
-  }
-
   public int getNumGlyphs() {
     // TODO
     return Character.MAX_CODE_POINT;
   }
 
   public int getMissingGlyphCode() {
-    return 0x25AF; // WHITE VERTICAL RECTANGLE
+    return UNICODE_WHITE_VERTICAL_RECTANGLE;
   }
 }
