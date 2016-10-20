@@ -323,11 +323,6 @@ public class Container extends Component {
     }
   }
 
-  private static Shape getUnion(Shape s, Shape opaqueShape) {
-    // TODO
-    return null;
-  }
-
   @SuppressWarnings({"unchecked", "rawtypes"})
   void initializeFocusTraversalKeys() {
     focusTraversalKeys = new Set[4];
@@ -1598,10 +1593,10 @@ public class Container extends Component {
       for (int index = 0; index < getComponentCount(); index++) {
         Component c = getComponent(index);
         if (c.isLightweight() && c.isShowing()) {
-          s = getUnion(s, c.getOpaqueShape());
+          s = SkinJobGeometry.getUnion(s, c.getOpaqueShape());
         }
       }
-      return Component.getIntersection(s, getNormalShape());
+      return SkinJobGeometry.getIntersection(s, getNormalShape());
     }
     return super.getOpaqueShape();
   }

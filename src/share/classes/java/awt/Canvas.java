@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.view.View;
 import java.awt.image.BufferStrategy;
 import java.awt.peer.CanvasPeer;
 
@@ -48,15 +49,12 @@ public class Canvas extends Component {
    */
   private static final long serialVersionUID = -2284879212465893870L;
   private static int nameCounter;
-  protected final android.graphics.Canvas androidCanvas;
 
   /**
    * Constructs a new Canvas.
    */
   public Canvas() {
-    // android.graphics.Canvas doesn't extend View
-    super(SkinJobNullWidgetSupplier.getInstance());
-    androidCanvas = new android.graphics.Canvas();
+    super(View.class);
     peer = new SkinJobCanvasPeer(this);
   }
 

@@ -8,8 +8,10 @@ import android.view.Display;
 public class SkinJobGraphicsDevice extends GraphicsDevice {
   protected final String name;
   protected final GraphicsConfiguration configuration;
+  protected final Display androidDisplay;
 
   public SkinJobGraphicsDevice(Display androidDisplay) {
+    this.androidDisplay = androidDisplay;
     name = androidDisplay.getName();
     configuration = new SkinJobGraphicsConfiguration(androidDisplay, this);
   }

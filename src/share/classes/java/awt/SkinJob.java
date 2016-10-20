@@ -40,7 +40,7 @@ import java.util.HashMap;
 public final class SkinJob {
 
   /**
-   * Conversion from an elliptical arc to a cubic Bezier spline is inherently approximate, and is
+   * Conversion from an elliptical arc to a cubic Bézier spline is inherently approximate, and is
    * used in {@link java.awt.geom.ArcIterator}. The more segment endpoints the spline has, the
    * better the approximation, but the longer it takes to draw. This constant determines the maximum
    * angle between segment endpoints (which will be at equal angles across the arc). OpenJDK AWT

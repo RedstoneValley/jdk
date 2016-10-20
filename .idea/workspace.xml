@@ -8,722 +8,15 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Add output folder to .hgignore">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/BuildJdk.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Bundles.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CompileDemos.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CompileJavaClasses.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CompileLaunchers.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CompileNativeLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CopyFiles.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CopyIntoClasses.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CopySamples.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CreateJars.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/CreateSecurityJars.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/GenerateClasses.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/GenerateData.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/GenerateSources.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Images.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Import.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Makefile" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/ProfileNames.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Profiles.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Setup.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/SignJars.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/Tools.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterData00.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterData01.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterData02.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterData0E.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterDataLatin1.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterDataPrivateUse.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/characterdata/CharacterDataUndefined.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/Big5.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/Big5.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/DoubleByte-X.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/EUC_CN.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/EUC_KR.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/GBK.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS2001.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS2001.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS2008.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS2008.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS_XP.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/HKSCS_XP.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM037.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM037.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM037.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1006.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1025.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1025.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1025.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1026.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1026.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1026.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1046.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1047.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1097.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1098.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1112.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1112.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1112.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1122.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1122.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1122.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1123.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1123.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1123.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1124.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1140.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1140.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1141.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1141.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1142.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1142.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1143.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1143.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1144.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1144.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1145.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1145.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1146.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1146.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1147.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1147.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1148.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1148.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1149.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1149.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1364.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1364.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1381.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1381.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1383.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1383.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM1383.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM273.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM273.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM273.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM277.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM277.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM277.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM278.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM278.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM278.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM280.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM280.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM280.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM284.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM284.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM284.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM285.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM285.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM285.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM290.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM290.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM297.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM297.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM297.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM300.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM300.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM420.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM420.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM420.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM424.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM424.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM424.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM437.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM500.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM500.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM500.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM737.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM775.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM833.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM833.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM838.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM838.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM838.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM850.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM852.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM855.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM856.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM857.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM858.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM860.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM861.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM862.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM863.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM864.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM865.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM866.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM868.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM869.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM870.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM870.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM870.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM871.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM871.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM871.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM874.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM874.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM875.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM875.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM875.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM918.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM918.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM918.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM921.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM922.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM930.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM930.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM930.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM933.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM933.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM935.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM935.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM935.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM937.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM937.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM937.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM939.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM939.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM939.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM942.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM942.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM943.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM943.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM948.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM948.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM949.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM950.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM950.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM970.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/IBM970.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_11.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_13.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_15.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_2.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_3.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_4.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_5.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_6.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_7.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_8.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/ISO_8859_9.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0201.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0201.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_MS5022X.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_MS5022X.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_MS932.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_MS932.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_Solaris.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0208_Solaris.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0212.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0212_MS5022X.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0212_Solaris.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/JIS_X_0212_Solaris.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/Johab.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/KOI8_R.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/KOI8_U.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1250.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1251.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1252.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1253.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1254.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1255.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1256.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1257.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS1258.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS874.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS932.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS932.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS932.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS936.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS949.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS950.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MS950.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacArabic.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacCentralEurope.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacCroatian.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacCyrillic.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacDingbat.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacGreek.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacHebrew.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacIceland.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacRoman.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacRomania.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacSymbol.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacThai.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacTurkish.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/MacUkraine.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/PCK.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/PCK.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/PCK.nr" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/SJIS.c2b" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/SJIS.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/SingleByte-X.java.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/TIS_620.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/dbcs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/euc_tw.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/extsbcs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/sbcs" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/charsetmapping/sjis0213.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/checkdeps/refs.allowed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/classlist/classlist.aix" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/classlist/classlist.linux" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/classlist/classlist.macosx" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/classlist/classlist.solaris" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/classlist/classlist.windows" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/cryptopolicy/limited/default_local.policy" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/cryptopolicy/limited/exempt_local.policy" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/cryptopolicy/unlimited/default_US_export.policy" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/cryptopolicy/unlimited/default_local.policy" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/data.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/dtdbuilder/HTMLlat1.sgml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/dtdbuilder/HTMLspecial.sgml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/dtdbuilder/HTMLsymbol.sgml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/dtdbuilder/html32.dtd" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/dtdbuilder/public.map" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/jdwp/jdwp.spec" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/mainmanifest/manifest.mf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/SwingBeanInfo.template" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/AbstractButtonColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/BorderColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/BoxColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/BoxColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/BoxMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/BoxMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JAppletColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JAppletColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JAppletMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JAppletMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JButtonColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JButtonColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JButtonMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JButtonMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMenuItemColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMenuItemColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMenuItemMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMenuItemMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JCheckBoxMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JColorChooserColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JColorChooserColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JColorChooserMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JColorChooserMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JComboBoxColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JComboBoxColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JComboBoxMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JComboBoxMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JComponentColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDesktopPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDesktopPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDesktopPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDesktopPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDialogColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDialogColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDialogMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JDialogMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JEditorPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JEditorPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JEditorPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JEditorPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFileChooserColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFileChooserColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFileChooserMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFileChooserMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFormattedTextFieldColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFormattedTextFieldColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFormattedTextFieldMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFormattedTextFieldMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFrameColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFrameColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFrameMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JFrameMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JInternalFrameColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JInternalFrameColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JInternalFrameMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JInternalFrameMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLabelColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLabelColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLabelMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLabelMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLayeredPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLayeredPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLayeredPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JLayeredPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JListColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JListColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JListMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JListMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuBarColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuBarColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuBarMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuBarMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuItemColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuItemColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuItemMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuItemMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JMenuMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JOptionPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JOptionPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JOptionPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JOptionPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPanelColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPanelColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPanelMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPanelMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPasswordFieldColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPasswordFieldColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPasswordFieldMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPasswordFieldMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPopupMenuColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPopupMenuColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPopupMenuMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JPopupMenuMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JProgressBarColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JProgressBarColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JProgressBarMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JProgressBarMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMenuItemColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMenuItemColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMenuItemMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMenuItemMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRadioButtonMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRootPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRootPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRootPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JRootPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollBarColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollBarColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollBarMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollBarMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JScrollPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSeparatorColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSeparatorColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSeparatorMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSeparatorMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSliderColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSliderColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSliderMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSliderMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSpinnerColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSpinnerColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSpinnerMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSpinnerMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSplitPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSplitPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSplitPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JSplitPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTabbedPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTabbedPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTabbedPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTabbedPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTableColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTableColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTableMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTableMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextAreaColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextAreaColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextAreaMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextAreaMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextFieldColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextFieldColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextFieldMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextFieldMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextPaneColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextPaneColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextPaneMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTextPaneMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToggleButtonColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToggleButtonColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToggleButtonMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToggleButtonMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToolBarColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToolBarColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToolBarMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JToolBarMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTreeColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTreeColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTreeMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JTreeMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JViewportColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JViewportColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JViewportMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JViewportMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JWindowColor16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JWindowColor32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JWindowMono16.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/images/JWindowMono32.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/Accessible.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleAction.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleComponent.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleContext.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleRole.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleSelection.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleStateSet.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/javax/accessibility/AccessibleValue.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/swingbeaninfo/manifest.mf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/VERSION" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/africa" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/antarctica" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/asia" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/australasia" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/backward" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/etcetera" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/europe" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/factory" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/gmt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/iso3166.tab" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/jdk11_backward" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/leapseconds" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/northamerica" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/pacificnew" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/solar87" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/solar88" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/solar89" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/southamerica" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/systemv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/data/tzdata/zone.tab" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gendata/GendataBreakIterator.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gendata/GendataFontConfig.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gendata/GendataHtml32dtd.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gendata/GendataTZDB.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcBuffer.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcCLDR.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcCharacterData.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcCharsetCoder.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcCharsetMapping.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcExceptions.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcIcons.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcJDWP.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcJObjC.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcLocaleDataMetaInfo.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcMisc.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcProperties.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcSwing.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/gensrc/GensrcX11Wrappers.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/Awt2dLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/CoreLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/NetworkingLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/NioLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/PlatformLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/SecurityLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/ServiceabilityLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/lib/SoundLibraries.gmk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-ppc64" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-ppc64.anonymous" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-x86.anonymous" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-x86_64" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/launchers/mapfile-x86_64.anonymous" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libattach/mapfile-aix" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libattach/mapfile-linux" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libattach/mapfile-solaris" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libattach/reorder-windows-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libattach/reorder-windows-x86_64" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt/mapfile-mawt-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt/mapfile-vers-linux" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt_headless/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt_headless/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt_headless/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt_headless/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libawt_xawt/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libdcpr/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libdt_socket/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libfontmanager/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libfontmanager/mapfile-vers.openjdk" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libhprof/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libinstrument/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libj2gss/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libj2pcsc/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libj2pkcs11/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libj2ucrypto/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjaas/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjava/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjava/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjava/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjava/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjava_crw_demo/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjawt/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjdga/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjdwp/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjfr/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjli/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjpeg/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjpeg/mapfile-vers-closed" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjpeg/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjpeg/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjpeg/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjsdt/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjsound/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libjsoundalsa/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libkcms/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/liblcms/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libmanagement/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libmlib_image/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnet/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/mapfile-aix" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/mapfile-linux" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/mapfile-macosx" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/mapfile-solaris" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnio/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libnpt/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libsctp/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libsplashscreen/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libsunec/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libt2k/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libunpack/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libunpack/mapfile-vers-unpack200" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libunpack/mapfile-vers-unpack200.anonymous" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libverify/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libverify/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libverify/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libverify/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libzip/mapfile-vers" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libzip/reorder-sparc" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libzip/reorder-sparcv9" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/mapfiles/libzip/reorder-x86" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/awt2d/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/awt2d/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/awt2d/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/awt2d/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/README-ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/arch-amd64.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/arch-i386.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/arch-sparc.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/arch-x86.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/arch-x86_64.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/name-Bsd.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/name-Linux.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/name-Macosx.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/architectures/name-SunOS.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/build-folder.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/closed-share-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/closed-share-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/demo-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/demo-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/file-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/java-data-native.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/java-data-no-native.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/jtreg-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/jtreg-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/macosx-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/macosx-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/make.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/properties.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/sample-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/sample-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/share-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/share-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/shared.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/standard-actions.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/standard-bindings.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/unix-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/unix-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/windows-sources.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/common/windows-view.ent" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/j2se/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/j2se/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/j2se/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/j2se/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jarzip/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jarzip/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jarzip/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jarzip/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jconsole/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jconsole/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jconsole/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jconsole/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdbc/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdbc/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdbc/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdbc/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/build-impl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/findbugs.settings" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/genfiles.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/project.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jdwpgen/nbproject/sqe.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jmx/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jmx/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jmx/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/jmx/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/swing/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/swing/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/swing/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/swing/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/world/README" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/world/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/world/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/netbeans/world/nbproject/project.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/non-build-utils.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/Makefile" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/reorder.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/Exit.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/Hello.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/IntToString.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/JHello.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/LoadFrame.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/LoadJFrame.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/LoadToolkit.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/Null.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tests/Sleep.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/Combine.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/MaxTime.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/mcount.c" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/remove_mcount.c" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/util-i586.il" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/util-sparc.il" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/reorder/tools/util-sparcv9.il" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/sharing/README.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/sharing/sharing.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/sharing/tests/GHello.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/sharing/tests/Hello.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/sharing/tests/JHello.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/src/build/tools/commentchecker/CommentChecker.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/src/build/tools/dirdiff/DirDiff.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/non-build-utils/src/build/tools/makeclasslist/MakeClasslist.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/profile-includes.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/profile-rtjar-includes.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/scripts/addNotices.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/scripts/genCharsetProvider.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/scripts/genExceptions.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/scripts/localelist.sh" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/src/make.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/src/native/add_gnu_debuglink/add_gnu_debuglink.c" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/make/src/native/fix_empty_sec_hdr_flags/fix_empty_sec_hdr_flags.c" afterPath="" />
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Remove dependency of DropTarget on Swing Timer. Extract timing magic numbers from DropTarget.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGeometry.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Component.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Component.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Container.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Container.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/event/MouseEvent.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/event/MouseEvent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/image/ComponentSampleModel.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/image/ComponentSampleModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/peer/ComponentPeer.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/peer/ComponentPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/SunGraphicsCallback.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/SunGraphicsCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/Makefile" afterPath="$PROJECT_DIR$/test/Makefile" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/java/awt/Mouse/MouseModifiersUnitTest/ModifierPermutation.java" afterPath="$PROJECT_DIR$/test/java/awt/Mouse/MouseModifiersUnitTest/ModifierPermutation.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/java/awt/Mouse/MouseModifiersUnitTest/MouseModifiersUnitTest_Standard.java" afterPath="$PROJECT_DIR$/test/java/awt/Mouse/MouseModifiersUnitTest/MouseModifiersUnitTest_Standard.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobCanvasPeer.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobCanvasPeer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsDevice.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsDevice.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -748,102 +41,108 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="ImageRepresentation.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
+      <file leaf-file-name="Component.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Component.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="656" column="7" selection-start-line="656" selection-start-column="7" selection-end-line="656" selection-end-column="7" />
+            <state relative-caret-position="354">
+              <caret line="997" column="2" selection-start-line="997" selection-start-column="2" selection-end-line="997" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GifImageDecoder.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
+      <file leaf-file-name="Container.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Container.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="345" column="7" selection-start-line="345" selection-start-column="7" selection-end-line="345" selection-end-column="7" />
+            <state relative-caret-position="354">
+              <caret line="325" column="2" selection-start-line="325" selection-start-column="2" selection-end-line="325" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CompositionArea.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionArea.java">
+      <file leaf-file-name="SkinJobGeometry.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGeometry.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="71" column="20" selection-start-line="71" selection-start-column="20" selection-end-line="71" selection-end-column="20" />
+            <state relative-caret-position="196">
+              <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ExecutableInputMethodManager.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java">
+      <file leaf-file-name="SkinJobCanvasPeer.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobCanvasPeer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="66" column="2" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="2" />
+            <state relative-caret-position="560">
+              <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#590#591#0" expanded="true" />
+                <element signature="e#644#645#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SkinJobGraphicsConfiguration.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsConfiguration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-140">
+              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SunToolkit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/SunToolkit.java">
+      <file leaf-file-name="SkinJobComponentPeerForView.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobComponentPeerForView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="552" column="7" selection-start-line="552" selection-start-column="7" selection-end-line="552" selection-end-column="7" />
+            <state relative-caret-position="-1316">
+              <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SunGraphicsCallback.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/SunGraphicsCallback.java">
+      <file leaf-file-name="SkinJobGraphicsDevice.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsDevice.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="587">
-              <caret line="101" column="0" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
+            <state relative-caret-position="280">
+              <caret line="10" column="41" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintServiceLookup.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/PrintServiceLookup.java">
+      <file leaf-file-name="Canvas.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+            <state relative-caret-position="84">
+              <caret line="26" column="14" selection-start-line="26" selection-start-column="7" selection-end-line="26" selection-end-column="14" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DefaultMouseInfoPeer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/DefaultMouseInfoPeer.java">
+      <file leaf-file-name="CanvasPeer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/peer/CanvasPeer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="448">
-              <caret line="41" column="7" selection-start-line="41" selection-start-column="7" selection-end-line="41" selection-end-column="7" />
+            <state relative-caret-position="616">
+              <caret line="46" column="24" selection-start-line="46" selection-start-column="24" selection-end-line="46" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
+      <file leaf-file-name="SkinJob.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="11" column="7" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="MediaPrintableArea.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/MediaPrintableArea.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-              <folding />
+            <state relative-caret-position="364">
+              <caret line="42" column="52" selection-start-line="42" selection-start-column="52" selection-end-line="42" selection-end-column="52" />
+              <folding>
+                <element signature="e#1696#1728#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -876,14 +175,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageIO.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageOutputStream.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsEnvironment.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsConfiguration.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobMenuItemPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobComponentPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobFileDialogPeer.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphics.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/java2d/SunGraphicsEnvironment.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/java2d/pisces/META-INF/services/sun.java2d.pipe.RenderingEngine" />
@@ -902,8 +196,6 @@
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/EventQueue.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/geom/PathIterator.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Shape.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Container.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Component.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsEnvironment.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobMenuBarPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobPanelPeer.java" />
@@ -927,6 +219,13 @@
         <option value="$PROJECT_DIR$/test/java/awt/Mouse/MouseModifiersUnitTest/ModifierPermutation.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/SunGraphicsCallback.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/dnd/DropTarget.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Component.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Container.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsDevice.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SkinJobCanvasPeer.java" />
       </list>
     </option>
   </component>
@@ -1160,90 +459,7 @@
     <panes>
       <pane id="Scratches" />
       <pane id="ProjectPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="classes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="skinjob" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="share" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="classes" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="awt" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
+        <subPane />
       </pane>
       <pane id="PackagesPane" />
       <pane id="AndroidView" />
@@ -1281,11 +497,11 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveMembersDialog.RECENTS_KEY">
+      <recent name="java.awt.SkinJobGeometry" />
       <recent name="java.awt.SkinJob" />
       <recent name="java.awt.geom.PathIterator" />
       <recent name="sun.awt.image.BufImgSurfaceData" />
       <recent name="java.awt.SkinJobGraphicsEnvironment" />
-      <recent name="sun.awt.SunGraphicsCallback" />
     </key>
     <key name="IntroduceConstantDialog.RECENTS_KEY">
       <recent name="sun.java2d.pipe.BufferedBufImgOps" />
@@ -1686,7 +902,21 @@
       <option name="project" value="LOCAL" />
       <updated>1476944321774</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Delete make folder, since it's almost all specific to non-Android OSs. Delete upstream TODOs, since they're out of scope for SkinJob.">
+      <created>1476945108047</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1476945108047</updated>
+    </task>
+    <task id="LOCAL-00019" summary="Remove dependency of DropTarget on Swing Timer. Extract timing magic numbers from DropTarget.">
+      <created>1476946044190</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1476946044190</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1700,9 +930,9 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-11" y="-11" width="3854" height="2122" extended-state="0" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="TODO" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37321335" sideWeight="0.48961893" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37321335" sideWeight="0.48961893" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -1714,9 +944,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12852252" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.12852252" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33139226" sideWeight="0.46675426" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2522996" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2133263" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32981253" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1734,7 +964,7 @@
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3795659" sideWeight="0.52720106" order="10" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3795659" sideWeight="0.52720106" order="10" side_tool="true" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -1742,18 +972,18 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2522996" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32927474" sideWeight="0.48961893" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3795659" sideWeight="0.47279894" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37321335" sideWeight="0.48961893" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3795659" sideWeight="0.47279894" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.40277037" sideWeight="0.4990782" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4505029" sideWeight="0.49303547" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.14533508" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33139226" sideWeight="0.46675426" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.12852252" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33139226" sideWeight="0.46675426" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32981253" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
     </layout-to-restore>
@@ -1791,7 +1021,9 @@
     <MESSAGE value="Delete sun.java2d; migrate classes to use Shape instead of Region; finish SkinJobMenuPeer." />
     <MESSAGE value="Minor fixes" />
     <MESSAGE value="Add output folder to .hgignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add output folder to .hgignore" />
+    <MESSAGE value="Delete make folder, since it's almost all specific to non-Android OSs. Delete upstream TODOs, since they're out of scope for SkinJob." />
+    <MESSAGE value="Remove dependency of DropTarget on Swing Timer. Extract timing magic numbers from DropTarget." />
+    <option name="LAST_COMMIT_MESSAGE" value="Remove dependency of DropTarget on Swing Timer. Extract timing magic numbers from DropTarget." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
@@ -1827,144 +1059,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobFileDialogPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="15" column="7" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphics.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="85" column="7" selection-start-line="85" selection-start-column="7" selection-end-line="85" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsEnvironment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="44" column="7" selection-start-line="44" selection-start-column="7" selection-end-line="44" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobScrollbarPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="16" column="7" selection-start-line="16" selection-start-column="7" selection-end-line="16" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobTextAttributesDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="46" column="11" selection-start-line="46" selection-start-column="11" selection-end-line="46" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobScrollPanePeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="676">
-          <caret line="41" column="7" selection-start-line="41" selection-start-column="7" selection-end-line="41" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobWindowPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="31" column="7" selection-start-line="31" selection-start-column="7" selection-end-line="31" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/make/gensrc/GensrcProperties.gmk">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="364" column="0" selection-start-line="364" selection-start-column="0" selection-end-line="364" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/make/lib/Awt2dLibraries.gmk">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="670" column="0" selection-start-line="670" selection-start-column="0" selection-end-line="670" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/make/mapfiles/libnio/mapfile-aix">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="700">
-          <caret line="25" column="0" selection-start-line="25" selection-start-column="0" selection-end-line="25" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobTextFieldPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="953">
-          <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Window.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="177" column="5" selection-start-line="177" selection-start-column="5" selection-end-line="177" selection-end-column="5" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SplashScreen.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="309">
-          <caret line="158" column="7" selection-start-line="158" selection-start-column="7" selection-end-line="158" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/Makefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-783">
-          <caret line="173" column="13" selection-start-line="173" selection-start-column="13" selection-end-line="173" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/AttributeValues.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="90" column="7" selection-start-line="90" selection-start-column="7" selection-end-line="90" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/BidiUtils.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/CoreMetrics.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="185" column="7" selection-start-line="185" selection-start-column="7" selection-end-line="185" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="222">
@@ -2185,7 +1279,12 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="66" column="2" selection-start-line="66" selection-start-column="0" selection-end-line="66" selection-end-column="2" />
-          <folding />
+          <folding>
+            <element signature="e#6871#6872#0" expanded="false" />
+            <element signature="e#6922#6923#0" expanded="false" />
+            <element signature="e#19045#19046#0" expanded="false" />
+            <element signature="e#19092#19093#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -2234,6 +1333,158 @@
         <state relative-caret-position="252">
           <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/event/ActionListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="588">
+          <caret line="44" column="17" selection-start-line="44" selection-start-column="17" selection-end-line="44" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/dnd/DropTargetListener.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-724">
+          <caret line="65" column="17" selection-start-line="65" selection-start-column="17" selection-end-line="65" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="104" column="2" selection-start-line="104" selection-start-column="2" selection-end-line="104" selection-end-column="2" />
+          <folding>
+            <element signature="e#1696#1728#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/dnd/DropTarget.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="839">
+          <caret line="789" column="65" selection-start-line="789" selection-start-column="65" selection-end-line="789" selection-end-column="65" />
+          <folding>
+            <element signature="imports" expanded="false" />
+            <element signature="e#25970#25971#0" expanded="true" />
+            <element signature="e#25998#25999#0" expanded="true" />
+            <element signature="e#26453#26454#0" expanded="true" />
+            <element signature="e#26488#26489#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/dnd/Timer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="140">
+          <caret line="5" column="16" selection-start-line="5" selection-start-column="16" selection-end-line="5" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/WaitDispatchSupport.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3555">
+          <caret line="152" column="49" selection-start-line="152" selection-start-column="49" selection-end-line="152" selection-end-column="49" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/AWTEvent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="368" column="7" selection-start-line="368" selection-start-column="7" selection-end-line="368" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Component.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="997" column="2" selection-start-line="997" selection-start-column="2" selection-end-line="997" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Container.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="325" column="2" selection-start-line="325" selection-start-column="2" selection-end-line="325" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGeometry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="7" column="7" selection-start-line="7" selection-start-column="7" selection-end-line="7" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/peer/CanvasPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="616">
+          <caret line="46" column="24" selection-start-line="46" selection-start-column="24" selection-end-line="46" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJob.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="364">
+          <caret line="42" column="52" selection-start-line="42" selection-start-column="52" selection-end-line="42" selection-end-column="52" />
+          <folding>
+            <element signature="e#1696#1728#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="26" column="14" selection-start-line="26" selection-start-column="7" selection-end-line="26" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobComponentPeerForView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1316">
+          <caret line="11" column="22" selection-start-line="11" selection-start-column="22" selection-end-line="11" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-140">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobGraphicsDevice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="280">
+          <caret line="10" column="41" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SkinJobCanvasPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="560">
+          <caret line="20" column="0" selection-start-line="20" selection-start-column="0" selection-end-line="20" selection-end-column="0" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#590#591#0" expanded="true" />
+            <element signature="e#644#645#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

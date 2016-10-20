@@ -995,16 +995,6 @@ public abstract class Component extends ComponentOrMenuComponent
     }
   }
 
-  static Shape getIntersection(Shape s, Shape normalShape) {
-    // TODO
-    return null;
-  }
-
-  private static Shape getDifference(Shape s, Shape opaqueShape) {
-    // TODO
-    return null;
-  }
-
   Object getObjectLock() {
     return objectLock;
   }
@@ -8223,12 +8213,12 @@ public abstract class Component extends ComponentOrMenuComponent
                      */
           Component c = cont.getComponent(index);
           if (c.isLightweight() && c.isShowing()) {
-            s = getDifference(s, c.getOpaqueShape());
+            s = SkinJobGeometry.getDifference(s, c.getOpaqueShape());
           }
         }
 
         if (cont.isLightweight()) {
-          s = getIntersection(s, cont.getNormalShape());
+          s = SkinJobGeometry.getIntersection(s, cont.getNormalShape());
         } else {
           break;
         }
@@ -8258,7 +8248,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
     Log.d(TAG, "this = " + this + "; s=" + s);
 
-    applyCompoundShape(getDifference(getAppliedShape(), s));
+    applyCompoundShape(SkinJobGeometry.getDifference(getAppliedShape(), s));
   }
 
   private final void applyCurrentShapeBelowMe() {
@@ -8373,7 +8363,7 @@ public abstract class Component extends ComponentOrMenuComponent
             for (int index = oldZorder; index < newZorder; index++) {
               Component c = parent.getComponent(index);
               if (c.isLightweight() && c.isShowing()) {
-                shape = getDifference(shape, c.getOpaqueShape());
+                shape = SkinJobGeometry.getDifference(shape, c.getOpaqueShape());
               }
             }
             applyCompoundShape(shape);
@@ -8988,24 +8978,6 @@ public abstract class Component extends ComponentOrMenuComponent
       revalidate(true);
     }
 
-    /**
-     * @since 1.6
-     */
-    @Override
-    public void dispose() {
-      if (backBuffers != null) {
-        for (int counter = backBuffers.length - 1; counter >= 0; counter--) {
-          if (backBuffers[counter] != null) {
-            backBuffers[counter].flush();
-            backBuffers[counter] = null;
-          }
-        }
-      }
-      if (bufferStrategy == this) {
-        bufferStrategy = null;
-      }
-    }
-
     void revalidate(boolean checkSize) {
       validatedContents = false;
 
@@ -9039,6 +9011,24 @@ public abstract class Component extends ComponentOrMenuComponent
         validatedContents = true;
       } else if (returnCode == VolatileImage.IMAGE_RESTORED) {
         validatedContents = true;
+      }
+    }
+
+    /**
+     * @since 1.6
+     */
+    @Override
+    public void dispose() {
+      if (backBuffers != null) {
+        for (int counter = backBuffers.length - 1; counter >= 0; counter--) {
+          if (backBuffers[counter] != null) {
+            backBuffers[counter].flush();
+            backBuffers[counter] = null;
+          }
+        }
+      }
+      if (bufferStrategy == this) {
+        bufferStrategy = null;
       }
     }
 
