@@ -35,7 +35,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.CursorAccessor;
-import sun.java2d.Disposer;
 import sun.java2d.DisposerRecord;
 
 /**
@@ -119,6 +118,11 @@ public class Cursor implements Serializable {
    * The type associated with all custom cursors.
    */
   public static final int CUSTOM_CURSOR = -1;
+  /**
+   * @deprecated As of JDK version 1.7, the {@link #getPredefinedCursor(int)}
+   * method should be used instead.
+   */
+  @Deprecated protected static final Cursor[] predefined = new Cursor[14];
   /* Localization names and default values */
   static final String[][] cursorProperties = {
       {"AWT.DefaultCursor", "Default Cursor"}, {"AWT.CrosshairCursor", "Crosshair Cursor"},
@@ -130,18 +134,17 @@ public class Cursor implements Serializable {
       {"AWT.NResizeCursor", "North Resize Cursor"}, {"AWT.SResizeCursor", "South Resize Cursor"},
       {"AWT.WResizeCursor", "West Resize Cursor"}, {"AWT.EResizeCursor", "East Resize Cursor"},
       {"AWT.HandCursor", "Hand Cursor"}, {"AWT.MoveCursor", "Move Cursor"},};
-  /**
-   * This field is a private replacement for 'predefined' array.
-   */
-  private static final Cursor[] predefinedPrivate = new Cursor[14];
-  private static final Hashtable<String, Cursor> systemCustomCursors = new Hashtable<>(1);
   static final String systemCustomCursorDirPrefix = initCursorDir();
-
   /*
    * hashtable, filesystem dir prefix, filename, and properties for custom cursors support
    */
   static final String systemCustomCursorPropertiesFile = systemCustomCursorDirPrefix
       + "cursors.properties";
+  /**
+   * This field is a private replacement for 'predefined' array.
+   */
+  private static final Cursor[] predefinedPrivate = new Cursor[14];
+  private static final Hashtable<String, Cursor> systemCustomCursors = new Hashtable<>(1);
   private static final String CursorDotPrefix = "Cursor.";
   private static final String DotFileSuffix = ".File";
   private static final String DotHotspotSuffix = ".HotSpot";
@@ -151,11 +154,6 @@ public class Cursor implements Serializable {
    */
   private static final long serialVersionUID = 8028237497568985504L;
   private static final String TAG = "java.awt.Cursor";
-  /**
-   * @deprecated As of JDK version 1.7, the {@link #getPredefinedCursor(int)}
-   * method should be used instead.
-   */
-  @Deprecated protected static final Cursor[] predefined = new Cursor[14];
   static Properties systemCustomCursorProperties;
 
   static {
@@ -375,10 +373,6 @@ public class Cursor implements Serializable {
     }
   }
 
-  static void finalizeImpl(long pData) {
-    // TODO: This is native in OpenJDK AWT
-  }
-
   /**
    * Returns the type for this cursor.
    */
@@ -416,7 +410,6 @@ public class Cursor implements Serializable {
     @Override
     public void dispose() {
       if (pData != 0) {
-        finalizeImpl(pData);
       }
     }
   }

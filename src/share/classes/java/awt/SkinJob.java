@@ -83,18 +83,19 @@ public final class SkinJob {
    * strikethrough, but must exist for backward-compatibility.
    */
   public static volatile float strikeThroughOffset = 0.5f;
-  /*
+
+  /**
    * Size of the array of precomputed character widths in each {@link FontMetrics}. Code points
    * lower than this value will be stored in the array; the rest will be recalculated on demand.
    * Using a higher value will require more memory, but will improve performance when rendering
    * text where a lot of characters have high code-point values (e.g. those in non-Latin alphabets).
-   * Should never exceed 0x10FFFD, since that's the highest Unicode point. OpenJDK AWT uses 256.
+   * Should never exceed {@link Character#MAX_CODE_POINT}, or it'll be wasting memory.
    */
   public static volatile int precomputedCharacterWidthArraySize = 256;
   public static volatile int defaultDragThreshold = 5;
   public static volatile int defaultFontSize = 12;
   public static volatile Font defaultFont = new Font(Font.DIALOG, Font.PLAIN, defaultFontSize);
-  public static RenderingHints defaultRenderingHints;
+  public static volatile RenderingHints defaultRenderingHints;
   /**
    * The application's {@link Context} instance. To maintain backward compatibility with AWT apps
    * not designed for Android, SkinJob will look up the {@code Context} on demand if the application

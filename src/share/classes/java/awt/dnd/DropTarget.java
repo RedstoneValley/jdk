@@ -772,7 +772,7 @@ public class DropTarget implements DropTargetListener, Serializable {
    * this protected nested class implements autoscrolling
    */
 
-  protected static class DropTargetAutoScroller implements ActionListener, TimerTask {
+  protected static class DropTargetAutoScroller extends TimerTask implements ActionListener {
 
     private final Component component;
     private final Autoscroll autoScroll;

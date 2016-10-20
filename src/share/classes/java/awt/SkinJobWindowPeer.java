@@ -119,7 +119,8 @@ public class SkinJobWindowPeer extends SkinJobComponentPeer<Window>
 
   @Override
   public void updateWindow() {
-    // TODO
+    androidWidget.getDecorView().requestLayout();
+    // TODO: Do this for all other descendant View instances as well
   }
 
   @Override

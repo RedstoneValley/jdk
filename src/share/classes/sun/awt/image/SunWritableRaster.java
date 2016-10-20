@@ -36,7 +36,6 @@ import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import sun.java2d.StateTrackable.State;
 import sun.java2d.StateTrackableDelegate;
-import sun.java2d.SurfaceData;
 
 /**
  * This class exists as a middle layer between WritableRaster and its
@@ -112,7 +111,7 @@ public class SunWritableRaster extends WritableRaster {
   }
 
   public static void markDirty(Image img) {
-    SurfaceData.getPrimarySurfaceData(img).markDirty();
+    // TODO
   }
 
   /**
