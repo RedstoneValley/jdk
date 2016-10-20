@@ -36,7 +36,7 @@ import java.util.HashMap;
  * certain behaviors of wrapped Android objects that aren't fully specified by AWT's implementation
  * contract.
  */
-@SuppressWarnings("MagicNumber")
+@SuppressWarnings("MagicNumber") // "magic" numbers are only used as default-defaults
 public final class SkinJob {
 
   /**
@@ -101,6 +101,8 @@ public final class SkinJob {
    * hasn't set this variable.
    */
   public static volatile Context registeredAndroidContext = null;
+  public static volatile int defaultAutoscrollInitialDelayMs = 100;
+  public static volatile int defaultAutoscrollIntervalMs = 100;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
 
   static {

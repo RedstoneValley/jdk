@@ -32,6 +32,7 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.SystemFlavorMap;
@@ -45,6 +46,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TooManyListenersException;
 
 /**
@@ -769,19 +772,22 @@ public class DropTarget implements DropTargetListener, Serializable {
    * this protected nested class implements autoscrolling
    */
 
-  protected static class DropTargetAutoScroller implements ActionListener {
+  protected static class DropTargetAutoScroller implements ActionListener, TimerTask {
 
     private final Component component;
     private final Autoscroll autoScroll;
-    private final Timer timer;
+    private final java.util.Timer timer;
     /*
      * fields
      */
     private final Rectangle outer = new Rectangle();
     private final Rectangle inner = new Rectangle();
+    private boolean timerIsRunning;
     private Point locn;
     private Point prev;
     private int hysteresis = 10;
+    private Integer initial = SkinJob.defaultAutoscrollInitialDelayMs;
+    private Integer interval = SkinJob.defaultAutoscrollIntervalMs;
 
     /**
      * construct a DropTargetAutoScroller
@@ -800,8 +806,6 @@ public class DropTarget implements DropTargetListener, Serializable {
 
       Toolkit t = Toolkit.getDefaultToolkit();
 
-      Integer initial = 100;
-      Integer interval = 100;
 
       try {
         initial = (Integer) t.getDesktopProperty("DnD.Autoscroll.initialDelay");
@@ -815,10 +819,7 @@ public class DropTarget implements DropTargetListener, Serializable {
         // ignore
       }
 
-      timer = new Timer(interval.intValue(), this);
-
-      timer.setCoalesce(true);
-      timer.setInitialDelay(initial.intValue());
+      timer = new Timer();
 
       locn = p;
       prev = p;
@@ -829,7 +830,10 @@ public class DropTarget implements DropTargetListener, Serializable {
         // ignore
       }
 
-      timer.start();
+      synchronized (this) {
+        timer.scheduleAtFixedRate(this, initial, interval);
+        timerIsRunning = true;
+      }
     }
 
     /**
@@ -868,12 +872,14 @@ public class DropTarget implements DropTargetListener, Serializable {
       locn = newLocn;
 
       if (Math.abs(locn.x - prev.x) > hysteresis || Math.abs(locn.y - prev.y) > hysteresis) {
-        if (timer.isRunning()) {
-          timer.stop();
+        if (timerIsRunning) {
+          timer.cancel();
+          timerIsRunning = false;
         }
       } else {
-        if (!timer.isRunning()) {
-          timer.start();
+        if (!timerIsRunning) {
+          timer.scheduleAtFixedRate(this, initial, interval);
+          timerIsRunning = true;
         }
       }
     }
@@ -883,23 +889,29 @@ public class DropTarget implements DropTargetListener, Serializable {
      */
 
     protected void stop() {
-      timer.stop();
+      timer.cancel();
     }
 
     /**
      * cause autoscroll to occur
      * <p>
      *
-     * @param e the {@code ActionEvent}
+     * @param ignored the {@code ActionEvent} (parameter present for backward-compatibility with
+     *                OpenJDK AWT)
      */
 
     @Override
-    public synchronized void actionPerformed(ActionEvent e) {
+    public synchronized void actionPerformed(ActionEvent ignored) {
       updateRegion();
 
       if (outer.contains(locn) && !inner.contains(locn)) {
         autoScroll.autoscroll(locn);
       }
+    }
+
+    @Override
+    public void run() {
+      actionPerformed(null);
     }
   }
 }
