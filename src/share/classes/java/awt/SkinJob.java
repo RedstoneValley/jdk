@@ -166,4 +166,15 @@ public final class SkinJob {
       group = parent;
     }
   }
+
+  public static char[] substringChars(char[] text, int start, int length) {
+    char[] substring;
+    if (start > 0 || length < substring.length) {
+      substring = new char[length];
+      System.arraycopy(text, start, substring, 0, length);
+    } else {
+      substring = text;
+    }
+    return substring;
+  }
 }

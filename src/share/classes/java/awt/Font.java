@@ -26,6 +26,7 @@
 package java.awt;
 
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
@@ -244,10 +245,6 @@ public class Font implements Serializable {
    * @since 1.6
    */
   public static final String SANS_SERIF = "SansSerif";
-
-    /*
-     * Constants to be used for logical font family names.
-     */
   /**
    * A String constant for the canonical family name of the
    * logical font "Serif". It is useful in Font construction
@@ -264,6 +261,10 @@ public class Font implements Serializable {
    * @since 1.6
    */
   public static final String MONOSPACED = "Monospaced";
+
+    /*
+     * Constants to be used for logical font family names.
+     */
   /**
    * The plain style constant.
    */
@@ -278,11 +279,6 @@ public class Font implements Serializable {
    * style constants (except PLAIN) for mixed styles.
    */
   public static final int ITALIC = 2;
-
-    /*
-     * Constants to be used for styles. Can be combined to mix
-     * styles.
-     */
   /**
    * The baseline used in most Roman scripts when laying out text.
    */
@@ -292,6 +288,11 @@ public class Font implements Serializable {
    * and Korean when laying out text.
    */
   public static final int CENTER_BASELINE = 1;
+
+    /*
+     * Constants to be used for styles. Can be combined to mix
+     * styles.
+     */
   /**
    * The baseline used in Devanigiri and similar scripts when laying
    * out text.
@@ -338,6 +339,7 @@ public class Font implements Serializable {
    * after the indicated limit should not be examined.
    */
   public static final int LAYOUT_NO_LIMIT_CONTEXT = 4;
+  public static final int FIRST_CODE_POINT = (int) ' ';
   /*
    * A cached value used when a transform is required for internal
    * use.  This must not be exposed to callers since AffineTransform
@@ -350,6 +352,7 @@ public class Font implements Serializable {
   private static final long serialVersionUID = -4206021311591459213L;
   private static final float[] ssinfo = {
       0.0f, 0.375f, 0.625f, 0.7916667f, 0.9027778f, 0.9768519f, 1.0262346f, 1.0591564f,};
+  private final transient Object maxWidthLock = new Object();
   private final transient AttributeValues values;
   /**
    * The {@code Font} Serializable Data Form.
@@ -394,6 +397,7 @@ public class Font implements Serializable {
   protected Typeface androidTypeface;
   protected Paint androidPaint;
   transient int hash;
+  private float maxWidth = 0.0f;
   /**
    * This is now only used during serialization.  Typically
    * it is null.
@@ -1784,7 +1788,11 @@ public class Font implements Serializable {
     if (!Character.isValidCodePoint(codePoint)) {
       throw new IllegalArgumentException("invalid code point: " + Integer.toHexString(codePoint));
     }
-    return true;
+    return androidPaint.hasGlyph(codePointToString(Character.toChars(codePoint)));
+  }
+
+  public String codePointToString(char[] value) {
+    return new String(value);
   }
 
   /**
@@ -2226,10 +2234,25 @@ public class Font implements Serializable {
    * for the character with the maximum bounds.
    */
   public Rectangle2D getMaxCharBounds(FontRenderContext frc) {
+    synchronized (maxWidthLock) {
+      if (maxWidth <= 0.0) {
+        Rect bounds = new Rect();
+        char[] codePointAsChars;
+        for (int codePoint = FIRST_CODE_POINT; codePoint < Character.MAX_CODE_POINT; codePoint++) {
+          codePointAsChars = Character.toChars(codePoint);
+          if (androidPaint.hasGlyph(codePointToString(codePointAsChars))) {
+            androidPaint.getTextBounds(codePointAsChars, 0, codePointAsChars.length, bounds);
+            float width = bounds.width();
+            if (width > maxWidth) {
+              maxWidth = width;
+            }
+          }
+        }
+      }
+    }
     Paint.FontMetrics metrics = androidPaint.getFontMetrics();
 
-    return new Rectangle2D.Float(0, -metrics.top,
-        /* TODO: Maximum glyph width */ 0, metrics.bottom + metrics.leading);
+    return new Rectangle2D.Float(0, -metrics.top, maxWidth, metrics.bottom + metrics.leading);
   }
 
   /**
@@ -2361,5 +2384,9 @@ public class Font implements Serializable {
 
   public boolean isCreated() {
     return createdFont;
+  }
+
+  public Paint getAndroidPaint() {
+    return androidPaint;
   }
 }

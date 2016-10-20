@@ -1,5 +1,7 @@
 package sun.font;
 
+import android.graphics.Rect;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -15,6 +17,18 @@ public class TextLineComponent {
   public static final int LEFT_TO_RIGHT = 1;
   public static final int RIGHT_TO_LEFT = -1;
   public static final int UNCHANGED = 0;
+  protected final Decoration decorator;
+  private final char[] chars;
+  private final Font font;
+  private final CoreMetrics coreMetrics;
+
+  public TextLineComponent(
+      char[] chars, Font font, CoreMetrics coreMetrics, Decoration decorator) {
+    this.chars = chars;
+    this.font = font;
+    this.coreMetrics = coreMetrics;
+    this.decorator = decorator;
+  }
 
   public boolean isSimple() {
     // TODO
@@ -22,8 +36,7 @@ public class TextLineComponent {
   }
 
   public CoreMetrics getCoreMetrics() {
-    // TODO
-    return null;
+    return coreMetrics;
   }
 
   public float getAdvance() {
@@ -46,8 +59,7 @@ public class TextLineComponent {
   }
 
   public int getNumCharacters() {
-    // TODO
-    return 0;
+    return chars.length;
   }
 
   public Rectangle getPixelBounds(FontRenderContext frc, float v, float v1) {
@@ -95,21 +107,23 @@ public class TextLineComponent {
   }
 
   public Rectangle2D getVisualBounds() {
-    // TODO
-    return null;
+    Rect bounds = getBounds(0, chars.length);
+    return new Rectangle2D.Double(bounds.left, bounds.top, bounds.width(), bounds.height());
   }
 
   public float getCharAdvance(int indexInArray) {
-    // TODO
-    return 0;
+    return getAdvanceBetween(indexInArray, 1);
   }
 
   public float getAdvanceBetween(int measureStart, int measureLimit) {
-    float totalAdvance = 0;
-    for (int i = measureStart; i < measureLimit; i++) {
-      totalAdvance += getCharAdvance(i);
-    }
-    return totalAdvance;
+    Rect bounds = getBounds(measureStart, measureLimit);
+    return bounds.width();
+  }
+
+  protected Rect getBounds(int measureStart, int measureLimit) {
+    Rect bounds = new Rect();
+    font.getAndroidPaint().getTextBounds(chars, measureStart, measureLimit, bounds);
+    return bounds;
   }
 
   public int getLineBreakIndex(int i, float width) {

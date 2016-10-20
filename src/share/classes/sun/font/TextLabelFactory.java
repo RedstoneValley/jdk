@@ -1,6 +1,7 @@
 package sun.font;
 
 import java.awt.Font;
+import java.awt.SkinJob;
 import java.awt.font.FontRenderContext;
 import java.text.Bidi;
 
@@ -10,16 +11,22 @@ import java.text.Bidi;
 public class TextLabelFactory {
   protected final FontRenderContext fontRenderContext;
   protected final Bidi bidi;
+  private final char[] chars;
+  private final int layoutFlags;
 
   public TextLabelFactory(FontRenderContext frc, char[] chars, Bidi bidi, int layoutFlags) {
     fontRenderContext = frc;
+    this.chars = chars;
     this.bidi = bidi;
+    this.layoutFlags = layoutFlags;
   }
 
   public TextLineComponent createExtended(
       Font font, CoreMetrics cm, Decoration decorator, int startPos, int i) {
-    // TODO
-    return null;
+    TextLineComponent textLineComponent = new TextLineComponent(SkinJob.substringChars(
+        chars,
+        startPos,
+        i), font, cm, decorator);
   }
 
   public FontRenderContext getFontRenderContext() {

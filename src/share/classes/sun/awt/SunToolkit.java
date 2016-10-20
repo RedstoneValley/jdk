@@ -67,6 +67,7 @@ import java.awt.Robot;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.SkinJob;
+import java.awt.SkinJobFontMetrics;
 import java.awt.SystemTray;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -128,7 +129,6 @@ import sun.awt.image.ImageRepresentation;
 import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.ToolkitImage;
 import sun.awt.image.URLImageSource;
-import sun.font.FontDesignMetrics;
 
 public abstract class SunToolkit extends Toolkit
     implements WindowClosingSupport, WindowClosingListener, ComponentFactory, InputMethodSupport,
@@ -922,7 +922,7 @@ public abstract class SunToolkit extends Toolkit
   @Override
   @SuppressWarnings("deprecation")
   public FontMetrics getFontMetrics(Font font) {
-    return FontDesignMetrics.getMetrics(font);
+    return new SkinJobFontMetrics(font);
   }
 
   @Override

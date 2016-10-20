@@ -2,13 +2,14 @@ package sun.font;
 
 import java.awt.Font;
 import java.text.AttributedCharacterIterator.Attribute;
+import java.util.ArrayList;
 import java.util.Map;
 import sun.text.CodePointIterator;
 
 /**
  * Created by cryoc on 2016-10-15.
  */
-public class FontResolver {
+public class FontResolver extends ArrayList<Font> {
   private static final FontResolver instance = new FontResolver();
 
   public static FontResolver getInstance() {
@@ -16,14 +17,17 @@ public class FontResolver {
   }
 
   public int getFontIndex(int ch) {
-    // TODO
-    return 0;
+    for (int i = 0; i < size(); i++) {
+      if (get(i).canDisplay(ch)) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   public Font getFont(
       int fontIndex, Map<? extends Attribute, ?> attributes) {
-    // TODO
-    return null;
+    return get(fontIndex).deriveFont(attributes);
   }
 
   public int nextFontRunIndex(CodePointIterator iter) {

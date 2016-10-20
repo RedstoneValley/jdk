@@ -10,9 +10,9 @@ import java.util.TreeSet;
  * Created by cryoc on 2016-10-11.
  */
 public class FontManager {
-  private static final FontManager INSTANCE = new FontManager();
   protected static final Font[] A_FONT_ARRAY = new Font[0];
   protected static final String[] A_STRING_ARRAY = new String[0];
+  private static final FontManager INSTANCE = new FontManager();
   public static Object LOGICAL_FALLBACK;
 
   private final TreeSet<Font> installedFonts = new TreeSet<>();
@@ -56,6 +56,10 @@ public class FontManager {
   }
 
   public boolean registerFont(Font font) {
+    FontResolver fontResolver = FontResolver.getInstance();
+    if (!fontResolver.contains(font)) {
+      fontResolver.add(font);
+    }
     if (font.isCreated()) {
       return createdFonts.add(font);
     } else {
