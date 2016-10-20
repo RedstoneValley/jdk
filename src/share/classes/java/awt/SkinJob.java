@@ -26,6 +26,7 @@ import android.content.res.Resources;
 import android.graphics.Rect;
 import android.view.View;
 import android.widget.ListView;
+import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.awt.geom.Rectangle2D;
 import java.awt.peer.ComponentPeer;
@@ -96,12 +97,7 @@ public final class SkinJob {
    */
   public static volatile int defaultBackgroundColor
       = systemResources.getColor(color.background_light, systemResources.newTheme());
-  /**
-   * Height at which {@link FontMetrics} should report text is struck through, as a multiple of
-   * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
-   * strikethrough, but must exist for backward-compatibility.
-   */
-  public static volatile float strikeThroughOffset = 0.5f;
+
   /**
    * Size of the array of precomputed character widths in each {@link FontMetrics}. Code points
    * lower than this value will be stored in the array; the rest will be recalculated on demand.
@@ -136,6 +132,30 @@ public final class SkinJob {
    * modelling" of higher resolutions.
    */
   public static volatile RenderingHints defaultRenderingHints;
+  /**
+   * Value that {@link sun.font.GraphicComponent#createCoreMetrics(GraphicAttribute)} will set for
+   * {@link sun.font.CoreMetrics#strikethroughThickness}.
+   */
+  public static float graphicStrikethroughThickness = 1.0f;
+  /**
+   * Value that {@link sun.font.GraphicComponent#createCoreMetrics(GraphicAttribute)} will set for
+   * {@link sun.font.CoreMetrics#underlineThickness}.
+   */
+  public static float graphicUnderlineThickness = 1.0f;
+  /**
+   * Height at which {@link FontMetrics} should report text is struck through, as a multiple of
+   * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
+   * strikethrough, but must exist for backward-compatibility.
+   */
+  public static volatile float strikeThroughOffset = 0.5f;
+  /**
+   * Height at which {@link FontMetrics} should report text is underlined, as a multiple of
+   * {@link android.graphics.Paint.FontMetrics#ascent}. Doesn't affect the actual appearance of the
+   * strikethrough, but must exist for backward-compatibility.
+   */
+  public static volatile float underlineOffset = -0.1f;
+  public static volatile float graphicSsOffset = 0.5f;
+  public static volatile float graphicItalicAngle = TextAttribute.POSTURE_OBLIQUE;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
 
   static {

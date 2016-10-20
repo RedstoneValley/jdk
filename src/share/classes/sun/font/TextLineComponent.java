@@ -35,7 +35,7 @@ public class TextLineComponent {
     this(chars, font, coreMetrics, decorator, 0);
   }
 
-  public TextLineComponent(
+  protected TextLineComponent(
       char[] chars, Font font, CoreMetrics coreMetrics, Decoration decorator, int indexOffset) {
     this.chars = chars;
     this.font = font;
@@ -128,7 +128,9 @@ public class TextLineComponent {
   }
 
   public float getAdvanceBetween(int measureStart, int measureLimit) {
-    return font.getAndroidPaint().measureText(chars, measureStart + indexOffset, measureLimit);
+    return font
+        .getAndroidPaint()
+        .measureText(chars, measureStart + indexOffset, measureLimit - measureStart - indexOffset);
   }
 
   protected Rectangle2D getBounds(int measureStart, int measureLimit) {
