@@ -1,26 +1,35 @@
 package sun.font;
 
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.SkinJob;
 import java.awt.font.GraphicAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 
 /**
  * Created by cryoc on 2016-10-15.
  */
 public class GraphicComponent extends TextLineComponent {
+  /**
+   * Best possible text representation of an arbitrary graphic, in case this somehow gets processed
+   * as text (although it shouldn't).
+   */
+  protected static final char[] OBJECT_REPLACEMENT = new char[]{'\uFFFC'};
+
+  protected static final char[] EMPTY_CHAR_ARRAY = new char[0];
   private final GraphicAttribute graphicAttribute;
-  private final int[] charsLtoV;
-  private final byte[] levels;
-  private final int pos;
-  private final int chunkLimit;
-  private final AffineTransform baseRot;
+  private final int[] charsLtoV; // TODO: What should this do?
+  private final byte[] levels; // TODO: What should this do?
+  private final int pos; // TODO: What should this do?
+  private final int chunkLimit; // TODO: What should this do?
+  private final AffineTransform baseRot; // TODO: What should this do?
 
   public GraphicComponent(
       GraphicAttribute graphicAttribute, Decoration decorator, int[] charsLtoV, byte[] levels,
       int pos, int chunkLimit, AffineTransform baseRot) {
-    super(new char[0], null, null, decorator);
+    super(OBJECT_REPLACEMENT, SkinJob.defaultFont, createCoreMetrics(graphicAttribute), decorator);
     this.graphicAttribute = graphicAttribute;
     this.charsLtoV = charsLtoV;
     this.levels = levels;
@@ -61,6 +70,11 @@ public class GraphicComponent extends TextLineComponent {
   }
 
   @Override
+  public void draw(Graphics2D g2, float x, float y) {
+    graphicAttribute.draw(g2, x, y);
+  }
+
+  @Override
   public Rectangle2D getItalicBounds() {
     return graphicAttribute.getBounds();
   }
@@ -84,7 +98,55 @@ public class GraphicComponent extends TextLineComponent {
   }
 
   @Override
-  protected Rectangle2D getBounds(int measureStart, int measureLimit) {
-    return super.getBounds(measureStart, measureLimit);
+  public TextLineComponent getSubset(int start, int length, int subsetFlag) {
+    if (length >= 1) {
+      return this;
+    } else {
+      return new TextLineComponent(EMPTY_CHAR_ARRAY, null, getCoreMetrics(), decorator);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof GraphicComponent)) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    GraphicComponent that = (GraphicComponent) o;
+
+    if (pos != that.pos) {
+      return false;
+    }
+    if (chunkLimit != that.chunkLimit) {
+      return false;
+    }
+    if (!graphicAttribute.equals(that.graphicAttribute)) {
+      return false;
+    }
+    if (!Arrays.equals(charsLtoV, that.charsLtoV)) {
+      return false;
+    }
+    if (!Arrays.equals(levels, that.levels)) {
+      return false;
+    }
+    return baseRot != null ? baseRot.equals(that.baseRot) : that.baseRot == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + graphicAttribute.hashCode();
+    result = 31 * result + Arrays.hashCode(charsLtoV);
+    result = 31 * result + Arrays.hashCode(levels);
+    result = 31 * result + pos;
+    result = 31 * result + chunkLimit;
+    result = 31 * result + (baseRot != null ? baseRot.hashCode() : 0);
+    return result;
   }
 }

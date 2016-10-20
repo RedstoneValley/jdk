@@ -12,6 +12,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphJustificationInfo;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
+import java.util.Arrays;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -90,7 +91,7 @@ public class TextLineComponent {
     return getBounds(indexInTlc, 1);
   }
 
-  public void draw(Graphics2D g2, float v, float v1) {
+  public void draw(Graphics2D g2, float x, float y) {
     // TODO
   }
 
@@ -164,5 +165,41 @@ public class TextLineComponent {
       default:
         throw new IllegalArgumentException("Unrecognized subsetFlag value " + subsetFlag);
     }
+  }
+
+  @Override
+  public int hashCode() {
+    int result = decorator != null ? decorator.hashCode() : 0;
+    result = 31 * result + Arrays.hashCode(chars);
+    result = 31 * result + font.hashCode();
+    result = 31 * result + getCoreMetrics().hashCode();
+    result = 31 * result + indexOffset;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof TextLineComponent)) {
+      return false;
+    }
+
+    TextLineComponent that = (TextLineComponent) o;
+
+    if (indexOffset != that.indexOffset) {
+      return false;
+    }
+    if (decorator != null ? !decorator.equals(that.decorator) : that.decorator != null) {
+      return false;
+    }
+    if (!Arrays.equals(chars, that.chars)) {
+      return false;
+    }
+    if (!font.equals(that.font)) {
+      return false;
+    }
+    return getCoreMetrics().equals(that.getCoreMetrics());
   }
 }
