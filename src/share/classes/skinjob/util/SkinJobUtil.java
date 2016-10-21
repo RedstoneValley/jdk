@@ -1,9 +1,11 @@
 package skinjob.util;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.Window;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Constructor;
@@ -81,5 +83,10 @@ public final class SkinJobUtil {
     }
     Toolkit.getDefaultToolkit().sjMaybeWatchWidgetForMouseCoords(window.getDecorView());
     return window;
+  }
+
+  public static Bitmap awtImageToAndroidBitmap(Image image) {
+    // TODO
+    return null;
   }
 }

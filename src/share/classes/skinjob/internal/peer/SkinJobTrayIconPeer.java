@@ -10,10 +10,12 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
 import android.view.Window;
+import java.awt.Image;
 import java.awt.TrayIcon;
 import java.awt.peer.TrayIconPeer;
 import java.util.concurrent.atomic.AtomicInteger;
 import skinjob.SkinJobGlobals;
+import skinjob.util.SkinJobUtil;
 
 /**
  * Created by cryoc on 2016-10-21.
@@ -66,6 +68,10 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
 
   @Override
   public void updateImage() {
+    Image image = thisTrayIcon.getImage();
+    if (image != null) {
+      notificationBuilder.setLargeIcon(SkinJobUtil.awtImageToAndroidBitmap(image));
+    }
     notificationManager.notify(TAG, id, notificationBuilder.build());
   }
 
@@ -73,25 +79,32 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
   public void displayMessage(String caption, String text, String messageType) {
     notificationBuilder.setContentTitle(caption);
     notificationBuilder.setContentText(text);
+    switch (messageType) {
+      case "ERROR":
+        notificationBuilder.setPriority(PRIORITY_MAX);
+        break;
+      case "WARNING":
+        notificationBuilder.setPriority(PRIORITY_HIGH);
+        break;
+      default:
+        notificationBuilder.setPriority(PRIORITY_DEFAULT);
+    }
     int icon;
+    // Pick default icon (will override in updateImage if an icon's been set)
     switch (messageType) {
       case "ERROR":
         notificationBuilder.setSmallIcon(ERROR_ICON);
-        notificationBuilder.setPriority(PRIORITY_MAX);
         break;
       case "WARNING":
         // ! in triangle
         notificationBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
-        notificationBuilder.setPriority(PRIORITY_HIGH);
         break;
       case "INFO":
         // i in circle
         notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
-        notificationBuilder.setPriority(PRIORITY_DEFAULT);
         break;
       case "NONE":
         notificationBuilder.setSmallIcon(null);
-        notificationBuilder.setPriority(PRIORITY_DEFAULT);
         break;
       default:
         Log.e(TAG, "Unknown message type " + messageType);
