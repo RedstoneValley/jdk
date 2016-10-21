@@ -115,7 +115,7 @@ public class SkinJobToolkit extends Toolkit {
 
   @Override
   protected FramePeer createFrame(Frame target) throws HeadlessException {
-    return new SkinJobWindowPeer(target);
+    return new SkinJobWindowPeer<android.view.Window>(target);
   }
 
   @Override
@@ -130,12 +130,12 @@ public class SkinJobToolkit extends Toolkit {
 
   @Override
   protected WindowPeer createWindow(Window target) throws HeadlessException {
-    return new SkinJobWindowPeer(target);
+    return new SkinJobWindowPeer<android.view.Window>(target);
   }
 
   @Override
   protected DialogPeer createDialog(Dialog target) throws HeadlessException {
-    return new SkinJobWindowPeer(target);
+    return new SkinJobWindowPeer<android.view.Window>(target);
   }
 
   @Override

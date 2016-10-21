@@ -1,1 +1,0 @@
-SkinJob (an early work-in-progress) is a self-contained implementation of AWT for Android. Instead of containing native code as the OpenJDK implementations of AWT do, SkinJob wraps Android GUI objects.

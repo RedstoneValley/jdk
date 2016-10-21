@@ -9,10 +9,13 @@ import static java.awt.BasicStroke.JOIN_ROUND;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.TextView;
@@ -28,6 +31,7 @@ import java.awt.image.renderable.RenderableImage;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +46,7 @@ public class SkinJobGraphics extends Graphics2D {
   private final Set<CancelableImageObserver> pendingObservers = Collections.synchronizedSet(
       Collections.newSetFromMap(new WeakHashMap<>()));
   private final Canvas canvas;
+  private final Bitmap bitmap;
   private final android.graphics.Paint pen;
   private final android.graphics.Paint brush;
   private final android.graphics.Paint eraser;
@@ -52,6 +57,7 @@ public class SkinJobGraphics extends Graphics2D {
   private Shape clip;
   private AffineTransform transform = new AffineTransform();
   private Font font = SkinJob.defaultFont;
+  private ArrayList<Paint> pens;
 
   public SkinJobGraphics(Bitmap androidBitmap) {
     pen = new android.graphics.Paint();
@@ -62,6 +68,7 @@ public class SkinJobGraphics extends Graphics2D {
     eraser = new android.graphics.Paint();
     eraser.setStyle(Style.FILL);
     eraser.setAlpha(0);
+    bitmap = androidBitmap;
     canvas = new Canvas(androidBitmap);
     clip = new Rectangle2D.Double(0, 0, androidBitmap.getWidth(), androidBitmap.getHeight());
   }
@@ -83,12 +90,20 @@ public class SkinJobGraphics extends Graphics2D {
 
   @Override
   public void setPaintMode() {
-    // TODO
+    brush.setColorFilter(null);
+    pen.setColorFilter(null);
   }
 
+  /**
+   * TODO: Check whether this actually meets the spec (i.e. first paints {@link #color}, then paints
+   * {@code c1} over the pixels that were already that color.
+   *
+   * @param c1 the XOR alternation color
+   */
   @Override
   public void setXORMode(Color c1) {
-    // TODO
+    brush.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), PorterDuff.Mode.XOR));
+    pen.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), PorterDuff.Mode.XOR));
   }
 
   @Override
@@ -478,8 +493,8 @@ public class SkinJobGraphics extends Graphics2D {
   /**
    * Support for this method is almost but not quite complete. {@link Stroke#createStrokedShape}
    * will be called only from {@link #draw(Shape)}. However, if the stroke is a {@link BasicStroke},
-   * even through a subclass, then its line width, miter limit, join type and cap type (but not
-   * dashes) will be applied in other {@code draw*} methods as well.
+   * even through a subclass, then its line width, miter limit, join type, cap type, and dashes will
+   * be applied in other {@code draw*} methods as well.
    *
    * @param s the {@code Stroke} object to be used to stroke a
    *          {@code Shape} during the rendering process
@@ -488,9 +503,10 @@ public class SkinJobGraphics extends Graphics2D {
   public synchronized void setStroke(Stroke s) {
     stroke = s;
     if (s instanceof BasicStroke) {
-      pen.setStrokeWidth(((BasicStroke) s).getLineWidth());
-      pen.setStrokeMiter(((BasicStroke) s).getMiterLimit());
-      int join = ((BasicStroke) s).getLineJoin();
+      BasicStroke basicStroke = (BasicStroke) s;
+      pen.setStrokeWidth(basicStroke.getLineWidth());
+      pen.setStrokeMiter(basicStroke.getMiterLimit());
+      int join = basicStroke.getLineJoin();
       switch (join) {
         case JOIN_BEVEL:
           pen.setStrokeJoin(Join.BEVEL);
@@ -504,7 +520,7 @@ public class SkinJobGraphics extends Graphics2D {
         default:
           Log.w(TAG, "Ignoring unknown stroke join type " + join);
       }
-      int cap = ((BasicStroke) s).getEndCap();
+      int cap = basicStroke.getEndCap();
       switch (cap) {
         case CAP_BUTT:
           pen.setStrokeCap(Cap.BUTT);
@@ -517,6 +533,12 @@ public class SkinJobGraphics extends Graphics2D {
           break;
         default:
           Log.w(TAG, "Ignoring unknown stroke cap type " + join);
+      }
+      float[] dashes = basicStroke.getDashArray();
+      if (dashes != null && dashes.length > 1) {
+        pen.setPathEffect(new DashPathEffect(dashes, basicStroke.getDashPhase()));
+      } else {
+        pen.setPathEffect(null);
       }
     }
   }

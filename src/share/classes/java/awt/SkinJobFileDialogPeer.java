@@ -6,7 +6,8 @@ import java.io.FilenameFilter;
 /**
  * Created by cryoc on 2016-10-11.
  */
-public class SkinJobFileDialogPeer extends SkinJobWindowPeer implements FileDialogPeer {
+public class SkinJobFileDialogPeer extends SkinJobWindowPeer<android.view.Window>
+    implements FileDialogPeer {
   public SkinJobFileDialogPeer(FileDialog target) {
     super(target);
   }

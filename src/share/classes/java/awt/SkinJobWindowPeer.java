@@ -11,13 +11,13 @@ import sun.awt.CausedFocusEvent.Cause;
 /**
  * SkinJob android implementation of {@link FramePeer}.
  */
-public class SkinJobWindowPeer extends SkinJobComponentPeer<Window>
+public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     implements FramePeer, DialogPeer {
   protected final java.awt.Window thisAwtWindow;
   protected final Graphics graphics;
 
   public SkinJobWindowPeer(java.awt.Window target) {
-    super(target.androidWindow, SkinJobGraphicsConfiguration.getDefault());
+    super((T) target.androidWindow, SkinJobGraphicsConfiguration.getDefault());
     thisAwtWindow = target;
     graphics = new SkinJobGraphics(androidWidget.getDecorView().getDrawingCache());
   }

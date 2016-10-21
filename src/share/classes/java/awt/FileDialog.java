@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.app.Activity;
+import android.content.Intent;
 import java.awt.peer.FileDialogPeer;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -133,14 +135,6 @@ public class FileDialog extends Dialog {
    * @see FileNameFilter
    */ FilenameFilter filter;
   /**
-   * Contains the File instances for all the files that the user selects.
-   *
-   * @serial
-   * @see #getFiles
-   * @since 1.7
-   */
-  private File[] files;
-  /**
    * Represents whether the file dialog allows the multiple file selection.
    *
    * @serial
@@ -149,6 +143,14 @@ public class FileDialog extends Dialog {
    * @since 1.7
    */
   boolean multipleMode;
+  /**
+   * Contains the File instances for all the files that the user selects.
+   *
+   * @serial
+   * @see #getFiles
+   * @since 1.7
+   */
+  private File[] files;
 
   /**
    * Creates a file dialog for loading a file.  The title of the
@@ -196,6 +198,8 @@ public class FileDialog extends Dialog {
    */
   public FileDialog(Frame parent, String title, int mode) {
     super(parent, title, true);
+    androidContext = new FileDialogActivity();
+    displayFilePicker((Activity) androidContext, title, mode);
     setMode(mode);
     setLayout(null);
   }
@@ -281,6 +285,24 @@ public class FileDialog extends Dialog {
     super(parent, title, true);
     setMode(mode);
     setLayout(null);
+  }
+
+  private static void displayFilePicker(Activity androidContext, String title, int mode) {
+    String intentActivity;
+    switch (mode) {
+      case LOAD:
+        intentActivity = Intent.ACTION_GET_CONTENT;
+        break;
+      case SAVE:
+        intentActivity = Intent.ACTION_CREATE_DOCUMENT;
+        // TODO: Set MIME type
+        break;
+      default:
+        throw new IllegalArgumentException("Unknown mode " + mode);
+    }
+    androidContext.startActivityForResult(
+        Intent.createChooser(new Intent(intentActivity), title),
+        0);
   }
 
   /**
@@ -562,5 +584,12 @@ public class FileDialog extends Dialog {
   @Override
   boolean postsOldMouseEvents() {
     return false;
+  }
+
+  private class FileDialogActivity extends Activity {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+      file = data.getData().toString();
+    }
   }
 }

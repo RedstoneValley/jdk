@@ -37,7 +37,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.TextEvent;
 import java.awt.event.WindowEvent;
-import java.awt.peer.ComponentPeer;
 import java.awt.peer.LightweightPeer;
 import java.lang.reflect.Field;
 import java.security.AccessControlContext;
@@ -222,10 +221,6 @@ public abstract class AWTEvent extends EventObject {
     });
   }
 
-  /*
-   * The event's AccessControlContext.
-   */
-  private final transient AccessControlContext acc = AccessController.getContext();
   /**
    * The event's id.
    *
@@ -234,6 +229,10 @@ public abstract class AWTEvent extends EventObject {
    * @see #AWTEvent
    */
   protected final int id;
+  /*
+   * The event's AccessControlContext.
+   */
+  private final transient AccessControlContext acc = AccessController.getContext();
   /**
    * Controls whether or not the event is sent back down to the peer once the
    * source has processed it - false means it's sent to the peer; true means
@@ -354,19 +353,7 @@ public abstract class AWTEvent extends EventObject {
       }
     }
 
-    synchronized (this) {
-      source = newSource;
-      if (comp != null) {
-        ComponentPeer peer = comp.peer;
-        if (peer != null) {
-          nativeSetSource(peer);
-        }
-      }
-    }
-  }
-
-  private void nativeSetSource(ComponentPeer peer) {
-    // TODO: This was a native method in OpenJDK AWT
+    source = newSource;
   }
 
   /**
