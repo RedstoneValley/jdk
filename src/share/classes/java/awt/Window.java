@@ -62,6 +62,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+import skinjob.SkinJobGlobals;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.WindowAccessor;
 import sun.awt.AppContext;
@@ -295,7 +296,7 @@ public class Window extends Container {
   final transient Vector<WeakReference<Window>> ownedWindowList
       = new Vector<>();
   final transient Object inputContextLock = new Object();
-  protected android.view.Window androidWindow;
+  public android.view.Window sjAndroidWindow;
   /**
    * This represents the warning message that is
    * to be displayed in a non secure window. ie :
@@ -792,7 +793,7 @@ public class Window extends Container {
 
     SunToolkit.checkAndSetPolicy(this);
 
-    androidContext = SkinJob.getAndroidApplicationContext();
+    sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
     createAndroidWindow();
   }
 
@@ -3049,13 +3050,13 @@ public class Window extends Container {
     securityWarningAlignmentY = TOP_ALIGNMENT;
 
     deserializeResources(s);
-    androidContext = SkinJob.getAndroidApplicationContext();
+    sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
     createAndroidWindow();
   }
 
   protected void createAndroidWindow() {
     try {
-      androidWindow = ANDROID_WINDOW_IMPL_CTOR.newInstance(androidContext);
+      sjAndroidWindow = ANDROID_WINDOW_IMPL_CTOR.newInstance(sjAndroidContext);
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }

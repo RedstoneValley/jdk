@@ -32,7 +32,6 @@ import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.SystemFlavorMap;
@@ -43,6 +42,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.EventListener;
+import skinjob.SkinJobGlobals;
 import sun.awt.dnd.SunDragSourceContextPeer;
 
 /**
@@ -267,7 +267,7 @@ public class DragSource implements Serializable {
     if (td != null) {
       return td;
     }
-    return SkinJob.defaultDragThreshold;
+    return SkinJobGlobals.defaultDragThreshold;
   }
 
   /**

@@ -24,9 +24,6 @@
  */
 package java.awt;
 
-import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.VSYNC_DEFAULT;
-import static sun.java2d.pipe.hw.ExtendedBufferCapabilities.VSyncType.VSYNC_ON;
-
 import android.util.Log;
 import android.view.View;
 import java.awt.BufferCapabilities.FlipContents;
@@ -86,6 +83,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
+import skinjob.internal.ComponentOrMenuComponent;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
+import skinjob.util.Shapes;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.ComponentAccessor;
 import sun.awt.AppContext;
@@ -102,8 +102,6 @@ import sun.awt.graphicscallback.PeerPaintCallback;
 import sun.awt.graphicscallback.PeerPrintCallback;
 import sun.awt.image.VSyncedBSManager;
 import sun.java2d.SunGraphics2D;
-import sun.java2d.SunGraphicsEnvironment;
-import sun.java2d.pipe.hw.ExtendedBufferCapabilities;
 
 /**
  * A <em>component</em> is an object having a graphical representation
@@ -3904,11 +3902,6 @@ public abstract class Component extends ComponentOrMenuComponent
     if (numBuffers == 1) {
       bufferStrategy = new SingleBufferStrategy(caps);
     } else {
-      SunGraphicsEnvironment sge
-          = (SunGraphicsEnvironment) GraphicsEnvironment.getLocalGraphicsEnvironment();
-      if (!caps.isPageFlipping() && sge.isFlipStrategyPreferred(peer)) {
-        caps = new ProxyCapabilities(caps);
-      }
       // assert numBuffers > 1;
       bufferStrategy = caps.isPageFlipping() ? new FlipSubRegionBufferStrategy(numBuffers, caps)
           : new BltSubRegionBufferStrategy(numBuffers, caps);
@@ -7889,7 +7882,7 @@ public abstract class Component extends ComponentOrMenuComponent
         popup.parent = this;
       }
     }
-    androidWidget = wrappedObjectsSupplier.createWidget();
+    sjAndroidWidget = wrappedObjectsSupplier.createWidget();
   }
 
   /**
@@ -8213,12 +8206,12 @@ public abstract class Component extends ComponentOrMenuComponent
                      */
           Component c = cont.getComponent(index);
           if (c.isLightweight() && c.isShowing()) {
-            s = SkinJobGeometry.getDifference(s, c.getOpaqueShape());
+            s = Shapes.getDifference(s, c.getOpaqueShape());
           }
         }
 
         if (cont.isLightweight()) {
-          s = SkinJobGeometry.getIntersection(s, cont.getNormalShape());
+          s = Shapes.getIntersection(s, cont.getNormalShape());
         } else {
           break;
         }
@@ -8248,7 +8241,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
     Log.d(TAG, "this = " + this + "; s=" + s);
 
-    applyCompoundShape(SkinJobGeometry.getDifference(getAppliedShape(), s));
+    applyCompoundShape(Shapes.getDifference(getAppliedShape(), s));
   }
 
   private final void applyCurrentShapeBelowMe() {
@@ -8363,7 +8356,7 @@ public abstract class Component extends ComponentOrMenuComponent
             for (int index = oldZorder; index < newZorder; index++) {
               Component c = parent.getComponent(index);
               if (c.isLightweight() && c.isShowing()) {
-                shape = SkinJobGeometry.getDifference(shape, c.getOpaqueShape());
+                shape = Shapes.getDifference(shape, c.getOpaqueShape());
               }
             }
             applyCompoundShape(shape);
@@ -8515,10 +8508,8 @@ public abstract class Component extends ComponentOrMenuComponent
   /**
    * This is a proxy capabilities class used when a FlipBufferStrategy
    * is created instead of the requested Blit strategy.
-   *
-   * @see SunGraphicsEnvironment#isFlipStrategyPreferred(ComponentPeer)
    */
-  private class ProxyCapabilities extends ExtendedBufferCapabilities {
+  private class ProxyCapabilities extends BufferCapabilities {
     private final BufferCapabilities orig;
 
     ProxyCapabilities(BufferCapabilities orig) {
@@ -8637,20 +8628,6 @@ public abstract class Component extends ComponentOrMenuComponent
         drawVBuffer = null;
         destroyBuffers();
         // ... then recreate the backbuffers
-      }
-
-      if (caps instanceof ExtendedBufferCapabilities) {
-        ExtendedBufferCapabilities ebc = (ExtendedBufferCapabilities) caps;
-        if (ebc.getVSync() == VSYNC_ON) {
-          // if this buffer strategy is not allowed to be v-synced,
-          // change the caps that we pass to the peer but keep on
-          // trying to create v-synced buffers;
-          // do not throw IAE here in case it is disallowed, see
-          // ExtendedBufferCapabilities for more info
-          if (!VSyncedBSManager.vsyncAllowed(this)) {
-            caps = ebc.derive(VSYNC_DEFAULT);
-          }
-        }
       }
 
       peer.createBuffers(numBuffers, caps);

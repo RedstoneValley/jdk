@@ -198,8 +198,8 @@ public class FileDialog extends Dialog {
    */
   public FileDialog(Frame parent, String title, int mode) {
     super(parent, title, true);
-    androidContext = new FileDialogActivity();
-    displayFilePicker((Activity) androidContext, title, mode);
+    sjAndroidContext = new FileDialogActivity();
+    displayFilePicker((Activity) sjAndroidContext, title, mode);
     setMode(mode);
     setLayout(null);
   }

@@ -35,11 +35,11 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.ImageCapabilities;
-import java.awt.SkinJob;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
+import skinjob.SkinJobGlobals;
 import sun.java2d.DestSurfaceProvider;
 import sun.java2d.SunGraphics2D;
 import sun.java2d.Surface;
@@ -56,11 +56,11 @@ import sun.java2d.SurfaceManagerFactory;
  */
 public class SunVolatileImage extends VolatileImage implements DestSurfaceProvider {
 
+  protected final Component comp;
   private final int width;
   private final int height;
   private final int forcedAccelSurfaceType;
   protected VolatileSurfaceManager volSurfaceManager;
-  protected final Component comp;
   private GraphicsConfiguration graphicsConfig;
   private Font defaultFont;
 
@@ -168,7 +168,7 @@ public class SunVolatileImage extends VolatileImage implements DestSurfaceProvid
       return comp.getFont();
     } else {
       if (defaultFont == null) {
-        defaultFont = new Font(Font.DIALOG, Font.PLAIN, SkinJob.defaultFontSize);
+        defaultFont = new Font(Font.DIALOG, Font.PLAIN, SkinJobGlobals.defaultFontSize);
       }
       return defaultFont;
     }

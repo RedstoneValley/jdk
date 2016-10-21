@@ -61,7 +61,7 @@ public class PopupMenu extends Menu {
     });
   }
 
-  protected android.widget.PopupMenu androidPopupMenu;
+  public android.widget.PopupMenu sjAndroidPopupMenu;
   transient boolean isTrayIconPopup;
 
   /**

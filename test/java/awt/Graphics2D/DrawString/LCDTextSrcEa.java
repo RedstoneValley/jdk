@@ -27,14 +27,24 @@
  * @summary Render as LCD Text in SrcEa composite mode.
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.image.*;
+import java.awt.AlphaComposite;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 public class LCDTextSrcEa extends Component {
 
-    private static final long serialVersionUID = 202912689081814962L;
     static final int SZ=150;
+    private static final long serialVersionUID = 202912689081814962L;
     final BufferedImage target =
         new BufferedImage(SZ, SZ, BufferedImage.TYPE_INT_RGB);
 

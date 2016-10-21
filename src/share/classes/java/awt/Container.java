@@ -47,6 +47,7 @@ import java.lang.reflect.Method;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
+import skinjob.util.Shapes;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
@@ -1589,14 +1590,14 @@ public class Container extends Component {
   final Shape getOpaqueShape() {
     checkTreeLock();
     if (isLightweight() && isNonOpaqueForMixing() && hasLightweightDescendants()) {
-      Shape s = Shape.EMPTY;
+      Shape s = Shapes.EMPTY;
       for (int index = 0; index < getComponentCount(); index++) {
         Component c = getComponent(index);
         if (c.isLightweight() && c.isShowing()) {
-          s = SkinJobGeometry.getUnion(s, c.getOpaqueShape());
+          s = Shapes.getUnion(s, c.getOpaqueShape());
         }
       }
-      return SkinJobGeometry.getIntersection(s, getNormalShape());
+      return Shapes.getIntersection(s, getNormalShape());
     }
     return super.getOpaqueShape();
   }

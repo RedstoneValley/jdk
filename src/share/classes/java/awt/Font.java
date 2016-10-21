@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
+import skinjob.SkinJobGlobals;
 import sun.font.AttributeValues;
 import sun.font.CoreMetrics;
 import sun.font.Font2D;
@@ -854,7 +855,7 @@ public class Font implements Serializable {
   public static Font decode(String str) {
     String fontName;
     String styleName;
-    int fontSize = SkinJob.defaultFontSize;
+    int fontSize = SkinJobGlobals.defaultFontSize;
     int fontStyle = PLAIN;
 
     if (str == null) {
@@ -1588,6 +1589,8 @@ public class Font implements Serializable {
    * The character argument determines the writing system to use. Clients
    * should not assume all characters use the same baseline.
    *
+   * In SkinJobGlobals, this method's return value depends only on the character, and not the font.
+   *-
    * @param c a character used to identify the writing system
    * @return the baseline appropriate for the specified character.
    * @see LineMetrics#getBaselineOffsets
@@ -1597,13 +1600,24 @@ public class Font implements Serializable {
    * @since 1.2
    */
   public byte getBaselineFor(char c) {
-    // TODO i18n: Check whether this covers all scripts.
     if (Character.isIdeographic(c)) {
       return CENTER_BASELINE;
-    } else if (UnicodeScript.of(c) == UnicodeScript.DEVANAGARI) {
-      return HANGING_BASELINE;
     } else {
-      return ROMAN_BASELINE;
+      switch (UnicodeScript.of(c)) {
+        case BENGALI:
+        case DEVANAGARI:
+        case GURMUKHI:
+        case KANNADA:
+        case LIMBU:
+        case MEETEI_MAYEK:
+        case SUNDANESE:
+        case SYLOTI_NAGRI:
+        case TIBETAN:
+          // TODO i18n: Check whether the above list is exhaustive
+          return HANGING_BASELINE;
+        default:
+          return ROMAN_BASELINE;
+      }
     }
   }
 
@@ -1936,7 +1950,7 @@ public class Font implements Serializable {
       // need real baselines eventually
       float[] baselineOffsets = {0, (descent / 2f - ascent) / 2f, -ascent};
 
-      float strikethroughOffset = androidMetrics.ascent * SkinJob.strikeThroughOffset;
+      float strikethroughOffset = androidMetrics.ascent * SkinJobGlobals.strikeThroughOffset;
       float strikethroughThickness = 1.0f;
 
       float underlineOffset = metrics[6];
@@ -2252,7 +2266,7 @@ public class Font implements Serializable {
     }
     Paint.FontMetrics metrics = androidPaint.getFontMetrics();
 
-    return new Rectangle2D.Float(0, -metrics.top, maxWidth, metrics.bottom + metrics.leading);
+    return new Rectangle2D.Float(0, metrics.top, maxWidth, metrics.bottom + metrics.leading);
   }
 
   /**

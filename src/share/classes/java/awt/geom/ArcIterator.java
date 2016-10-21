@@ -26,8 +26,8 @@
 package java.awt.geom;
 
 import android.util.Log;
-import java.awt.SkinJob;
 import java.util.NoSuchElementException;
+import skinjob.SkinJobGlobals;
 
 /**
  * A utility class to iterate over the path segments of an arc
@@ -43,9 +43,9 @@ class ArcIterator implements PathIterator {
   final double w;
   final double h;
   final double angStRad;
+  final AffineTransform affine;
   double increment;
   double cv;
-  final AffineTransform affine;
   int index;
   int arcSegs;
   int lineSegs;
@@ -68,7 +68,7 @@ class ArcIterator implements PathIterator {
         cv = -cv;
       }
     } else {
-      arcSegs = (int) Math.ceil(Math.abs(ext) / SkinJob.maxDegreesPerArcSegment);
+      arcSegs = (int) Math.ceil(Math.abs(ext) / SkinJobGlobals.maxDegreesPerArcSegment);
       increment = Math.toRadians(ext / arcSegs);
       cv = btan(increment);
       if (cv == 0) {

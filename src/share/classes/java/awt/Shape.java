@@ -75,7 +75,6 @@ import java.awt.geom.Rectangle2D;
  * @since 1.2
  */
 public interface Shape {
-  Shape EMPTY = new Empty();
 
   static Shape translate(Shape orig, int offsetX, int offsetY) {
     return new Translated(orig, offsetX, offsetY);
@@ -424,58 +423,6 @@ public interface Shape {
    * @since 1.2
    */
   PathIterator getPathIterator(AffineTransform at, double flatness);
-
-  class Empty implements Shape {
-    @Override
-    public Rectangle getBounds() {
-      return new Rectangle(0, 0, 0, 0);
-    }
-
-    @Override
-    public Rectangle2D getBounds2D() {
-      return new Rectangle2D.Float(0, 0, 0, 0);
-    }
-
-    @Override
-    public boolean contains(double x, double y) {
-      return false;
-    }
-
-    @Override
-    public boolean contains(Point2D p) {
-      return false;
-    }
-
-    @Override
-    public boolean intersects(double x, double y, double w, double h) {
-      return false;
-    }
-
-    @Override
-    public boolean intersects(Rectangle2D r) {
-      return false;
-    }
-
-    @Override
-    public boolean contains(double x, double y, double w, double h) {
-      return false;
-    }
-
-    @Override
-    public boolean contains(Rectangle2D r) {
-      return false;
-    }
-
-    @Override
-    public PathIterator getPathIterator(AffineTransform at) {
-      return new PathIterator.Empty();
-    }
-
-    @Override
-    public PathIterator getPathIterator(AffineTransform at, double flatness) {
-      return new PathIterator.Empty();
-    }
-  }
 
   class Translated implements Shape {
     private final Shape orig;

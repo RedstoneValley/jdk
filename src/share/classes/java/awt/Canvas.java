@@ -27,6 +27,7 @@ package java.awt;
 import android.view.View;
 import java.awt.image.BufferStrategy;
 import java.awt.peer.CanvasPeer;
+import skinjob.internal.peer.SkinJobCanvasPeer;
 
 /**
  * A {@code Canvas} component represents a blank rectangular

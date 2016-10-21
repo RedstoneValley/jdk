@@ -31,14 +31,19 @@
   @run main MakeWindowAlwaysOnTop
 */
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Dialog.ModalityType;
-import java.awt.event.*;
+import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
 
 public final class MakeWindowAlwaysOnTop
 {
-    private static Frame f;
     static Dialog d;
+    private static Frame f;
 
     private MakeWindowAlwaysOnTop() {
     }
@@ -74,7 +79,7 @@ public final class MakeWindowAlwaysOnTop
             @Override
             public void run()
             {
-                // Empty
+                // EmptyShape
             }
         });
         r.delay(100);

@@ -92,6 +92,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
+import skinjob.internal.SkinJobToolkit;
 import sun.awt.AppContext;
 import sun.awt.HeadlessToolkit;
 import sun.awt.NullComponentPeer;
@@ -156,11 +157,11 @@ public abstract class Toolkit {
 
   private static final Toolkit INSTANCE = new SkinJobToolkit();
   private static final int LONG_BITS = 64;
-  private static LightweightPeer lightweightMarker;
   /**
    * The default toolkit.
    */
   static Toolkit toolkit;
+  private static LightweightPeer lightweightMarker;
   /**
    * Used internally by the assistive technologies functions; set at
    * init time and used at load time

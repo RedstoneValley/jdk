@@ -25,10 +25,10 @@
 
 package java.awt;
 
-import android.view.Display;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
-import sun.font.FontManager;
+import skinjob.SkinJobGlobals;
+import skinjob.internal.SkinJobGraphicsEnvironment;
 
 /**
  * The {@code GraphicsEnvironment} class describes the collection
@@ -78,7 +78,7 @@ public abstract class GraphicsEnvironment {
     GraphicsEnvironment ge;
     String nm = System.getProperty("java.awt.graphicsenv");
     if (nm == null) {
-      return new SkinJobGraphicsEnvironment(SkinJob.getAndroidApplicationContext());
+      return new SkinJobGraphicsEnvironment(SkinJobGlobals.getAndroidApplicationContext());
     }
     try {
       //          long t0 = System.currentTimeMillis();

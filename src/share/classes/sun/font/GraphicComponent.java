@@ -2,11 +2,11 @@ package sun.font;
 
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.SkinJob;
 import java.awt.font.GraphicAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import skinjob.SkinJobGlobals;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -29,7 +29,11 @@ public class GraphicComponent extends TextLineComponent {
   public GraphicComponent(
       GraphicAttribute graphicAttribute, Decoration decorator, int[] charsLtoV, byte[] levels,
       int pos, int chunkLimit, AffineTransform baseRot) {
-    super(OBJECT_REPLACEMENT, SkinJob.defaultFont, createCoreMetrics(graphicAttribute), decorator);
+    super(
+        OBJECT_REPLACEMENT,
+        SkinJobGlobals.defaultFont,
+        createCoreMetrics(graphicAttribute),
+        decorator);
     this.graphicAttribute = graphicAttribute;
     this.charsLtoV = charsLtoV;
     this.levels = levels;
@@ -51,12 +55,12 @@ public class GraphicComponent extends TextLineComponent {
         Font.CENTER_BASELINE,
         /* TODO: is this correct for baselineOffsets? */
         new float[]{height},
-        ascent * SkinJob.strikeThroughOffset,
-        SkinJob.graphicStrikethroughThickness,
-        ascent * SkinJob.underlineOffset,
-        SkinJob.graphicUnderlineThickness,
-        SkinJob.graphicSsOffset,
-        SkinJob.graphicItalicAngle);
+        ascent * SkinJobGlobals.strikeThroughOffset,
+        SkinJobGlobals.graphicStrikethroughThickness,
+        ascent * SkinJobGlobals.underlineOffset,
+        SkinJobGlobals.graphicUnderlineThickness,
+        SkinJobGlobals.graphicSsOffset,
+        SkinJobGlobals.graphicItalicAngle);
   }
 
   @Override
@@ -107,6 +111,18 @@ public class GraphicComponent extends TextLineComponent {
   }
 
   @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + graphicAttribute.hashCode();
+    result = 31 * result + Arrays.hashCode(charsLtoV);
+    result = 31 * result + Arrays.hashCode(levels);
+    result = 31 * result + pos;
+    result = 31 * result + chunkLimit;
+    result = 31 * result + (baseRot != null ? baseRot.hashCode() : 0);
+    return result;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -136,17 +152,5 @@ public class GraphicComponent extends TextLineComponent {
       return false;
     }
     return baseRot != null ? baseRot.equals(that.baseRot) : that.baseRot == null;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + graphicAttribute.hashCode();
-    result = 31 * result + Arrays.hashCode(charsLtoV);
-    result = 31 * result + Arrays.hashCode(levels);
-    result = 31 * result + pos;
-    result = 31 * result + chunkLimit;
-    result = 31 * result + (baseRot != null ? baseRot.hashCode() : 0);
-    return result;
   }
 }

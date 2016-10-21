@@ -25,13 +25,13 @@
 
 package sun.awt;
 
-import java.awt.SkinJob;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import skinjob.util.SkinJobUtil;
 import sun.awt.AppContext.CreateThreadAction;
 import sun.awt.AppContext.PostShutdownEventRunnable;
 
@@ -326,7 +326,7 @@ public final class AWTAutoShutdown implements Runnable {
    * Must be called with
    */
   private void activateBlockerThread() {
-    Thread thread = new Thread(SkinJob.getRootThreadGroup(), this, "AWT-Shutdown");
+    Thread thread = new Thread(SkinJobUtil.getRootThreadGroup(), this, "AWT-Shutdown");
     thread.setContextClassLoader(null);
     thread.setDaemon(false);
     blockerThread = thread;

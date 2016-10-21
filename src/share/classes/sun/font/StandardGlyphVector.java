@@ -4,8 +4,6 @@ import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 import java.awt.Font;
 import java.awt.Shape;
-import java.awt.SkinJob;
-import java.awt.SkinJobTextAttributesDecoder;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphJustificationInfo;
 import java.awt.font.GlyphMetrics;
@@ -19,6 +17,8 @@ import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
 import java.util.ArrayList;
 import java.util.Map;
+import skinjob.SkinJobGlobals;
+import skinjob.internal.TextAttributesDecoder;
 
 /**
  * Created by cryoc on 2016-10-14.
@@ -38,7 +38,7 @@ public class StandardGlyphVector extends GlyphVector {
     Integer color = (Integer) font.getAttributes().get(TextAttribute.FOREGROUND);
     this.color = color == null ? 0x000000FF : color;
     spannableString = new SpannableStringBuilder();
-    parentView = new TextView(SkinJob.getAndroidApplicationContext());
+    parentView = new TextView(SkinJobGlobals.getAndroidApplicationContext());
     childViews = new ArrayList<>();
     glyphPositions = new ArrayList<>();
   }
@@ -62,7 +62,7 @@ public class StandardGlyphVector extends GlyphVector {
         charsWritten++;
         Map<Attribute, Object> attributes = ((AttributedCharacterIterator) ci).getAttributes();
         if (!attributes.isEmpty()) {
-          new SkinJobTextAttributesDecoder(color)
+          new TextAttributesDecoder(color)
               .addAttributes(attributes)
               .applyTo(spannableString, charsWritten - 1, charsWritten);
         }
@@ -216,6 +216,17 @@ public class StandardGlyphVector extends GlyphVector {
   }
 
   @Override
+  public int hashCode() {
+    int result = parentView.hashCode();
+    result = 31 * result + childViews.hashCode();
+    result = 31 * result + spannableString.hashCode();
+    result = 31 * result + (getFont() != null ? getFont().hashCode() : 0);
+    result = 31 * result + (getFontRenderContext() != null ? getFontRenderContext().hashCode() : 0);
+    result = 31 * result + color;
+    return result;
+  }
+
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -244,16 +255,5 @@ public class StandardGlyphVector extends GlyphVector {
     return getFontRenderContext() != null
         ? getFontRenderContext().equals(that.getFontRenderContext())
         : that.getFontRenderContext() == null;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = parentView.hashCode();
-    result = 31 * result + childViews.hashCode();
-    result = 31 * result + spannableString.hashCode();
-    result = 31 * result + (getFont() != null ? getFont().hashCode() : 0);
-    result = 31 * result + (getFontRenderContext() != null ? getFontRenderContext().hashCode() : 0);
-    result = 31 * result + color;
-    return result;
   }
 }

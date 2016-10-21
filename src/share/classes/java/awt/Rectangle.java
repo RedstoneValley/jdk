@@ -39,7 +39,7 @@ import java.io.Serializable;
  * that create a {@code Rectangle}, and the methods that can modify
  * one, do not prevent setting a negative value for width or height.
  * <p>
- * <a name="Empty">
+ * <a name="EmptyShape">
  * A {@code Rectangle} whose width or height is exactly zero has location
  * along those axes with zero dimension, but is otherwise considered empty.
  * The {@link #isEmpty} method will return true for such a {@code Rectangle}.

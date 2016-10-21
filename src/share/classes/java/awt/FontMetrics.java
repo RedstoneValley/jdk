@@ -30,6 +30,7 @@ import java.awt.font.LineMetrics;
 import java.awt.geom.Rectangle2D;
 import java.io.Serializable;
 import java.text.CharacterIterator;
+import skinjob.SkinJobGlobals;
 
 /**
  * The {@code FontMetrics} class defines a font metrics object, which
@@ -305,7 +306,7 @@ public abstract class FontMetrics implements Serializable {
       codePoint = UNICODE_NOT_A_CHARACTER; // substitute missing glyph width
     }
 
-    if (codePoint < SkinJob.precomputedCharacterWidthArraySize) {
+    if (codePoint < SkinJobGlobals.precomputedCharacterWidthArraySize) {
       return getWidths()[codePoint];
     } else {
       char[] buffer = new char[2];
@@ -335,7 +336,7 @@ public abstract class FontMetrics implements Serializable {
    * @see #stringWidth(String)
    */
   public int charWidth(char ch) {
-    if (ch < SkinJob.precomputedCharacterWidthArraySize) {
+    if (ch < SkinJobGlobals.precomputedCharacterWidthArraySize) {
       return getWidths()[ch];
     }
     char[] data = {ch};
@@ -435,8 +436,8 @@ public abstract class FontMetrics implements Serializable {
    * described by this {@code FontMetrics} object.
    */
   public int[] getWidths() {
-    int[] widths = new int[SkinJob.precomputedCharacterWidthArraySize];
-    for (char ch = 0; ch < SkinJob.precomputedCharacterWidthArraySize; ch++) {
+    int[] widths = new int[SkinJobGlobals.precomputedCharacterWidthArraySize];
+    for (char ch = 0; ch < SkinJobGlobals.precomputedCharacterWidthArraySize; ch++) {
       widths[ch] = charWidth(ch);
     }
     return widths;

@@ -26,7 +26,7 @@
 package java.awt;
 
 import java.util.Arrays;
-import sun.java2d.pipe.RenderingEngine;
+import skinjob.SkinJobGlobals;
 
 /**
  * The {@code BasicStroke} class defines a basic set of rendering
@@ -265,7 +265,7 @@ public class BasicStroke implements Stroke {
    *                                  either JOIN_ROUND, JOIN_BEVEL, or JOIN_MITER
    */
   public BasicStroke(float width, int cap, int join) {
-    this(width, cap, join, SkinJob.defaultMiterLimit, null, 0.0f);
+    this(width, cap, join, SkinJobGlobals.defaultMiterLimit, null, 0.0f);
   }
 
   /**
@@ -277,17 +277,17 @@ public class BasicStroke implements Stroke {
    * @throws IllegalArgumentException if {@code width} is negative
    */
   public BasicStroke(float width) {
-    this(width, CAP_SQUARE, JOIN_MITER, SkinJob.defaultMiterLimit, null, 0.0f);
+    this(width, CAP_SQUARE, JOIN_MITER, SkinJobGlobals.defaultMiterLimit, null, 0.0f);
   }
 
   /**
    * Constructs a new {@code BasicStroke} with defaults for all
    * attributes.
    * The default attributes are a solid line of width 1.0, CAP_SQUARE,
-   * JOIN_MITER, a miter limit of {@link SkinJob#defaultMiterLimit}.
+   * JOIN_MITER, a miter limit of {@link SkinJobGlobals#defaultMiterLimit}.
    */
   public BasicStroke() {
-    this(1.0f, CAP_SQUARE, JOIN_MITER, SkinJob.defaultMiterLimit, null, 0.0f);
+    this(1.0f, CAP_SQUARE, JOIN_MITER, SkinJobGlobals.defaultMiterLimit, null, 0.0f);
   }
 
   /**
@@ -299,8 +299,8 @@ public class BasicStroke implements Stroke {
    */
   @Override
   public Shape createStrokedShape(Shape s) {
-    RenderingEngine re = RenderingEngine.getInstance();
-    return re.createStrokedShape(s, width, cap, join, miterlimit, dash, dash_phase);
+    // TODO: Originally implemented in RenderingEngine.createStrokedShape
+    return null;
   }
 
   /**

@@ -36,6 +36,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Objects;
+import skinjob.SkinJobGlobals;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
  * A check box is a graphical component that can be in either an
@@ -190,7 +192,7 @@ public class Checkbox extends Component implements ItemSelectable {
     wrappedObjectsSupplier = new WrappedAndroidObjectsSupplier<CompoundButton>() {
       @Override
       public Context getAppContext() {
-        return SkinJob.getAndroidApplicationContext();
+        return SkinJobGlobals.getAndroidApplicationContext();
       }
 
       @Override
@@ -549,7 +551,7 @@ public class Checkbox extends Component implements ItemSelectable {
     synchronized (this) {
       oldGroup = group;
       if (oldGroup != null) {
-        oldGroup.getAndroidGroup().removeView(androidWidget);
+        oldGroup.getAndroidGroup().removeView(sjAndroidWidget);
       }
       oldState = getState();
 
@@ -567,7 +569,7 @@ public class Checkbox extends Component implements ItemSelectable {
       }
       if ((oldGroup == null) != (group == null)) {
         // Change from checkbox to radio button or vice-versa
-        androidWidget = wrappedObjectsSupplier.createWidget();
+        sjAndroidWidget = wrappedObjectsSupplier.createWidget();
         // Copy label and state to the new widget
         setLabel(getLabel());
         setState(getState());
@@ -707,7 +709,7 @@ public class Checkbox extends Component implements ItemSelectable {
 
     @Override
     public Context getAppContext() {
-      return SkinJob.getAndroidApplicationContext();
+      return SkinJobGlobals.getAndroidApplicationContext();
     }
 
     @Override

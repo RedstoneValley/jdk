@@ -66,8 +66,6 @@ import java.awt.PopupMenu;
 import java.awt.Robot;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
-import java.awt.SkinJob;
-import java.awt.SkinJobFontMetrics;
 import java.awt.SystemTray;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -120,6 +118,8 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import skinjob.SkinJobGlobals;
+import skinjob.internal.SkinJobFontMetrics;
 import sun.awt.AWTAccessor.SequencedEventAccessor;
 import sun.awt.im.InputContext;
 import sun.awt.im.SimpleInputMethodWindow;
@@ -817,7 +817,7 @@ public abstract class SunToolkit extends Toolkit
   ///////////////////////////////////////////////////////////////////////////
 
   protected Context getAndroidContext() {
-    return SkinJob.getAndroidApplicationContext();
+    return SkinJobGlobals.getAndroidApplicationContext();
   }
 
   protected void launchIntent(File file, String action) throws IOException {
@@ -1369,12 +1369,12 @@ public abstract class SunToolkit extends Toolkit
     public void print(File file) throws IOException {
       throw new UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
       /*
-       if (ContextCompat.checkSelfPermission(androidContext,
+       if (ContextCompat.checkSelfPermission(sjAndroidContext,
        Manifest.permission.READ_CONTACTS)
        != PackageManager.PERMISSION_GRANTED) {
 
        // Should we show an explanation?
-       if (ActivityCompat.shouldShowRequestPermissionRationale(androidContext,
+       if (ActivityCompat.shouldShowRequestPermissionRationale(sjAndroidContext,
        Manifest.permission.READ_CONTACTS)) {
 
        // Show an expanation to the user *asynchronously* -- don't block

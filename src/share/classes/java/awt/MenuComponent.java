@@ -40,6 +40,7 @@ import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleSelection;
 import javax.accessibility.AccessibleStateSet;
+import skinjob.internal.ComponentOrMenuComponent;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.MenuComponentAccessor;
 import sun.awt.AppContext;
@@ -96,7 +97,7 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
     });
   }
 
-  protected transient View androidWidget;
+  public transient View sjAndroidWidget;
   transient MenuComponentPeer peer;
   transient MenuContainer parent;
   /**

@@ -81,7 +81,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/com/sun/corba/corba.iml" filepath="$PROJECT_DIR$/test/com/sun/corba/corba.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/xml/crypto/crypto.iml" filepath="$PROJECT_DIR$/test/javax/xml/crypto/crypto.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/crypto/crypto1.iml" filepath="$PROJECT_DIR$/test/javax/crypto/crypto1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/make/data/data.iml" filepath="$PROJECT_DIR$/make/data/data.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/awt/datatransfer/datatransfer.iml" filepath="$PROJECT_DIR$/test/java/awt/datatransfer/datatransfer.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/demo/demo.iml" filepath="$PROJECT_DIR$/test/demo/demo.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/rmi/dgc/dgc.iml" filepath="$PROJECT_DIR$/test/java/rmi/dgc/dgc.iml" />
@@ -112,7 +111,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/java/util/concurrent/locks/locks.iml" filepath="$PROJECT_DIR$/test/java/util/concurrent/locks/locks.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/sun/rmi/log/log.iml" filepath="$PROJECT_DIR$/test/sun/rmi/log/log.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/security/auth/login/login.iml" filepath="$PROJECT_DIR$/test/javax/security/auth/login/login.iml" />
-      <module fileurl="file://$PROJECT_DIR$/make/src/make.iml" filepath="$PROJECT_DIR$/make/src/make.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/management/management.iml" filepath="$PROJECT_DIR$/test/javax/management/management.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/com/sun/management/management1.iml" filepath="$PROJECT_DIR$/test/com/sun/management/management1.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/xml/bind/marshal/marshal.iml" filepath="$PROJECT_DIR$/test/javax/xml/bind/marshal/marshal.iml" />
@@ -127,7 +125,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/sun/nio/nio1.iml" filepath="$PROJECT_DIR$/test/sun/nio/nio1.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/nio/nio2.iml" filepath="$PROJECT_DIR$/test/java/nio/nio2.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/com/sun/nio/nio3.iml" filepath="$PROJECT_DIR$/test/com/sun/nio/nio3.iml" />
-      <module fileurl="file://$PROJECT_DIR$/make/non-build-utils/non-build-utils.iml" filepath="$PROJECT_DIR$/make/non-build-utils/non-build-utils.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/com/oracle/oracle.iml" filepath="$PROJECT_DIR$/test/com/oracle/oracle.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/xml/jaxp/parsers/parsers.iml" filepath="$PROJECT_DIR$/test/javax/xml/jaxp/parsers/parsers.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/sun/jvmstat/perfdata/perfdata.iml" filepath="$PROJECT_DIR$/test/sun/jvmstat/perfdata/perfdata.iml" />
@@ -141,7 +138,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/com/sun/jndi/rmi/registry/registry1.iml" filepath="$PROJECT_DIR$/test/com/sun/jndi/rmi/registry/registry1.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/rmi/reliability/reliability.iml" filepath="$PROJECT_DIR$/test/java/rmi/reliability/reliability.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/management/remote/remote.iml" filepath="$PROJECT_DIR$/test/javax/management/remote/remote.iml" />
-      <module fileurl="file://$PROJECT_DIR$/make/non-build-utils/reorder/reorder.iml" filepath="$PROJECT_DIR$/make/non-build-utils/reorder/reorder.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/sun/util/resources/resources.iml" filepath="$PROJECT_DIR$/test/sun/util/resources/resources.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/rmi/rmi.iml" filepath="$PROJECT_DIR$/test/javax/rmi/rmi.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/rmi/rmi1.iml" filepath="$PROJECT_DIR$/test/java/rmi/rmi1.iml" />
@@ -156,7 +152,6 @@
       <module fileurl="file://$PROJECT_DIR$/test/javax/sql/rowset/serial/serial.iml" filepath="$PROJECT_DIR$/test/javax/sql/rowset/serial/serial.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/rmi/server/server.iml" filepath="$PROJECT_DIR$/test/java/rmi/server/server.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/share/share.iml" filepath="$PROJECT_DIR$/src/share/share.iml" />
-      <module fileurl="file://$PROJECT_DIR$/make/non-build-utils/sharing/sharing.iml" filepath="$PROJECT_DIR$/make/non-build-utils/sharing/sharing.iml" />
       <module fileurl="file://$PROJECT_DIR$/skinjob.iml" filepath="$PROJECT_DIR$/skinjob.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/javax/crypto/spec/spec.iml" filepath="$PROJECT_DIR$/test/javax/crypto/spec/spec.iml" />
       <module fileurl="file://$PROJECT_DIR$/test/java/util/spi/spi.iml" filepath="$PROJECT_DIR$/test/java/util/spi/spi.iml" />

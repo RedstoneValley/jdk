@@ -62,7 +62,6 @@ import java.awt.PrintJob;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.Shape;
-import java.awt.SkinJob;
 import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.Toolkit;
@@ -111,6 +110,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 import java.util.Properties;
+import skinjob.SkinJobGlobals;
 import sun.awt.CausedFocusEvent.Cause;
 
 /**
@@ -390,7 +390,7 @@ public final class bug7172833 {
         }
 
         protected Context getAndroidContext() {
-            return SkinJob.getAndroidApplicationContext();
+            return SkinJobGlobals.getAndroidApplicationContext();
         }
 
         protected void launchIntent(File file, String action) throws IOException {
@@ -1357,12 +1357,12 @@ public final class bug7172833 {
                     UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
 
                 /*
-                if (ContextCompat.checkSelfPermission(androidContext,
+                if (ContextCompat.checkSelfPermission(sjAndroidContext,
                         Manifest.permission.READ_CONTACTS)
                         != PackageManager.PERMISSION_GRANTED) {
 
                     // Should we show an explanation?
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(androidContext,
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(sjAndroidContext,
                             Manifest.permission.READ_CONTACTS)) {
 
                         // Show an expanation to the user *asynchronously* -- don't block

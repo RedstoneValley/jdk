@@ -32,6 +32,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Vector;
+import skinjob.internal.NullWidgetSupplier;
 
 /**
  * The {@code Choice} class presents a pop-up menu of choices.
@@ -82,11 +83,6 @@ public class Choice extends Component implements ItemSelectable {
     /* initialize JNI field and method ids */
   }
 
-  /*
-   * Choice Serial Data Version.
-   * @serial
-   */
-  private final int choiceSerializedDataVersion = 1;
   /**
    * The items for the {@code Choice}.
    * This can be a {@code null} value.
@@ -100,6 +96,11 @@ public class Choice extends Component implements ItemSelectable {
    * @see #remove(String)
    */
   final Vector<String> pItems;
+  /*
+   * Choice Serial Data Version.
+   * @serial
+   */
+  private final int choiceSerializedDataVersion = 1;
   /**
    * The index of the current choice for this {@code Choice}
    * or -1 if nothing is selected.
@@ -125,7 +126,7 @@ public class Choice extends Component implements ItemSelectable {
    * @see #select(String)
    */
   public Choice() throws HeadlessException {
-    super(SkinJobNullWidgetSupplier.getInstance());
+    super(NullWidgetSupplier.getInstance());
     pItems = new Vector<>();
   }
 

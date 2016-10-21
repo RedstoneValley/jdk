@@ -32,15 +32,58 @@
  * @author vkravets
  */
 
+import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Dialog.ModalityType;
-
-import java.awt.*;
+import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.GraphicsDevice;
+import java.awt.Point;
+import java.awt.Robot;
 import java.lang.reflect.InvocationTargetException;
 
 public class FullscreenDialogModality extends Frame {
 
     private static final long serialVersionUID = 5929601537551933218L;
     static Robot robot;
+
+    public static void main(String[] args) throws InvocationTargetException, InterruptedException {
+        if (Util.getWMID() != Util.METACITY_WM) {
+            System.out.println("This test is only useful on Metacity");
+            return;
+        }
+        robot = Util.createRobot();
+        Util.waitForIdle(robot);
+        FullscreenDialogModality frame = new FullscreenDialogModality();
+        frame.setUndecorated(true);
+        frame.setBackground(Color.green);
+        frame.setSize(500, 500);
+        frame.setVisible(true);
+        try {
+            robot.delay(100);
+            Util.waitForIdle(robot);
+
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    frame.enterFS();
+                }
+            });
+            robot.delay(200);
+            Util.waitForIdle(robot);
+
+            frame.checkDialogModality();
+
+            EventQueue.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    frame.exitFS();
+                }
+            });
+        } finally {
+            frame.dispose();
+        }
+    }
 
     public void enterFS() {
         GraphicsDevice gd = getGraphicsConfiguration().getDevice();
@@ -83,7 +126,7 @@ public class FullscreenDialogModality extends Frame {
         EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                // Empty
+                // EmptyShape
             }
         });
 
@@ -109,44 +152,6 @@ public class FullscreenDialogModality extends Frame {
             Util.waitForIdle(robot);
         } finally {
             d.dispose();
-        }
-    }
-
-    public static void main(String[] args) throws InvocationTargetException, InterruptedException {
-        if (Util.getWMID() != Util.METACITY_WM) {
-            System.out.println("This test is only useful on Metacity");
-            return;
-        }
-        robot = Util.createRobot();
-        Util.waitForIdle(robot);
-        FullscreenDialogModality frame = new FullscreenDialogModality();
-        frame.setUndecorated(true);
-        frame.setBackground(Color.green);
-        frame.setSize(500, 500);
-        frame.setVisible(true);
-        try {
-            robot.delay(100);
-            Util.waitForIdle(robot);
-
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    frame.enterFS();
-                }
-            });
-            robot.delay(200);
-            Util.waitForIdle(robot);
-
-            frame.checkDialogModality();
-
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    frame.exitFS();
-                }
-            });
-        } finally {
-            frame.dispose();
         }
     }
 }

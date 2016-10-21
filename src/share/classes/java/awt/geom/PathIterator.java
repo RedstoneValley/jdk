@@ -142,7 +142,6 @@ public interface PathIterator {
    * back to the point corresponding to the most recent SEG_MOVETO.
    */
   int SEG_CLOSE = 4;
-  PathIterator EMPTY = new Empty();
 
   /**
    * Returns the winding rule for determining the interior of the
@@ -216,30 +215,4 @@ public interface PathIterator {
    * @see #SEG_CLOSE
    */
   int currentSegment(double[] coords);
-
-  class Empty implements PathIterator {
-    @Override
-    public int getWindingRule() {
-      return 0;
-    }
-
-    @Override
-    public boolean isDone() {
-      return true;
-    }
-
-    @Override
-    public void next() {
-    }
-
-    @Override
-    public int currentSegment(float[] coords) {
-      return 0;
-    }
-
-    @Override
-    public int currentSegment(double[] coords) {
-      return 0;
-    }
-  }
 }

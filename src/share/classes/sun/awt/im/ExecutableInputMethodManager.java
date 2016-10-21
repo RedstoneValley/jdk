@@ -30,7 +30,6 @@ import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.EventQueue;
 import java.awt.Frame;
-import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.event.InvocationEvent;
 import java.awt.im.spi.InputMethodDescriptor;
@@ -46,6 +45,7 @@ import java.util.ServiceLoader;
 import java.util.Vector;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import skinjob.SkinJobGlobals;
 import sun.awt.AppContext;
 import sun.awt.InputMethodSupport;
 import sun.awt.SunToolkit;
@@ -177,6 +177,15 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   }
 
   @Override
+  void setInputContext(InputContext inputContext) {
+    if (currentInputContext != null && inputContext != null) {
+      // don't throw this exception until 4237852 is fixed
+      // throw new IllegalStateException("Can't have two active InputContext at the same time");
+    }
+    currentInputContext = inputContext;
+  }
+
+  @Override
   public void run() {
     // If there are no multiple input methods to choose from, wait forever
     while (!hasMultipleInputMethods()) {
@@ -207,15 +216,6 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
       } catch (InterruptedException | InvocationTargetException ie) {
       }
     }
-  }
-
-  @Override
-  void setInputContext(InputContext inputContext) {
-    if (currentInputContext != null && inputContext != null) {
-      // don't throw this exception until 4237852 is fixed
-      // throw new IllegalStateException("Can't have two active InputContext at the same time");
-    }
-    currentInputContext = inputContext;
   }
 
   @Override
@@ -337,7 +337,10 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     synchronized (this) {
       selectionMenu.addToComponent(requestComponent);
       requestInputContext = currentInputContext;
-      selectionMenu.show(requestComponent, SkinJob.inputMethodMenuX, SkinJob.inputMethodMenuY);
+      selectionMenu.show(
+          requestComponent,
+          SkinJobGlobals.inputMethodMenuX,
+          SkinJobGlobals.inputMethodMenuY);
       requestComponent = null;
     }
   }

@@ -32,7 +32,6 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.SystemFlavorMap;
@@ -49,6 +48,7 @@ import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TooManyListenersException;
+import skinjob.SkinJobGlobals;
 
 /**
  * The {@code DropTarget} is associated
@@ -786,8 +786,8 @@ public class DropTarget implements DropTargetListener, Serializable {
     private Point locn;
     private Point prev;
     private int hysteresis = 10;
-    private Integer initial = SkinJob.autoscrollInitialDelayMs;
-    private Integer interval = SkinJob.autoscrollRefreshIntervalMs;
+    private Integer initial = SkinJobGlobals.autoscrollInitialDelayMs;
+    private Integer interval = SkinJobGlobals.autoscrollRefreshIntervalMs;
 
     /**
      * construct a DropTargetAutoScroller

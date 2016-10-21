@@ -1,8 +1,8 @@
 package sun.font;
 
 import java.awt.Font;
-import java.awt.SkinJob;
 import java.awt.font.FontRenderContext;
+import skinjob.util.SkinJobUtil;
 
 /**
  * Created by cryoc on 2016-10-14.
@@ -19,7 +19,7 @@ public class GlyphLayout {
   public StandardGlyphVector layout(
       Font font, FontRenderContext frc, char[] text, int start, int length, int flags, Object o) {
     // TODO: Find and implement the contract for handling flags and o
-    char[] substring = SkinJob.rangeMaybeCopy(text, start, length);
+    char[] substring = SkinJobUtil.rangeMaybeCopy(text, start, length);
     return new StandardGlyphVector(font, substring, frc);
   }
 }

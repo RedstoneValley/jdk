@@ -28,6 +28,7 @@ import android.widget.TextView;
 import java.awt.peer.LabelPeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import skinjob.internal.peer.SkinJobLabelPeer;
 
 /**
  * A {@code Label} object is a component for placing text in a

@@ -33,7 +33,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.SkinJob;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.InputMethodEvent;
@@ -46,6 +45,7 @@ import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.im.InputMethodRequests;
 import java.text.AttributedCharacterIterator;
+import skinjob.SkinJobGlobals;
 
 /**
  * A composition area is used to display text that's being composed
@@ -77,8 +77,8 @@ public final class CompositionArea extends Window implements InputMethodListener
     compositionWindow = InputMethodContext.createInputMethodWindow(windowTitle, null, true);
 
     setVisible(true); // was: setOpaque(true); setBorder(LineBorder.createGrayLineBorder());
-    setForeground(new Color(SkinJob.defaultForegroundColor));
-    setBackground(new Color(SkinJob.defaultBackgroundColor));
+    setForeground(new Color(SkinJobGlobals.defaultForegroundColor));
+    setBackground(new Color(SkinJobGlobals.defaultBackgroundColor));
 
     // if we get the focus, we still want to let the client's
     // input context handle the event

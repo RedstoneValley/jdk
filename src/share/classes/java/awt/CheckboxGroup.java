@@ -26,6 +26,7 @@ package java.awt;
 
 import android.widget.RadioGroup;
 import java.io.Serializable;
+import skinjob.SkinJobGlobals;
 
 /**
  * The {@code CheckboxGroup} class is used to group together
@@ -78,7 +79,7 @@ public class CheckboxGroup implements Serializable {
    * Creates a new instance of {@code CheckboxGroup}.
    */
   public CheckboxGroup() {
-    androidGroup = new RadioGroup(SkinJob.getAndroidApplicationContext());
+    androidGroup = new RadioGroup(SkinJobGlobals.getAndroidApplicationContext());
   }
 
   public RadioGroup getAndroidGroup() {

@@ -1,18 +1,18 @@
 package sun.font;
 
-import static java.awt.SkinJob.rangeMaybeCopy;
+import static skinjob.util.SkinJobUtil.rangeMaybeCopy;
 
 import android.graphics.Rect;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Shape;
-import java.awt.SkinJob;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphJustificationInfo;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+import skinjob.util.SkinJobUtil;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -111,8 +111,14 @@ public class TextLineComponent {
   }
 
   public TextLineComponent applyJustificationDeltas(float[] deltas, int i, boolean[] flags) {
+    TextLineComponent copy = new TextLineComponent(
+        chars,
+        font,
+        coreMetrics,
+        decorator,
+        indexOffset);
     // TODO
-    return new TextLineComponent();
+    return copy;
   }
 
   public Rectangle2D getItalicBounds() {
@@ -137,7 +143,7 @@ public class TextLineComponent {
   protected Rectangle2D getBounds(int measureStart, int measureLimit) {
     Rect bounds = new Rect();
     font.getAndroidPaint().getTextBounds(chars, measureStart + indexOffset, measureLimit, bounds);
-    return SkinJob.androidRectToRectangle2D(bounds);
+    return SkinJobUtil.androidRectToRectangle2D(bounds);
   }
 
   public int getLineBreakIndex(int i, float width) {
