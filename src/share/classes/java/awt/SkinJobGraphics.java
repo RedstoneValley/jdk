@@ -491,10 +491,8 @@ public class SkinJobGraphics extends Graphics2D {
   }
 
   /**
-   * Support for this method is almost but not quite complete. {@link Stroke#createStrokedShape}
-   * will be called only from {@link #draw(Shape)}. However, if the stroke is a {@link BasicStroke},
-   * even through a subclass, then its line width, miter limit, join type, cap type, and dashes will
-   * be applied in other {@code draw*} methods as well.
+   * Only {@link BasicStroke} attributes are supported when using {@code draw*} methods other than
+   * {@link #draw(Shape)}.
    *
    * @param s the {@code Stroke} object to be used to stroke a
    *          {@code Shape} during the rendering process

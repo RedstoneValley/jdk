@@ -1,7 +1,9 @@
 package java.awt;
 
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.DialogPeer;
@@ -13,13 +15,18 @@ import sun.awt.CausedFocusEvent.Cause;
  */
 public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     implements FramePeer, DialogPeer {
+  private static final AttributeSet MENU_BAR_ATTRIBUTES = new SkinJobDefaultAttributeSet(); // TODO
   protected final java.awt.Window thisAwtWindow;
   protected final Graphics graphics;
+  private final ViewGroup.LayoutParams menuBarLayoutParams;
 
   public SkinJobWindowPeer(java.awt.Window target) {
     super((T) target.androidWindow, SkinJobGraphicsConfiguration.getDefault());
     thisAwtWindow = target;
     graphics = new SkinJobGraphics(androidWidget.getDecorView().getDrawingCache());
+    menuBarLayoutParams = new ViewGroup.LayoutParams(
+        androidWidget.getContext(),
+        MENU_BAR_ATTRIBUTES);
   }
 
   @Override
@@ -29,7 +36,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void setMenuBar(MenuBar mb) {
-    // TODO
+    androidWidget.addContentView((View) mb.androidWidget, menuBarLayoutParams);
   }
 
   @Override

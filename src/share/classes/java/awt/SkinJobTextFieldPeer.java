@@ -1,5 +1,7 @@
 package java.awt;
 
+import android.text.method.PasswordTransformationMethod;
+import android.view.View;
 import android.widget.EditText;
 import java.awt.im.InputMethodRequests;
 import java.awt.peer.TextAreaPeer;
@@ -10,17 +12,24 @@ import java.awt.peer.TextFieldPeer;
  */
 class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText>
     implements TextFieldPeer, TextAreaPeer {
+  private volatile boolean isPassword = false;
+  private PasswordMasker passwordMasker = new PasswordMasker();
   public SkinJobTextFieldPeer(TextField target) {
     super((EditText) target.androidWidget);
   }
-
   public SkinJobTextFieldPeer(TextArea target) {
     super((EditText) target.androidWidget);
   }
 
   @Override
-  public void setEchoChar(char echoChar) {
-    // TODO: This means put the EditText in password mode
+  public synchronized void setEchoChar(char echoChar) {
+    if (!isPassword) {
+      // TODO: Does this work even though androidWidget doesn't have android:password="true"?
+      // If not, create a new androidWidget
+      androidWidget.setTransformationMethod(passwordMasker);
+      isPassword = true;
+    }
+    passwordMasker.maskCharacter = echoChar;
   }
 
   @Override
@@ -101,5 +110,15 @@ class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText>
   public Dimension getMinimumSize(int rows, int columns) {
     // TODO
     return null;
+  }
+
+  private static class PasswordMasker extends PasswordTransformationMethod {
+    private volatile char maskCharacter;
+
+    @Override
+    public CharSequence getTransformation(CharSequence source, View view) {
+      int codePointLength = Character.codePointCount(source, 0, source.length());
+      return new String(new char[codePointLength]).replace('\0', maskCharacter);
+    }
   }
 }
