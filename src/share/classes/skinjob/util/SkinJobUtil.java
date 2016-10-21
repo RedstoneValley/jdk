@@ -1,13 +1,35 @@
 package skinjob.util;
 
+import android.content.Context;
 import android.graphics.Rect;
+import android.util.Log;
+import android.view.Window;
+import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
  * Miscellaneous utility methods.
  */
 public final class SkinJobUtil {
+  // TODO: Can this class be gotten at through the actual API?
+  public static final Constructor<? extends Window> ANDROID_WINDOW_IMPL_CTOR;
+  private static final String TAG = "SkinJobUtil";
+
+  static {
+    try {
+      ANDROID_WINDOW_IMPL_CTOR = Class
+          .forName("com.android.internal.policy.impl.PhoneWindow")
+          .asSubclass(Window.class)
+          .getConstructor(Context.class);
+    } catch (ClassNotFoundException | NoSuchMethodException e) {
+      Log.e(TAG, "java.awt.Window will be unavailable", e);
+      ANDROID_WINDOW_IMPL_CTOR = null;
+    }
+  }
+
   public static ThreadGroup getRootThreadGroup() {
     ThreadGroup group = Thread.currentThread().getThreadGroup();
     if (group == null) {
@@ -45,5 +67,19 @@ public final class SkinJobUtil {
    */
   public static Rectangle2D.Double androidRectToRectangle2D(Rect rect) {
     return new Rectangle2D.Double(rect.left, rect.top, rect.width(), rect.height());
+  }
+
+  public static Window newAndroidWindow(Context androidContext) {
+    if (ANDROID_WINDOW_IMPL_CTOR == null) {
+      throw new UnsupportedOperationException();
+    }
+    Window window;
+    try {
+      window = ANDROID_WINDOW_IMPL_CTOR.newInstance(androidContext);
+    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+    Toolkit.getDefaultToolkit().sjMaybeWatchWidgetForMouseCoords(window.getDecorView());
+    return window;
   }
 }

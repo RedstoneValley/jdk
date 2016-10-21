@@ -24,7 +24,6 @@
  */
 package java.awt;
 
-import android.content.Context;
 import android.util.Log;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsDevice.WindowTranslucency;
@@ -50,7 +49,6 @@ import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -63,6 +61,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import skinjob.SkinJobGlobals;
+import skinjob.util.SkinJobUtil;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.WindowAccessor;
 import sun.awt.AppContext;
@@ -176,8 +175,6 @@ public class Window extends Container {
   private static final long serialVersionUID = 4497834738069338734L;
   private static final boolean locationByPlatformProp;
   private static final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
-  // TODO: Can this class be gotten at through the actual API?
-  private static final Constructor<? extends android.view.Window> ANDROID_WINDOW_IMPL_CTOR;
   private static int nameCounter;
 
   static {
@@ -185,14 +182,6 @@ public class Window extends Container {
     systemSyncLWRequests = Boolean.valueOf(s);
     s = System.getProperty("java.awt.Window.locationByPlatform");
     locationByPlatformProp = Boolean.valueOf(s);
-    try {
-      ANDROID_WINDOW_IMPL_CTOR = Class
-          .forName("com.android.internal.policy.impl.PhoneWindow")
-          .asSubclass(android.view.Window.class)
-          .getConstructor(Context.class);
-    } catch (ClassNotFoundException | NoSuchMethodException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   static {
@@ -794,7 +783,7 @@ public class Window extends Container {
     SunToolkit.checkAndSetPolicy(this);
 
     sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
-    createAndroidWindow();
+    sjAndroidWindow = SkinJobUtil.newAndroidWindow(sjAndroidContext);
   }
 
   private void ownedInit(Window owner) {
@@ -3051,16 +3040,7 @@ public class Window extends Container {
 
     deserializeResources(s);
     sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
-    createAndroidWindow();
-  }
-
-  protected void createAndroidWindow() {
-    try {
-      sjAndroidWindow = ANDROID_WINDOW_IMPL_CTOR.newInstance(sjAndroidContext);
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
-    }
-    Toolkit.getDefaultToolkit().sjMaybeWatchWidgetForMouseCoords(sjAndroidWindow.getDecorView());
+    sjAndroidWindow = SkinJobUtil.newAndroidWindow(sjAndroidContext);
   }
 
   /**

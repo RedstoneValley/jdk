@@ -39,42 +39,7 @@ import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
 /**
- * A {@code TrayIcon} object represents a tray icon that can be
- * added to the {@link SystemTray system tray}. A
- * {@code TrayIcon} can have a tooltip (text), an image, a popup
- * menu, and a set of listeners associated with it.
- * <p>
- * <p>A {@code TrayIcon} can generate various {@link MouseEvent
- * MouseEvents} and supports adding corresponding listeners to receive
- * notification of these events.  {@code TrayIcon} processes some
- * of the events by itself.  For example, by default, when the
- * right-mouse click is performed on the {@code TrayIcon} it
- * displays the specified popup menu.  When the mouse hovers
- * over the {@code TrayIcon} the tooltip is displayed.
- * <p>
- * <p><strong>Note:</strong> When the {@code MouseEvent} is
- * dispatched to its registered listeners its {@code component}
- * property will be set to {@code null}.  (See {@link
- * java.awt.event.ComponentEvent#getComponent}) The
- * {@code source} property will be set to this
- * {@code TrayIcon}. (See {@link
- * java.util.EventObject#getSource})
- * <p>
- * <p><b>Note:</b> A well-behaved {@link TrayIcon} implementation
- * will assign different gestures to showing a popup menu and
- * selecting a tray icon.
- * <p>
- * <p>A {@code TrayIcon} can generate an {@link ActionEvent
- * ActionEvent}.  On some platforms, this occurs when the user selects
- * the tray icon using either the mouse or keyboard.
- * <p>
- * <p>If a SecurityManager is installed, the AWTPermission
- * {@code accessSystemTray} must be granted in order to create
- * a {@code TrayIcon}. Otherwise the constructor will throw a
- * SecurityException.
- * <p>
- * <p> See the {@link SystemTray} class overview for an example on how
- * to use the {@code TrayIcon} API.
+ * In SkinJob, a {@code TrayIcon} represents a notification.
  *
  * @author Bino George
  * @author Denis Mikhalkin
@@ -85,6 +50,7 @@ import sun.awt.SunToolkit;
  * @see java.util.EventObject#getSource
  * @since 1.6
  */
+// TODO: Migrate to use Android's action-listener API.
 public class TrayIcon {
 
   static {

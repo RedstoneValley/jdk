@@ -96,6 +96,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.WeakHashMap;
 import skinjob.internal.SkinJobToolkit;
+import skinjob.internal.peer.SkinJobSystemTrayPeer;
+import skinjob.internal.peer.SkinJobTrayIconPeer;
 import sun.awt.AppContext;
 import sun.awt.DefaultMouseInfoPeer;
 import sun.awt.HeadlessToolkit;
@@ -298,21 +300,21 @@ public abstract class Toolkit {
    * Pulled up from SunToolkit.
    */
   public TrayIconPeer createTrayIcon(TrayIcon target) throws HeadlessException, AWTException {
-    throw new UnsupportedOperationException();
+    return new SkinJobTrayIconPeer(target);
   }
 
   /**
    * Pulled up from SunToolkit.
    */
   public SystemTrayPeer createSystemTray(SystemTray target) {
-    throw new UnsupportedOperationException();
+    return new SkinJobSystemTrayPeer(target);
   }
 
   /**
    * Pulled up from SunToolkit.
    */
   public boolean isTraySupported() {
-    return false;
+    return true;
   }
 
   /**
