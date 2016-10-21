@@ -25,3 +25,7 @@ As a corollary to the above, SkinJob probably won't ever need to contain native 
 All the public classes and interfaces in `java.awt.*` should have all the public methods of their OpenJDK counterparts; those that are not final should have the protected methods as well. They should be able to accept parameters of the same types, and their return types should have the same list of supertypes and interfaces under `java.*` and `javax.*`.
 
 `sun.*` is *not* an API; compatibility with OpenJDK `sun.*` isn't a design goal unless some class in that package hierarchy turns out to be *very* widely used (as happened with `sun.misc.Unsafe`); even then, it's a low priority.
+
+## Speak Android's visual language
+
+When developers want pixel-by-pixel control over how a GUI widget looked and behaved, they use Swing, not AWT. Using AWT implies that an app is free to adapt its look and feel to the conventions of the platform; and when moving from a desktop OS to Android, that can mean bigger adaptations than usual. For example, people don't expect an Android app to have a horizontal menu bar along the top of the window, so SkinJob's menu bar should default to either being a side panel with the menus stacked vertically, or a drop-down menu accessible by tapping a ≡ icon.
