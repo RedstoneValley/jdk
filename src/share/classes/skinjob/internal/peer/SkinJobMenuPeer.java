@@ -6,6 +6,7 @@ import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.peer.MenuPeer;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cryoc on 2016-10-11.
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 public class SkinJobMenuPeer extends SkinJobComponentPeerForView<View> implements MenuPeer {
 
   protected final android.view.Menu androidMenu;
-  protected final ArrayList<MenuIndexOccupant> indexOccupants = new ArrayList<>();
+  protected final List<MenuIndexOccupant> indexOccupants = new ArrayList<>();
   protected final SkinJobMenuPeer parent; // Null unless this is a submenu
   private volatile int groupIdForNextItem = android.view.Menu.FIRST;
 

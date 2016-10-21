@@ -44,7 +44,7 @@ public class OffScreenImageSource implements ImageProducer {
   // We can only have one consumer since we immediately return the data...
   private ImageConsumer theConsumer;
 
-  public OffScreenImageSource(BufferedImage image, Hashtable properties) {
+  public OffScreenImageSource(BufferedImage image, Map properties) {
     this.image = image;
     this.properties = properties != null ? properties : new Hashtable();
     width = image.getWidth();

@@ -228,7 +228,6 @@ public class DragGestureEvent extends EventObject {
    *              <p>
    * @return an array of the events comprising the gesture
    */
-  @SuppressWarnings("unchecked")
   public Object[] toArray(Object[] array) {
     return events.toArray(array);
   }

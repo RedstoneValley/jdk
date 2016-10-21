@@ -25,27 +25,68 @@
 
 package sun.awt;
 
+import android.view.Display;
+import android.view.InputDevice;
+import android.view.MotionEvent;
+import android.view.View;
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.peer.MouseInfoPeer;
 
 public class DefaultMouseInfoPeer implements MouseInfoPeer {
 
+  private final InputDevice androidInputDevice;
+  private volatile float x = -1;
+  private volatile float y = -1;
+  private volatile int lastDisplay = -1;
+
+  private final View.OnTouchListener androidListener = new View.OnTouchListener() {
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+      Display touchedDisplay = v.getDisplay();
+      lastDisplay = touchedDisplay == null ? 0 : touchedDisplay.getDisplayId();
+      x = event.getX() + v.getX();
+      y = event.getY() + v.getY();
+      return false; // do not "consume" this event, in case other code needs it
+    }
+  };
+
   /**
    * Package-private constructor to prevent instantiation.
    */
-  DefaultMouseInfoPeer() {
+  public DefaultMouseInfoPeer() {
+    for (int id : InputDevice.getDeviceIds()) {
+      InputDevice device = InputDevice.getDevice(id);
+      if (device.supportsSource(InputDevice.SOURCE_MOUSE)) {
+        androidInputDevice = device;
+        return;
+      }
+    }
+    androidInputDevice = null;
+  }
+
+  public void sjMaybeWatchWidget(View widget) {
+    if (sjHaveMouse()) {
+      widget.setOnTouchListener(androidListener);
+    }
+  }
+
+  public boolean sjHaveMouse() {
+    return androidInputDevice != null;
   }
 
   @Override
   public int fillPointWithCoords(Point point) {
-    // TODO: This is native in OpenJDK AWT
-    return 0;
+    point.setLocation(x, y);
+    return lastDisplay;
   }
 
   @Override
   public boolean isWindowUnderMouse(Window w) {
-    // TODO: This is native in OpenJDK AWT
-    return false;
+    if (androidInputDevice == null || !w.isActive()) {
+      return false;
+    }
+    Display display = w.sjAndroidWindow.getDecorView().getDisplay();
+    return display != null && display.getDisplayId() == lastDisplay;
   }
 }

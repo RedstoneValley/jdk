@@ -25,104 +25,28 @@
 
 package sun.awt;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import java.awt.AWTEvent;
-import java.awt.AWTException;
-import java.awt.Button;
-import java.awt.Canvas;
-import java.awt.Checkbox;
-import java.awt.CheckboxMenuItem;
-import java.awt.Choice;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Desktop;
-import java.awt.Desktop.Action;
-import java.awt.Dialog;
 import java.awt.Dialog.ModalExclusionType;
-import java.awt.Dialog.ModalityType;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.FileDialog;
 import java.awt.FocusTraversalPolicy;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsDevice.WindowTranslucency;
-import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
-import java.awt.Label;
-import java.awt.List;
-import java.awt.Menu;
-import java.awt.MenuBar;
 import java.awt.MenuComponent;
-import java.awt.MenuItem;
-import java.awt.Panel;
-import java.awt.PopupMenu;
-import java.awt.Robot;
-import java.awt.ScrollPane;
-import java.awt.Scrollbar;
-import java.awt.SystemTray;
-import java.awt.TextArea;
-import java.awt.TextField;
 import java.awt.Toolkit;
-import java.awt.TrayIcon;
 import java.awt.Window;
-import java.awt.dnd.DragGestureEvent;
-import java.awt.dnd.InvalidDnDOperationException;
-import java.awt.dnd.peer.DragSourceContextPeer;
 import java.awt.event.WindowEvent;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
-import java.awt.peer.ButtonPeer;
-import java.awt.peer.CanvasPeer;
-import java.awt.peer.CheckboxMenuItemPeer;
-import java.awt.peer.CheckboxPeer;
-import java.awt.peer.ChoicePeer;
-import java.awt.peer.DesktopPeer;
-import java.awt.peer.DialogPeer;
-import java.awt.peer.FileDialogPeer;
-import java.awt.peer.FontPeer;
-import java.awt.peer.FramePeer;
-import java.awt.peer.KeyboardFocusManagerPeer;
-import java.awt.peer.LabelPeer;
-import java.awt.peer.ListPeer;
-import java.awt.peer.MenuBarPeer;
-import java.awt.peer.MenuItemPeer;
-import java.awt.peer.MenuPeer;
-import java.awt.peer.MouseInfoPeer;
-import java.awt.peer.PanelPeer;
-import java.awt.peer.PopupMenuPeer;
-import java.awt.peer.RobotPeer;
-import java.awt.peer.ScrollPanePeer;
-import java.awt.peer.ScrollbarPeer;
-import java.awt.peer.SystemTrayPeer;
-import java.awt.peer.TextAreaPeer;
-import java.awt.peer.TextFieldPeer;
-import java.awt.peer.TrayIconPeer;
-import java.awt.peer.WindowPeer;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Vector;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import skinjob.SkinJobGlobals;
-import skinjob.internal.SkinJobFontMetrics;
 import sun.awt.AWTAccessor.SequencedEventAccessor;
-import sun.awt.im.InputContext;
-import sun.awt.im.SimpleInputMethodWindow;
 import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
 import sun.awt.image.ImageRepresentation;
@@ -130,9 +54,10 @@ import sun.awt.image.MultiResolutionToolkitImage;
 import sun.awt.image.ToolkitImage;
 import sun.awt.image.URLImageSource;
 
-public abstract class SunToolkit extends Toolkit
-    implements WindowClosingSupport, WindowClosingListener, ComponentFactory, InputMethodSupport,
-    KeyboardFocusManagerPeerProvider {
+/**
+ * In SkinJob, only static methods of this class are used.
+ */
+public final class SunToolkit {
 
   // 8014718: logging has been removed from SunToolkit
 
@@ -197,10 +122,6 @@ public abstract class SunToolkit extends Toolkit
   // WeakHashMap<Component,AppContext>
   private static final Map<Object, AppContext> appContextMap
       = Collections.synchronizedMap(new WeakHashMap<Object, AppContext>());
-  private static final int MAX_ITERS = 20;
-  private static final int MIN_ITERS = 0;
-  private static final int MINIMAL_EDELAY = 0;
-  private static final Object DEACTIVATION_TIMES_MAP_KEY = new Object();
   private static Locale startupLocale;
   private static DefaultMouseInfoPeer mPeer;
   private static ModalExclusionType DEFAULT_MODAL_EXCLUSION_TYPE;
@@ -213,14 +134,7 @@ public abstract class SunToolkit extends Toolkit
     }
   }
 
-  final Object waitLock = "Wait Lock";
-  private final ModalityListenerList modalityListeners = new ModalityListenerList();
-  boolean eventDispatched;
-  boolean queueEmpty;
-  // Support for window closing event notifications
-  private transient WindowClosingListener windowClosingListener;
-
-  public SunToolkit() {
+  private SunToolkit() {
   }
 
   /**
@@ -330,18 +244,6 @@ public abstract class SunToolkit extends Toolkit
     cont.setFocusTraversalPolicy(defaultPolicy);
   }
 
-  private static FocusTraversalPolicy createLayoutPolicy() {
-    FocusTraversalPolicy policy = null;
-    try {
-      Class<?> layoutPolicyClass = Class.forName("javax.swing.LayoutFocusTraversalPolicy");
-      policy = (FocusTraversalPolicy) layoutPolicyClass.newInstance();
-    } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-      assert false;
-    }
-
-    return policy;
-  }
-
   /*
    * Insert a mapping from target to AppContext, for later retrieval
    * via targetToAppContext() above.
@@ -371,8 +273,6 @@ public abstract class SunToolkit extends Toolkit
       AWTEvent nested = sea.getNested(event);
       if (nested.getID() == WindowEvent.WINDOW_LOST_FOCUS && nested instanceof TimedWindowEvent) {
         TimedWindowEvent twe = (TimedWindowEvent) nested;
-        ((SunToolkit) Toolkit.getDefaultToolkit()).
-            setWindowDeactivationTime((Window) twe.getSource(), twe.getWhen());
       }
     }
 
@@ -429,20 +329,6 @@ public abstract class SunToolkit extends Toolkit
    */
   public static void executeOnEventHandlerThread(PeerEvent peerEvent) {
     postEvent(targetToAppContext(peerEvent.getSource()), peerEvent);
-  }
-
-  static Image getImageFromHash(Toolkit tk, URL url) {
-    synchronized (imgCache) {
-      Image img = (Image) imgCache.get(url);
-      if (img == null) {
-        try {
-          img = tk.createImage(new URLImageSource(url));
-          imgCache.put(url, img);
-        } catch (Exception e) {
-        }
-      }
-      return img;
-    }
   }
 
   static Image getImageFromHash(Toolkit tk, String filename) {
@@ -578,38 +464,6 @@ public abstract class SunToolkit extends Toolkit
   }
 
   /**
-   * Returns whether or not a containing top level window for the passed
-   * component is
-   * {@link WindowTranslucency#PERPIXEL_TRANSLUCENT PERPIXEL_TRANSLUCENT}.
-   *
-   * @param c a Component which toplevel's to check
-   * @return {@code true}  if the passed component is not null and has a
-   * containing toplevel window which is opaque (so per-pixel translucency
-   * is not enabled), {@code false} otherwise
-   * @see WindowTranslucency#PERPIXEL_TRANSLUCENT
-   */
-  public static boolean isContainingTopLevelOpaque(Component c) {
-    Window w = getContainingWindow(c);
-    return w != null && w.isOpaque();
-  }
-
-  /**
-   * Returns whether or not a containing top level window for the passed
-   * component is
-   * {@link WindowTranslucency#TRANSLUCENT TRANSLUCENT}.
-   *
-   * @param c a Component which toplevel's to check
-   * @return {@code true} if the passed component is not null and has a
-   * containing toplevel window which has opacity less than
-   * 1.0f (which means that it is translucent), {@code false} otherwise
-   * @see WindowTranslucency#TRANSLUCENT
-   */
-  public static boolean isContainingTopLevelTranslucent(Component c) {
-    Window w = getContainingWindow(c);
-    return w != null && w.getOpacity() < 1.0f;
-  }
-
-  /**
    * Checks that the given object implements/extends the given
    * interface/class.
    * <p>
@@ -651,48 +505,11 @@ public abstract class SunToolkit extends Toolkit
     return isInstanceOf(cls.getSuperclass(), type);
   }
 
-  protected static LightweightFrame getLightweightFrame(Component c) {
-    for (; c != null; c = c.getParent()) {
-      if (c instanceof LightweightFrame) {
-        return (LightweightFrame) c;
-      }
-      if (c instanceof Window) {
-        // Don't traverse owner windows
-        return null;
-      }
-    }
-    return null;
-  }
-
   public static void setSystemGenerated(AWTEvent e) {
     AWTAccessor.getAWTEventAccessor().setSystemGenerated(e);
   }
 
-  public boolean useBufferPerWindow() {
-    return false;
-  }
-
-  public abstract FramePeer createLightweightFrame(LightweightFrame target)
-      throws HeadlessException;
-
-  public abstract TrayIconPeer createTrayIcon(TrayIcon target)
-      throws HeadlessException, AWTException;
-
-  public abstract SystemTrayPeer createSystemTray(SystemTray target);
-
-  public abstract boolean isTraySupported();
-
-  @Override
-  public abstract RobotPeer createRobot(Robot target, GraphicsDevice screen) throws AWTException;
-
-  @Override
-  public abstract KeyboardFocusManagerPeer getKeyboardFocusManagerPeer() throws HeadlessException;
-
-  protected abstract int getScreenWidth();
-
-  protected abstract int getScreenHeight();
-
-  private int checkResolutionVariant(Image img, int w, int h, ImageObserver o) {
+  private static int checkResolutionVariant(Image img, int w, int h, ImageObserver o) {
     ToolkitImage rvImage = getResolutionVariant(img);
     int rvw = getRVSize(w);
     int rvh = getRVSize(h);
@@ -702,256 +519,34 @@ public abstract class SunToolkit extends Toolkit
             getResolutionVariantObserver(img, o, true));
   }
 
-  private boolean prepareResolutionVariant(Image img, int w, int h, ImageObserver o) {
+  private static boolean prepareResolutionVariant(Image img, int w, int h, ImageObserver o) {
 
     ToolkitImage rvImage = getResolutionVariant(img);
     int rvw = getRVSize(w);
     int rvh = getRVSize(h);
     // Ignore the resolution variant in case of error
     return rvImage == null || rvImage.hasError() || prepareImage(rvImage,
-        rvw,
-        rvh, MultiResolutionToolkitImage.getResolutionVariantObserver(img, o, true));
+        rvw, rvh, MultiResolutionToolkitImage.getResolutionVariantObserver(img, o, true));
   }
 
-  /**
-   * Returns a new input method window, with behavior as specified in
-   * {@link java.awt.im.spi.InputMethodContext#createInputMethodWindow}.
-   * If the inputContext is not null, the window should return it from its
-   * getInputContext() method. The window needs to implement
-   * sun.awt.im.InputMethodWindow.
-   * <p>
-   * SunToolkit subclasses can override this method to return better input
-   * method windows.
-   */
-  @Override
-  public Window createInputMethodWindow(String title, InputContext context) {
-    return new SimpleInputMethodWindow(title, context);
+  public static Image getImage(String filename) {
+    return getImageFromHash(Toolkit.getDefaultToolkit(), filename);
   }
 
-  /**
-   * Returns whether enableInputMethods should be set to true for peered
-   * TextComponent instances on this platform. False by default.
-   */
-  @Override
-  public boolean enableInputMethodsForTextComponent() {
-    return false;
+  public static Image getImage(URL url) {
+    return getImageFromHash(Toolkit.getDefaultToolkit(), url.toString());
   }
 
-  /**
-   * Returns the default keyboard locale of the underlying operating system
-   */
-  @Override
-  public Locale getDefaultKeyboardLocale() {
-    return getStartupLocale();
-  }
-
-  @Override
-  public WindowClosingListener getWindowClosingListener() {
-    return windowClosingListener;
-  }
-
-  @Override
-  public void setWindowClosingListener(WindowClosingListener wcl) {
-    windowClosingListener = wcl;
-  }
-
-  @Override
-  public RuntimeException windowClosingNotify(WindowEvent event) {
-    return windowClosingListener != null ? windowClosingListener.windowClosingNotify(event) : null;
-  }
-
-  @Override
-  public RuntimeException windowClosingDelivered(WindowEvent event) {
-    return windowClosingListener != null ? windowClosingListener.windowClosingDelivered(event)
-        : null;
-  }
-
-  /**
-   * Returns whether the XEmbed server feature is requested by
-   * developer.  If true, Toolkit should return an
-   * XEmbed-server-enabled CanvasPeer instead of the ordinary CanvasPeer.
-   */
-  protected final boolean isXEmbedServerRequested() {
-    return Boolean.valueOf(System.getProperty("sun.awt.xembedserver"));
-  }
-
-  /*
-   * Default implementation for isModalExcludedSupportedImpl(), returns false.
-   *
-   * @see sun.awt.windows.WToolkit#isModalExcludeSupportedImpl
-   * @see sun.awt.X11.XToolkit#isModalExcludeSupportedImpl
-   *
-   * @since 1.5
-   */
-  protected boolean isModalExcludedSupportedImpl() {
-    return false;
-  }
-
-  public void addModalityListener(ModalityListener listener) {
-    modalityListeners.add(listener);
-  }
-
-  public void removeModalityListener(ModalityListener listener) {
-    modalityListeners.remove(listener);
-  }
-
-  public void notifyModalityPushed(Dialog dialog) {
-    notifyModalityChange(ModalityEvent.MODALITY_PUSHED, dialog);
-  }
-
-  public void notifyModalityPopped(Dialog dialog) {
-    notifyModalityChange(ModalityEvent.MODALITY_POPPED, dialog);
-  }
-
-  final void notifyModalityChange(int id, Dialog source) {
-    ModalityEvent ev = new ModalityEvent(source, modalityListeners, id);
-    ev.dispatch();
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  //
-  // The following is used by the Java Plug-in to coordinate dialog modality
-  // between containing applications (browsers, ActiveX containers etc) and
-  // the AWT.
-  //
-  ///////////////////////////////////////////////////////////////////////////
-
-  protected Context getAndroidContext() {
-    return SkinJobGlobals.getAndroidApplicationContext();
-  }
-
-  protected void launchIntent(File file, String action) throws IOException {
-    Intent intentToOpen = new Intent(action);
-    Uri fileUri = Uri.fromFile(file);
-    FileInputStream fileInputStream = new FileInputStream(file);
-    try {
-      String mime = URLConnection.guessContentTypeFromStream(fileInputStream);
-      if (mime == null) {
-        mime = URLConnection.guessContentTypeFromName(file.getName());
-      }
-      intentToOpen.setDataAndType(fileUri, mime);
-      getAndroidContext().startActivity(intentToOpen);
-    } finally {
-      fileInputStream.close();
-    }
-  }
-
-  @Override
-  protected DesktopPeer createDesktopPeer(Desktop target) throws HeadlessException {
-    return new DesktopPeerImpl();
-  }
-
-  public abstract ButtonPeer createButton(Button target) throws HeadlessException;
-
-  public abstract TextFieldPeer createTextField(TextField target) throws HeadlessException;
-
-  public abstract LabelPeer createLabel(Label target) throws HeadlessException;
-
-  public abstract ListPeer createList(List target) throws HeadlessException;
-
-  public abstract CheckboxPeer createCheckbox(Checkbox target) throws HeadlessException;
-
-  public abstract ScrollbarPeer createScrollbar(Scrollbar target) throws HeadlessException;
-
-  public abstract ScrollPanePeer createScrollPane(ScrollPane target) throws HeadlessException;
-
-  ///////////////////////////////////////////////////////////////////////////
-  // End Plug-in code
-  ///////////////////////////////////////////////////////////////////////////
-
-  public abstract TextAreaPeer createTextArea(TextArea target) throws HeadlessException;
-
-  public abstract ChoicePeer createChoice(Choice target) throws HeadlessException;
-
-  public abstract FramePeer createFrame(Frame target) throws HeadlessException;
-
-  public CanvasPeer createCanvas(Canvas target) {
-    return (CanvasPeer) createComponent(target);
-  }
-
-  public PanelPeer createPanel(Panel target) {
-    return (PanelPeer) createComponent(target);
-  }
-
-  public abstract WindowPeer createWindow(Window target) throws HeadlessException;
-
-  public abstract DialogPeer createDialog(Dialog target) throws HeadlessException;
-
-  public abstract MenuBarPeer createMenuBar(MenuBar target) throws HeadlessException;
-
-  public abstract MenuPeer createMenu(Menu target) throws HeadlessException;
-
-  public abstract PopupMenuPeer createPopupMenu(PopupMenu target) throws HeadlessException;
-
-  public abstract MenuItemPeer createMenuItem(MenuItem target) throws HeadlessException;
-
-  public abstract FileDialogPeer createFileDialog(FileDialog target) throws HeadlessException;
-
-  public abstract CheckboxMenuItemPeer createCheckboxMenuItem(
-      CheckboxMenuItem target) throws HeadlessException;
-
-  @Override
-  protected synchronized MouseInfoPeer getMouseInfoPeer() {
-    if (mPeer == null) {
-      mPeer = new DefaultMouseInfoPeer();
-    }
-    return mPeer;
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public abstract FontPeer getFontPeer(String name, int style);
-
-  @Override
-  public Dimension getScreenSize() {
-    return new Dimension(getScreenWidth(), getScreenHeight());
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public String[] getFontList() {
-    return new String[]{
-        Font.DIALOG, Font.SANS_SERIF, Font.SERIF, Font.MONOSPACED, Font.DIALOG_INPUT
-
-        // -- Obsolete font names from 1.0.2.  It was decided that
-        // -- getFontList should not return these old names:
-        //    "Helvetica", "TimesRoman", "Courier", "ZapfDingbats"
-    };
-  }
-
-  @Override
-  @SuppressWarnings("deprecation")
-  public FontMetrics getFontMetrics(Font font) {
-    return new SkinJobFontMetrics(font);
-  }
-
-  @Override
-  public Image getImage(String filename) {
-    return getImageFromHash(this, filename);
-  }
-
-    /* The following methods and variables are to support retrieving
-     * desktop text anti-aliasing settings
-     */
-
-  @Override
-  public Image getImage(URL url) {
-    return getImageFromHash(this, url);
-  }
-
-  @Override
-  public Image createImage(String filename) {
+  public static Image createImage(String filename) {
     checkPermissions(filename);
     return createImage(new FileImageSource(filename));
   }
 
-  @Override
-  public Image createImage(URL url) {
+  public static Image createImage(URL url) {
     return createImage(new URLImageSource(url));
   }
 
-  @Override
-  public boolean prepareImage(Image img, int w, int h, ImageObserver o) {
+  public static boolean prepareImage(Image img, int w, int h, ImageObserver o) {
     if (w == 0 || h == 0) {
       return true;
     }
@@ -972,8 +567,7 @@ public abstract class SunToolkit extends Toolkit
     return ir.prepare(o) && prepareResolutionVariant(img, w, h, o);
   }
 
-  @Override
-  public int checkImage(Image img, int w, int h, ImageObserver o) {
+  public static int checkImage(Image img, int w, int h, ImageObserver o) {
     if (!(img instanceof ToolkitImage)) {
       return ImageObserver.ALLBITS;
     }
@@ -984,526 +578,106 @@ public abstract class SunToolkit extends Toolkit
     return (tkimg.check(o) | repbits) & checkResolutionVariant(img, w, h, o);
   }
 
-  @Override
-  public Image createImage(ImageProducer producer) {
+  public static Image createImage(ImageProducer producer) {
     return new ToolkitImage(producer);
   }
 
-  @Override
-  public Image createImage(byte[] data, int offset, int length) {
+  public static Image createImage(byte[] data, int offset, int length) {
     return createImage(new ByteArrayImageSource(data, offset, length));
   }
 
-  @Override
-  protected EventQueue getSystemEventQueueImpl() {
-    return getSystemEventQueueImplPP();
-  }
-
-  public abstract DragSourceContextPeer createDragSourceContextPeer(
-      DragGestureEvent dge) throws InvalidDnDOperationException;
-
   /**
-   * Overridden in XToolkit and WToolkit
-   */
-  @Override
-  public boolean isModalityTypeSupported(ModalityType modalityType) {
-    return modalityType == ModalityType.MODELESS || modalityType == ModalityType.APPLICATION_MODAL;
-  }
-
-  /**
-   * Overridden in XToolkit and WToolkit
-   */
-  @Override
-  public boolean isModalExclusionTypeSupported(ModalExclusionType exclusionType) {
-    return exclusionType == ModalExclusionType.NO_EXCLUDE;
-  }
-
-  /**
-   * Parameterless version of realsync which uses default timout (see DEFAUL_WAIT_TIME).
-   */
-  public void realSync() throws OperationTimedOut, InfiniteLoop {
-    realSync(DEFAULT_WAIT_TIME);
-  }
-
-  /**
-   * Forces toolkit to synchronize with the native windowing
-   * sub-system, flushing all pending work and waiting for all the
-   * events to be processed.  This method guarantees that after
-   * return no additional Java events will be generated, unless
-   * cause by user. Obviously, the method cannot be used on the
-   * event dispatch thread (EDT). In case it nevertheless gets
-   * invoked on this thread, the method throws the
-   * IllegalThreadException runtime exception.
-   * <p>
-   * <p> This method allows to write tests without explicit timeouts
-   * or wait for some event.  Example:
-   * {@code
-   * Frame f = ...;
-   * f.setVisible(true);
-   * ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
-   * }
-   * <p>
-   * <p> After realSync, {@code f} will be completely visible
-   * on the screen, its getLocationOnScreen will be returning the
-   * right result and it will be the focus owner.
-   * <p>
-   * <p> Another example:
-   * {@code
-   * b.requestFocus();
-   * ((SunToolkit)Toolkit.getDefaultToolkit()).realSync();
-   * }
-   * <p>
-   * <p> After realSync, {@code b} will be focus owner.
-   * <p>
-   * <p> Notice that realSync isn't guaranteed to work if recurring
-   * actions occur, such as if during processing of some event
-   * another request which may generate some events occurs.  By
-   * default, sync tries to perform as much as {@value MAX_ITERS}
-   * cycles of event processing, allowing for roughly {@value
-   * MAX_ITERS} additional requests.
-   * <p>
-   * <p> For example, requestFocus() generates native request, which
-   * generates one or two Java focus events, which then generate a
-   * serie of paint events, a serie of Java focus events, which then
-   * generate a serie of paint events which then are processed -
-   * three cycles, minimum.
+   * PostEventQueue is a Thread that runs in the same AppContext as the
+   * Java EventQueue.  It is a queue of AWTEvents to be posted to the
+   * Java EventQueue.  The toolkit Thread (AWT-Windows/AWT-Motif) posts
+   * events to this queue, which then calls EventQueue.postEvent().
    *
-   * @param timeout the maximum time to wait in milliseconds, negative means "forever".
+   * We do this because EventQueue.postEvent() may be overridden by client
+   * code, and we mustn't ever call client code from the toolkit thread.
    */
-  public void realSync(long timeout) throws OperationTimedOut, InfiniteLoop {
-    if (EventQueue.isDispatchThread()) {
-      throw new IllegalThreadException(
-          "The SunToolkit.realSync() method cannot be used on the event dispatch thread (EDT).");
+  static class PostEventQueue {
+    private final EventQueue eventQueue;
+    private EventQueueItem queueHead;
+    private EventQueueItem queueTail;
+    private Thread flushThread;
+
+    PostEventQueue(EventQueue eq) {
+      eventQueue = eq;
     }
-    int bigLoop = 0;
-    do {
-      // Let's do sync first
-      sync();
 
-      // During the wait process, when we were processing incoming
-      // events, we could have made some new request, which can
-      // generate new events.  Example: MapNotify/XSetInputFocus.
-      // Therefore, we dispatch them as long as there is something
-      // to dispatch.
-      int iters = 0;
-      while (syncNativeQueue(timeout) && iters < MAX_ITERS) {
-        iters++;
-      }
-      if (iters >= MAX_ITERS) {
-        throw new InfiniteLoop();
-      }
+    static void wakeupEventQueue(EventQueue q, boolean isShutdown) {
+      AWTAccessor.getEventQueueAccessor().wakeup(q, isShutdown);
+    }
 
-      // native requests were dispatched by X/Window Manager or Windows
-      // Moreover, we processed them all on Toolkit thread
-      // Now wait while EDT processes them.
-      //
-      // During processing of some events (focus, for example),
-      // some other events could have been generated.  So, after
-      // waitForIdle, we may end up with full EventQueue
-      iters = 0;
-      while (waitForIdle(timeout) && iters < MAX_ITERS) {
-        iters++;
-      }
-      if (iters >= MAX_ITERS) {
-        throw new InfiniteLoop();
-      }
+    /*
+     * Continually post pending AWTEvents to the Java EventQueue. The method
+     * is synchronized to ensure the flush is completed before a new event
+     * can be posted to this queue.
+     *
+     * 7177040: The method couldn't be wholly synchronized because of calls
+     * of EventQueue.postEvent() that uses pushPopLock, otherwise it could
+     * potentially lead to deadlock
+     */
+    public void flush() {
 
-      bigLoop++;
-      // Again, for Java events, it was simple to check for new Java
-      // events by checking event queue, but what if Java events
-      // resulted in native requests?  Therefor, check native events again.
-    } while ((syncNativeQueue(timeout) || waitForIdle(timeout)) && bigLoop < MAX_ITERS);
-  }
+      Thread newThread = Thread.currentThread();
 
-  /**
-   * Platform toolkits need to implement this method to perform the
-   * sync of the native queue.  The method should wait until native
-   * requests are processed, all native events are processed and
-   * corresponding Java events are generated.  Should return
-   * {@code true} if some events were processed,
-   * {@code false} otherwise.
-   */
-  protected abstract boolean syncNativeQueue(long timeout);
-
-  boolean isEQEmpty() {
-    EventQueue queue = getSystemEventQueueImpl();
-    return AWTAccessor.getEventQueueAccessor().noEvents(queue);
-  }
-
-  /**
-   * Waits for the Java event queue to empty.  Ensures that all
-   * events are processed (including paint events), and that if
-   * recursive events were generated, they are also processed.
-   * Should return {@code true} if more processing is
-   * necessary, {@code false} otherwise.
-   */
-  @SuppressWarnings("serial")
-  protected final boolean waitForIdle(long timeout) {
-    flushPendingEvents();
-    boolean queueWasEmpty = isEQEmpty();
-    queueEmpty = false;
-    eventDispatched = false;
-    synchronized (waitLock) {
-      postEvent(AppContext.getAppContext(),
-          new PeerEvent(getSystemEventQueueImpl(), null, PeerEvent.LOW_PRIORITY_EVENT) {
-            @Override
-            public void dispatch() {
-              // Here we block EDT.  It could have some
-              // events, it should have dispatched them by
-              // now.  So native requests could have been
-              // generated.  First, dispatch them.  Then,
-              // flush Java events again.
-              int iters = 0;
-              while (syncNativeQueue(timeout) && iters < MAX_ITERS) {
-                iters++;
-              }
-              flushPendingEvents();
-
-              synchronized (waitLock) {
-                queueEmpty = isEQEmpty();
-                eventDispatched = true;
-                waitLock.notifyAll();
-              }
-            }
-          });
       try {
-        while (!eventDispatched) {
-          waitLock.wait();
+        EventQueueItem tempQueue;
+        synchronized (this) {
+          // Avoid method recursion
+          if (newThread == flushThread) {
+            return;
+          }
+          // Wait for other threads' flushing
+          while (flushThread != null) {
+            wait();
+          }
+          // Skip everything if queue is empty
+          if (queueHead == null) {
+            return;
+          }
+          // Remember flushing thread
+          flushThread = newThread;
+
+          tempQueue = queueHead;
+          queueHead = queueTail = null;
         }
-      } catch (InterruptedException ie) {
-        return false;
+        try {
+          while (tempQueue != null) {
+            eventQueue.postEvent(tempQueue.event);
+            tempQueue = tempQueue.next;
+          }
+        } finally {
+          // Only the flushing thread can get here
+          synchronized (this) {
+            // Forget flushing thread, inform other pending threads
+            flushThread = null;
+            notifyAll();
+          }
+        }
+      } catch (InterruptedException e) {
+        // Couldn't allow exception go up, so at least recover the flag
+        newThread.interrupt();
       }
     }
 
-    try {
-      Thread.sleep(MINIMAL_EDELAY);
-    } catch (InterruptedException ie) {
-      throw new RuntimeException("Interrupted");
-    }
+    /*
+     * Enqueue an AWTEvent to be posted to the Java EventQueue.
+     */
+    void postEvent(AWTEvent event) {
+      EventQueueItem item = new EventQueueItem(event);
 
-    flushPendingEvents();
-
-    // Lock to force write-cache flush for queueEmpty.
-    synchronized (waitLock) {
-      return !(queueEmpty && isEQEmpty() && queueWasEmpty);
-    }
-  }
-
-  /**
-   * Grabs the mouse input for the given window.  The window must be
-   * visible.  The window or its children do not receive any
-   * additional mouse events besides those targeted to them.  All
-   * other events will be dispatched as before - to the respective
-   * targets.  This Window will receive UngrabEvent when automatic
-   * ungrab is about to happen.  The event can be listened to by
-   * installing AWTEventListener with WINDOW_EVENT_MASK.  See
-   * UngrabEvent class for the list of conditions when ungrab is
-   * about to happen.
-   *
-   * @see UngrabEvent
-   */
-  public abstract void grab(Window w);
-
-  /**
-   * Forces ungrab.  No event will be sent.
-   */
-  public abstract void ungrab(Window w);
-
-  public abstract boolean isDesktopSupported();
-
-  /**
-   * Returns true if the native GTK libraries are available.  The
-   * default implementation returns false, but UNIXToolkit overrides this
-   * method to provide a more specific answer.
-   */
-  public boolean isNativeGTKAvailable() {
-    return false;
-  }
-
-  public synchronized void setWindowDeactivationTime(Window w, long time) {
-    AppContext ctx = getAppContext(w);
-    WeakHashMap<Window, Long> map = (WeakHashMap<Window, Long>) ctx.get(DEACTIVATION_TIMES_MAP_KEY);
-    if (map == null) {
-      map = new WeakHashMap<>();
-      ctx.put(DEACTIVATION_TIMES_MAP_KEY, map);
-    }
-    map.put(w, time);
-  }
-
-  public synchronized long getWindowDeactivationTime(Window w) {
-    AppContext ctx = getAppContext(w);
-    WeakHashMap<Window, Long> map = (WeakHashMap<Window, Long>) ctx.get(DEACTIVATION_TIMES_MAP_KEY);
-    if (map == null) {
-      return -1;
-    }
-    Long time = map.get(w);
-    return time == null ? -1 : time;
-  }
-
-  // Cosntant alpha
-  public boolean isWindowOpacitySupported() {
-    return false;
-  }
-
-  // Shaping
-  public boolean isWindowShapingSupported() {
-    return false;
-  }
-
-  // Per-pixel alpha
-  public boolean isWindowTranslucencySupported() {
-    return false;
-  }
-
-  public boolean isTranslucencyCapable(GraphicsConfiguration gc) {
-    return false;
-  }
-
-  /**
-   * Returns true if swing backbuffer should be translucent.
-   */
-  public boolean isSwingBackbufferTranslucencySupported() {
-    return false;
-  }
-
-  /**
-   * Returns whether the native system requires using the peer.updateWindow()
-   * method to update the contents of a non-opaque window, or if usual
-   * painting procedures are sufficient. The default return value covers
-   * the X11 systems. On MS Windows this method is overriden in WToolkit
-   * to return true.
-   */
-  public boolean needUpdateWindow() {
-    return false;
-  }
-
-  /**
-   * Descendants of the SunToolkit should override and put their own logic here.
-   */
-  public int getNumberOfButtons() {
-    return 3;
-  }
-
-  static class ModalityListenerList implements ModalityListener {
-
-    final Vector<ModalityListener> listeners = new Vector<>();
-
-    void add(ModalityListener listener) {
-      listeners.addElement(listener);
-    }
-
-    void remove(ModalityListener listener) {
-      listeners.removeElement(listener);
-    }
-
-    @Override
-    public void modalityPushed(ModalityEvent ev) {
-      for (ModalityListener listener : listeners) {
-        listener.modalityPushed(ev);
+      synchronized (this) {
+        if (queueHead == null) {
+          queueHead = queueTail = item;
+        } else {
+          queueTail.next = item;
+          queueTail = item;
+        }
       }
+      wakeupEventQueue(eventQueue, event.getSource() == AWTAutoShutdown.getInstance());
     }
-
-    @Override
-    public void modalityPopped(ModalityEvent ev) {
-      for (ModalityListener listener : listeners) {
-        listener.modalityPopped(ev);
-      }
-    }
-  } // end of class ModalityListenerList
-
-  @SuppressWarnings("serial")
-  public static class OperationTimedOut extends RuntimeException {
-    public OperationTimedOut(String msg) {
-      super(msg);
-    }
-
-    public OperationTimedOut() {
-    }
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  //
-  // The following methods help set and identify whether a particular
-  // AWTEvent object was produced by the system or by user code. As of this
-  // writing the only consumer is the Java Plug-In, although this information
-  // could be useful to more clients and probably should be formalized in
-  // the public API.
-  //
-  ///////////////////////////////////////////////////////////////////////////
-
-  @SuppressWarnings("serial")
-  public static class InfiniteLoop extends RuntimeException {
-  }
-
-  @SuppressWarnings("serial")
-  public static class IllegalThreadException extends RuntimeException {
-    public IllegalThreadException(String msg) {
-      super(msg);
-    }
-
-    public IllegalThreadException() {
-    }
-  }
-
-  private class DesktopPeerImpl implements DesktopPeer {
-
-    DesktopPeerImpl() {
-    }
-
-    @Override
-    public boolean isSupported(Action action) {
-      return action != Action.PRINT;
-    }
-
-    @Override
-    public void open(File file) throws IOException {
-      launchIntent(file, Intent.ACTION_VIEW);
-    }
-
-    @Override
-    public void edit(File file) throws IOException {
-      launchIntent(file, Intent.ACTION_EDIT);
-    }
-
-    @Override
-    public void print(File file) throws IOException {
-      throw new UnsupportedOperationException("TODO: Uncomment once support.v4 JAR is installed");
-      /*
-       if (ContextCompat.checkSelfPermission(sjAndroidContext,
-       Manifest.permission.READ_CONTACTS)
-       != PackageManager.PERMISSION_GRANTED) {
-
-       // Should we show an explanation?
-       if (ActivityCompat.shouldShowRequestPermissionRationale(sjAndroidContext,
-       Manifest.permission.READ_CONTACTS)) {
-
-       // Show an expanation to the user *asynchronously* -- don't block
-       // this thread waiting for the user's response! After the user
-       // sees the explanation, try again to request the permission.
-
-       } else {
-
-       // No explanation needed, we can request the permission.
-
-       ActivityCompat.requestPermissions(thisActivity,
-       new String[]{Manifest.permission.READ_CONTACTS},
-       MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-
-       // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-       // app-defined int constant. The callback method gets the
-       // result of the request.
-       }
-       }
-       launchIntent(file, Intent.ACTION_PR);
-       */
-    }
-
-    @Override
-    public void mail(URI mailtoURL) throws IOException {
-      Intent mailIntent = new Intent(Intent.ACTION_SENDTO);
-      mailIntent.setData(Uri.parse(mailtoURL.toString()));
-      getAndroidContext().startActivity(mailIntent);
-    }
-
-    @Override
-    public void browse(URI uri) throws IOException {
-      Intent browseIntent = new Intent(Intent.ACTION_VIEW);
-      browseIntent.setData(Uri.parse(uri.toString()));
-      getAndroidContext().startActivity(browseIntent);
-    }
-  }
+  } // class PostEventQueue
 } // class SunToolkit
 
-/*
- * PostEventQueue is a Thread that runs in the same AppContext as the
- * Java EventQueue.  It is a queue of AWTEvents to be posted to the
- * Java EventQueue.  The toolkit Thread (AWT-Windows/AWT-Motif) posts
- * events to this queue, which then calls EventQueue.postEvent().
- *
- * We do this because EventQueue.postEvent() may be overridden by client
- * code, and we mustn't ever call client code from the toolkit thread.
- */
-class PostEventQueue {
-  private final EventQueue eventQueue;
-  private EventQueueItem queueHead;
-  private EventQueueItem queueTail;
-  private Thread flushThread;
-
-  PostEventQueue(EventQueue eq) {
-    eventQueue = eq;
-  }
-
-  static void wakeupEventQueue(EventQueue q, boolean isShutdown) {
-    AWTAccessor.getEventQueueAccessor().wakeup(q, isShutdown);
-  }
-
-  /*
-   * Continually post pending AWTEvents to the Java EventQueue. The method
-   * is synchronized to ensure the flush is completed before a new event
-   * can be posted to this queue.
-   *
-   * 7177040: The method couldn't be wholly synchronized because of calls
-   * of EventQueue.postEvent() that uses pushPopLock, otherwise it could
-   * potentially lead to deadlock
-   */
-  public void flush() {
-
-    Thread newThread = Thread.currentThread();
-
-    try {
-      EventQueueItem tempQueue;
-      synchronized (this) {
-        // Avoid method recursion
-        if (newThread == flushThread) {
-          return;
-        }
-        // Wait for other threads' flushing
-        while (flushThread != null) {
-          wait();
-        }
-        // Skip everything if queue is empty
-        if (queueHead == null) {
-          return;
-        }
-        // Remember flushing thread
-        flushThread = newThread;
-
-        tempQueue = queueHead;
-        queueHead = queueTail = null;
-      }
-      try {
-        while (tempQueue != null) {
-          eventQueue.postEvent(tempQueue.event);
-          tempQueue = tempQueue.next;
-        }
-      } finally {
-        // Only the flushing thread can get here
-        synchronized (this) {
-          // Forget flushing thread, inform other pending threads
-          flushThread = null;
-          notifyAll();
-        }
-      }
-    } catch (InterruptedException e) {
-      // Couldn't allow exception go up, so at least recover the flag
-      newThread.interrupt();
-    }
-  }
-
-  /*
-   * Enqueue an AWTEvent to be posted to the Java EventQueue.
-   */
-  void postEvent(AWTEvent event) {
-    EventQueueItem item = new EventQueueItem(event);
-
-    synchronized (this) {
-      if (queueHead == null) {
-        queueHead = queueTail = item;
-      } else {
-        queueTail.next = item;
-        queueTail = item;
-      }
-    }
-    wakeupEventQueue(eventQueue, event.getSource() == AWTAutoShutdown.getInstance());
-  }
-} // class PostEventQueue

@@ -32,7 +32,6 @@ import java.awt.peer.DialogPeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectInputStream.GetField;
-import java.security.AccessControlException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
@@ -106,13 +105,12 @@ public class Dialog extends Window {
    */
   public static final ModalityType DEFAULT_MODALITY_TYPE = ModalityType.APPLICATION_MODAL;
   public static final String base = "dialog";
+  /* operations with this list should be synchronized on tree lock*/
+  static final transient IdentityArrayList<Dialog> modalDialogs = new IdentityArrayList<>();
   /*
    * JDK 1.1 serialVersionUID
    */
   private static final long serialVersionUID = 5920926903803293709L;
-  /* operations with this list should be synchronized on tree lock*/
-  static final transient IdentityArrayList<Dialog> modalDialogs = new IdentityArrayList<>();
-
   private static int nameCounter;
   /**
    * A dialog's resizable property. Will be true
@@ -1106,19 +1104,11 @@ public class Dialog extends Window {
   }
 
   final void modalityPushed() {
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    if (tk instanceof SunToolkit) {
-      SunToolkit stk = (SunToolkit) tk;
-      stk.notifyModalityPushed(this);
-    }
+    // No-op.
   }
 
   final void modalityPopped() {
-    Toolkit tk = Toolkit.getDefaultToolkit();
-    if (tk instanceof SunToolkit) {
-      SunToolkit stk = (SunToolkit) tk;
-      stk.notifyModalityPopped(this);
-    }
+    // No-op.
   }
 
   void interruptBlocking() {

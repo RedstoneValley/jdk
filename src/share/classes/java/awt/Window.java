@@ -3060,6 +3060,7 @@ public class Window extends Container {
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }
+    Toolkit.getDefaultToolkit().sjMaybeWatchWidgetForMouseCoords(sjAndroidWindow.getDecorView());
   }
 
   /**
@@ -3417,7 +3418,6 @@ public class Window extends Container {
    * @since 1.4
    */
   @Override
-  @SuppressWarnings("unchecked")
   public Set<AWTKeyStroke> getFocusTraversalKeys(int id) {
     if (id < 0 || id >= KeyboardFocusManager.TRAVERSAL_KEY_LENGTH) {
       throw new IllegalArgumentException("invalid focus traversal key identifier");

@@ -174,7 +174,7 @@ public class BasicStroke implements Stroke {
    * @param miterlimit the limit to trim the miter join.  The miterlimit
    *                   must be greater than or equal to 1.0f.
    * @param dash       the array representing the dashing pattern
-   * @param dash_phase the offset to start the dashing pattern
+   * @param dashPhase the offset to start the dashing pattern
    * @throws IllegalArgumentException if {@code width} is negative
    * @throws IllegalArgumentException if {@code cap} is not either
    *                                  CAP_BUTT, CAP_ROUND or CAP_SQUARE
@@ -182,14 +182,14 @@ public class BasicStroke implements Stroke {
    *                                  than 1 and {@code join} is JOIN_MITER
    * @throws IllegalArgumentException if {@code join} is not
    *                                  either JOIN_ROUND, JOIN_BEVEL, or JOIN_MITER
-   * @throws IllegalArgumentException if {@code dash_phase}
+   * @throws IllegalArgumentException if {@code dashPhase}
    *                                  is negative and {@code dash} is not {@code null}
    * @throws IllegalArgumentException if the length of
    *                                  {@code dash} is zero
    * @throws IllegalArgumentException if dash lengths are all zero.
    */
   public BasicStroke(
-      float width, int cap, int join, float miterlimit, float[] dash, float dash_phase) {
+      float width, int cap, int join, float miterlimit, float[] dash, float dashPhase) {
     if (width < 0.0f) {
       throw new IllegalArgumentException("negative width");
     }
@@ -204,7 +204,7 @@ public class BasicStroke implements Stroke {
       throw new IllegalArgumentException("illegal line join value");
     }
     if (dash != null) {
-      if (dash_phase < 0.0f) {
+      if (dashPhase < 0.0f) {
         throw new IllegalArgumentException("negative dash phase");
       }
       boolean allzero = true;
@@ -226,7 +226,7 @@ public class BasicStroke implements Stroke {
     if (dash != null) {
       this.dash = dash.clone();
     }
-    this.dash_phase = dash_phase;
+    this.dash_phase = dashPhase;
   }
 
   /**

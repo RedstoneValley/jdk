@@ -32,8 +32,6 @@ import java.util.Vector;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.SystemTrayAccessor;
 import sun.awt.AppContext;
-import sun.awt.HeadlessToolkit;
-import sun.awt.SunToolkit;
 
 /**
  * The {@code SystemTray} class represents the system tray for a
@@ -215,15 +213,9 @@ public final class SystemTray {
    * @see #getSystemTray
    */
   public static boolean isSupported() {
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    if (toolkit instanceof SunToolkit) {
-      // connecting tray to native resource
+    if (Toolkit.getDefaultToolkit().isTraySupported()) {
       initializeSystemTrayIfNeeded();
-      return ((SunToolkit) toolkit).isTraySupported();
-    } else if (toolkit instanceof HeadlessToolkit) {
-      // skip initialization as the init routine
-      // throws HeadlessException
-      return ((HeadlessToolkit) toolkit).isTraySupported();
+      return true;
     } else {
       return false;
     }
@@ -490,11 +482,7 @@ public final class SystemTray {
   synchronized void addNotify() {
     if (peer == null) {
       Toolkit toolkit = Toolkit.getDefaultToolkit();
-      if (toolkit instanceof SunToolkit) {
-        peer = ((SunToolkit) Toolkit.getDefaultToolkit()).createSystemTray(this);
-      } else if (toolkit instanceof HeadlessToolkit) {
-        peer = ((HeadlessToolkit) Toolkit.getDefaultToolkit()).createSystemTray(this);
-      }
+      peer = toolkit.createSystemTray(this);
     }
   }
 }

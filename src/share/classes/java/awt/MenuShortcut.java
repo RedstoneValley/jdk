@@ -161,7 +161,6 @@ public class MenuShortcut implements Serializable {
    * @return the hashcode for this MenuShortcut.
    * @since 1.2
    */
-  @SuppressWarnings("NonFinalFieldReferencedInHashCode")
   public int hashCode() {
     return usesShift ? ~key : key;
   }

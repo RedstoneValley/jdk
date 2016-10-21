@@ -35,7 +35,6 @@ import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import sun.awt.ScrollPaneWheelScroller;
-import sun.awt.SunToolkit;
 
 /**
  * A container class which implements automatic horizontal and/or
@@ -198,7 +197,7 @@ public class ScrollPane extends Container {
   }
 
   public static boolean isLightweightOrUnknown(Component comp) {
-    if (comp.isLightweight() || !(Toolkit.getDefaultToolkit() instanceof SunToolkit)) {
+    if (comp.isLightweight()) {
       return true;
     }
     return !(comp instanceof Button || comp instanceof Canvas || comp instanceof Checkbox

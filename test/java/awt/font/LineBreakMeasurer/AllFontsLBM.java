@@ -27,11 +27,16 @@
  * @summary ArrayIndexOutOfBoundsException in LineBreakMeasurer
  */
 
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.font.*;
-import java.text.*;
-import java.util.Hashtable;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
+import java.awt.image.BufferedImage;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
+import java.util.HashMap;
 
 @SuppressWarnings("MagicNumber")
 public final class AllFontsLBM {
@@ -61,8 +66,7 @@ public final class AllFontsLBM {
         "during the two-year period he spent in Provence. Here is where he " +
         "painted The Starry Night--which some consider to be his greatest " +
         "work of all. However, as his artistic brilliance reached new " +
-        "heights in Provence, his physical and mental health plummeted. ",
-        new Hashtable());
+        "heights in Provence, his physical and mental health plummeted. ", new HashMap<>());
         vanGogh.addAttribute(TextAttribute.FONT, font);
         BufferedImage bi = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = bi.createGraphics();

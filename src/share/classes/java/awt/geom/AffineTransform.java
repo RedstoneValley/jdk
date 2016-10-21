@@ -504,19 +504,19 @@ public class AffineTransform implements Cloneable, Serializable {
    * Constructs a new {@code AffineTransform} that is a copy of
    * the specified {@code AffineTransform} object.
    *
-   * @param Tx the {@code AffineTransform} object to copy
+   * @param tx the {@code AffineTransform} object to copy
    * @since 1.2
    */
   @SuppressWarnings("unused")
-  public AffineTransform(AffineTransform Tx) {
-    m00 = Tx.m00;
-    m10 = Tx.m10;
-    m01 = Tx.m01;
-    m11 = Tx.m11;
-    m02 = Tx.m02;
-    m12 = Tx.m12;
-    state = Tx.state;
-    type = Tx.type;
+  public AffineTransform(AffineTransform tx) {
+    m00 = tx.m00;
+    m10 = tx.m10;
+    m01 = tx.m01;
+    m11 = tx.m11;
+    m02 = tx.m02;
+    m12 = tx.m12;
+    state = tx.state;
+    type = tx.type;
   }
 
   /**

@@ -27,7 +27,6 @@ package sun.awt.geom;
 
 import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.Vector;
 
 public abstract class Curve {
   public static final int INCREASING = 1;
@@ -84,7 +83,7 @@ public abstract class Curve {
     }
   }
 
-  public static void insertQuad(Vector curves, double x0, double y0, double[] coords) {
+  public static void insertQuad(List curves, double x0, double y0, double[] coords) {
     double y1 = coords[3];
     if (y0 > y1) {
       Order2.insert(curves, coords, coords[2], y1, coords[0], coords[1], x0, y0, DECREASING);
@@ -96,7 +95,7 @@ public abstract class Curve {
     }
   }
 
-  public static void insertCubic(Vector curves, double x0, double y0, double[] coords) {
+  public static void insertCubic(List curves, double x0, double y0, double[] coords) {
     double y1 = coords[5];
     if (y0 > y1) {
       Order3.insert(curves,

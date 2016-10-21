@@ -31,7 +31,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import sun.awt.SunToolkit;
 
 /**
  * An event which indicates that a mouse action occurred in a component.
@@ -289,7 +288,7 @@ public class MouseEvent extends InputEvent {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
     Toolkit tk = Toolkit.getDefaultToolkit();
-    cachedNumberOfButtons = tk instanceof SunToolkit ? ((SunToolkit) tk).getNumberOfButtons() : 3;
+    cachedNumberOfButtons = tk.sjGetNumberOfButtons();
   }
 
   /**

@@ -2400,7 +2400,7 @@ public class Font implements Serializable {
     return createdFont;
   }
 
-  public Paint getAndroidPaint() {
+  public Paint sjGetAndroidPaint() {
     return androidPaint;
   }
 }

@@ -1928,7 +1928,6 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since JDK1.1
    */
   @Override
-  @SuppressWarnings("unchecked")
   public void remove(MenuComponent popup) {
     synchronized (getTreeLock()) {
       if (popups == null) {
@@ -6514,7 +6513,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
   final Set<AWTKeyStroke> getFocusTraversalKeys_NoIDCheck(int id) {
     // Okay to return Set directly because it is an unmodifiable view
-    @SuppressWarnings("unchecked") Set<AWTKeyStroke> keystrokes = focusTraversalKeys != null
+    Set<AWTKeyStroke> keystrokes = focusTraversalKeys != null
         ? focusTraversalKeys[id] : null;
 
     if (keystrokes != null) {

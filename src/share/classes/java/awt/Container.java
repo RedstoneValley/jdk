@@ -324,7 +324,7 @@ public class Container extends Component {
     }
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
+  @SuppressWarnings({"unchecked"})
   void initializeFocusTraversalKeys() {
     focusTraversalKeys = new Set[4];
   }

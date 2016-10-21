@@ -282,7 +282,6 @@ public class HeadlessToolkit extends Toolkit
    * Fonts
    */
   @Override
-  @SuppressWarnings("deprecation")
   public FontPeer getFontPeer(String name, int style) {
     if (componentFactory != null) {
       return componentFactory.getFontPeer(name, style);

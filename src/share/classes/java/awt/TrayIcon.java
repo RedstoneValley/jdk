@@ -36,7 +36,6 @@ import java.security.AccessController;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.TrayIconAccessor;
 import sun.awt.AppContext;
-import sun.awt.HeadlessToolkit;
 import sun.awt.SunToolkit;
 
 /**
@@ -647,12 +646,7 @@ public class TrayIcon {
   void addNotify() throws AWTException {
     synchronized (this) {
       if (peer == null) {
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        if (toolkit instanceof SunToolkit) {
-          peer = ((SunToolkit) Toolkit.getDefaultToolkit()).createTrayIcon(this);
-        } else if (toolkit instanceof HeadlessToolkit) {
-          peer = ((HeadlessToolkit) Toolkit.getDefaultToolkit()).createTrayIcon(this);
-        }
+        peer = Toolkit.getDefaultToolkit().createTrayIcon(this);
       }
     }
     peer.setToolTip(tooltip);

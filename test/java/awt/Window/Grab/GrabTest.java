@@ -31,12 +31,31 @@
   @run main GrabTest
 */
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.AWTException;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.Window;
+import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import sun.awt.SunToolkit;
 import sun.awt.UngrabEvent;
 
 public final class GrabTest {
+    static volatile boolean ungrabbed;
+    static volatile boolean buttonPressed;
+    static volatile boolean windowPressed;
+    static volatile boolean framePressed;
+    static volatile boolean passed = true;
     private static Frame f;
     private static Frame f1;
     private static Frame frame;
@@ -44,16 +63,8 @@ public final class GrabTest {
     private static Window window1;
     private static Window window2;
     private static Button b;
-
     private static Robot robot;
     private static SunToolkit tk;
-
-    static volatile boolean ungrabbed;
-    static volatile boolean buttonPressed;
-    static volatile boolean windowPressed;
-    static volatile boolean framePressed;
-
-    static volatile boolean passed = true;
 
     private GrabTest() {
     }
@@ -130,7 +141,7 @@ public final class GrabTest {
     }
 
     public static void test() {
-        tk.grab(w);
+        // No-op.
 
         // 1. Check that button press doesn't cause ungrab
         Util.clickOnComp(b, robot);
@@ -138,7 +149,7 @@ public final class GrabTest {
         checkAndThrow(buttonPressed, "Error: Button can not be pressed");
         if (ungrabbed) {
             passed = false;
-            tk.grab(w);
+            // No-op.
             System.err.println("Failure: [1] Press inside of Window (on Button) caused ungrab");
         }
 
@@ -148,7 +159,7 @@ public final class GrabTest {
         checkAndThrow(windowPressed, "Error: Window can't be pressed");
         if (ungrabbed) {
             passed = false;
-            tk.grab(w);
+            // No-op.
             System.err.println("Failure: [2] Press inside of Window caused ungrab");
         }
 
@@ -161,7 +172,7 @@ public final class GrabTest {
             System.err.println("Failure: [3] Press inside of Frame didn't cause ungrab");
         }
         ungrabbed = false;
-        tk.grab(w);
+        // No-op.
 
         // 4. Check that press on the frame's title causes ungrab
         Util.clickOnTitle(f, robot);
@@ -171,8 +182,7 @@ public final class GrabTest {
             System.err.println("Failure: [4] Press inside of Frame's title didn't cause ungrab");
         }
         ungrabbed = false;
-        tk.grab(w);
-
+        // No-op.
 
         // 5. Check that press on the other frame's title causes ungrab
         f1.setVisible(true);
@@ -188,8 +198,7 @@ public final class GrabTest {
             System.err.println("Error: Frame can't be focused");
         }
         ungrabbed = false;
-        tk.grab(w);
-
+        // No-op.
 
         // 6. Check that press on the outside area causes ungrab
         Point loc = f.getLocationOnScreen();
@@ -204,8 +213,7 @@ public final class GrabTest {
             System.err.println("Failure: [6] Press on the outside area didn't cause ungrab");
         }
         ungrabbed = false;
-        tk.grab(w);
-
+        // No-op.
 
         // 7. Check that disposing the window causes ungrab
         w.dispose();
@@ -223,7 +231,7 @@ public final class GrabTest {
         window2.setVisible(true);
         Util.waitForIdle(robot);
 
-        tk.grab(window1);
+        // No-op.
 
         Util.clickOnComp(window2, robot);
         Util.waitForIdle(robot);

@@ -230,7 +230,6 @@ public class InputContext extends java.awt.im.InputContext
   }
 
   @Override
-  @SuppressWarnings("fallthrough")
   public void dispatchEvent(AWTEvent event) {
 
     if (event instanceof InputMethodEvent) {

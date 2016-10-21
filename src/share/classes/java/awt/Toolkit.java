@@ -25,6 +25,7 @@
 
 package java.awt;
 
+import android.view.View;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Dialog.ModalityType;
 import java.awt.datatransfer.Clipboard;
@@ -76,8 +77,10 @@ import java.awt.peer.PanelPeer;
 import java.awt.peer.PopupMenuPeer;
 import java.awt.peer.ScrollPanePeer;
 import java.awt.peer.ScrollbarPeer;
+import java.awt.peer.SystemTrayPeer;
 import java.awt.peer.TextAreaPeer;
 import java.awt.peer.TextFieldPeer;
+import java.awt.peer.TrayIconPeer;
 import java.awt.peer.WindowPeer;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -94,6 +97,7 @@ import java.util.Properties;
 import java.util.WeakHashMap;
 import skinjob.internal.SkinJobToolkit;
 import sun.awt.AppContext;
+import sun.awt.DefaultMouseInfoPeer;
 import sun.awt.HeadlessToolkit;
 import sun.awt.NullComponentPeer;
 import sun.awt.PeerEvent;
@@ -287,8 +291,28 @@ public abstract class Toolkit {
   }
 
   private static PropertyChangeSupport createPropertyChangeSupport(Toolkit toolkit) {
-    return toolkit instanceof SunToolkit || toolkit instanceof HeadlessToolkit
-        ? new DesktopPropertyChangeSupport(toolkit) : new PropertyChangeSupport(toolkit);
+    return new DesktopPropertyChangeSupport(toolkit);
+  }
+
+  /**
+   * Pulled up from SunToolkit.
+   */
+  public TrayIconPeer createTrayIcon(TrayIcon target) throws HeadlessException, AWTException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Pulled up from SunToolkit.
+   */
+  public SystemTrayPeer createSystemTray(SystemTray target) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Pulled up from SunToolkit.
+   */
+  public boolean isTraySupported() {
+    return false;
   }
 
   /**
@@ -598,6 +622,19 @@ public abstract class Toolkit {
    */
   protected MouseInfoPeer getMouseInfoPeer() {
     throw new UnsupportedOperationException("Not implemented");
+  }
+
+  public boolean sjHasMouseInfoPeer() {
+    return false;
+  }
+
+  public void sjMaybeWatchWidgetForMouseCoords(View view) {
+    if (sjHasMouseInfoPeer()) {
+      MouseInfoPeer mouseInfoPeer = getMouseInfoPeer();
+      if (mouseInfoPeer instanceof DefaultMouseInfoPeer) {
+        ((DefaultMouseInfoPeer) mouseInfoPeer).sjMaybeWatchWidget(view);
+      }
+    }
   }
 
   /**
@@ -2031,8 +2068,13 @@ public abstract class Toolkit {
    * @since 1.7
    */
   public boolean areExtraMouseButtonsEnabled() throws HeadlessException {
+    // TODO
+    return false;
+  }
 
-    return getDefaultToolkit().areExtraMouseButtonsEnabled();
+  public int sjGetNumberOfButtons() {
+    // TODO
+    return 0;
   }
 
   private static class ToolkitEventMulticaster extends AWTEventMulticaster

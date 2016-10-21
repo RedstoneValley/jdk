@@ -7,7 +7,7 @@ import skinjob.SkinJobGlobals;
 /**
  * Created by cryoc on 2016-10-16.
  */
-public final class NullWidgetSupplier implements WrappedAndroidObjectsSupplier<View> {
+public final class NullWidgetSupplier extends WrappedAndroidObjectsSupplier<View> {
   private static final NullWidgetSupplier instance = new NullWidgetSupplier();
 
   /**

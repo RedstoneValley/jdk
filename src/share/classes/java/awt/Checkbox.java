@@ -700,7 +700,7 @@ public class Checkbox extends Component implements ItemSelectable {
   }
 
   private static class CheckBoxOrRadioButtonSupplier
-      implements WrappedAndroidObjectsSupplier<CompoundButton> {
+      extends WrappedAndroidObjectsSupplier<CompoundButton> {
     private final CheckboxGroup group;
 
     public CheckBoxOrRadioButtonSupplier(CheckboxGroup group) {

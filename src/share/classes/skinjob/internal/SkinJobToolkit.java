@@ -60,6 +60,7 @@ import java.awt.peer.ListPeer;
 import java.awt.peer.MenuBarPeer;
 import java.awt.peer.MenuItemPeer;
 import java.awt.peer.MenuPeer;
+import java.awt.peer.MouseInfoPeer;
 import java.awt.peer.PanelPeer;
 import java.awt.peer.PopupMenuPeer;
 import java.awt.peer.ScrollPanePeer;
@@ -91,6 +92,7 @@ import skinjob.internal.peer.SkinJobScrollPanePeer;
 import skinjob.internal.peer.SkinJobScrollbarPeer;
 import skinjob.internal.peer.SkinJobTextFieldPeer;
 import skinjob.internal.peer.SkinJobWindowPeer;
+import sun.awt.DefaultMouseInfoPeer;
 
 /**
  * The Android implementation of {@link Toolkit}.
@@ -99,6 +101,7 @@ public class SkinJobToolkit extends Toolkit {
 
   protected final Context androidContext;
   protected final EventQueue eventQueue = new EventQueue();
+  private final DefaultMouseInfoPeer defaultMouseInfoPeer = new DefaultMouseInfoPeer();
   protected Clipboard clipboard;
 
   /**
@@ -216,6 +219,16 @@ public class SkinJobToolkit extends Toolkit {
   protected CheckboxMenuItemPeer createCheckboxMenuItem(CheckboxMenuItem target)
       throws HeadlessException {
     return new SkinJobMenuItemPeer(target);
+  }
+
+  @Override
+  protected MouseInfoPeer getMouseInfoPeer() {
+    return defaultMouseInfoPeer;
+  }
+
+  @Override
+  public boolean sjHasMouseInfoPeer() {
+    return true;
   }
 
   @Override
@@ -346,5 +359,13 @@ public class SkinJobToolkit extends Toolkit {
   public Map<TextAttribute, ?> mapInputMethodHighlight(InputMethodHighlight highlight)
       throws HeadlessException {
     return null;
+  }
+
+  public int sjGetNumberOfButtons() {
+    if (defaultMouseInfoPeer.sjHaveMouse()) {
+      return super.sjGetNumberOfButtons();
+    } else {
+      return 0;
+    }
   }
 }

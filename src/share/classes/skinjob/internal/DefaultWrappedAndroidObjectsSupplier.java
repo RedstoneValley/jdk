@@ -12,7 +12,7 @@ import skinjob.SkinJobGlobals;
  */
 
 public class DefaultWrappedAndroidObjectsSupplier<TWidget extends View>
-    implements WrappedAndroidObjectsSupplier<TWidget> {
+    extends WrappedAndroidObjectsSupplier<TWidget> {
   private static final WeakHashMap<Class<? extends View>, DefaultWrappedAndroidObjectsSupplier<?>>
       INSTANCES = new WeakHashMap<>();
   private final Constructor<TWidget> constructor;

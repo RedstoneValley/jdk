@@ -37,6 +37,7 @@ import java.awt.image.IndexColorModel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * Gif Image converter
@@ -74,6 +75,7 @@ public class GifImageDecoder extends ImageDecoder {
     NativeLibLoader.loadLibraries();
   }
 
+  final Map props = new Hashtable();
   private final short[] prefix = new short[4096];
   private final byte[] suffix = new byte[4096];
   private final byte[] outCode = new byte[4097];
@@ -81,7 +83,6 @@ public class GifImageDecoder extends ImageDecoder {
   byte[] global_colormap;
   int trans_pixel = -1;
   IndexColorModel global_model;
-  final Hashtable props = new Hashtable();
   byte[] saved_image;
   IndexColorModel saved_model;
   int global_width;
@@ -605,18 +606,14 @@ class GifFrame {
   private static final boolean verbose = false;
   private static IndexColorModel trans_model;
   final GifImageDecoder decoder;
-
-  int disposal_method;
   final int delay;
-
+  final boolean initialframe;
+  int disposal_method;
   IndexColorModel model;
-
   int x;
   int y;
   int width;
   int height;
-
-  final boolean initialframe;
 
   public GifFrame(
       GifImageDecoder id, int dm, int dl, boolean init, IndexColorModel cm, int x, int y, int w,

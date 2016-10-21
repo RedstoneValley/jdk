@@ -35,6 +35,8 @@ import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
@@ -51,9 +53,10 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import skinjob.SkinJobGlobals;
+import skinjob.util.Shapes;
 
 /**
- * SkinJobGlobals Android implementation of {@link Graphics}.
+ * SkinJob Android implementation of {@link Graphics}.
  */
 public class SkinJobGraphics extends Graphics2D {
   private static final String TAG = "SkinJobGraphics";
@@ -137,13 +140,23 @@ public class SkinJobGraphics extends Graphics2D {
 
   @Override
   public Rectangle getClipBounds() {
-    // TODO
-    return clip.getBounds();
+    if (clip == null) {
+      return null;
+    } else {
+      return clip.getBounds();
+    }
   }
 
   @Override
-  public void clipRect(int x, int y, int width, int height) {
-    // TODO
+  public synchronized void clipRect(int x, int y, int width, int height) {
+    if (clip == null) {
+      // No existing clip to intersect with
+      setClip(x, y, width, height);
+    } else {
+      Area clipArea = Shapes.asArea(clip);
+      clipArea.intersect(new Area(new Rectangle2D.Double(x, y, width, height)));
+      clip = clipArea;
+    }
   }
 
   @Override
@@ -352,7 +365,20 @@ public class SkinJobGraphics extends Graphics2D {
 
   @Override
   public void drawGlyphVector(GlyphVector g, float x, float y) {
-    // TODO
+    int nGlyphs = g.getNumGlyphs();
+    Paint fontAndColor = new Paint(g.getFont().sjGetAndroidPaint());
+    fontAndColor.setColor(color);
+    for (int i = 0; i < nGlyphs; i++) {
+      Point2D glyphPos = g.getGlyphPosition(i);
+      Point2D absGlyphPos = new Point2D.Double(x + glyphPos.getX(), y + glyphPos.getY());
+      char[] glyph = Character.toChars(g.getGlyphCode(i));
+      canvas.drawText(glyph,
+          0,
+          glyph.length,
+          (float) absGlyphPos.getX(),
+          (float) absGlyphPos.getY(),
+          fontAndColor);
+    }
   }
 
   @Override
@@ -361,9 +387,19 @@ public class SkinJobGraphics extends Graphics2D {
   }
 
   @Override
-  public boolean hit(Rectangle rect, Shape s, boolean onStroke) {
-    // TODO
-    return false;
+  public synchronized boolean hit(Rectangle rect, Shape s, boolean onStroke) {
+    if (!clip.intersects(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight())) {
+      return false;
+    }
+    Shape shapeToCheck;
+    if (onStroke) {
+      shapeToCheck = stroke.createStrokedShape(s);
+    } else {
+      shapeToCheck = s;
+    }
+    Area transformed = new Area(shapeToCheck);
+    transformed.transform(transform);
+    return transformed.intersects(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
   }
 
   @Override
@@ -423,38 +459,53 @@ public class SkinJobGraphics extends Graphics2D {
     }
     TextView formattedTextView = new TextView(SkinJobGlobals.getAndroidApplicationContext());
     formattedTextView.setText(formattedText);
-    formattedTextView.layout(x, y, canvas.getWidth(), canvas.getHeight());
+    int right, bottom;
+    if (clip == null) {
+      right = canvas.getWidth();
+      bottom = canvas.getHeight();
+    } else {
+      Rectangle2D bounds = clip.getBounds2D();
+      right = (int) bounds.getMaxX();
+      bottom = (int) bounds.getMaxY();
+    }
+    formattedTextView.layout(x, y, right, bottom);
     formattedTextView.draw(canvas);
   }
 
   @Override
-  public void translate(double tx, double ty) {
-    // TODO
+  public synchronized void translate(double tx, double ty) {
+    transform = new AffineTransform(transform);
+    transform.translate(tx, ty);
   }
 
   @Override
-  public void rotate(double theta) {
-    // TODO
+  public synchronized void rotate(double theta) {
+    transform = new AffineTransform(transform);
+    transform.rotate(theta);
   }
 
   @Override
-  public void rotate(double theta, double x, double y) {
-    // TODO
+  public synchronized void rotate(double theta, double x, double y) {
+    transform = new AffineTransform(transform);
+    transform.rotate(theta, x, y);
   }
 
   @Override
-  public void scale(double sx, double sy) {
-    // TODO
+  public synchronized void scale(double sx, double sy) {
+    transform = new AffineTransform(transform);
+    transform.scale(sx, sy);
   }
 
   @Override
-  public void shear(double shx, double shy) {
-    // TODO
+  public synchronized void shear(double shx, double shy) {
+    transform = new AffineTransform(transform);
+    transform.shear(shx, shy);
   }
 
   @Override
-  public void transform(AffineTransform Tx) {
-    transform.concatenate(Tx);
+  public synchronized void transform(AffineTransform tx) {
+    transform = new AffineTransform(transform);
+    transform.concatenate(tx);
   }
 
   @Override
@@ -556,8 +607,8 @@ public class SkinJobGraphics extends Graphics2D {
   }
 
   @Override
-  public void clip(Shape s) {
-    // TODO
+  public synchronized void clip(Shape s) {
+    clip = Shapes.getIntersection(clip, s);
   }
 
   @Override

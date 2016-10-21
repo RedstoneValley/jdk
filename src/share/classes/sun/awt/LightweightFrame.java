@@ -33,7 +33,6 @@ import java.awt.Image;
 import java.awt.MenuBar;
 import java.awt.MenuComponent;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragGestureRecognizer;
@@ -112,14 +111,6 @@ public abstract class LightweightFrame extends Frame {
   @Override
   public void addNotify() {
     synchronized (getTreeLock()) {
-      if (getPeer() == null) {
-        SunToolkit stk = (SunToolkit) Toolkit.getDefaultToolkit();
-        try {
-          setPeer(stk.createLightweightFrame(this));
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
       super.addNotify();
     }
   }

@@ -135,14 +135,13 @@ public class TextLineComponent {
   }
 
   public float getAdvanceBetween(int measureStart, int measureLimit) {
-    return font
-        .getAndroidPaint()
+    return font.sjGetAndroidPaint()
         .measureText(chars, measureStart + indexOffset, measureLimit - measureStart - indexOffset);
   }
 
   protected Rectangle2D getBounds(int measureStart, int measureLimit) {
     Rect bounds = new Rect();
-    font.getAndroidPaint().getTextBounds(chars, measureStart + indexOffset, measureLimit, bounds);
+    font.sjGetAndroidPaint().getTextBounds(chars, measureStart + indexOffset, measureLimit, bounds);
     return SkinJobUtil.androidRectToRectangle2D(bounds);
   }
 

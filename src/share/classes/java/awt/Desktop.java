@@ -34,7 +34,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import sun.awt.AppContext;
 import sun.awt.DesktopBrowse;
-import sun.awt.SunToolkit;
 
 /**
  * The {@code Desktop} class allows a Java application to launch
@@ -125,11 +124,7 @@ public final class Desktop {
    * @see #getDesktop()
    */
   public static boolean isDesktopSupported() {
-    Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
-    if (defaultToolkit instanceof SunToolkit) {
-      return ((SunToolkit) defaultToolkit).isDesktopSupported();
-    }
-    return false;
+    return true;
   }
 
   /**

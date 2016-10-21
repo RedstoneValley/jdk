@@ -34,10 +34,8 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.awt.peer.RobotPeer;
 import java.lang.reflect.InvocationTargetException;
-import sun.awt.ComponentFactory;
 import sun.awt.SunToolkit;
 import sun.awt.image.SunWritableRaster;
-import sun.java2d.Disposer;
 import sun.java2d.DisposerRecord;
 
 /**
@@ -132,12 +130,11 @@ public class Robot {
     }
 
     int tmpMask = 0;
-    if (Toolkit.getDefaultToolkit().areExtraMouseButtonsEnabled()) {
-      if (Toolkit.getDefaultToolkit() instanceof SunToolkit) {
-        int buttonsNumber = ((SunToolkit) Toolkit.getDefaultToolkit()).getNumberOfButtons();
-        for (int i = 0; i < buttonsNumber; i++) {
-          tmpMask |= InputEvent.getMaskForButton(i + 1);
-        }
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    if (toolkit.areExtraMouseButtonsEnabled()) {
+      int buttonsNumber = toolkit.sjGetNumberOfButtons();
+      for (int i = 0; i < buttonsNumber; i++) {
+        tmpMask |= InputEvent.getMaskForButton(i + 1);
       }
     }
     tmpMask |= InputEvent.BUTTON1_MASK |
@@ -156,12 +153,6 @@ public class Robot {
   }
 
   private void init(GraphicsDevice screen) throws AWTException {
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    if (toolkit instanceof ComponentFactory) {
-      peer = ((ComponentFactory) toolkit).createRobot(this, screen);
-      disposer = new RobotDisposer(peer);
-      Disposer.addRecord(anchor, disposer);
-    }
     initLegalButtonMask();
   }
 

@@ -51,8 +51,8 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import java.util.ArrayList;
 import java.util.Random;
-import java.util.Vector;
 
 /**
  * Note that the alt+tabbing in and out part will most likely only work
@@ -61,30 +61,24 @@ import java.util.Vector;
 
 @SuppressWarnings("MagicNumber")
 public class AltTabCrashTest extends Frame {
+    public static final int NUM_OF_BALLS = 70;
+    static final Object lock = new Object();
+    static final Random rnd = new Random();
     private static final long serialVersionUID = 5908506776273306913L;
     public static int width;
     public static int height;
     public static volatile boolean autoMode;
     public static boolean useBS;
-    public static final int NUM_OF_BALLS = 70;
     // number of times to alt+tab in and out of the app
     public static int altTabs = 5;
-    final Vector<Ball> balls = new Vector<>();
+    private static boolean changeDM;
+    private static SpriteType spriteType;
+    final ArrayList<Ball> balls = new ArrayList<>();
     final GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment()
         .getDefaultScreenDevice();
     VolatileImage vimg;
     BufferStrategy bufferStrategy;
     volatile boolean timeToQuit;
-    static final Object lock = new Object();
-
-    enum SpriteType {
-        OVALS, VIMAGES, BIMAGES, AAOVALS, TEXT
-    }
-
-    private static boolean changeDM;
-    private static SpriteType spriteType;
-    static final Random rnd = new Random();
-
     public AltTabCrashTest( ) {
         addKeyListener(new KeyAdapter() {
             @Override
@@ -140,6 +134,45 @@ public class AltTabCrashTest extends Frame {
         }
     }
 
+    public static void main(String[] args) {
+        for (String arg : args) {
+            if ("-auto".equalsIgnoreCase(arg)) {
+                autoMode = true;
+                System.err.println("Running in automatic mode using Robot");
+            } else if ("-usebs".equalsIgnoreCase(arg)) {
+                useBS = true;
+                System.err.println("Using BufferStrategy instead of VI");
+            } else if ("-changedm".equalsIgnoreCase(arg)) {
+                changeDM = true;
+                System.err.println("The test will change display mode");
+            } else if ("-vi".equalsIgnoreCase(arg)) {
+                spriteType = SpriteType.VIMAGES;
+            } else if ("-bi".equalsIgnoreCase(arg)) {
+                spriteType = SpriteType.BIMAGES;
+            } else if ("-ov".equalsIgnoreCase(arg)) {
+                spriteType = SpriteType.OVALS;
+            } else if ("-aaov".equalsIgnoreCase(arg)) {
+                spriteType = SpriteType.AAOVALS;
+            } else if ("-tx".equalsIgnoreCase(arg)) {
+                spriteType = SpriteType.TEXT;
+            } else {
+                System.err.println("Usage: AltTabCrashTest [-usebs][-auto]"
+                    + "[-changedm][-vi|-bi|-ov|-aaov|-tx]");
+                System.err.println(" -usebs: use BufferStrategy instead of VI");
+                System.err.println(
+                    " -auto: automatically alt+tab in and out" + " of the application ");
+                System.err.println(" -changedm: change display mode");
+                System.err.println(
+                    " -(vi|bi|ov|tx|aaov) : use only VI, BI, " + "text or [AA] [draw]Oval sprites");
+                System.exit(0);
+            }
+        }
+        if (spriteType != null) {
+            System.err.println("The test will only use " + spriteType + " sprites.");
+        }
+        new AltTabCrashTest();
+    }
+
     Ball createRandomBall(int y, int x) {
         Ball b;
         SpriteType type;
@@ -160,95 +193,93 @@ public class AltTabCrashTest extends Frame {
         return b;
     }
 
-    private class MouseHandler extends MouseAdapter  {
-        MouseHandler() {
+    public void renderOffscreen() {
+        Graphics2D g2d = (Graphics2D) vimg.getGraphics();
+        synchronized (balls) {
+            for (Ball b : balls) {
+                b.paint(g2d, getBackground());
+                b.move();
+                b.paint(g2d, null);
+            }
         }
+        g2d.dispose();
+    }
 
-        @Override
-        public void mousePressed(MouseEvent e) {
+    public void renderToBS() {
+        width = getWidth();
+        height = getHeight();
+
+        do {
+            Graphics2D g2d = (Graphics2D) bufferStrategy.getDrawGraphics();
+
+            g2d.clearRect(0, 0, width, height);
             synchronized (balls) {
-                balls.addElement(createRandomBall(e.getX(), e.getY()));
-            }
-        }
-    }
-
-    @SuppressWarnings("MagicNumber")
-    private class AltTabberThread extends Thread {
-        Robot robot;
-
-        AltTabberThread() {
-        }
-
-        void pressAltTab() {
-            robot.keyPress(KeyEvent.VK_ALT);
-            robot.keyPress(KeyEvent.VK_TAB);
-            robot.keyRelease(KeyEvent.VK_TAB);
-            robot.keyRelease(KeyEvent.VK_ALT);
-        }
-        void pressShiftAltTab() {
-            robot.keyPress(KeyEvent.VK_SHIFT);
-            pressAltTab();
-            robot.keyRelease(KeyEvent.VK_SHIFT);
-        }
-        @Override
-        public void run() {
-            try {
-                robot = new Robot();
-                robot.setAutoDelay(200);
-            } catch (AWTException e) {
-                throw new RuntimeException("Can't create robot");
-            }
-            boolean out = true;
-            while (altTabs > 0 && !timeToQuit) {
-                altTabs--;
-                System.err.println("Alt+tabber Iteration: "+altTabs);
-                try { Thread.sleep(2500); } catch (InterruptedException ex) {}
-
-                if (out) {
-                    System.err.println("Issuing alt+tab");
-                    pressAltTab();
-                } else {
-                    System.err.println("Issuing shift ");
-                    pressShiftAltTab();
-                }
-                out = !out;
-            }
-            altTabs--;
-            System.err.println("Alt+tabber finished.");
-            synchronized (lock) {
-                timeToQuit = true;
-                lock.notify();
-            }
-        }
-    }
-
-    private class BallThread extends Thread {
-        BallThread() {
-        }
-
-        @Override
-        public void run() {
-            while (!timeToQuit) {
-                if (useBS) {
-                    renderToBS();
-                    bufferStrategy.show();
-                } else {
-                    Graphics g = getGraphics();
-                    render(g);
-                    g.dispose();
+                for (Ball b : balls) {
+                    b.move();
+                    b.paint(g2d, null);
                 }
             }
-            gd.setFullScreenWindow(null);
-            dispose();
+            g2d.dispose();
+        } while (bufferStrategy.contentsLost() || bufferStrategy.contentsRestored());
+    }
+
+    public void render(Graphics g) {
+        do {
+            height = getBounds().height;
+            width = getBounds().width;
+            if (vimg == null) {
+                vimg = createVolatileImage(width, height);
+                renderOffscreen();
+            }
+            int returnCode = vimg.validate(getGraphicsConfiguration());
+            if (returnCode == VolatileImage.IMAGE_RESTORED) {
+                renderOffscreen();
+            } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+                vimg = getGraphicsConfiguration().
+                    createCompatibleVolatileImage(width, height);
+                renderOffscreen();
+            } else if (returnCode == VolatileImage.IMAGE_OK) {
+                renderOffscreen();
+            }
+            g.drawImage(vimg, 0, 0, this);
+        } while (vimg.contentsLost());
+    }
+
+    private DisplayMode findDisplayMode() {
+        GraphicsDevice gd = getGraphicsConfiguration().getDevice();
+        DisplayMode[] dms = gd.getDisplayModes();
+        DisplayMode currentDM = gd.getDisplayMode();
+        for (DisplayMode dm : dms) {
+            if (dm.getBitDepth() > 8 &&
+                dm.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI &&
+                dm.getBitDepth() != currentDM.getBitDepth() &&
+                dm.getWidth() == currentDM.getWidth() &&
+                dm.getHeight() == currentDM.getHeight()) {
+                // found a mode which has the same dimensions but different
+                // depth
+                return dm;
+            }
+            if (dm.getBitDepth() == DisplayMode.BIT_DEPTH_MULTI && (
+                dm.getWidth() != currentDM.getWidth() || dm.getHeight() != currentDM.getHeight())) {
+                // found a mode which has the same depth but different
+                // dimensions
+                return dm;
+            }
         }
+
+        return null;
+    }
+
+    enum SpriteType {
+        OVALS, VIMAGES, BIMAGES, AAOVALS, TEXT
     }
 
     @SuppressWarnings("MagicNumber")
     static class Ball {
 
+        final int diameter = 40;
         int x, y;     // current location
         int dx, dy;   // motion delta
-        final int diameter = 40;
         Color color = Color.red;
 
         public Ball() {
@@ -330,6 +361,9 @@ public class AltTabCrashTest extends Frame {
             g.setColor(color);
             g.fillRect(0, 0, image.getWidth(null), image.getHeight(null));
         }
+
+        public abstract Image createSprite();
+
         @Override
         public void paint(Graphics g, Color c) {
             if (c != null) {
@@ -342,19 +376,106 @@ public class AltTabCrashTest extends Frame {
                 } while (renderingIncomplete());
             }
         }
-        public abstract Image createSprite();
+
         public void validateSprite() {}
+
         public boolean renderingIncomplete() { return false; }
+
     }
+
+    private class MouseHandler extends MouseAdapter {
+        MouseHandler() {
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            synchronized (balls) {
+                balls.addElement(createRandomBall(e.getX(), e.getY()));
+            }
+        }
+    }
+
+    @SuppressWarnings("MagicNumber")
+    private class AltTabberThread extends Thread {
+        Robot robot;
+
+        AltTabberThread() {
+        }
+
+        void pressAltTab() {
+            robot.keyPress(KeyEvent.VK_ALT);
+            robot.keyPress(KeyEvent.VK_TAB);
+            robot.keyRelease(KeyEvent.VK_TAB);
+            robot.keyRelease(KeyEvent.VK_ALT);
+        }
+
+        void pressShiftAltTab() {
+            robot.keyPress(KeyEvent.VK_SHIFT);
+            pressAltTab();
+            robot.keyRelease(KeyEvent.VK_SHIFT);
+        }
+
+        @Override
+        public void run() {
+            try {
+                robot = new Robot();
+                robot.setAutoDelay(200);
+            } catch (AWTException e) {
+                throw new RuntimeException("Can't create robot");
+            }
+            boolean out = true;
+            while (altTabs > 0 && !timeToQuit) {
+                altTabs--;
+                System.err.println("Alt+tabber Iteration: " + altTabs);
+                try {
+                    Thread.sleep(2500);
+                } catch (InterruptedException ex) {
+                }
+
+                if (out) {
+                    System.err.println("Issuing alt+tab");
+                    pressAltTab();
+                } else {
+                    System.err.println("Issuing shift ");
+                    pressShiftAltTab();
+                }
+                out = !out;
+            }
+            altTabs--;
+            System.err.println("Alt+tabber finished.");
+            synchronized (lock) {
+                timeToQuit = true;
+                lock.notify();
+            }
+        }
+    }
+
+    private class BallThread extends Thread {
+        BallThread() {
+        }
+
+        @Override
+        public void run() {
+            while (!timeToQuit) {
+                if (useBS) {
+                    renderToBS();
+                    bufferStrategy.show();
+                } else {
+                    Graphics g = getGraphics();
+                    render(g);
+                    g.dispose();
+                }
+            }
+            gd.setFullScreenWindow(null);
+            dispose();
+        }
+    }
+
     @SuppressWarnings("MagicNumber")
     class VISpriteBall extends SpriteBall {
 
         public VISpriteBall(int x, int y) {
             super(x, y);
-        }
-        @Override
-        public boolean renderingIncomplete() {
-            return ((VolatileImage) image).contentsLost();
         }
 
         @Override
@@ -362,6 +483,12 @@ public class AltTabCrashTest extends Frame {
             return gd.getDefaultConfiguration().
                 createCompatibleVolatileImage(20, 20);
         }
+
+        @Override
+        public boolean renderingIncomplete() {
+            return ((VolatileImage) image).contentsLost();
+        }
+
         @Override
         public void validateSprite() {
             int result =
@@ -377,6 +504,7 @@ public class AltTabCrashTest extends Frame {
             }
         }
     }
+
     @SuppressWarnings("MagicNumber")
     class BISpriteBall extends SpriteBall {
         public BISpriteBall(int x, int y) {
@@ -386,125 +514,5 @@ public class AltTabCrashTest extends Frame {
         public Image createSprite() {
             return new BufferedImage(20, 20, BufferedImage.TYPE_INT_RGB);
         }
-    }
-
-
-    public void renderOffscreen() {
-        Graphics2D g2d = (Graphics2D) vimg.getGraphics();
-        synchronized (balls) {
-            for (Ball b : balls) {
-                b.paint(g2d, getBackground());
-                b.move();
-                b.paint(g2d, null);
-            }
-        }
-        g2d.dispose();
-    }
-
-    public void renderToBS() {
-        width = getWidth();
-        height = getHeight();
-
-        do {
-            Graphics2D g2d = (Graphics2D) bufferStrategy.getDrawGraphics();
-
-            g2d.clearRect(0, 0, width, height);
-            synchronized (balls) {
-                for (Ball b : balls) {
-                    b.move();
-                    b.paint(g2d, null);
-                }
-            }
-            g2d.dispose();
-        } while (bufferStrategy.contentsLost() || bufferStrategy.contentsRestored());
-    }
-
-    public void render(Graphics g)  {
-        do {
-            height = getBounds().height;
-            width = getBounds().width;
-            if (vimg == null) {
-                vimg = createVolatileImage(width, height);
-                renderOffscreen();
-            }
-            int returnCode = vimg.validate(getGraphicsConfiguration());
-            if (returnCode == VolatileImage.IMAGE_RESTORED) {
-                renderOffscreen();
-            } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
-                vimg = getGraphicsConfiguration().
-                    createCompatibleVolatileImage(width, height);
-                renderOffscreen();
-            } else if (returnCode == VolatileImage.IMAGE_OK) {
-                renderOffscreen();
-            }
-            g.drawImage(vimg, 0, 0, this);
-        } while (vimg.contentsLost());
-    }
-
-    public static void main(String[] args)  {
-        for (String arg : args) {
-            if ("-auto".equalsIgnoreCase(arg)) {
-                autoMode = true;
-                System.err.println("Running in automatic mode using Robot");
-            } else if ("-usebs".equalsIgnoreCase(arg)) {
-                useBS = true;
-                System.err.println("Using BufferStrategy instead of VI");
-            } else if ("-changedm".equalsIgnoreCase(arg)) {
-                changeDM= true;
-                System.err.println("The test will change display mode");
-            } else if ("-vi".equalsIgnoreCase(arg)) {
-                spriteType = SpriteType.VIMAGES;
-            } else if ("-bi".equalsIgnoreCase(arg)) {
-                spriteType = SpriteType.BIMAGES;
-            } else if ("-ov".equalsIgnoreCase(arg)) {
-                spriteType = SpriteType.OVALS;
-            } else if ("-aaov".equalsIgnoreCase(arg)) {
-                spriteType = SpriteType.AAOVALS;
-            } else if ("-tx".equalsIgnoreCase(arg)) {
-                spriteType = SpriteType.TEXT;
-            } else {
-                System.err.println("Usage: AltTabCrashTest [-usebs][-auto]" +
-                                   "[-changedm][-vi|-bi|-ov|-aaov|-tx]");
-                System.err.println(" -usebs: use BufferStrategy instead of VI");
-                System.err.println(" -auto: automatically alt+tab in and out" +
-                                   " of the application ");
-                System.err.println(" -changedm: change display mode");
-                System.err.println(" -(vi|bi|ov|tx|aaov) : use only VI, BI, " +
-                                   "text or [AA] [draw]Oval sprites");
-                System.exit(0);
-            }
-        }
-        if (spriteType != null) {
-            System.err.println("The test will only use "+spriteType+" sprites.");
-        }
-        new AltTabCrashTest();
-    }
-
-    private DisplayMode findDisplayMode() {
-        GraphicsDevice gd = getGraphicsConfiguration().getDevice();
-        DisplayMode[] dms = gd.getDisplayModes();
-        DisplayMode currentDM = gd.getDisplayMode();
-        for (DisplayMode dm : dms) {
-            if (dm.getBitDepth() > 8 &&
-                dm.getBitDepth() != DisplayMode.BIT_DEPTH_MULTI &&
-                dm.getBitDepth() != currentDM.getBitDepth() &&
-                dm.getWidth() == currentDM.getWidth() &&
-                dm.getHeight() == currentDM.getHeight())
-            {
-                // found a mode which has the same dimensions but different
-                // depth
-                return dm;
-            }
-            if (dm.getBitDepth() == DisplayMode.BIT_DEPTH_MULTI &&
-                (dm.getWidth() != currentDM.getWidth() ||
-                 dm.getHeight() != currentDM.getHeight()))
-            {
-                // found a mode which has the same depth but different
-                // dimensions
-                return dm;
-            }
-        }
-
-        return null;
     }
 }

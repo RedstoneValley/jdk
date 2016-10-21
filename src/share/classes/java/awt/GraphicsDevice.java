@@ -25,6 +25,7 @@
 
 package java.awt;
 
+import android.os.Build;
 import java.awt.image.ColorModel;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
@@ -115,11 +116,8 @@ public abstract class GraphicsDevice {
    * shaping (due to the bugs in the windowing system).
    */
   static boolean isWindowShapingSupported() {
-    Toolkit curToolkit = Toolkit.getDefaultToolkit();
-    if (!(curToolkit instanceof SunToolkit)) {
-      return false;
-    }
-    return ((SunToolkit) curToolkit).isWindowShapingSupported();
+    // Android split-screen is introduced in SDK 24
+    return Build.VERSION.SDK_INT >= 24;
   }
 
   /**
@@ -130,11 +128,8 @@ public abstract class GraphicsDevice {
    * translucency (due to the bugs in the windowing system).
    */
   static boolean isWindowOpacitySupported() {
-    Toolkit curToolkit = Toolkit.getDefaultToolkit();
-    if (!(curToolkit instanceof SunToolkit)) {
-      return false;
-    }
-    return ((SunToolkit) curToolkit).isWindowOpacitySupported();
+    // TODO
+    return false;
   }
 
   /*
@@ -540,23 +535,8 @@ public abstract class GraphicsDevice {
   }
 
   boolean isWindowPerpixelTranslucencySupported() {
-        /*
-         * Per-pixel alpha is supported if all the conditions are TRUE:
-         *    1. The toolkit is a sort of SunToolkit
-         *    2. The toolkit supports translucency in general
-         *        (isWindowTranslucencySupported())
-         *    3. There's at least one translucency-capable
-         *        GraphicsConfiguration
-         */
-    Toolkit curToolkit = Toolkit.getDefaultToolkit();
-    if (!(curToolkit instanceof SunToolkit)) {
-      return false;
-    }
-    if (!((SunToolkit) curToolkit).isWindowTranslucencySupported()) {
-      return false;
-    }
-
-    return getTranslucencyCapableGC() != null;
+    // TODO
+    return false;
   }
 
   GraphicsConfiguration getTranslucencyCapableGC() {

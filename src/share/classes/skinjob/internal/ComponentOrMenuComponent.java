@@ -20,7 +20,7 @@ public abstract class ComponentOrMenuComponent implements Serializable {
   public ComponentOrMenuComponent(
       WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
     sjAndroidContext = wrappedObjectsSupplier.getAppContext();
-    sjAndroidWidget = wrappedObjectsSupplier.createWidget();
+    sjAndroidWidget = wrappedObjectsSupplier.createAndInitWidget();
     this.wrappedObjectsSupplier = wrappedObjectsSupplier;
   }
 
@@ -38,7 +38,7 @@ public abstract class ComponentOrMenuComponent implements Serializable {
   private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
     s.defaultReadObject();
     sjAndroidContext = wrappedObjectsSupplier.getAppContext();
-    sjAndroidWidget = wrappedObjectsSupplier.createWidget();
+    sjAndroidWidget = wrappedObjectsSupplier.createAndInitWidget();
   }
 
   /**
