@@ -3,8 +3,8 @@ package skinjob.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
-import android.util.Log;
 import android.view.Window;
+
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
@@ -18,8 +18,7 @@ import java.util.Arrays;
 public final class SkinJobUtil {
   // TODO: Can this class be gotten at through the actual API?
   public static final Constructor<? extends Window> ANDROID_WINDOW_IMPL_CTOR;
-  private static final String TAG = "SkinJobUtil";
-
+  
   static {
     try {
       ANDROID_WINDOW_IMPL_CTOR = Class
@@ -27,8 +26,7 @@ public final class SkinJobUtil {
           .asSubclass(Window.class)
           .getConstructor(Context.class);
     } catch (ClassNotFoundException | NoSuchMethodException e) {
-      Log.e(TAG, "java.awt.Window will be unavailable", e);
-      ANDROID_WINDOW_IMPL_CTOR = null;
+      throw new RuntimeException(e);
     }
   }
 

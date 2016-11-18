@@ -38,7 +38,6 @@ import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Objects;
 
-import skinjob.SkinJobGlobals;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
@@ -696,16 +695,11 @@ public class Checkbox extends Component implements ItemSelectable {
     }
 
     @Override
-    public Context getAppContext() {
-      return SkinJobGlobals.getAndroidApplicationContext();
-    }
-
-    @Override
     public CompoundButton createWidget(Context context) {
       if (group == null) {
-        return new CheckBox(getAppContext());
+        return new CheckBox(context);
       } else {
-        RadioButton button = new RadioButton(getAppContext());
+        RadioButton button = new RadioButton(context);
         group.getAndroidGroup().addView(button);
         return button;
       }
