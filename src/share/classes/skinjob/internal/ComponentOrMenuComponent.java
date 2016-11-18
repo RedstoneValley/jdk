@@ -39,6 +39,15 @@ public abstract class ComponentOrMenuComponent
   }
 
   /**
+   * Will be called when a subclass is deserialized from a non-SkinJob implementation of AWT.
+   *
+   * CAUTION: Deserializing such objects is still experimental.
+   */
+  private void readObjectNoData() {
+    sjInitAndroidFields();
+  }
+
+  /**
    * Gets the parent of this component.
    *
    * @return the parent of this component

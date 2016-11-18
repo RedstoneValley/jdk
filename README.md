@@ -28,6 +28,10 @@ All the public classes and interfaces in `java.awt.*` should have all the public
 
 Sometimes a public field or method needs to be added to a `java.awt.*` class so that SkinJob code in another package can access it. (This includes ones that OpenJDK AWT accesses only from JNI code and/or via reflection. Reflection is to be avoided in SkinJob for performance reasons.) When this is the case, its name should be prefixed with `sj` so that it's clear to the SkinJob maintainers that it's not part of the API.
 
+## Serialization compatibility only if it's easy
+
+There will probably be minimal demand to transfer objects that AWT declares as Serializable between Android and other platforms that AWT runs on. Thus, it's only a minor nuisance if SkinJob implementations aren't interchangeable with other implementations, as long as they have a different serialVersionUid to indicate that.
+
 ## Speak Android's visual language
 
 When developers want pixel-by-pixel control over how a GUI widget looked and behaved, they use Swing, not AWT. Using AWT implies that an app is free to adapt its look and feel to the conventions of the platform; and when moving from a desktop OS to Android, that can mean bigger adaptations than usual. For example, people don't expect an Android app to have a horizontal menu bar along the top of the window, so SkinJob's menu bar should default to either being a side panel with the menus stacked vertically, or a drop-down menu accessible by tapping a ≡ icon.
