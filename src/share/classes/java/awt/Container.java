@@ -26,6 +26,7 @@ package java.awt;
 
 import android.util.Log;
 import android.view.View;
+
 import java.awt.dnd.DropTarget;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ContainerEvent;
@@ -47,6 +48,9 @@ import java.lang.reflect.Method;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.util.Shapes;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
@@ -271,7 +275,12 @@ public class Container extends Component {
    * (such as Frame for example).
    */
   public Container() {
-    super(View.class);
+    super();
+  }
+
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(View.class);
   }
 
   /**

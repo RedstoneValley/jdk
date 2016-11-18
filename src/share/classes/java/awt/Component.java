@@ -25,7 +25,7 @@
 package java.awt;
 
 import android.util.Log;
-import android.view.View;
+
 import java.awt.BufferCapabilities.FlipContents;
 import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
@@ -83,8 +83,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
+
 import skinjob.internal.ComponentOrMenuComponent;
-import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.util.Shapes;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.ComponentAccessor;
@@ -910,14 +910,7 @@ public abstract class Component extends ComponentOrMenuComponent
    * hosted by a native container somewhere higher up in the component
    * tree (for example, by a {@code Frame} object).
    */
-  protected Component(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
-    super(wrappedObjectsSupplier);
-    appContext = AppContext.getAppContext();
-  }
-
-  public Component(Class<? extends View> viewClass) {
-    super(viewClass);
-  }
+  protected Component() {}
 
   /**
    * Indicates whether a class or its superclasses override coalesceEvents.
@@ -7881,7 +7874,7 @@ public abstract class Component extends ComponentOrMenuComponent
         popup.parent = this;
       }
     }
-    sjAndroidWidget = wrappedObjectsSupplier.createWidget();
+    sjAndroidWidget = sjGetWrappedAndroidObjectsSupplier().createWidget();
   }
 
   /**

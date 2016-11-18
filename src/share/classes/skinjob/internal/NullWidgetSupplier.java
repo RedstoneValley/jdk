@@ -2,6 +2,7 @@ package skinjob.internal;
 
 import android.content.Context;
 import android.view.View;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -26,7 +27,7 @@ public final class NullWidgetSupplier extends WrappedAndroidObjectsSupplier<View
   }
 
   @Override
-  public View createWidget() {
+  public View createWidget(Context context) {
     return null;
   }
 }

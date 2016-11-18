@@ -2,9 +2,11 @@ package skinjob.internal;
 
 import android.content.Context;
 import android.view.View;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.WeakHashMap;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -37,14 +39,9 @@ public class DefaultWrappedAndroidObjectsSupplier<TWidget extends View>
   }
 
   @Override
-  public Context getAppContext() {
-    return SkinJobGlobals.getAndroidApplicationContext();
-  }
-
-  @Override
-  public TWidget createWidget() {
+  public TWidget createWidget(Context context) {
     try {
-      return constructor.newInstance(getAppContext());
+      return constructor.newInstance(SkinJobGlobals.getAndroidApplicationContext());
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e);
     }

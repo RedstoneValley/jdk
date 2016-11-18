@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.widget.ScrollView;
+
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.peer.ScrollbarPeer;
@@ -32,6 +33,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
  * The {@code Scrollbar} class embodies a scroll bar, a
@@ -345,6 +349,11 @@ public class Scrollbar extends Component implements Adjustable {
     this(VERTICAL, 0, 10, 0, 100);
   }
 
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(ScrollView.class);
+  }
+
   /**
    * Constructs a new scroll bar with the specified orientation.
    * <p>
@@ -391,7 +400,7 @@ public class Scrollbar extends Component implements Adjustable {
    */
   public Scrollbar(
       int orientation, int value, int visible, int minimum, int maximum) throws HeadlessException {
-    super(ScrollView.class);
+    super();
     switch (orientation) {
       case HORIZONTAL:
       case VERTICAL:

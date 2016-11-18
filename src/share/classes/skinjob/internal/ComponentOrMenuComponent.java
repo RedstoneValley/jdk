@@ -2,43 +2,40 @@ package skinjob.internal;
 
 import android.content.Context;
 import android.view.View;
+
 import java.awt.Component;
 import java.awt.MenuComponent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 
+import skinjob.SkinJobGlobals;
+
 /**
  * Common elements of {@link Component} and {@link MenuComponent}.
  */
-public abstract class ComponentOrMenuComponent implements Serializable {
+public abstract class ComponentOrMenuComponent
+        implements Serializable {
   private static final long serialVersionUID = 5874307035189784860L;
   public transient View sjAndroidWidget;
   protected transient Context sjAndroidContext;
-  protected WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier;
 
-  public ComponentOrMenuComponent(
-      WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
-    sjAndroidContext = wrappedObjectsSupplier.getAppContext();
-    sjAndroidWidget = wrappedObjectsSupplier.createAndInitWidget();
-    this.wrappedObjectsSupplier = wrappedObjectsSupplier;
+  public ComponentOrMenuComponent() {
+    sjInitAndroidFields();
   }
 
-  /**
-   * Constructs a new component. Class {@code Component} can be
-   * extended directly to create a lightweight component that does not
-   * utilize an opaque native window. A lightweight component must be
-   * hosted by a native container somewhere higher up in the component
-   * tree (for example, by a {@code Frame} object).
-   */
-  protected ComponentOrMenuComponent(Class<? extends View> androidWidgetClass) {
-    this(DefaultWrappedAndroidObjectsSupplier.forClass(androidWidgetClass));
+  private void sjInitAndroidFields() {
+    sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
+    sjAndroidWidget = sjGetWrappedAndroidObjectsSupplier().createAndInitWidget();
+  }
+
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(View.class);
   }
 
   private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
     s.defaultReadObject();
-    sjAndroidContext = wrappedObjectsSupplier.getAppContext();
-    sjAndroidWidget = wrappedObjectsSupplier.createAndInitWidget();
+    sjInitAndroidFields();
   }
 
   /**

@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.view.View;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusListener;
 import java.awt.peer.MenuComponentPeer;
@@ -34,13 +35,17 @@ import java.io.Serializable;
 import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.util.Locale;
+
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleComponent;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleSelection;
 import javax.accessibility.AccessibleStateSet;
+
 import skinjob.internal.ComponentOrMenuComponent;
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.MenuComponentAccessor;
 import sun.awt.AppContext;
@@ -154,8 +159,13 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
    * @see GraphicsEnvironment#isHeadless
    */
   public MenuComponent() throws HeadlessException {
-    super(View.class);
+    super();
     appContext = AppContext.getAppContext();
+  }
+
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(View.class);
   }
 
   /*

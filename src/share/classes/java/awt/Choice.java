@@ -32,7 +32,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Vector;
+
 import skinjob.internal.NullWidgetSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
  * The {@code Choice} class presents a pop-up menu of choices.
@@ -126,8 +128,13 @@ public class Choice extends Component implements ItemSelectable {
    * @see #select(String)
    */
   public Choice() throws HeadlessException {
-    super(NullWidgetSupplier.getInstance());
+    super();
     pItems = new Vector<>();
+  }
+
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return NullWidgetSupplier.getInstance();
   }
 
   /**

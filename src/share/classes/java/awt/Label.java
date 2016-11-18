@@ -25,9 +25,13 @@
 package java.awt;
 
 import android.widget.TextView;
+
 import java.awt.peer.LabelPeer;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.internal.peer.SkinJobLabelPeer;
 
 /**
@@ -108,6 +112,11 @@ public class Label extends Component {
     this("", LEFT);
   }
 
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(TextView.class);
+  }
+
   /**
    * Constructs a new label with the specified string of text,
    * left justified.
@@ -140,7 +149,7 @@ public class Label extends Component {
    * @see GraphicsEnvironment#isHeadless
    */
   public Label(String text, int alignment) throws HeadlessException {
-    super(TextView.class);
+    super();
     peer = new SkinJobLabelPeer(this);
     setText(text);
     setAlignment(alignment);

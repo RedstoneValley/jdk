@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.internal.peer.SkinJobButtonPeer;
 
 /**
@@ -128,6 +131,11 @@ public class Button extends Component {
     this("");
   }
 
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(android.widget.Button.class);
+  }
+
   /**
    * Constructs a button with the specified label.
    *
@@ -138,7 +146,7 @@ public class Button extends Component {
    * @see GraphicsEnvironment#isHeadless
    */
   public Button(String label) throws HeadlessException {
-    super(android.widget.Button.class);
+    super();
     this.label = label;
     SkinJobButtonPeer peer = new SkinJobButtonPeer(this);
     this.peer = peer;

@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.widget.EditText;
+
 import java.awt.event.TextEvent;
 import java.awt.event.TextListener;
 import java.awt.im.InputMethodRequests;
@@ -33,6 +34,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 import sun.awt.InputMethodSupport;
 
 /**
@@ -128,7 +132,7 @@ public class TextComponent extends Component {
    * @see Cursor
    */
   TextComponent(String text) throws HeadlessException {
-    super(EditText.class);
+    super();
     this.text = text != null ? text : "";
     setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
   }
@@ -759,6 +763,11 @@ public class TextComponent extends Component {
 
     AWTEventMulticaster.save(s, textListenerK, textListener);
     s.writeObject(null);
+  }
+
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(EditText.class);
   }
 
   /**

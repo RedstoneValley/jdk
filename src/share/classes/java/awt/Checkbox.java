@@ -28,6 +28,7 @@ import android.content.Context;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioButton;
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.peer.CheckboxPeer;
@@ -36,6 +37,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Objects;
+
 import skinjob.SkinJobGlobals;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
 
@@ -81,6 +83,7 @@ import skinjob.internal.WrappedAndroidObjectsSupplier;
  */
 public class Checkbox extends Component implements ItemSelectable {
 
+  private boolean initialized = false;
   private static final String base = "checkbox";
   /*
    * JDK 1.1 serialVersionUID
@@ -134,6 +137,11 @@ public class Checkbox extends Component implements ItemSelectable {
     this("", false, null);
   }
 
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new CheckBoxOrRadioButtonSupplier(getCheckboxGroup());
+  }
+
   /**
    * Creates a check box with the specified label.  The state
    * of this check box is set to "off," and it is not part of
@@ -183,32 +191,12 @@ public class Checkbox extends Component implements ItemSelectable {
    * @since JDK1.1
    */
   public Checkbox(String label, boolean state, CheckboxGroup group) throws HeadlessException {
-    // Must use 2 suppliers, because the first one is invoked before Checkbox.this.group is
-    // initialized
-    super(new CheckBoxOrRadioButtonSupplier(group));
+    super();
     this.label = label;
     this.state = state;
     this.group = group;
-    wrappedObjectsSupplier = new WrappedAndroidObjectsSupplier<CompoundButton>() {
-      @Override
-      public Context getAppContext() {
-        return SkinJobGlobals.getAndroidApplicationContext();
-      }
-
-      @Override
-      public CompoundButton createWidget() {
-        if (Checkbox.this.group == null) {
-          return new CheckBox(getAppContext());
-        } else {
-          RadioButton button = new RadioButton(getAppContext());
-          Checkbox.this.group.getAndroidGroup().addView(button);
-          return button;
-        }
-      }
-    };
-    if (state && group != null) {
-      group.setSelectedCheckbox(this);
-    }
+    // Super call will have happened while this.group was still uninitialized
+    sjAndroidWidget = sjGetWrappedAndroidObjectsSupplier().createWidget();
   }
 
   /**
@@ -569,7 +557,7 @@ public class Checkbox extends Component implements ItemSelectable {
       }
       if ((oldGroup == null) != (group == null)) {
         // Change from checkbox to radio button or vice-versa
-        sjAndroidWidget = wrappedObjectsSupplier.createWidget();
+        sjAndroidWidget = sjGetWrappedAndroidObjectsSupplier().createWidget();
         // Copy label and state to the new widget
         setLabel(getLabel());
         setState(getState());
@@ -713,7 +701,7 @@ public class Checkbox extends Component implements ItemSelectable {
     }
 
     @Override
-    public CompoundButton createWidget() {
+    public CompoundButton createWidget(Context context) {
       if (group == null) {
         return new CheckBox(getAppContext());
       } else {

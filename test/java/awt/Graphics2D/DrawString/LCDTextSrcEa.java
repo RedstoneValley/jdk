@@ -39,7 +39,6 @@ import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 public class LCDTextSrcEa extends Component {
 
@@ -48,9 +47,7 @@ public class LCDTextSrcEa extends Component {
     final BufferedImage target =
         new BufferedImage(SZ, SZ, BufferedImage.TYPE_INT_RGB);
 
-    protected LCDTextSrcEa(WrappedAndroidObjectsSupplier<?> wrappedObjectsSupplier) {
-        super(wrappedObjectsSupplier);
-    }
+    protected LCDTextSrcEa() {}
 
     public static void main(String[] args) {
         Frame f = new Frame("LCD Text SrcEa Test");

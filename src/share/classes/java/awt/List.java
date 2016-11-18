@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.widget.Spinner;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -35,6 +36,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Vector;
+
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
+import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
  * The {@code List} component presents the user with a
@@ -197,6 +201,11 @@ public class List extends Component implements ItemSelectable {
     this(0, false);
   }
 
+  @Override
+  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
+    return new DefaultWrappedAndroidObjectsSupplier<>(Spinner.class);
+  }
+
   /**
    * Creates a new scrolling list initialized with the specified
    * number of visible lines. By default, multiple selections are
@@ -235,7 +244,7 @@ public class List extends Component implements ItemSelectable {
    * @see GraphicsEnvironment#isHeadless
    */
   public List(int rows, boolean multipleMode) throws HeadlessException {
-    super(Spinner.class);
+    super();
     this.rows = rows == 0 ? DEFAULT_VISIBLE_ROWS : rows;
     this.multipleMode = multipleMode;
   }
