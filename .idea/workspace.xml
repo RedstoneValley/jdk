@@ -8,10 +8,11 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Eliminate a walled-garden group of classes from sun.awt.image.">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/DataBufferNative.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/WritableRasterNative.java" afterPath="" />
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Merge in">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/print/MediaPrintableArea.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/print/PrinterJob.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/print/PrinterJob.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -40,16 +41,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="CompositionArea.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionArea.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
-              <caret line="73" column="20" selection-start-line="73" selection-start-column="20" selection-end-line="73" selection-end-column="20" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="GraphicsConfiguration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -85,18 +76,64 @@
       <file leaf-file-name="ImageRepresentation.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="402">
+            <state relative-caret-position="18848">
               <caret line="656" column="7" selection-start-line="656" selection-start-column="7" selection-end-line="656" selection-end-column="7" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImagingLib.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImagingLib.java">
+      <file leaf-file-name="SunWritableRaster.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="402">
-              <caret line="117" column="7" selection-start-line="117" selection-start-column="7" selection-end-line="117" selection-end-column="7" />
+              <caret line="113" column="7" selection-start-line="113" selection-start-column="7" selection-end-line="113" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MediaPrintableArea.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="402">
+              <caret line="79" column="14" selection-start-line="79" selection-start-column="14" selection-end-line="79" selection-end-column="14" />
+              <folding>
+                <element signature="e#0#11043#0" expanded="true" />
+                <element signature="e#6983#6984#0" expanded="true" />
+                <element signature="e#7032#7033#0" expanded="true" />
+                <element signature="e#7504#7505#0" expanded="true" />
+                <element signature="e#7553#7554#0" expanded="true" />
+                <element signature="e#7981#7982#0" expanded="true" />
+                <element signature="e#8030#8031#0" expanded="true" />
+                <element signature="e#8461#8462#0" expanded="true" />
+                <element signature="e#8510#8511#0" expanded="true" />
+                <element signature="e#9684#9685#0" expanded="true" />
+                <element signature="e#9723#9724#0" expanded="true" />
+                <element signature="e#10678#10679#0" expanded="true" />
+                <element signature="e#10714#10715#0" expanded="true" />
+                <element signature="e#10804#10805#0" expanded="true" />
+                <element signature="e#10843#10844#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PrintService.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="682">
+              <caret line="22" column="7" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="JPEGImageDecoder.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/JPEGImageDecoder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="402">
+              <caret line="86" column="7" selection-start-line="86" selection-start-column="7" selection-end-line="86" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -114,7 +151,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BasicStroke.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="BasicStroke.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="402">
@@ -154,8 +191,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/SystemTray.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/ScrollPane.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Robot.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/DefaultMouseInfoPeer.java" />
@@ -205,6 +240,8 @@
         <option value="$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/print/MediaPrintableArea.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java" />
       </list>
     </option>
   </component>
@@ -524,11 +561,11 @@
       <recent name="Demo" />
     </key>
     <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="javax.print.attribute.standard" />
       <recent name="skinjob.internal.peer" />
       <recent name="skinjob.util" />
       <recent name="skinjob.internal" />
       <recent name="skinjob" />
-      <recent name="skinjob.peer" />
     </key>
     <key name="ExtractSuperBase.RECENT_KEYS">
       <recent name="java.awt" />
@@ -1064,7 +1101,14 @@
       <option name="project" value="LOCAL" />
       <updated>1479726988561</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Eliminate 2 unused classes from sun.awt.image.">
+      <created>1479727092883</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1479727092883</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1080,7 +1124,7 @@
     <frame x="-8" y="-8" width="3856" height="2136" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37563196" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37563196" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37866533" sideWeight="0.46025878" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1093,9 +1137,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18884233" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5849343" sideWeight="0.44151044" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18360399" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18884233" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.5849343" sideWeight="0.44151044" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18360399" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32981253" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
@@ -1153,7 +1197,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Fix all remaining compiler errors in src/share. Eliminate more dead code." />
     <MESSAGE value="Caught some files that were unversioned in Git." />
     <MESSAGE value="SkinJobGraphics now extends Graphics2D, giving it a more powerful interface." />
     <MESSAGE value="Delete sun.java2d; migrate classes to use Shape instead of Region; finish SkinJobMenuPeer." />
@@ -1178,7 +1221,8 @@
     <MESSAGE value="Fix build errors" />
     <MESSAGE value="Merge Sun code into sun.* to complete some TODOs" />
     <MESSAGE value="Eliminate a walled-garden group of classes from sun.awt.image." />
-    <option name="LAST_COMMIT_MESSAGE" value="Eliminate a walled-garden group of classes from sun.awt.image." />
+    <MESSAGE value="Eliminate 2 unused classes from sun.awt.image." />
+    <option name="LAST_COMMIT_MESSAGE" value="Eliminate 2 unused classes from sun.awt.image." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1212,38 +1256,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="113" column="7" selection-start-line="113" selection-start-column="7" selection-end-line="113" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="11" column="7" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/MediaPrintableArea.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SplashScreen.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1425">
-          <caret line="158" column="7" selection-start-line="158" selection-start-column="7" selection-end-line="158" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/SunToolkit.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="588">
@@ -1376,7 +1388,7 @@
         <state relative-caret-position="1702">
           <caret line="197" column="3" selection-start-line="197" selection-start-column="3" selection-end-line="197" selection-end-column="3" />
           <folding>
-            <element signature="imports" expanded="true" />
+            <element signature="imports" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1475,9 +1487,9 @@
         <state relative-caret-position="860">
           <caret line="194" column="53" selection-start-line="194" selection-start-column="53" selection-end-line="194" selection-end-column="53" />
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#5440#5441#0" expanded="true" />
-            <element signature="e#5503#5504#0" expanded="true" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#5440#5441#0" expanded="false" />
+            <element signature="e#5503#5504#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1534,14 +1546,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="403">
           <caret line="18" column="7" selection-start-line="18" selection-start-column="7" selection-end-line="18" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="656" column="7" selection-start-line="656" selection-start-column="7" selection-end-line="656" selection-end-column="7" />
           <folding />
         </state>
       </provider>
@@ -1620,14 +1624,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="346" column="7" selection-start-line="346" selection-start-column="7" selection-end-line="346" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-249">
@@ -1659,6 +1655,70 @@
         <state relative-caret-position="402">
           <caret line="301" column="7" selection-start-line="301" selection-start-column="7" selection-end-line="301" selection-end-column="7" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="346" column="7" selection-start-line="346" selection-start-column="7" selection-end-line="346" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="18848">
+          <caret line="656" column="7" selection-start-line="656" selection-start-column="7" selection-end-line="656" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/JPEGImageDecoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="86" column="7" selection-start-line="86" selection-start-column="7" selection-end-line="86" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="113" column="7" selection-start-line="113" selection-start-column="7" selection-end-line="113" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="682">
+          <caret line="22" column="7" selection-start-line="22" selection-start-column="7" selection-end-line="22" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="79" column="14" selection-start-line="79" selection-start-column="14" selection-end-line="79" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#11043#0" expanded="true" />
+            <element signature="e#6983#6984#0" expanded="true" />
+            <element signature="e#7032#7033#0" expanded="true" />
+            <element signature="e#7504#7505#0" expanded="true" />
+            <element signature="e#7553#7554#0" expanded="true" />
+            <element signature="e#7981#7982#0" expanded="true" />
+            <element signature="e#8030#8031#0" expanded="true" />
+            <element signature="e#8461#8462#0" expanded="true" />
+            <element signature="e#8510#8511#0" expanded="true" />
+            <element signature="e#9684#9685#0" expanded="true" />
+            <element signature="e#9723#9724#0" expanded="true" />
+            <element signature="e#10678#10679#0" expanded="true" />
+            <element signature="e#10714#10715#0" expanded="true" />
+            <element signature="e#10804#10805#0" expanded="true" />
+            <element signature="e#10843#10844#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

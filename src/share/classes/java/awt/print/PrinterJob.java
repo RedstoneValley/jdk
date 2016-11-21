@@ -29,9 +29,11 @@ import java.awt.AWTError;
 import java.awt.HeadlessException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+
+import javax.print.attribute.standard.MediaPrintableArea;
+
 import sun.awt.DocFlavor;
 import sun.awt.PrintServiceLookup;
-import sun.awt.print.MediaPrintableArea;
 import sun.awt.print.OrientationRequested;
 import sun.awt.print.PrintService;
 
