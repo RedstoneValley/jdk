@@ -8,15 +8,10 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Merge Sun code into sun.* to complete some TODOs">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgSurfaceData.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgSurfaceManager.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgVolatileSurfaceManager.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/SunVolatileImage.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/VolatileSurfaceManager.java" afterPath="" />
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Eliminate a walled-garden group of classes from sun.awt.image.">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/DataBufferNative.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/WritableRasterNative.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -55,7 +50,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GraphicsConfiguration.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="GraphicsConfiguration.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="388">
@@ -69,8 +64,10 @@
         <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="-46">
-              <caret line="63" column="2" selection-start-line="63" selection-start-column="2" selection-end-line="63" selection-end-column="2" />
-              <folding />
+              <caret line="64" column="2" selection-start-line="64" selection-start-column="2" selection-end-line="64" selection-end-column="2" />
+              <folding>
+                <marker date="1479726987899" expanded="false" signature="1245:1513" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -100,6 +97,28 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="402">
               <caret line="117" column="7" selection-start-line="117" selection-start-column="7" selection-end-line="117" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Decoration.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-249">
+              <caret line="95" column="27" selection-start-line="95" selection-start-column="27" selection-end-line="95" selection-end-column="27" />
+              <folding>
+                <element signature="e#0#12573#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BasicStroke.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="402">
+              <caret line="301" column="7" selection-start-line="301" selection-start-column="7" selection-end-line="301" selection-end-column="7" />
               <folding />
             </state>
           </provider>
@@ -1038,7 +1057,14 @@
       <option name="project" value="LOCAL" />
       <updated>1479726333356</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Eliminate a walled-garden group of classes from sun.awt.image.">
+      <created>1479726988561</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1479726988561</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1127,7 +1153,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Delete demos for now. (Some can be added back later, once we figure out which ones can use an Android app as an entry point.)" />
     <MESSAGE value="Fix all remaining compiler errors in src/share. Eliminate more dead code." />
     <MESSAGE value="Caught some files that were unversioned in Git." />
     <MESSAGE value="SkinJobGraphics now extends Graphics2D, giving it a more powerful interface." />
@@ -1152,7 +1177,8 @@
     <MESSAGE value="Implement readObjectNoData, and document the serialization-compatibility question." />
     <MESSAGE value="Fix build errors" />
     <MESSAGE value="Merge Sun code into sun.* to complete some TODOs" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge Sun code into sun.* to complete some TODOs" />
+    <MESSAGE value="Eliminate a walled-garden group of classes from sun.awt.image." />
+    <option name="LAST_COMMIT_MESSAGE" value="Eliminate a walled-garden group of classes from sun.awt.image." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1186,22 +1212,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/ComponentOrMenuComponent.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="20" column="24" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/WritableRasterNative.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="762">
-          <caret line="99" column="25" selection-start-line="99" selection-start-column="25" selection-end-line="99" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="402">
@@ -1496,16 +1506,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="715">
-          <caret line="412" column="19" selection-start-line="412" selection-start-column="19" selection-end-line="412" selection-end-column="19" />
-          <folding>
-            <element signature="e#0#12573#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/PrintServiceLookup.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="248">
@@ -1538,22 +1538,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/DataBufferNative.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="61" column="7" selection-start-line="61" selection-start-column="7" selection-end-line="61" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="402">
-          <caret line="346" column="7" selection-start-line="346" selection-start-column="7" selection-end-line="346" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="402">
@@ -1581,8 +1565,10 @@
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-46">
-          <caret line="63" column="2" selection-start-line="63" selection-start-column="2" selection-end-line="63" selection-end-column="2" />
-          <folding />
+          <caret line="64" column="2" selection-start-line="64" selection-start-column="2" selection-end-line="64" selection-end-column="2" />
+          <folding>
+            <marker date="1479726987899" expanded="false" signature="1245:1513" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1630,6 +1616,48 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="388">
           <caret line="295" column="20" selection-start-line="295" selection-start-column="20" selection-end-line="295" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="346" column="7" selection-start-line="346" selection-start-column="7" selection-end-line="346" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-249">
+          <caret line="95" column="27" selection-start-line="95" selection-start-column="27" selection-end-line="95" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#12573#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/WritableRasterNative.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="558">
+          <caret line="49" column="25" selection-start-line="49" selection-start-column="25" selection-end-line="49" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/DataBufferNative.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="651">
+          <caret line="45" column="24" selection-start-line="45" selection-start-column="24" selection-end-line="45" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="402">
+          <caret line="301" column="7" selection-start-line="301" selection-start-column="7" selection-end-line="301" selection-end-column="7" />
           <folding />
         </state>
       </provider>
