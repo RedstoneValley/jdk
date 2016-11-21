@@ -29,10 +29,9 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.ImageCapabilities;
-import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+
 import sun.java2d.SurfaceData;
 import sun.java2d.SurfaceDataProxy;
 
@@ -59,42 +58,8 @@ public abstract class SurfaceManager {
     imgaccessor = ia;
   }
 
-  /**
-   * Returns the SurfaceManager object contained within the given Image.
-   */
-  public static SurfaceManager getManager(Image img) {
-    SurfaceManager sMgr = imgaccessor.getSurfaceManager(img);
-    if (sMgr == null) {
-            /*
-             * In practice only a BufferedImage will get here.
-             */
-      try {
-        BufferedImage bi = (BufferedImage) img;
-        sMgr = new BufImgSurfaceManager(bi);
-        setManager(bi, sMgr);
-      } catch (ClassCastException e) {
-        throw new IllegalArgumentException("Invalid Image variant");
-      }
-    }
-    return sMgr;
-  }
-
   public static void setManager(Image img, SurfaceManager mgr) {
     imgaccessor.setSurfaceManager(img, mgr);
-  }
-
-  /**
-   * Returns a scale factor of the image. This is utility method, which
-   * fetches information from the SurfaceData of the image.
-   *
-   * @see SurfaceData#getDefaultScale
-   */
-  public static int getImageScale(Image img) {
-    if (!(img instanceof VolatileImage)) {
-      return 1;
-    }
-    SurfaceManager sm = getManager(img);
-    return sm.getPrimarySurfaceData().getDefaultScale();
   }
 
   /**
@@ -136,15 +101,6 @@ public abstract class SurfaceManager {
     }
     cacheMap.put(key, value);
   }
-
-  /**
-   * Returns the main SurfaceData object that "owns" the pixels for
-   * this SurfaceManager.  This SurfaceData is used as the destination
-   * surface in a rendering operation and is the most authoritative
-   * storage for the current state of the pixels, though other
-   * versions might be cached in other locations for efficiency.
-   */
-  public abstract SurfaceData getPrimarySurfaceData();
 
   /**
    * Restores the primary surface being managed, and then returns the

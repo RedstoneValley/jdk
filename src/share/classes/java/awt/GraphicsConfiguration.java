@@ -31,7 +31,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.VolatileImage;
 import java.awt.image.WritableRaster;
-import sun.awt.image.SunVolatileImage;
 
 /**
  * The {@code GraphicsConfiguration} class describes the
@@ -299,13 +298,8 @@ public abstract class GraphicsConfiguration {
    */
   public VolatileImage createCompatibleVolatileImage(
       int width, int height, ImageCapabilities caps, int transparency) throws AWTException {
-    VolatileImage vi = new SunVolatileImage(this, width, height, transparency, caps);
-    if (caps != null && caps.isAccelerated() &&
-        !vi.getCapabilities().isAccelerated()) {
-      throw new AWTException(
-          "Supplied image capabilities could not " + "be met by this graphics configuration.");
-    }
-    return vi;
+    // TODO
+    return null;
   }
 
   /**
