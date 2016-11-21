@@ -34,6 +34,7 @@ import java.awt.FocusTraversalPolicy;
 import java.awt.Image;
 import java.awt.KeyboardFocusManager;
 import java.awt.MenuComponent;
+import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
@@ -46,6 +47,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+
 import sun.awt.AWTAccessor.SequencedEventAccessor;
 import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
@@ -436,7 +438,7 @@ public final class SunToolkit {
    * @since 1.6
    */
   public static void closeSplashScreen() {
-    // TODO: Native in OpenJDK AWT
+    SplashScreen.getSplashScreen().close();
   }
 
   /**

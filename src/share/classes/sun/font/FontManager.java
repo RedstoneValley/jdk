@@ -1,8 +1,6 @@
 package sun.font;
 
 import java.awt.Font;
-import java.util.ArrayList;
-import java.util.Locale;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -20,23 +18,6 @@ public class FontManager {
 
   public static FontManager getInstance() {
     return INSTANCE;
-  }
-
-  public Font2D findFont2D(String name, int style, Object logicalFallback) {
-    // TODO
-    return null;
-  }
-
-  public String[] getInstalledFontFamilyNames(Locale requestedLocale) {
-    ArrayList<String> names = new ArrayList<>();
-    for (Font font : installedFonts) {
-      names.add(font.getFamily(requestedLocale));
-    }
-    return names.toArray(A_STRING_ARRAY);
-  }
-
-  public void useAlternateFontforJALocales() {
-    // TODO
   }
 
   public Font[] getAllInstalledFonts() {

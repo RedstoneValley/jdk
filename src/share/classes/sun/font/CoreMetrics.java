@@ -1,5 +1,6 @@
 package sun.font;
 
+import java.awt.font.GraphicAttribute;
 import java.awt.font.LineMetrics;
 
 /**
@@ -182,8 +183,17 @@ public class CoreMetrics {
     return underlineThickness;
   }
 
-  public float effectiveBaselineOffset(float[] fBaselineOffsets) {
-    // TODO
-    return 0;
-  }
+  // fullOffsets is an array of 5 baseline offsets,
+  // roman, center, hanging, bottom, and top in that order
+  // this does NOT add the ssOffset
+  public final float effectiveBaselineOffset(float[] fullOffsets) {
+    switch (baselineIndex) {
+      case GraphicAttribute.TOP_ALIGNMENT:
+        return fullOffsets[4] + ascent;
+      case GraphicAttribute.BOTTOM_ALIGNMENT:
+        return fullOffsets[3] - descent;
+      default:
+        return fullOffsets[baselineIndex];
+    }
+
 }

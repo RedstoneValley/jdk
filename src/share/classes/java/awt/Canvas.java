@@ -59,7 +59,6 @@ public class Canvas extends Component {
    * Constructs a new Canvas.
    */
   public Canvas() {
-    super();
     peer = new SkinJobCanvasPeer(this);
   }
 

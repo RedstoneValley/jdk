@@ -21,27 +21,16 @@
   questions.
  */
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Robot;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class MyCanvas extends Canvas {
 
     private static final long serialVersionUID = -6588280052696814282L;
-
-    static {
-        try {
-            System.loadLibrary("mylib");
-        } catch (Throwable t) {
-            System.out.println("Test failed!!");
-            t.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    @Override
-    public void paint(Graphics g) {
-        // TODO: Native in OpenJDK AWT
-    }
 
     public static void main(String[] args) {
         try {
