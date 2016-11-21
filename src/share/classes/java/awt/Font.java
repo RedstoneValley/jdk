@@ -28,6 +28,7 @@ package java.awt;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
 import java.awt.font.LineMetrics;
@@ -54,12 +55,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
+
 import skinjob.SkinJobGlobals;
 import sun.font.AttributeValues;
 import sun.font.CoreMetrics;
-import sun.font.Font2D;
 import sun.font.FontLineMetrics;
-import sun.font.FontManager;
 import sun.font.GlyphLayout;
 import sun.font.StandardGlyphVector;
 
@@ -411,8 +411,6 @@ public class Font implements Serializable {
    * The platform specific font information.
    */
   private transient FontPeer peer;
-  private transient long pData;       // native JDK1.1 font pointer
-  private transient Font2D font2DHandle;
   private transient boolean hasLayoutAttributes;
   /*
    * If the origin of a Font is a created font then this attribute
@@ -528,11 +526,10 @@ public class Font implements Serializable {
    * In these cases there is no need to interrogate "values".
    */
   private Font(
-      AttributeValues values, String oldName, int oldStyle, boolean created, Font2D handle) {
+          AttributeValues values, String oldName, int oldStyle, boolean created) {
 
     createdFont = created;
     if (created) {
-      font2DHandle = handle;
 
       String newName = null;
       if (oldName != null) {
@@ -555,7 +552,6 @@ public class Font implements Serializable {
       }
       if (newName != null) {
         createdFont = false;
-        font2DHandle = null;
       }
     }
     this.values = values;
@@ -578,7 +574,7 @@ public class Font implements Serializable {
    * @see TextAttribute
    */
   public Font(Map<? extends Attribute, ?> attributes) {
-    this(fromMapExcludingFont(attributes), null, 0, false, null);
+    this(fromMapExcludingFont(attributes), null, 0, false);
   }
 
   /**
@@ -1032,18 +1028,6 @@ public class Font implements Serializable {
     return valuesTmp;
   }
 
-  private Font2D getFont2D() {
-    FontManager fm = FontManager.getInstance();
-    if (font2DHandle == null) {
-      font2DHandle = fm.findFont2D(name, style, FontManager.LOGICAL_FALLBACK);
-    }
-        /* Do not cache the de-referenced font2D. It must be explicitly
-         * de-referenced to pick up a valid font in the event that the
-         * original one is marked invalid
-         */
-    return font2DHandle;
-  }
-
   /**
    * Initialize the standard Font fields from the values object.
    */
@@ -1209,7 +1193,8 @@ public class Font implements Serializable {
     if (l == null) {
       throw new NullPointerException("null locale doesn't mean default");
     }
-    return getFont2D().getFamilyName(l);
+    // TODO
+    return "(Font with unknown name)";
   }
 
   /**
@@ -1273,7 +1258,8 @@ public class Font implements Serializable {
     if (l == null) {
       throw new NullPointerException("null locale doesn't mean default");
     }
-    return getFont2D().getFontName(l);
+    // TODO i18n: Localize?
+    return name;
   }
 
   /**
@@ -1558,6 +1544,8 @@ public class Font implements Serializable {
     }
   }
 
+  private int numGlyphs = -1;
+
   /**
    * Returns the number of glyphs in this {@code Font}. Glyph codes
    * for this {@code Font} range from 0 to
@@ -1566,9 +1554,19 @@ public class Font implements Serializable {
    * @return the number of glyphs in this {@code Font}.
    * @since 1.2
    */
-  public int getNumGlyphs() {
-    return getFont2D().getNumGlyphs();
+  public synchronized int getNumGlyphs() {
+    if (numGlyphs == -1) {
+      numGlyphs = 0;
+      for (int i = Font.FIRST_CODE_POINT; i < Character.MAX_CODE_POINT; i++) {
+        if (androidPaint.hasGlyph(new String(Character.toChars(i)))) {
+          numGlyphs++;
+        }
+      }
+    }
+    return numGlyphs;
   }
+
+  private static final int UNICODE_WHITE_VERTICAL_RECTANGLE = 0x25AF;
 
   /**
    * Returns the glyphCode which is used when this {@code Font}
@@ -1578,7 +1576,7 @@ public class Font implements Serializable {
    * @since 1.2
    */
   public int getMissingGlyphCode() {
-    return getFont2D().getMissingGlyphCode();
+    return UNICODE_WHITE_VERTICAL_RECTANGLE;
   }
 
   /**
@@ -1672,7 +1670,7 @@ public class Font implements Serializable {
     int oldStyle = this.style == style ? -1 : this.style;
     applyStyle(style, newValues);
     newValues.setSize(size);
-    return new Font(newValues, null, oldStyle, createdFont, font2DHandle);
+    return new Font(newValues, null, oldStyle, createdFont);
   }
 
   /**
@@ -1692,7 +1690,7 @@ public class Font implements Serializable {
     int oldStyle = this.style == style ? -1 : this.style;
     applyStyle(style, newValues);
     applyTransform(trans, newValues);
-    return new Font(newValues, null, oldStyle, createdFont, font2DHandle);
+    return new Font(newValues, null, oldStyle, createdFont);
   }
 
   /**
@@ -1709,7 +1707,7 @@ public class Font implements Serializable {
     }
     AttributeValues newValues = (AttributeValues) exportAttributeValues().clone();
     newValues.setSize(size);
-    return new Font(newValues, null, -1, createdFont, font2DHandle);
+    return new Font(newValues, null, -1, createdFont);
   }
 
   /**
@@ -1726,7 +1724,7 @@ public class Font implements Serializable {
   public Font deriveFont(AffineTransform trans) {
     AttributeValues newValues = (AttributeValues) exportAttributeValues().clone();
     applyTransform(trans, newValues);
-    return new Font(newValues, null, -1, createdFont, font2DHandle);
+    return new Font(newValues, null, -1, createdFont);
   }
 
   /**
@@ -1744,7 +1742,7 @@ public class Font implements Serializable {
     AttributeValues newValues = (AttributeValues) exportAttributeValues().clone();
     int oldStyle = this.style == style ? -1 : this.style;
     applyStyle(style, newValues);
-    return new Font(newValues, null, oldStyle, createdFont, font2DHandle);
+    return new Font(newValues, null, oldStyle, createdFont);
   }
 
   /**
@@ -1763,7 +1761,7 @@ public class Font implements Serializable {
     }
     AttributeValues newValues = (AttributeValues) exportAttributeValues().clone();
     newValues.putAll(fromMapExcludingFont(attributes));
-    return new Font(newValues, name, style, createdFont, font2DHandle);
+    return new Font(newValues, name, style, createdFont);
   }
 
   /**
@@ -1905,7 +1903,8 @@ public class Font implements Serializable {
       aa = frc.getAntiAliasingHint();
       fm = frc.getFractionalMetricsHint();
     }
-    return getFont2D().getItalicAngle(this, identityTx, aa, fm);
+    // TODO
+    return 0.0f;
   }
 
   /**
@@ -2390,7 +2389,7 @@ public class Font implements Serializable {
   public GlyphVector layoutGlyphVector(
       FontRenderContext frc, char[] text, int start, int limit, int flags) {
 
-    GlyphLayout gl = GlyphLayout.get(null); // !!! no custom layout engines
+    GlyphLayout gl = new GlyphLayout();
     StandardGlyphVector gv = gl.layout(this, frc, text, start, limit - start, flags, null);
     GlyphLayout.done(gl);
     return gv;

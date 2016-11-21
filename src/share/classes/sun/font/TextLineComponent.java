@@ -1,8 +1,7 @@
 package sun.font;
 
-import static skinjob.util.SkinJobUtil.rangeMaybeCopy;
-
 import android.graphics.Rect;
+
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -12,7 +11,10 @@ import java.awt.font.GlyphJustificationInfo;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+
 import skinjob.util.SkinJobUtil;
+
+import static skinjob.util.SkinJobUtil.rangeMaybeCopy;
 
 /**
  * Created by cryoc on 2016-10-15.
@@ -43,11 +45,6 @@ public class TextLineComponent {
     this.coreMetrics = coreMetrics;
     this.decorator = decorator;
     this.indexOffset = indexOffset;
-  }
-
-  public boolean isSimple() {
-    // TODO
-    return false;
   }
 
   public CoreMetrics getCoreMetrics() {

@@ -1,5 +1,6 @@
 package sun.font;
 
+import java.awt.Paint;
 import java.awt.font.NumericShaper;
 import java.awt.font.NumericShaper.Range;
 import java.awt.font.TextAttribute;
@@ -138,5 +139,61 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
     public static NumericShaper getNumericShaping(Map<? extends Attribute, ?> paragraphAttrs) {
         NumericShaper shaping = (NumericShaper) paragraphAttrs.get(TextAttribute.NUMERIC_SHAPING);
         return shaping == null ? NumericShaper.getShaper(Range.EUROPEAN) : shaping;
+    }
+
+    public int getKerning() {
+        Integer kerning = (Integer) get(TextAttribute.KERNING);
+        if (kerning == null) {
+            return 0;
+        }
+        return kerning;
+    }
+
+    public int getLigatures() {
+        Integer ligatures = (Integer) get(TextAttribute.LIGATURES);
+        if (ligatures == null) {
+            return 0;
+        }
+        return ligatures;
+    }
+
+    public AttributeValues applyIMHighlight() {
+        // TODO
+        return this;
+    }
+
+    public Paint getForeground() {
+        // TODO
+        return null;
+    }
+
+    public Paint getBackground() {
+        // TODO
+        return null;
+    }
+
+    public boolean getSwapColors() {
+        Boolean swapColors = (Boolean) get(TextAttribute.SWAP_COLORS);
+        return swapColors != null && swapColors;
+    }
+
+    public boolean getStrikethrough() {
+        return get(TextAttribute.STRIKETHROUGH) != null;
+    }
+
+    public boolean getUnderline() {
+        Integer underline = (Integer) get(TextAttribute.UNDERLINE);
+        return underline != null && underline != 0;
+    }
+
+    public boolean getInputMethodUnderline() {
+        Integer underline = (Integer) get(TextAttribute.INPUT_METHOD_UNDERLINE);
+        return underline != null && underline != 0;
+    }
+
+    public static AttributeValues fromMap(Map<? extends TextAttribute, ?> map) {
+        AttributeValues values = new AttributeValues();
+        values.putAll(map);
+        return values;
     }
 }

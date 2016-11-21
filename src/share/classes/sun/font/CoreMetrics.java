@@ -15,10 +15,10 @@ public class CoreMetrics {
   public final float ssOffset;
   public final float italicAngle;
   public final float height;
-  private final float strikethroughOffset;
-  private final float strikethroughThickness;
-  private final float underlineOffset;
-  private final float underlineThickness;
+  final float strikethroughOffset;
+  final float strikethroughThickness;
+  final float underlineOffset;
+  final float underlineThickness;
 
   public CoreMetrics(
       float ascent, float descent, float leading, float height, int baselineIndex,
@@ -195,5 +195,5 @@ public class CoreMetrics {
       default:
         return fullOffsets[baselineIndex];
     }
-
+  }
 }

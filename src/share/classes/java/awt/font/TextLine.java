@@ -45,6 +45,7 @@ import java.text.AttributedCharacterIterator.Attribute;
 import java.text.Bidi;
 import java.text.CharacterIterator;
 import java.util.Map;
+
 import sun.font.AttributeValues;
 import sun.font.BidiUtils;
 import sun.font.CoreMetrics;
@@ -660,7 +661,7 @@ final class TextLine {
     for (TextLineComponent fComponent : fComponents) {
       tlc = fComponent;
 
-      isSimple &= tlc.isSimple();
+      isSimple &= false;
 
       CoreMetrics cm = tlc.getCoreMetrics();
 

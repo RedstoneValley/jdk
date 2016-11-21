@@ -42,8 +42,6 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Map;
 
-import static sun.font.EAttribute.*;
-
 /**
  * This class handles underlining, strikethrough, and foreground and
  * background styles on text.  Clients simply acquire instances
@@ -69,21 +67,8 @@ public class Decoration {
   private Decoration() {
   }
 
-  /**
-   * Return a Decoration which does nothing.
-   */
-  public static Decoration getPlainDecoration() {
-
-    return PLAIN;
-  }
-
-  private static final int VALUES_MASK =
-          AttributeValues.getMask(EFOREGROUND, EBACKGROUND, ESWAP_COLORS,
-                  ESTRIKETHROUGH, EUNDERLINE, EINPUT_METHOD_HIGHLIGHT,
-                  EINPUT_METHOD_UNDERLINE);
-
   public static Decoration getDecoration(AttributeValues values) {
-    if (values == null || !values.anyDefined(VALUES_MASK)) {
+    if (values == null || !(values.hasLayoutAttributes())) {
       return PLAIN;
     }
 
@@ -93,8 +78,8 @@ public class Decoration {
             values.getBackground(),
             values.getSwapColors(),
             values.getStrikethrough(),
-            Underline.getUnderline(values.getUnderline()),
-            Underline.getUnderline(values.getInputMethodUnderline()));
+            values.getUnderline(),
+            values.getInputMethodUnderline());
   }
 
   /**
@@ -116,6 +101,18 @@ public class Decoration {
     label.handleDraw(g2d, x, y);
   }
 
+  private static float getLowerDrawLimit(float underlineThickness) {
+    // TODO
+    return 0.0f;
+  }
+
+
+
+  private static Shape getUnderlineShape(float ulThickness, float x1, float x2, float v) {
+    // TODO
+    return null;
+  }
+
   public Rectangle2D getVisualBounds(Label label) {
 
     return label.handleGetVisualBounds();
@@ -124,6 +121,15 @@ public class Decoration {
   public Rectangle2D getCharVisualBounds(Label label, int index) {
 
     return label.handleGetCharVisualBounds(index);
+  }
+
+  private static void drawUnderline(Graphics2D g2d, float ulThickness, float x1, float x2, float y) {
+    synchronized (g2d) {
+      Stroke oldStroke = g2d.getStroke();
+      g2d.setStroke(new BasicStroke(ulThickness));
+      g2d.drawLine((int) x1, (int) y, (int) x2, (int) y);
+      g2d.setStroke(oldStroke);
+    }
   }
 
   Shape getOutline(Label label,
@@ -141,15 +147,15 @@ public class Decoration {
     private Paint bgPaint = null;
     private boolean swapColors = false;
     private boolean strikethrough = false;
-    private Underline stdUnderline = null; // underline from TextAttribute.UNDERLINE_ON
-    private Underline imUnderline = null; // input method underline
+    private boolean stdUnderline = false; // underline from TextAttribute.UNDERLINE_ON
+    private boolean imUnderline = false; // input method underline
 
     DecorationImpl(Paint foreground,
                    Paint background,
                    boolean swapColors,
                    boolean strikethrough,
-                   Underline stdUnderline,
-                   Underline imUnderline) {
+                   boolean stdUnderline,
+                   boolean imUnderline) {
 
       fgPaint = (Paint) foreground;
       bgPaint = (Paint) background;
@@ -193,7 +199,7 @@ public class Decoration {
         return false;
       }
 
-      if (!areEqual(stdUnderline, other.stdUnderline)) {
+      if (stdUnderline != other.stdUnderline) {
         return false;
       }
       if (!areEqual(fgPaint, other.fgPaint)) {
@@ -202,7 +208,7 @@ public class Decoration {
       if (!areEqual(bgPaint, other.bgPaint)) {
         return false;
       }
-      return areEqual(imUnderline, other.imUnderline);
+      return imUnderline == other.imUnderline;
     }
 
     public int hashCode() {
@@ -214,8 +220,11 @@ public class Decoration {
       if (swapColors) {
         hc |= 4;
       }
-      if (stdUnderline != null) {
-        hc += stdUnderline.hashCode();
+      if (stdUnderline) {
+        hc |= 8;
+      }
+      if (imUnderline) {
+        hc |= 16;
       }
       return hc;
     }
@@ -227,17 +236,16 @@ public class Decoration {
     private float getUnderlineMaxY(CoreMetrics cm) {
 
       float maxY = 0;
-      if (stdUnderline != null) {
-
+      if (stdUnderline) {
         float ulBottom = cm.underlineOffset;
-        ulBottom += stdUnderline.getLowerDrawLimit(cm.underlineThickness);
+        ulBottom += getLowerDrawLimit(cm.underlineThickness);
         maxY = Math.max(maxY, ulBottom);
       }
 
-      if (imUnderline != null) {
+      if (imUnderline) {
 
         float ulBottom = cm.underlineOffset;
-        ulBottom += imUnderline.getLowerDrawLimit(cm.underlineThickness);
+        ulBottom += getLowerDrawLimit(cm.underlineThickness);
         maxY = Math.max(maxY, ulBottom);
       }
 
@@ -251,7 +259,7 @@ public class Decoration {
 
       label.handleDraw(g2d, x, y);
 
-      if (!strikethrough && stdUnderline == null && imUnderline == null) {
+      if (!strikethrough && !stdUnderline && !imUnderline) {
         return;
       }
 
@@ -272,12 +280,12 @@ public class Decoration {
       float ulOffset = cm.underlineOffset;
       float ulThickness = cm.underlineThickness;
 
-      if (stdUnderline != null) {
-        stdUnderline.drawUnderline(g2d, ulThickness, x1, x2, y + ulOffset);
+      if (stdUnderline) {
+        drawUnderline(g2d, ulThickness, x1, x2, y + ulOffset);
       }
 
-      if (imUnderline != null) {
-        imUnderline.drawUnderline(g2d, ulThickness, x1, x2, y + ulOffset);
+      if (imUnderline) {
+        drawUnderline(g2d, ulThickness, x1, x2, y + ulOffset);
       }
     }
 
@@ -338,7 +346,7 @@ public class Decoration {
       Rectangle2D visBounds = label.handleGetVisualBounds();
 
       if (swapColors || bgPaint != null || strikethrough
-              || stdUnderline != null || imUnderline != null) {
+              || stdUnderline || imUnderline) {
 
         float minX = 0;
         Rectangle2D lb = label.getLogicalBounds();
@@ -364,7 +372,7 @@ public class Decoration {
                      float x,
                      float y) {
 
-      if (!strikethrough && stdUnderline == null && imUnderline == null) {
+      if (!strikethrough && !stdUnderline && !imUnderline) {
         return label.handleGetOutline(x, y);
       }
 
@@ -381,8 +389,8 @@ public class Decoration {
 
       Area area = null;
 
-      if (stdUnderline != null) {
-        Shape ul = stdUnderline.getUnderlineShape(ulThickness,
+      if (stdUnderline) {
+        Shape ul = getUnderlineShape(ulThickness,
                 x1, x2, y+ulOffset);
         area = new Area(ul);
       }
@@ -401,9 +409,8 @@ public class Decoration {
         }
       }
 
-      if (imUnderline != null) {
-        Shape ul = imUnderline.getUnderlineShape(ulThickness,
-                x1, x2, y+ulOffset);
+      if (imUnderline) {
+        Shape ul = getUnderlineShape(ulThickness, x1, x2, y+ulOffset);
         Area ulArea = new Area(ul);
         if (area == null) {
           area = ulArea;
@@ -428,8 +435,8 @@ public class Decoration {
       if (bgPaint != null) buf.append(" bgPaint: " + bgPaint);
       if (swapColors) buf.append(" swapColors: true");
       if (strikethrough) buf.append(" strikethrough: true");
-      if (stdUnderline != null) buf.append(" stdUnderline: " + stdUnderline);
-      if (imUnderline != null) buf.append(" imUnderline: " + imUnderline);
+      buf.append(" stdUnderline: " + stdUnderline);
+      buf.append(" imUnderline: " + imUnderline);
       buf.append("]");
       return buf.toString();
     }

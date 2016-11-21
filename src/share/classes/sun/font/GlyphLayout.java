@@ -75,142 +75,22 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static java.lang.Character.COMBINING_SPACING_MARK;
-import static java.lang.Character.ENCLOSING_MARK;
-import static java.lang.Character.NON_SPACING_MARK;
-import static java.lang.Character.getType;
-import static java.lang.Character.isHighSurrogate;
-import static java.lang.Character.isLowSurrogate;
-import static java.lang.Character.toCodePoint;
 
 public final class GlyphLayout {
   // data for glyph vector
   private GVData _gvdata;
 
-  // cached glyph layout data for reuse
-  private static volatile GlyphLayout cache;  // reusable
-
-  private LayoutEngineFactory _lef;  // set when get is called, unset when done is called
-  private TextRecord _textRecord;    // the text we're working on, used by iterators
-  private ScriptRun _scriptRuns;     // iterator over script runs
-  private FontRunIterator _fontRuns; // iterator over physical fonts in a composite
   private int _ercount;
-  private ArrayList _erecords;
   private Point2D.Float _pt;
-  private FontStrikeDesc _sd;
   private float[] _mat;
   private int _typo_flags;
-  private int _offset;
-
-  public static final class LayoutEngineKey {
-    private Font2D font;
-    private int script;
-    private int lang;
-
-    LayoutEngineKey() {
-    }
-
-    LayoutEngineKey(Font2D font, int script, int lang) {
-      init(font, script, lang);
-    }
-
-    void init(Font2D font, int script, int lang) {
-      this.font = font;
-      this.script = script;
-      this.lang = lang;
-    }
-
-    LayoutEngineKey copy() {
-      return new LayoutEngineKey(font, script, lang);
-    }
-
-    Font2D font() {
-      return font;
-    }
-
-    int script() {
-      return script;
-    }
-
-    int lang() {
-      return lang;
-    }
-
-    public boolean equals(Object rhs) {
-      if (this == rhs) return true;
-      if (rhs == null) return false;
-      try {
-        LayoutEngineKey that = (LayoutEngineKey)rhs;
-        return this.script == that.script &&
-                this.lang == that.lang &&
-                this.font.equals(that.font);
-      }
-      catch (ClassCastException e) {
-        return false;
-      }
-    }
-
-    public int hashCode() {
-      return script ^ lang ^ font.hashCode();
-    }
-  }
-
-  public static interface LayoutEngineFactory {
-    /**
-     * Given a font, script, and language, determine a layout engine to use.
-     */
-    public LayoutEngine getEngine(Font2D font, int script, int lang);
-
-    /**
-     * Given a key, determine a layout engine to use.
-     */
-    public LayoutEngine getEngine(LayoutEngineKey key);
-  }
-
-  public static interface LayoutEngine {
-    /**
-     * Given a strike descriptor, text, rtl flag, and starting point, append information about
-     * glyphs, positions, and character indices to the glyphvector data, and advance the point.
-     *
-     * If the GVData does not have room for the glyphs, throws an IndexOutOfBoundsException and
-     * leave pt and the gvdata unchanged.
-     */
-    public void layout(FontStrikeDesc sd, float[] mat, int gmask,
-                       int baseIndex, TextRecord text, int typo_flags, Point2D.Float pt, GVData data);
-  }
-
-  /**
-   * Return a new instance of GlyphLayout, using the provided layout engine factory.
-   * If null, the system layout engine factory will be used.
-   */
-  public static GlyphLayout get(LayoutEngineFactory lef) {
-    if (lef == null) {
-      lef = SunLayoutEngine.instance();
-    }
-    GlyphLayout result = null;
-    synchronized(GlyphLayout.class) {
-      if (cache != null) {
-        result = cache;
-        cache = null;
-      }
-    }
-    if (result == null) {
-      result = new GlyphLayout();
-    }
-    result._lef = lef;
-    return result;
-  }
 
   /**
    * Return the old instance of GlyphLayout when you are done.  This enables reuse
    * of GlyphLayout objects.
    */
   public static void done(GlyphLayout gl) {
-    gl._lef = null;
-    cache = gl; // object reference assignment is thread safe, it says here...
   }
 
   private static final class SDCache {
@@ -221,7 +101,6 @@ public final class GlyphLayout {
     public AffineTransform invdtx;
     public AffineTransform gtx;
     public Point2D.Float delta;
-    public FontStrikeDesc sd;
 
     private SDCache(Font font, FontRenderContext frc) {
       key_font = font;
@@ -258,18 +137,6 @@ public final class GlyphLayout {
         gtx = new AffineTransform(dtx);
         gtx.scale(ptSize, ptSize);
       }
-
-            /* Similar logic to that used in SunGraphics2D.checkFontInfo().
-             * Whether a grey (AA) strike is needed is size dependent if
-             * AA mode is 'gasp'.
-             */
-      int aa =
-              FontStrikeDesc.getAAHintIntVal(frc.getAntiAliasingHint(),
-                      FontUtilities.getFont2D(font),
-                      (int)Math.abs(ptSize));
-      int fm = FontStrikeDesc.getFMHintIntVal
-              (frc.getFractionalMetricsHint());
-      sd = new FontStrikeDesc(dtx, gtx, font.getStyle(), aa, fm);
     }
 
     private static final Point2D.Float ZERO_DELTA = new Point2D.Float();
@@ -377,12 +244,10 @@ public final class GlyphLayout {
     // need to set after init
     // go through the back door for this
     if (font.hasLayoutAttributes()) {
-      AttributeValues values = ((AttributeMap)font.getAttributes()).getValues();
+      AttributeValues values = (AttributeValues) (font.getAttributes());
       if (values.getKerning() != 0) _typo_flags |= 0x1;
       if (values.getLigatures() != 0) _typo_flags |= 0x2;
     }
-
-    _offset = offset;
 
     // use cache now - can we use the strike cache for this?
 
@@ -411,71 +276,7 @@ public final class GlyphLayout {
       }
     }
 
-    int lang = -1; // default for now
-
-    Font2D font2D = FontUtilities.getFont2D(font);
-
-    _textRecord.init(text, offset, lim, min, max);
-    int start = offset;
-    if (font2D instanceof CompositeFont) {
-      _scriptRuns.init(text, offset, count); // ??? how to handle 'common' chars
-      _fontRuns.init((CompositeFont)font2D, text, offset, lim);
-      while (_scriptRuns.next()) {
-        int limit = _scriptRuns.getScriptLimit();
-        int script = _scriptRuns.getScriptCode();
-        while (_fontRuns.next(script, limit)) {
-          Font2D pfont = _fontRuns.getFont();
-                    /* layout can't deal with NativeFont instances. The
-                     * native font is assumed to know of a suitable non-native
-                     * substitute font. This currently works because
-                     * its consistent with the way NativeFonts delegate
-                     * in other cases too.
-                     */
-          if (pfont instanceof NativeFont) {
-            pfont = ((NativeFont)pfont).getDelegateFont();
-          }
-          int gmask = _fontRuns.getGlyphMask();
-          int pos = _fontRuns.getPos();
-          nextEngineRecord(start, pos, script, lang, pfont, gmask);
-          start = pos;
-        }
-      }
-    } else {
-      _scriptRuns.init(text, offset, count); // ??? don't worry about 'common' chars
-      while (_scriptRuns.next()) {
-        int limit = _scriptRuns.getScriptLimit();
-        int script = _scriptRuns.getScriptCode();
-        nextEngineRecord(start, limit, script, lang, font2D, 0);
-        start = limit;
-      }
-    }
-
-    int ix = 0;
-    int stop = _ercount;
-    int dir = 1;
-
-    if (_typo_flags < 0) { // RTL
-      ix = stop - 1;
-      stop = -1;
-      dir = -1;
-    }
-
-    //        _sd.init(dtx, gtx, font.getStyle(), frc.isAntiAliased(), frc.usesFractionalMetrics());
-    _sd = txinfo.sd;
-    for (;ix != stop; ix += dir) {
-      EngineRecord er = (EngineRecord)_erecords.get(ix);
-      for (;;) {
-        try {
-          er.layout();
-          break;
-        }
-        catch (IndexOutOfBoundsException e) {
-          _gvdata.grow();
-        }
-      }
-    }
-
-    //        if (txinfo.invdtx != null) {
+     //        if (txinfo.invdtx != null) {
     //            _gvdata.adjustPositions(txinfo.invdtx);
     //        }
 
@@ -488,14 +289,9 @@ public final class GlyphLayout {
   // private methods
   //
 
-  private GlyphLayout() {
+  public GlyphLayout() {
     this._gvdata = new GVData();
-    this._textRecord = new TextRecord();
-    this._scriptRuns = new ScriptRun();
-    this._fontRuns = new FontRunIterator();
-    this._erecords = new ArrayList(10);
     this._pt = new Point2D.Float();
-    this._sd = new FontStrikeDesc();
     this._mat = new float[4];
   }
 
@@ -503,18 +299,6 @@ public final class GlyphLayout {
     this._typo_flags = 0;
     this._ercount = 0;
     this._gvdata.init(capacity);
-  }
-
-  private void nextEngineRecord(int start, int limit, int script, int lang, Font2D font, int gmask) {
-    EngineRecord er = null;
-    if (_ercount == _erecords.size()) {
-      er = new EngineRecord();
-      _erecords.add(er);
-    } else {
-      er = (EngineRecord)_erecords.get(_ercount);
-    }
-    er.init(start, limit, font, script, lang, gmask);
-    ++_ercount;
   }
 
   /**
@@ -616,59 +400,6 @@ public final class GlyphLayout {
       }
 
       return result;
-    }
-  }
-
-  /**
-   * Utility class to keep track of script runs, which may have to be reordered rtl when we're
-   * finished.
-   */
-  private final class EngineRecord {
-    private int start;
-    private int limit;
-    private int gmask;
-    private int eflags;
-    private LayoutEngineKey key;
-    private LayoutEngine engine;
-
-    EngineRecord() {
-      key = new LayoutEngineKey();
-    }
-
-    void init(int start, int limit, Font2D font, int script, int lang, int gmask) {
-      this.start = start;
-      this.limit = limit;
-      this.gmask = gmask;
-      this.key.init(font, script, lang);
-      this.eflags = 0;
-
-      // only request canonical substitution if we have combining marks
-      for (int i = start; i < limit; ++i) {
-        int ch = _textRecord.text[i];
-        if (isHighSurrogate((char)ch) &&
-                i < limit - 1 &&
-                isLowSurrogate(_textRecord.text[i+1])) {
-          // rare case
-          ch = toCodePoint((char)ch,_textRecord.text[++i]); // inc
-        }
-        int gc = getType(ch);
-        if (gc == NON_SPACING_MARK ||
-                gc == ENCLOSING_MARK ||
-                gc == COMBINING_SPACING_MARK) { // could do range test also
-
-          this.eflags = 0x4;
-          break;
-        }
-      }
-
-      this.engine = _lef.getEngine(key); // flags?
-    }
-
-    void layout() {
-      _textRecord.start = start;
-      _textRecord.limit = limit;
-      engine.layout(_sd, _mat, gmask, start - _offset, _textRecord,
-              _typo_flags | eflags, _pt, _gvdata);
     }
   }
 }

@@ -3,6 +3,7 @@ package sun.font;
 import java.awt.Font;
 import java.awt.font.FontRenderContext;
 import java.text.Bidi;
+
 import skinjob.util.SkinJobUtil;
 
 /**
@@ -13,6 +14,9 @@ public class TextLabelFactory {
   protected final Bidi bidi;
   private final char[] chars;
   private final int layoutFlags;
+  private int lineStart;
+  private int lineLimit;
+  private Bidi lineBidi;
 
   public TextLabelFactory(FontRenderContext frc, char[] chars, Bidi bidi, int layoutFlags) {
     fontRenderContext = frc;
@@ -34,12 +38,21 @@ public class TextLabelFactory {
     return fontRenderContext;
   }
 
-  public void setLineContext(int i, int length) {
-    // TODO
+  /**
+   * Set a line context for the factory.  Shaping only occurs on this line.
+   * Characters are ordered as they would appear on this line.
+   * @param lineStart the index within the text of the start of the line.
+   * @param lineLimit the index within the text of the limit of the line.
+   */
+  public void setLineContext(int lineStart, int lineLimit) {
+    this.lineStart = lineStart;
+    this.lineLimit = lineLimit;
+    if (bidi != null) {
+      lineBidi = bidi.createLineBidi(lineStart, lineLimit);
+    }
   }
 
   public Bidi getLineBidi() {
-    // TODO
-    return bidi;
+    return lineBidi;
   }
 }

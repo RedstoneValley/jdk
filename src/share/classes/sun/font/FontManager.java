@@ -1,6 +1,7 @@
 package sun.font;
 
 import java.awt.Font;
+import java.util.Locale;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -21,30 +22,40 @@ public class FontManager {
   }
 
   public Font[] getAllInstalledFonts() {
-    return installedFonts.toArray(A_FONT_ARRAY);
+    synchronized (installedFonts) {
+      return installedFonts.toArray(A_FONT_ARRAY);
+    }
   }
 
   public Font[] getCreatedFonts() {
-    return createdFonts.toArray(A_FONT_ARRAY);
+    synchronized (createdFonts) {
+      return createdFonts.toArray(A_FONT_ARRAY);
+    }
   }
 
-  public TreeMap<String, String> getCreatedFontFamilyNames() {
+  public synchronized TreeMap<String, String> getCreatedFontFamilyNames() {
     TreeMap<String, String> familyNames = new TreeMap<>();
-    for (Font font : createdFonts) {
-      familyNames.put(font.getName(), font.getFamily());
+    synchronized (createdFonts) {
+      for (Font font : createdFonts) {
+        familyNames.put(font.getName(), font.getFamily());
+      }
     }
     return familyNames;
   }
 
-  public boolean registerFont(Font font) {
+  public synchronized boolean registerFont(Font font) {
     FontResolver fontResolver = FontResolver.getInstance();
     if (!fontResolver.contains(font)) {
       fontResolver.add(font);
     }
     if (font.isCreated()) {
-      return createdFonts.add(font);
+      synchronized (createdFonts) {
+        return createdFonts.add(font);
+      }
     } else {
-      return installedFonts.add(font);
+      synchronized (installedFonts) {
+        return installedFonts.add(font);
+      }
     }
   }
 
@@ -54,5 +65,17 @@ public class FontManager {
 
   public void preferProportionalFonts() {
     // TODO
+  }
+
+  public String[] getInstalledFontFamilyNames(Locale locale) {
+    synchronized (installedFonts) {
+      String[] names = new String[installedFonts.size()];
+      int i = 0;
+      for (Font font : installedFonts) {
+        names[i] = font.getFontName(locale);
+        i++;
+      }
+      return names;
+    }
   }
 }

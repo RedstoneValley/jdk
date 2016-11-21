@@ -2,6 +2,7 @@ package sun.font;
 
 import android.text.SpannableStringBuilder;
 import android.widget.TextView;
+
 import java.awt.Font;
 import java.awt.Shape;
 import java.awt.font.FontRenderContext;
@@ -17,6 +18,7 @@ import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
 import java.util.ArrayList;
 import java.util.Map;
+
 import skinjob.SkinJobGlobals;
 import skinjob.internal.TextAttributesDecoder;
 
@@ -75,6 +77,11 @@ public class StandardGlyphVector extends GlyphVector {
     for (int glyphCode : glyphCodes) {
       append(Character.toChars(glyphCode));
     }
+  }
+
+  public StandardGlyphVector(Font font, FontRenderContext frc, int[] glyphs, float[] positions, int[] indices, int flags) {
+    this(font, frc);
+    // TODO
   }
 
   private void append(char[] chars) {
@@ -255,5 +262,9 @@ public class StandardGlyphVector extends GlyphVector {
     return getFontRenderContext() != null
         ? getFontRenderContext().equals(that.getFontRenderContext())
         : that.getFontRenderContext() == null;
+  }
+
+  public void initGlyphVector(Font font, FontRenderContext frc, int[] glyphs, float[] positions, int[] indices, int flags) {
+    // TODO
   }
 }
