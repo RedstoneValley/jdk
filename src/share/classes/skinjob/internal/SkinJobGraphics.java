@@ -3,11 +3,11 @@ package skinjob.internal;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.text.SpannableStringBuilder;
@@ -48,7 +48,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import skinjob.SkinJobGlobals;
-import skinjob.util.Shapes;
+import skinjob.util.Geometry;
 
 import static java.awt.BasicStroke.CAP_BUTT;
 import static java.awt.BasicStroke.CAP_ROUND;
@@ -96,18 +96,6 @@ public class SkinJobGraphics extends Graphics2D {
 
     public Bitmap sjGetAndroidBitmap() {
         return bitmap;
-    }
-
-    /**
-     * See Javadoc for {@link AffineTransform#getDeterminant()} for underlying matrix.
-     */
-    private static Matrix transformToMatrix(AffineTransform transform) {
-        Matrix matrix = new Matrix();
-        matrix.setValues(new float[]{
-                (float) transform.getScaleX(), (float) transform.getShearX(), (float) transform.getTranslateX(),
-                (float) transform.getShearY(), (float) transform.getScaleY(), (float) transform.getTranslateY(),
-                0.0f, 0.0f, 1.0f});
-        return matrix;
     }
 
     @Override
@@ -173,7 +161,7 @@ public class SkinJobGraphics extends Graphics2D {
             // No existing clip to intersect with
             setClip(x, y, width, height);
         } else {
-            Area clipArea = Shapes.asArea(clip);
+            Area clipArea = Geometry.asArea(clip);
             clipArea.intersect(new Area(new Rectangle2D.Double(x, y, width, height)));
             clip = clipArea;
         }
@@ -244,22 +232,31 @@ public class SkinJobGraphics extends Graphics2D {
         canvas.drawArc(x, y, x + width, y + height, startAngle, arcAngle, false, brush);
     }
 
+    protected void drawPath(int[] xPoints, int[] yPoints, int nPoints, boolean close, Paint paint) {
+        Path path = new Path();
+        path.moveTo(xPoints[0], yPoints[0]);
+        for (int i = 1; i < nPoints; i++) {
+            path.lineTo(xPoints[i], yPoints[i]);
+        }
+        if (close) {
+            path.lineTo(xPoints[0], yPoints[0]);
+        }
+        canvas.drawPath(path, paint);
+    }
+
     @Override
     public void drawPolyline(int[] xPoints, int[] yPoints, int nPoints) {
-        for (int i = 1; i < nPoints; i++) {
-            drawLine(xPoints[i - 1], yPoints[i - 1], xPoints[i], yPoints[i]);
-        }
+        drawPath(xPoints, yPoints, nPoints, false, pen);
     }
 
     @Override
     public void drawPolygon(int[] xPoints, int[] yPoints, int nPoints) {
-        drawPolyline(xPoints, yPoints, nPoints);
-        drawLine(xPoints[nPoints - 1], yPoints[nPoints - 1], xPoints[0], yPoints[0]);
+        drawPath(xPoints, yPoints, nPoints, true, pen);
     }
 
     @Override
     public void fillPolygon(int[] xPoints, int[] yPoints, int nPoints) {
-        // TODO
+        drawPath(xPoints, yPoints, nPoints, true, brush);
     }
 
     @Override
@@ -267,7 +264,7 @@ public class SkinJobGraphics extends Graphics2D {
         AffineTransform combinedTransform = new AffineTransform(transform);
         combinedTransform.translate(x, y);
         canvas.drawBitmap(asAndroidBitmap(img),
-                transformToMatrix(combinedTransform), brush);
+                Geometry.transformToMatrix(combinedTransform), brush);
         return true;
     }
 
@@ -324,7 +321,7 @@ public class SkinJobGraphics extends Graphics2D {
                 float scaleX = width / (float) origWidth;
                 float scaleY = height / (float) origHeight;
                 canvas.drawBitmap(asAndroidBitmap(img),
-                        transformToMatrix(combinedTransform), currentBrush);
+                        Geometry.transformToMatrix(combinedTransform), currentBrush);
                 drawImage(img, x, y, bgcolor, observer);
                 return false;
             }
@@ -377,11 +374,11 @@ public class SkinJobGraphics extends Graphics2D {
 
     @Override
     public void draw(Shape s) {
-        fill(stroke.createStrokedShape(s));
+        canvas.drawPath(Geometry.asAndroidPath(s, transform), pen);
     }
 
     private synchronized void drawBitmap(Bitmap bitmap, AffineTransform transform) {
-        canvas.drawBitmap(bitmap, transformToMatrix(transform), brush);
+        canvas.drawBitmap(bitmap, Geometry.transformToMatrix(transform), brush);
     }
 
     @Override
@@ -442,8 +439,8 @@ public class SkinJobGraphics extends Graphics2D {
     }
 
     @Override
-    public void fill(Shape s) {
-        // TODO
+    public synchronized void fill(Shape s) {
+        canvas.drawPath(Geometry.asAndroidPath(s, transform), brush);
     }
 
     @Override
@@ -668,7 +665,7 @@ public class SkinJobGraphics extends Graphics2D {
 
     @Override
     public synchronized void clip(Shape s) {
-        clip = Shapes.getIntersection(clip, s);
+        clip = Geometry.getIntersection(clip, s);
     }
 
     @Override

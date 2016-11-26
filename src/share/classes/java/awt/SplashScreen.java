@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferInt;
@@ -35,8 +36,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+
 import sun.awt.image.SunWritableRaster;
 
 /**
@@ -134,13 +134,6 @@ public final class SplashScreen {
    */
   public static synchronized SplashScreen getSplashScreen() {
     if (!wasClosed && theInstance == null) {
-      AccessController.doPrivileged(new PrivilegedAction<Void>() {
-        @Override
-        public Void run() {
-          System.loadLibrary("splashscreen");
-          return null;
-        }
-      });
       long ptr = _getInstance();
       if (ptr != 0 && _isVisible(ptr)) {
         theInstance = new SplashScreen(ptr);

@@ -85,7 +85,7 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 
 import skinjob.internal.ComponentOrMenuComponent;
-import skinjob.util.Shapes;
+import skinjob.util.Geometry;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.ComponentAccessor;
 import sun.awt.AppContext;
@@ -8198,12 +8198,12 @@ public abstract class Component extends ComponentOrMenuComponent
                      */
           Component c = cont.getComponent(index);
           if (c.isLightweight() && c.isShowing()) {
-            s = Shapes.getDifference(s, c.getOpaqueShape());
+            s = Geometry.getDifference(s, c.getOpaqueShape());
           }
         }
 
         if (cont.isLightweight()) {
-          s = Shapes.getIntersection(s, cont.getNormalShape());
+          s = Geometry.getIntersection(s, cont.getNormalShape());
         } else {
           break;
         }
@@ -8233,7 +8233,7 @@ public abstract class Component extends ComponentOrMenuComponent
 
     Log.d(TAG, "this = " + this + "; s=" + s);
 
-    applyCompoundShape(Shapes.getDifference(getAppliedShape(), s));
+    applyCompoundShape(Geometry.getDifference(getAppliedShape(), s));
   }
 
   private final void applyCurrentShapeBelowMe() {
@@ -8348,7 +8348,7 @@ public abstract class Component extends ComponentOrMenuComponent
             for (int index = oldZorder; index < newZorder; index++) {
               Component c = parent.getComponent(index);
               if (c.isLightweight() && c.isShowing()) {
-                shape = Shapes.getDifference(shape, c.getOpaqueShape());
+                shape = Geometry.getDifference(shape, c.getOpaqueShape());
               }
             }
             applyCompoundShape(shape);

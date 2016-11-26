@@ -222,7 +222,7 @@ public interface Shape {
    * the calculations to accurately determine this intersection
    * are prohibitively expensive.
    * </ul>
-   * This means that for some {@code Shapes} this method might
+   * This means that for some {@code Geometry} this method might
    * return {@code true} even though the rectangular area does not
    * intersect the {@code Shape}.
    * The {@link java.awt.geom.Area Area} class performs
@@ -258,7 +258,7 @@ public interface Shape {
    * the calculations to accurately determine this intersection
    * are prohibitively expensive.
    * </ul>
-   * This means that for some {@code Shapes} this method might
+   * This means that for some {@code Geometry} this method might
    * return {@code true} even though the {@code Rectangle2D} does not
    * intersect the {@code Shape}.
    * The {@link java.awt.geom.Area Area} class performs
@@ -294,7 +294,7 @@ public interface Shape {
    * {@code Shape} entirely contains the rectangular area are
    * prohibitively expensive.
    * </ul>
-   * This means that for some {@code Shapes} this method might
+   * This means that for some {@code Geometry} this method might
    * return {@code false} even though the {@code Shape} contains
    * the rectangular area.
    * The {@link java.awt.geom.Area Area} class performs
@@ -334,7 +334,7 @@ public interface Shape {
    * {@code Shape} entirely contains the {@code Rectangle2D}
    * are prohibitively expensive.
    * </ul>
-   * This means that for some {@code Shapes} this method might
+   * This means that for some {@code Geometry} this method might
    * return {@code false} even though the {@code Shape} contains
    * the {@code Rectangle2D}.
    * The {@link java.awt.geom.Area Area} class performs

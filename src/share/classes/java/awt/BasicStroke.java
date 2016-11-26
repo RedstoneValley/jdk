@@ -154,7 +154,7 @@ public class BasicStroke implements Stroke {
    * to a distance equal to half of the line width.
    */
   public static final int CAP_SQUARE = 2;
-  private static final int INITIAL_MEDIUM_ARRAY = ;
+  private static final int INITIAL_MEDIUM_ARRAY = 1024;
 
   float width;
 
@@ -295,7 +295,7 @@ public class BasicStroke implements Stroke {
     this(1.0f, CAP_SQUARE, JOIN_MITER, SkinJobGlobals.defaultMiterLimit, null, 0.0f);
   }
 
-  private static volatile Path2D cachedPath2D;
+  private static volatile Path2D.Float cachedPath2D;
 
   /**
    * Returns a {@code Shape} whose interior defines the
@@ -314,6 +314,7 @@ public class BasicStroke implements Stroke {
         cachedPath2D = new Path2D.Float(Path2D.WIND_NON_ZERO,
                 INITIAL_MEDIUM_ARRAY);
       }
+      p2d = cachedPath2D;
     }
     // reset
     p2d.reset();
@@ -378,6 +379,7 @@ public class BasicStroke implements Stroke {
         // again so, nothing can be drawn.
         return;
       }
+    }
 
     outat = at;
     pi = src.getPathIterator(null);

@@ -51,7 +51,7 @@ import java.util.Set;
 
 import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
-import skinjob.util.Shapes;
+import skinjob.util.Geometry;
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
@@ -1599,14 +1599,14 @@ public class Container extends Component {
   final Shape getOpaqueShape() {
     checkTreeLock();
     if (isLightweight() && isNonOpaqueForMixing() && hasLightweightDescendants()) {
-      Shape s = Shapes.EMPTY;
+      Shape s = Geometry.EMPTY;
       for (int index = 0; index < getComponentCount(); index++) {
         Component c = getComponent(index);
         if (c.isLightweight() && c.isShowing()) {
-          s = Shapes.getUnion(s, c.getOpaqueShape());
+          s = Geometry.getUnion(s, c.getOpaqueShape());
         }
       }
-      return Shapes.getIntersection(s, getNormalShape());
+      return Geometry.getIntersection(s, getNormalShape());
     }
     return super.getOpaqueShape();
   }
