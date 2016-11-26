@@ -76,6 +76,7 @@ public class SkinJobGraphics extends Graphics2D {
     private java.awt.Paint awtPaint;
     private int color = Color.BLACK.getRGB();
     private Shape clip;
+    // TODO: Most methods currently don't apply the transform; they need to!
     private AffineTransform transform = new AffineTransform();
     private Font font = SkinJobGlobals.defaultFont;
 
