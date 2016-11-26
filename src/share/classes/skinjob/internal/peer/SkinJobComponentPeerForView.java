@@ -1,26 +1,29 @@
 package skinjob.internal.peer;
 
+import android.content.res.ColorStateList;
 import android.util.DisplayMetrics;
 import android.view.View;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.peer.ComponentPeer;
-import java.awt.peer.ContainerPeer;
+
 import skinjob.SkinJobGlobals;
 import skinjob.internal.SkinJobGraphics;
 import skinjob.internal.SkinJobGraphicsConfiguration;
+import skinjob.util.SkinJobUtil;
 import sun.awt.CausedFocusEvent.Cause;
 
 /**
  * Skeletal implementation of {@link SkinJobComponentPeer}&lt;T extends {@link View}&gt;.
  */
-public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T>
-    implements ContainerPeer {
+public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T> {
 
   protected final Graphics graphics;
 
@@ -36,6 +39,17 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   @Override
   public Graphics getGraphics() {
     return graphics;
+  }
+
+  @Override
+  public void setForeground(Color c) {
+    super.setForeground(c);
+    androidWidget.setForegroundTintList(ColorStateList.valueOf(c.getRGB()));
+  }
+
+  @Override
+  public void setFont(Font f) {
+    super.setFont(f);
   }
 
   @Override
@@ -55,25 +69,7 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
 
   @Override
   public void setBounds(int x, int y, int width, int height, int op) {
-    switch (op) {
-      case SET_SIZE:
-        androidWidget.setMinimumHeight(height);
-        androidWidget.setMinimumWidth(width);
-        return;
-      case SET_LOCATION:
-        androidWidget.setX(x);
-        androidWidget.setY(y);
-        return;
-      case SET_BOUNDS:
-        setBounds(x, y, width, height, SET_LOCATION);
-        setBounds(x, y, width, height, SET_SIZE);
-        return;
-      case SET_CLIENT_SIZE:
-        // TODO
-        return;
-      default:
-        throw new IllegalArgumentException("Unknown setBounds operation " + op);
-    }
+    SkinJobUtil.setBounds(androidWidget, x, y, width, height, op);
   }
 
   @Override
@@ -104,6 +100,8 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
       Cause cause) {
     return androidWidget.requestFocus();
   }
+
+
 
   @Override
   public boolean isFocusable() {
@@ -140,21 +138,12 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   }
 
   @Override
-  public void beginValidate() {
-    // No-op.
-  }
-
-  @Override
-  public void endValidate() {
-    // No-op.
-  }
-
-  public void beginLayout() {
+  public void endLayout() {
     androidWidget.requestLayout();
   }
 
   @Override
-  public void endLayout() {
-    // No-op.
+  public void layout() {
+    endLayout();
   }
 }

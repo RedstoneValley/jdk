@@ -56,7 +56,7 @@ import static java.awt.BasicStroke.CAP_SQUARE;
 import static java.awt.BasicStroke.JOIN_BEVEL;
 import static java.awt.BasicStroke.JOIN_MITER;
 import static java.awt.BasicStroke.JOIN_ROUND;
-import static skinjob.util.SkinJobUtil.awtImageToAndroidBitmap;
+import static skinjob.util.SkinJobUtil.asAndroidBitmap;
 
 /**
  * SkinJob Android implementation of {@link Graphics}.
@@ -261,7 +261,7 @@ public class SkinJobGraphics extends Graphics2D {
     public synchronized boolean drawImage(Image img, int x, int y, ImageObserver observer) {
         AffineTransform combinedTransform = new AffineTransform(transform);
         combinedTransform.translate(x, y);
-        canvas.drawBitmap(awtImageToAndroidBitmap(img),
+        canvas.drawBitmap(asAndroidBitmap(img),
                 transformToMatrix(combinedTransform), brush);
         return true;
     }
@@ -315,7 +315,7 @@ public class SkinJobGraphics extends Graphics2D {
                     Image img_, int infoflags, int x_, int y_, int origWidth, int origHeight) {
                 float scaleX = width / (float) origWidth;
                 float scaleY = height / (float) origHeight;
-                canvas.drawBitmap(awtImageToAndroidBitmap(img),
+                canvas.drawBitmap(asAndroidBitmap(img),
                         transformToMatrix(combinedTransform), currentBrush);
                 drawImage(img, x, y, bgcolor, observer);
                 return false;
@@ -375,7 +375,7 @@ public class SkinJobGraphics extends Graphics2D {
     @Override
     public synchronized boolean drawImage(
             Image img, AffineTransform xform, ImageObserver obs) {
-        canvas.drawBitmap(awtImageToAndroidBitmap(img), transformToMatrix(xform), brush);
+        canvas.drawBitmap(asAndroidBitmap(img), transformToMatrix(xform), brush);
         return true;
     }
 

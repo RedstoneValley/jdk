@@ -56,7 +56,7 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
   public void updateImage() {
     Image image = thisTrayIcon.getImage();
     if (image != null) {
-      notificationBuilder.setLargeIcon(SkinJobUtil.awtImageToAndroidBitmap(image));
+      notificationBuilder.setLargeIcon(SkinJobUtil.asAndroidBitmap(image));
     }
     notificationManager.notify(TAG, id, notificationBuilder.build());
   }

@@ -57,7 +57,7 @@ public class SkinJobGraphicsEnvironment extends GraphicsEnvironment {
 
   @Override
   public Graphics2D createGraphics(BufferedImage img) {
-    return new SkinJobGraphics(SkinJobUtil.awtImageToAndroidBitmap(img));
+    return new SkinJobGraphics(SkinJobUtil.asAndroidBitmap(img));
   }
 
   @Override

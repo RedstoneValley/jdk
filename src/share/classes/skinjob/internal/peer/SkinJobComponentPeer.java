@@ -1,6 +1,7 @@
 package skinjob.internal.peer;
 
 import android.graphics.Canvas;
+
 import java.awt.AWTEvent;
 import java.awt.AWTException;
 import java.awt.BufferCapabilities;
@@ -17,8 +18,8 @@ import java.awt.image.ColorModel;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.VolatileImage;
-import java.awt.peer.ComponentPeer;
 import java.awt.peer.ContainerPeer;
+
 import skinjob.SkinJobGlobals;
 import skinjob.internal.SkinJobFontMetrics;
 import skinjob.internal.SkinJobGraphics;
@@ -27,7 +28,7 @@ import skinjob.internal.SkinJobGraphics;
  * Created by cryoc on 2016-10-10.
  */
 
-public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
+public abstract class SkinJobComponentPeer<T> implements ContainerPeer {
 
   protected final T androidWidget;
   protected GraphicsConfiguration graphicsConfiguration;
@@ -167,11 +168,6 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
   }
 
   @Override
-  public void layout() {
-    // No-op.
-  }
-
-  @Override
   public void applyShape(Shape shape) {
     // TODO
   }
@@ -188,5 +184,20 @@ public abstract class SkinJobComponentPeer<T> implements ComponentPeer {
     } else {
       throw new UnsupportedOperationException();
     }
+  }
+
+  @Override
+  public void beginLayout() {
+    // No-op.
+  }
+
+  @Override
+  public void beginValidate() {
+    // No-op.
+  }
+
+  @Override
+  public void endValidate() {
+    // No-op.
   }
 }

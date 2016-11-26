@@ -5,6 +5,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowInsets;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
@@ -17,9 +19,11 @@ import java.awt.Rectangle;
 import java.awt.peer.ComponentPeer;
 import java.awt.peer.DialogPeer;
 import java.awt.peer.FramePeer;
+
 import skinjob.internal.SkinJobDefaultAttributeSet;
 import skinjob.internal.SkinJobGraphics;
 import skinjob.internal.SkinJobGraphicsConfiguration;
+import skinjob.util.SkinJobUtil;
 import sun.awt.CausedFocusEvent.Cause;
 
 /**
@@ -69,18 +73,31 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void setMaximizedBounds(Rectangle bounds) {
-    // TODO
+    setBounds(bounds.x, bounds.y, bounds.width, bounds.height, SET_BOUNDS);
   }
 
   @Override
   public void setBoundsPrivate(int x, int y, int width, int height) {
-    // TODO
+    WindowInsets insets = sjGetAndroidWindowInsets();
+    setBounds(x - insets.getSystemWindowInsetLeft(), y - insets.getSystemWindowInsetTop(),
+            width + insets.getSystemWindowInsetLeft() + insets.getSystemWindowInsetRight(),
+            height + insets.getSystemWindowInsetTop() + insets.getSystemWindowInsetBottom(),
+            SET_BOUNDS);
+  }
+
+  protected WindowInsets sjGetAndroidWindowInsets() {
+    View decorView = androidWidget.getDecorView();
+    return decorView.getRootWindowInsets();
   }
 
   @Override
   public Rectangle getBoundsPrivate() {
-    // TODO
-    return null;
+    WindowInsets insets = sjGetAndroidWindowInsets();
+    return new Rectangle(
+            insets.getSystemWindowInsetLeft(),
+            insets.getSystemWindowInsetTop(),
+            getWidth() - insets.getSystemWindowInsetRight(),
+            getHeight() - insets.getSystemWindowInsetBottom());
   }
 
   @Override
@@ -123,17 +140,20 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void updateIconImages() {
-    // TODO
+    // No-op -- Android windows don't have icons.
   }
 
   @Override
   public void setOpacity(float opacity) {
-    // TODO
+    androidWidget.getDecorView().setAlpha(opacity);
   }
 
   @Override
   public void setOpaque(boolean isOpaque) {
-    // TODO
+    if (isOpaque) {
+      setOpacity(1.0f);
+    }
+    // Otherwise no-op, since alpha channel is always supported on Android
   }
 
   @Override
@@ -159,23 +179,8 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
   }
 
   @Override
-  public void beginValidate() {
-    // TODO
-  }
-
-  @Override
-  public void endValidate() {
-    // TODO
-  }
-
-  @Override
-  public void beginLayout() {
-    // TODO
-  }
-
-  @Override
   public void endLayout() {
-    // TODO
+    updateWindow();
   }
 
   protected int getWidth() {
@@ -203,7 +208,16 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void setBounds(int x, int y, int width, int height, int op) {
-    // TODO
+    View decorView = androidWidget.getDecorView();
+    if (op == SET_CLIENT_SIZE) {
+      WindowInsets insets = decorView.getRootWindowInsets();
+      SkinJobUtil.setBounds(decorView, 0, 0,
+              width + insets.getSystemWindowInsetLeft() + insets.getSystemWindowInsetRight(),
+              height + insets.getSystemWindowInsetTop() + insets.getSystemWindowInsetBottom(),
+              SET_SIZE);
+    } else {
+      SkinJobUtil.setBounds(decorView, x, y, width, height, op);
+    }
   }
 
   @Override
@@ -261,5 +275,10 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
   @Override
   public void blockWindows(java.util.List<java.awt.Window> windows) {
     // TODO
+  }
+
+  @Override
+  public void layout() {
+    endLayout();
   }
 }

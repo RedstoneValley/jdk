@@ -3,6 +3,7 @@ package skinjob.util;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.view.View;
 import android.view.Window;
 
 import java.awt.Image;
@@ -13,6 +14,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import skinjob.internal.SkinJobAndroidBitmapWrapper;
+
+import static java.awt.peer.ComponentPeer.SET_BOUNDS;
+import static java.awt.peer.ComponentPeer.SET_LOCATION;
+import static java.awt.peer.ComponentPeer.SET_SIZE;
 
 /**
  * Miscellaneous utility methods.
@@ -84,12 +89,31 @@ public final class SkinJobUtil {
     return window;
   }
 
-  public static Bitmap awtImageToAndroidBitmap(Image image) {
+  public static Bitmap asAndroidBitmap(Image image) {
     if (image instanceof SkinJobAndroidBitmapWrapper) {
       return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
     } else {
       // TODO
       return null;
+    }
+  }
+
+  public static <T extends View> void setBounds(View androidWidget, int x, int y, int width, int height, int op) {
+    switch (op) {
+      case SET_SIZE:
+        androidWidget.setMinimumHeight(height);
+        androidWidget.setMinimumWidth(width);
+        return;
+      case SET_LOCATION:
+        androidWidget.setX(x);
+        androidWidget.setY(y);
+        return;
+      case SET_BOUNDS:
+        setBounds(androidWidget, x, y, width, height, SET_LOCATION);
+        setBounds(androidWidget, x, y, width, height, SET_SIZE);
+        return;
+      default:
+        throw new IllegalArgumentException("Unknown setBounds operation " + op);
     }
   }
 }
