@@ -183,7 +183,7 @@ public abstract class SkinJobComponentPeer<T> implements ContainerPeer {
 
   protected Canvas getCanvas(Graphics g) {
     if (g instanceof SkinJobGraphics) {
-      return ((SkinJobGraphics) g).getCanvas();
+      return ((SkinJobGraphics) g).sjGetAndroidCanvas();
     } else {
       throw new UnsupportedOperationException();
     }

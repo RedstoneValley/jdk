@@ -203,7 +203,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void paint(Graphics g) {
-    // TODO
+    androidWidget.getDecorView().draw(getCanvas(g));
   }
 
   @Override

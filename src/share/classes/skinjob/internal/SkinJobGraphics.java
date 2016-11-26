@@ -676,7 +676,7 @@ public class SkinJobGraphics extends Graphics2D {
         return null;
     }
 
-    public Canvas getCanvas() {
+    public Canvas sjGetAndroidCanvas() {
         return canvas;
     }
 
