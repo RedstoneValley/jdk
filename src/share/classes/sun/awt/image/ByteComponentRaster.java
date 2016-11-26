@@ -55,7 +55,6 @@ public class ByteComponentRaster extends SunWritableRaster {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    NativeLibLoader.loadLibraries();
   }
 
   /**
@@ -97,26 +96,6 @@ public class ByteComponentRaster extends SunWritableRaster {
   public ByteComponentRaster(SampleModel sampleModel, Point origin) {
     this(sampleModel,
         sampleModel.createDataBuffer(),
-        new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
-        origin,
-        null);
-  }
-
-  /**
-   * Constructs a ByteComponentRaster with the given SampleModel
-   * and DataBuffer.  The Raster's upper left corner is origin and
-   * it is the same size as the SampleModel.  The DataBuffer is not
-   * initialized and must be a DataBufferByte compatible with SampleModel.
-   * SampleModel must be of type SinglePixelPackedSampleModel
-   * or ComponentSampleModel.
-   *
-   * @param sampleModel The SampleModel that specifies the layout.
-   * @param dataBuffer  The DataBufferShort that contains the image data.
-   * @param origin      The Point that specifies the origin.
-   */
-  public ByteComponentRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(sampleModel,
-        dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
         null);

@@ -25,10 +25,6 @@
 
 package sun.awt.image;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -40,19 +36,6 @@ public class URLImageSource extends InputStreamImageSource {
 
   public URLImageSource(URL u) {
     url = u;
-  }
-
-  public URLImageSource(String href) throws MalformedURLException {
-    this(new URL(null, href));
-  }
-
-  public URLImageSource(URL u, URLConnection uc) {
-    this(u);
-    conn = uc;
-  }
-
-  public URLImageSource(URLConnection uc) {
-    this(uc.getURL(), uc);
   }
 
   @Override
@@ -79,61 +62,4 @@ public class URLImageSource extends InputStreamImageSource {
     return true;
   }
 
-  @Override
-  protected ImageDecoder getDecoder() {
-    InputStream is;
-    String type;
-    URLConnection c = null;
-    try {
-      c = getConnection();
-      is = c.getInputStream();
-      type = c.getContentType();
-      URL u = c.getURL();
-      if (u != url && (!u.getHost().equals(url.getHost()) || u.getPort() != url.getPort())) {
-        // The image is allowed to come from either the host/port
-        // listed in the original URL, or it can come from one other
-        // host/port that the URL is redirected to.  More than that
-        // and we give up and just throw a SecurityException.
-        if (actualHost != null && (!actualHost.equals(u.getHost()) || actualPort != u.getPort())) {
-          throw new SecurityException("image moved!");
-        }
-        actualHost = u.getHost();
-        actualPort = u.getPort();
-      }
-    } catch (IOException e) {
-      if (c instanceof HttpURLConnection) {
-        ((HttpURLConnection) c).disconnect();
-      }
-      return null;
-    }
-
-    ImageDecoder id = decoderForType(is, type);
-    if (id == null) {
-      id = getDecoder(is);
-    }
-
-    if (id == null) {
-      // probably, no appropriate decoder
-      if (is != null) {
-        try {
-          is.close();
-        } catch (IOException e) {
-        }
-      } else if (c instanceof HttpURLConnection) {
-        ((HttpURLConnection) c).disconnect();
-      }
-    }
-    return id;
-  }
-
-  private synchronized URLConnection getConnection() throws IOException {
-    URLConnection c;
-    if (conn != null) {
-      c = conn;
-      conn = null;
-    } else {
-      c = url.openConnection();
-    }
-    return c;
-  }
 }

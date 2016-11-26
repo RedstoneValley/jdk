@@ -46,7 +46,6 @@ public class BytePackedRaster extends SunWritableRaster {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    NativeLibLoader.loadLibraries();
   }
 
   /**

@@ -27,11 +27,10 @@ package sun.awt.image;
 import java.awt.Image;
 import java.awt.image.ImageObserver;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
+
 import sun.awt.SoftCache;
 
-public class MultiResolutionToolkitImage extends ToolkitImage implements MultiResolutionImage {
+public class MultiResolutionToolkitImage extends ToolkitImage {
 
   private static final int BITS_INFO = ImageObserver.SOMEBITS | ImageObserver.FRAMEBITS
       | ImageObserver.ALLBITS;
@@ -81,16 +80,6 @@ public class MultiResolutionToolkitImage extends ToolkitImage implements MultiRe
       }
       return o;
     }
-  }
-
-  @Override
-  public Image getResolutionVariant(int width, int height) {
-    return width <= getWidth() && height <= getHeight() ? this : resolutionVariant;
-  }
-
-  @Override
-  public List<Image> getResolutionVariants() {
-    return Arrays.asList(this, resolutionVariant);
   }
 
   public Image getResolutionVariant() {

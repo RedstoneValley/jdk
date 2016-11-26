@@ -20,6 +20,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -35,9 +36,9 @@ import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
+
 import sun.awt.OSInfo;
 import sun.awt.OSInfo.OSType;
-import sun.awt.image.MultiResolutionImage;
 
 /**
  * @test
@@ -99,7 +100,7 @@ public class MultiResolutionCursorTest extends JApplet {
     }// start()
 
 
-    static class MultiResolutionCursor extends BufferedImage implements MultiResolutionImage {
+    static class MultiResolutionCursor extends BufferedImage {
 
         final List<Image> highResolutionImages;
 
@@ -118,22 +119,6 @@ public class MultiResolutionCursorTest extends JApplet {
             }
         }
 
-        @Override
-        public Image getResolutionVariant(int width, int height) {
-
-            for (int i = 0; i < sizes.length; i++) {
-                Image image = highResolutionImages.get(i);
-                int w = image.getWidth(null);
-                int h = image.getHeight(null);
-
-                if (width <= w && height <= h) {
-                    return image;
-                }
-            }
-
-            return highResolutionImages.get(highResolutionImages.size() - 1);
-        }
-
         void draw(Graphics graphics, int index) {
             Graphics2D g2 = (Graphics2D) graphics;
             Color color = colors[index];
@@ -141,10 +126,6 @@ public class MultiResolutionCursorTest extends JApplet {
             g2.fillRect(0, 0, sizes[index], sizes[index]);
         }
 
-        @Override
-        public List<Image> getResolutionVariants() {
-            return highResolutionImages;
-        }
     }
 }// class BlockedWindowTest
 

@@ -51,10 +51,6 @@ public class OffScreenImageSource implements ImageProducer {
     height = image.getHeight();
   }
 
-  public OffScreenImageSource(BufferedImage image) {
-    this(image, null);
-  }
-
   @Override
   public synchronized void addConsumer(ImageConsumer ic) {
     theConsumer = ic;

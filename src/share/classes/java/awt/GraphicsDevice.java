@@ -484,39 +484,6 @@ public abstract class GraphicsDevice {
   }
 
   /**
-   * This method returns the number of bytes available in
-   * accelerated memory on this device.
-   * Some images are created or cached
-   * in accelerated memory on a first-come,
-   * first-served basis.  On some operating systems,
-   * this memory is a finite resource.  Calling this method
-   * and scheduling the creation and flushing of images carefully may
-   * enable applications to make the most efficient use of
-   * that finite resource.
-   * <br>
-   * Note that the number returned is a snapshot of how much
-   * memory is available; some images may still have problems
-   * being allocated into that memory.  For example, depending
-   * on operating system, driver, memory configuration, and
-   * thread situations, the full extent of the size reported
-   * may not be available for a given image.  There are further
-   * inquiry methods on the {@link ImageCapabilities} object
-   * associated with a VolatileImage that can be used to determine
-   * whether a particular VolatileImage has been created in accelerated
-   * memory.
-   *
-   * @return number of bytes available in accelerated memory.
-   * A negative return value indicates that the amount of accelerated memory
-   * on this GraphicsDevice is indeterminate.
-   * @see java.awt.image.VolatileImage#flush
-   * @see ImageCapabilities#isAccelerated
-   * @since 1.4
-   */
-  public int getAvailableAcceleratedMemory() {
-    return -1;
-  }
-
-  /**
    * Returns whether the given level of translucency is supported by
    * this graphics device.
    *

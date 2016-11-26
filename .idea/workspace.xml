@@ -8,19 +8,49 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="New class SkinJobBufferedImage Complete more TODOs (mostly in terms of other TODOs).">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobAndroidBitmapWrapper.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobVolatileImage.java" />
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Add SkinJobAndroidBitmapWrapper interface, implemented by SkinJobBufferedImage and SkinJobVolatileImage. Consolidate some TODOs.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobImageDecoder.java" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageReadParam.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/im/SimpleInputMethodWindow.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageAccessException.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageCache.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageFetchable.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageFetcher.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/JPEGImageDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/MultiResolutionImage.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/NativeLibLoader.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/PNGImageDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/PixelConverter.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/XbmImageDecoder.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Dialog/CloseDialog/CloseDialogTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/EventDispatchThread/LoopRobustness/LoopRobustness.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/EventQueue/PushPopDeadlock2/PushPopTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/im/8041990/bug8041990.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/image/MultiResolutionImage/NSImageToMultiResolutionImageTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/image/MultiResolutionImageTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/image/mlib/MlibOpsTest.java" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/awt/AppContext/8012933/Test8012933.java" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Font.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Font.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/TextAttributesDecoder.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/TextAttributesDecoder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobTrayIconPeer.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobTrayIconPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Image.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Image.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteArrayImageSource.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteArrayImageSource.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteComponentRaster.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteComponentRaster.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BytePackedRaster.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/BytePackedRaster.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/FileImageSource.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/FileImageSource.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageDecoder.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageDecoder.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/InputStreamImageSource.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/InputStreamImageSource.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/IntegerComponentRaster.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/IntegerComponentRaster.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/MultiResolutionToolkitImage.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/MultiResolutionToolkitImage.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/OffScreenImageSource.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/OffScreenImageSource.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ShortComponentRaster.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ShortComponentRaster.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/URLImageSource.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/URLImageSource.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/VSyncedBSManager.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/VSyncedBSManager.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/java/awt/Cursor/MultiResolutionCursorTest/MultiResolutionCursorTest.java" afterPath="$PROJECT_DIR$/test/java/awt/Cursor/MultiResolutionCursorTest/MultiResolutionCursorTest.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -49,105 +79,91 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="SkinJobVolatileImage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobVolatileImage.java">
+      <file leaf-file-name="CompositionArea.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionArea.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2294">
-              <caret line="90" column="28" selection-start-line="90" selection-start-column="28" selection-end-line="90" selection-end-column="28" />
-              <folding>
-                <element signature="imports" expanded="true" />
-                <element signature="e#2262#2263#0" expanded="true" />
-                <element signature="e#2298#2299#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SkinJobAndroidBitmapWrapper.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobAndroidBitmapWrapper.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="248">
-              <caret line="8" column="44" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="44" />
+            <state relative-caret-position="451">
+              <caret line="58" column="19" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="VolatileImage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/VolatileImage.java">
+      <file leaf-file-name="CompositionAreaHandler.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionAreaHandler.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="130" column="22" selection-start-line="130" selection-start-column="22" selection-end-line="130" selection-end-column="22" />
+            <state relative-caret-position="451">
+              <caret line="48" column="6" selection-start-line="48" selection-start-column="6" selection-end-line="48" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobBufferedImage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java">
+      <file leaf-file-name="ExecutableInputMethodManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="9" column="94" selection-start-line="9" selection-start-column="67" selection-end-line="9" selection-end-column="94" />
+            <state relative-caret-position="451">
+              <caret line="62" column="6" selection-start-line="62" selection-start-column="6" selection-end-line="62" selection-end-column="6" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobUtil.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java">
+      <file leaf-file-name="InputContext.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputContext.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="805">
-              <caret line="91" column="13" selection-start-line="91" selection-start-column="13" selection-end-line="91" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BufferedImage.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/BufferedImage.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
+            <state relative-caret-position="451">
               <caret line="67" column="13" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Toolkit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Toolkit.java">
+      <file leaf-file-name="InputMethodContext.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodContext.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="2072" column="7" selection-start-line="2072" selection-start-column="7" selection-end-line="2072" selection-end-column="7" />
+            <state relative-caret-position="451">
+              <caret line="52" column="13" selection-start-line="52" selection-start-column="13" selection-end-line="52" selection-end-column="13" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageRepresentation.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
+      <file leaf-file-name="InputMethodLocator.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodLocator.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="663" column="7" selection-start-line="663" selection-start-column="7" selection-end-line="663" selection-end-column="7" />
+            <state relative-caret-position="310">
+              <caret line="35" column="12" selection-start-line="35" selection-start-column="12" selection-end-line="35" selection-end-column="12" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintService.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
+      <file leaf-file-name="InputMethodManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
-              <caret line="11" column="7" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
+            <state relative-caret-position="451">
+              <caret line="102" column="22" selection-start-line="102" selection-start-column="22" selection-end-line="102" selection-end-column="22" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PrintServiceLookup.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/PrintServiceLookup.java">
+      <file leaf-file-name="InputMethodPopupMenu.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodPopupMenu.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
+            <state relative-caret-position="310">
+              <caret line="43" column="15" selection-start-line="43" selection-start-column="15" selection-end-line="43" selection-end-column="15" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InputMethodWindow.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodWindow.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="248">
+              <caret line="31" column="17" selection-start-line="31" selection-start-column="17" selection-end-line="31" selection-end-column="17" />
               <folding />
             </state>
           </provider>
@@ -161,9 +177,9 @@
         <option value="Interface" />
         <option value="Enum" />
         <option value="Singleton" />
-        <option value="ASClass" />
         <option value="Class" />
         <option value="ASInterface" />
+        <option value="ASClass" />
       </list>
     </option>
   </component>
@@ -184,23 +200,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/TrayIcon.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Image.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Button.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Container.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Label.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/List.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Scrollbar.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/TextComponent.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/MenuComponent.java" />
-        <option value="$PROJECT_DIR$/test/java/awt/Graphics2D/DrawString/LCDTextSrcEa.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Choice.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/Component.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/ComponentOrMenuComponent.java" />
-        <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/NullWidgetSupplier.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Checkbox.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Canvas.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/SunToolkit.java" />
@@ -220,12 +219,10 @@
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Graphics2D.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/font/Underline.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/print/MediaPrintableArea.java" />
         <option value="$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/Font.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobTrayIconPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/TextAttributesDecoder.java" />
@@ -235,6 +232,25 @@
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobVolatileImage.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobImageDecoder.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/JPEGImageDecoder.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/IntegerComponentRaster.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/MultiResolutionImage.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/OffScreenImageSource.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/VSyncedBSManager.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageDecoder.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteComponentRaster.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageFetcher.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/NativeLibLoader.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/InputStreamImageSource.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/URLImageSource.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/ImageCapabilities.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java" />
       </list>
     </option>
   </component>
@@ -329,13 +345,460 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="AndroidView" />
       <pane id="ProjectPane">
-        <subPane />
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="test" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="image" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="im" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="im" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="InputMethodPopupMenu.java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="graphicscallback" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="geom" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dnd" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="datatransfer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="TransferableProxy.java" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="sun" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="datatransfer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
       </pane>
+      <pane id="AndroidView" />
+      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="PackagesPane" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -935,7 +1398,14 @@
       <option name="project" value="LOCAL" />
       <updated>1479727484397</updated>
     </task>
-    <option name="localTasksCounter" value="41" />
+    <task id="LOCAL-00041" summary="Add SkinJobAndroidBitmapWrapper interface, implemented by SkinJobBufferedImage and SkinJobVolatileImage. Consolidate some TODOs.">
+      <created>1480147896523</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1480147896523</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TodoView">
@@ -951,7 +1421,7 @@
     <frame x="-11" y="-11" width="3862" height="2126" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37539598" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37539598" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -963,9 +1433,9 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18869908" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2655755" sideWeight="0.44151044" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18344283" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18869908" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2655755" sideWeight="0.44151044" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18344283" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32981253" sideWeight="0.5" order="6" side_tool="true" content_ui="tabs" />
@@ -1024,7 +1494,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="SkinJobGraphics now extends Graphics2D, giving it a more powerful interface." />
     <MESSAGE value="Delete sun.java2d; migrate classes to use Shape instead of Region; finish SkinJobMenuPeer." />
     <MESSAGE value="Minor fixes" />
     <MESSAGE value="Add output folder to .hgignore" />
@@ -1049,7 +1518,8 @@
     <MESSAGE value="Eliminate a walled-garden group of classes from sun.awt.image." />
     <MESSAGE value="Eliminate 2 unused classes from sun.awt.image." />
     <MESSAGE value="Merge in javax.print.attribute.standard.MediaPrintableArea, completing a TODO and fixing a bug where the native unit was previously 1 mm rather than 0.001 mm." />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge in javax.print.attribute.standard.MediaPrintableArea, completing a TODO and fixing a bug where the native unit was previously 1 mm rather than 0.001 mm." />
+    <MESSAGE value="Add SkinJobAndroidBitmapWrapper interface, implemented by SkinJobBufferedImage and SkinJobVolatileImage. Consolidate some TODOs." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add SkinJobAndroidBitmapWrapper interface, implemented by SkinJobBufferedImage and SkinJobVolatileImage. Consolidate some TODOs." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1083,387 +1553,420 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/IntegerInterleavedRaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1023">
-          <caret line="64" column="2" selection-start-line="64" selection-start-column="2" selection-end-line="64" selection-end-column="2" />
+        <state relative-caret-position="451">
+          <caret line="52" column="13" selection-start-line="52" selection-start-column="13" selection-end-line="52" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgSurfaceManager.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgSurfaceData.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/VolatileSurfaceManager.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufImgVolatileSurfaceManager.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunVolatileImage.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/font/Decoration.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/MultiResolutionToolkitImage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="32" column="13" selection-start-line="32" selection-start-column="13" selection-end-line="32" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/OffScreenImageSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="651">
+          <caret line="53" column="2" selection-start-line="53" selection-start-column="2" selection-end-line="53" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ShortBandedRaster.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="48" column="13" selection-start-line="48" selection-start-column="13" selection-end-line="48" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ShortComponentRaster.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="52" column="13" selection-start-line="52" selection-start-column="13" selection-end-line="52" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ShortInterleavedRaster.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="53" column="13" selection-start-line="53" selection-start-column="13" selection-end-line="53" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/URLImageSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="31" column="20" selection-start-line="31" selection-start-column="20" selection-end-line="31" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/SunToolkit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1195">
+          <caret line="547" column="27" selection-start-line="547" selection-start-column="27" selection-end-line="547" selection-end-column="27" />
+          <folding>
+            <element signature="e#19056#19057#0" expanded="true" />
+            <element signature="e#19109#19110#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/VSyncedBSManager.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1767">
-          <caret line="95" column="27" selection-start-line="95" selection-start-column="27" selection-end-line="95" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#12573#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/WritableRasterNative.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/DataBufferNative.java" />
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/JPEGImageDecoder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1426">
-          <caret line="86" column="7" selection-start-line="86" selection-start-column="7" selection-end-line="86" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2356">
-          <caret line="113" column="7" selection-start-line="113" selection-start-column="7" selection-end-line="113" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/javax/print/attribute/standard/MediaPrintableArea.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="652">
-          <caret line="41" column="10" selection-start-line="41" selection-start-column="10" selection-end-line="41" selection-end-column="10" />
-          <folding>
-            <element signature="e#0#11043#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="301" column="7" selection-start-line="301" selection-start-column="7" selection-end-line="301" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/FileDialog.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="568">
-          <caret line="297" column="11" selection-start-line="297" selection-start-column="11" selection-end-line="297" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1126">
-          <caret line="622" column="7" selection-start-line="622" selection-start-column="7" selection-end-line="622" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Font.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="1195" column="7" selection-start-line="1195" selection-start-column="7" selection-end-line="1195" selection-end-column="7" />
-          <folding>
-            <element signature="e#47964#47965#0" expanded="true" />
-            <element signature="e#48013#48014#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/ColorModel.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="1828" column="21" selection-start-line="1828" selection-start-column="21" selection-end-line="1828" selection-end-column="21" />
-          <folding>
-            <element signature="e#81519#81520#0" expanded="true" />
-            <element signature="e#81546#81547#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/color/ColorSpace.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="568">
-          <caret line="456" column="13" selection-start-line="456" selection-start-column="13" selection-end-line="456" selection-end-column="13" />
-          <folding>
-            <element signature="e#17003#17004#0" expanded="true" />
-            <element signature="e#17024#17025#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/GraphicsConfiguration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="444">
-          <caret line="302" column="69" selection-start-line="302" selection-start-column="69" selection-end-line="302" selection-end-column="69" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SplashScreen.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3720">
-          <caret line="158" column="7" selection-start-line="158" selection-start-column="7" selection-end-line="158" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/SystemTray.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6789">
-          <caret line="250" column="14" selection-start-line="250" selection-start-column="14" selection-end-line="250" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/TrayIcon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="16802">
-          <caret line="590" column="14" selection-start-line="590" selection-start-column="14" selection-end-line="590" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/peer/TrayIconPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1364">
-          <caret line="69" column="7" selection-start-line="69" selection-start-column="7" selection-end-line="69" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-24/android/graphics/drawable/Icon.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11997">
-          <caret line="437" column="23" selection-start-line="437" selection-start-column="23" selection-end-line="437" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobTrayIconPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="89" column="51" selection-start-line="89" selection-start-column="51" selection-end-line="89" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-24/android/graphics/Matrix.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="770" column="16" selection-start-line="770" selection-start-column="16" selection-end-line="770" selection-end-column="16" />
-          <folding>
-            <element signature="e#27140#27141#0" expanded="true" />
-            <element signature="e#27178#27179#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/geom/AffineTransform.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="723">
-          <caret line="1056" column="30" selection-start-line="1056" selection-start-column="16" selection-end-line="1056" selection-end-column="30" />
-          <folding>
-            <element signature="e#44035#44036#0" expanded="true" />
-            <element signature="e#44055#44056#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Transparency.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="837">
-          <caret line="50" column="6" selection-start-line="50" selection-start-column="6" selection-end-line="50" selection-end-column="6" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/renderable/RenderableImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="620">
-          <caret line="184" column="10" selection-start-line="184" selection-start-column="10" selection-end-line="184" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/RenderedImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="47" column="23" selection-start-line="47" selection-start-column="23" selection-end-line="47" selection-end-column="23" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageOutputStream.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
+          <caret line="82" column="4" selection-start-line="82" selection-start-column="4" selection-end-line="82" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/GraphicsDevice.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="413">
-          <caret line="538" column="15" selection-start-line="538" selection-start-column="15" selection-end-line="538" selection-end-column="15" />
+        <state relative-caret-position="-355">
+          <caret line="485" column="2" selection-start-line="485" selection-start-column="2" selection-end-line="485" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-24/android/graphics/Bitmap.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="358" column="25" selection-start-line="358" selection-start-column="25" selection-end-line="358" selection-end-column="25" />
+        <state relative-caret-position="899">
+          <caret line="59" column="22" selection-start-line="59" selection-start-column="22" selection-end-line="59" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BufferCapabilities.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/ImageCapabilities.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="713">
+          <caret line="46" column="2" selection-start-line="46" selection-start-column="2" selection-end-line="46" selection-end-column="2" />
           <folding>
-            <element signature="e#13145#13146#0" expanded="true" />
-            <element signature="e#13177#13178#0" expanded="true" />
+            <element signature="e#1616#1617#0" expanded="true" />
+            <element signature="e#1656#1657#0" expanded="true" />
+            <element signature="e#2115#2116#0" expanded="true" />
+            <element signature="e#2143#2144#0" expanded="true" />
+            <element signature="e#2450#2451#0" expanded="true" />
+            <element signature="e#2472#2473#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/ImageObserver.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SurfaceManager.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="58" column="16" selection-start-line="58" selection-start-column="16" selection-end-line="58" selection-end-column="16" />
+        <state relative-caret-position="1292">
+          <caret line="138" column="0" selection-start-line="138" selection-start-column="0" selection-end-line="138" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Image.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/SunWritableRaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="50" column="29" selection-start-line="50" selection-start-column="29" selection-end-line="50" selection-end-column="29" />
+        <state relative-caret-position="434">
+          <caret line="47" column="13" selection-start-line="47" selection-start-column="13" selection-end-line="47" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/AppData/Local/Android/sdk/sources/android-24/java/lang/Object.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageDevice.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="258" column="18" selection-start-line="258" selection-start-column="18" selection-end-line="258" selection-end-column="18" />
+        <state relative-caret-position="186">
+          <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-548">
-          <caret line="58" column="73" selection-start-line="58" selection-start-column="73" selection-end-line="58" selection-end-column="73" />
+        <state relative-caret-position="186">
+          <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteArrayImageSource.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="132" column="7" selection-start-line="132" selection-start-column="7" selection-end-line="132" selection-end-column="7" />
+        <state relative-caret-position="124">
+          <caret line="27" column="13" selection-start-line="27" selection-start-column="13" selection-end-line="27" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/TextAttributesDecoder.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteBandedRaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="48" column="11" selection-start-line="48" selection-start-column="11" selection-end-line="48" selection-end-column="11" />
+        <state relative-caret-position="31">
+          <caret line="50" column="13" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/SkinJobGlobals.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteComponentRaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="61">
-          <caret line="179" column="7" selection-start-line="179" selection-start-column="7" selection-end-line="179" selection-end-column="7" />
+        <state relative-caret-position="451">
+          <caret line="57" column="2" selection-start-line="57" selection-start-column="2" selection-end-line="57" selection-end-column="2" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/GifImageDecoder.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BytePackedRaster.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="346" column="7" selection-start-line="346" selection-start-column="7" selection-end-line="346" selection-end-column="7" />
+        <state relative-caret-position="403">
+          <caret line="44" column="13" selection-start-line="44" selection-start-column="13" selection-end-line="44" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/FileImageSource.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="682">
+          <caret line="45" column="0" selection-start-line="45" selection-start-column="0" selection-end-line="45" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageConsumerQueue.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="38" column="21" selection-start-line="38" selection-start-column="21" selection-end-line="38" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageFormatException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="27" column="13" selection-start-line="27" selection-start-column="13" selection-end-line="27" selection-end-column="13" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageRepresentation.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="663" column="7" selection-start-line="663" selection-start-column="7" selection-end-line="663" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/PrintServiceLookup.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="9" column="7" selection-start-line="9" selection-start-column="7" selection-end-line="9" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/print/PrintService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="11" column="7" selection-start-line="11" selection-start-column="7" selection-end-line="11" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Toolkit.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="2072" column="7" selection-start-line="2072" selection-start-column="7" selection-end-line="2072" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/VolatileImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="130" column="22" selection-start-line="130" selection-start-column="22" selection-end-line="130" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/BufferedImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="67" column="13" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobVolatileImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2294">
-          <caret line="90" column="28" selection-start-line="90" selection-start-column="28" selection-end-line="90" selection-end-column="28" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#2262#2263#0" expanded="true" />
-            <element signature="e#2298#2299#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobAndroidBitmapWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="8" column="44" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="44" />
+        <state relative-caret-position="269">
+          <caret line="87" column="37" selection-start-line="87" selection-start-column="37" selection-end-line="87" selection-end-column="37" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="9" column="94" selection-start-line="9" selection-start-column="67" selection-end-line="9" selection-end-column="94" />
+        <state relative-caret-position="372">
+          <caret line="14" column="11" selection-start-line="14" selection-start-column="11" selection-end-line="14" selection-end-column="11" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java">
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PaintAllCallback.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="805">
-          <caret line="91" column="13" selection-start-line="91" selection-start-column="13" selection-end-line="91" selection-end-column="13" />
+        <state relative-caret-position="217">
+          <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PaintCallback.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PaintHeavyweightComponentsCallback.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="10" column="19" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/geom/AreaOp.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="33" column="22" selection-start-line="33" selection-start-column="22" selection-end-line="33" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/geom/ChainEnd.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="27" column="12" selection-start-line="27" selection-start-column="12" selection-end-line="27" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/geom/Crossings.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/dnd/SunDragSourceContextPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="61" column="22" selection-start-line="61" selection-start-column="22" selection-end-line="61" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/dnd/SunDropTargetContextPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="60" column="22" selection-start-line="60" selection-start-column="22" selection-end-line="60" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/dnd/SunDropTargetEvent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="31" column="13" selection-start-line="31" selection-start-column="13" selection-end-line="31" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/DataTransferer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="98" column="22" selection-start-line="98" selection-start-column="22" selection-end-line="98" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageReadParam.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="5" column="22" selection-start-line="5" selection-start-column="22" selection-end-line="5" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ClipboardTransferable.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="51" column="13" selection-start-line="51" selection-start-column="13" selection-end-line="51" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/SunClipboard.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1385">
+          <caret line="54" column="22" selection-start-line="54" selection-start-column="22" selection-end-line="54" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ToolkitThreadBlockedHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="27" column="17" selection-start-line="27" selection-start-column="17" selection-end-line="27" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/TransferableProxy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="57" column="20" selection-start-line="57" selection-start-column="20" selection-end-line="57" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionArea.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="58" column="19" selection-start-line="58" selection-start-column="19" selection-end-line="58" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/CompositionAreaHandler.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="48" column="6" selection-start-line="48" selection-start-column="6" selection-end-line="48" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/ExecutableInputMethodManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="62" column="6" selection-start-line="62" selection-start-column="6" selection-end-line="62" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="67" column="13" selection-start-line="67" selection-start-column="13" selection-end-line="67" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodContext.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="52" column="13" selection-start-line="52" selection-start-column="13" selection-end-line="52" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodLocator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="310">
+          <caret line="35" column="12" selection-start-line="35" selection-start-column="12" selection-end-line="35" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="451">
+          <caret line="102" column="22" selection-start-line="102" selection-start-column="22" selection-end-line="102" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodPopupMenu.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="310">
+          <caret line="43" column="15" selection-start-line="43" selection-start-column="15" selection-end-line="43" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/SimpleInputMethodWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="35" column="14" selection-start-line="35" selection-start-column="14" selection-end-line="35" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodWindow.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="248">
+          <caret line="31" column="17" selection-start-line="31" selection-start-column="17" selection-end-line="31" selection-end-column="17" />
           <folding />
         </state>
       </provider>

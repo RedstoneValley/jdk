@@ -30,8 +30,8 @@ import java.awt.image.ImageFilter;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.awt.image.ReplicateScaleFilter;
+
 import sun.awt.image.SurfaceManager;
-import sun.awt.image.SurfaceManager.ImageAccessor;
 
 /**
  * The abstract class {@code Image} is the superclass of all
@@ -98,17 +98,6 @@ public abstract class Image {
   private static final ImageCapabilities defaultImageCaps = new ImageCapabilities(false);
 
   static {
-    SurfaceManager.setImageAccessor(new ImageAccessor() {
-      @Override
-      public SurfaceManager getSurfaceManager(Image img) {
-        return img.surfaceManager;
-      }
-
-      @Override
-      public void setSurfaceManager(Image img, SurfaceManager mgr) {
-        img.surfaceManager = mgr;
-      }
-    });
   }
 
   /**

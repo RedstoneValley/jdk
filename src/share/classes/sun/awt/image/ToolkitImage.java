@@ -27,7 +27,6 @@ package sun.awt.image;
 
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.ImageConsumer;
 import java.awt.image.ImageObserver;
@@ -39,7 +38,6 @@ public class ToolkitImage extends Image {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    NativeLibLoader.loadLibraries();
   }
 
   /**
@@ -53,9 +51,6 @@ public class ToolkitImage extends Image {
   private int height = -1;
   private Map<?, ?> properties;
   private int availinfo;
-
-  protected ToolkitImage() {
-  }
 
   /**
    * Construct an image from an ImageProducer object.
@@ -318,9 +313,4 @@ public class ToolkitImage extends Image {
     return imageRep.getColorModel();
   }
 
-  /* this method is needed by printing code */
-  public BufferedImage getBufferedImage() {
-    ImageRepresentation imageRep = getImageRep();
-    return imageRep.getBufferedImage();
-  }
 }

@@ -49,7 +49,6 @@ public class ImageRepresentation extends ImageWatched implements ImageConsumer {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    NativeLibLoader.loadLibraries();
   }
 
   protected ColorModel cmodel;

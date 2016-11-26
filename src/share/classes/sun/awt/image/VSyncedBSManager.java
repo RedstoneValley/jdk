@@ -27,15 +27,13 @@ package sun.awt.image;
 
 import java.awt.image.BufferStrategy;
 import java.lang.ref.WeakReference;
-import java.security.AccessController;
 
 /**
  * Manages v-synced buffer strategies.
  */
 public abstract class VSyncedBSManager {
 
-  private static final boolean vSyncLimit = Boolean.valueOf((String) AccessController.doPrivileged(
-      new sun.security.action.GetPropertyAction("sun.java2d.vsynclimit", "true")));
+  private static final boolean vSyncLimit = Boolean.valueOf(System.getProperty("sun.java2d.vsynclimit", "true"));
   private static VSyncedBSManager theInstance;
 
   private static VSyncedBSManager getInstance(boolean create) {
@@ -43,17 +41,6 @@ public abstract class VSyncedBSManager {
       theInstance = vSyncLimit ? new SingleVSyncedBSMgr() : new NoLimitVSyncBSMgr();
     }
     return theInstance;
-  }
-
-  /**
-   * Returns true if the buffer strategy is allowed to be created
-   * v-synced.
-   *
-   * @return true if the bs is allowed to be v-synced, false otherwise
-   */
-  public static boolean vsyncAllowed(BufferStrategy bs) {
-    VSyncedBSManager bsm = getInstance(true);
-    return bsm.checkAllowed(bs);
   }
 
   /**
@@ -67,8 +54,6 @@ public abstract class VSyncedBSManager {
     }
   }
 
-  abstract boolean checkAllowed(BufferStrategy bs);
-
   abstract void relinquishVsync(BufferStrategy bs);
 
   /**
@@ -77,11 +62,6 @@ public abstract class VSyncedBSManager {
    */
   private static final class NoLimitVSyncBSMgr extends VSyncedBSManager {
     NoLimitVSyncBSMgr() {
-    }
-
-    @Override
-    boolean checkAllowed(BufferStrategy bs) {
-      return true;
     }
 
     @Override
@@ -97,18 +77,6 @@ public abstract class VSyncedBSManager {
     private WeakReference<BufferStrategy> strategy;
 
     SingleVSyncedBSMgr() {
-    }
-
-    @Override
-    public synchronized boolean checkAllowed(BufferStrategy bs) {
-      if (strategy != null) {
-        BufferStrategy current = strategy.get();
-        if (current != null) {
-          return current == bs;
-        }
-      }
-      strategy = new WeakReference<>(bs);
-      return true;
     }
 
     @Override

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Map;
 
 public abstract class ImageDecoder {
   final InputStreamImageSource source;
@@ -83,40 +82,6 @@ public abstract class ImageDecoder {
       count++;
     }
     return count;
-  }
-
-  protected int setProperties(Map props) {
-    ImageConsumerQueue cq = null;
-    int count = 0;
-    while ((cq = nextConsumer(cq)) != null) {
-      cq.consumer.setProperties(props);
-      count++;
-    }
-    return count;
-  }
-
-  protected int setColorModel(ColorModel model) {
-    ImageConsumerQueue cq = null;
-    int count = 0;
-    while ((cq = nextConsumer(cq)) != null) {
-      cq.consumer.setColorModel(model);
-      count++;
-    }
-    return count;
-  }
-
-  protected int setHints(int hints) {
-    ImageConsumerQueue cq = null;
-    int count = 0;
-    while ((cq = nextConsumer(cq)) != null) {
-      cq.consumer.setHints(hints);
-      count++;
-    }
-    return count;
-  }
-
-  protected void headerComplete() {
-    feeder.setPriority(ImageFetcher.LOW_PRIORITY);
   }
 
   protected int setPixels(

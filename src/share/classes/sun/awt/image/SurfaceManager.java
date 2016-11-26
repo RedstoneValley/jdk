@@ -26,14 +26,10 @@
 package sun.awt.image;
 
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.ImageCapabilities;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
-
-import sun.java2d.SurfaceData;
-import sun.java2d.SurfaceDataProxy;
 
 /**
  * The abstract base class that manages the various SurfaceData objects that
@@ -48,78 +44,7 @@ import sun.java2d.SurfaceDataProxy;
  */
 public abstract class SurfaceManager {
 
-  private static ImageAccessor imgaccessor;
   private ConcurrentHashMap<Object, Object> cacheMap;
-
-  public static void setImageAccessor(ImageAccessor ia) {
-    if (imgaccessor != null) {
-      throw new InternalError("Attempt to set ImageAccessor twice");
-    }
-    imgaccessor = ia;
-  }
-
-  public static void setManager(Image img, SurfaceManager mgr) {
-    imgaccessor.setSurfaceManager(img, mgr);
-  }
-
-  /**
-   * Return an arbitrary cached object for an arbitrary cache key.
-   * Other objects can use this mechanism to store cached data about
-   * the source image that will let them save time when using or
-   * manipulating the image in the future.
-   * <p>
-   * Note that the cache is maintained as a simple Map with no
-   * attempts to keep it up to date or invalidate it so any data
-   * stored here must either not be dependent on the state of the
-   * image or it must be individually tracked to see if it is
-   * outdated or obsolete.
-   * <p>
-   * The SurfaceData object of the primary (destination) surface
-   * has a StateTracker mechanism which can help track the validity
-   * and "currentness" of any data stored here.
-   * For convenience and expediency an object stored as cached
-   * data may implement the FlushableCacheData interface specified
-   * below so that it may be notified immediately if the flush()
-   * method is ever called.
-   */
-  public Object getCacheData(Object key) {
-    return cacheMap == null ? null : cacheMap.get(key);
-  }
-
-  /**
-   * Store an arbitrary cached object for an arbitrary cache key.
-   * See the getCacheData() method for notes on tracking the
-   * validity of data stored using this mechanism.
-   */
-  public void setCacheData(Object key, Object value) {
-    if (cacheMap == null) {
-      synchronized (this) {
-        if (cacheMap == null) {
-          cacheMap = new ConcurrentHashMap<>(2);
-        }
-      }
-    }
-    cacheMap.put(key, value);
-  }
-
-  /**
-   * Restores the primary surface being managed, and then returns the
-   * replacement surface.  This is called when an accelerated surface has
-   * been "lost", in an attempt to auto-restore its contents.
-   */
-  public abstract SurfaceData restoreContents();
-
-  /**
-   * Notification that any accelerated surfaces associated with this manager
-   * have been "lost", which might mean that they need to be manually
-   * restored or recreated.
-   * <p>
-   * The default implementation does nothing, but platform-specific
-   * variants which have accelerated surfaces should perform any necessary
-   * actions.
-   */
-  public void acceleratedSurfaceLost() {
-  }
 
   /**
    * Returns an ImageCapabilities object which can be
@@ -145,7 +70,7 @@ public abstract class SurfaceManager {
    * @since 1.5
    */
   public ImageCapabilities getCapabilities(GraphicsConfiguration gc) {
-    return new ImageCapabilitiesGc(gc);
+    return new ImageCapabilities(false);
   }
 
   /**
@@ -189,22 +114,6 @@ public abstract class SurfaceManager {
   }
 
   /**
-   * An interface for GraphicsConfiguration objects to implement if
-   * their surfaces accelerate images using SurfaceDataProxy objects.
-   * <p>
-   * Implementing this interface facilitates the default
-   * implementation of getImageCapabilities() above.
-   */
-  public interface ProxiedGraphicsConfig {
-    /**
-     * Return the key that destination surfaces created on the
-     * given GraphicsConfiguration use to store SurfaceDataProxy
-     * objects for their cached copies.
-     */
-    Object getProxyKey();
-  }
-
-  /**
    * An interface for Objects used in the SurfaceManager cache
    * to implement if they have data that should be flushed when
    * the Image is flushed.
@@ -222,38 +131,5 @@ public abstract class SurfaceManager {
     boolean flush(boolean deaccelerated);
   }
 
-  public interface ImageAccessor {
-    SurfaceManager getSurfaceManager(Image img);
 
-    void setSurfaceManager(Image img, SurfaceManager mgr);
-  }
-
-  class ImageCapabilitiesGc extends ImageCapabilities {
-    final GraphicsConfiguration gc;
-
-    public ImageCapabilitiesGc(GraphicsConfiguration gc) {
-      super(false);
-      this.gc = gc;
-    }
-
-    @Override
-    public boolean isAccelerated() {
-      // Note that when img.getAccelerationPriority() gets set to 0
-      // we remove SurfaceDataProxy objects from the cache and the
-      // answer will be false.
-      GraphicsConfiguration tmpGc = gc;
-      if (tmpGc == null) {
-        tmpGc = GraphicsEnvironment.getLocalGraphicsEnvironment().
-            getDefaultScreenDevice().getDefaultConfiguration();
-      }
-      if (tmpGc instanceof ProxiedGraphicsConfig) {
-        Object proxyKey = ((ProxiedGraphicsConfig) tmpGc).getProxyKey();
-        if (proxyKey != null) {
-          SurfaceDataProxy sdp = (SurfaceDataProxy) getCacheData(proxyKey);
-          return sdp != null && sdp.isAccelerated();
-        }
-      }
-      return false;
-    }
-  }
 }

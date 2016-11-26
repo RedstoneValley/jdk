@@ -64,22 +64,6 @@ public class BufferedImageGraphicsConfig extends GraphicsConfiguration {
     height = bufImg.getHeight();
   }
 
-  public static BufferedImageGraphicsConfig getConfig(BufferedImage bImg) {
-    BufferedImageGraphicsConfig ret;
-    int type = bImg.getType();
-    if (type > 0 && type < numconfigs) {
-      ret = configs[type];
-      if (ret != null) {
-        return ret;
-      }
-    }
-    ret = new BufferedImageGraphicsConfig(bImg, null);
-    if (type > 0 && type < numconfigs) {
-      configs[type] = ret;
-    }
-    return ret;
-  }
-
   /**
    * Return the graphics device associated with this configuration.
    */

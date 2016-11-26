@@ -67,7 +67,6 @@ public class IntegerComponentRaster extends SunWritableRaster {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    NativeLibLoader.loadLibraries();
   }
 
   /**
@@ -117,25 +116,6 @@ public class IntegerComponentRaster extends SunWritableRaster {
   public IntegerComponentRaster(SampleModel sampleModel, Point origin) {
     this(sampleModel,
         sampleModel.createDataBuffer(),
-        new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
-        origin,
-        null);
-  }
-
-  /**
-   * Constructs a IntegerComponentRaster with the given SampleModel
-   * and DataBuffer.  The Raster's upper left corner is origin and
-   * it is the same sizes the SampleModel.  The DataBuffer is not
-   * initialized and must be a DataBufferInt compatible with SampleModel.
-   * SampleModel must be of type SinglePixelPackedSampleModel.
-   *
-   * @param sampleModel The SampleModel that specifies the layout.
-   * @param dataBuffer  The DataBufferInt that contains the image data.
-   * @param origin      The Point that specifies the origin.
-   */
-  public IntegerComponentRaster(SampleModel sampleModel, DataBuffer dataBuffer, Point origin) {
-    this(sampleModel,
-        dataBuffer,
         new Rectangle(origin.x, origin.y, sampleModel.getWidth(), sampleModel.getHeight()),
         origin,
         null);
