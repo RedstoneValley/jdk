@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -57,7 +58,7 @@ public class SkinJobGraphicsEnvironment extends GraphicsEnvironment {
 
   @Override
   public Graphics2D createGraphics(BufferedImage img) {
-    return new SkinJobGraphics(SkinJobUtil.asAndroidBitmap(img));
+    return new SkinJobGraphics(SkinJobUtil.asAndroidBitmap((Image) img));
   }
 
   @Override

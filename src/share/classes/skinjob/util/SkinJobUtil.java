@@ -9,12 +9,14 @@ import android.view.Window;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import skinjob.internal.SkinJobAndroidBitmapWrapper;
+import skinjob.internal.SkinJobBufferedImage;
 
 import static java.awt.peer.ComponentPeer.SET_BOUNDS;
 import static java.awt.peer.ComponentPeer.SET_LOCATION;
@@ -100,11 +102,15 @@ public final class SkinJobUtil {
   }
 
   public static Bitmap asAndroidBitmap(RenderedImage image) {
-    if (image instanceof SkinJobAndroidBitmapWrapper) {
-      return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
+    if (image instanceof Image) {
+      return asAndroidBitmap((Image) image);
     } else {
-      // TODO
-      return null;
+      Raster raster = image.getData();
+      int width = image.getWidth();
+      int height = image.getHeight();
+      SkinJobBufferedImage buffered = new SkinJobBufferedImage(width, height);
+      buffered.setData(raster);
+      return buffered.sjGetAndroidBitmap();
     }
   }
 
