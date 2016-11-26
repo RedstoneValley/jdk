@@ -67,7 +67,7 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   }
 
   protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
-    throw new UnsupportedOperationException();
+    // No-op if the subclass can't implement.
   }
 
   @Override
