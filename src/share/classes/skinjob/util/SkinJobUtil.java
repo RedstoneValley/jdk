@@ -95,22 +95,28 @@ public final class SkinJobUtil {
   public static Bitmap asAndroidBitmap(Image image) {
     if (image instanceof SkinJobAndroidBitmapWrapper) {
       return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
+    } else if (image instanceof RenderedImage) {
+      return copyToAndroidBitmap((RenderedImage) image);
     } else {
       // TODO
       return null;
     }
   }
 
+  private static Bitmap copyToAndroidBitmap(RenderedImage image) {
+    Raster raster = image.getData();
+    int width = image.getWidth();
+    int height = image.getHeight();
+    SkinJobBufferedImage buffered = new SkinJobBufferedImage(width, height);
+    buffered.setData(raster);
+    return buffered.sjGetAndroidBitmap();
+  }
+
   public static Bitmap asAndroidBitmap(RenderedImage image) {
     if (image instanceof Image) {
       return asAndroidBitmap((Image) image);
     } else {
-      Raster raster = image.getData();
-      int width = image.getWidth();
-      int height = image.getHeight();
-      SkinJobBufferedImage buffered = new SkinJobBufferedImage(width, height);
-      buffered.setData(raster);
-      return buffered.sjGetAndroidBitmap();
+      return copyToAndroidBitmap(image);
     }
   }
 

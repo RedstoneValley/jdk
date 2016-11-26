@@ -275,12 +275,15 @@ public class SkinJobGraphics extends Graphics2D {
 
     @Override
     public boolean drawImage(Image img, int x, int y, Color bgcolor, ImageObserver observer) {
-        CancelableImageObserver wrapperObserver = new CancelableImageObserver() {
+        CancelableImageObserver wrapperObserver = new CancelableImageObserver(observer) {
             @Override
             public boolean imageUpdateInternal(
                     Image img_, int infoflags, int x_, int y_, int width, int height) {
+                if (width <= 0 || height <= 0) {
+                    return false;
+                }
                 drawImage(img, x, y, bgcolor, observer);
-                return false;
+                return true;
             }
         };
         int width = img.getWidth(wrapperObserver);
@@ -310,7 +313,7 @@ public class SkinJobGraphics extends Graphics2D {
         }
         combinedTransform.translate(x, y);
 
-        CancelableImageObserver wrapperObserver = new CancelableImageObserver() {
+        CancelableImageObserver wrapperObserver = new CancelableImageObserver(observer) {
             @Override
             public boolean imageUpdateInternal(
                     Image img_, int infoflags, int x_, int y_, int origWidth, int origHeight) {
@@ -675,12 +678,15 @@ public class SkinJobGraphics extends Graphics2D {
 
     private abstract static class CancelableImageObserver implements ImageObserver {
         private final AtomicBoolean canceled = new AtomicBoolean(false);
+        private volatile ImageObserver innerObserver;
 
-        CancelableImageObserver() {
+        CancelableImageObserver(ImageObserver innerObserver) {
+            this.innerObserver = innerObserver;
         }
 
         public void cancel() {
             canceled.lazySet(true);
+            innerObserver = null;
         }
 
         public abstract boolean imageUpdateInternal(
@@ -689,7 +695,19 @@ public class SkinJobGraphics extends Graphics2D {
         @Override
         public boolean imageUpdate(
                 Image img, int infoflags, int x, int y, int width, int height) {
-            return canceled.get() ? false : imageUpdateInternal(img, infoflags, x, y, width, height);
+            boolean drawn = false;
+            if (!canceled.get()) {
+                drawn = imageUpdateInternal(img, infoflags, x, y, width, height);
+            }
+            ImageObserver thisInnerObserver = innerObserver;
+            if (thisInnerObserver != null) {
+                if (drawn) {
+                    cancel(); // No longer need to observe this image
+                    infoflags |= ALLBITS;
+                }
+                return thisInnerObserver.imageUpdate(img, infoflags, x, y, width, height);
+            }
+            return false;
         }
     }
 }

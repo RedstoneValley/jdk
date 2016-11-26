@@ -8,10 +8,9 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="toAndroidBitmap(RenderedImage)">
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Implement toAndroidBitmap(RenderedImage) in terms of toAndroidBitmap(Image) and SkinJobBufferedImage.setData(Raster)">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
     </list>
     <ignored path="skinjob.iws" />
@@ -54,7 +53,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobBufferedImage.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SkinJobBufferedImage.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="527">
@@ -64,11 +63,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobUtil.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SkinJobUtil.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="958">
-              <caret line="112" column="43" selection-start-line="112" selection-start-column="43" selection-end-line="112" selection-end-column="43" />
+            <state relative-caret-position="741">
+              <caret line="102" column="5" selection-start-line="102" selection-start-column="5" selection-end-line="102" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -89,18 +88,21 @@
       <file leaf-file-name="SkinJobGraphics.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1288">
-              <caret line="382" column="46" selection-start-line="382" selection-start-column="46" selection-end-line="382" selection-end-column="46" />
-              <folding />
+            <state relative-caret-position="1084">
+              <caret line="315" column="86" selection-start-line="315" selection-start-column="86" selection-end-line="315" selection-end-column="86" />
+              <folding>
+                <element signature="e#21786#21787#0" expanded="true" />
+                <element signature="e#21844#21845#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ImageOutputStream.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/datatransfer/ImageOutputStream.java">
+      <file leaf-file-name="ImageObserver.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/ImageObserver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="17" column="30" selection-start-line="17" selection-start-column="30" selection-end-line="17" selection-end-column="30" />
+            <state relative-caret-position="1488">
+              <caret line="92" column="13" selection-start-line="92" selection-start-column="6" selection-end-line="92" selection-end-column="13" />
               <folding />
             </state>
           </provider>
@@ -224,10 +226,10 @@
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobWindowPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobComponentPeer.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobComponentPeerForView.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobBufferedImage.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
       </list>
     </option>
   </component>
@@ -1005,7 +1007,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480178381154</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="Implement toAndroidBitmap(RenderedImage) in terms of toAndroidBitmap(Image) and SkinJobBufferedImage.setData(Raster)">
+      <created>1480178914351</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1480178914351</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1019,7 +1028,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-11" y="-11" width="3862" height="2126" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37539598" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1034,7 +1043,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18869908" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18869908" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2655755" sideWeight="0.44151044" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18344283" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -1094,7 +1103,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Fix SkinJobCanvasPeer to use a View, since a java.awt.Canvas is defined as being on a screen. Rewrite getAppropriateGraphicsConfiguration to ensure that it returns a SkinJobGraphicsConfiguration for the corresponding screen. Pull out Shape boolean-operation stubs into a SkinJobGeometry class." />
     <MESSAGE value="Remove more dead code." />
     <MESSAGE value="Remove more dead code; implement some font-related methods." />
     <MESSAGE value="Implement TextLineComponent.subset; perform various refactorings." />
@@ -1119,7 +1127,8 @@
     <MESSAGE value="Consolidate implementations of ContainerPeer. Implement some bounds-related methods in SkinJobWindowPeer." />
     <MESSAGE value="Add TODO to apply transform in more methods of SkinJobGraphics" />
     <MESSAGE value="toAndroidBitmap(RenderedImage)" />
-    <option name="LAST_COMMIT_MESSAGE" value="toAndroidBitmap(RenderedImage)" />
+    <MESSAGE value="Implement toAndroidBitmap(RenderedImage) in terms of toAndroidBitmap(Image) and SkinJobBufferedImage.setData(Raster)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement toAndroidBitmap(RenderedImage) in terms of toAndroidBitmap(Image) and SkinJobBufferedImage.setData(Raster)" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1147,20 +1156,18 @@
           <properties />
           <option name="timeStamp" value="7" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java</url>
+          <line>687</line>
+          <properties />
+          <option name="timeStamp" value="11" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="11" />
+      <option name="time" value="12" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PaintCallback.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PaintHeavyweightComponentsCallback.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="217">
@@ -1538,14 +1545,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1288">
-          <caret line="382" column="46" selection-start-line="382" selection-start-column="46" selection-end-line="382" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/BufferedImage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="661">
@@ -1565,16 +1564,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="958">
-          <caret line="112" column="43" selection-start-line="112" selection-start-column="43" selection-end-line="112" selection-end-column="43" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphicsEnvironment.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="380">
@@ -1588,6 +1577,35 @@
         <state relative-caret-position="527">
           <caret line="19" column="84" selection-start-line="19" selection-start-column="84" selection-end-line="19" selection-end-column="84" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/image/ImageObserver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1488">
+          <caret line="92" column="13" selection-start-line="92" selection-start-column="6" selection-end-line="92" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1084">
+          <caret line="315" column="86" selection-start-line="315" selection-start-column="86" selection-end-line="315" selection-end-column="86" />
+          <folding>
+            <element signature="e#21786#21787#0" expanded="true" />
+            <element signature="e#21844#21845#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="741">
+          <caret line="102" column="5" selection-start-line="102" selection-start-column="5" selection-end-line="102" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
