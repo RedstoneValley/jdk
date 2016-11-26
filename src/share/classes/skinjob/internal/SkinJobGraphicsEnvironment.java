@@ -3,6 +3,7 @@ package skinjob.internal;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.view.Display;
+
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -12,6 +13,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.Locale;
+
+import skinjob.util.SkinJobUtil;
 import sun.font.FontManager;
 
 /**
@@ -54,8 +57,7 @@ public class SkinJobGraphicsEnvironment extends GraphicsEnvironment {
 
   @Override
   public Graphics2D createGraphics(BufferedImage img) {
-    // TODO
-    return null;
+    return new SkinJobGraphics(SkinJobUtil.awtImageToAndroidBitmap(img));
   }
 
   @Override

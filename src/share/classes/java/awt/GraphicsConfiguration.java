@@ -32,6 +32,8 @@ import java.awt.image.ColorModel;
 import java.awt.image.VolatileImage;
 import java.awt.image.WritableRaster;
 
+import skinjob.internal.SkinJobVolatileImage;
+
 /**
  * The {@code GraphicsConfiguration} class describes the
  * characteristics of a graphics destination such as a printer or monitor.
@@ -298,8 +300,7 @@ public abstract class GraphicsConfiguration {
    */
   public VolatileImage createCompatibleVolatileImage(
       int width, int height, ImageCapabilities caps, int transparency) throws AWTException {
-    // TODO
-    return null;
+    return new SkinJobVolatileImage(width, height, caps, transparency);
   }
 
   /**

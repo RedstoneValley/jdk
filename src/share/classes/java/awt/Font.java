@@ -1193,8 +1193,8 @@ public class Font implements Serializable {
     if (l == null) {
       throw new NullPointerException("null locale doesn't mean default");
     }
-    // TODO
-    return "(Font with unknown name)";
+    // TODO i18n: Can a localized name be obtained?
+    return name;
   }
 
   /**
@@ -1258,8 +1258,15 @@ public class Font implements Serializable {
     if (l == null) {
       throw new NullPointerException("null locale doesn't mean default");
     }
-    // TODO i18n: Localize?
-    return name;
+    StringBuilder fontName = new StringBuilder(getFamily(l));
+    // TODO i18n: Can "Bold" and "Italic" be obtained in localized form?
+    if ((style & BOLD) != 0) {
+      fontName.append(" Bold");
+    }
+    if ((style & ITALIC) != 0) {
+      fontName.append(" Italic");
+    }
+    return fontName.toString();
   }
 
   /**

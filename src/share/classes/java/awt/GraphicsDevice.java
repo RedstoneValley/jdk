@@ -26,7 +26,9 @@
 package java.awt;
 
 import android.os.Build;
+
 import java.awt.image.ColorModel;
+
 import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
@@ -128,8 +130,8 @@ public abstract class GraphicsDevice {
    * translucency (due to the bugs in the windowing system).
    */
   static boolean isWindowOpacitySupported() {
-    // TODO
-    return false;
+    // Always true on Android
+    return true;
   }
 
   /*
@@ -535,8 +537,8 @@ public abstract class GraphicsDevice {
   }
 
   boolean isWindowPerpixelTranslucencySupported() {
-    // TODO
-    return false;
+    // Always true on Android
+    return true;
   }
 
   GraphicsConfiguration getTranslucencyCapableGC() {

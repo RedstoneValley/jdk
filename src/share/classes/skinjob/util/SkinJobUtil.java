@@ -12,11 +12,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
+import skinjob.internal.SkinJobAndroidBitmapWrapper;
+
 /**
  * Miscellaneous utility methods.
  */
 public final class SkinJobUtil {
-  // TODO: Can this class be gotten at through the actual API?
   public static final Constructor<? extends Window> ANDROID_WINDOW_IMPL_CTOR;
   
   static {
@@ -84,7 +85,11 @@ public final class SkinJobUtil {
   }
 
   public static Bitmap awtImageToAndroidBitmap(Image image) {
-    // TODO
-    return null;
+    if (image instanceof SkinJobAndroidBitmapWrapper) {
+      return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
+    } else {
+      // TODO
+      return null;
+    }
   }
 }

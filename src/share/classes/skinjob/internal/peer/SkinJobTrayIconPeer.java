@@ -1,21 +1,24 @@
 package skinjob.internal.peer;
 
-import static android.app.Notification.PRIORITY_DEFAULT;
-import static android.app.Notification.PRIORITY_HIGH;
-import static android.app.Notification.PRIORITY_MAX;
-import static skinjob.util.SkinJobUtil.newAndroidWindow;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.drawable.Icon;
 import android.util.Log;
 import android.view.Window;
+
 import java.awt.Image;
 import java.awt.TrayIcon;
 import java.awt.peer.TrayIconPeer;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import skinjob.SkinJobGlobals;
 import skinjob.util.SkinJobUtil;
+
+import static android.app.Notification.PRIORITY_DEFAULT;
+import static android.app.Notification.PRIORITY_HIGH;
+import static android.app.Notification.PRIORITY_MAX;
+import static skinjob.util.SkinJobUtil.newAndroidWindow;
 
 /**
  * Created by cryoc on 2016-10-21.
@@ -23,22 +26,11 @@ import skinjob.util.SkinJobUtil;
 public class SkinJobTrayIconPeer implements TrayIconPeer {
   private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
   private static final String TAG = "SkinJobTrayIconPeer";
-  private static final int ERROR_ICON;
 
-  static {
-    int errorIcon;
-    try {
-      // Use a ! in octagon, if available
-      errorIcon = Class
-          .forName("com.android.settings.R$drawable")
-          .getField("ic_print_error")
-          .getInt(null);
-    } catch (ReflectiveOperationException e) {
-      // Fall back to a ! in triangle
-      errorIcon = android.R.drawable.stat_notify_error;
-    }
-    ERROR_ICON = errorIcon;
-  }
+  /**
+   * TODO: Make this a copy of https://material.io/icons/#ic_error
+   */
+  private static final Icon ERROR_ICON = new Icon();
 
   private final TrayIcon thisTrayIcon;
   private final Notification.Builder notificationBuilder;

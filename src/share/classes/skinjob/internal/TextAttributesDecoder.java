@@ -14,6 +14,7 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
+
 import java.awt.Font;
 import java.awt.font.NumericShaper;
 import java.awt.font.TextAttribute;
@@ -21,6 +22,7 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.util.ArrayList;
 import java.util.Map;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -143,7 +145,6 @@ public class TextAttributesDecoder {
     attributeSpans.add(new BackgroundColorSpan(bgColor));
     attributeSpans.add(new TypefaceSpan(fontFamily));
     attributeSpans.add(new StyleSpan(fontStyle));
-    int length = spannableStringBuilder.length();
     for (Object span : attributeSpans) {
       spannableStringBuilder.setSpan(span, start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
     }
