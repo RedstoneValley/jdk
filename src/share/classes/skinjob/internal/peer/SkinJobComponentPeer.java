@@ -12,6 +12,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
+import java.awt.ImageCapabilities;
 import java.awt.Shape;
 import java.awt.event.PaintEvent;
 import java.awt.image.ColorModel;
@@ -21,8 +22,12 @@ import java.awt.image.VolatileImage;
 import java.awt.peer.ContainerPeer;
 
 import skinjob.SkinJobGlobals;
+import skinjob.internal.SkinJobBufferedImage;
 import skinjob.internal.SkinJobFontMetrics;
 import skinjob.internal.SkinJobGraphics;
+import skinjob.internal.SkinJobVolatileImage;
+
+import static java.awt.Transparency.TRANSLUCENT;
 
 /**
  * Created by cryoc on 2016-10-10.
@@ -108,14 +113,12 @@ public abstract class SkinJobComponentPeer<T> implements ContainerPeer {
 
   @Override
   public Image createImage(int width, int height) {
-    // TODO
-    return null;
+    return new SkinJobBufferedImage(width, height);
   }
 
   @Override
   public VolatileImage createVolatileImage(int width, int height) {
-    // TODO
-    return null;
+    return new SkinJobVolatileImage(width, height, new ImageCapabilities(true), TRANSLUCENT);
   }
 
   @Override

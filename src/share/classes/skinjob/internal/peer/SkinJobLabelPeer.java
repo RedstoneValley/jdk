@@ -1,7 +1,9 @@
 package skinjob.internal.peer;
 
+import android.text.SpannableStringBuilder;
 import android.view.Gravity;
 import android.widget.TextView;
+
 import java.awt.Label;
 import java.awt.peer.LabelPeer;
 
@@ -15,7 +17,12 @@ public class SkinJobLabelPeer extends SkinJobComponentPeerForView<TextView> impl
 
   @Override
   public void setText(String label) {
-    androidWidget.setText(label);
+    setLabel(label);
+  }
+
+  @Override
+  protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
+    androidWidget.setText(spannableStringBuilder);
   }
 
   @Override

@@ -1,6 +1,8 @@
 package skinjob.internal.peer;
 
+import android.text.SpannableStringBuilder;
 import android.widget.Button;
+
 import java.awt.peer.ButtonPeer;
 
 /**
@@ -17,7 +19,7 @@ public class SkinJobButtonPeer extends SkinJobComponentPeerForView<android.widge
   }
 
   @Override
-  public void setLabel(String label) {
-    androidWidget.setText(label);
+  protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
+    androidWidget.setText(spannableStringBuilder);
   }
 }

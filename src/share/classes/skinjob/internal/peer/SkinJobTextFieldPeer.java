@@ -1,8 +1,10 @@
 package skinjob.internal.peer;
 
+import android.text.SpannableStringBuilder;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.EditText;
+
 import java.awt.Dimension;
 import java.awt.TextArea;
 import java.awt.TextField;
@@ -58,8 +60,13 @@ public class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText>
   }
 
   @Override
+  protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
+    androidWidget.setText(spannableStringBuilder);
+  }
+
+  @Override
   public void setText(String text) {
-    androidWidget.setText(text);
+    setLabel(text);
   }
 
   @Override

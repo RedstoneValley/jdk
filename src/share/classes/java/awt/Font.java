@@ -28,6 +28,7 @@ package java.awt;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.text.style.StyleSpan;
 
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
@@ -51,6 +52,7 @@ import java.lang.Character.UnicodeScript;
 import java.lang.ref.SoftReference;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.CharacterIterator;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -2408,5 +2410,9 @@ public class Font implements Serializable {
 
   public Paint sjGetAndroidPaint() {
     return androidPaint;
+  }
+
+  public Iterable<Object> sjGetAndroidSpans() {
+    return Arrays.asList(androidTypeface, new StyleSpan(getStyle()));
   }
 }

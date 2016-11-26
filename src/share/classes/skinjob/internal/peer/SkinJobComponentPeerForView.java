@@ -1,6 +1,8 @@
 package skinjob.internal.peer;
 
 import android.content.res.ColorStateList;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.util.DisplayMetrics;
 import android.view.View;
 
@@ -26,6 +28,7 @@ import sun.awt.CausedFocusEvent.Cause;
 public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJobComponentPeer<T> {
 
   protected final Graphics graphics;
+  protected CharSequence text;
 
   public SkinJobComponentPeerForView(T androidComponent) {
     this(androidComponent, SkinJobGraphicsConfiguration.get(androidComponent.getDisplay()));
@@ -48,8 +51,23 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   }
 
   @Override
-  public void setFont(Font f) {
+  public synchronized void setFont(Font f) {
     super.setFont(f);
+    updateStyledText();
+  }
+
+  protected synchronized void updateStyledText() {
+    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(text);
+    if (font != null) {
+      for (Object span : font.sjGetAndroidSpans()) {
+        spannableStringBuilder.setSpan(span, 0, text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+      }
+    }
+    setTextInternal(spannableStringBuilder);
+  }
+
+  protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -145,5 +163,10 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   @Override
   public void layout() {
     endLayout();
+  }
+
+  public synchronized void setLabel(String text) {
+    this.text = text;
+    updateStyledText();
   }
 }

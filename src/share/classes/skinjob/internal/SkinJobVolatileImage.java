@@ -1,7 +1,6 @@
 package skinjob.internal;
 
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
@@ -9,6 +8,8 @@ import java.awt.ImageCapabilities;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.VolatileImage;
+
+import static android.graphics.Bitmap.Config.ARGB_8888;
 
 /**
  * Created by chris on 11/25/2016.
@@ -26,7 +27,7 @@ public class SkinJobVolatileImage extends VolatileImage implements SkinJobAndroi
         this.height = height;
         this.caps = caps;
         this.transparency = transparency;
-        androidBitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+        androidBitmap = Bitmap.createBitmap(width, height, ARGB_8888);
     }
 
     @Override

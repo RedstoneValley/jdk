@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.Window;
 
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
@@ -17,6 +18,7 @@ import java.util.Arrays;
 
 import skinjob.internal.SkinJobAndroidBitmapWrapper;
 import skinjob.internal.SkinJobBufferedImage;
+import skinjob.internal.SkinJobGraphics;
 
 import static java.awt.peer.ComponentPeer.SET_BOUNDS;
 import static java.awt.peer.ComponentPeer.SET_LOCATION;
@@ -98,8 +100,12 @@ public final class SkinJobUtil {
     } else if (image instanceof RenderedImage) {
       return copyToAndroidBitmap((RenderedImage) image);
     } else {
-      // TODO
-      return null;
+      Graphics graphics = image.getGraphics();
+      if (graphics instanceof SkinJobGraphics) {
+        return ((SkinJobGraphics) graphics).sjGetAndroidBitmap();
+      } else {
+        throw new UnsupportedOperationException("Unable to read this Image's data");
+      }
     }
   }
 

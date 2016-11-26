@@ -94,6 +94,10 @@ public class SkinJobGraphics extends Graphics2D {
         clip = new Rectangle2D.Double(0, 0, androidBitmap.getWidth(), androidBitmap.getHeight());
     }
 
+    public Bitmap sjGetAndroidBitmap() {
+        return bitmap;
+    }
+
     /**
      * See Javadoc for {@link AffineTransform#getDeterminant()} for underlying matrix.
      */

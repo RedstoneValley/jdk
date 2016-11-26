@@ -1,25 +1,29 @@
 package skinjob.internal.peer;
 
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+
 import java.awt.Font;
 import java.awt.MenuItem;
 import java.awt.peer.CheckboxMenuItemPeer;
-import skinjob.SkinJobGlobals;
-import skinjob.internal.TextAttributesDecoder;
 
 /**
  * SkinJobGlobals Android implementation of {@link CheckboxMenuItemPeer}.
  */
 public class SkinJobMenuItemPeer implements CheckboxMenuItemPeer {
   protected final android.view.MenuItem androidMenuItem;
+  protected Font font;
+  protected CharSequence label;
 
   public SkinJobMenuItemPeer(MenuItem target) {
     androidMenuItem = target.androidMenuItem;
+    label = androidMenuItem.getTitle();
   }
 
   @Override
-  public void setLabel(String label) {
+  public synchronized void setLabel(String label) {
     androidMenuItem.setTitle(label);
+    updateText();
   }
 
   @Override
@@ -32,15 +36,20 @@ public class SkinJobMenuItemPeer implements CheckboxMenuItemPeer {
     // No-op.
   }
 
+  protected synchronized void updateText() {
+    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(label);
+    if (font != null) {
+      for (Object span : font.sjGetAndroidSpans()) {
+        spannableStringBuilder.setSpan(span, 0, label.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+      }
+    }
+    androidMenuItem.setTitle(spannableStringBuilder);
+  }
+
   @Override
-  public void setFont(Font f) {
-    SpannableStringBuilder decoratedTitle = new SpannableStringBuilder(androidMenuItem
-        .getTitle()
-        .toString());
-    new TextAttributesDecoder(SkinJobGlobals.defaultForegroundColor)
-        .addAttributes(f.getAttributes())
-        .applyTo(decoratedTitle, 0, decoratedTitle.length());
-    androidMenuItem.setTitle(decoratedTitle);
+  public synchronized void setFont(Font f) {
+    font = f;
+    updateText();
   }
 
   @Override

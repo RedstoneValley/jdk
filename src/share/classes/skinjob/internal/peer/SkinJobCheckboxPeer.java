@@ -1,6 +1,8 @@
 package skinjob.internal.peer;
 
+import android.text.SpannableStringBuilder;
 import android.widget.CompoundButton;
+
 import java.awt.Checkbox;
 import java.awt.CheckboxGroup;
 import java.awt.peer.CheckboxPeer;
@@ -37,7 +39,7 @@ public class SkinJobCheckboxPeer extends SkinJobComponentPeerForView<CompoundBut
   }
 
   @Override
-  public void setLabel(String label) {
-    androidWidget.setText(label);
+  protected void setTextInternal(SpannableStringBuilder spannableStringBuilder) {
+    androidWidget.setText(spannableStringBuilder);
   }
 }
