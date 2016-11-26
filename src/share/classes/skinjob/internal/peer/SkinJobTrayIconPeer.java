@@ -3,7 +3,6 @@ package skinjob.internal.peer;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.graphics.drawable.Icon;
 import android.util.Log;
 import android.view.Window;
 
@@ -26,11 +25,6 @@ import static skinjob.util.SkinJobUtil.newAndroidWindow;
 public class SkinJobTrayIconPeer implements TrayIconPeer {
   private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
   private static final String TAG = "SkinJobTrayIconPeer";
-
-  /**
-   * TODO: Make this a copy of https://material.io/icons/#ic_error
-   */
-  private static final Icon ERROR_ICON = new Icon();
 
   private final TrayIcon thisTrayIcon;
   private final Notification.Builder notificationBuilder;
@@ -71,31 +65,26 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
   public void displayMessage(String caption, String text, String messageType) {
     notificationBuilder.setContentTitle(caption);
     notificationBuilder.setContentText(text);
-    switch (messageType) {
-      case "ERROR":
-        notificationBuilder.setPriority(PRIORITY_MAX);
-        break;
-      case "WARNING":
-        notificationBuilder.setPriority(PRIORITY_HIGH);
-        break;
-      default:
-        notificationBuilder.setPriority(PRIORITY_DEFAULT);
-    }
     int icon;
     // Pick default icon (will override in updateImage if an icon's been set)
     switch (messageType) {
       case "ERROR":
-        notificationBuilder.setSmallIcon(ERROR_ICON);
+        notificationBuilder.setPriority(PRIORITY_MAX);
+        // TODO: Get a copy of https://material.io/icons/#ic_error to use here
+        notificationBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
         break;
       case "WARNING":
+        notificationBuilder.setPriority(PRIORITY_HIGH);
         // ! in triangle
         notificationBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
         break;
       case "INFO":
+        notificationBuilder.setPriority(PRIORITY_DEFAULT);
         // i in circle
         notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
         break;
       case "NONE":
+        notificationBuilder.setPriority(PRIORITY_DEFAULT);
         notificationBuilder.setSmallIcon(null);
         break;
       default:

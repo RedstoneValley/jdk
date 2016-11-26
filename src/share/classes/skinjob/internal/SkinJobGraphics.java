@@ -99,8 +99,8 @@ public class SkinJobGraphics extends Graphics2D {
     private static Matrix transformToMatrix(AffineTransform transform) {
         Matrix matrix = new Matrix();
         matrix.setValues(new float[]{
-                transform.getScaleX(), transform.getShearX(), transform.getTranslateX(),
-                transform.getShearY(), transform.getScaleY(), transform.getTranslateY(),
+                (float) transform.getScaleX(), (float) transform.getShearX(), (float) transform.getTranslateX(),
+                (float) transform.getShearY(), (float) transform.getScaleY(), (float) transform.getTranslateY(),
                 0.0f, 0.0f, 1.0f});
         return matrix;
     }
