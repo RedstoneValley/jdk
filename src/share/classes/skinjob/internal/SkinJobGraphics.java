@@ -373,10 +373,14 @@ public class SkinJobGraphics extends Graphics2D {
         fill(stroke.createStrokedShape(s));
     }
 
+    private synchronized void drawBitmap(Bitmap bitmap, AffineTransform transform) {
+        canvas.drawBitmap(bitmap, transformToMatrix(transform), brush);
+    }
+
     @Override
-    public synchronized boolean drawImage(
+    public boolean drawImage(
             Image img, AffineTransform xform, ImageObserver obs) {
-        canvas.drawBitmap(asAndroidBitmap(img), transformToMatrix(xform), brush);
+        drawBitmap(asAndroidBitmap(img), xform);
         return true;
     }
 
@@ -393,7 +397,7 @@ public class SkinJobGraphics extends Graphics2D {
 
     @Override
     public void drawRenderedImage(RenderedImage img, AffineTransform xform) {
-        // TODO
+        drawBitmap(asAndroidBitmap(img), xform);
     }
 
     @Override

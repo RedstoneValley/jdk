@@ -9,6 +9,7 @@ import android.view.Window;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.RenderedImage;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -90,6 +91,15 @@ public final class SkinJobUtil {
   }
 
   public static Bitmap asAndroidBitmap(Image image) {
+    if (image instanceof SkinJobAndroidBitmapWrapper) {
+      return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
+    } else {
+      // TODO
+      return null;
+    }
+  }
+
+  public static Bitmap asAndroidBitmap(RenderedImage image) {
     if (image instanceof SkinJobAndroidBitmapWrapper) {
       return ((SkinJobAndroidBitmapWrapper) image).sjGetAndroidBitmap();
     } else {
