@@ -8,9 +8,10 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="setFont is now a no-op on elements without a stylable label.">
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Tentatively fix a label alignment bug.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobLabelPeer.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobLabelPeer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -72,15 +73,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobLabelPeer.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SkinJobLabelPeer.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobLabelPeer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="682">
-              <caret line="30" column="62" selection-start-line="30" selection-start-column="62" selection-end-line="30" selection-end-column="62" />
+            <state relative-caret-position="62">
+              <caret line="8" column="31" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
               <folding>
                 <element signature="e#402#403#0" expanded="true" />
                 <element signature="e#452#453#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TextLine.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-4839">
+              <caret line="651" column="9" selection-start-line="651" selection-start-column="9" selection-end-line="651" selection-end-column="9" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -136,21 +147,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PeerPaintCallback.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/graphicscallback/PeerPaintCallback.java">
+      <file leaf-file-name="BasicStroke.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="651">
-              <caret line="26" column="18" selection-start-line="26" selection-start-column="18" selection-end-line="26" selection-end-column="18" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ComponentPeer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/peer/ComponentPeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="382">
-              <caret line="169" column="7" selection-start-line="169" selection-start-column="7" selection-end-line="169" selection-end-column="7" />
+            <state relative-caret-position="1488">
+              <caret line="333" column="124" selection-start-line="333" selection-start-column="124" selection-end-line="333" selection-end-column="124" />
               <folding />
             </state>
           </provider>
@@ -187,8 +188,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/share/classes/sun/java2d/StateTrackableDelegate.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/sun/java2d/StateTrackable.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/font/Font2D.java" />
         <option value="$PROJECT_DIR$/src/share/classes/java/awt/font/GlyphVector.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/font/StandardGlyphVector.java" />
@@ -238,6 +237,8 @@
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/SkinJobGraphics.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobComponentPeerForView.java" />
         <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobLabelPeer.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java" />
       </list>
     </option>
   </component>
@@ -805,13 +806,6 @@
       <option name="presentableId" value="Default" />
       <updated>1476059393301</updated>
     </task>
-    <task id="LOCAL-00003" summary="Stub out remaining peer interfaces. Extract SkinJobTextAttributesDecoder, which turns out to have uses outside SkinJobGraphics. Mostly complete implementation of SkinJobGraphics.">
-      <created>1476244420728</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1476244420728</updated>
-    </task>
     <task id="LOCAL-00004" summary="Apply a formatting standard. Purge unused imports.">
       <created>1476249768982</created>
       <option name="number" value="00004" />
@@ -1148,7 +1142,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480186683541</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="Tentatively fix a label alignment bug.">
+      <created>1480186946732</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1480186946732</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1164,13 +1165,13 @@
     <frame x="-11" y="-11" width="3862" height="2126" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37539598" sideWeight="0.48640084" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37539598" sideWeight="0.48541394" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.37856388" sideWeight="0.46025878" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33137986" sideWeight="0.55848956" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37539598" sideWeight="0.5145861" order="11" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4503696" sideWeight="0.49303547" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -1237,7 +1238,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="equals and hashCode for GraphicComponent and TextLineComponent" />
     <MESSAGE value="Attempt to display the file picker for FileDialog. Implement dashes and XOR mode in SkinJobGraphics." />
     <MESSAGE value="Implement SkinJobTextFieldPeer.setEchoChar." />
     <MESSAGE value="More details on design goals." />
@@ -1262,7 +1262,8 @@
     <MESSAGE value="setFont in peer classes now works properly." />
     <MESSAGE value="Implement SkinJobWindowPeer.paint(Graphics)" />
     <MESSAGE value="setFont is now a no-op on elements without a stylable label." />
-    <option name="LAST_COMMIT_MESSAGE" value="setFont is now a no-op on elements without a stylable label." />
+    <MESSAGE value="Tentatively fix a label alignment bug." />
+    <option name="LAST_COMMIT_MESSAGE" value="Tentatively fix a label alignment bug." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1619,22 +1620,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="622" column="7" selection-start-line="622" selection-start-column="7" selection-end-line="622" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="382">
-          <caret line="301" column="7" selection-start-line="301" selection-start-column="7" selection-end-line="301" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/FileDialog.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-4919">
@@ -1731,12 +1716,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/peer/SkinJobLabelPeer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="682">
-          <caret line="30" column="62" selection-start-line="30" selection-start-column="62" selection-end-line="30" selection-end-column="62" />
+        <state relative-caret-position="62">
+          <caret line="8" column="31" selection-start-line="8" selection-start-column="31" selection-end-line="8" selection-end-column="31" />
           <folding>
             <element signature="e#402#403#0" expanded="true" />
             <element signature="e#452#453#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/font/TextLine.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-4839">
+          <caret line="651" column="9" selection-start-line="651" selection-start-column="9" selection-end-line="651" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1488">
+          <caret line="333" column="124" selection-start-line="333" selection-start-column="124" selection-end-line="333" selection-end-column="124" />
+          <folding />
         </state>
       </provider>
     </entry>

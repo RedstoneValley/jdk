@@ -619,9 +619,94 @@ final class TextLine {
     return advance;
   }
 
-  private static int[] createContiguousOrder(int[] componentOrder) {
-    // TODO
-    return new int[0];
+  /**
+   * Return the inverse position map.  The source array must map one-to-one (each value
+   * is distinct and the values run from zero to the length of the array minus one).
+   * For example, if <code>values[i] = j</code>, then <code>inverse[j] = i</code>.
+   * @param values the source ordering array
+   * @return the inverse array
+   */
+  public static int[] createInverseMap(int[] values) {
+    if (values == null) {
+      return null;
+    }
+
+    int[] result = new int[values.length];
+    for (int i = 0; i < values.length; i++) {
+      result[values[i]] = i;
+    }
+
+    return result;
+  }
+
+
+  /**
+   * Return an array containing contiguous values from 0 to length
+   * having the same ordering as the source array. If this would be
+   * a canonical ltr ordering, return null.  The data in values[] is NOT
+   * required to be a permutation, but elements in values are required
+   * to be distinct.
+   * @param values an array containing the discontiguous values
+   * @return the contiguous values
+   */
+  private static int[] createContiguousOrder(int[] values) {
+    if (values != null) {
+      return computeContiguousOrder(values, 0, values.length);
+    }
+
+    return null;
+  }
+
+  /**
+   * Compute a contiguous order for the range start, limit.
+   */
+  private static int[] computeContiguousOrder(int[] values, int start,
+                                              int limit) {
+
+    int[] result = new int[limit-start];
+    for (int i=0; i < result.length; i++) {
+      result[i] = i + start;
+    }
+
+    // now we'll sort result[], with the following comparison:
+    // result[i] lessthan result[j] iff values[result[i]] < values[result[j]]
+
+    // selection sort for now;  use more elaborate sorts if desired
+    for (int i=0; i < result.length-1; i++) {
+      int minIndex = i;
+      int currentValue = values[result[minIndex]];
+      for (int j=i; j < result.length; j++) {
+        if (values[result[j]] < currentValue) {
+          minIndex = j;
+          currentValue = values[result[minIndex]];
+        }
+      }
+      int temp = result[i];
+      result[i] = result[minIndex];
+      result[minIndex] = temp;
+    }
+
+    // shift result by start:
+    if (start != 0) {
+      for (int i=0; i < result.length; i++) {
+        result[i] -= start;
+      }
+    }
+
+    // next, check for canonical order:
+    int k;
+    for (k=0; k < result.length; k++) {
+      if (result[k] != k) {
+        break;
+      }
+    }
+
+    if (k == result.length) {
+      return null;
+    }
+
+    // now return inverse of result:
+    return createInverseMap(result);
   }
 
   private void checkCtorArgs() {

@@ -25,7 +25,11 @@
 
 package java.awt;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Path2D;
+import java.awt.geom.PathIterator;
 import java.util.Arrays;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -150,6 +154,7 @@ public class BasicStroke implements Stroke {
    * to a distance equal to half of the line width.
    */
   public static final int CAP_SQUARE = 2;
+  private static final int INITIAL_MEDIUM_ARRAY = ;
 
   float width;
 
@@ -290,6 +295,8 @@ public class BasicStroke implements Stroke {
     this(1.0f, CAP_SQUARE, JOIN_MITER, SkinJobGlobals.defaultMiterLimit, null, 0.0f);
   }
 
+  private static volatile Path2D cachedPath2D;
+
   /**
    * Returns a {@code Shape} whose interior defines the
    * stroked outline of a specified {@code Shape}.
@@ -299,8 +306,112 @@ public class BasicStroke implements Stroke {
    */
   @Override
   public Shape createStrokedShape(Shape s) {
-    // TODO: Originally implemented in RenderingEngine.createStrokedShape
-    return null;
+    final Path2D.Float p2d;
+    synchronized (BasicStroke.class) {
+      // initialize a large copyable Path2D to avoid a lot of array growing:
+
+      if (cachedPath2D == null) {
+        cachedPath2D = new Path2D.Float(Path2D.WIND_NON_ZERO,
+                INITIAL_MEDIUM_ARRAY);
+      }
+    }
+    // reset
+    p2d.reset();
+
+    strokeTo(s,
+            null,
+            width,
+            cap,
+            join,
+            miterlimit,
+            dash,
+            dash_phase,
+            p2d);
+
+    // Use Path2D copy constructor (trim)
+    return new Path2D.Float(p2d);
+  }
+
+  // From https://github.com/bourgesl/marlin-renderer/blob/master/src/main/java/org/marlin/pisces/MarlinRenderingEngine.java
+  static void strokeTo(Shape src,
+                      AffineTransform at,
+                      float width,
+                      int caps,
+                      int join,
+                      float miterlimit,
+                      float[] dashes,
+                      float dashphase,
+                       Path2D.Float pc2d) {
+    // We use strokerat and outat so that in Stroker and Dasher we can work only
+    // with the pre-transformation coordinates. This will repeat a lot of
+    // computations done in the path iterator, but the alternative is to
+    // work with transformed paths and compute untransformed coordinates
+    // as needed. This would be faster but I do not think the complexity
+    // of working with both untransformed and transformed coordinates in
+    // the same code is worth it.
+    // However, if a path's width is constant after a transformation,
+    // we can skip all this untransforming.
+
+    // If normalization is off we save some transformations by not
+    // transforming the input to pisces. Instead, we apply the
+    // transformation after the path processing has been done.
+    // We can't do this if normalization is on, because it isn't a good
+    // idea to normalize before the transformation is applied.
+    AffineTransform strokerat = null;
+    AffineTransform outat = null;
+
+    PathIterator pi;
+    int dashLen = -1;
+    boolean recycleDashes = false;
+
+    if (at != null && !at.isIdentity()) {
+      final double a = at.getScaleX();
+      final double b = at.getShearX();
+      final double c = at.getShearY();
+      final double d = at.getScaleY();
+      final double det = a * d - c * b;
+      if (Math.abs(det) <= (2f * Float.MIN_VALUE)) {
+        // this rendering engine takes one dimensional curves and turns
+        // them into 2D shapes by giving them width.
+        // However, if everything is to be passed through a singular
+        // transformation, these 2D shapes will be squashed down to 1D
+        // again so, nothing can be drawn.
+        return;
+      }
+
+    outat = at;
+    pi = src.getPathIterator(null);
+    // outat == at && strokerat == null. This is because if no
+    // normalization is done, we can just apply all our
+    // transformations to stroker's output.
+
+      /* TODO: Convert this part of the code
+    pc2d = rdrCtx.stroker.init(pc2d, width, caps, join, miterlimit);
+
+    if (dashes != null) {
+      if (!recycleDashes) {
+        dashLen = dashes.length;
+      }
+      pc2d = rdrCtx.dasher.init(pc2d, dashes, dashLen, dashphase,
+              recycleDashes);
+    }
+    pc2d = transformerPC2D.inverseDeltaTransformConsumer(pc2d, strokerat);
+    pathTo(rdrCtx, pi, pc2d);
+    */
+
+        /*
+         * Pipeline seems to be:
+         *    shape.getPathIterator
+         * -> NormalizingPathIterator
+         * -> inverseDeltaTransformConsumer
+         * -> Dasher
+         * -> Stroker
+         * -> deltaTransformConsumer OR transformConsumer
+         *
+         * -> CollinearSimplifier to remove redundant segments
+         *
+         * -> pc2d = Renderer (bounding box)
+         */
   }
 
   /**
