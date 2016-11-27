@@ -37,7 +37,6 @@ import java.awt.MenuComponent;
 import java.awt.SplashScreen;
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.event.WindowEvent;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
 import java.net.URL;
@@ -48,7 +47,6 @@ import java.util.WeakHashMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import sun.awt.AWTAccessor.SequencedEventAccessor;
 import sun.awt.image.ByteArrayImageSource;
 import sun.awt.image.FileImageSource;
 import sun.awt.image.ImageRepresentation;
@@ -268,14 +266,6 @@ public final class SunToolkit {
   public static void postEvent(AppContext appContext, AWTEvent event) {
     if (event == null) {
       throw new NullPointerException();
-    }
-
-    SequencedEventAccessor sea = AWTAccessor.getSequencedEventAccessor();
-    if (sea != null && sea.isSequencedEvent(event)) {
-      AWTEvent nested = sea.getNested(event);
-      if (nested.getID() == WindowEvent.WINDOW_LOST_FOCUS && nested instanceof TimedWindowEvent) {
-        TimedWindowEvent twe = (TimedWindowEvent) nested;
-      }
     }
 
     // All events posted via this method are system-generated.

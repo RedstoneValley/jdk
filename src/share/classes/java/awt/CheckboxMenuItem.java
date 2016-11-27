@@ -31,12 +31,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
+
 import javax.accessibility.AccessibleAction;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleValue;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.CheckboxMenuItemAccessor;
 
 /**
  * This class represents a check box that can be included in a menu.
@@ -76,12 +75,6 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable {
   private static int nameCounter;
 
   static {
-    AWTAccessor.setCheckboxMenuItemAccessor(new CheckboxMenuItemAccessor() {
-      @Override
-      public boolean getState(CheckboxMenuItem cmi) {
-        return cmi.state;
-      }
-    });
   }
 
   /*

@@ -31,10 +31,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
+
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.MenuAccessor;
 
 /**
  * A {@code Menu} object is a pull-down menu component
@@ -68,12 +67,6 @@ public class Menu extends MenuItem implements MenuContainer {
   private static int nameCounter;
 
   static {
-    AWTAccessor.setMenuAccessor(new MenuAccessor() {
-      @Override
-      public Vector<MenuComponent> getItems(Menu menu) {
-        return menu.items;
-      }
-    });
   }
 
   /**

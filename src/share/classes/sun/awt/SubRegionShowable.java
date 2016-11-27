@@ -37,13 +37,4 @@ public interface SubRegionShowable {
    * Shows the specific subregion.
    */
   void show(int x1, int y1, int x2, int y2);
-
-  /**
-   * Shows the specified region if the buffer is not lost and the dimensions
-   * of the back-buffer match those of the component.
-   *
-   * @return true if successful
-   */
-  // NOTE: this is invoked by swing on the toolkit thread!
-  boolean showIfNotLost(int x1, int y1, int x2, int y2);
 }

@@ -26,6 +26,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.ComponentEvent;
@@ -43,6 +44,7 @@ import java.security.AccessControlContext;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.EventObject;
+
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.AWTEventAccessor;
 
@@ -204,20 +206,6 @@ public abstract class AWTEvent extends EventObject {
         return ev.isSystemGenerated;
       }
 
-      @Override
-      public AccessControlContext getAccessControlContext(AWTEvent ev) {
-        return ev.getAccessControlContext();
-      }
-
-      @Override
-      public byte[] getBData(AWTEvent ev) {
-        return ev.bdata;
-      }
-
-      @Override
-      public void setBData(AWTEvent ev, byte[] bdata) {
-        ev.bdata = bdata;
-      }
     });
   }
 

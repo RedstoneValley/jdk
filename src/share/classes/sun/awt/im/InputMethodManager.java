@@ -149,13 +149,6 @@ public abstract class InputMethodManager {
   }
 
   /**
-   * Gets a string for the trigger menu item that should be added to
-   * the window manager menu. If no need to display the trigger menu
-   * item, null is returned.
-   */
-  public abstract String getTriggerMenuString();
-
-  /**
    * Notifies InputMethodManager that input method change has been
    * requested by the user. This notification triggers a popup menu
    * for user selection.

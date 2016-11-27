@@ -31,10 +31,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Enumeration;
 import java.util.Vector;
+
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.MenuBarAccessor;
 
 /**
  * The {@code MenuBar} class encapsulates the platform's
@@ -81,17 +80,6 @@ public class MenuBar extends MenuComponent implements MenuContainer {
 
   static {
         /* ensure that the necessary native libraries are loaded */
-    AWTAccessor.setMenuBarAccessor(new MenuBarAccessor() {
-      @Override
-      public Menu getHelpMenu(MenuBar menuBar) {
-        return menuBar.helpMenu;
-      }
-
-      @Override
-      public Vector<Menu> getMenus(MenuBar menuBar) {
-        return menuBar.menus;
-      }
-    });
   }
 
   /**

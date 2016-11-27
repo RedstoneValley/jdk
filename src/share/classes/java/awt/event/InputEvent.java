@@ -29,8 +29,6 @@ import java.awt.Component;
 import java.awt.Event;
 import java.awt.Toolkit;
 import java.util.Arrays;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.InputEventAccessor;
 
 /**
  * The root event class for all component-level input events.
@@ -172,12 +170,6 @@ public abstract class InputEvent extends ComponentEvent {
   static {
         /* ensure that the necessary native libraries are loaded */
     NativeLibLoader.loadLibraries();
-    AWTAccessor.setInputEventAccessor(new InputEventAccessor() {
-      @Override
-      public int[] getButtonDownMasks() {
-        return InputEvent.getButtonDownMasks();
-      }
-    });
   }
 
   /*

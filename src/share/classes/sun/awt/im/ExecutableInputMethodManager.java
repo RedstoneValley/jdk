@@ -45,6 +45,7 @@ import java.util.ServiceLoader;
 import java.util.Vector;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
 import skinjob.SkinJobGlobals;
 import sun.awt.AppContext;
 import sun.awt.InputMethodSupport;
@@ -141,11 +142,6 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     if (eventThrowable != null) {
       throw new InvocationTargetException(eventThrowable);
     }
-  }
-
-  @Override
-  public String getTriggerMenuString() {
-    return triggerMenuString;
   }
 
   @Override

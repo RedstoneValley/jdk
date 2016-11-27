@@ -1,9 +1,14 @@
 package sun.awt.datatransfer;
 
+import android.graphics.Bitmap;
+
 import java.awt.image.RenderedImage;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import skinjob.SkinJobGlobals;
+import skinjob.util.SkinJobUtil;
 
 /**
  * Created by cryoc on 2016-10-17.
@@ -16,7 +21,8 @@ public class ImageOutputStream implements Closeable {
   }
 
   public void write(RenderedImage renderedImage) {
-    // TODO
+    Bitmap bitmap = SkinJobUtil.asAndroidBitmap(renderedImage);
+    bitmap.compress(SkinJobGlobals.imageOutputFormat, SkinJobGlobals.imageQuality, outputStream);
   }
 
   @Override

@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.GraphicsDevice.WindowTranslucency;
 import java.awt.event.ComponentEvent;
@@ -60,10 +61,9 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import skinjob.SkinJobGlobals;
 import skinjob.util.SkinJobUtil;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.WindowAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.SunToolkit;
@@ -183,97 +183,6 @@ public class Window extends Container {
     s = System.getProperty("java.awt.Window.locationByPlatform");
     locationByPlatformProp = Boolean.valueOf(s);
   }
-
-  static {
-    AWTAccessor.setWindowAccessor(new WindowAccessor() {
-      @Override
-      public float getOpacity(Window window) {
-        return window.opacity;
-      }
-
-      @Override
-      public void setOpacity(Window window, float opacity) {
-        window.setOpacity(opacity);
-      }
-
-      @Override
-      public Shape getShape(Window window) {
-        return window.getShape();
-      }
-
-      @Override
-      public void setShape(Window window, Shape shape) {
-        window.setShape(shape);
-      }
-
-      @Override
-      public void setOpaque(Window window, boolean opaque) {
-        Color bg = window.getBackground();
-        if (bg == null) {
-          bg = new Color(0, 0, 0, 0);
-        }
-        window.setBackground(new Color(bg.getRed(), bg.getGreen(), bg.getBlue(), opaque ? 255 : 0));
-      }
-
-      @Override
-      public void updateWindow(Window window) {
-        window.updateWindow();
-      }
-
-      @Override
-      public Dimension getSecurityWarningSize(Window window) {
-        return new Dimension(window.securityWarningWidth, window.securityWarningHeight);
-      }
-
-      @Override
-      public void setSecurityWarningSize(Window window, int width, int height) {
-        window.securityWarningWidth = width;
-        window.securityWarningHeight = height;
-      }
-
-      @Override
-      public void setSecurityWarningPosition(
-          Window window, Point2D point, float alignmentX, float alignmentY) {
-        window.securityWarningPointX = point.getX();
-        window.securityWarningPointY = point.getY();
-        window.securityWarningAlignmentX = alignmentX;
-        window.securityWarningAlignmentY = alignmentY;
-
-        synchronized (window.getTreeLock()) {
-          WindowPeer peer = (WindowPeer) window.getPeer();
-          if (peer != null) {
-            peer.repositionSecurityWarning();
-          }
-        }
-      }
-
-      @Override
-      public Point2D calculateSecurityWarningPosition(
-          Window window, double x, double y, double w, double h) {
-        return window.calculateSecurityWarningPosition(x, y, w, h);
-      }
-
-      @Override
-      public void setLWRequestStatus(Window changed, boolean status) {
-        changed.syncLWRequests = status;
-      }
-
-      @Override
-      public boolean isAutoRequestFocus(Window w) {
-        return w.autoRequestFocus;
-      }
-
-      @Override
-      public boolean isTrayIconWindow(Window w) {
-        return w.isTrayIconWindow;
-      }
-
-      @Override
-      public void setTrayIconWindow(Window w, boolean isTrayIconWindow) {
-        w.isTrayIconWindow = isTrayIconWindow;
-      }
-    }); // WindowAccessor
-  } // static
 
   /**
    * A vector containing all the windows this

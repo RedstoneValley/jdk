@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.Serializable;
@@ -33,8 +34,7 @@ import java.security.PrivilegedExceptionAction;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.CursorAccessor;
+
 import sun.java2d.DisposerRecord;
 
 /**
@@ -157,22 +157,6 @@ public class Cursor implements Serializable {
   static Properties systemCustomCursorProperties;
 
   static {
-    AWTAccessor.setCursorAccessor(new CursorAccessor() {
-      @Override
-      public long getPData(Cursor cursor) {
-        return cursor.pData;
-      }
-
-      @Override
-      public void setPData(Cursor cursor, long pData) {
-        cursor.pData = pData;
-      }
-
-      @Override
-      public int getType(Cursor cursor) {
-        return cursor.type;
-      }
-    });
   }
 
   /**

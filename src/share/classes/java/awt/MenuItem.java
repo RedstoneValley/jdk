@@ -33,13 +33,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
+
 import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleAction;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleValue;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.MenuItemAccessor;
 
 /**
  * All items in a menu must belong to the class
@@ -86,32 +85,6 @@ public class MenuItem extends MenuComponent implements Accessible {
   private static int nameCounter;
 
   static {
-    AWTAccessor.setMenuItemAccessor(new MenuItemAccessor() {
-      @Override
-      public boolean isEnabled(MenuItem item) {
-        return item.enabled;
-      }
-
-      @Override
-      public String getLabel(MenuItem item) {
-        return item.label;
-      }
-
-      @Override
-      public MenuShortcut getShortcut(MenuItem item) {
-        return item.shortcut;
-      }
-
-      @Override
-      public String getActionCommandImpl(MenuItem item) {
-        return item.getActionCommandImpl();
-      }
-
-      @Override
-      public boolean isItemEnabled(MenuItem item) {
-        return item.isItemEnabled();
-      }
-    });
   }
 
   /**

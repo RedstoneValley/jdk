@@ -95,10 +95,6 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
         return menuComp.parent;
       }
 
-      @Override
-      public Font getFont_NoClientCode(MenuComponent menuComp) {
-        return menuComp.getFont_NoClientCode();
-      }
     });
   }
 

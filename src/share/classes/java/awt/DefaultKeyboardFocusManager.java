@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -35,13 +36,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Set;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.DefaultKeyboardFocusManagerAccessor;
+
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.CausedFocusEvent.Cause;
 import sun.awt.SunToolkit;
-import sun.awt.TimedWindowEvent;
 
 /**
  * The default KeyboardFocusManager for AWT applications. Focus traversal is
@@ -69,12 +68,6 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
   private static final WeakReference<Component> NULL_COMPONENT_WR = new WeakReference<>(null);
 
   static {
-    AWTAccessor.setDefaultKeyboardFocusManagerAccessor(new DefaultKeyboardFocusManagerAccessor() {
-      @Override
-      public void consumeNextKeyTyped(DefaultKeyboardFocusManager dkfm, KeyEvent e) {
-        dkfm.consumeNextKeyTyped(e);
-      }
-    });
   }
 
   private final LinkedList<KeyEvent> enqueuedKeyEvents = new LinkedList<>();
@@ -217,26 +210,6 @@ public class DefaultKeyboardFocusManager extends KeyboardFocusManager {
    * the focus window events are reposted to the end of the event queue. See 6981400.
    */
   private boolean repostIfFollowsKeyEvents(WindowEvent e) {
-    if (!(e instanceof TimedWindowEvent)) {
-      return false;
-    }
-    TimedWindowEvent we = (TimedWindowEvent) e;
-    long time = we.getWhen();
-    synchronized (this) {
-      KeyEvent ke = enqueuedKeyEvents.isEmpty() ? null : enqueuedKeyEvents.getFirst();
-      if (ke != null && time >= ke.getWhen()) {
-        TypeAheadMarker marker = typeAheadMarkers.isEmpty() ? null : typeAheadMarkers.getFirst();
-        if (marker != null) {
-          Window toplevel = marker.untilFocused.getContainingWindow();
-          // Check that the component awaiting focus belongs to
-          // the current focused window. See 8015454.
-          if (toplevel != null && toplevel.isFocused()) {
-            SunToolkit.postEvent(AppContext.getAppContext(), new SequencedEvent(e));
-            return true;
-          }
-        }
-      }
-    }
     return false;
   }
 

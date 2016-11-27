@@ -26,13 +26,12 @@ package java.awt;
 
 import android.app.Activity;
 import android.content.Intent;
+
 import java.awt.peer.FileDialogPeer;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.FileDialogAccessor;
 
 /**
  * The {@code FileDialog} class displays a dialog window
@@ -69,29 +68,6 @@ public class FileDialog extends Dialog {
   private static int nameCounter;
 
   static {
-    AWTAccessor.setFileDialogAccessor(new FileDialogAccessor() {
-      @Override
-      public void setFiles(FileDialog fileDialog, File[] files) {
-        fileDialog.setFiles(files);
-      }
-
-      @Override
-      public void setFile(FileDialog fileDialog, String file) {
-        fileDialog.file = "".equals(file) ? null : file;
-      }
-
-      @Override
-      public void setDirectory(FileDialog fileDialog, String directory) {
-        fileDialog.dir = "".equals(directory) ? null : directory;
-      }
-
-      @Override
-      public boolean isMultipleMode(FileDialog fileDialog) {
-        synchronized (fileDialog.getObjectLock()) {
-          return fileDialog.multipleMode;
-        }
-      }
-    });
   }
 
   /*

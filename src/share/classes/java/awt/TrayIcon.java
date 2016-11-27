@@ -33,8 +33,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.peer.TrayIconPeer;
 import java.security.AccessControlContext;
 import java.security.AccessController;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.TrayIconAccessor;
+
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
@@ -55,17 +54,6 @@ public class TrayIcon {
 
   static {
 
-    AWTAccessor.setTrayIconAccessor(new TrayIconAccessor() {
-      @Override
-      public void addNotify(TrayIcon trayIcon) throws AWTException {
-        trayIcon.addNotify();
-      }
-
-      @Override
-      public void removeNotify(TrayIcon trayIcon) {
-        trayIcon.removeNotify();
-      }
-    });
   }
 
   /*

@@ -1,13 +1,19 @@
 package sun.font;
 
+import java.awt.Color;
 import java.awt.Paint;
+import java.awt.Toolkit;
 import java.awt.font.NumericShaper;
 import java.awt.font.NumericShaper.Range;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.awt.im.InputMethodHighlight;
+import java.text.Annotation;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.util.HashMap;
 import java.util.Map;
+
+import skinjob.SkinJobGlobals;
 
 /**
  * Created by cryoc on 2016-10-11.
@@ -157,19 +163,46 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
         return ligatures;
     }
 
+    /**
+     * If this has an imHighlight, create copy of this with those attributes applied to it. Otherwise return this unchanged.
+     */
     public AttributeValues applyIMHighlight() {
-        // TODO
+        Object imHighlight = get(TextAttribute.INPUT_METHOD_HIGHLIGHT);
+        if (imHighlight != null) {
+            InputMethodHighlight hl = null;
+            if (imHighlight instanceof InputMethodHighlight) {
+                hl = (InputMethodHighlight)imHighlight;
+            } else {
+                hl = (InputMethodHighlight)((Annotation)imHighlight).getValue();
+            }
+            Map imStyles = hl.getStyle();
+            if (imStyles == null) {
+                Toolkit tk = Toolkit.getDefaultToolkit();
+                imStyles = tk.mapInputMethodHighlight(hl);
+            }
+            if (imStyles != null) {
+                AttributeValues clone = (AttributeValues) clone();
+                clone.putAll(imStyles);
+                return clone;
+            }
+        }
         return this;
     }
 
     public Paint getForeground() {
-        // TODO
-        return null;
+        Color color = (Color) get(TextAttribute.FOREGROUND);
+        if (color == null) {
+            return new Color(SkinJobGlobals.defaultForegroundColor);
+        }
+        return color;
     }
 
     public Paint getBackground() {
-        // TODO
-        return null;
+        Color color = (Color) get(TextAttribute.BACKGROUND);
+        if (color == null) {
+            return new Color(SkinJobGlobals.defaultBackgroundColor);
+        }
+        return color;
     }
 
     public boolean getSwapColors() {

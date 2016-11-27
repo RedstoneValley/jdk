@@ -25,7 +25,6 @@
 package java.awt;
 
 import java.io.ObjectStreamException;
-import sun.awt.AWTAccessor;
 
 /**
  * A class to encapsulate symbolic colors representing the color of
@@ -430,7 +429,6 @@ public final class SystemColor extends Color {
       infoText};
 
   static {
-    AWTAccessor.setSystemColorAccessor(SystemColor::updateSystemColors);
     updateSystemColors();
   }
 

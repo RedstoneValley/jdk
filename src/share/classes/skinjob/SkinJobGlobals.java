@@ -1,5 +1,27 @@
 package skinjob;
 
+import android.R.color;
+import android.R.drawable;
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.view.View;
+import android.widget.ListView;
+
+import java.awt.AWTError;
+import java.awt.BasicStroke;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.RenderingHints;
+import java.awt.font.GraphicAttribute;
+import java.awt.font.TextAttribute;
+import java.awt.peer.ComponentPeer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
+import skinjob.internal.SkinJobGraphicsEnvironment;
+
 import static java.awt.RenderingHints.KEY_ALPHA_INTERPOLATION;
 import static java.awt.RenderingHints.KEY_ANTIALIASING;
 import static java.awt.RenderingHints.KEY_COLOR_RENDERING;
@@ -18,25 +40,6 @@ import static java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC;
 import static java.awt.RenderingHints.VALUE_RENDER_QUALITY;
 import static java.awt.RenderingHints.VALUE_STROKE_NORMALIZE;
 import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-
-import android.R.color;
-import android.R.drawable;
-import android.content.Context;
-import android.content.res.Resources;
-import android.view.View;
-import android.widget.ListView;
-import java.awt.AWTError;
-import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.RenderingHints;
-import java.awt.font.GraphicAttribute;
-import java.awt.font.TextAttribute;
-import java.awt.peer.ComponentPeer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import skinjob.internal.SkinJobGraphicsEnvironment;
 
 /**
  * Static members used to implement AWT on Android. Public mutable fields in this class control
@@ -161,6 +164,11 @@ public final class SkinJobGlobals {
   public static volatile float graphicSsOffset = 0.5f;
   public static volatile float graphicItalicAngle = TextAttribute.POSTURE_OBLIQUE;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
+
+  public static volatile Bitmap.CompressFormat imageOutputFormat = Bitmap.CompressFormat.PNG;
+
+  /** See {@link android.graphics.Bitmap#compress}. */
+  public static volatile int imageQuality = 100;
 
   static {
     Context context = getAndroidApplicationContext();

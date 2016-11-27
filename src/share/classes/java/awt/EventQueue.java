@@ -26,6 +26,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
@@ -44,6 +45,7 @@ import java.util.EmptyStackException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
+
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.EventQueueAccessor;
 import sun.awt.AWTAutoShutdown;
@@ -136,17 +138,6 @@ public class EventQueue {
       }
 
       @Override
-      public void removeSourceEvents(
-          EventQueue eventQueue, Object source, boolean removeAllEvents) {
-        eventQueue.removeSourceEvents(source, removeAllEvents);
-      }
-
-      @Override
-      public boolean noEvents(EventQueue eventQueue) {
-        return eventQueue.noEvents();
-      }
-
-      @Override
       public void wakeup(EventQueue eventQueue, boolean isShutdown) {
         eventQueue.wakeup(isShutdown);
       }
@@ -155,11 +146,6 @@ public class EventQueue {
       public void invokeAndWait(Object source, Runnable r)
           throws InterruptedException, InvocationTargetException {
         EventQueue.invokeAndWait(source, r);
-      }
-
-      @Override
-      public void setFwDispatcher(EventQueue eventQueue, FwDispatcher dispatcher) {
-        eventQueue.setFwDispatcher(dispatcher);
       }
 
       @Override

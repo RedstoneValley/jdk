@@ -85,7 +85,9 @@ import java.util.Vector;
 import java.util.WeakHashMap;
 
 import skinjob.internal.ComponentOrMenuComponent;
+import skinjob.internal.SkinJobGraphics;
 import skinjob.util.Geometry;
+import skinjob.util.SkinJobUtil;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.ComponentAccessor;
 import sun.awt.AppContext;
@@ -101,7 +103,6 @@ import sun.awt.dnd.SunDropTargetEvent;
 import sun.awt.graphicscallback.PeerPaintCallback;
 import sun.awt.graphicscallback.PeerPrintCallback;
 import sun.awt.image.VSyncedBSManager;
-import sun.java2d.SunGraphics2D;
 
 /**
  * A <em>component</em> is an object having a graphical representation
@@ -314,52 +315,10 @@ public abstract class Component extends ComponentOrMenuComponent
 
   static {
     AWTAccessor.setComponentAccessor(new ComponentAccessor() {
-      @Override
-      public void setBackgroundEraseDisabled(Component comp, boolean disabled) {
-        comp.backgroundEraseDisabled = disabled;
-      }
-
-      @Override
-      public boolean getBackgroundEraseDisabled(Component comp) {
-        return comp.backgroundEraseDisabled;
-      }
 
       @Override
       public Rectangle getBounds(Component comp) {
         return new Rectangle(comp.x, comp.y, comp.width, comp.height);
-      }
-
-      @Override
-      public void setMixingCutoutShape(Component comp, Shape shape) {
-
-        synchronized (comp.getTreeLock()) {
-          boolean needShowing = false;
-          boolean needHiding = false;
-
-          if (!comp.isNonOpaqueForMixing()) {
-            needHiding = true;
-          }
-
-          comp.mixingCutoutRegion = shape;
-
-          if (!comp.isNonOpaqueForMixing()) {
-            needShowing = true;
-          }
-
-          if (comp.isMixingNeeded()) {
-            if (needHiding) {
-              comp.mixOnHiding(comp.isLightweight());
-            }
-            if (needShowing) {
-              comp.mixOnShowing();
-            }
-          }
-        }
-      }
-
-      @Override
-      public void setGraphicsConfiguration(Component comp, GraphicsConfiguration gc) {
-        comp.setGraphicsConfiguration(gc);
       }
 
       @Override
@@ -368,18 +327,8 @@ public abstract class Component extends ComponentOrMenuComponent
       }
 
       @Override
-      public boolean canBeFocusOwner(Component comp) {
-        return comp.canBeFocusOwner();
-      }
-
-      @Override
       public boolean isVisible(Component comp) {
         return comp.isVisible_NoClientCode();
-      }
-
-      @Override
-      public void setRequestFocusController(RequestFocusController requestController) {
-        Component.setRequestFocusController(requestController);
       }
 
       @Override
@@ -395,11 +344,6 @@ public abstract class Component extends ComponentOrMenuComponent
       @Override
       public Container getParent(Component comp) {
         return comp.getParent_NoClientCode();
-      }
-
-      @Override
-      public void setParent(Component comp, Container parent) {
-        comp.parent = parent;
       }
 
       @Override
@@ -430,28 +374,8 @@ public abstract class Component extends ComponentOrMenuComponent
       }
 
       @Override
-      public Cursor getCursor(Component comp) {
-        return comp.getCursor_NoClientCode();
-      }
-
-      @Override
       public ComponentPeer getPeer(Component comp) {
         return comp.peer;
-      }
-
-      @Override
-      public void setPeer(Component comp, ComponentPeer peer) {
-        comp.peer = peer;
-      }
-
-      @Override
-      public boolean isLightweight(Component comp) {
-        return comp.peer instanceof LightweightPeer;
-      }
-
-      @Override
-      public boolean getIgnoreRepaint(Component comp) {
-        return comp.ignoreRepaint;
       }
 
       @Override
@@ -499,15 +423,6 @@ public abstract class Component extends ComponentOrMenuComponent
         comp.processEvent(e);
       }
 
-      @Override
-      public AccessControlContext getAccessControlContext(Component comp) {
-        return comp.getAccessControlContext();
-      }
-
-      @Override
-      public void revalidateSynchronously(Component comp) {
-        comp.revalidateSynchronously();
-      }
     });
   }
 
@@ -9019,12 +8934,7 @@ public abstract class Component extends ComponentOrMenuComponent
       if (backBuffer == null) {
         return getGraphics();
       }
-      SunGraphics2D g = (SunGraphics2D) backBuffer.getGraphics();
-      g.constrain(-insets.left,
-          -insets.top,
-          backBuffer.getWidth(null) + insets.left,
-          backBuffer.getHeight(null) + insets.top);
-      return g;
+      return new SkinJobGraphics(SkinJobUtil.asAndroidBitmap(backBuffer));
     }
 
     /**
@@ -9070,15 +8980,6 @@ public abstract class Component extends ComponentOrMenuComponent
       showSubRegion(x1, y1, x2, y2);
     }
 
-    // This is invoked by Swing on the toolkit thread.
-    @Override
-    public boolean showIfNotLost(int x1, int y1, int x2, int y2) {
-      if (!contentsLost()) {
-        showSubRegion(x1, y1, x2, y2);
-        return !contentsLost();
-      }
-      return false;
-    }
   }
 
   /**
@@ -9098,15 +8999,6 @@ public abstract class Component extends ComponentOrMenuComponent
       showSubRegion(x1, y1, x2, y2);
     }
 
-    // This method is called by Swing on the toolkit thread.
-    @Override
-    public boolean showIfNotLost(int x1, int y1, int x2, int y2) {
-      if (!contentsLost()) {
-        showSubRegion(x1, y1, x2, y2);
-        return !contentsLost();
-      }
-      return false;
-    }
   }
 
   // ****************** END OF MIXING CODE ********************************

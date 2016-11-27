@@ -29,8 +29,7 @@ import java.awt.peer.SystemTrayPeer;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Vector;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.SystemTrayAccessor;
+
 import sun.awt.AppContext;
 
 /**
@@ -129,13 +128,6 @@ public final class SystemTray {
   private static SystemTray systemTray;
 
   static {
-    AWTAccessor.setSystemTrayAccessor(new SystemTrayAccessor() {
-      @Override
-      public void firePropertyChange(
-          SystemTray tray, String propertyName, Object oldValue, Object newValue) {
-        tray.firePropertyChange(propertyName, oldValue, newValue);
-      }
-    });
   }
 
   private int currentIconID; // each TrayIcon added gets a unique ID

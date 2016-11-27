@@ -29,8 +29,7 @@ import java.awt.Component;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.KeyEventAccessor;
+
 import sun.awt.ExtendedKeyCodes;
 
 /**
@@ -911,27 +910,6 @@ public class KeyEvent extends InputEvent {
     NativeLibLoader.loadLibraries();
     initIDs();
 
-    AWTAccessor.setKeyEventAccessor(new KeyEventAccessor() {
-      @Override
-      public void setRawCode(KeyEvent ev, long rawCode) {
-        ev.rawCode = rawCode;
-      }
-
-      @Override
-      public void setPrimaryLevelUnicode(KeyEvent ev, long primaryLevelUnicode) {
-        ev.primaryLevelUnicode = primaryLevelUnicode;
-      }
-
-      @Override
-      public void setExtendedKeyCode(KeyEvent ev, long extendedKeyCode) {
-        ev.extendedKeyCode = extendedKeyCode;
-      }
-
-      @Override
-      public Component getOriginalSource(KeyEvent ev) {
-        return ev.originalSource;
-      }
-    });
   }
 
   /**

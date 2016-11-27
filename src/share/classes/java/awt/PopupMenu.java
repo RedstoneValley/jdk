@@ -26,10 +26,9 @@
 package java.awt;
 
 import java.awt.peer.PopupMenuPeer;
+
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.PopupMenuAccessor;
 
 /**
  * A class that implements a menu which can be dynamically popped up
@@ -53,12 +52,6 @@ public class PopupMenu extends Menu {
   static int nameCounter;
 
   static {
-    AWTAccessor.setPopupMenuAccessor(new PopupMenuAccessor() {
-      @Override
-      public boolean isTrayIconPopup(PopupMenu popupMenu) {
-        return popupMenu.isTrayIconPopup;
-      }
-    });
   }
 
   public android.widget.PopupMenu sjAndroidPopupMenu;

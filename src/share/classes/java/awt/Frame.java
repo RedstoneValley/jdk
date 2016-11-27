@@ -34,8 +34,7 @@ import java.io.OptionalDataException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Vector;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.FrameAccessor;
+
 import sun.awt.SunToolkit;
 
 /**
@@ -274,28 +273,6 @@ public class Frame extends Window {
   private static int nameCounter;
 
   static {
-    AWTAccessor.setFrameAccessor(new FrameAccessor() {
-      @Override
-      public void setExtendedState(Frame frame, int state) {
-        synchronized (frame.getObjectLock()) {
-          frame.state = state;
-        }
-      }
-
-      @Override
-      public int getExtendedState(Frame frame) {
-        synchronized (frame.getObjectLock()) {
-          return frame.state;
-        }
-      }
-
-      @Override
-      public Rectangle getMaximizedBounds(Frame frame) {
-        synchronized (frame.getObjectLock()) {
-          return frame.maximizedBounds;
-        }
-      }
-    });
   }
 
   /**

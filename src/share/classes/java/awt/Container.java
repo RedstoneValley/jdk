@@ -52,7 +52,6 @@ import java.util.Set;
 import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.util.Geometry;
-import sun.awt.AWTAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.PeerEvent;
@@ -165,17 +164,6 @@ public class Container extends Component {
   private static boolean descendUnconditionallyWhenValidating = false;
 
   static {
-    AWTAccessor.setContainerAccessor(new AWTAccessor.ContainerAccessor() {
-      @Override
-      public void validateUnconditionally(Container cont) {
-        cont.validateUnconditionally();
-      }
-
-      @Override
-      public Component findComponentAt(Container cont, int x, int y, boolean ignoreEnabled) {
-        return cont.findComponentAt(x, y, ignoreEnabled);
-      }
-    });
   }
 
   static {

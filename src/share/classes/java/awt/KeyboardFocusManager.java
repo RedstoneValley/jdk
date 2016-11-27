@@ -25,6 +25,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.event.FocusEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -44,8 +45,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.KeyboardFocusManagerAccessor;
+
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent;
 import sun.awt.CausedFocusEvent.Cause;
@@ -214,50 +214,6 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   private static volatile boolean disableRestoreFocus;
 
   static {
-    AWTAccessor.setKeyboardFocusManagerAccessor(new KeyboardFocusManagerAccessor() {
-      @Override
-      public int shouldNativelyFocusHeavyweight(
-          Component heavyweight, Component descendant, boolean temporary,
-          boolean focusedWindowChangeAllowed, long time, Cause cause) {
-        return KeyboardFocusManager.shouldNativelyFocusHeavyweight(heavyweight,
-            descendant,
-            temporary,
-            focusedWindowChangeAllowed,
-            time,
-            cause);
-      }
-
-      @Override
-      public boolean processSynchronousLightweightTransfer(
-          Component heavyweight, Component descendant, boolean temporary,
-          boolean focusedWindowChangeAllowed, long time) {
-        return KeyboardFocusManager.processSynchronousLightweightTransfer(heavyweight,
-            descendant,
-            temporary,
-            focusedWindowChangeAllowed,
-            time);
-      }
-
-      @Override
-      public void removeLastFocusRequest(Component heavyweight) {
-        KeyboardFocusManager.removeLastFocusRequest(heavyweight);
-      }
-
-      @Override
-      public void setMostRecentFocusOwner(Window window, Component component) {
-        KeyboardFocusManager.setMostRecentFocusOwner(window, component);
-      }
-
-      @Override
-      public KeyboardFocusManager getCurrentKeyboardFocusManager(AppContext ctx) {
-        return KeyboardFocusManager.getCurrentKeyboardFocusManager(ctx);
-      }
-
-      @Override
-      public Container getCurrentFocusCycleRoot() {
-        return currentFocusCycleRoot;
-      }
-    });
   }
 
   /**

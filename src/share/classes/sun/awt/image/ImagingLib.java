@@ -37,8 +37,6 @@ import java.awt.image.LookupTable;
 import java.awt.image.Raster;
 import java.awt.image.RasterOp;
 import java.awt.image.WritableRaster;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 /**
  * This class provides a hook to access platform-specific
@@ -58,50 +56,7 @@ public final class ImagingLib {
   private static final int AFFINE_OP = 1;
   private static final int CONVOLVE_OP = 2;
   private static final Class[] nativeOpClass = new Class[NUM_NATIVE_OPS];
-  static final boolean useLib;
   static boolean verbose;
-
-  static {
-
-    PrivilegedAction<Boolean> doMlibInitialization = new PrivilegedAction<Boolean>() {
-      @Override
-      public Boolean run() {
-        String arch = System.getProperty("os.arch");
-
-        if (arch == null || !arch.startsWith("sparc")) {
-          try {
-            System.loadLibrary("mlib_image");
-          } catch (UnsatisfiedLinkError e) {
-            return Boolean.FALSE;
-          }
-        }
-        boolean success = init();
-        return success;
-      }
-    };
-
-    useLib = AccessController.doPrivileged(doMlibInitialization);
-
-    //
-    // Cache the class references of the operations we know about
-    // at the time this class is initially loaded.
-    //
-    try {
-      nativeOpClass[LOOKUP_OP] = Class.forName("java.awt.image.LookupOp");
-    } catch (ClassNotFoundException e) {
-      System.err.println("Could not find class: " + e);
-    }
-    try {
-      nativeOpClass[AFFINE_OP] = Class.forName("java.awt.image.AffineTransformOp");
-    } catch (ClassNotFoundException e) {
-      System.err.println("Could not find class: " + e);
-    }
-    try {
-      nativeOpClass[CONVOLVE_OP] = Class.forName("java.awt.image.ConvolveOp");
-    } catch (ClassNotFoundException e) {
-      System.err.println("Could not find class: " + e);
-    }
-  }
 
   private ImagingLib() {
   }
@@ -167,9 +122,6 @@ public final class ImagingLib {
   }
 
   public static WritableRaster filter(RasterOp op, Raster src, WritableRaster dst) {
-    if (!useLib) {
-      return null;
-    }
 
     // Create the destination tile
     if (dst == null) {
@@ -224,10 +176,6 @@ public final class ImagingLib {
   public static BufferedImage filter(BufferedImageOp op, BufferedImage src, BufferedImage dst) {
     if (verbose) {
       System.out.println("in filter and op is " + op + "bufimage is " + src + " and " + dst);
-    }
-
-    if (!useLib) {
-      return null;
     }
 
     // Create the destination image

@@ -28,8 +28,6 @@ import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.peer.ScrollPanePeer;
 import java.io.Serializable;
-import sun.awt.AWTAccessor;
-import sun.awt.AWTAccessor.ScrollPaneAdjustableAccessor;
 
 /**
  * This class represents the state of a horizontal or vertical
@@ -51,12 +49,6 @@ public class ScrollPaneAdjustable implements Adjustable, Serializable {
   private static final long serialVersionUID = -3359745691033257079L;
 
   static {
-    AWTAccessor.setScrollPaneAdjustableAccessor(new ScrollPaneAdjustableAccessor() {
-      @Override
-      public void setTypedValue(ScrollPaneAdjustable adj, int v, int type) {
-        adj.setTypedValue(v, type);
-      }
-    });
   }
 
   /**
