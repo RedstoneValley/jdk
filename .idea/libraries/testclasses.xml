@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="testclasses">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/test/sun/misc/URLClassPath/testclasses.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

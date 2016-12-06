@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":share" external.linked.project.path="$MODULE_DIR$/../../../share" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="skinjob" external.system.module.version="unspecified" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../../../share/build/classes/main" />
+    <output-test url="file://$MODULE_DIR$/../../../share/build/classes/test" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../share">
+      <excludeFolder url="file://$MODULE_DIR$/../../../share/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../../share/build" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../src/share">
+      <sourceFolder url="file://$MODULE_DIR$/../../../src/share/classes" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Support v4" level="application" />
+  </component>
+</module>

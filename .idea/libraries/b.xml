@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="b">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/test/java/net/URLClassLoader/sealing/b.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

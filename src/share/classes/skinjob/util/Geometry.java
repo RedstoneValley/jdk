@@ -2,12 +2,14 @@ package skinjob.util;
 
 import android.graphics.Matrix;
 import android.graphics.Path;
+import android.graphics.Rect;
 import android.util.Log;
 
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Rectangle2D;
 
 import static java.awt.geom.PathIterator.SEG_CLOSE;
 import static java.awt.geom.PathIterator.SEG_CUBICTO;
@@ -135,4 +137,13 @@ public final class Geometry {
       return matrix;
   }
 
+    /**
+     * Converts the given {@link Rect} (Android class) to a {@link Rectangle2D.Double} (AWT class).
+     *
+     * @param rect A {@link Rect} to convert.
+     * @return A {@link Rectangle2D.Double} representing the same area.
+     */
+    public static Rectangle2D.Double androidRectToRectangle2D(Rect rect) {
+      return new Rectangle2D.Double(rect.left, rect.top, rect.width(), rect.height());
+    }
 }

@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="loader">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/test/sun/security/pkcs11/KeyStore/loader.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

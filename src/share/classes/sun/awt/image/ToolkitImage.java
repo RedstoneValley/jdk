@@ -221,15 +221,6 @@ public class ToolkitImage extends Image {
     return availinfo;
   }
 
-  public void preload(ImageObserver iw) {
-    if (src != null) {
-      src.checkSecurity(null, false);
-    }
-    if ((availinfo & ImageObserver.ALLBITS) == 0) {
-      addWatcher(iw, true);
-    }
-  }
-
   private synchronized void addWatcher(ImageObserver iw, boolean load) {
     if ((availinfo & ImageObserver.ERROR) != 0) {
       if (iw != null) {

@@ -25,6 +25,8 @@
 
 package java.awt;
 
+import android.support.v4.util.Pools;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.geom.PathIterator;
@@ -116,6 +118,10 @@ import skinjob.SkinJobGlobals;
  * @see Graphics2D
  */
 public class BasicStroke implements Stroke {
+
+  private static class RenderContext {}
+
+  private static Pools.SynchronizedPool<RenderContext> renderContextPool = new Pools.SynchronizedPool<>(10);
 
   /**
    * Joins path segments by extending their outside edges until

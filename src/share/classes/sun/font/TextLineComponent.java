@@ -12,7 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
-import skinjob.util.SkinJobUtil;
+import skinjob.util.Geometry;
 
 import static skinjob.util.SkinJobUtil.rangeMaybeCopy;
 
@@ -139,7 +139,7 @@ public class TextLineComponent {
   protected Rectangle2D getBounds(int measureStart, int measureLimit) {
     Rect bounds = new Rect();
     font.sjGetAndroidPaint().getTextBounds(chars, measureStart + indexOffset, measureLimit, bounds);
-    return SkinJobUtil.androidRectToRectangle2D(bounds);
+    return Geometry.androidRectToRectangle2D(bounds);
   }
 
   public int getLineBreakIndex(int i, float width) {

@@ -2,14 +2,12 @@ package skinjob.util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
 import android.view.View;
 import android.view.Window;
 
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Constructor;
@@ -68,16 +66,6 @@ public final class SkinJobUtil {
     } else {
       return Arrays.copyOfRange(text, start, length);
     }
-  }
-
-  /**
-   * Converts the given {@link Rect} (Android class) to a {@link Rectangle2D.Double} (AWT class).
-   *
-   * @param rect A {@link Rect} to convert.
-   * @return A {@link Rectangle2D.Double} representing the same area.
-   */
-  public static Rectangle2D.Double androidRectToRectangle2D(Rect rect) {
-    return new Rectangle2D.Double(rect.left, rect.top, rect.width(), rect.height());
   }
 
   public static Window newAndroidWindow(Context androidContext) {

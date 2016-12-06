@@ -82,7 +82,11 @@ import skinjob.internal.WrappedAndroidObjectsSupplier;
  */
 public class Checkbox extends Component implements ItemSelectable {
 
-  private boolean initialized = false;
+  /**
+   * Used to avoid access to this.group from the super constructor before it's set
+   * (not needed if Android always conforms to JLS 17.5.2, but I don't think it does)
+   */
+  private boolean groupInitialized;
   private static final String base = "checkbox";
   /*
    * JDK 1.1 serialVersionUID
@@ -190,11 +194,11 @@ public class Checkbox extends Component implements ItemSelectable {
    * @since JDK1.1
    */
   public Checkbox(String label, boolean state, CheckboxGroup group) throws HeadlessException {
-    super();
     this.label = label;
     this.state = state;
     this.group = group;
-    // Super call will have happened while this.group was still uninitialized
+    groupInitialized = true;
+    // Must do this again after setting this.group
     sjAndroidWidget = sjGetWrappedAndroidObjectsSupplier().createWidget();
   }
 
@@ -504,7 +508,7 @@ public class Checkbox extends Component implements ItemSelectable {
    * @see #setCheckboxGroup(CheckboxGroup)
    */
   public CheckboxGroup getCheckboxGroup() {
-    return group;
+    return groupInitialized ? group : null;
   }
 
   /**

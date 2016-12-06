@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="exp">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/test/java/security/Security/signedfirst/exp.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

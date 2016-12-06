@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="OldSocketImpl">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/test/java/net/Socket/OldSocketImpl.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

@@ -1,0 +1,36 @@
+apply plugin: 'com.android.application:2.2.0'
+
+android {
+    repositories {
+        maven {
+            url  "http://dl.bintray.com/android/android-tools"
+        }
+        jcenter()
+    }
+    dependencies {
+        compile 'com.android.support:support-v4:+'
+        classpath 'com.android.support:support-v4:+'
+    }
+    android {
+        compileSdkVersion 25
+        buildToolsVersion "18.0.1"
+
+        defaultConfig {
+            minSdkVersion 14
+            targetSdkVersion 25
+        }
+    }
+
+    buildTypes {
+
+        /**
+         * By default, Android Studio configures the release build type to enable code
+         * shrinking, using minifyEnabled, and specifies the Proguard settings file.
+         */
+
+        release {
+            minifyEnabled true // Enables code shrinking for the release build type.
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
