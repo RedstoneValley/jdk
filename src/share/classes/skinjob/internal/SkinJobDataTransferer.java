@@ -1,5 +1,7 @@
 package skinjob.internal;
 
+import android.graphics.BitmapFactory;
+
 import java.awt.Image;
 import java.io.IOException;
 
@@ -53,8 +55,7 @@ public class SkinJobDataTransferer extends DataTransferer {
 
     @Override
     protected Image platformImageBytesToImage(byte[] bytes, long format) throws IOException {
-        // TODO
-        return null;
+        return new SkinJobBufferedImage(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
     }
 
     @Override
