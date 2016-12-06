@@ -17,8 +17,8 @@ import java.awt.peer.TextFieldPeer;
  */
 public class SkinJobTextFieldPeer extends SkinJobComponentPeerForView<EditText>
     implements TextFieldPeer, TextAreaPeer {
-  private volatile boolean isPassword = false;
-  private PasswordMasker passwordMasker = new PasswordMasker();
+  private volatile boolean isPassword;
+  private final PasswordMasker passwordMasker = new PasswordMasker();
   public SkinJobTextFieldPeer(TextField target) {
     super((EditText) target.sjAndroidWidget);
   }

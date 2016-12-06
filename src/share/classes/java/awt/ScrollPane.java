@@ -34,6 +34,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectInputStream.GetField;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 import sun.awt.ScrollPaneWheelScroller;
 
 /**
@@ -197,14 +198,7 @@ public class ScrollPane extends Container {
   }
 
   public static boolean isLightweightOrUnknown(Component comp) {
-    if (comp.isLightweight()) {
-      return true;
-    }
-    return !(comp instanceof Button || comp instanceof Canvas || comp instanceof Checkbox
-                 || comp instanceof Choice || comp instanceof Label || comp instanceof List
-                 || comp instanceof Panel || comp instanceof Scrollbar || comp instanceof ScrollPane
-                 || comp instanceof TextArea || comp instanceof TextField
-                 || comp instanceof Window);
+    return comp.isLightweight() || !(comp instanceof Button || comp instanceof Canvas || comp instanceof Checkbox || comp instanceof Choice || comp instanceof Label || comp instanceof List || comp instanceof Panel || comp instanceof Scrollbar || comp instanceof ScrollPane || comp instanceof TextArea || comp instanceof TextField || comp instanceof Window);
   }
 
   /**

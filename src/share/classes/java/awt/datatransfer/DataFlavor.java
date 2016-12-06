@@ -45,6 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+
 import sun.awt.datatransfer.DataTransferer;
 import sun.awt.datatransfer.DataTransferer.DataFlavorComparator;
 
@@ -524,7 +525,11 @@ public class DataFlavor implements Externalizable, Cloneable {
   @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static final DataFlavor getTextPlainUnicodeFlavor() {
     String encoding = null;
-    DataTransferer transferer = DataTransferer.getInstance();
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    DataTransferer transferer = result;
     if (transferer != null) {
       encoding = transferer.getDefaultUnicodeEncoding();
     }
@@ -967,10 +972,7 @@ public class DataFlavor implements Externalizable, Cloneable {
    */
   @Deprecated
   public boolean equals(String s) {
-    if (s == null || mimeType == null) {
-      return false;
-    }
-    return isMimeTypeEqual(s);
+    return !(s == null || mimeType == null) && isMimeTypeEqual(s);
   }
 
   /**
@@ -1272,11 +1274,7 @@ public class DataFlavor implements Externalizable, Cloneable {
    */
 
   public boolean isFlavorJavaFileListType() {
-    if (mimeType == null || representationClass == null) {
-      return false;
-    }
-    return List.class.isAssignableFrom(representationClass)
-        && mimeType.match(javaFileListFlavor.mimeType);
+    return !(mimeType == null || representationClass == null) && List.class.isAssignableFrom(representationClass) && mimeType.match(javaFileListFlavor.mimeType);
   }
 
   /**

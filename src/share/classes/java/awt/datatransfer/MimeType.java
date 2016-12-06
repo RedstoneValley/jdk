@@ -297,12 +297,7 @@ class MimeType implements Externalizable, Cloneable {
    * {@code false}
    */
   public boolean match(MimeType type) {
-    if (type == null) {
-      return false;
-    }
-    return primaryType.equals(type.getPrimaryType()) && ("*".equals(subType)
-                                                             || "*".equals(type.getSubType())
-                                                             || subType.equals(type.getSubType()));
+    return type != null && primaryType.equals(type.getPrimaryType()) && ("*".equals(subType) || "*".equals(type.getSubType()) || subType.equals(type.getSubType()));
   }
 
   /**
@@ -319,10 +314,7 @@ class MimeType implements Externalizable, Cloneable {
    * {@code null}, returns {@code false}
    */
   public boolean match(String rawdata) throws MimeTypeParseException {
-    if (rawdata == null) {
-      return false;
-    }
-    return match(new MimeType(rawdata));
+    return rawdata != null && match(new MimeType(rawdata));
   }
 
   //    below here be scary parsing related things

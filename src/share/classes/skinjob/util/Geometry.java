@@ -2,6 +2,7 @@ package skinjob.util;
 
 import android.graphics.Matrix;
 import android.graphics.Path;
+import android.graphics.Path.FillType;
 import android.graphics.Rect;
 import android.util.Log;
 
@@ -54,10 +55,10 @@ public final class Geometry {
       int windingRule = iterator.getWindingRule();
       switch (windingRule) {
           case WIND_EVEN_ODD:
-              path.setFillType(Path.FillType.EVEN_ODD);
+              path.setFillType(FillType.EVEN_ODD);
               break;
           case WIND_NON_ZERO:
-              path.setFillType(Path.FillType.WINDING);
+              path.setFillType(FillType.WINDING);
               break;
           default:
               Log.e(TAG, "Unknown winding rule " + windingRule);

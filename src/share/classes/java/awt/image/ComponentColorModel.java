@@ -2093,11 +2093,8 @@ public class ComponentColorModel extends ColorModel {
    * {@code false} if they are not.
    */
   public boolean equals(Object obj) {
-    if (!super.equals(obj)) {
-      return false;
-    }
+    return super.equals(obj) && obj.getClass() == getClass();
 
-    return obj.getClass() == getClass();
   }
 
   /**
@@ -2537,11 +2534,8 @@ public class ComponentColorModel extends ColorModel {
     }
 
     // Must have the same number of components
-    if (numComponents != sm.getNumBands()) {
-      return false;
-    }
+    return numComponents == sm.getNumBands() && sm.getTransferType() == transferType;
 
-    return sm.getTransferType() == transferType;
   }
 
   /**

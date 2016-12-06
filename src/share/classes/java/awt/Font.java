@@ -400,7 +400,7 @@ public class Font implements Serializable {
   protected Typeface androidTypeface;
   protected Paint androidPaint;
   transient int hash;
-  private float maxWidth = 0.0f;
+  private float maxWidth;
   /**
    * This is now only used during serialization.  Typically
    * it is null.
@@ -1566,7 +1566,7 @@ public class Font implements Serializable {
   public synchronized int getNumGlyphs() {
     if (numGlyphs == -1) {
       numGlyphs = 0;
-      for (int i = Font.FIRST_CODE_POINT; i < Character.MAX_CODE_POINT; i++) {
+      for (int i = FIRST_CODE_POINT; i < Character.MAX_CODE_POINT; i++) {
         if (androidPaint.hasGlyph(new String(Character.toChars(i)))) {
           numGlyphs++;
         }

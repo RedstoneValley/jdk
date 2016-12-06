@@ -174,12 +174,6 @@ public class Cursor implements Serializable {
    * @see #getType()
    */
   int type = DEFAULT_CURSOR;
-  transient CursorDisposer disposer;
-  /**
-   * Hook into native data.
-   */
-  transient long pData;
-  private transient Object anchor = new Object();
 
   /**
    * Creates a new cursor object with the specified type.

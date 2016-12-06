@@ -29,6 +29,8 @@ import android.view.Display;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+
 import java.awt.Point;
 import java.awt.Window;
 import java.awt.peer.MouseInfoPeer;
@@ -40,7 +42,7 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
   private volatile float y = -1;
   private volatile int lastDisplay = -1;
 
-  private final View.OnTouchListener androidListener = new View.OnTouchListener() {
+  private final OnTouchListener androidListener = new OnTouchListener() {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
       Display touchedDisplay = v.getDisplay();

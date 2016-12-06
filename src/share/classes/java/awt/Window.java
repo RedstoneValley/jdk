@@ -63,6 +63,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import skinjob.SkinJobGlobals;
+import skinjob.internal.SkinJobInputContext;
 import skinjob.util.SkinJobUtil;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent.Cause;
@@ -176,6 +177,7 @@ public class Window extends Container {
   private static final boolean locationByPlatformProp;
   private static final AtomicBoolean beforeFirstWindowShown = new AtomicBoolean(true);
   private static int nameCounter;
+  private transient InputContext sjInputContext;
 
   static {
     String s = System.getProperty("java.awt.syncLWRequests");
@@ -693,6 +695,7 @@ public class Window extends Container {
 
     sjAndroidContext = SkinJobGlobals.getAndroidApplicationContext();
     sjAndroidWindow = SkinJobUtil.newAndroidWindow(sjAndroidContext);
+    sjInputContext = new SkinJobInputContext();
   }
 
   private void ownedInit(Window owner) {
@@ -2837,6 +2840,7 @@ public class Window extends Container {
     addToWindowList();
     initGC(null);
     ownedWindowList.clear();
+    sjInputContext = new SkinJobInputContext();
   }
 
   private void deserializeResources(ObjectInputStream s)

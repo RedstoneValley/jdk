@@ -25,7 +25,6 @@
 
 package java.awt.image;
 
-import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -629,20 +628,6 @@ public class IndexColorModel extends ColorModel {
     return nBits.clone();
   }
 
-  /**
-   * Returns the transparency.  Returns either CHANNEL_MAX, BITMASK,
-   * or TRANSLUCENT
-   *
-   * @return the transparency of this {@code IndexColorModel}
-   * @see Transparency#OPAQUE
-   * @see Transparency#BITMASK
-   * @see Transparency#TRANSLUCENT
-   */
-  @Override
-  public int getTransparency() {
-    return transparency;
-  }
-
   private void setTransparency(int transparency) {
     if (this.transparency != transparency) {
       this.transparency = transparency;
@@ -1171,16 +1156,6 @@ public class IndexColorModel extends ColorModel {
   }
 
   /**
-   * Disposes of system resources associated with this
-   * {@code ColorModel} once this {@code ColorModel} is no
-   * longer referenced.
-   */
-  @SuppressWarnings("FinalizeNotProtected")
-  @Override
-  public void finalize() {
-  }
-
-  /**
    * Returns {@code true} if {@code raster} is compatible
    * with this {@code ColorModel} or {@code false} if it
    * is not compatible with this {@code ColorModel}.
@@ -1278,11 +1253,8 @@ public class IndexColorModel extends ColorModel {
     }
 
     // Transfer type must be the same
-    if (sm.getTransferType() != transferType) {
-      return false;
-    }
+    return sm.getTransferType() == transferType && sm.getNumBands() == 1;
 
-    return sm.getNumBands() == 1;
   }
 
   /**

@@ -34,6 +34,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.lang.ref.WeakReference;
+
 import sun.awt.image.ByteInterleavedRaster;
 import sun.awt.image.IntegerInterleavedRaster;
 import sun.awt.image.SunWritableRaster;
@@ -142,13 +143,7 @@ abstract class TexturePaintContext implements PaintContext {
   }
 
   public static boolean isMaskOK(int mask, boolean canbezero) {
-    if (canbezero && mask == 0) {
-      return true;
-    }
-    return mask == 0xff ||
-        mask == 0xff00 ||
-        mask == 0xff0000 ||
-        mask == 0xff000000;
+    return canbezero && mask == 0 || mask == 0xff || mask == 0xff00 || mask == 0xff0000 || mask == 0xff000000;
   }
 
   public static ColorModel getInternedColorModel(ColorModel cm) {

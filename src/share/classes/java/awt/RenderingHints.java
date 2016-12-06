@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import sun.awt.SunHints;
 import sun.awt.SunHints.Value;
 
@@ -1200,10 +1201,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
     if (o instanceof RenderingHints) {
       return hintmap.equals(((RenderingHints) o).hintmap);
     }
-    if (o instanceof Map) {
-      return hintmap.equals(o);
-    }
-    return false;
+    return o instanceof Map && hintmap.equals(o);
   }
 
   /**

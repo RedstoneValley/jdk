@@ -256,12 +256,7 @@ public class StandardGlyphVector extends GlyphVector {
     if (!spannableString.equals(that.spannableString)) {
       return false;
     }
-    if (getFont() != null ? !getFont().equals(that.getFont()) : that.getFont() != null) {
-      return false;
-    }
-    return getFontRenderContext() != null
-        ? getFontRenderContext().equals(that.getFontRenderContext())
-        : that.getFontRenderContext() == null;
+    return getFont() != null ? getFont().equals(that.getFont()) : that.getFont() == null && (getFontRenderContext() != null ? getFontRenderContext().equals(that.getFontRenderContext()) : that.getFontRenderContext() == null);
   }
 
   public void initGlyphVector(Font font, FontRenderContext frc, int[] glyphs, float[] positions, int[] indices, int flags) {

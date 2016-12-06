@@ -32,7 +32,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
 
-import javax.accessibility.AccessibleAction;
 import javax.accessibility.AccessibleContext;
 import javax.accessibility.AccessibleRole;
 import javax.accessibility.AccessibleValue;
@@ -532,32 +531,6 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable {
     }
 
     /**
-     * Get the AccessibleAction associated with this object.  In the
-     * implementation of the Java Accessibility API for this class,
-     * return this object, which is responsible for implementing the
-     * AccessibleAction interface on behalf of itself.
-     *
-     * @return this object
-     */
-    @Override
-    public AccessibleAction getAccessibleAction() {
-      return this;
-    }
-
-    /**
-     * Get the AccessibleValue associated with this object.  In the
-     * implementation of the Java Accessibility API for this class,
-     * return this object, which is responsible for implementing the
-     * AccessibleValue interface on behalf of itself.
-     *
-     * @return this object
-     */
-    @Override
-    public AccessibleValue getAccessibleValue() {
-      return this;
-    }
-
-    /**
      * Returns the number of Actions available in this object.
      * If there is more than one, the first one is the "default"
      * action.
@@ -600,17 +573,6 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable {
     @Override
     public Number getCurrentAccessibleValue() {
       return null;  //  To be fully implemented in a future release
-    }
-
-    /**
-     * Set the value of this object as a Number.
-     *
-     * @return true if the value was set; otherwise false
-     * @see #getCurrentAccessibleValue
-     */
-    @Override
-    public boolean setCurrentAccessibleValue(Number n) {
-      return false;  //  To be fully implemented in a future release
     }
 
     /**

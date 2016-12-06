@@ -265,8 +265,6 @@ public class DropTargetContext implements Serializable {
     return getCurrentDataFlavorsAsList().contains(df);
   }
 
-  /***************************************************************************/
-
   /**
    * get the Transferable (proxy) operand of this operation
    * <p>
@@ -295,9 +293,7 @@ public class DropTargetContext implements Serializable {
     }
   }
 
-  /***************************************************************************/
-
-    /*
+  /*
      * fields
      */
 

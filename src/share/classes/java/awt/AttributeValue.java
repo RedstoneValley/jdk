@@ -26,6 +26,7 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.util.Arrays;
 
 abstract class AttributeValue {
@@ -59,10 +60,7 @@ abstract class AttributeValue {
 
     AttributeValue that = (AttributeValue) o;
 
-    if (value != that.value) {
-      return false;
-    }
-    return Arrays.equals(names, that.names);
+    return value == that.value && Arrays.equals(names, that.names);
   }
 
   public String toString() {

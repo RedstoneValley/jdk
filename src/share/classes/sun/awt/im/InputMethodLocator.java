@@ -77,12 +77,8 @@ final class InputMethodLocator {
     if (!descriptor.getClass().equals(otherLocator.descriptor.getClass())) {
       return false;
     }
-    if (loader == null && otherLocator.loader != null || loader != null && !loader.equals(
-        otherLocator.loader)) {
-      return false;
-    }
-    return !(locale == null && otherLocator.locale != null || locale != null && !locale.equals(
-        otherLocator.locale));
+    return !(loader == null && otherLocator.loader != null || loader != null && !loader.equals(
+            otherLocator.loader)) && !(locale == null && otherLocator.locale != null || locale != null && !locale.equals(otherLocator.locale));
   }
 
   InputMethodDescriptor getDescriptor() {
@@ -137,11 +133,7 @@ final class InputMethodLocator {
       return false;
     }
 
-    if (!descriptor.getClass().equals(other.descriptor.getClass())) {
-      return false;
-    }
-    return !(loader == null && other.loader != null
-                 || loader != null && !loader.equals(other.loader));
+    return descriptor.getClass().equals(other.descriptor.getClass()) && !(loader == null && other.loader != null || loader != null && !loader.equals(other.loader));
   }
 
   /**

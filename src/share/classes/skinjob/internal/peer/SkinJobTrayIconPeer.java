@@ -1,6 +1,7 @@
 package skinjob.internal.peer;
 
-import android.app.Notification;
+import android.R.drawable;
+import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.util.Log;
@@ -27,7 +28,7 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
   private static final String TAG = "SkinJobTrayIconPeer";
 
   private final TrayIcon thisTrayIcon;
-  private final Notification.Builder notificationBuilder;
+  private final Builder notificationBuilder;
   private final NotificationManager notificationManager;
   private final int id;
   private final Context androidContext;
@@ -36,7 +37,7 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
   public SkinJobTrayIconPeer(TrayIcon target) {
     thisTrayIcon = target;
     androidContext = SkinJobGlobals.getAndroidApplicationContext();
-    notificationBuilder = new Notification.Builder(androidContext);
+    notificationBuilder = new Builder(androidContext);
     notificationManager = androidContext.getSystemService(NotificationManager.class);
     id = NEXT_ID.incrementAndGet();
   }
@@ -71,17 +72,17 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
       case "ERROR":
         notificationBuilder.setPriority(PRIORITY_MAX);
         // TODO: Get a copy of https://material.io/icons/#ic_error to use here
-        notificationBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
+        notificationBuilder.setSmallIcon(drawable.stat_notify_error);
         break;
       case "WARNING":
         notificationBuilder.setPriority(PRIORITY_HIGH);
         // ! in triangle
-        notificationBuilder.setSmallIcon(android.R.drawable.stat_notify_error);
+        notificationBuilder.setSmallIcon(drawable.stat_notify_error);
         break;
       case "INFO":
         notificationBuilder.setPriority(PRIORITY_DEFAULT);
         // i in circle
-        notificationBuilder.setSmallIcon(android.R.drawable.ic_dialog_info);
+        notificationBuilder.setSmallIcon(drawable.ic_dialog_info);
         break;
       case "NONE":
         notificationBuilder.setPriority(PRIORITY_DEFAULT);

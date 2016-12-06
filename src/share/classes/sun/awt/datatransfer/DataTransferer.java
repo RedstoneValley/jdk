@@ -26,8 +26,8 @@
 package sun.awt.datatransfer;
 
 import android.util.Log;
+
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.FlavorMap;
 import java.awt.datatransfer.FlavorTable;
@@ -74,7 +74,6 @@ import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import sun.awt.ComponentFactory;
 
 /**
  * Provides a set of functions to be shared among the DataFlavor class and
@@ -193,15 +192,6 @@ public abstract class DataTransferer {
     tempMap.put("rfc822-headers", Boolean.FALSE);
     tempMap.put("parityfec", Boolean.FALSE);
     textMIMESubtypeCharsetSupport = Collections.synchronizedMap(tempMap);
-  }
-
-  /**
-   * The accessor method for the singleton DataTransferer instance. Note
-   * that in a headless environment, there may be no DataTransferer instance;
-   * instead, null will be returned.
-   */
-  public static synchronized DataTransferer getInstance() {
-    return ((ComponentFactory) Toolkit.getDefaultToolkit()).getDataTransferer();
   }
 
   /**
@@ -328,13 +318,8 @@ public abstract class DataTransferer {
    * 'charset' parameter.
    */
   public static boolean isFlavorNoncharsetTextType(DataFlavor flavor) {
-    if (!"text".equals(flavor.getPrimaryType()) || doesSubtypeSupportCharset(flavor)) {
-      return false;
-    }
+    return !(!"text".equals(flavor.getPrimaryType()) || doesSubtypeSupportCharset(flavor)) && (flavor.isRepresentationClassInputStream() || flavor.isRepresentationClassByteBuffer() || byte[].class.equals(flavor.getRepresentationClass()));
 
-    return flavor.isRepresentationClassInputStream() ||
-        flavor.isRepresentationClassByteBuffer() ||
-        byte[].class.equals(flavor.getRepresentationClass());
   }
 
   /**

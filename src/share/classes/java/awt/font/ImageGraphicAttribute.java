@@ -224,10 +224,7 @@ public final class ImageGraphicAttribute extends GraphicAttribute {
       return false;
     }
 
-    if (getAlignment() != rhs.getAlignment()) {
-      return false;
-    }
+    return getAlignment() == rhs.getAlignment() && fImage.equals(rhs.fImage);
 
-    return fImage.equals(rhs.fImage);
   }
 }

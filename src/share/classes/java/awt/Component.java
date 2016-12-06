@@ -50,7 +50,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.PaintEvent;
 import java.awt.event.TextEvent;
-import java.awt.event.WindowEvent;
 import java.awt.im.InputContext;
 import java.awt.im.InputMethodRequests;
 import java.awt.image.BufferStrategy;
@@ -92,13 +91,11 @@ import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.ComponentAccessor;
 import sun.awt.AppContext;
 import sun.awt.CausedFocusEvent.Cause;
-import sun.awt.ConstrainableGraphics;
 import sun.awt.EventQueueItem;
 import sun.awt.RequestFocusController;
 import sun.awt.SubRegionShowable;
 import sun.awt.SunGraphicsCallback;
 import sun.awt.SunToolkit;
-import sun.awt.WindowClosingListener;
 import sun.awt.dnd.SunDropTargetEvent;
 import sun.awt.graphicscallback.PeerPaintCallback;
 import sun.awt.graphicscallback.PeerPrintCallback;
@@ -2981,12 +2978,8 @@ public abstract class Component extends ComponentOrMenuComponent
       if (g == null) {
         return null;
       }
-      if (g instanceof ConstrainableGraphics) {
-        ((ConstrainableGraphics) g).constrain(x, y, width, height);
-      } else {
-        g.translate(x, y);
-        g.setClip(0, 0, width, height);
-      }
+      g.translate(x, y);
+      g.setClip(0, 0, width, height);
       g.setFont(getFont());
       return g;
     } else {
@@ -3009,12 +3002,8 @@ public abstract class Component extends ComponentOrMenuComponent
       if (g == null) {
         return null;
       }
-      if (g instanceof ConstrainableGraphics) {
-        ((ConstrainableGraphics) g).constrain(x, y, width, height);
-      } else {
-        g.translate(x, y);
-        g.setClip(0, 0, width, height);
-      }
+      g.translate(x, y);
+      g.setClip(0, 0, width, height);
       g.setFont(getFont_NoClientCode());
       return g;
     } else {
@@ -4119,16 +4108,6 @@ public abstract class Component extends ComponentOrMenuComponent
         }
         break;
 
-      case WindowEvent.WINDOW_CLOSING:
-        if (toolkit instanceof WindowClosingListener) {
-          windowClosingException
-              = ((WindowClosingListener) toolkit).windowClosingNotify((WindowEvent) e);
-          if (checkWindowClosingException()) {
-            return;
-          }
-        }
-        break;
-
       default:
         break;
     }
@@ -4179,20 +4158,6 @@ public abstract class Component extends ComponentOrMenuComponent
             break;
           default:
             break;
-        }
-      }
-    }
-
-        /*
-         * 8. Special handling for 4061116 : Hook for browser to close modal
-         *    dialogs.
-         */
-    if (id == WindowEvent.WINDOW_CLOSING && !e.isConsumed()) {
-      if (toolkit instanceof WindowClosingListener) {
-        windowClosingException = ((WindowClosingListener) toolkit).
-            windowClosingDelivered((WindowEvent) e);
-        if (checkWindowClosingException()) {
-          return;
         }
       }
     }

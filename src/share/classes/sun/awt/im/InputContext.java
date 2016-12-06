@@ -26,6 +26,7 @@
 package sun.awt.im;
 
 import android.util.Log;
+
 import java.awt.AWTEvent;
 import java.awt.AWTKeyStroke;
 import java.awt.Component;
@@ -42,7 +43,6 @@ import java.awt.event.InputMethodEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.awt.im.InputMethodRequests;
 import java.awt.im.spi.InputMethod;
 import java.lang.Character.Subset;
 import java.security.AccessController;
@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+
 import sun.awt.SunToolkit;
 
 /**
@@ -236,17 +237,6 @@ public class InputContext extends java.awt.im.InputContext
       return;
     }
 
-    // Ignore focus events that relate to the InputMethodWindow of this context.
-    // This is a workaround.  Should be removed after 4452384 is fixed.
-    if (event instanceof FocusEvent) {
-      Component opposite = ((FocusEvent) event).getOppositeComponent();
-      if (opposite != null &&
-          getComponentWindow(opposite) instanceof InputMethodWindow &&
-          opposite.getInputContext() == this) {
-        return;
-      }
-    }
-
     InputMethod inputMethod = getInputMethod();
     int id = event.getID();
 
@@ -312,16 +302,20 @@ public class InputContext extends java.awt.im.InputContext
       // and InputMethodContext.compositionAreaHandlerLock by releasing the composition
       // area on the event dispatch thread.
       if (EventQueue.isDispatchThread()) {
-        ((InputMethodContext) this).releaseCompositionArea();
+        releaseCompositionArea();
       } else {
         EventQueue.invokeLater(new Runnable() {
           @Override
           public void run() {
-            ((InputMethodContext) InputContext.this).releaseCompositionArea();
+            releaseCompositionArea();
           }
         });
       }
     }
+  }
+
+  private void releaseCompositionArea() {
+    // TODO
   }
 
   @Override
@@ -419,8 +413,6 @@ public class InputContext extends java.awt.im.InputContext
       synchronized (this) {
         if ("sun.awt.im.CompositionArea".equals(source.getClass().getName())) {
           // no special handling for this one
-        } else if (getComponentWindow(source) instanceof InputMethodWindow) {
-          // no special handling for this one either
         } else {
           if (!source.isDisplayable()) {
             // Component is being disposed
@@ -457,23 +449,9 @@ public class InputContext extends java.awt.im.InputContext
           activateInputMethod(true);
         }
 
-        // If the client component is an active client with the below-the-spot
-        // input style, then make the composition window undecorated without a title bar.
-        InputMethodContext inputContext = (InputMethodContext) this;
-        if (!inputContext.isCompositionAreaVisible()) {
-          InputMethodRequests req = source.getInputMethodRequests();
-          if (req != null && inputContext.useBelowTheSpotInput()) {
-            inputContext.setCompositionAreaUndecorated(true);
-          } else {
-            inputContext.setCompositionAreaUndecorated(false);
-          }
-        }
         // restores the composition area if it was set to invisible
         // when focus got lost
-        if (compositionAreaHidden) {
-          ((InputMethodContext) this).setCompositionAreaVisible(true);
-          compositionAreaHidden = false;
-        }
+        compositionAreaHidden = false;
       }
     }
   }
@@ -531,7 +509,11 @@ public class InputContext extends java.awt.im.InputContext
     }
     InputMethodManager.getInstance().setInputContext(this);
 
-    ((InputMethodContext) this).grabCompositionArea(updateCompositionArea);
+    grabCompositionArea(updateCompositionArea);
+  }
+
+  private void grabCompositionArea(boolean updateCompositionArea) {
+    // TODO
   }
 
   /**
@@ -565,11 +547,7 @@ public class InputContext extends java.awt.im.InputContext
         }
 
         // hides the composition area if currently it is visible
-        InputMethodContext inputContext = (InputMethodContext) this;
-        if (inputContext.isCompositionAreaVisible()) {
-          inputContext.setCompositionAreaVisible(false);
-          compositionAreaHidden = true;
-        }
+        compositionAreaHidden = true;
       }
     }
   }
@@ -802,9 +780,6 @@ public class InputContext extends java.awt.im.InputContext
         if (state != null) {
           enableClientWindowNotification(inputMethodInstance, state);
         }
-        ((InputMethodContext) this).setInputMethodSupportsBelowTheSpot(
-            !(inputMethodInstance instanceof InputMethodAdapter)
-                || ((InputMethodAdapter) inputMethodInstance).supportsBelowTheSpot());
         return inputMethodInstance;
       }
     }
@@ -837,9 +812,6 @@ public class InputContext extends java.awt.im.InputContext
       // same as above
       inputMethodCreationFailed = true;
     }
-    ((InputMethodContext) this).setInputMethodSupportsBelowTheSpot(
-        !(inputMethodInstance instanceof InputMethodAdapter)
-            || ((InputMethodAdapter) inputMethodInstance).supportsBelowTheSpot());
     return inputMethodInstance;
   }
 

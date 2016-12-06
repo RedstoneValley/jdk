@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TooManyListenersException;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -468,8 +469,6 @@ public class DropTarget implements DropTargetListener, Serializable {
     updateAutoscroll(dtde.getLocation());
   }
 
-  /********************************************************************/
-
   /**
    * Calls {@code dragExit} on the registered
    * {@code DropTargetListener} and passes it
@@ -498,8 +497,6 @@ public class DropTarget implements DropTargetListener, Serializable {
 
     clearAutoscroll();
   }
-
-  /********************************************************************/
 
   /**
    * Calls {@code drop} on the registered

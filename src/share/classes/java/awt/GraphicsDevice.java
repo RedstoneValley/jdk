@@ -25,11 +25,12 @@
 
 package java.awt;
 
-import android.os.Build;
+import android.os.Build.VERSION;
 
 import java.awt.image.ColorModel;
 
 import sun.awt.AWTAccessor;
+import sun.awt.AWTAccessor.EventQueueAccessor;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 
@@ -119,7 +120,7 @@ public abstract class GraphicsDevice {
    */
   static boolean isWindowShapingSupported() {
     // Android split-screen is introduced in SDK 24
-    return Build.VERSION.SDK_INT >= 24;
+    return VERSION.SDK_INT >= 24;
   }
 
   /**
@@ -144,7 +145,7 @@ public abstract class GraphicsDevice {
     AppContext appContext = SunToolkit.targetToAppContext(target);
     EventQueue eq = (EventQueue) appContext.get(AppContext.EVENT_QUEUE_KEY);
 
-    AWTAccessor.EventQueueAccessor accessor = AWTAccessor.getEventQueueAccessor();
+    EventQueueAccessor accessor = AWTAccessor.getEventQueueAccessor();
     return accessor.isDispatchThreadImpl(eq);
   }
 

@@ -28,7 +28,6 @@ package sun.awt.shell;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.concurrent.Callable;
-import sun.awt.shell.ShellFolder.Invoker;
 
 /**
  * @author Michael Martak
@@ -41,7 +40,7 @@ class ShellFolderManager {
    * Override to return machine-dependent behavior.
    */
   public ShellFolder createShellFolder(File file) throws FileNotFoundException {
-    return new DefaultShellFolder(null, file);
+    return new ShellFolder(null, file.getAbsolutePath());
   }
 
   /**
@@ -103,21 +102,17 @@ class ShellFolderManager {
   }
 
   public boolean isFileSystemRoot(File dir) {
-    if (dir instanceof ShellFolder && !((ShellFolder) dir).isFileSystem()) {
-      return false;
-    }
-    return dir.getParentFile() == null;
+    return !(dir instanceof ShellFolder && !((ShellFolder) dir).isFileSystem()) && dir.getParentFile() == null;
   }
 
-  protected Invoker createInvoker() {
+  protected DirectInvoker createInvoker() {
     return new DirectInvoker();
   }
 
-  private static class DirectInvoker implements Invoker {
+  static class DirectInvoker {
     DirectInvoker() {
     }
 
-    @Override
     public <T> T invoke(Callable<T> task) throws Exception {
       return task.call();
     }

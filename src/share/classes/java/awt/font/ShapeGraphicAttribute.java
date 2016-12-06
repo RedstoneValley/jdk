@@ -246,10 +246,7 @@ public final class ShapeGraphicAttribute extends GraphicAttribute {
       return false;
     }
 
-    if (getAlignment() != rhs.getAlignment()) {
-      return false;
-    }
+    return getAlignment() == rhs.getAlignment() && fShape.equals(rhs.fShape);
 
-    return fShape.equals(rhs.fShape);
   }
 }

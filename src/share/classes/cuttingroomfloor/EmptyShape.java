@@ -15,7 +15,7 @@ public final class EmptyShape implements Shape {
 
   public static final EmptyShape INSTANCE = new EmptyShape();
 
-  private static EmptyPathIterator EMPTY_PATH_ITERATOR = new EmptyPathIterator();
+  private static final EmptyPathIterator EMPTY_PATH_ITERATOR = new EmptyPathIterator();
 
   /**
    * Singleton.

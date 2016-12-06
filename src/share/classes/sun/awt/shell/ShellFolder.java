@@ -25,16 +25,13 @@
 
 package sun.awt.shell;
 
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectStreamException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 
 /**
@@ -42,9 +39,9 @@ import java.util.concurrent.Callable;
  * @since 1.4
  */
 
-public abstract class ShellFolder extends File {
+public class ShellFolder extends File {
   private static final ShellFolderManager shellFolderManager;
-  private static final Invoker invoker;
+  private static final ShellFolderManager.DirectInvoker invoker;
   static final Comparator<File> FILE_COMPARATOR = new Comparator<File>() {
     @Override
     public int compare(File f1, File f2) {
@@ -236,16 +233,16 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * This method must be implemented to make sure that no instances
-   * of {@code ShellFolder} are ever serialized. If {@code isFileSystem()} returns
-   * {@code true}, then the object should be representable with an instance of
-   * {@code java.io.File} instead. If not, then the object is most likely
-   * depending on some internal (native) state and cannot be serialized.
+   * This method is implemented to make sure that no instances
+   * of {@code ShellFolder} are ever serialized. An instance of
+   * this default implementation can always be represented with a
+   * {@code java.io.File} object instead.
    *
-   * @returns a {@code java.io.File} replacement object, or {@code null}
-   * if no suitable replacement can be found.
+   * @returns a {@code java.io.File} replacement object.
    */
-  protected abstract Object writeReplace() throws ObjectStreamException;
+  protected Object writeReplace() throws ObjectStreamException {
+    return new File(getPath());
+  }
 
   /**
    * Returns the path for this object's parent,
@@ -360,11 +357,6 @@ public abstract class ShellFolder extends File {
   }
 
   @Override
-  public File[] listFiles() {
-    return listFiles(true);
-  }
-
-  @Override
   public boolean mkdir() {
     return isFileSystem() && super.mkdir();
   }
@@ -408,55 +400,33 @@ public abstract class ShellFolder extends File {
     return isFileSystem() ? super.toString() : getDisplayName();
   }
 
-  public File[] listFiles(boolean includeHiddenFiles) {
+  /**
+   * @return An array of shell folders that are children of this shell folder
+   * object, null if this shell folder is empty.
+   */
+  @Override
+  public File[] listFiles() {
     File[] files = super.listFiles();
-
-    if (!includeHiddenFiles) {
-      Vector<File> v = new Vector<>();
-      int nameCount = files == null ? 0 : files.length;
-      for (int i = 0; i < nameCount; i++) {
-        if (!files[i].isHidden()) {
-          v.addElement(files[i]);
-        }
+    if (files != null) {
+      for (int i = 0; i < files.length; i++) {
+        files[i] = new ShellFolder(this, files[i].getAbsolutePath());
       }
-      files = v.toArray(new File[v.size()]);
     }
-
     return files;
   }
 
   /**
    * @return Whether this shell folder is a link
    */
-  public abstract boolean isLink();
-
-  /**
-   * @return The shell folder linked to by this shell folder, or null
-   * if this shell folder is not a link
-   */
-  public abstract ShellFolder getLinkLocation() throws FileNotFoundException;
+  public boolean isLink() {
+    return false; // Not supported by default
+  }
 
   /**
    * @return The name used to display this shell folder
    */
-  public abstract String getDisplayName();
-
-  /**
-   * @return The type of shell folder as a string
-   */
-  public abstract String getFolderType();
-
-  /**
-   * @return The executable type as a string
-   */
-  public abstract String getExecutableType();
-
-  /**
-   * @param getLargeIcon whether to return large icon (ignored in base implementation)
-   * @return The icon used to display this shell folder
-   */
-  public Image getIcon(boolean getLargeIcon) {
-    return null;
+  public String getDisplayName() {
+    return getName();
   }
 
   public void sortChildren(List<? extends File> files) {
@@ -497,17 +467,11 @@ public abstract class ShellFolder extends File {
   }
 
   /**
-   * Interface allowing to invoke tasks in different environments on different platforms.
+   * @return Whether this shell folder is marked as hidden
    */
-  public interface Invoker {
-    /**
-     * Invokes a callable task.
-     *
-     * @param task a task to invoke
-     * @return the result of {@code task}'s invokation
-     * @throws Exception {@code InterruptedException} or an exception that was thrown from the
-     *                   {@code task}
-     */
-    <T> T invoke(Callable<T> task) throws Exception;
+  @Override
+  public boolean isHidden() {
+    String fileName = getName();
+    return !fileName.isEmpty() && fileName.charAt(0) == '.';
   }
 }

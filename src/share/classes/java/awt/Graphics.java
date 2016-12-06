@@ -191,7 +191,7 @@ public abstract class Graphics {
    * @see Color
    * @see Graphics#setColor(Color)
    */
-  public abstract Color getColor();
+  public abstract Color  getColor();
 
   /**
    * Sets this graphics context's current color to the specified
@@ -1259,10 +1259,7 @@ public abstract class Graphics {
     // Subclasses should override this method and calculate
     // the results more directly.
     Rectangle clipRect = getClipBounds();
-    if (clipRect == null) {
-      return true;
-    }
-    return clipRect.intersects(x, y, width, height);
+    return clipRect == null || clipRect.intersects(x, y, width, height);
   }
 
   /**

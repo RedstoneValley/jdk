@@ -216,10 +216,7 @@ public final class SunHints {
      */
     @Override
     public boolean isCompatibleValue(Object val) {
-      if (val instanceof Value) {
-        return ((Value) val).isCompatibleKey(this);
-      }
-      return false;
+      return val instanceof Value && ((Value) val).isCompatibleKey(this);
     }
 
     /**

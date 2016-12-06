@@ -26,6 +26,7 @@
 package sun.awt;
 
 import android.util.Log;
+
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -42,11 +43,7 @@ public abstract class SunGraphicsCallback {
   public abstract void run(Component comp, Graphics cg);
 
   protected void constrainGraphics(Graphics g, Rectangle bounds) {
-    if (g instanceof ConstrainableGraphics) {
-      ((ConstrainableGraphics) g).constrain(bounds.x, bounds.y, bounds.width, bounds.height);
-    } else {
-      g.translate(bounds.x, bounds.y);
-    }
+    g.translate(bounds.x, bounds.y);
     g.clipRect(0, 0, bounds.width, bounds.height);
   }
 
@@ -73,8 +70,6 @@ public abstract class SunGraphicsCallback {
         cg.setColor(comp.getForeground());
         if (cg instanceof Graphics2D) {
           ((Graphics2D) cg).setBackground(comp.getBackground());
-        } else if (cg instanceof Graphics2Delegate) {
-          ((Graphics2Delegate) cg).setBackground(comp.getBackground());
         }
         run(comp, cg);
       } finally {

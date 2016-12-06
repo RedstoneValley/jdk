@@ -26,6 +26,7 @@
 package sun.awt.dnd;
 
 import android.util.Log;
+
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
@@ -44,6 +45,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
+
+import skinjob.internal.SkinJobDataTransferer;
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 import sun.awt.datatransfer.DataTransferer;
@@ -135,8 +138,11 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   public boolean isDataFlavorSupported(DataFlavor df) {
     Transferable localTransferable = local;
 
-    return localTransferable != null ? localTransferable.isDataFlavorSupported(df) : DataTransferer
-        .getInstance()
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    return localTransferable != null ? localTransferable.isDataFlavorSupported(df) : result
         .getFlavorsForFormats(currentT, DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()))
         .
             containsKey(df);
@@ -161,8 +167,11 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
       throw new InvalidDnDOperationException("No drop current");
     }
 
-    Map flavorMap = DataTransferer
-        .getInstance()
+    DataTransferer result1;
+    synchronized (DataTransferer.class) {
+      result1 = null;
+    }
+    Map flavorMap = result1
         .getFlavorsForFormats(currentT, DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()));
 
     lFormat = (Long) flavorMap.get(df);
@@ -181,14 +190,22 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     if (ret instanceof byte[]) {
       try {
-        return DataTransferer.getInstance().
+        DataTransferer result;
+        synchronized (DataTransferer.class) {
+          result = null;
+        }
+        return result.
             translateBytes((byte[]) ret, df, format, this);
       } catch (IOException e) {
         throw new InvalidDnDOperationException(e.getMessage());
       }
     } else if (ret instanceof InputStream) {
       try {
-        return DataTransferer.getInstance().
+        DataTransferer result;
+        synchronized (DataTransferer.class) {
+          result = null;
+        }
+        return result.
             translateStream((InputStream) ret, df, format, this);
       } catch (IOException e) {
         throw new InvalidDnDOperationException(e.getMessage());
@@ -236,8 +253,11 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   public DataFlavor[] getTransferDataFlavors() {
     Transferable localTransferable = local;
 
-    return localTransferable != null ? localTransferable.getTransferDataFlavors() : DataTransferer
-        .getInstance()
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    return localTransferable != null ? localTransferable.getTransferDataFlavors() : result
         .getFlavorsForFormatsAsArray(currentT,
             DataTransferer.adaptFlavorMap(currentDT.getFlavorMap()));
   }
@@ -642,7 +662,11 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
     SunDropTargetEvent event = new SunDropTargetEvent(component, eventID, x, y, dispatcher);
 
     if (dispatchType == DISPATCH_SYNC) {
-      DataTransferer.getInstance().getToolkitThreadBlockedHandler().lock();
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      result.getToolkitThreadBlockedHandler().lock();
     }
 
     // schedule callback
@@ -652,10 +676,18 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
     if (dispatchType == DISPATCH_SYNC) {
       while (!dispatcher.isDone()) {
-        DataTransferer.getInstance().getToolkitThreadBlockedHandler().enter();
+        DataTransferer result;
+        synchronized (DataTransferer.class) {
+          result = null;
+        }
+        result.getToolkitThreadBlockedHandler().enter();
       }
 
-      DataTransferer.getInstance().getToolkitThreadBlockedHandler().unlock();
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      result.getToolkitThreadBlockedHandler().unlock();
 
       // return target's response
       return dispatcher.getReturnValue();
@@ -697,9 +729,14 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
 
   protected static class EventDispatcher {
 
-    static final ToolkitThreadBlockedHandler handler = DataTransferer
-        .getInstance()
-        .getToolkitThreadBlockedHandler();
+    static final ToolkitThreadBlockedHandler handler;
+
+    static {
+      DataTransferer result = new SkinJobDataTransferer();
+      handler = result
+          .getToolkitThreadBlockedHandler();
+    }
+
     private final SunDropTargetContextPeer peer;
     // context fields
     private final int dropAction;

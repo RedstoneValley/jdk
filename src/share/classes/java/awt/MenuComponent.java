@@ -44,8 +44,6 @@ import javax.accessibility.AccessibleSelection;
 import javax.accessibility.AccessibleStateSet;
 
 import skinjob.internal.ComponentOrMenuComponent;
-import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
-import skinjob.internal.WrappedAndroidObjectsSupplier;
 import sun.awt.AWTAccessor;
 import sun.awt.AWTAccessor.MenuComponentAccessor;
 import sun.awt.AppContext;
@@ -157,11 +155,6 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
   public MenuComponent() throws HeadlessException {
     super();
     appContext = AppContext.getAppContext();
-  }
-
-  @Override
-  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
-    return new DefaultWrappedAndroidObjectsSupplier<>(View.class);
   }
 
   /*

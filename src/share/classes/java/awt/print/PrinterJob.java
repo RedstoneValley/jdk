@@ -32,7 +32,7 @@ import java.security.PrivilegedAction;
 
 import javax.print.attribute.standard.MediaPrintableArea;
 
-import sun.awt.DocFlavor;
+import sun.awt.DocFlavor.SERVICE_FORMATTED;
 import sun.awt.PrintServiceLookup;
 import sun.awt.print.OrientationRequested;
 import sun.awt.print.PrintService;
@@ -107,7 +107,7 @@ public abstract class PrinterJob {
    */
   public static PrintService[] lookupPrintServices() {
     return PrintServiceLookup.
-        lookupPrintServices(DocFlavor.SERVICE_FORMATTED.PAGEABLE, null);
+        lookupPrintServices(SERVICE_FORMATTED.PAGEABLE, null);
   }
 
 
@@ -411,9 +411,9 @@ public abstract class PrinterJob {
 
     if (orientReq != null && service.isAttributeValueSupported(orientReq, null, attributes)) {
       int orient;
-      if (orientReq.equals(OrientationRequested.REVERSE_LANDSCAPE)) {
+      if (orientReq == OrientationRequested.REVERSE_LANDSCAPE) {
         orient = PageFormat.REVERSE_LANDSCAPE;
-      } else if (orientReq.equals(OrientationRequested.LANDSCAPE)) {
+      } else if (orientReq == OrientationRequested.LANDSCAPE) {
         orient = PageFormat.LANDSCAPE;
       } else {
         orient = PageFormat.PORTRAIT;

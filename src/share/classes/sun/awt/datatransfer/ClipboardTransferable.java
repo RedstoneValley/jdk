@@ -66,7 +66,11 @@ public class ClipboardTransferable implements Transferable {
         // read it.
         HashMap cached_data = new HashMap(formats.length, 1.0f);
 
-        Map flavorsForFormats = DataTransferer.getInstance().
+        DataTransferer result;
+        synchronized (DataTransferer.class) {
+          result = null;
+        }
+        Map flavorsForFormats = result.
             getFlavorsForFormats(formats, SunClipboard.getDefaultFlavorTable());
         for (Object o : flavorsForFormats.keySet()) {
           DataFlavor flavor = (DataFlavor) o;
@@ -157,7 +161,11 @@ public class ClipboardTransferable implements Transferable {
     }
 
     public Object getTransferData(DataFlavor flavor) throws IOException {
-      return DataTransferer.getInstance().
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      return result.
           translateBytes(data, flavor, format, ClipboardTransferable.this);
     }
   }

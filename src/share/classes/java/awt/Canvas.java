@@ -24,13 +24,9 @@
  */
 package java.awt;
 
-import android.view.View;
-
 import java.awt.image.BufferStrategy;
 import java.awt.peer.CanvasPeer;
 
-import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
-import skinjob.internal.WrappedAndroidObjectsSupplier;
 import skinjob.internal.peer.SkinJobCanvasPeer;
 
 /**
@@ -60,11 +56,6 @@ public class Canvas extends Component {
    */
   public Canvas() {
     peer = new SkinJobCanvasPeer(this);
-  }
-
-  @Override
-  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
-    return new DefaultWrappedAndroidObjectsSupplier<>(View.class);
   }
 
   /**

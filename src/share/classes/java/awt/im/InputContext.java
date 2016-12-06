@@ -29,7 +29,8 @@ import java.awt.AWTEvent;
 import java.awt.Component;
 import java.lang.Character.Subset;
 import java.util.Locale;
-import sun.awt.im.InputMethodContext;
+
+import skinjob.internal.SkinJobInputContext;
 
 /**
  * Provides methods to control text input facilities such as input
@@ -88,7 +89,7 @@ public class InputContext {
    * Returns a new InputContext instance.
    */
   public static InputContext getInstance() {
-    return new InputMethodContext();
+    return new SkinJobInputContext();
   }
 
   /**

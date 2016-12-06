@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+
 import sun.awt.AppContext;
 import sun.awt.datatransfer.DataTransferer;
 
@@ -557,7 +558,11 @@ public final class SystemFlavorMap implements FlavorTable {
                 // parameters, if any, so that the
                 // DataTransferer will have this information
                 // for conversion into the native format.
-                DataTransferer transferer = DataTransferer.getInstance();
+                DataTransferer result;
+                synchronized (DataTransferer.class) {
+                  result = null;
+                }
+                DataTransferer transferer = result;
                 if (transferer != null) {
                   transferer.registerTextFlavorProperties(key,
                       charset,
@@ -724,7 +729,11 @@ public final class SystemFlavorMap implements FlavorTable {
     LinkedHashSet<DataFlavor> flavors = getNativeToFlavor().get(nat);
 
     if (nat != null && !disabledMappingGenerationKeys.contains(nat)) {
-      DataTransferer transferer = DataTransferer.getInstance();
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      DataTransferer transferer = result;
       if (transferer != null) {
         LinkedHashSet<DataFlavor> platformFlavors = transferer.getPlatformMappingsForNative(nat);
         if (!platformFlavors.isEmpty()) {
@@ -786,7 +795,11 @@ public final class SystemFlavorMap implements FlavorTable {
     LinkedHashSet<String> natives = getFlavorToNative().get(flav);
 
     if (flav != null && !disabledMappingGenerationKeys.contains(flav)) {
-      DataTransferer transferer = DataTransferer.getInstance();
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      DataTransferer transferer = result;
       if (transferer != null) {
         LinkedHashSet<String> platformNatives = transferer.getPlatformMappingsForFlavor(flav);
         if (!platformNatives.isEmpty()) {

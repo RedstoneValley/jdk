@@ -51,7 +51,6 @@ import sun.awt.AWTAccessor.EventQueueAccessor;
 import sun.awt.AWTAutoShutdown;
 import sun.awt.AppContext;
 import sun.awt.EventQueueItem;
-import sun.awt.FwDispatcher;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
 import sun.awt.dnd.SunDropTargetEvent;
@@ -208,7 +207,6 @@ public class EventQueue {
    * a particular ID to be posted to the queue.
    */
   private volatile int waitForID;
-  private FwDispatcher fwDispatcher;
 
   public EventQueue() {
     for (int i = 0; i < NUM_PRIORITIES; i++) {
@@ -601,10 +599,7 @@ public class EventQueue {
     if (e instanceof PaintEvent) {
       return coalescePaintEvent((PaintEvent) e);
     }
-    if (e instanceof MouseEvent) {
-      return coalesceMouseEvent((MouseEvent) e);
-    }
-    return false;
+    return e instanceof MouseEvent && coalesceMouseEvent((MouseEvent) e);
   }
 
   private void cacheEQItem(EventQueueItem entry) {
@@ -819,15 +814,8 @@ public class EventQueue {
     // In case fwDispatcher is installed and we're already on the
     // dispatch thread (e.g. performing DefaultKeyboardFocusManager.sendMessage),
     // dispatch the event straight away.
-    if (fwDispatcher == null || isDispatchThreadImpl()) {
+    if (isDispatchThreadImpl()) {
       dispatchEventImpl(event, src);
-    } else {
-      fwDispatcher.scheduleDispatch(new Runnable() {
-        @Override
-        public void run() {
-          dispatchEventImpl(event, src);
-        }
-      });
     }
   }
 
@@ -906,9 +894,6 @@ public class EventQueue {
       EventQueue topQueue = this;
       while (topQueue.nextQueue != null) {
         topQueue = topQueue.nextQueue;
-      }
-      if (topQueue.fwDispatcher != null) {
-        throw new RuntimeException("push() to queue with fwDispatcher");
       }
       if (topQueue.dispatchThread != null && topQueue.dispatchThread.getEventQueue() == this) {
         newEventQueue.dispatchThread = topQueue.dispatchThread;
@@ -1026,9 +1011,6 @@ public class EventQueue {
         // Forward the request to the top of EventQueue stack
         return nextQueue.createSecondaryLoop(cond, filter, interval);
       }
-      if (fwDispatcher != null) {
-        return fwDispatcher.createSecondaryLoop();
-      }
       if (dispatchThread == null) {
         initDispatchThread();
       }
@@ -1046,9 +1028,6 @@ public class EventQueue {
       while (next != null) {
         eq = next;
         next = eq.nextQueue;
-      }
-      if (eq.fwDispatcher != null) {
-        return eq.fwDispatcher.isDispatchThread();
       }
       return Thread.currentThread() == eq.dispatchThread;
     } finally {
@@ -1246,15 +1225,6 @@ public class EventQueue {
       }
     } finally {
       pushPopLock.unlock();
-    }
-  }
-
-  // The method is used by AWTAccessor for javafx/AWT single threaded mode.
-  void setFwDispatcher(FwDispatcher dispatcher) {
-    if (nextQueue != null) {
-      nextQueue.setFwDispatcher(dispatcher);
-    } else {
-      fwDispatcher = dispatcher;
     }
   }
 

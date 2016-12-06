@@ -1,10 +1,12 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.event.AWTEventListener;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+
 import sun.awt.AppContext;
 import sun.awt.SunToolkit;
 import sun.awt.dnd.SunDropTargetEvent;
@@ -75,11 +77,11 @@ class LightweightDispatcher implements java.io.Serializable, AWTEventListener {
   /**
    * Is the mouse over the native container.
    */
-  private transient boolean isMouseInNativeContainer = false;
+  private transient boolean isMouseInNativeContainer;
   /**
    * Is DnD over the native container.
    */
-  private transient boolean isMouseDTInNativeContainer = false;
+  private transient boolean isMouseDTInNativeContainer;
   /**
    * This variable is not used, but kept for serialization compatibility
    */

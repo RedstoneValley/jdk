@@ -180,32 +180,6 @@ public class ShortInterleavedRaster extends ShortComponentRaster {
   }
 
   /**
-   * Returns the scanline stride -- the number of data array elements between
-   * a given sample and the same sample in the same column of the next row.
-   */
-  @Override
-  public int getScanlineStride() {
-    return scanlineStride;
-  }
-
-  /**
-   * Returns pixel stride -- the number of data array elements  between two
-   * samples for the same band on the same scanline.
-   */
-  @Override
-  public int getPixelStride() {
-    return pixelStride;
-  }
-
-  /**
-   * Returns a reference to the data array.
-   */
-  @Override
-  public short[] getDataStorage() {
-    return data;
-  }
-
-  /**
    * Returns a short integer array of data elements from the
    * specified rectangular region.
    * An ArrayIndexOutOfBounds exception will be thrown at runtime

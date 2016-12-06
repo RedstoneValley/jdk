@@ -622,7 +622,7 @@ final class TextLine {
   /**
    * Return the inverse position map.  The source array must map one-to-one (each value
    * is distinct and the values run from zero to the length of the array minus one).
-   * For example, if <code>values[i] = j</code>, then <code>inverse[j] = i</code>.
+   * For example, if <code>values[i] = j</code>, then {@code inverse[j] = i}.
    * @param values the source ordering array
    * @return the inverse array
    */

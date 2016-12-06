@@ -473,11 +473,8 @@ public final class SunToolkit {
     if (obj == null) {
       return false;
     }
-    if (type == null) {
-      return false;
-    }
+    return type != null && isInstanceOf(obj.getClass(), type);
 
-    return isInstanceOf(obj.getClass(), type);
   }
 
   private static boolean isInstanceOf(Class<?> cls, String type) {

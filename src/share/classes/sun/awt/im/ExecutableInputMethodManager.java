@@ -48,7 +48,6 @@ import java.util.prefs.Preferences;
 
 import skinjob.SkinJobGlobals;
 import sun.awt.AppContext;
-import sun.awt.InputMethodSupport;
 import sun.awt.SunToolkit;
 
 /**
@@ -86,21 +85,6 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
   private Preferences userRoot;
 
   ExecutableInputMethodManager() {
-
-    // set up host adapter locator
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    try {
-      if (toolkit instanceof InputMethodSupport) {
-        InputMethodDescriptor hostAdapterDescriptor
-            = ((InputMethodSupport) toolkit).getInputMethodAdapterDescriptor();
-        if (hostAdapterDescriptor != null) {
-          hostAdapterLocator = new InputMethodLocator(hostAdapterDescriptor, null, null);
-        }
-      }
-    } catch (AWTException e) {
-      // if we can't get a descriptor, we'll just have to do without native input methods
-    }
-
     javaInputMethodLocatorList = new Vector<>();
     initializeInputMethodLocatorList();
   }
@@ -156,7 +140,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
     }
 
     requestComponent = comp;
-    notify();
+    notifyAll();
   }
 
   @Override
@@ -240,9 +224,7 @@ class ExecutableInputMethodManager extends InputMethodManager implements Runnabl
 
   @Override
   Locale getDefaultKeyboardLocale() {
-    Toolkit toolkit = Toolkit.getDefaultToolkit();
-    return toolkit instanceof InputMethodSupport
-        ? ((InputMethodSupport) toolkit).getDefaultKeyboardLocale() : Locale.getDefault();
+    return Locale.getDefault();
   }
 
   /*

@@ -26,14 +26,13 @@
 package java.awt;
 
 import android.util.Log;
+
 import java.awt.EventFilter.FilterAction;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
-import sun.awt.EventQueueDelegate;
-import sun.awt.EventQueueDelegate.Delegate;
-import sun.awt.ModalExclude;
+
 import sun.awt.SunToolkit;
 import sun.awt.dnd.SunDragSourceContextPeer;
 
@@ -154,17 +153,10 @@ class EventDispatchThread extends Thread {
     boolean eventOK;
     try {
       EventQueue eq;
-      Delegate delegate;
       do {
         // EventQueue may change during the dispatching
         eq = getEventQueue();
-        delegate = EventQueueDelegate.getDelegate();
-
-        if (delegate != null && id == ANY_EVENT) {
-          event = delegate.getNextEvent(eq);
-        } else {
-          event = id == ANY_EVENT ? eq.getNextEvent() : eq.getNextEvent(id);
-        }
+        event = id == ANY_EVENT ? eq.getNextEvent() : eq.getNextEvent(id);
 
         eventOK = true;
         synchronized (eventFilters) {
@@ -278,11 +270,7 @@ class EventDispatchThread extends Thread {
         }
         if (mouseEvent || actionEvent || windowClosingEvent) {
           Object o = event.getSource();
-          if (o instanceof ModalExclude) {
-            // Exclude this object from modality and
-            // continue to pump it's events.
-            return FilterAction.ACCEPT;
-          } else if (o instanceof Component) {
+          if (o instanceof Component) {
             Component c = (Component) o;
             // 5.0u3 modal exclusion
             boolean modalExcluded = false;

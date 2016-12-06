@@ -160,32 +160,6 @@ public class IntegerInterleavedRaster extends IntegerComponentRaster {
   }
 
   /**
-   * Returns the scanline stride -- the number of data array elements between
-   * a given sample and the sample in the same column of the next row.
-   */
-  @Override
-  public int getScanlineStride() {
-    return scanlineStride;
-  }
-
-  /**
-   * Returns pixel stride -- the number of data array elements  between two
-   * samples for the same band on the same scanline.
-   */
-  @Override
-  public int getPixelStride() {
-    return pixelStride;
-  }
-
-  /**
-   * Returns a reference to the data array.
-   */
-  @Override
-  public int[] getDataStorage() {
-    return data;
-  }
-
-  /**
    * Creates a subraster given a region of the raster.  The x and y
    * coordinates specify the horizontal and vertical offsets
    * from the upper-left corner of this raster to the upper-left corner

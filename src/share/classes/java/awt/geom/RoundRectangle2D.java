@@ -647,13 +647,7 @@ public abstract class RoundRectangle2D extends RectangularShape {
    */
   @Override
   public boolean contains(double x, double y, double w, double h) {
-    if (isEmpty() || w <= 0 || h <= 0) {
-      return false;
-    }
-    return contains(x, y) &&
-        contains(x + w, y) &&
-        contains(x, y + h) &&
-        contains(x + w, y + h);
+    return !(isEmpty() || w <= 0 || h <= 0) && contains(x, y) && contains(x + w, y) && contains(x, y + h) && contains(x + w, y + h);
   }
 
   /**

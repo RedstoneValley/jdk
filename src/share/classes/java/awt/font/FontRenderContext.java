@@ -29,6 +29,8 @@
 
 package java.awt.font;
 
+import java.awt.geom.AffineTransform;
+
 import static java.awt.RenderingHints.KEY_FRACTIONALMETRICS;
 import static java.awt.RenderingHints.KEY_TEXT_ANTIALIASING;
 import static java.awt.RenderingHints.VALUE_FRACTIONALMETRICS_DEFAULT;
@@ -37,8 +39,6 @@ import static java.awt.RenderingHints.VALUE_FRACTIONALMETRICS_ON;
 import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_DEFAULT;
 import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;
 import static java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-
-import java.awt.geom.AffineTransform;
 
 /**
  * The {@code FontRenderContext} class is a container for the
@@ -298,11 +298,7 @@ public class FontRenderContext {
 
         /* if neither instance is a subclass, reference values directly. */
     if (!rhs.defaulting && !defaulting) {
-      if (rhs.aaHintValue == aaHintValue && rhs.fmHintValue == fmHintValue) {
-
-        return tx == null ? rhs.tx == null : tx.equals(rhs.tx);
-      }
-      return false;
+      return rhs.aaHintValue == aaHintValue && rhs.fmHintValue == fmHintValue && (tx == null ? rhs.tx == null : tx.equals(rhs.tx));
     } else {
       return rhs.getAntiAliasingHint() == getAntiAliasingHint() &&
           rhs.getFractionalMetricsHint() == getFractionalMetricsHint() &&

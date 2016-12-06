@@ -4,7 +4,7 @@ import android.R.color;
 import android.R.drawable;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.view.View;
 import android.widget.ListView;
 
@@ -13,6 +13,7 @@ import java.awt.BasicStroke;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.RenderingHints;
+import java.awt.RenderingHints.Key;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.awt.peer.ComponentPeer;
@@ -120,7 +121,7 @@ public final class SkinJobGlobals {
    * used to look up the application context when this field is left null. That fallback method's
    * output is not cached.
    */
-  public static volatile Context applicationContext = null;
+  public static volatile Context applicationContext;
   /**
    * Delay in milliseconds between when a {@link java.awt.dnd.DropTarget.DropTargetAutoScroller}
    * gets created or changes state, and the start of its first refresh.
@@ -165,7 +166,7 @@ public final class SkinJobGlobals {
   public static volatile float graphicItalicAngle = TextAttribute.POSTURE_OBLIQUE;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
 
-  public static volatile Bitmap.CompressFormat imageOutputFormat = Bitmap.CompressFormat.PNG;
+  public static volatile CompressFormat imageOutputFormat = CompressFormat.PNG;
 
   /** See {@link android.graphics.Bitmap#compress}. */
   public static volatile int imageQuality = 100;
@@ -175,7 +176,7 @@ public final class SkinJobGlobals {
     menuDivider = View.inflate(context,
         drawable.divider_horizontal_dim_dark,
         new ListView(context));
-    HashMap<RenderingHints.Key, Object> m = new HashMap<>();
+    HashMap<Key, Object> m = new HashMap<>();
     m.put(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY);
     m.put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
     m.put(KEY_COLOR_RENDERING, VALUE_COLOR_RENDER_QUALITY);

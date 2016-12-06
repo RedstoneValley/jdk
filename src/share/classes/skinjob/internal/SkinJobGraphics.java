@@ -8,7 +8,7 @@ import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
@@ -25,6 +25,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.RenderingHints.Key;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.font.FontRenderContext;
@@ -127,8 +128,8 @@ public class SkinJobGraphics extends Graphics2D {
      */
     @Override
     public void setXORMode(Color c1) {
-        brush.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), PorterDuff.Mode.XOR));
-        pen.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), PorterDuff.Mode.XOR));
+        brush.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), Mode.XOR));
+        pen.setColorFilter(new PorterDuffColorFilter(c1.getRGB(), Mode.XOR));
     }
 
     @Override
@@ -370,6 +371,7 @@ public class SkinJobGraphics extends Graphics2D {
     public synchronized void setColor(int color) {
         pen.setColor(color);
         brush.setColor(color);
+        this.color = color;
     }
 
     @Override
@@ -465,12 +467,12 @@ public class SkinJobGraphics extends Graphics2D {
     }
 
     @Override
-    public void setRenderingHint(RenderingHints.Key hintKey, Object hintValue) {
+    public void setRenderingHint(Key hintKey, Object hintValue) {
         renderingHints.put(hintKey, hintValue);
     }
 
     @Override
-    public Object getRenderingHint(RenderingHints.Key hintKey) {
+    public Object getRenderingHint(Key hintKey) {
         return renderingHints.get(hintKey);
     }
 

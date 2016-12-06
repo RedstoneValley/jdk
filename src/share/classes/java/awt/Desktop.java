@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import sun.awt.AppContext;
 import sun.awt.DesktopBrowse;
 
@@ -332,7 +333,6 @@ public final class Desktop {
    *                                       a {@code URL}
    * @see URI
    * @see AWTPermission
-   * @see java.applet.AppletContext
    */
   public void browse(URI uri) throws IOException {
     SecurityException securityException = null;

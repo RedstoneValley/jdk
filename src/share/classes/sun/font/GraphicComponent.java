@@ -6,6 +6,7 @@ import java.awt.font.GraphicAttribute;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
+
 import skinjob.SkinJobGlobals;
 
 /**
@@ -16,7 +17,7 @@ public class GraphicComponent extends TextLineComponent {
    * Best possible text representation of an arbitrary graphic, in case this somehow gets processed
    * as text (although it shouldn't).
    */
-  protected static final char[] OBJECT_REPLACEMENT = new char[]{'\uFFFC'};
+  protected static final char[] OBJECT_REPLACEMENT = {'\uFFFC'};
 
   protected static final char[] EMPTY_CHAR_ARRAY = new char[0];
   private final GraphicAttribute graphicAttribute;
@@ -148,9 +149,6 @@ public class GraphicComponent extends TextLineComponent {
     if (!Arrays.equals(charsLtoV, that.charsLtoV)) {
       return false;
     }
-    if (!Arrays.equals(levels, that.levels)) {
-      return false;
-    }
-    return baseRot != null ? baseRot.equals(that.baseRot) : that.baseRot == null;
+    return Arrays.equals(levels, that.levels) && (baseRot != null ? baseRot.equals(that.baseRot) : that.baseRot == null);
   }
 }

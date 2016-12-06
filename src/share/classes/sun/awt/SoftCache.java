@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SoftCache<K, V> extends AbstractMap<K, V> {
 
-  private ConcurrentHashMap<K, SoftReference<V>> hashMap = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<K, SoftReference<V>> hashMap = new ConcurrentHashMap<>();
 
   public V get(Object key) {
     SoftReference<V> softValue = hashMap.get(key);

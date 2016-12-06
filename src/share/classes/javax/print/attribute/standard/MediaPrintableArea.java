@@ -51,7 +51,7 @@ import java.io.Serializable;
  * The hardware's minimum margins is not just a property of the printer,
  * but may be a function of the media size, orientation, media type, and
  * any specified finishings.
- * <code>PrintService</code> provides the method to query the supported
+ * {@code PrintService} provides the method to query the supported
  * values of an attribute in a suitable context :
  * <p>
  * The rectangular printable area is defined thus:
@@ -76,7 +76,10 @@ import java.io.Serializable;
 
 public final class MediaPrintableArea implements Serializable {
 
-  private int x, y, w, h;
+  private final int x;
+  private final int y;
+  private final int w;
+  private final int h;
   private int units;
 
   private static final long serialVersionUID = -1597171464050795793L;
@@ -102,9 +105,9 @@ public final class MediaPrintableArea implements Serializable {
    * @param units  in which the values are expressed.
    *
    * @exception  IllegalArgumentException
-   *     Thrown if <CODE>x</CODE> < 0 or <CODE>y</CODE> < 0
-   *     or <CODE>w</CODE> <= 0 or <CODE>h</CODE> <= 0 or
-   *     <CODE>units</CODE> < 1.
+   *     Thrown if <CODE>x</CODE> < 0 or {@code y} < 0
+   *     or <CODE>w</CODE> <= 0 or {@code h} <= 0 or
+   *     {@code units} < 1.
    */
   public MediaPrintableArea(float x, float y, float w, float h, int units) {
     if ((x < 0.0) || (y < 0.0) || (w <= 0.0) || (h <= 0.0) ||
@@ -128,9 +131,9 @@ public final class MediaPrintableArea implements Serializable {
    * @param units  in which the values are expressed.
    *
    * @exception  IllegalArgumentException
-   *     Thrown if <CODE>x</CODE> < 0 or <CODE>y</CODE> < 0
-   *     or <CODE>w</CODE> <= 0 or <CODE>h</CODE> <= 0 or
-   *     <CODE>units</CODE> < 1.
+   *     Thrown if <CODE>x</CODE> < 0 or {@code y} < 0
+   *     or <CODE>w</CODE> <= 0 or {@code h} <= 0 or
+   *     {@code units} < 1.
    */
   public MediaPrintableArea(int x, int y, int w, int h, int units) {
     if ((x < 0) || (y < 0) || (w <= 0) || (h <= 0) ||
@@ -148,13 +151,13 @@ public final class MediaPrintableArea implements Serializable {
    * Get the printable area as an array of 4 values in the order
    * x, y, w, h. The values returned are in the given units.
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    *
    * @return printable area as array of x, y, w, h in the specified units.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public float[] getPrintableArea(int units) {
     return new float[] { getX(units), getY(units),
@@ -165,14 +168,14 @@ public final class MediaPrintableArea implements Serializable {
    * Get the x location of the origin of the printable area in the
    * specified units.
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    *
    * @return  x location of the origin of the printable area in the
    * specified units.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public float getX(int units) {
     return convertFromMicrometers(x, units);
@@ -182,14 +185,14 @@ public final class MediaPrintableArea implements Serializable {
    * Get the y location of the origin of the printable area in the
    * specified units.
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    *
    * @return  y location of the origin of the printable area in the
    * specified units.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public float getY(int units) {
     return convertFromMicrometers(y, units);
@@ -198,13 +201,13 @@ public final class MediaPrintableArea implements Serializable {
   /**
    * Get the width of the printable area in the specified units.
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    *
    * @return  width of the printable area in the specified units.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public float getWidth(int units) {
     return convertFromMicrometers(w, units);
@@ -213,13 +216,13 @@ public final class MediaPrintableArea implements Serializable {
   /**
    * Get the height of the printable area in the specified units.
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    *
    * @return  height of the printable area in the specified units.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public float getHeight(int units) {
     return convertFromMicrometers(h, units);
@@ -231,16 +234,16 @@ public final class MediaPrintableArea implements Serializable {
    * To be equivalent, all of the following conditions must be true:
    * <OL TYPE=1>
    * <LI>
-   * <CODE>object</CODE> is not null.
+   * {@code object} is not null.
    * <LI>
-   * <CODE>object</CODE> is an instance of class MediaPrintableArea.
+   * {@code object} is an instance of class MediaPrintableArea.
    * <LI>
    * The origin and dimensions are the same.
    * </OL>
    *
    * @param  object  Object to compare to.
    *
-   * @return  True if <CODE>object</CODE> is equivalent to this media margins
+   * @return  True if {@code object} is equivalent to this media margins
    *          attribute, false otherwise.
    */
   public boolean equals(Object object) {
@@ -259,7 +262,7 @@ public final class MediaPrintableArea implements Serializable {
    * instance.
    * <P>
    * For class MediaPrintableArea,
-   * the category name is <CODE>"media-printable-area"</CODE>.
+   * the category name is {@code "media-printable-area"}.
    * <p>This is not an IPP V1.1 attribute.
    *
    * @return  Attribute category name.
@@ -273,16 +276,16 @@ public final class MediaPrintableArea implements Serializable {
    * given units.
    *
    * @param  units
-   *     Unit conversion factor, e.g. {@link #INCH <CODE>INCH</CODE>} or
-   *     {@link #MM <CODE>MM</CODE>}.
+   *     Unit conversion factor, e.g. {@link #INCH {@code INCH}} or
+   *     {@link #MM {@code MM}}.
    * @param  unitsName
-   *     Units name string, e.g. <CODE>"in"</CODE> or <CODE>"mm"</CODE>. If
+   *     Units name string, e.g. <CODE>"in"</CODE> or {@code "mm"}. If
    *     null, no units name is appended to the result.
    *
    * @return  String version of this two-dimensional size attribute.
    *
    * @exception  IllegalArgumentException
-   *     (unchecked exception) Thrown if <CODE>units</CODE> < 1.
+   *     (unchecked exception) Thrown if {@code units} < 1.
    */
   public String toString(int units, String unitsName) {
     if (unitsName == null) {

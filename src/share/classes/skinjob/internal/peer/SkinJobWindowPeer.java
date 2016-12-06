@@ -3,7 +3,7 @@ package skinjob.internal.peer;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowInsets;
 
@@ -34,13 +34,13 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
   private static final AttributeSet MENU_BAR_ATTRIBUTES = new SkinJobDefaultAttributeSet(); // TODO
   protected final java.awt.Window thisAwtWindow;
   protected final Graphics graphics;
-  private final ViewGroup.LayoutParams menuBarLayoutParams;
+  private final LayoutParams menuBarLayoutParams;
 
   public SkinJobWindowPeer(java.awt.Window target) {
     super((T) target.sjAndroidWindow, SkinJobGraphicsConfiguration.getDefault());
     thisAwtWindow = target;
     graphics = new SkinJobGraphics(androidWidget.getDecorView().getDrawingCache());
-    menuBarLayoutParams = new ViewGroup.LayoutParams(
+    menuBarLayoutParams = new LayoutParams(
         androidWidget.getContext(),
         MENU_BAR_ATTRIBUTES);
   }

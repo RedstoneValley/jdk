@@ -47,6 +47,7 @@ import java.awt.event.MouseEvent;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+
 import sun.awt.AppContext;
 import sun.awt.PeerEvent;
 import sun.awt.SunToolkit;
@@ -221,7 +222,11 @@ public abstract class SunDragSourceContextPeer implements DragSourceContextPeer 
     dragImageOffset = p;
 
     Transferable transferable = getDragSourceContext().getTransferable();
-    SortedMap<Long, DataFlavor> formatMap = DataTransferer.getInstance().
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    SortedMap<Long, DataFlavor> formatMap = result.
         getFormatsForTransferable(transferable,
             DataTransferer.adaptFlavorMap(getTrigger().getDragSource().getFlavorMap()));
     long[] formats = keysToLongArray(formatMap);

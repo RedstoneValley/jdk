@@ -258,33 +258,6 @@ public class ByteInterleavedRaster extends ByteComponentRaster {
   }
 
   /**
-   * Returns the scanline stride -- the number of data array elements between
-   * a given sample and the sample in the same column of the next row in the
-   * same band.
-   */
-  @Override
-  public int getScanlineStride() {
-    return scanlineStride;
-  }
-
-  /**
-   * Returns pixel stride -- the number of data array elements between two
-   * samples for the same band on the same scanline.
-   */
-  @Override
-  public int getPixelStride() {
-    return pixelStride;
-  }
-
-  /**
-   * Returns a reference to the data array.
-   */
-  @Override
-  public byte[] getDataStorage() {
-    return data;
-  }
-
-  /**
    * Returns a byte array of data elements from the specified rectangular
    * region.
    * An ArrayIndexOutOfBounds exception will be thrown at runtime

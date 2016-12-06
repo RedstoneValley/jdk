@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 public final class CodePointIterator implements Iterator<Integer> {
   public static final int DONE = CharacterIterator.DONE;
   private final CharacterIterator aci;
-  private int index = 0;
+  private int index;
   private Integer next;
 
   private CodePointIterator(CharacterIterator aci) {

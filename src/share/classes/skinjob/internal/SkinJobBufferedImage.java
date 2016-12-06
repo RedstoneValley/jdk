@@ -1,6 +1,7 @@
 package skinjob.internal;
 
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 
 import java.awt.image.BufferedImage;
 
@@ -17,7 +18,7 @@ public class SkinJobBufferedImage extends BufferedImage implements SkinJobAndroi
 
     public SkinJobBufferedImage(int width, int height) {
         super(width, height, TYPE_INT_ARGB);
-        androidBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        androidBitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
     }
 
     @Override

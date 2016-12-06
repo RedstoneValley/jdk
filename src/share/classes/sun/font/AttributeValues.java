@@ -7,6 +7,8 @@ import java.awt.font.NumericShaper;
 import java.awt.font.NumericShaper.Range;
 import java.awt.font.TextAttribute;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 import java.awt.im.InputMethodHighlight;
 import java.text.Annotation;
 import java.text.AttributedCharacterIterator.Attribute;
@@ -20,9 +22,9 @@ import skinjob.SkinJobGlobals;
  */
 public class AttributeValues extends HashMap<TextAttribute, Object> {
     private static final long serialVersionUID = 8820590967652117455L;
+    private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
     private byte bidiEmbedding;
     private byte runDirection;
-    private AffineTransform charTransform = new AffineTransform();
 
     public AttributeValues() {
         put(TextAttribute.WEIGHT, TextAttribute.WEIGHT_REGULAR);
@@ -98,7 +100,28 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
     }
 
     public AffineTransform getCharTransform() {
-        return charTransform;
+        AffineTransform transform = (AffineTransform) get(TextAttribute.TRANSFORM);
+        if (transform == null) {
+            return IDENTITY_TRANSFORM;
+        }
+        Point2D.Double pt = new Point2D.Double(1, 0);
+        transform.deltaTransform(pt, pt);
+        AffineTransform rtx = AffineTransform.getRotateInstance(pt.x, pt.y);
+        try {
+            AffineTransform rtxi = rtx.createInverse();
+            transform.preConcatenate(rtxi);
+            double dx = transform.getTranslateX();
+            double dy = transform.getTranslateY();
+            if (dx != 0 || dy != 0) {
+                transform.setTransform(transform.getScaleX(), transform.getShearY(),
+                        transform.getShearX(), transform.getScaleY(), 0, 0);
+                rtx.setTransform(rtx.getScaleX(), rtx.getShearY(),
+                        rtx.getShearX(), rtx.getScaleY(), dx, dy);
+            }
+        } catch (NoninvertibleTransformException e) {
+            return IDENTITY_TRANSFORM;
+        }
+        return rtx;
     }
 
     public int getSuperscript() {
@@ -171,9 +194,9 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
         if (imHighlight != null) {
             InputMethodHighlight hl = null;
             if (imHighlight instanceof InputMethodHighlight) {
-                hl = (InputMethodHighlight)imHighlight;
+                hl = (InputMethodHighlight) imHighlight;
             } else {
-                hl = (InputMethodHighlight)((Annotation)imHighlight).getValue();
+                hl = (InputMethodHighlight) ((Annotation) imHighlight).getValue();
             }
             Map imStyles = hl.getStyle();
             if (imStyles == null) {

@@ -130,11 +130,7 @@ public final class DisplayMode {
    * @return whether the two display modes are equal
    */
   public boolean equals(DisplayMode dm) {
-    if (dm == null) {
-      return false;
-    }
-    return getHeight() == dm.getHeight() && getWidth() == dm.getWidth()
-        && getBitDepth() == dm.getBitDepth() && getRefreshRate() == dm.getRefreshRate();
+    return dm != null && getHeight() == dm.getHeight() && getWidth() == dm.getWidth() && getBitDepth() == dm.getBitDepth() && getRefreshRate() == dm.getRefreshRate();
   }
 
   public int hashCode() {

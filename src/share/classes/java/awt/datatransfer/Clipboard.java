@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
 import sun.awt.EventListenerAggregate;
 
 /**
@@ -183,10 +184,7 @@ public class Clipboard {
     }
 
     Transferable cntnts = getContents(null);
-    if (cntnts == null) {
-      return false;
-    }
-    return cntnts.isDataFlavorSupported(flavor);
+    return cntnts != null && cntnts.isDataFlavorSupported(flavor);
   }
 
   /**

@@ -199,9 +199,6 @@ public class TextLineComponent {
     if (!Arrays.equals(chars, that.chars)) {
       return false;
     }
-    if (!font.equals(that.font)) {
-      return false;
-    }
-    return getCoreMetrics().equals(that.getCoreMetrics());
+    return font.equals(that.font) && getCoreMetrics().equals(that.getCoreMetrics());
   }
 }

@@ -48,7 +48,6 @@ class CharArrayIterator implements CharacterIterator {
    * position.
    *
    * @return the first character in the text, or DONE if the text is empty
-   * @see getBeginIndex
    */
   @Override
   public char first() {
@@ -62,7 +61,6 @@ class CharArrayIterator implements CharacterIterator {
    * and returns the character at that position.
    *
    * @return the last character in the text, or DONE if the text is empty
-   * @see getEndIndex
    */
   @Override
   public char last() {
@@ -76,7 +74,6 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return the character at the current position or DONE if the current
    * position is off the end of the text.
-   * @see getIndex
    */
   @Override
   public char current() {

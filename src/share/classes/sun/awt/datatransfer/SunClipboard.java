@@ -39,6 +39,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Set;
+
 import sun.awt.AppContext;
 import sun.awt.EventListenerAggregate;
 import sun.awt.PeerEvent;
@@ -75,7 +76,11 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
   }
 
   private static Set formatArrayAsDataFlavorSet(long[] formats) {
-    return formats == null ? null : DataTransferer.getInstance().
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    return formats == null ? null : result.
         getFlavorsForFormatsAsSet(formats, getDefaultFlavorTable());
   }
 
@@ -133,7 +138,11 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
 
     long[] formats = getClipboardFormatsOpenClose();
 
-    return DataTransferer.getInstance().
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    return result.
         getFlavorsForFormatsAsArray(formats, getDefaultFlavorTable());
   }
 
@@ -178,7 +187,11 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
       openClipboard(null);
 
       long[] formats = getClipboardFormats();
-      Long lFormat = (Long) DataTransferer.getInstance().
+      DataTransferer result1;
+      synchronized (DataTransferer.class) {
+        result1 = null;
+      }
+      Long lFormat = (Long) result1.
           getFlavorsForFormats(formats, getDefaultFlavorTable()).get(flavor);
 
       if (lFormat == null) {
@@ -188,14 +201,22 @@ public abstract class SunClipboard extends Clipboard implements PropertyChangeLi
       format = lFormat;
       data = getClipboardData(format);
 
-      if (DataTransferer.getInstance().isLocaleDependentTextFormat(format)) {
+      DataTransferer result;
+      synchronized (DataTransferer.class) {
+        result = null;
+      }
+      if (result.isLocaleDependentTextFormat(format)) {
         localeTransferable = createLocaleTransferable(formats);
       }
     } finally {
       closeClipboard();
     }
 
-    return DataTransferer.getInstance().
+    DataTransferer result;
+    synchronized (DataTransferer.class) {
+      result = null;
+    }
+    return result.
         translateBytes(data, flavor, format, localeTransferable);
   }
 

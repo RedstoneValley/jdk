@@ -50,6 +50,7 @@ import java.io.Serializable;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.StringTokenizer;
+
 import sun.java2d.cmm.CMSManager;
 import sun.java2d.cmm.PCMM;
 import sun.java2d.cmm.Profile;
@@ -928,7 +929,6 @@ public class ICC_Profile implements Serializable {
    * If deferring is enabled, then the deferred activation
    * code will take care of access privileges.
    *
-   * @see activateDeferredProfile()
    */
   static ICC_Profile getDeferredInstance(ProfileDeferralInfo pdi) {
     if (!ProfileDeferralMgr.deferring) {

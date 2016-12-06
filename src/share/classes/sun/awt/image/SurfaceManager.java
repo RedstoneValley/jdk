@@ -28,7 +28,6 @@ package sun.awt.image;
 import java.awt.GraphicsConfiguration;
 import java.awt.Image;
 import java.awt.ImageCapabilities;
-import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -87,17 +86,7 @@ public abstract class SurfaceManager {
   }
 
   synchronized void flush(boolean deaccelerate) {
-    if (cacheMap != null) {
-      Iterator<Object> i = cacheMap.values().iterator();
-      while (i.hasNext()) {
-        Object o = i.next();
-        if (o instanceof FlushableCacheData) {
-          if (((FlushableCacheData) o).flush(deaccelerate)) {
-            i.remove();
-          }
-        }
-      }
-    }
+    // No-op
   }
 
   /**
@@ -111,24 +100,6 @@ public abstract class SurfaceManager {
     if (priority == 0.0f) {
       flush(true);
     }
-  }
-
-  /**
-   * An interface for Objects used in the SurfaceManager cache
-   * to implement if they have data that should be flushed when
-   * the Image is flushed.
-   */
-  public interface FlushableCacheData {
-    /**
-     * Flush all cached resources.
-     * The deaccelerated parameter indicates if the flush is
-     * happening because the associated surface is no longer
-     * being accelerated (for instance the acceleration priority
-     * is set below the threshold needed for acceleration).
-     * Returns a boolean that indicates if the cached object is
-     * no longer needed and should be removed from the cache.
-     */
-    boolean flush(boolean deaccelerated);
   }
 
 

@@ -26,6 +26,7 @@
 package java.awt;
 
 import java.awt.image.ColorModel;
+
 import sun.java2d.SunCompositeContext;
 
 /**
@@ -830,10 +831,7 @@ public final class AlphaComposite implements Composite {
 
     AlphaComposite ac = (AlphaComposite) obj;
 
-    if (rule != ac.rule) {
-      return false;
-    }
+    return rule == ac.rule && extraAlpha == ac.extraAlpha;
 
-    return extraAlpha == ac.extraAlpha;
   }
 }

@@ -25,12 +25,8 @@
 
 package sun.awt;
 
-import java.awt.AWTException;
-import java.awt.GraphicsDevice;
-import java.awt.HeadlessException;
-import java.awt.Robot;
 import java.awt.peer.FontPeer;
-import java.awt.peer.RobotPeer;
+
 import sun.awt.datatransfer.DataTransferer;
 
 /**
@@ -39,8 +35,6 @@ import sun.awt.datatransfer.DataTransferer;
 public interface ComponentFactory {
 
   FontPeer getFontPeer(String name, int style);
-
-  RobotPeer createRobot(Robot target, GraphicsDevice screen) throws AWTException, HeadlessException;
 
   DataTransferer getDataTransferer();
 }

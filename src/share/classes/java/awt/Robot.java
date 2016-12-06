@@ -34,6 +34,8 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.awt.peer.RobotPeer;
 import java.lang.reflect.InvocationTargetException;
+
+import skinjob.internal.peer.SkinJobRobotPeer;
 import sun.awt.SunToolkit;
 import sun.awt.image.SunWritableRaster;
 import sun.java2d.DisposerRecord;
@@ -68,7 +70,7 @@ public class Robot {
   private static final int MAX_DELAY = 60000;
   private static int LEGAL_BUTTON_MASK;
   private final transient Object anchor = new Object();
-  private RobotPeer peer;
+  private RobotPeer peer = new SkinJobRobotPeer();
   private boolean isAutoWaitForIdle;
   private int autoDelay;
   private DirectColorModel screenCapCM;

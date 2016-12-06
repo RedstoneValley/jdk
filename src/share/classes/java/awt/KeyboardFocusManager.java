@@ -1040,10 +1040,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (wto == null) {
       return true;
     }
-    if (wfrom == null) {
-      return true;
-    }
-    return wto != wfrom;
+    return wfrom == null || wto != wfrom;
   }
 
   private static boolean isTemporary(Component to, Component from) {
@@ -1055,10 +1052,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     if (wto == null) {
       return true;
     }
-    if (wfrom == null) {
-      return false;
-    }
-    return wto != wfrom;
+    return wfrom != null && wto != wfrom;
   }
 
   static Component getHeavyweight(Component comp) {

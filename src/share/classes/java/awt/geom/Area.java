@@ -26,11 +26,13 @@
 package java.awt.geom;
 
 import android.util.Log;
+
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+
 import sun.awt.geom.AreaOp;
 import sun.awt.geom.AreaOp.AddOp;
 import sun.awt.geom.AreaOp.EOWindOp;
@@ -415,10 +417,7 @@ public class Area implements Shape, Cloneable {
     if (c1.getOrder() != 1 || c2.getOrder() != 1) {
       return false;
     }
-    if (c1.getXTop() != c1.getXBot() || c2.getXTop() != c2.getXBot()) {
-      return false;
-    }
-    return !(c1.getYTop() != c2.getYTop() || c1.getYBot() != c2.getYBot());
+    return !(c1.getXTop() != c1.getXBot() || c2.getXTop() != c2.getXBot()) && !(c1.getYTop() != c2.getYTop() || c1.getYBot() != c2.getYBot());
   }
 
   /**

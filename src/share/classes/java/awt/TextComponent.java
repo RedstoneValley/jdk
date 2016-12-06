@@ -37,7 +37,6 @@ import java.util.EventListener;
 
 import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
-import sun.awt.InputMethodSupport;
 
 /**
  * The {@code TextComponent} class is the superclass of
@@ -143,9 +142,6 @@ public class TextComponent extends Component {
       try {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         boolean shouldEnable = false;
-        if (toolkit instanceof InputMethodSupport) {
-          shouldEnable = ((InputMethodSupport) toolkit).enableInputMethodsForTextComponent();
-        }
         enableInputMethods(shouldEnable);
       } catch (Exception e) {
         // if something bad happens, just don't enable input methods

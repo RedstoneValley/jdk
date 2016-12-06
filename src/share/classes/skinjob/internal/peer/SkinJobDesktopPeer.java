@@ -1,8 +1,5 @@
 package skinjob.internal.peer;
 
-import static android.os.Process.myPid;
-import static android.os.Process.myUid;
-
 import android.Manifest.permission;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -15,6 +12,7 @@ import android.util.Base64;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
 import java.awt.Desktop.Action;
 import java.awt.peer.DesktopPeer;
 import java.io.ByteArrayOutputStream;
@@ -24,6 +22,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLConnection;
+
+import static android.os.Process.myPid;
+import static android.os.Process.myUid;
 
 /**
  * Created by cryoc on 2016-10-09.
@@ -60,13 +61,7 @@ public class SkinJobDesktopPeer implements DesktopPeer {
   public boolean isSupported(Action action) {
     int myPid = myPid();
     int myUid = myUid();
-    if (action == Action.PRINT) {
-      return androidContext.checkPermission(permission.READ_CONTACTS, myPid, myUid)
-          == PackageManager.PERMISSION_GRANTED
-          && androidContext.checkPermission(permission.INTERNET, myPid, myUid)
-          == PackageManager.PERMISSION_GRANTED;
-    }
-    return true;
+    return action != Action.PRINT || androidContext.checkPermission(permission.READ_CONTACTS, myPid, myUid) == PackageManager.PERMISSION_GRANTED && androidContext.checkPermission(permission.INTERNET, myPid, myUid) == PackageManager.PERMISSION_GRANTED;
   }
 
   @Override

@@ -28,8 +28,8 @@ import java.awt.Dialog.ModalExclusionType;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+
 import sun.awt.AppContext;
-import sun.awt.ModalExclude;
 
 abstract class ModalEventFilter implements EventFilter {
 
@@ -67,10 +67,7 @@ abstract class ModalEventFilter implements EventFilter {
         eventID >= ActionEvent.ACTION_FIRST && eventID <= ActionEvent.ACTION_LAST ||
         eventID == WindowEvent.WINDOW_CLOSING) {
       Object o = event.getSource();
-      if (o instanceof ModalExclude) {
-        // Exclude this object from modality and
-        // continue to pump it's events.
-      } else if (o instanceof Component) {
+      if (o instanceof Component) {
         Component c = (Component) o;
         while (c != null && !(c instanceof Window)) {
           c = c.getParent_NoClientCode();

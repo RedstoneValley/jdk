@@ -25,7 +25,6 @@
 
 package sun.awt;
 
-import java.awt.AWTException;
 import java.awt.Button;
 import java.awt.Canvas;
 import java.awt.Checkbox;
@@ -44,7 +43,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
@@ -59,7 +57,6 @@ import java.awt.Panel;
 import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.PrintJob;
-import java.awt.Robot;
 import java.awt.ScrollPane;
 import java.awt.Scrollbar;
 import java.awt.SystemTray;
@@ -98,7 +95,6 @@ import java.awt.peer.MenuItemPeer;
 import java.awt.peer.MenuPeer;
 import java.awt.peer.PanelPeer;
 import java.awt.peer.PopupMenuPeer;
-import java.awt.peer.RobotPeer;
 import java.awt.peer.ScrollPanePeer;
 import java.awt.peer.ScrollbarPeer;
 import java.awt.peer.SystemTrayPeer;
@@ -110,6 +106,7 @@ import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
+
 import sun.awt.datatransfer.DataTransferer;
 
 public class HeadlessToolkit extends Toolkit
@@ -158,12 +155,6 @@ public class HeadlessToolkit extends Toolkit
      */
 
     /* Lightweight implementation of Canvas and Panel */
-
-  @Override
-  public RobotPeer createRobot(Robot target, GraphicsDevice screen)
-      throws AWTException, HeadlessException {
-    throw new HeadlessException();
-  }
 
   @Override
   public DataTransferer getDataTransferer() {

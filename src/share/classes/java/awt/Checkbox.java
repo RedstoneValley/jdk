@@ -86,6 +86,7 @@ public class Checkbox extends Component implements ItemSelectable {
    * Used to avoid access to this.group from the super constructor before it's set
    * (not needed if Android always conforms to JLS 17.5.2, but I don't think it does)
    */
+  @SuppressWarnings("FieldMayBeFinal")
   private boolean groupInitialized;
   private static final String base = "checkbox";
   /*
