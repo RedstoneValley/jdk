@@ -4,14 +4,13 @@ import android.content.Context;
 import android.view.View;
 
 import java.awt.Toolkit;
-import java.io.Serializable;
 
 import skinjob.SkinJobGlobals;
 
 /**
  * Provides the Android API objects that an AWT object is to wrap.
  */
-public abstract class WrappedAndroidObjectsSupplier<TWidget extends View> implements Serializable {
+public abstract class WrappedAndroidObjectsSupplier<TWidget extends View> {
 
   public TWidget createWidget() {
     return createWidget(SkinJobGlobals.getAndroidApplicationContext());

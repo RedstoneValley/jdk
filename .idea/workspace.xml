@@ -9,238 +9,9 @@
     <option name="COMMAND_LINE_OPTIONS" value="-Xmaxerrs 1000" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Eliminate more dead code. Implement TODO methods in AttributeValues.">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/gradle.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules/share/share.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules/skinjob.iml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/runConfigurations.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/settings.gradle" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/share/build.gradle" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Agent.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/AllPerm.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/Deadlock.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/JarFile.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/JarInputStream.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/OldSocketImpl.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/PluggableLocale.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/SecretKeyFactory.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/UnicodeTest.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/ZipFile.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/awtres.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/b.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/b1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/badattr.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/exp.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/extention.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/golden.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/input.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/jar.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/jars.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/jarsigner.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/javax_mail.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/loader.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/native.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/rbcontrolprovider.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/resource.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test1.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test2.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test3.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test4.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test5.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/test6.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/testclasses.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/zip.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/skinjob.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/doc/doc.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/share/share.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/apple/eawt/eawt.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/oracle/oracle.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/awt/awt.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/corba/corba.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/corba/se/impl/impl.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/crypto/provider/Cipher/Cipher.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/crypto/provider/provider1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/java/swing/plaf/plaf.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/jmx/jmx.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/jndi/jndi.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/jndi/rmi/registry/registry1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/management/management1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/net/net2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/nio/nio3.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/org/apache/xml/internal/internal.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/security/security2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/sun1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/com/sun/tools/tools1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/demo/demo.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Choice/Choice.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Color/Color.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Component/Component.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Container/Container.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Cursor/Cursor.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/DataFlavor/DataFlavor1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Desktop/Desktop.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Dialog/Dialog.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/EventDispatchThread/EventDispatchThread.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/EventQueue/EventQueue.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/FileDialog/FileDialog.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Focus/Focus.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Frame/Frame.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/FullScreen/FullScreen.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/GraphicsConfiguration/GraphicsConfiguration.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/GridBagLayout/GridBagLayout.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/GridLayout/GridLayout.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/InputMethods/InputMethods.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/KeyboardFocusmanager/KeyboardFocusmanager.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/List/List.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Menu/Menu.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/MenuBar/MenuBar.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Modal/Modal.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Modal/WsDisabledStyle/WsDisabledStyle.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Mouse/Mouse.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/MouseAdapter/MouseAdapter.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Multiscreen/Multiscreen.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Robot/Robot.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/ScrollPane/ScrollPane.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/TextArea/TextArea.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/TextField/TextField.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Toolkit/AutoShutdown/AutoShutdown.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Toolkit/Headless/Headless.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Toolkit/Toolkit.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/TrayIcon/TrayIcon.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/WMSpecificTests/WMSpecificTests.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/Window/Window.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/appletviewer/appletviewer.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/awt1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/datatransfer/DataFlavor/DataFlavor.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/datatransfer/datatransfer.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/dnd/dnd1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/HierarchyEvent/HierarchyEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/InputEvent/InputEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/KeyEvent/KeyEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/MouseEvent/MouseEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/MouseWheelEvent/MouseWheelEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/OtherEvents/OtherEvents.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/TextEvent/TextEvent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/event/event.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/font/font.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/geom/geom.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/grab/grab.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/keyboard/keyboard.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/print/print.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/awt/xembed/xembed.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/beans/beans.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/math/math.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/nio/charset/charset.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/nio/nio2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/MarshalledObject/MarshalledObject.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/RMISecurityManager/RMISecurityManager.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/RemoteException/RemoteException.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/Activatable/Activatable.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/ActivateFailedException/ActivateFailedException.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/ActivationGroup/ActivationGroup.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/ActivationGroupDesc/ActivationGroupDesc.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/ActivationSystem/ActivationSystem.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/activation/activation.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/dgc/dgc.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/registry/registry.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/reliability/reliability.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/rmi1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/ObjID/ObjID.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/RMIClassLoader/RMIClassLoader.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/RMISocketFactory/useSocketFactory/useSocketFactory.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/RemoteObject/RemoteObject.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/UnicastRemoteObject/UnicastRemoteObject.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/Unreferenced/Unreferenced.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/server/server.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/rmi/transport/transport1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/security/Policy/Policy.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/security/security1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/test.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/text/Format/Format.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/text/text.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/util/concurrent/concurrent.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/util/concurrent/locks/locks.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/util/function/function.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/util/spi/spi.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/java/util/util2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/crypto/crypto1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/crypto/spec/spec.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/javax.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/management/management.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/management/remote/remote.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/naming/ldap/ldap.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/naming/naming.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/naming/spi/spi1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/net/ssl/ssl.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/rmi/rmi.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/security/auth/auth.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/security/auth/login/login.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/security/auth/x500/x500.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/security/sasl/sasl.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/sound/midi/Gervill/Gervill.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/sound/midi/midi.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/sound/sampled/sampled.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/sql/rowset/serial/serial.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/bind/marshal/marshal.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/bind/xjc/xjc.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/crypto/crypto.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/XPath/XPath.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/common/common.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/jaxp.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/parsers/parsers.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/transform/transform.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/jaxp/validation/validation.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/javax/xml/ws/ws.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/jdk/jdk.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/jdk/net/net.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/lib/lib.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sample/sample.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/awt/AppContext/AppContext.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/awt/awt2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/awt/dnd/dnd.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/jvmstat/jvmstat.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/jvmstat/monitor/monitor.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/jvmstat/perfdata/perfdata.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/nio/nio1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/reflect/reflect.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/log/log.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/rmic/newrmic/newrmic.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/rmic/rmic.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/runtime/Log/Log.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/server/MarshalOutputStream/MarshalOutputStream.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/rmi/transport/transport.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/pkcs/pkcs.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/provider/provider.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/security.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/com/sun/net/ssl/internal/ssl/ssl1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/com/sun/net/ssl/internal/www/protocol/https/https1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/com/sun/net/ssl/ssl3.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/javax/net/net1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/sanity/sanity.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/ssl2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/sun/net/www/http/http.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/sun/net/www/protocol/https/https.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/ssl/sun/net/www/www.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/tools/tools3.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/util/util.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/security/x509/x509.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/sun.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/text/text1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/tools/tools.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/util/locale/locale.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/util/resources/resources.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/sun/util/util1.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/tools/tools2.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/test/vm/vm.iml" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+    <list default="true" id="2138da84-6e65-4200-9fcd-c6fd2c52dbf0" name="Default" comment="Attempt to migrate to Gradle. Committing despite broken status so that I can ask for help with debugging,">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/BasicStroke.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/java/awt/Checkbox.java" afterPath="$PROJECT_DIR$/src/share/classes/java/awt/Checkbox.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/util/Geometry.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/util/Geometry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/util/SkinJobUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/awt/image/ToolkitImage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/sun/font/TextLineComponent.java" afterPath="$PROJECT_DIR$/src/share/classes/sun/font/TextLineComponent.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java" afterPath="$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java" />
     </list>
     <ignored path="skinjob.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -315,11 +86,61 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="true">
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/share/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="341">
               <caret line="11" column="52" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="52" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Component.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Component.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="381">
+              <caret line="206" column="55" selection-start-line="206" selection-start-column="55" selection-end-line="206" selection-end-column="55" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultWrappedAndroidObjectsSupplier.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="279">
+              <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="NullWidgetSupplier.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/NullWidgetSupplier.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="217">
+              <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WrappedAndroidObjectsSupplier.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="372">
+              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ComponentOrMenuComponent.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/ComponentOrMenuComponent.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="153">
+              <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
               <folding />
             </state>
           </provider>
@@ -772,8 +593,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/OffScreenImageSource.java" />
-        <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/VSyncedBSManager.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ImageDecoder.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java" />
         <option value="$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteComponentRaster.java" />
@@ -823,6 +642,8 @@
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/settings.gradle" />
         <option value="$PROJECT_DIR$/src/share/build.gradle" />
+        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java" />
+        <option value="$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java" />
       </list>
     </option>
   </component>
@@ -949,6 +770,124 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="internal" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="internal" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="peer" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="skinjob" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="share" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="classes" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="awt" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -1298,13 +1237,6 @@
       <option name="presentableId" value="Default" />
       <updated>1476059393301</updated>
     </task>
-    <task id="LOCAL-00007" summary="Stub out more missing methods; fix more broken classes">
-      <created>1476588260173</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1476588260173</updated>
-    </task>
     <task id="LOCAL-00008" summary="Cleanups using Inspect Code; replace remaining native methods with stubs.">
       <created>1476672755168</created>
       <option name="number" value="00008" />
@@ -1641,7 +1573,14 @@
       <option name="project" value="LOCAL" />
       <updated>1480210727840</updated>
     </task>
-    <option name="localTasksCounter" value="56" />
+    <task id="LOCAL-00056" summary="Attempt to migrate to Gradle. Committing despite broken status so that I can ask for help with debugging,">
+      <created>1481000544563</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1481000544564</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1735,7 +1674,6 @@
   <component name="VcsManagerConfiguration">
     <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_NEW_TODO" value="false" />
-    <MESSAGE value="Organize SkinJob into packages, and document the package structure." />
     <MESSAGE value="Eliminate SunToolkit, except for some static methods." />
     <MESSAGE value="Implement SkinJobSystemTrayPeer (a &quot;system-tray icon&quot; is a Notification)." />
     <MESSAGE value="Fix initialization of sjAndroidWidget and sjAndroidContext on deserialization." />
@@ -1760,7 +1698,8 @@
     <MESSAGE value="Partly implement createStrokedShape using MarlinRenderingEngine code." />
     <MESSAGE value="Implement SkinJobGraphics.draw(Shape) and fill(Shape) by translating the PathIterator to an android.graphics.Path." />
     <MESSAGE value="Eliminate more dead code. Implement TODO methods in AttributeValues." />
-    <option name="LAST_COMMIT_MESSAGE" value="Eliminate more dead code. Implement TODO methods in AttributeValues." />
+    <MESSAGE value="Attempt to migrate to Gradle. Committing despite broken status so that I can ask for help with debugging," />
+    <option name="LAST_COMMIT_MESSAGE" value="Attempt to migrate to Gradle. Committing despite broken status so that I can ask for help with debugging," />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1800,41 +1739,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="858">
-          <caret line="150" column="2" selection-start-line="150" selection-start-column="2" selection-end-line="150" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodPopupMenu.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="451">
-          <caret line="151" column="6" selection-start-line="151" selection-start-column="6" selection-end-line="151" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/im/InputMethodWindow.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="31" column="17" selection-start-line="31" selection-start-column="17" selection-end-line="31" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageDevice.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/BufferedImageGraphicsConfig.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/share/classes/sun/awt/image/ByteArrayImageSource.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="124">
@@ -2146,6 +2050,46 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="341">
           <caret line="11" column="52" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/java/awt/Component.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="381">
+          <caret line="206" column="55" selection-start-line="206" selection-start-column="55" selection-end-line="206" selection-end-column="55" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/ComponentOrMenuComponent.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="15" column="3" selection-start-line="15" selection-start-column="3" selection-end-line="15" selection-end-column="3" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="279">
+          <caret line="16" column="17" selection-start-line="16" selection-start-column="17" selection-end-line="16" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/NullWidgetSupplier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="217">
+          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/share/classes/skinjob/internal/WrappedAndroidObjectsSupplier.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="372">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
           <folding />
         </state>
       </provider>
