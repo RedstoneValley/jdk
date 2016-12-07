@@ -1,1 +1,1 @@
-include ':src:share'
+include ':app'

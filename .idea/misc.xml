@@ -1,25 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <entry_points version="2.0">
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getRotateInstance(double vecx, double vecy, double anchorx, double anchory)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void transform(java.awt.geom.Point2D[] ptSrc, int srcOff, java.awt.geom.Point2D[] ptDst, int dstOff, int numPts)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void setToIdentity()" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void quadrantRotate(int numquadrants, double anchorx, double anchory)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void quadrantRotate(int numquadrants)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform void rotate(double vecx, double vecy, double anchorx, double anchory)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getQuadrantRotateInstance(int numquadrants, double anchorx, double anchory)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getQuadrantRotateInstance(int numquadrants)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform java.awt.geom.AffineTransform getRotateInstance(double vecx, double vecy)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double m00, double m10, double m01, double m11, double m02, double m12, int state)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform()" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(java.awt.geom.AffineTransform Tx)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(float scaleX, float shearY, float shearX, float scaleY, float translateX, float translateY)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(float[] flatmatrix)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double m00, double m10, double m01, double m11, double m02, double m12)" />
-      <entry_point TYPE="method" FQNAME="java.awt.geom.AffineTransform AffineTransform(double[] flatmatrix)" />
-      <entry_point TYPE="class" FQNAME="java.awt.geom.AffineTransform" />
-    </entry_points>
+    <entry_points version="2.0" />
   </component>
   <component name="NullableNotNullManager">
     <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
@@ -55,7 +37,26 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="Android API 24 Platform" project-jdk-type="Android SDK">
-    <output url="file://$PROJECT_DIR$/out" />
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ProjectJDKs.UI">
+        <settings>
+          <last-edited>1.8</last-edited>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>
