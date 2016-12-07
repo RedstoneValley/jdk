@@ -10,11 +10,14 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="Update Gradle Android plugin version from 2.2.0 to 2.2.2 (recommended by Android Studio),">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Required by Travis.">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gradle.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gradlew" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/gradlew.bat" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
-    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Required by Travis." />
     <ignored path="SkinJobTransplant.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -2356,7 +2359,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="" />
+      <changelist id="" name="Default" comment="" />
       <changelist id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Required by Travis." />
       <created>1481096063237</created>
       <option name="number" value="Default" />
@@ -2440,7 +2443,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481151821208</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Update Gradle Android plugin version from 2.2.0 to 2.2.2 (recommended by Android Studio),">
+      <created>1481152932851</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1481152932851</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TodoView">
