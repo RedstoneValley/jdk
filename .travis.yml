@@ -11,7 +11,3 @@ android:
 
     - add-on
     - extra
-
-script:
-  - jdk_switcher use oraclejdk8
-  - ./gradlew assemble
