@@ -24,6 +24,7 @@
  */
 package java.awt;
 
+import android.os.Build;
 import android.util.Log;
 
 import java.awt.event.FocusEvent;
@@ -493,6 +494,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
       Log.v(TAG, "Request " + hwFocusRequest);
       if (hwFocusRequest == null &&
           heavyweight == nativeFocusOwner &&
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 &&
           heavyweight.sjAndroidWidget.getWindowId()
               == nativeFocusedWindow.sjAndroidWidget.getWindowId()) {
         if (descendant == currentFocusOwner) {
@@ -1055,21 +1057,14 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   // Accessor to private field isProxyActive of KeyEvent
   private static boolean isProxyActiveImpl(KeyEvent e) {
     if (proxyActive == null) {
-      proxyActive = AccessController.doPrivileged(new PrivilegedAction<Field>() {
-        @Override
-        public Field run() {
-          Field field = null;
-          try {
-            field = KeyEvent.class.getDeclaredField("isProxyActive");
-            if (field != null) {
-              field.setAccessible(true);
-            }
-          } catch (NoSuchFieldException nsf) {
-            throw new AWTError(nsf);
-          }
-          return field;
+      try {
+        proxyActive = KeyEvent.class.getDeclaredField("isProxyActive");
+        if (proxyActive != null) {
+          proxyActive.setAccessible(true);
         }
-      });
+      } catch (NoSuchFieldException nsf) {
+        throw new AWTError(nsf);
+      }
     }
 
     try {
@@ -1077,7 +1072,6 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     } catch (IllegalAccessException iae) {
       throw new AWTError(iae);
     }
-    return false;
   }
 
   // Returns the value of this KeyEvent's field isProxyActive

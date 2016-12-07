@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.view.Window;
 
@@ -40,7 +41,8 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
     thisTrayIcon = target;
     androidContext = SkinJobGlobals.getAndroidApplicationContext();
     notificationBuilder = new Builder(androidContext);
-    notificationManager = androidContext.getSystemService(NotificationManager.class);
+    notificationManager = (NotificationManager)
+        androidContext.getSystemService(Context.NOTIFICATION_SERVICE);
     id = NEXT_ID.incrementAndGet();
   }
 
@@ -73,25 +75,37 @@ public class SkinJobTrayIconPeer implements TrayIconPeer {
     switch (messageType) {
       case "ERROR":
         notificationBuilder.setPriority(PRIORITY_MAX);
-        // TODO: Get a copy of https://material.io/icons/#ic_error to use here
-        notificationBuilder.setSmallIcon(drawable.stat_notify_error);
         break;
       case "WARNING":
         notificationBuilder.setPriority(PRIORITY_HIGH);
-        // ! in triangle
-        notificationBuilder.setSmallIcon(drawable.stat_notify_error);
         break;
       case "INFO":
         notificationBuilder.setPriority(PRIORITY_DEFAULT);
-        // i in circle
-        notificationBuilder.setSmallIcon(drawable.ic_dialog_info);
         break;
       case "NONE":
         notificationBuilder.setPriority(PRIORITY_DEFAULT);
-        notificationBuilder.setSmallIcon(null);
         break;
       default:
         Log.e(TAG, "Unknown message type " + messageType);
+    }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      switch (messageType) {
+        case "ERROR":
+          // TODO: Get a copy of https://material.io/icons/#ic_error to use here
+          notificationBuilder.setSmallIcon(drawable.stat_notify_error);
+          break;
+        case "WARNING":
+          // ! in triangle
+          notificationBuilder.setSmallIcon(drawable.stat_notify_error);
+          break;
+        case "INFO":
+          // i in circle
+          notificationBuilder.setSmallIcon(drawable.ic_dialog_info);
+          break;
+        case "NONE":
+          notificationBuilder.setSmallIcon(null);
+          // default: do nothing
+      }
     }
     updateImage();
   }

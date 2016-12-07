@@ -1,6 +1,7 @@
 package skinjob.internal.peer;
 
 import android.content.res.ColorStateList;
+import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.DisplayMetrics;
@@ -31,7 +32,14 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   protected CharSequence text;
 
   public SkinJobComponentPeerForView(T androidComponent) {
-    this(androidComponent, SkinJobGraphicsConfiguration.get(androidComponent.getDisplay()));
+    this(androidComponent, getGraphicsConfiguration(androidComponent));
+  }
+
+  private static SkinJobGraphicsConfiguration getGraphicsConfiguration(View androidComponent) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      return SkinJobGraphicsConfiguration.get(androidComponent.getDisplay());
+    }
+    return SkinJobGraphicsConfiguration.getDefault();
   }
 
   public SkinJobComponentPeerForView(T androidComponent, GraphicsConfiguration configuration) {
@@ -47,7 +55,9 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   @Override
   public void setForeground(Color c) {
     super.setForeground(c);
-    androidWidget.setForegroundTintList(ColorStateList.valueOf(c.getRGB()));
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      androidWidget.setForegroundTintList(ColorStateList.valueOf(c.getRGB()));
+    }
   }
 
   @Override
@@ -132,16 +142,18 @@ public abstract class SkinJobComponentPeerForView<T extends View> extends SkinJo
   @Override
   public void setZOrder(ComponentPeer above) {
     if (above instanceof SkinJobComponentPeer<?>) {
-      Object otherAndroidComponent = ((SkinJobComponentPeer<?>) above).androidWidget;
-      if (otherAndroidComponent instanceof View) {
-        DisplayMetrics metrics = new DisplayMetrics();
-        androidWidget.getDisplay().getMetrics(metrics);
-        androidWidget.setCameraDistance(((View) otherAndroidComponent).getCameraDistance()
-            - metrics.density * SkinJobGlobals.layerZSpacing);
-        return;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        Object otherAndroidComponent = ((SkinJobComponentPeer<?>) above).androidWidget;
+        if (otherAndroidComponent instanceof View) {
+          DisplayMetrics metrics = new DisplayMetrics();
+          androidWidget.getDisplay().getMetrics(metrics);
+          androidWidget.setCameraDistance(((View) otherAndroidComponent).getCameraDistance()
+              - metrics.density * SkinJobGlobals.layerZSpacing);
+        }
       }
+    } else {
+      throw new UnsupportedOperationException();
     }
-    throw new UnsupportedOperationException();
   }
 
   @Override

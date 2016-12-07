@@ -1,5 +1,6 @@
 package skinjob.internal.peer;
 
+import android.os.Build;
 import android.view.KeyEvent;
 import android.view.inputmethod.InputMethodManager;
 
@@ -34,14 +35,22 @@ public class SkinJobRobotPeer implements RobotPeer {
 
   @Override
   public void keyPress(int keycode) {
-    SkinJobGlobals.getAndroidApplicationContext().getSystemService(InputMethodManager.class)
-        .dispatchKeyEventFromInputMethod(null, new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      SkinJobGlobals.getAndroidApplicationContext().getSystemService(InputMethodManager.class)
+          .dispatchKeyEventFromInputMethod(null, new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
+    } else {
+      // TODO
+    }
   }
 
   @Override
   public void keyRelease(int keycode) {
-    SkinJobGlobals.getAndroidApplicationContext().getSystemService(InputMethodManager.class)
-        .dispatchKeyEventFromInputMethod(null, new KeyEvent(KeyEvent.ACTION_UP, keycode));
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      SkinJobGlobals.getAndroidApplicationContext().getSystemService(InputMethodManager.class)
+          .dispatchKeyEventFromInputMethod(null, new KeyEvent(KeyEvent.ACTION_UP, keycode));
+    } else {
+      // TODO
+    }
   }
 
   @Override

@@ -50,4 +50,8 @@ public class AWTError extends Error {
   public AWTError(Throwable cause) {
     super(cause);
   }
+
+  public AWTError(String msg, Throwable cause) {
+    super(msg, cause);
+  }
 }

@@ -26,7 +26,6 @@
 package sun.awt.datatransfer;
 
 import android.util.Log;
-import android.util.LongSparseArray;
 
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
@@ -452,9 +451,8 @@ public abstract class DataTransferer {
    * Helper function to convert an InputStream to a byte[] array.
    */
   protected static byte[] inputStreamToByteArray(InputStream str) throws IOException {
-    ByteArrayOutputStream baos;
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try {
-      baos = new ByteArrayOutputStream();
       int len;
       byte[] buf = new byte[8192];
 
@@ -586,8 +584,8 @@ public abstract class DataTransferer {
    */
   public SortedMap<Long, DataFlavor> getFormatsForFlavors(
       DataFlavor[] flavors, FlavorTable map) {
-    Map<Long, DataFlavor> formatMap = new LongSparseArray<DataFlavor>(flavors.length);
-    Map<Long, DataFlavor> textPlainMap = new LongSparseArray<DataFlavor>(flavors.length);
+    Map<Long, DataFlavor> formatMap = new HashMap<>(flavors.length);
+    Map<Long, DataFlavor> textPlainMap = new HashMap<>(flavors.length);
     // Maps formats to indices that will be used to sort the formats
     // according to the preference order.
     // Larger index value corresponds to the more preferable format.
@@ -1053,23 +1051,31 @@ public abstract class DataTransferer {
       // search-and-replace EOLN, then reencode according to the requested
       // flavor.
     } else if (flavor.isRepresentationClassInputStream()) {
-
-      try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      try {
         theObject = translateStream(bais, flavor, format, localeTransferable);
+      } finally {
+        bais.close();
       }
     } else if (flavor.isRepresentationClassRemote()) {
-      try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-          ObjectInputStream ois = new ObjectInputStream(bais)) {
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      ObjectInputStream ois = new ObjectInputStream(bais);
+      try {
         theObject = getMarshalledObject(ois.readObject());
       } catch (Exception e) {
         throw new IOException(e.getMessage());
+      } finally {
+        ois.close();
       }
 
       // Target data is Serializable
     } else if (flavor.isRepresentationClassSerializable()) {
 
-      try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      try {
         theObject = translateStream(bais, flavor, format, localeTransferable);
+      } finally {
+        bais.close();
       }
 
       // Target data is Image
@@ -1166,18 +1172,24 @@ public abstract class DataTransferer {
       // Target data is an RMI object
     } else if (flavor.isRepresentationClassRemote()) {
 
-      try (ObjectInputStream ois = new ObjectInputStream(str)) {
+      ObjectInputStream ois = new ObjectInputStream(str);
+      try {
         theObject = getMarshalledObject(ois.readObject());
       } catch (Exception e) {
         throw new IOException(e.getMessage());
+      } finally {
+        ois.close();
       }
 
       // Target data is Serializable
     } else if (flavor.isRepresentationClassSerializable()) {
-      try (ObjectInputStream ois = new ObjectInputStream(str)) {
+      ObjectInputStream ois = new ObjectInputStream(str);
+      try {
         theObject = ois.readObject();
       } catch (Exception e) {
         throw new IOException(e.getMessage());
+      } finally {
+        ois.close();
       }
       // Target data is Image
     } else if (DataFlavor.imageFlavor.equals(flavor)) {

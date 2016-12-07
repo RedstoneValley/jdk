@@ -9,96 +9,21 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="Fix a severe bug where Choice wouldn't work at all. Eliminate NullWidgetSupplier.">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/src/main/java/javax/accessibility/AccessibleValue.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/util/PathIterators.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/General.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/General.xml" />
+    <list default="true" id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="Partial fix for new-API issues. Increase minimum API to 16.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/BufferCapabilities.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/BufferCapabilities.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Checkbox.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Checkbox.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/CheckboxMenuItem.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/CheckboxMenuItem.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Component.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Component.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Container.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Container.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/EventQueue.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/EventQueue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/FileDialog.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/FileDialog.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Font.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Font.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/GraphicsConfiguration.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/GraphicsConfiguration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/GraphicsEnvironment.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/GraphicsEnvironment.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/GridBagConstraints.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/GridBagConstraints.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/ImageCapabilities.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/ImageCapabilities.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Insets.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Insets.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/JobAttributes.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/JobAttributes.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/LightweightDispatcher.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/LightweightDispatcher.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/MenuComponent.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/MenuComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/MenuItem.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/MenuItem.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/PageAttributes.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/PageAttributes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/RenderingHints.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/RenderingHints.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/SplashScreen.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/SplashScreen.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Window.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Window.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/MimeType.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/MimeType.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/MimeTypeParameterList.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/MimeTypeParameterList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/CharArrayIterator.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/CharArrayIterator.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/GlyphVector.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/GlyphVector.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLayout.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLayout.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextMeasurer.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextMeasurer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/AffineTransform.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/AffineTransform.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Area.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Area.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/CubicCurve2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/CubicCurve2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Dimension2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Dimension2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Line2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Line2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Path2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Path2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Point2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Point2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/QuadCurve2D.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/QuadCurve2D.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/RectangularShape.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/RectangularShape.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/ImageFilter.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/ImageFilter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/Kernel.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/Kernel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/renderable/ParameterBlock.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/renderable/ParameterBlock.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/renderable/RenderContext.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/renderable/RenderContext.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/print/PageFormat.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/print/PageFormat.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/print/Paper.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/print/Paper.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/print/PrintRequestAttributeSet.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/print/PrintRequestAttributeSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/javax/accessibility/AccessibleRole.java" afterPath="$PROJECT_DIR$/app/src/main/java/javax/accessibility/AccessibleRole.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/javax/accessibility/AccessibleStateSet.java" afterPath="$PROJECT_DIR$/app/src/main/java/javax/accessibility/AccessibleStateSet.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/overview-bundled.html" afterPath="$PROJECT_DIR$/app/src/main/java/overview-bundled.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/overview-core.html" afterPath="$PROJECT_DIR$/app/src/main/java/overview-core.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphics.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphics.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobToolkit.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobToolkit.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobDesktopPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobDesktopPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobLabelPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobLabelPeer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/util/Geometry.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/util/Geometry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/AWTAccessor.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/AWTAccessor.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/dnd/SunDropTargetContextPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/dnd/SunDropTargetContextPeer.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintAllCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintAllCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintHeavyweightComponentsCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PaintHeavyweightComponentsCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PeerPaintCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PeerPaintCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PeerPrintCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PeerPrintCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintAllCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintAllCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintHeavyweightComponentsCallback.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/graphicscallback/PrintHeavyweightComponentsCallback.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/print/OrientationRequested.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/print/OrientationRequested.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/print/PrintService.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/print/PrintService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/shell/ShellFolder.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/shell/ShellFolder.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/AttributeValues.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/AttributeValues.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/Decoration.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/Decoration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/java2d/cmm/PCMM.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/java2d/cmm/PCMM.java" />
     </list>
     <ignored path="SkinJobTransplant.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -131,21 +56,81 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="SkinJobGlobals.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
+      <file leaf-file-name="DataTransferer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2362">
-              <caret line="97" column="34" selection-start-line="97" selection-start-column="34" selection-end-line="97" selection-end-column="34" />
+            <state relative-caret-position="224">
+              <caret line="453" column="9" selection-start-line="453" selection-start-column="9" selection-end-line="453" selection-end-column="9" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobGraphicsDevice.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java">
+      <file leaf-file-name="KeyboardFocusManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="21" column="24" selection-start-line="21" selection-start-column="24" selection-end-line="21" selection-end-column="24" />
+            <state relative-caret-position="226">
+              <caret line="1063" column="9" selection-start-line="1063" selection-start-column="9" selection-end-line="1063" selection-end-column="9" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MouseInfo.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="891">
+              <caret line="109" column="4" selection-start-line="109" selection-start-column="4" selection-end-line="109" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Toolkit.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1450">
+              <caret line="1350" column="35" selection-start-line="1350" selection-start-column="35" selection-end-line="1350" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LongSparseArray.class" pinned="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-25/android.jar!/android/util/LongSparseArray.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="124">
+              <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SkinJobComponentPeerForView.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="565">
+              <caret line="42" column="53" selection-start-line="42" selection-start-column="53" selection-end-line="42" selection-end-column="53" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultMouseInfoPeer.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="596">
+              <caret line="60" column="7" selection-start-line="60" selection-start-column="7" selection-end-line="60" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SkinJobGlobals.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="891">
+              <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
               <folding />
             </state>
           </provider>
@@ -154,78 +139,18 @@
       <file leaf-file-name="SkinJobGraphicsEnvironment.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="32" column="44" selection-start-line="32" selection-start-column="44" selection-end-line="32" selection-end-column="44" />
+            <state relative-caret-position="434">
+              <caret line="33" column="9" selection-start-line="33" selection-start-column="9" selection-end-line="33" selection-end-column="9" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobToolkit.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobToolkit.java">
+      <file leaf-file-name="AWTKeyStroke.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="263" column="22" selection-start-line="263" selection-start-column="22" selection-end-line="263" selection-end-column="22" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SkinJobTrayIconPeer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="42" column="41" selection-start-line="42" selection-start-column="41" selection-end-line="42" selection-end-column="41" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SystemFlavorMap.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/SystemFlavorMap.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="1037" column="12" selection-start-line="1037" selection-start-column="12" selection-end-line="1037" selection-end-column="12" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SkinJobWindowPeer.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="428">
-              <caret line="248" column="54" selection-start-line="248" selection-start-column="54" selection-end-line="248" selection-end-column="54" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Window.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Window.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="556" column="13" selection-start-line="556" selection-start-column="13" selection-end-line="556" selection-end-column="13" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TextLayout.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLayout.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="2334" column="25" selection-start-line="2334" selection-start-column="25" selection-end-line="2334" selection-end-column="25" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SkinJobUtil.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="77" column="13" selection-start-line="77" selection-start-column="13" selection-end-line="77" selection-end-column="13" />
+            <state relative-caret-position="596">
+              <caret line="732" column="36" selection-start-line="732" selection-start-column="36" selection-end-line="732" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -1942,24 +1867,15 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/print/PrintRequestAttributeSet.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/print/PrintService.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/font/AttributeValues.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/print/PrintServiceLookup.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/AWTAccessor.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/geom/CubicCurve2D.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Dimension2D.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/EventQueue.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/GraphicsEnvironment.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/GridBagConstraints.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/shell/ShellFolder.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextMeasurer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/LightweightDispatcher.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobDesktopPeer.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
         <option value="$PROJECT_DIR$/app/build.gradle" />
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Component.java" />
@@ -1967,11 +1883,7 @@
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Container.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/font/Decoration.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/SplashScreen.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Font.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/DefaultWrappedAndroidObjectsSupplier.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/ImageCapabilities.java" />
@@ -1985,7 +1897,6 @@
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/geom/QuadCurve2D.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/geom/RectangularShape.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/RenderingHints.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphics.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobToolkit.java" />
@@ -1993,6 +1904,20 @@
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLayout.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java" />
       </list>
     </option>
   </component>
@@ -2117,6 +2042,7 @@
     <property name="UI_DESIGNER_EDITOR_MODE.NlPaletteManager-NlPreviewForm.SHOW" value="false" />
     <property name="android.project.structure.last.selected" value="app" />
     <property name="android.project.structure.proportion" value="0.15" />
+    <property name="extract.method.default.visibility" value="private" />
   </component>
   <component name="RecentsManager">
     <key name="MoveMembersDialog.RECENTS_KEY">
@@ -2459,7 +2385,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481106711145</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Partial fix for new-API issues. Increase minimum API to 16.">
+      <created>1481115828028</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1481115828028</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2473,7 +2406,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-11" y="-11" width="3862" height="2126" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
@@ -2486,11 +2419,11 @@
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32998943" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32998943" sideWeight="0.49893898" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32998943" sideWeight="0.49893898" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3996832" sideWeight="0.49681696" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3996832" sideWeight="0.49681696" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3299735" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32998943" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
@@ -2551,79 +2484,26 @@
     <option name="CHECK_NEW_TODO" value="false" />
     <MESSAGE value="Now builds with Gradle. Fixed some build errors. Reformatted to modified Google style. Some progress on porting BasicStroke code." />
     <MESSAGE value="Fix a severe bug where Choice wouldn't work at all. Eliminate NullWidgetSupplier." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix a severe bug where Choice wouldn't work at all. Eliminate NullWidgetSupplier." />
+    <MESSAGE value="Partial fix for new-API issues. Increase minimum API to 16." />
+    <option name="LAST_COMMIT_MESSAGE" value="Partial fix for new-API issues. Increase minimum API to 16." />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="1" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java</url>
+          <line>184</line>
+          <properties />
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="2" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="13" column="39" selection-start-line="13" selection-start-column="39" selection-end-line="13" selection-end-column="39" />
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="android-manifest">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Component.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="6853" column="37" selection-start-line="6853" selection-start-column="37" selection-end-line="6853" selection-end-column="37" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AttributeValue.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="37" column="4" selection-start-line="37" selection-start-column="4" selection-end-line="37" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
-      <provider editor-type-id="android-designer2">
-        <state />
-      </provider>
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="26" column="8" selection-start-line="26" selection-start-column="8" selection-end-line="26" selection-end-column="8" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/image/BandCombineOp.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1891">
-          <caret line="89" column="30" selection-start-line="89" selection-start-column="30" selection-end-line="89" selection-end-column="30" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/settings.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gradle.properties">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -2698,14 +2578,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="790">
-          <caret line="111" column="38" selection-start-line="111" selection-start-column="38" selection-end-line="111" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/SplashScreen.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="7346">
@@ -2713,38 +2585,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="428">
-          <caret line="1639" column="11" selection-start-line="1639" selection-start-column="11" selection-end-line="1639" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="645">
-          <caret line="803" column="48" selection-start-line="803" selection-start-column="24" selection-end-line="803" selection-end-column="48" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="1056" column="10" selection-start-line="1056" selection-start-column="10" selection-end-line="1056" selection-end-column="10" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="821">
-          <caret line="96" column="89" selection-start-line="96" selection-start-column="89" selection-end-line="96" selection-end-column="89" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -2804,14 +2644,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="495" column="38" selection-start-line="495" selection-start-column="38" selection-end-line="495" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/geom/Line2D.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="366">
@@ -2862,30 +2694,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="573">
-          <caret line="31" column="38" selection-start-line="31" selection-start-column="38" selection-end-line="31" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="42" column="38" selection-start-line="42" selection-start-column="38" selection-end-line="42" selection-end-column="38" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="137" column="22" selection-start-line="137" selection-start-column="22" selection-end-line="137" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/AppData/Local/Android/sdk/extras/android/m2repository/com/android/support/support-annotations/25.0.1/support-annotations-25.0.1-sources.jar!/android/support/annotation/RequiresApi.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
@@ -2902,50 +2710,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2362">
-          <caret line="97" column="34" selection-start-line="97" selection-start-column="34" selection-end-line="97" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="21" column="24" selection-start-line="21" selection-start-column="24" selection-end-line="21" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="32" column="44" selection-start-line="32" selection-start-column="44" selection-end-line="32" selection-end-column="44" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobToolkit.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="366">
           <caret line="263" column="22" selection-start-line="263" selection-start-column="22" selection-end-line="263" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="42" column="41" selection-start-line="42" selection-start-column="41" selection-end-line="42" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/SystemFlavorMap.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="1037" column="12" selection-start-line="1037" selection-start-column="12" selection-end-line="1037" selection-end-column="12" />
           <folding />
         </state>
       </provider>
@@ -2969,15 +2737,191 @@
     <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="366">
-          <caret line="77" column="13" selection-start-line="77" selection-start-column="13" selection-end-line="77" selection-end-column="13" />
+          <caret line="76" column="13" selection-start-line="76" selection-start-column="13" selection-end-line="76" selection-end-column="13" />
+          <folding>
+            <element signature="imports" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="821">
+          <caret line="39" column="64" selection-start-line="39" selection-start-column="64" selection-end-line="39" selection-end-column="64" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="42" column="41" selection-start-line="42" selection-start-column="41" selection-end-line="42" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-25/android.jar!/android/R.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="397">
+          <caret line="1199" column="46" selection-start-line="1199" selection-start-column="40" selection-end-line="1199" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="366">
+          <caret line="803" column="17" selection-start-line="803" selection-start-column="17" selection-end-line="803" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsDevice.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="16" column="9" selection-start-line="16" selection-start-column="9" selection-end-line="16" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="769">
+          <caret line="49" column="31" selection-start-line="49" selection-start-column="31" selection-end-line="49" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="759">
+          <caret line="106" column="30" selection-start-line="106" selection-start-column="30" selection-end-line="106" selection-end-column="30" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="428">
-          <caret line="248" column="54" selection-start-line="248" selection-start-column="54" selection-end-line="248" selection-end-column="54" />
+        <state relative-caret-position="366">
+          <caret line="219" column="38" selection-start-line="219" selection-start-column="38" selection-end-line="219" selection-end-column="38" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/SystemFlavorMap.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1494">
+          <caret line="1037" column="14" selection-start-line="1037" selection-start-column="14" selection-end-line="1037" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Component.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="3486" column="21" selection-start-line="3486" selection-start-column="21" selection-end-line="3486" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="806">
+          <caret line="53" column="2" selection-start-line="53" selection-start-column="2" selection-end-line="53" selection-end-column="2" />
+          <folding>
+            <element signature="e#1806#1807#0" expanded="true" />
+            <element signature="e#1833#1834#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="837">
+          <caret line="54" column="22" selection-start-line="54" selection-start-column="22" selection-end-line="54" selection-end-column="22" />
+          <folding>
+            <element signature="e#1806#1807#0" expanded="true" />
+            <element signature="e#1833#1834#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="596">
+          <caret line="732" column="36" selection-start-line="732" selection-start-column="36" selection-end-line="732" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-25/android.jar!/android/util/LongSparseArray.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="7" column="13" selection-start-line="7" selection-start-column="13" selection-end-line="7" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="453" column="9" selection-start-line="453" selection-start-column="9" selection-end-line="453" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/KeyboardFocusManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="226">
+          <caret line="1063" column="9" selection-start-line="1063" selection-start-column="9" selection-end-line="1063" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/Toolkit.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1450">
+          <caret line="1350" column="35" selection-start-line="1350" selection-start-column="35" selection-end-line="1350" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="891">
+          <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobComponentPeerForView.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="565">
+          <caret line="42" column="53" selection-start-line="42" selection-start-column="53" selection-end-line="42" selection-end-column="53" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="33" column="9" selection-start-line="33" selection-start-column="9" selection-end-line="33" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/MouseInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="891">
+          <caret line="109" column="4" selection-start-line="109" selection-start-column="4" selection-end-line="109" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="596">
+          <caret line="60" column="7" selection-start-line="60" selection-start-column="7" selection-end-line="60" selection-end-column="7" />
           <folding />
         </state>
       </provider>

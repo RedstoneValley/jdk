@@ -40,7 +40,8 @@ public class SkinJobClipboard extends Clipboard implements OnPrimaryClipChangedL
 
   public SkinJobClipboard(Context androidContext) {
     super("Android system clipboard");
-    clipboardManager = androidContext.getSystemService(ClipboardManager.class);
+    clipboardManager = (ClipboardManager)
+        androidContext.getSystemService(Context.CLIPBOARD_SERVICE);
     contentResolver = androidContext.getContentResolver();
   }
 

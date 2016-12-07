@@ -1,7 +1,9 @@
 package skinjob.internal;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.view.Display;
 
 import java.awt.Font;
@@ -30,20 +32,35 @@ public class SkinJobGraphicsEnvironment extends GraphicsEnvironment {
 
   public SkinJobGraphicsEnvironment(Context androidContext) {
     this.androidContext = androidContext;
-    DisplayManager manager = androidContext.getSystemService(DisplayManager.class);
-    defaultDisplay = manager.getDisplay(Display.DEFAULT_DISPLAY);
-    displays = manager.getDisplays();
-    defaultDisplayDevice = new SkinJobGraphicsDevice(defaultDisplay);
-    displayDevices = new GraphicsDevice[displays.length];
-    for (int i = 0; i < displays.length; i++) {
-      displayDevices[i] = displays[i].equals(defaultDisplay) ? defaultDisplayDevice
-          : new SkinJobGraphicsDevice(displays[i]);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      DisplayManager manager = (DisplayManager)
+          androidContext.getSystemService(Context.DISPLAY_SERVICE);
+      defaultDisplay = manager.getDisplay(Display.DEFAULT_DISPLAY);
+      displays = manager.getDisplays();
+      defaultDisplayDevice = new SkinJobGraphicsDevice(defaultDisplay);
+      displayDevices = new GraphicsDevice[displays.length];
+      for (int i = 0; i < displays.length; i++) {
+        displayDevices[i] = displays[i].equals(defaultDisplay) ? defaultDisplayDevice
+            : new SkinJobGraphicsDevice(displays[i]);
+      }
+    } else {
+      if (androidContext instanceof Activity) {
+        defaultDisplay = ((Activity) androidContext).getWindowManager().getDefaultDisplay();
+        displays = new Display[]{defaultDisplay};
+        defaultDisplayDevice = new SkinJobGraphicsDevice(defaultDisplay);
+        displayDevices = new GraphicsDevice[]{defaultDisplayDevice};
+      } else {
+        defaultDisplay = null;
+        displays = new Display[0];
+        defaultDisplayDevice = null;
+        displayDevices = new GraphicsDevice[0];
+      }
     }
   }
 
   @Override
   public boolean isHeadlessInstance() {
-    return false;
+    return defaultDisplayDevice != null;
   }
 
   @Override

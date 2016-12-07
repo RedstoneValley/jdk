@@ -720,7 +720,7 @@ public class AWTKeyStroke implements Serializable {
    * Created by cryoc on 2016-10-18.
    */
   static class VKCollection {
-    final Map<Integer, String> code2name;
+    final SparseArray<String> code2name;
     final Map<String, Integer> name2code;
 
     public VKCollection() {

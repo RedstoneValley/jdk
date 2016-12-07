@@ -104,12 +104,14 @@ public final class MouseInfo {
   public static int getNumberOfButtons() throws HeadlessException {
     Object prop = Toolkit.getDefaultToolkit().
         getDesktopProperty("awt.mouse.numButtons");
+    if (prop == null) {
+      return 0;
+    }
     if (prop instanceof Integer) {
       return (Integer) prop;
     }
 
     // This should never happen.
     throw new AWTError("awt.mouse.numButtons is not an integer property");
-    return 0;
   }
 }

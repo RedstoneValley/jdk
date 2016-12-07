@@ -29,7 +29,10 @@ public class SkinJobCanvasPeer extends SkinJobComponentPeerForView<View> impleme
 
   @Override
   public GraphicsConfiguration getAppropriateGraphicsConfiguration(GraphicsConfiguration gc) {
-    Display myDisplay = androidWidget.getDisplay();
+    Display myDisplay = null;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      myDisplay = androidWidget.getDisplay();
+    }
     if (gc instanceof SkinJobGraphicsConfiguration) {
       GraphicsDevice gcDevice = gc.getDevice();
       if (gcDevice instanceof SkinJobGraphicsDevice

@@ -36,6 +36,8 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.peer.MouseInfoPeer;
 
+import skinjob.SkinJobGlobals;
+
 public class DefaultMouseInfoPeer implements MouseInfoPeer {
 
   private final InputDevice androidInputDevice;
@@ -49,10 +51,14 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
       Display touchedDisplay;
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
         touchedDisplay = v.getDisplay();
+      } else {
+        touchedDisplay = SkinJobGlobals.getGraphicsEnvironment().getDefaultDisplay();
       }
-      lastDisplay = touchedDisplay == null ? 0 : touchedDisplay.getDisplayId();
-      x = event.getX() + v.getX();
-      y = event.getY() + v.getY();
+      synchronized (DefaultMouseInfoPeer.this) {
+        lastDisplay = touchedDisplay == null ? 0 : touchedDisplay.getDisplayId();
+        x = event.getX() + v.getX();
+        y = event.getY() + v.getY();
+      }
       return false; // do not "consume" this event, in case other code needs it
     }
   };

@@ -4,6 +4,8 @@ import android.R.color;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.Color;
+import android.os.Build;
 
 import java.awt.AWTError;
 import java.awt.BasicStroke;
@@ -86,18 +88,17 @@ public final class SkinJobGlobals {
    */
   public static final int inputMethodMenuY = 80;
   private static final Resources systemResources = Resources.getSystem();
+
   /**
    * RGBA value of the foreground color used in AWT components when a color isn't specified.
    */
-  public static volatile int defaultForegroundColor = systemResources.getColor(
-      color.primary_text_dark,
-      systemResources.newTheme());
+  public static volatile int defaultForegroundColor;
+
   /**
    * RGBA value of the background color used in AWT components when a color isn't specified and an
    * opaque background is necessary.
    */
-  public static volatile int defaultBackgroundColor
-      = systemResources.getColor(color.background_light, systemResources.newTheme());
+  public static volatile int defaultBackgroundColor;
 
   /**
    * Size of the array of precomputed character widths in each {@link FontMetrics}. Code points
@@ -179,6 +180,16 @@ public final class SkinJobGlobals {
     m.put(KEY_TEXT_ANTIALIASING, VALUE_TEXT_ANTIALIAS_ON);
     // TODO: Is one of VALUE_TEXT_ANTIALIAS_LCD_* suitable for a typical mobile (OLED) screen?
     defaultRenderingHints = new RenderingHints(m);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      defaultForegroundColor = systemResources.getColor(
+          color.primary_text_dark,
+          systemResources.newTheme());
+      defaultBackgroundColor = systemResources
+          .getColor(color.background_light, systemResources.newTheme());
+    } else {
+      defaultBackgroundColor = Color.WHITE;
+      defaultForegroundColor = Color.BLACK;
+    }
   }
 
   /**
