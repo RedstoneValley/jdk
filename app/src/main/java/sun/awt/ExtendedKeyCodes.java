@@ -1,16 +1,18 @@
 package sun.awt;
 
+import android.util.SparseIntArray;
+
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
 import java.util.HashSet;
 
+@SuppressWarnings("MagicNumber")
 public final class ExtendedKeyCodes {
   /**
    * ATTN: These are the readonly hashes with load factor == 1; adding a value, please set the
    * inital capacity to exact number of items or higher.
    */
   // Keycodes declared in KeyEvent.java with corresponding Unicode values.
-  private static final HashMap<Integer, Integer> regularKeyCodesMap = new HashMap<>(98, 1.0f);
+  private static final SparseIntArray regularKeyCodesMap = new SparseIntArray();
 
   // Keycodes derived from Unicode values. Here should be collected codes
   // for characters appearing on the primary layer of at least one
@@ -627,11 +629,13 @@ public final class ExtendedKeyCodes {
   public static int getExtendedKeyCodeForChar(int c) {
     int uc = Character.toUpperCase(c);
     int lc = Character.toLowerCase(c);
-    if (regularKeyCodesMap.containsKey(c)) {
-      if (regularKeyCodesMap.containsKey(uc)) {
-        return regularKeyCodesMap.get(uc);
+    int keyCodeC = regularKeyCodesMap.get(c, -1);
+    int keyCodeUC = regularKeyCodesMap.get(uc, -1);
+    if (keyCodeC != -1) {
+      if (keyCodeUC != -1) {
+        return keyCodeC;
       }
-      return regularKeyCodesMap.get(c);
+      return keyCodeUC;
     }
     uc += 0x01000000;
     lc += 0x01000000;

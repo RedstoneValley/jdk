@@ -25,6 +25,7 @@
 
 package sun.awt.datatransfer;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import java.awt.Image;
@@ -584,8 +585,10 @@ public abstract class DataTransferer {
    */
   public SortedMap<Long, DataFlavor> getFormatsForFlavors(
       DataFlavor[] flavors, FlavorTable map) {
-    Map<Long, DataFlavor> formatMap = new HashMap<>(flavors.length);
-    Map<Long, DataFlavor> textPlainMap = new HashMap<>(flavors.length);
+    @SuppressLint("UseSparseArrays") Map<Long, DataFlavor> formatMap
+        = new HashMap<>(flavors.length);
+    @SuppressLint("UseSparseArrays") Map<Long, DataFlavor> textPlainMap
+        = new HashMap<>(flavors.length);
     // Maps formats to indices that will be used to sort the formats
     // according to the preference order.
     // Larger index value corresponds to the more preferable format.
