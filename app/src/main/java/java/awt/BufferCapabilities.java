@@ -122,12 +122,12 @@ public class BufferCapabilities implements Cloneable {
    * @return a copy of this BufferCapabilities object.
    */
   @Override
-  public Object clone() {
+  public BufferCapabilities clone() {
     try {
-      return super.clone();
+      return (BufferCapabilities) super.clone();
     } catch (CloneNotSupportedException e) {
       // Since we implement Cloneable, this should never happen
-      throw new InternalError(e);
+      throw new AssertionError(e);
     }
   }
 

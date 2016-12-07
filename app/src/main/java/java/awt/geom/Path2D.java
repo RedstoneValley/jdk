@@ -875,7 +875,7 @@ public abstract class Path2D implements Shape, Cloneable {
    * @since 1.6
    */
   @Override
-  public abstract Object clone();
+  public abstract Path2D clone();
 
   final void writeObject(ObjectOutputStream s, boolean isdbl) throws IOException {
     s.defaultWriteObject();
@@ -1852,7 +1852,7 @@ public abstract class Path2D implements Shape, Cloneable {
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
-    public final Object clone() {
+    public final Float clone() {
       // Note: It would be nice to have this return Path2D
       // but one of our subclasses (GeneralPath) needs to
       // offer "public Object clone()" for backwards
@@ -2542,7 +2542,7 @@ public abstract class Path2D implements Shape, Cloneable {
      */
     @SuppressWarnings("CloneDoesntCallSuperClone")
     @Override
-    public final Object clone() {
+    public final Double clone() {
       // Note: It would be nice to have this return Path2D
       // but one of our subclasses (GeneralPath) needs to
       // offer "public Object clone()" for backwards

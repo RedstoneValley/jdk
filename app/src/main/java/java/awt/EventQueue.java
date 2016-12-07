@@ -354,7 +354,7 @@ public class EventQueue {
   static void invokeAndWait(Object source, Runnable runnable)
       throws InterruptedException, InvocationTargetException {
     if (isDispatchThread()) {
-      throw new Error("Cannot call invokeAndWait from the event dispatcher thread");
+      throw new AWTError("Cannot call invokeAndWait from the event dispatcher thread");
     }
 
     Object lock = new Object();

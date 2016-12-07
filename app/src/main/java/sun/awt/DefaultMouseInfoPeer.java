@@ -25,6 +25,7 @@
 
 package sun.awt;
 
+import android.os.Build;
 import android.view.Display;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -45,7 +46,10 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
   private final OnTouchListener androidListener = new OnTouchListener() {
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-      Display touchedDisplay = v.getDisplay();
+      Display touchedDisplay;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+        touchedDisplay = v.getDisplay();
+      }
       lastDisplay = touchedDisplay == null ? 0 : touchedDisplay.getDisplayId();
       x = event.getX() + v.getX();
       y = event.getY() + v.getY();
@@ -59,7 +63,8 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
   public DefaultMouseInfoPeer() {
     for (int id : InputDevice.getDeviceIds()) {
       InputDevice device = InputDevice.getDevice(id);
-      if (device.supportsSource(InputDevice.SOURCE_MOUSE)) {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+          && device.supportsSource(InputDevice.SOURCE_MOUSE)) {
         androidInputDevice = device;
         return;
       }
@@ -88,7 +93,10 @@ public class DefaultMouseInfoPeer implements MouseInfoPeer {
     if (androidInputDevice == null || !w.isActive()) {
       return false;
     }
-    Display display = w.sjAndroidWindow.getDecorView().getDisplay();
+    Display display = null;
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      display = w.sjAndroidWindow.getDecorView().getDisplay();
+    }
     return display != null && display.getDisplayId() == lastDisplay;
   }
 }

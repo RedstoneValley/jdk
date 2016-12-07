@@ -252,9 +252,9 @@ public class RenderContext implements Cloneable {
    *
    * @return the new cloned RenderContext.
    */
-  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneCallsConstructors"})
   @Override
-  public Object clone() {
+  public RenderContext clone() {
     return new RenderContext(usr2dev, aoi, hints);
   }
 }

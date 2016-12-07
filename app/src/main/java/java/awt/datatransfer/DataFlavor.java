@@ -469,7 +469,6 @@ public class DataFlavor implements Externalizable, Cloneable {
    * @return a {@code DataFlavor} representing plain text with Unicode encoding
    * @since 1.3
    */
-  @SuppressWarnings("StaticMethodOnlyUsedInOneClass")
   public static final DataFlavor getTextPlainUnicodeFlavor() {
     String encoding = null;
     DataTransferer result;
@@ -930,12 +929,12 @@ public class DataFlavor implements Externalizable, Cloneable {
    */
 
   @Override
-  public Object clone() throws CloneNotSupportedException {
+  public DataFlavor clone() throws CloneNotSupportedException {
     Object newObj = super.clone();
     if (mimeType != null) {
       ((DataFlavor) newObj).mimeType = (MimeType) mimeType.clone();
     }
-    return newObj;
+    return (DataFlavor) newObj;
   } // clone()
 
   /**

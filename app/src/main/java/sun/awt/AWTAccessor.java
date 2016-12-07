@@ -46,7 +46,6 @@ import sun.awt.CausedFocusEvent.Cause;
  * package-private fields of classes from different classes/packages. See sun.misc.SharedSecretes
  * for another example.
  */
-@SuppressWarnings("ClassWithTooManyFields")
 public final class AWTAccessor {
 
   /*

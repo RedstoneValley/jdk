@@ -149,12 +149,12 @@ public class Insets implements Cloneable, Serializable {
    * @return a copy of this {@code Insets} object.
    */
   @Override
-  public Object clone() {
+  public Insets clone() {
     try {
-      return super.clone();
+      return (Insets) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

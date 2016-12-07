@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.View;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.WeakHashMap;
 
 import skinjob.SkinJobGlobals;
@@ -43,7 +42,7 @@ public class DefaultWrappedAndroidObjectsSupplier<TWidget extends View>
   public TWidget createWidget(Context context) {
     try {
       return constructor.newInstance(SkinJobGlobals.getAndroidApplicationContext());
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

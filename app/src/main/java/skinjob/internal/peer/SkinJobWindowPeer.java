@@ -1,6 +1,8 @@
 package skinjob.internal.peer;
 
 import android.graphics.Rect;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -77,6 +79,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     setBounds(bounds.x, bounds.y, bounds.width, bounds.height, SET_BOUNDS);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
   @Override
   public void setBoundsPrivate(int x, int y, int width, int height) {
     WindowInsets insets = sjGetAndroidWindowInsets();
@@ -86,11 +89,13 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
         SET_BOUNDS);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
   protected WindowInsets sjGetAndroidWindowInsets() {
     View decorView = androidWidget.getDecorView();
     return decorView.getRootWindowInsets();
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
   @Override
   public Rectangle getBoundsPrivate() {
     WindowInsets insets = sjGetAndroidWindowInsets();
@@ -207,6 +212,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     androidWidget.getDecorView().draw(getCanvas(g));
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
   @Override
   public void setBounds(int x, int y, int width, int height, int op) {
     View decorView = androidWidget.getDecorView();
@@ -238,8 +244,10 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
 
   @Override
   public void setBackground(Color c) {
-    androidWidget.setStatusBarColor(c.getRGB());
-    androidWidget.setNavigationBarColor(c.getRGB());
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+      androidWidget.setStatusBarColor(c.getRGB());
+      androidWidget.setNavigationBarColor(c.getRGB());
+    }
     androidWidget.getDecorView().setBackgroundColor(c.getRGB());
   }
 

@@ -40,6 +40,7 @@
 
 package java.awt.font;
 
+import java.awt.AWTError;
 import java.awt.Font;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
@@ -132,12 +133,12 @@ public final class TextMeasurer implements Cloneable {
   }
 
   @Override
-  protected Object clone() {
+  protected TextMeasurer clone() {
     TextMeasurer other;
     try {
       other = (TextMeasurer) super.clone();
     } catch (CloneNotSupportedException e) {
-      throw new Error();
+      throw new AWTError(e);
     }
     if (fComponents != null) {
       other.fComponents = fComponents.clone();

@@ -25,6 +25,8 @@
 
 package java.awt.image;
 
+import java.awt.AWTError;
+
 /**
  * The {@code Kernel} class defines a matrix that describes how a specified pixel and its
  * surrounding pixels affect the value computed for the pixel's position in the output image of a
@@ -136,12 +138,12 @@ public class Kernel implements Cloneable {
    * @return a clone of this object.
    */
   @Override
-  public Object clone() {
+  public Kernel clone() {
     try {
-      return super.clone();
+      return (Kernel) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 }

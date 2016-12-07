@@ -28,7 +28,7 @@ public final class Geometry {
   public static final Area EMPTY = new Area();
 
   private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
-  private static final String TAG = "PathIterators";
+  private static final String TAG = "Geometry";
   private static final int COORD_ARRAY_SIZE = 23;
 
   /**

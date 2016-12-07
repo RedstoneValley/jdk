@@ -83,7 +83,7 @@ public class PageFormat implements Cloneable {
    * @return a copy of this {@code PageFormat}.
    */
   @Override
-  public Object clone() {
+  public PageFormat clone() {
     PageFormat newPage;
 
     try {

@@ -467,12 +467,12 @@ public final class PageAttributes implements Cloneable {
    * @return the newly created copy. It is safe to cast this Object into a PageAttributes.
    */
   @Override
-  public Object clone() {
+  public PageAttributes clone() {
     try {
-      return super.clone();
+      return (PageAttributes) super.clone();
     } catch (CloneNotSupportedException e) {
       // Since we implement Cloneable, this should never happen
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

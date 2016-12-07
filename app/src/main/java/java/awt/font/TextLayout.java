@@ -40,6 +40,7 @@
 
 package java.awt.font;
 
+import java.awt.AWTError;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -682,7 +683,7 @@ public final class TextLayout implements Cloneable {
     }
 
     if (justifyRatio == ALREADY_JUSTIFIED) {
-      throw new Error("Can't justify again.");
+      throw new AWTError("Can't justify again.");
     }
 
     ensureCache(); // make sure textLine is not null
@@ -2315,7 +2316,7 @@ public final class TextLayout implements Cloneable {
    * Creates a copy of this {@code TextLayout}.
    */
   @Override
-  protected Object clone() {
+  protected TextLayout clone() {
         /*
          * !!! I think this is safe.  Once created, nothing mutates the
          * glyphvectors or arrays.  But we need to make sure.
@@ -2329,9 +2330,9 @@ public final class TextLayout implements Cloneable {
          * you forget this one time, you're hosed.
          */
     try {
-      return super.clone();
+      return (TextLayout) super.clone();
     } catch (CloneNotSupportedException e) {
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

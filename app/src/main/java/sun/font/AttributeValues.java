@@ -1,5 +1,8 @@
 package sun.font;
 
+import android.annotation.SuppressLint;
+import android.os.Build;
+
 import java.awt.Color;
 import java.awt.Paint;
 import java.awt.Toolkit;
@@ -165,9 +168,12 @@ public class AttributeValues extends HashMap<TextAttribute, Object> {
     return justification == null ? TextAttribute.JUSTIFICATION_NONE : justification;
   }
 
+  @SuppressLint("NewApi")
   public static NumericShaper getNumericShaping(Map<? extends Attribute, ?> paragraphAttrs) {
     NumericShaper shaping = (NumericShaper) paragraphAttrs.get(TextAttribute.NUMERIC_SHAPING);
-    return shaping == null ? NumericShaper.getShaper(Range.EUROPEAN) : shaping;
+    return (shaping == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+        ? NumericShaper.getShaper(Range.EUROPEAN)
+        : shaping;
   }
 
   public int getKerning() {

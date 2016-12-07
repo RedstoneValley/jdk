@@ -273,9 +273,12 @@ public final class SplashScreen {
       checkVisible();
       float scale = _getScaleFactor(splashPtr);
       Rectangle bounds = _getBounds(splashPtr);
-      assert scale > 0;
-      if (scale > 0 && scale != 1) {
-        bounds.setSize((int) (bounds.getWidth() / scale), (int) (bounds.getWidth() / scale));
+      if (scale > 0) {
+        if (scale != 1) {
+          bounds.setSize((int) (bounds.getWidth() / scale), (int) (bounds.getWidth() / scale));
+        }
+      } else {
+        throw new AWTError("Invalid scale factor " + scale);
       }
       return bounds;
     }
@@ -322,8 +325,8 @@ public final class SplashScreen {
       }
       float scale = _getScaleFactor(splashPtr);
       Graphics2D g = image.createGraphics();
-      assert scale > 0;
       if (scale <= 0) {
+        Log.e(TAG, "_getScaleFactor returned invalid scale " + scale);
         scale = 1;
       }
       g.scale(scale, scale);

@@ -1,7 +1,8 @@
 package javax.accessibility;
 
 /**
- * Created by chris on 12/7/2016.
+ * For AWT compatibility in SkinJob's implementation of {@link java.awt.Component} and its
+ * subclasses.
  */
 public class AccessibleStateSet {
 }

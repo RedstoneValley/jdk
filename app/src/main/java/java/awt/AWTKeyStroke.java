@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.util.SparseArray;
+
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.ObjectStreamException;
@@ -208,8 +210,8 @@ public class AWTKeyStroke implements Serializable {
         Class<AWTKeyStroke> clazz = getAWTKeyStrokeClass();
         cacheKey = (AWTKeyStroke) getCtor(clazz).newInstance((Object[]) null);
         AppContext.getAppContext().put(APP_CONTEXT_KEYSTROKE_KEY, cacheKey);
-      } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-        assert false;
+      } catch (Exception e) {
+        throw new AssertionError(e);
       }
     }
     cacheKey.keyChar = keyChar;
@@ -487,8 +489,8 @@ public class AWTKeyStroke implements Serializable {
 
       try {
         keyCode = KeyEvent.class.getField(key).getInt(KeyEvent.class);
-      } catch (NoSuchFieldException | IllegalAccessException nsfe) {
-        throw new IllegalArgumentException(errmsg);
+      } catch (Exception e) {
+        throw new IllegalArgumentException(errmsg, e);
       }
       value = keyCode;
       vkCollect.put(key, value);
@@ -547,7 +549,7 @@ public class AWTKeyStroke implements Serializable {
           return name.substring(3);
         }
       } catch (IllegalAccessException e) {
-        assert false;
+        throw new AssertionError(e);
       }
     }
     return "UNKNOWN";
@@ -722,7 +724,7 @@ public class AWTKeyStroke implements Serializable {
     final Map<String, Integer> name2code;
 
     public VKCollection() {
-      code2name = new HashMap<>();
+      code2name = new SparseArray<String>();
       name2code = new HashMap<>();
     }
 

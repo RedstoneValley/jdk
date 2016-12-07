@@ -1,12 +1,9 @@
 package skinjob;
 
 import android.R.color;
-import android.R.drawable;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap.CompressFormat;
-import android.view.View;
-import android.widget.ListView;
 
 import java.awt.AWTError;
 import java.awt.BasicStroke;
@@ -17,7 +14,6 @@ import java.awt.RenderingHints.Key;
 import java.awt.font.GraphicAttribute;
 import java.awt.font.TextAttribute;
 import java.awt.peer.ComponentPeer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 
@@ -79,7 +75,6 @@ public final class SkinJobGlobals {
    * other component, as a multiple of {@link android.util.DisplayMetrics#density}.
    */
   public static final float layerZSpacing = 100.0f;
-  public static final View menuDivider;
   /**
    * X-coordinate of the point where {@link sun.awt.im.ExecutableInputMethodManager#showInputMethodMenu()}
    * will pop up the menu.
@@ -172,10 +167,6 @@ public final class SkinJobGlobals {
   public static volatile int imageQuality = 100;
 
   static {
-    Context context = getAndroidApplicationContext();
-    menuDivider = View.inflate(context,
-        drawable.divider_horizontal_dim_dark,
-        new ListView(context));
     HashMap<Key, Object> m = new HashMap<>();
     m.put(KEY_ALPHA_INTERPOLATION, VALUE_ALPHA_INTERPOLATION_QUALITY);
     m.put(KEY_ANTIALIASING, VALUE_ANTIALIAS_ON);
@@ -205,9 +196,8 @@ public final class SkinJobGlobals {
       Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
       Method method = activityThreadClass.getMethod("currentApplication");
       return (Context) method.invoke(null, (Object[]) null);
-    } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException
-        | ClassNotFoundException e) {
-      throw new AWTError(e.toString());
+    } catch (Exception e) {
+      throw new AWTError(e);
     }
   }
 

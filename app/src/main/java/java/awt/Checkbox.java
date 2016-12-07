@@ -36,7 +36,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.EventListener;
-import java.util.Objects;
 
 import skinjob.internal.WrappedAndroidObjectsSupplier;
 
@@ -257,7 +256,7 @@ public class Checkbox extends Component implements ItemSelectable {
   @Override
   public <T extends EventListener> T[] getListeners(Class<T> listenerType) {
     EventListener l;
-    if (Objects.equals(listenerType, ItemListener.class)) {
+    if (ItemListener.class.equals(listenerType)) {
       l = itemListener;
     } else {
       return super.getListeners(listenerType);

@@ -670,11 +670,9 @@ public class DropTarget implements DropTargetListener, Serializable {
    */
 
   protected void initializeAutoscrolling(Point p) {
-    if (component == null || !(component instanceof Autoscroll)) {
-      return;
+    if (component instanceof Autoscroll) {
+      autoScroller = createDropTargetAutoScroller(component, (Autoscroll) component, p);
     }
-
-    autoScroller = createDropTargetAutoScroller(component, (Autoscroll) component, p);
   }
 
     /*

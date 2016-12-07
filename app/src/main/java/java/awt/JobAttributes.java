@@ -766,12 +766,12 @@ public final class JobAttributes implements Cloneable {
    * @return the newly created copy; it is safe to cast this Object into a {@code JobAttributes}
    */
   @Override
-  public Object clone() {
+  public JobAttributes clone() {
     try {
-      return super.clone();
+      return (JobAttributes) super.clone();
     } catch (CloneNotSupportedException e) {
       // Since we implement Cloneable, this should never happen
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

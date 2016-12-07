@@ -10,6 +10,8 @@ import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.PorterDuff.Mode;
 import android.graphics.PorterDuffColorFilter;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.widget.TextView;
@@ -203,31 +205,37 @@ public class SkinJobGraphics extends Graphics2D {
     canvas.drawRect(x, y, x + width, y + height, eraser);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void drawRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
     canvas.drawRoundRect(x, y, x + width, y + height, arcWidth, arcHeight, pen);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight) {
     canvas.drawRoundRect(x, y, x + width, y + height, arcWidth, arcHeight, brush);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void drawOval(int x, int y, int width, int height) {
     canvas.drawOval(x, y, x + width, y + height, pen);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void fillOval(int x, int y, int width, int height) {
     canvas.drawOval(x, y, x + width, y + height, brush);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void drawArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
     canvas.drawArc(x, y, x + width, y + height, startAngle, arcAngle, false, pen);
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
   @Override
   public void fillArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
     canvas.drawArc(x, y, x + width, y + height, startAngle, arcAngle, false, brush);

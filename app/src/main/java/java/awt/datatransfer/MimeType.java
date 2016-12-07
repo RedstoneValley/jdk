@@ -153,7 +153,7 @@ class MimeType implements Externalizable, Cloneable {
    */
 
   @Override
-  public Object clone() {
+  public MimeType clone() {
     MimeType newObj = null;
     try {
       newObj = (MimeType) super.clone();

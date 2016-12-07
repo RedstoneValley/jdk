@@ -3,9 +3,8 @@ package sun.awt.print;
 import java.awt.print.PrintRequestAttributeSet;
 
 /**
- * Created by cryoc on 2016-10-17.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
-
 public class PrintService {
   public Object getSupportedAttributeValues(
       Class<?> clazz, Object o, PrintRequestAttributeSet attributes) {

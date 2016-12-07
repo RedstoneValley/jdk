@@ -25,6 +25,7 @@
 
 package sun.awt.shell;
 
+import java.awt.AWTError;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.IOException;
@@ -98,9 +99,9 @@ public class ShellFolder extends File {
     try {
       shellFolderManager = managerClass.newInstance();
     } catch (InstantiationException e) {
-      throw new Error("Could not instantiate Shell Folder Manager: " + managerClass.getName());
+      throw new AWTError("Could not instantiate Shell Folder Manager: " + managerClass.getName());
     } catch (IllegalAccessException e) {
-      throw new Error("Could not access Shell Folder Manager: " + managerClass.getName());
+      throw new AWTError("Could not access Shell Folder Manager: " + managerClass.getName());
     }
 
     invoker = shellFolderManager.createInvoker();

@@ -46,4 +46,8 @@ public class AWTError extends Error {
   public AWTError(String msg) {
     super(msg);
   }
+
+  public AWTError(Throwable cause) {
+    super(cause);
+  }
 }

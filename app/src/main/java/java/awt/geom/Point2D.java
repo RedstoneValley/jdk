@@ -25,6 +25,7 @@
 
 package java.awt.geom;
 
+import java.awt.AWTError;
 import java.io.Serializable;
 
 /**
@@ -214,12 +215,12 @@ public abstract class Point2D implements Cloneable {
    * @since 1.2
    */
   @Override
-  public Object clone() {
+  public Point2D clone() {
     try {
-      return super.clone();
+      return (Point2D) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

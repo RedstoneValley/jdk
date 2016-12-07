@@ -148,14 +148,14 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return an Object clone of the {@code ParameterBlock}.
    */
   @Override
-  public Object clone() {
+  public ParameterBlock clone() {
     ParameterBlock theClone;
 
     try {
       theClone = (ParameterBlock) super.clone();
     } catch (Exception e) {
       // We can't be here since we implement Cloneable.
-      return null;
+      return (ParameterBlock) null;
     }
 
     if (sources != null) {
@@ -326,7 +326,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(byte b) {
-    return add(new Byte(b));
+    return add(Byte.valueOf(b));
   }
 
   /**
@@ -336,7 +336,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(char c) {
-    return add(new Character(c));
+    return add(Character.valueOf(c));
   }
 
   /**
@@ -356,7 +356,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(int i) {
-    return add(new Integer(i));
+    return add(Integer.valueOf(i));
   }
 
   /**
@@ -366,7 +366,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(long l) {
-    return add(new Long(l));
+    return add(Long.valueOf(l));
   }
 
   /**
@@ -376,7 +376,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(float f) {
-    return add(new Float(f));
+    return add(Float.valueOf(f));
   }
 
   /**
@@ -386,7 +386,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock add(double d) {
-    return add(new Double(d));
+    return add(Double.valueOf(d));
   }
 
   /**
@@ -418,7 +418,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(byte b, int index) {
-    return set(new Byte(b), index);
+    return set(Byte.valueOf(b), index);
   }
 
   /**
@@ -431,7 +431,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(char c, int index) {
-    return set(new Character(c), index);
+    return set(Character.valueOf(c), index);
   }
 
   /**
@@ -457,7 +457,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(int i, int index) {
-    return set(new Integer(i), index);
+    return set(Integer.valueOf(i), index);
   }
 
   /**
@@ -470,7 +470,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(long l, int index) {
-    return set(new Long(l), index);
+    return set(Long.valueOf(l), index);
   }
 
   /**
@@ -483,7 +483,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(float f, int index) {
-    return set(new Float(f), index);
+    return set(Float.valueOf(f), index);
   }
 
   /**
@@ -496,7 +496,7 @@ public class ParameterBlock implements Cloneable, Serializable {
    * @return a new {@code ParameterBlock} containing the specified parameter.
    */
   public ParameterBlock set(double d, int index) {
-    return set(new Double(d), index);
+    return set(Double.valueOf(d), index);
   }
 
   /**

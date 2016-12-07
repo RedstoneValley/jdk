@@ -35,7 +35,6 @@ import java.io.ObjectOutputStream;
 import java.util.EventListener;
 
 import javax.accessibility.AccessibleRole;
-import javax.accessibility.AccessibleValue;
 
 /**
  * All items in a menu must belong to the class {@code MenuItem}, or one of its subclasses.
@@ -692,8 +691,7 @@ public class MenuItem extends MenuComponent {
    *
    * @since 1.3
    */
-  protected class AccessibleAWTMenuItem extends AccessibleAWTMenuComponent
-      implements AccessibleValue {
+  protected class AccessibleAWTMenuItem extends AccessibleAWTMenuComponent {
     /*
      * JDK 1.3 serialVersionUID
      */

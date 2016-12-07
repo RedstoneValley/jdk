@@ -25,6 +25,7 @@
 
 package java.awt.geom;
 
+import java.awt.AWTError;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.io.Serializable;
@@ -914,12 +915,12 @@ public abstract class CubicCurve2D implements Shape, Cloneable {
    * @since 1.2
    */
   @Override
-  public Object clone() {
+  public CubicCurve2D clone() {
     try {
-      return super.clone();
+      return (CubicCurve2D) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 

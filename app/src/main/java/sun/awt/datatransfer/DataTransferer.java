@@ -26,6 +26,7 @@
 package sun.awt.datatransfer;
 
 import android.util.Log;
+import android.util.LongSparseArray;
 
 import java.awt.Image;
 import java.awt.datatransfer.DataFlavor;
@@ -451,7 +452,9 @@ public abstract class DataTransferer {
    * Helper function to convert an InputStream to a byte[] array.
    */
   protected static byte[] inputStreamToByteArray(InputStream str) throws IOException {
-    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+    ByteArrayOutputStream baos;
+    try {
+      baos = new ByteArrayOutputStream();
       int len;
       byte[] buf = new byte[8192];
 
@@ -460,6 +463,8 @@ public abstract class DataTransferer {
       }
 
       return baos.toByteArray();
+    } finally {
+      baos.close();
     }
   }
 
@@ -581,8 +586,8 @@ public abstract class DataTransferer {
    */
   public SortedMap<Long, DataFlavor> getFormatsForFlavors(
       DataFlavor[] flavors, FlavorTable map) {
-    Map<Long, DataFlavor> formatMap = new HashMap<>(flavors.length);
-    Map<Long, DataFlavor> textPlainMap = new HashMap<>(flavors.length);
+    Map<Long, DataFlavor> formatMap = new LongSparseArray<DataFlavor>(flavors.length);
+    Map<Long, DataFlavor> textPlainMap = new LongSparseArray<DataFlavor>(flavors.length);
     // Maps formats to indices that will be used to sort the formats
     // according to the preference order.
     // Larger index value corresponds to the more preferable format.
@@ -961,9 +966,8 @@ public abstract class DataTransferer {
       // Source data is a URI list. Convert to DataFlavor.javaFileListFlavor
       // where possible.
     } else if (isURIListFormat(format) && DataFlavor.javaFileListFlavor.equals(flavor)) {
-
-      try (ByteArrayInputStream str = new ByteArrayInputStream(bytes)) {
-
+      ByteArrayInputStream str = new ByteArrayInputStream(bytes);
+      try {
         URI[] uris = dragQueryURIs(str, format, localeTransferable);
         if (uris == null) {
           return null;
@@ -979,6 +983,8 @@ public abstract class DataTransferer {
           }
         }
         theObject = files;
+      } finally {
+        str.close();
       }
 
       // Target data is a String. Strip terminating NUL bytes. Decode bytes
@@ -992,8 +998,11 @@ public abstract class DataTransferer {
       // as "Unicode" (utf-16be). Then use an InputStreamReader to decode
       // back to chars on demand.
     } else if (flavor.isRepresentationClassReader()) {
-      try (ByteArrayInputStream bais = new ByteArrayInputStream(bytes)) {
+      ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+      try {
         theObject = translateStream(bais, flavor, format, localeTransferable);
+      } finally {
+        bais.close();
       }
       // Target data is a CharBuffer. Recur to obtain String and wrap.
     } else if (flavor.isRepresentationClassCharBuffer()) {

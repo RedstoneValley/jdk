@@ -261,7 +261,7 @@ public class SkinJobToolkit extends Toolkit {
       Field systemFontMapField = typefaceClass.getField("sSystemFontMap");
       systemFontMapField.setAccessible(true);
       return ((Map<String, ?>) systemFontMapField.get(null)).keySet().toArray(new String[0]);
-    } catch (NoSuchFieldException | IllegalAccessException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }

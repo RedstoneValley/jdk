@@ -186,7 +186,7 @@ public abstract class GraphicsConfiguration {
       vi = createCompatibleVolatileImage(width, height, null, Transparency.OPAQUE);
     } catch (AWTException e) {
       // shouldn't happen: we're passing in null caps
-      assert false;
+      throw new AssertionError(e);
     }
     return vi;
   }
@@ -215,7 +215,7 @@ public abstract class GraphicsConfiguration {
       vi = createCompatibleVolatileImage(width, height, null, transparency);
     } catch (AWTException e) {
       // shouldn't happen: we're passing in null caps
-      assert false;
+      throw new AssertionError(e);
     }
     return vi;
   }

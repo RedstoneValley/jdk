@@ -175,7 +175,7 @@ class CharArrayIterator implements CharacterIterator {
    *
    * @return A copy of this
    */
-  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneCallsConstructors"})
   @Override
   public CharArrayIterator clone() {
     CharArrayIterator c = new CharArrayIterator(chars, begin);

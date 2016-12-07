@@ -68,7 +68,6 @@ import java.io.ObjectOutputStream;
 import java.io.OptionalDataException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessControlContext;
 import java.security.AccessController;
@@ -78,7 +77,6 @@ import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.WeakHashMap;
@@ -785,7 +783,9 @@ public abstract class Component extends ComponentOrMenuComponent
    * on coalesceMap and privileged.
    */
   static boolean isCoalesceEventsOverriden(Class<?> clazz) {
-    assert Thread.holdsLock(coalesceMap);
+    if (!Thread.holdsLock(coalesceMap)) {
+      throw new AssertionError("This thread doesn't hold lock on coalesceMap");
+    }
 
     // First check superclass - we may not need to bother ourselves.
     Class<?> superclass = clazz.getSuperclass();
@@ -872,12 +872,19 @@ public abstract class Component extends ComponentOrMenuComponent
    * Should only be used in subclass getBounds to check that part of bounds is actualy changing
    */
   int getBoundsOp() {
-    assert Thread.holdsLock(getTreeLock());
+    assertThreadHoldsTreeLock();
     return boundsOp;
   }
 
+  private void assertThreadHoldsTreeLock() {
+    Object treeLock = getTreeLock();
+    if (!Thread.holdsLock(getTreeLock())) {
+      throw new AssertionError("This thread doesn't hold " + treeLock);
+    }
+  }
+
   void setBoundsOp(int op) {
-    assert Thread.holdsLock(getTreeLock());
+    assertThreadHoldsTreeLock();
     if (op == ComponentPeer.RESET_OPERATION) {
       boundsOp = ComponentPeer.DEFAULT_OPERATION;
     } else if (boundsOp == ComponentPeer.DEFAULT_OPERATION) {
@@ -3477,7 +3484,7 @@ public abstract class Component extends ComponentOrMenuComponent
     } catch (AWTException e) {
       // Code should never reach here (an unaccelerated blitting
       // strategy should always work)
-      throw new InternalError("Could not create a buffer strategy", e);
+      throw new AWTError("Could not create a buffer strategy", e);
     }
   }
 
@@ -6507,7 +6514,10 @@ public abstract class Component extends ComponentOrMenuComponent
    * @since JDK1.0
    */
   protected String paramString() {
-    String thisName = Objects.toString(getName(), "");
+    String thisName = getName();
+    if (thisName == null) {
+      thisName = "null";
+    }
     String invalid = isValid() ? "" : ",invalid";
     String hidden = visible ? "" : ",hidden";
     String disabled = enabled ? "" : ",disabled";
@@ -6839,7 +6849,7 @@ public abstract class Component extends ComponentOrMenuComponent
     if (changeSupport == null || oldValue == newValue) {
       return;
     }
-    firePropertyChange(propertyName, new Character(oldValue), new Character(newValue));
+    firePropertyChange(propertyName, Character.valueOf(oldValue), Character.valueOf(newValue));
   }
 
   /**
@@ -6931,7 +6941,7 @@ public abstract class Component extends ComponentOrMenuComponent
             // Invoke the method
             try {
               method.invoke(this, (Object[]) null);
-            } catch (IllegalAccessException | InvocationTargetException iae) {
+            } catch (Exception iae) {
             }
             // We're done, bail.
             return;

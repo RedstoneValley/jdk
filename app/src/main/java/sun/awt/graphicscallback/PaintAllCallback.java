@@ -6,7 +6,7 @@ import java.awt.Graphics;
 import sun.awt.SunGraphicsCallback;
 
 /**
- * Created by cryoc on 2016-10-18.
+ * Copy of the OpenJDK class for use by SkinJob.
  */
 public final class PaintAllCallback extends SunGraphicsCallback {
   private static final PaintAllCallback instance = new PaintAllCallback();

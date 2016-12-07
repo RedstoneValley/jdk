@@ -586,9 +586,9 @@ public class Area implements Shape, Cloneable {
    * @return Created clone object
    * @since 1.2
    */
-  @SuppressWarnings("CloneDoesntCallSuperClone")
+  @SuppressWarnings({"CloneDoesntCallSuperClone", "CloneCallsConstructors"})
   @Override
-  public Object clone() {
+  public Area clone() {
     return new Area(this);
   }
 

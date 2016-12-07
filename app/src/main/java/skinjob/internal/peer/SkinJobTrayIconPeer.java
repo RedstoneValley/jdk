@@ -1,6 +1,7 @@
 package skinjob.internal.peer;
 
 import android.R.drawable;
+import android.annotation.TargetApi;
 import android.app.Notification.Builder;
 import android.app.NotificationManager;
 import android.content.Context;
@@ -23,6 +24,7 @@ import static skinjob.util.SkinJobUtil.newAndroidWindow;
 /**
  * Created by cryoc on 2016-10-21.
  */
+@TargetApi(16)
 public class SkinJobTrayIconPeer implements TrayIconPeer {
   private static final AtomicInteger NEXT_ID = new AtomicInteger(0);
   private static final String TAG = "SkinJobTrayIconPeer";

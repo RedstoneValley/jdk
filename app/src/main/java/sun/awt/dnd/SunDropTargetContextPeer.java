@@ -72,7 +72,7 @@ public abstract class SunDropTargetContextPeer implements DropTargetContextPeer,
   protected static final int STATUS_WAIT = 1; // drop pending
   protected static final int STATUS_ACCEPT = 2;
   protected static final int STATUS_REJECT = -1;
-  private static final String TAG = "SunDropTargetContextPeer";
+  private static final String TAG = "SunDropTargetCtxPeer";
   protected static Transferable currentJVMLocalSourceTransferable;
   protected int dropStatus = STATUS_NONE;
   protected boolean dropComplete;

@@ -1,5 +1,6 @@
 package skinjob.internal;
 
+import android.os.Build;
 import android.view.Display;
 
 import java.awt.GraphicsConfiguration;
@@ -15,7 +16,11 @@ public class SkinJobGraphicsDevice extends GraphicsDevice {
 
   public SkinJobGraphicsDevice(Display androidDisplay) {
     this.androidDisplay = androidDisplay;
-    name = androidDisplay.getName();
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      name = androidDisplay.getName();
+    } else {
+      name = toString();
+    }
     configuration = new SkinJobGraphicsConfiguration(androidDisplay, this);
   }
 

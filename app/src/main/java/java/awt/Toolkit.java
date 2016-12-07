@@ -1635,8 +1635,9 @@ public abstract class Toolkit {
         int[] listenerCalls = selectiveListener.getCalls();
         for (int i = 0; i < LONG_BITS; i++) {
           calls[i] -= listenerCalls[i];
-          assert calls[i] >= 0 : "Negative Listeners count";
-
+          if (calls[i] < 0) {
+            throw new AWTError("Negative Listeners count");
+          }
           if (calls[i] == 0) {
             enabledOnToolkitMask &= ~(1L << i);
           }

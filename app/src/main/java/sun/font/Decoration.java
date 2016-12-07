@@ -200,10 +200,10 @@ public class Decoration {
       buf.append(super.toString());
       buf.append("[");
       if (fgPaint != null) {
-        buf.append("fgPaint: " + fgPaint);
+        buf.append("fgPaint: ").append(fgPaint);
       }
       if (bgPaint != null) {
-        buf.append(" bgPaint: " + bgPaint);
+        buf.append(" bgPaint: ").append(bgPaint);
       }
       if (swapColors) {
         buf.append(" swapColors: true");
@@ -211,8 +211,8 @@ public class Decoration {
       if (strikethrough) {
         buf.append(" strikethrough: true");
       }
-      buf.append(" stdUnderline: " + stdUnderline);
-      buf.append(" imUnderline: " + imUnderline);
+      buf.append(" stdUnderline: ").append(stdUnderline);
+      buf.append(" imUnderline: ").append(imUnderline);
       buf.append("]");
       return buf.toString();
     }

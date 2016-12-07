@@ -198,7 +198,7 @@ class MimeTypeParameterList implements Cloneable {
    */
 
   @Override
-  public Object clone() {
+  public MimeTypeParameterList clone() {
     MimeTypeParameterList newObj = null;
     try {
       newObj = (MimeTypeParameterList) super.clone();

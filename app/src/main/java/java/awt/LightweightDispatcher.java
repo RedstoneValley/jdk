@@ -554,7 +554,13 @@ class LightweightDispatcher implements Serializable, AWTEventListener {
         // avoid recursively calling LightweightDispatcher...
         ((Container) target).dispatchEventToSelf(retargeted);
       } else {
-        assert AppContext.getAppContext() == target.appContext;
+        AppContext ourContext = AppContext.getAppContext();
+        AppContext targetContext = target.appContext;
+        if (ourContext != targetContext) {
+          throw new AWTError(
+              "Called with app context " + ourContext + ", but with a target whose context is "
+                  + targetContext);
+        }
 
         if (nativeContainer.modalComp != null) {
           if (((Container) nativeContainer.modalComp).isAncestorOf(target)) {

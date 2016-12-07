@@ -529,4 +529,8 @@ public abstract class GlyphVector implements Cloneable {
    */
   @Override
   public abstract boolean equals(Object set);
+
+  public GlyphVector clone() throws CloneNotSupportedException {
+    return (GlyphVector) super.clone();
+  }
 }

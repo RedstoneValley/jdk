@@ -43,8 +43,8 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamField;
 import java.io.PrintStream;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
@@ -1864,7 +1864,7 @@ public class Container extends Component {
     if (isFocusCycleRoot()) {
       FocusTraversalPolicy policy = getFocusTraversalPolicy();
       if (policy instanceof DefaultFocusTraversalPolicy) {
-        if (!((DefaultFocusTraversalPolicy) policy).accept(focusOwnerCandidate)) {
+        if (!((ContainerOrderFocusTraversalPolicy) policy).accept(focusOwnerCandidate)) {
           return false;
         }
       }
@@ -3110,8 +3110,7 @@ public class Container extends Component {
             "getMostRecentFocusOwner");
         predictedFocusOwner = (Component) getMostRecentFocusOwner.invoke(this);
       }
-    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-        | InvocationTargetException ignored) {
+    } catch (Exception ignored) {
     }
     if (predictedFocusOwner != null) {
       KeyboardFocusManager.getCurrentKeyboardFocusManager().
@@ -3502,9 +3501,7 @@ public class Container extends Component {
     Component[] tmpComponent = (Component[]) f.get("component", EMPTY_ARRAY);
     int ncomponents = (Integer) f.get("ncomponents", 0);
     component = new java.util.ArrayList<Component>(ncomponents);
-    for (int i = 0; i < ncomponents; ++i) {
-      component.add(tmpComponent[i]);
-    }
+    component.addAll(Arrays.asList(tmpComponent).subList(0, ncomponents));
     layoutMgr = (LayoutManager) f.get("layoutMgr", null);
     dispatcher = (LightweightDispatcher) f.get("dispatcher", null);
     // Old stream. Doesn't contain maxSize among Component's fields.

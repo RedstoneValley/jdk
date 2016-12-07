@@ -4,7 +4,7 @@ import java.awt.color.ColorSpace;
 import java.awt.color.ICC_Profile;
 
 /**
- * Created by chris on 12/6/2016.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public enum PCMM {
   INSTANCE;

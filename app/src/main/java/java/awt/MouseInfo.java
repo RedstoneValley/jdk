@@ -109,7 +109,7 @@ public final class MouseInfo {
     }
 
     // This should never happen.
-    assert false : "awt.mouse.numButtons is not an integer property";
+    throw new AWTError("awt.mouse.numButtons is not an integer property");
     return 0;
   }
 }

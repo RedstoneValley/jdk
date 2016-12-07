@@ -554,7 +554,7 @@ public class Window extends Container {
       Class<?> oClass = o.getClass();
       Method method = oClass.getMethod(name);
       return method.invoke(o, (Object[]) args);
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+    } catch (Exception e) {
       return null;
     }
   }

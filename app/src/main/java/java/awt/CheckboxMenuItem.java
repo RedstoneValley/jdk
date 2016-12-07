@@ -33,7 +33,6 @@ import java.io.ObjectOutputStream;
 import java.util.EventListener;
 
 import javax.accessibility.AccessibleRole;
-import javax.accessibility.AccessibleValue;
 
 /**
  * This class represents a check box that can be included in a menu. Selecting the check box in the
@@ -458,8 +457,7 @@ public class CheckboxMenuItem extends MenuItem implements ItemSelectable {
    *
    * @since 1.3
    */
-  protected class AccessibleAWTCheckboxMenuItem extends AccessibleAWTMenuItem
-      implements AccessibleValue {
+  protected class AccessibleAWTCheckboxMenuItem extends AccessibleAWTMenuItem {
     /*
      * JDK 1.3 serialVersionUID
      */

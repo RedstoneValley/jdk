@@ -1,14 +1,17 @@
 package skinjob.internal.peer;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -61,8 +64,10 @@ public class SkinJobDesktopPeer implements DesktopPeer {
   public boolean isSupported(Action action) {
     int myPid = myPid();
     int myUid = myUid();
+    /* Remove version check once security audit passed -- see below */
     return action != Action.PRINT ||
-        androidContext.checkPermission(permission.READ_CONTACTS, myPid, myUid)
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1
+            && androidContext.checkPermission(permission.READ_CONTACTS, myPid, myUid)
             == PackageManager.PERMISSION_GRANTED
             && androidContext.checkPermission(permission.INTERNET, myPid, myUid)
             == PackageManager.PERMISSION_GRANTED;
@@ -120,6 +125,9 @@ public class SkinJobDesktopPeer implements DesktopPeer {
      */
     private WebView dialogWebView;
 
+    // TODO SECURITY: Get this method audited! JS code is from trusted source & delivered over
+    // HTTPS, but is that enough on minSdkVersion < 17?
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     @Override
     public void onCreate(Bundle icicle) {
       super.onCreate(icicle);
@@ -137,14 +145,17 @@ public class SkinJobDesktopPeer implements DesktopPeer {
     }
 
     final class PrintDialogJavaScriptInterface {
+      @JavascriptInterface
       public String getType() {
         return cloudPrintIntent.getType();
       }
 
+      @JavascriptInterface
       public String getTitle() {
         return cloudPrintIntent.getExtras().getString("title");
       }
 
+      @JavascriptInterface
       public String getContent() {
         try {
           ContentResolver contentResolver = getContentResolver();
@@ -167,10 +178,12 @@ public class SkinJobDesktopPeer implements DesktopPeer {
         return "";
       }
 
+      @JavascriptInterface
       public String getEncoding() {
         return CONTENT_TRANSFER_ENCODING;
       }
 
+      @JavascriptInterface
       public void onPostMessage(String message) {
         if (message.startsWith(CLOSE_POST_MESSAGE_NAME)) {
           finish();

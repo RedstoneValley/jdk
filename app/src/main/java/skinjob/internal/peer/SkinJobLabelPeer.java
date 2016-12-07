@@ -1,5 +1,6 @@
 package skinjob.internal.peer;
 
+import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.view.Gravity;
 import android.view.View;
@@ -9,7 +10,7 @@ import java.awt.Label;
 import java.awt.peer.LabelPeer;
 
 /**
- * Created by cryoc on 2016-10-09.
+ * SkinJob Android implementation of {@link LabelPeer}.
  */
 public class SkinJobLabelPeer extends SkinJobComponentPeerForView<TextView> implements LabelPeer {
   public SkinJobLabelPeer(Label target) {
@@ -28,7 +29,9 @@ public class SkinJobLabelPeer extends SkinJobComponentPeerForView<TextView> impl
 
   @Override
   public void setAlignment(int alignment) {
-    androidWidget.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+      androidWidget.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+    }
     switch (alignment) {
       case Label.LEFT:
         androidWidget.setGravity(Gravity.LEFT);

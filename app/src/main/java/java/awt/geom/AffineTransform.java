@@ -3948,12 +3948,12 @@ public class AffineTransform implements Cloneable, Serializable {
    * @since 1.2
    */
   @Override
-  public Object clone() {
+  public AffineTransform clone() {
     try {
-      return super.clone();
+      return (AffineTransform) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AssertionError(e);
     }
   }
 

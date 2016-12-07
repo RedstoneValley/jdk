@@ -71,12 +71,12 @@ public class ImageCapabilities implements Cloneable {
    * @return a copy of this ImageCapabilities object.
    */
   @Override
-  public Object clone() {
+  public ImageCapabilities clone() {
     try {
-      return super.clone();
+      return (ImageCapabilities) super.clone();
     } catch (CloneNotSupportedException e) {
       // Since we implement Cloneable, this should never happen
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 }

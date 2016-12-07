@@ -87,7 +87,7 @@ public class Paper implements Cloneable {
    * @return a copy of this {@code Paper}.
    */
   @Override
-  public Object clone() {
+  public Paper clone() {
 
     Paper newPaper;
 

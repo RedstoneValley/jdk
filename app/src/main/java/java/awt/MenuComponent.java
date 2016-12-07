@@ -465,7 +465,6 @@ public abstract class MenuComponent extends ComponentOrMenuComponent {
    *
    * @return an instance of {@code AccessibleStateSet} containing the current state set of the
    * object
-   * @see AccessibleState
    */
   AccessibleStateSet getAccessibleStateSet() {
     return new AccessibleStateSet();

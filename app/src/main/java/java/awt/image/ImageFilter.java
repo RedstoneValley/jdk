@@ -25,6 +25,7 @@
 
 package java.awt.image;
 
+import java.awt.AWTError;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -217,12 +218,12 @@ public class ImageFilter implements ImageConsumer, Cloneable {
    * Clones this object.
    */
   @Override
-  public Object clone() {
+  public ImageFilter clone() {
     try {
-      return super.clone();
+      return (ImageFilter) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 }

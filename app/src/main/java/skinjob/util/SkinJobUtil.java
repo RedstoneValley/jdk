@@ -11,7 +11,6 @@ import java.awt.Toolkit;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import skinjob.internal.SkinJobAndroidBitmapWrapper;
@@ -34,7 +33,7 @@ public final class SkinJobUtil {
           .forName("com.android.internal.policy.impl.PhoneWindow")
           .asSubclass(Window.class)
           .getConstructor(Context.class);
-    } catch (ClassNotFoundException | NoSuchMethodException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -75,7 +74,7 @@ public final class SkinJobUtil {
     Window window;
     try {
       window = ANDROID_WINDOW_IMPL_CTOR.newInstance(androidContext);
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+    } catch (Exception e) {
       throw new RuntimeException(e);
     }
     Toolkit.getDefaultToolkit().sjMaybeWatchWidgetForMouseCoords(window.getDecorView());

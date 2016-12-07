@@ -25,9 +25,11 @@
 
 package java.awt;
 
+import android.annotation.SuppressLint;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.text.style.StyleSpan;
 
 import java.awt.font.FontRenderContext;
@@ -64,6 +66,8 @@ import sun.font.CoreMetrics;
 import sun.font.FontLineMetrics;
 import sun.font.GlyphLayout;
 import sun.font.StandardGlyphVector;
+
+import static java.lang.Character.MAX_CODE_POINT;
 
 /**
  * The {@code Font} class represents fonts, which are used to render text in a visible way. A font
@@ -1360,16 +1364,22 @@ public class Font implements Serializable {
    * @return the number of glyphs in this {@code Font}.
    * @since 1.2
    */
-  public synchronized int getNumGlyphs() {
-    if (numGlyphs == -1) {
-      numGlyphs = 0;
-      for (int i = FIRST_CODE_POINT; i < Character.MAX_CODE_POINT; i++) {
-        if (androidPaint.hasGlyph(new String(Character.toChars(i)))) {
-          numGlyphs++;
+  public int getNumGlyphs() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      synchronized (this) {
+        if (numGlyphs == -1) {
+          numGlyphs = 0;
+          for (int i = FIRST_CODE_POINT; i < MAX_CODE_POINT; i++) {
+            if (androidPaint.hasGlyph(new String(Character.toChars(i)))) {
+              numGlyphs++;
+            }
+          }
         }
+        return numGlyphs;
       }
+    } else {
+      return MAX_CODE_POINT - FIRST_CODE_POINT;
     }
-    return numGlyphs;
   }
 
   private static final int UNICODE_WHITE_VERTICAL_RECTANGLE = 0x25AF;
@@ -1403,7 +1413,12 @@ public class Font implements Serializable {
    * @see #HANGING_BASELINE
    * @since 1.2
    */
+  @SuppressLint("NewApi")
   public byte getBaselineFor(char c) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+      // Can't check a character's script in older APIs, so assume the default
+      return ROMAN_BASELINE;
+    }
     if (Character.isIdeographic(c)) {
       return CENTER_BASELINE;
     } else {
@@ -1591,7 +1606,11 @@ public class Font implements Serializable {
     if (!Character.isValidCodePoint(codePoint)) {
       throw new IllegalArgumentException("invalid code point: " + Integer.toHexString(codePoint));
     }
-    return androidPaint.hasGlyph(codePointToString(Character.toChars(codePoint)));
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      return androidPaint.hasGlyph(codePointToString(Character.toChars(codePoint)));
+    } else {
+      return true; // Must assume all glyphs displayable if hasGlyph isn't available
+    }
   }
 
   public String codePointToString(char[] value) {
@@ -1986,9 +2005,9 @@ public class Font implements Serializable {
       if (maxWidth <= 0.0) {
         Rect bounds = new Rect();
         char[] codePointAsChars;
-        for (int codePoint = FIRST_CODE_POINT; codePoint < Character.MAX_CODE_POINT; codePoint++) {
+        for (int codePoint = FIRST_CODE_POINT; codePoint < MAX_CODE_POINT; codePoint++) {
           codePointAsChars = Character.toChars(codePoint);
-          if (androidPaint.hasGlyph(codePointToString(codePointAsChars))) {
+          if (canDisplay(codePoint)) {
             androidPaint.getTextBounds(codePointAsChars, 0, codePointAsChars.length, bounds);
             float width = bounds.width();
             if (width > maxWidth) {

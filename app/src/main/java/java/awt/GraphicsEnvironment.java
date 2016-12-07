@@ -95,11 +95,11 @@ public abstract class GraphicsEnvironment {
       //          long t1 = System.currentTimeMillis();
       //          System.out.println("GE creation took " + (t1-t0)+ "ms.");
     } catch (ClassNotFoundException e) {
-      throw new Error("Could not find class: " + nm);
+      throw new AWTError("Could not find class: " + nm);
     } catch (InstantiationException e) {
-      throw new Error("Could not instantiate Graphics Environment: " + nm);
+      throw new AWTError("Could not instantiate Graphics Environment: " + nm);
     } catch (IllegalAccessException e) {
-      throw new Error("Could not access Graphics Environment: " + nm);
+      throw new AWTError("Could not access Graphics Environment: " + nm);
     }
     return ge;
   }

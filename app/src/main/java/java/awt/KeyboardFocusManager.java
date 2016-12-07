@@ -354,6 +354,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     return weakValue == null ? null : weakValue.get();
   }
 
+  @SuppressWarnings("ProhibitedExceptionThrown")
   static boolean processSynchronousLightweightTransfer(
       Component heavyweight, Component descendant, boolean temporary,
       boolean focusedWindowChangeAllowed, long time) {
@@ -640,6 +641,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     ex.printStackTrace();
   }
 
+  @SuppressWarnings("ProhibitedExceptionThrown")
   static void processCurrentLightweightRequests() {
     KeyboardFocusManager manager = getCurrentKeyboardFocusManager();
     LinkedList<LightweightFocusRequest> localLightweightRequests;
@@ -756,7 +758,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
   }
 
   static FocusEvent retargetFocusGained(FocusEvent fe) {
-    assert fe.getID() == FocusEvent.FOCUS_GAINED;
+    assertIdEquals(fe, FocusEvent.FOCUS_GAINED);
 
     Component currentFocusOwner = getCurrentKeyboardFocusManager().
         getGlobalFocusOwner();
@@ -843,8 +845,14 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     } // end synchronized(heavyweightRequests)
   }
 
+  private static void assertIdEquals(FocusEvent fe, int id) {
+    if (fe.getID() != id) {
+      throw new AWTError(fe + " is not of type " + id);
+    }
+  }
+
   static FocusEvent retargetFocusLost(FocusEvent fe) {
-    assert fe.getID() == FocusEvent.FOCUS_LOST;
+    assertIdEquals(fe, FocusEvent.FOCUS_LOST);
 
     Component currentFocusOwner = getCurrentKeyboardFocusManager().
         getGlobalFocusOwner();
@@ -1057,7 +1065,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
               field.setAccessible(true);
             }
           } catch (NoSuchFieldException nsf) {
-            assert false;
+            throw new AWTError(nsf);
           }
           return field;
         }
@@ -1067,7 +1075,7 @@ public abstract class KeyboardFocusManager implements KeyEventDispatcher, KeyEve
     try {
       return proxyActive.getBoolean(e);
     } catch (IllegalAccessException iae) {
-      assert false;
+      throw new AWTError(iae);
     }
     return false;
   }

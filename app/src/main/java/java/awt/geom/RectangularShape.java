@@ -25,6 +25,7 @@
 
 package java.awt.geom;
 
+import java.awt.AWTError;
 import java.awt.Rectangle;
 import java.awt.Shape;
 
@@ -359,12 +360,12 @@ public abstract class RectangularShape implements Shape, Cloneable {
    * @since 1.2
    */
   @Override
-  public Object clone() {
+  public RectangularShape clone() {
     try {
-      return super.clone();
+      return (RectangularShape) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 }

@@ -24,8 +24,10 @@
  */
 package java.awt;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 
 import java.awt.peer.FileDialogPeer;
 import java.io.File;
@@ -232,6 +234,7 @@ public class FileDialog extends Dialog {
     setLayout(null);
   }
 
+  @TargetApi(Build.VERSION_CODES.KITKAT)
   private static void displayFilePicker(Activity androidContext, String title, int mode) {
     String intentActivity;
     switch (mode) {

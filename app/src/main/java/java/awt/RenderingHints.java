@@ -969,7 +969,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
    */
   @Override
   @SuppressWarnings("unchecked")
-  public Object clone() {
+  public RenderingHints clone() {
     RenderingHints rh;
     try {
       rh = (RenderingHints) super.clone();
@@ -978,7 +978,7 @@ public class RenderingHints implements Map<Object, Object>, Cloneable {
       }
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
 
     return rh;

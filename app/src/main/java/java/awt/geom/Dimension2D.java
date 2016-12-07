@@ -25,6 +25,8 @@
 
 package java.awt.geom;
 
+import java.awt.AWTError;
+
 /**
  * The {@code Dimension2D} class is to encapsulate a width and a height dimension.
  * <p>
@@ -94,12 +96,12 @@ public abstract class Dimension2D implements Cloneable {
    * @since 1.2
    */
   @Override
-  public Object clone() {
+  public Dimension2D clone() {
     try {
-      return super.clone();
+      return (Dimension2D) super.clone();
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 }

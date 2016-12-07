@@ -567,14 +567,14 @@ public class GridBagConstraints implements Cloneable, Serializable {
    * @return a copy of this grid bag constraint
    */
   @Override
-  public Object clone() {
+  public GridBagConstraints clone() {
     try {
       GridBagConstraints c = (GridBagConstraints) super.clone();
       c.insets = (Insets) insets.clone();
       return c;
     } catch (CloneNotSupportedException e) {
       // this shouldn't happen, since we are Cloneable
-      throw new InternalError(e);
+      throw new AWTError(e);
     }
   }
 
