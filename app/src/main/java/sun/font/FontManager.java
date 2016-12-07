@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 /**
- * Created by cryoc on 2016-10-11.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class FontManager {
   protected static final Font[] A_FONT_ARRAY = new Font[0];

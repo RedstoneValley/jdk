@@ -5,7 +5,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 /**
- * Created by chris on 12/6/2016.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class ColorTransform {
   public static int Any = 0;

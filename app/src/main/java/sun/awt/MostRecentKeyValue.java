@@ -1,7 +1,7 @@
 package sun.awt;
 
 /**
- * Created by chris on 12/6/2016.
+ * Copy of the OpenJDK class for use by SkinJob.
  */
 final class MostRecentKeyValue {
   Object key;

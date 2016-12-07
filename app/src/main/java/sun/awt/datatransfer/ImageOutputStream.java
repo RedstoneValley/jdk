@@ -11,7 +11,7 @@ import skinjob.SkinJobGlobals;
 import skinjob.util.SkinJobUtil;
 
 /**
- * Created by cryoc on 2016-10-17.
+ * Reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class ImageOutputStream implements Closeable {
   private final OutputStream outputStream;

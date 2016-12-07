@@ -8,7 +8,7 @@ import java.util.Map;
 import sun.text.CodePointIterator;
 
 /**
- * Created by cryoc on 2016-10-15.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class FontResolver extends ArrayList<Font> {
   private static final FontResolver instance = new FontResolver();

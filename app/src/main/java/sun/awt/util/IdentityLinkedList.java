@@ -703,7 +703,7 @@ public class IdentityLinkedList<E> extends AbstractSequentialList<E> implements 
 
   /**
    * Returns a list-iterator of the elements in this list (in proper sequence), starting at the
-   * specified position in the list. Obeys the general contract of <tt>List.listIterator(int)</tt>.<p>
+   * specified position in the list. Obeys the general contract of <tt>List.listIterator(int)</tt>.
    * <p>
    * The list-iterator is <i>fail-fast</i>: if the list is structurally modified at any time after
    * the Iterator is created, in any way except through the list-iterator's own <tt>remove</tt> or

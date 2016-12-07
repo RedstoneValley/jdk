@@ -8,7 +8,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Created by cryoc on 2016-10-15.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class LayoutPathImpl extends LayoutPath {
   private final AffineTransform at;

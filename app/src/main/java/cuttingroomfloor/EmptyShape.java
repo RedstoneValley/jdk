@@ -8,20 +8,13 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 /**
- * Created by cryoc on 2016-10-21.
+ * Optimized representation of the empty set of points in 2D space.
  */
 @SuppressWarnings("unused")
-public final class EmptyShape implements Shape {
-
-  public static final EmptyShape INSTANCE = new EmptyShape();
+public enum EmptyShape implements Shape {
+  INSTANCE; // Singleton
 
   private static final EmptyPathIterator EMPTY_PATH_ITERATOR = new EmptyPathIterator();
-
-  /**
-   * Singleton.
-   */
-  private EmptyShape() {
-  }
 
   @Override
   public Rectangle getBounds() {

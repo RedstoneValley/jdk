@@ -4,7 +4,7 @@ import java.awt.font.FontRenderContext;
 import java.awt.font.LineMetrics;
 
 /**
- * Created by cryoc on 2016-10-14.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class FontLineMetrics extends LineMetrics implements Cloneable {
   public int numchars;

@@ -18,7 +18,7 @@ import java.util.Map;
 import skinjob.SkinJobGlobals;
 
 /**
- * Created by cryoc on 2016-10-11.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public class AttributeValues extends HashMap<TextAttribute, Object> {
   private static final long serialVersionUID = 8820590967652117455L;

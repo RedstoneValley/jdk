@@ -10,9 +10,10 @@ import java.util.WeakHashMap;
 import skinjob.SkinJobGlobals;
 
 /**
- * Created by cryoc on 2016-10-10.
+ * Initializes the given Android widget/view class using a constructor whose only parameter is a
+ * {@link Context}. Will obtain that constructor reflectively, so instantiating this class with a
+ * class that lacks one will fail at runtime and be undetectable at compile time.
  */
-
 public class DefaultWrappedAndroidObjectsSupplier<TWidget extends View>
     extends WrappedAndroidObjectsSupplier<TWidget> {
   private static final WeakHashMap<Class<? extends View>, DefaultWrappedAndroidObjectsSupplier<?>>

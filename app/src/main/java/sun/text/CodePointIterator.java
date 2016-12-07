@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * Created by cryoc on 2016-10-15.
+ * Reimplementation of the OpenJDK class for use by SkinJob.
  */
 public final class CodePointIterator implements Iterator<Integer> {
   public static final int DONE = CharacterIterator.DONE;

@@ -24,6 +24,8 @@
  */
 package java.awt;
 
+import android.widget.ListView;
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.peer.ChoicePeer;
@@ -33,7 +35,7 @@ import java.io.ObjectOutputStream;
 import java.util.EventListener;
 import java.util.Vector;
 
-import skinjob.internal.NullWidgetSupplier;
+import skinjob.internal.DefaultWrappedAndroidObjectsSupplier;
 import skinjob.internal.WrappedAndroidObjectsSupplier;
 
 /**
@@ -123,8 +125,8 @@ public class Choice extends Component implements ItemSelectable {
   }
 
   @Override
-  protected WrappedAndroidObjectsSupplier<?> sjGetWrappedAndroidObjectsSupplier() {
-    return NullWidgetSupplier.getInstance();
+  protected WrappedAndroidObjectsSupplier<ListView> sjGetWrappedAndroidObjectsSupplier() {
+    return DefaultWrappedAndroidObjectsSupplier.forClass(ListView.class);
   }
 
   /**

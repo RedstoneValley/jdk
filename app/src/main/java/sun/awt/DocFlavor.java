@@ -1,7 +1,7 @@
 package sun.awt;
 
 /**
- * Created by cryoc on 2016-10-17.
+ * Partial reimplementation of the OpenJDK class for use by SkinJob.
  */
 public interface DocFlavor {
   enum SERVICE_FORMATTED implements DocFlavor {PAGEABLE}
