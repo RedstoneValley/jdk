@@ -45,7 +45,7 @@ public class SkinJobRobotPeer implements RobotPeer {
 
   @Override
   public void keyRelease(int keycode) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
       SkinJobGlobals.getAndroidApplicationContext().getSystemService(InputMethodManager.class)
           .dispatchKeyEventFromInputMethod(null, new KeyEvent(KeyEvent.ACTION_UP, keycode));
     } else {

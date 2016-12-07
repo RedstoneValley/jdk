@@ -44,7 +44,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import sun.awt.datatransfer.DataTransferer;
 import sun.awt.datatransfer.DataTransferer.DataFlavorComparator;
@@ -801,7 +800,11 @@ public class DataFlavor implements Externalizable, Cloneable {
       return true;
     }
 
-    if (!Objects.equals(getRepresentationClass(), that.getRepresentationClass())) {
+    if (getRepresentationClass() == null) {
+      if (that.getRepresentationClass() != null) {
+        return false;
+      }
+    } else if (!getRepresentationClass().equals(that.getRepresentationClass())) {
       return false;
     }
 
@@ -819,7 +822,11 @@ public class DataFlavor implements Externalizable, Cloneable {
             && !isStandardTextRepresentationClass()) {
           String thisCharset = DataTransferer.canonicalName(getParameter("charset"));
           String thatCharset = DataTransferer.canonicalName(that.getParameter("charset"));
-          if (!Objects.equals(thisCharset, thatCharset)) {
+          if (thisCharset == null) {
+            if (thatCharset != null) {
+              return false;
+            }
+          } else if (!thisCharset.equals(thatCharset)) {
             return false;
           }
         }
@@ -827,7 +834,11 @@ public class DataFlavor implements Externalizable, Cloneable {
         if ("html".equals(getSubType())) {
           String thisDocument = getParameter("document");
           String thatDocument = that.getParameter("document");
-          if (!Objects.equals(thisDocument, thatDocument)) {
+          if (thisDocument == null) {
+            if (thatDocument != null) {
+              return false;
+            }
+          } else if (!thisDocument.equals(thatDocument)) {
             return false;
           }
         }

@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import sun.awt.AppContext;
@@ -1035,8 +1034,12 @@ public final class SystemFlavorMap implements FlavorTable {
    * @since 1.4
    */
   public synchronized void addUnencodedNativeForFlavor(DataFlavor flav, String nat) {
-    Objects.requireNonNull(nat, "Null native not permitted");
-    Objects.requireNonNull(flav, "Null flavor not permitted");
+    if (flav == null) {
+      throw new IllegalArgumentException("flav must not be null");
+    }
+    if (nat == null) {
+      throw new IllegalArgumentException("nat must not be null");
+    }
 
     LinkedHashSet<String> natives = getFlavorToNative().get(flav);
     if (natives == null) {
@@ -1069,9 +1072,12 @@ public final class SystemFlavorMap implements FlavorTable {
    * @since 1.4
    */
   public synchronized void setNativesForFlavor(DataFlavor flav, String[] natives) {
-    Objects.requireNonNull(natives, "Null natives not permitted");
-    Objects.requireNonNull(flav, "Null flavors not permitted");
-
+    if (flav == null) {
+      throw new IllegalArgumentException("flav must not be null");
+    }
+    if (natives == null) {
+      throw new IllegalArgumentException("natives must not be null");
+    }
     getFlavorToNative().remove(flav);
     for (String aNative : natives) {
       addUnencodedNativeForFlavor(flav, aNative);
@@ -1095,8 +1101,12 @@ public final class SystemFlavorMap implements FlavorTable {
    * @since 1.4
    */
   public synchronized void addFlavorForUnencodedNative(String nat, DataFlavor flav) {
-    Objects.requireNonNull(nat, "Null native not permitted");
-    Objects.requireNonNull(flav, "Null flavor not permitted");
+    if (flav == null) {
+      throw new IllegalArgumentException("flav must not be null");
+    }
+    if (nat == null) {
+      throw new IllegalArgumentException("nat must not be null");
+    }
 
     LinkedHashSet<DataFlavor> flavors = getNativeToFlavor().get(nat);
     if (flavors == null) {
@@ -1129,8 +1139,12 @@ public final class SystemFlavorMap implements FlavorTable {
    * @since 1.4
    */
   public synchronized void setFlavorsForNative(String nat, DataFlavor[] flavors) {
-    Objects.requireNonNull(nat, "Null native not permitted");
-    Objects.requireNonNull(flavors, "Null flavors not permitted");
+    if (flavors == null) {
+      throw new IllegalArgumentException("flavors must not be null");
+    }
+    if (nat == null) {
+      throw new IllegalArgumentException("nat must not be null");
+    }
 
     getNativeToFlavor().remove(nat);
     for (DataFlavor flavor : flavors) {

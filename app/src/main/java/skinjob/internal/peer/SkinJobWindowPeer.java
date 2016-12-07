@@ -212,16 +212,19 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     androidWidget.getDecorView().draw(getCanvas(g));
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
   @Override
   public void setBounds(int x, int y, int width, int height, int op) {
     View decorView = androidWidget.getDecorView();
     if (op == SET_CLIENT_SIZE) {
-      WindowInsets insets = decorView.getRootWindowInsets();
-      SkinJobUtil.setBounds(decorView, 0, 0,
-          width + insets.getSystemWindowInsetLeft() + insets.getSystemWindowInsetRight(),
-          height + insets.getSystemWindowInsetTop() + insets.getSystemWindowInsetBottom(),
-          SET_SIZE);
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        WindowInsets insets = decorView.getRootWindowInsets();
+        SkinJobUtil.setBounds(decorView, 0, 0,
+            width + insets.getSystemWindowInsetLeft() + insets.getSystemWindowInsetRight(),
+            height + insets.getSystemWindowInsetTop() + insets.getSystemWindowInsetBottom(),
+            SET_SIZE);
+      } else {
+        throw new UnsupportedOperationException(); // TODO
+      }
     } else {
       SkinJobUtil.setBounds(decorView, x, y, width, height, op);
     }
