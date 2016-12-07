@@ -109,14 +109,6 @@ public final class SkinJobGlobals {
    */
   public static volatile int precomputedCharacterWidthArraySize = 256;
   /**
-   * The application's {@link Context} instance. Applications SHOULD set this variable to the
-   * application context. To maintain backward compatibility with AWT apps not designed for Android,
-   * SkinJobGlobals has a fallback mechanism in {@link #getAndroidApplicationContext()} that's used
-   * to look up the application context when this field is left null. That fallback method's output
-   * is not cached.
-   */
-  public static volatile Context applicationContext;
-  /**
    * Delay in milliseconds between when a {@link java.awt.dnd.DropTarget.DropTargetAutoScroller}
    * gets created or changes state, and the start of its first refresh.
    */
@@ -166,6 +158,8 @@ public final class SkinJobGlobals {
    * See {@link android.graphics.Bitmap#compress}.
    */
   public static volatile int imageQuality = 100;
+  private static final Class<?> activityThreadClass;
+  private static final Method currentActivityMethod;
 
   static {
     HashMap<Key, Object> m = new HashMap<>();
@@ -190,6 +184,12 @@ public final class SkinJobGlobals {
       defaultBackgroundColor = Color.WHITE;
       defaultForegroundColor = Color.BLACK;
     }
+    try {
+      activityThreadClass = Class.forName("android.app.ActivityThread");
+      currentActivityMethod = activityThreadClass.getMethod("currentApplication");
+    } catch (Exception e) {
+      throw new AWTError(e);
+    }
   }
 
   /**
@@ -199,14 +199,8 @@ public final class SkinJobGlobals {
   }
 
   public static Context getAndroidApplicationContext() {
-    Context context = applicationContext;
-    if (context != null) {
-      return context;
-    }
     try {
-      Class<?> activityThreadClass = Class.forName("android.app.ActivityThread");
-      Method method = activityThreadClass.getMethod("currentApplication");
-      return (Context) method.invoke(null, (Object[]) null);
+      return (Context) currentActivityMethod.invoke(null, (Object[]) null);
     } catch (Exception e) {
       throw new AWTError(e);
     }

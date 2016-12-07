@@ -10,10 +10,9 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="Fix remaining new-API issues.">
+    <list default="true" id="8467e939-0ea8-4c97-aa24-e890e55b2bcf" name="Default" comment="Use SparseIntArray for ExtendedKeyCodes">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/ExtendedKeyCodes.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/ExtendedKeyCodes.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
     </list>
     <ignored path="SkinJobTransplant.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -60,7 +59,17 @@
         <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="397">
-              <caret line="588" column="59" selection-start-line="588" selection-start-column="59" selection-end-line="588" selection-end-column="59" />
+              <caret line="589" column="59" selection-start-line="589" selection-start-column="59" selection-end-line="589" selection-end-column="59" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="build.gradle" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/build.gradle">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="155">
+              <caret line="5" column="5" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
               <folding />
             </state>
           </provider>
@@ -78,21 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobGlobals.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SkinJobGlobals.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="366">
-              <caret line="117" column="2" selection-start-line="117" selection-start-column="2" selection-end-line="117" selection-end-column="2" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DefaultMouseInfoPeer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="596">
-              <caret line="60" column="7" selection-start-line="60" selection-start-column="7" selection-end-line="60" selection-end-column="7" />
+            <state relative-caret-position="519">
+              <caret line="176" column="29" selection-start-line="176" selection-start-column="29" selection-end-line="176" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -1899,7 +1898,6 @@
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/util/SkinJobUtil.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobCanvasPeer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobClipboard.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobGraphicsEnvironment.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobTrayIconPeer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTError.java" />
@@ -1915,6 +1913,7 @@
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/SystemFlavorMap.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/ExtendedKeyCodes.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
       </list>
     </option>
   </component>
@@ -2403,7 +2402,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481143074016</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Use SparseIntArray for ExtendedKeyCodes">
+      <created>1481144166076</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1481144166076</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2498,7 +2504,8 @@
     <MESSAGE value="Partial fix for new-API issues. Increase minimum API to 16." />
     <MESSAGE value="Fix most new-API issues. SkinJobGraphicsEnvironment now uses headless environment in older APIs if the Android context doesn't extend Activity." />
     <MESSAGE value="Fix remaining new-API issues." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix remaining new-API issues." />
+    <MESSAGE value="Use SparseIntArray for ExtendedKeyCodes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Use SparseIntArray for ExtendedKeyCodes" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
@@ -2507,7 +2514,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java</url>
-          <line>184</line>
+          <line>178</line>
           <properties />
           <option name="timeStamp" value="1" />
         </line-breakpoint>
@@ -2517,14 +2524,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/app/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="155">
-          <caret line="5" column="5" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="335">
@@ -2913,18 +2912,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build.gradle">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="397">
-          <caret line="588" column="59" selection-start-line="588" selection-start-column="59" selection-end-line="588" selection-end-column="59" />
+          <caret line="589" column="59" selection-start-line="589" selection-start-column="59" selection-end-line="589" selection-end-column="59" />
           <folding />
         </state>
       </provider>
@@ -2941,8 +2932,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="117" column="2" selection-start-line="117" selection-start-column="2" selection-end-line="117" selection-end-column="2" />
+        <state relative-caret-position="519">
+          <caret line="176" column="29" selection-start-line="176" selection-start-column="29" selection-end-line="176" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/build.gradle">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="155">
+          <caret line="5" column="5" selection-start-line="5" selection-start-column="5" selection-end-line="5" selection-end-column="5" />
           <folding />
         </state>
       </provider>
