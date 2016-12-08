@@ -10,27 +10,9 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Remove unused Context field from SkinJobGraphicsEnvironment (was linted as memory leak)">
+    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="SkinJobVolatileImage and SkinJobBufferedImage are now Serializable.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/EventQueue.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/EventQueue.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Point.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Point.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/Rectangle.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/Rectangle.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/dnd/DropTarget.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLine.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TextLine.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TransformAttribute.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/font/TransformAttribute.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Area.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Area.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/BufferedImage.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/BufferedImage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/PackedColorModel.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/PackedColorModel.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/java/awt/image/Raster.java" afterPath="$PROJECT_DIR$/app/src/main/java/java/awt/image/Raster.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/awt/geom/AreaOp.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/awt/geom/AreaOp.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/Decoration.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/Decoration.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/GlyphLayout.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/GlyphLayout.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/GraphicComponent.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/GraphicComponent.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/sun/font/TextLineComponent.java" afterPath="$PROJECT_DIR$/app/src/main/java/sun/font/TextLineComponent.java" />
     </list>
     <ignored path="SkinJobTransplant.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -63,16 +45,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="GlyphLayout.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/sun/font/GlyphLayout.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="645">
-              <caret line="169" column="9" selection-start-line="169" selection-start-column="9" selection-end-line="169" selection-end-column="9" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="TransformAttribute.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/font/TransformAttribute.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -125,11 +97,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobVolatileImage.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SkinJobVolatileImage.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="465">
               <caret line="32" column="10" selection-start-line="32" selection-start-column="10" selection-end-line="32" selection-end-column="10" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AWTKeyStroke.java" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1030">
+              <caret line="139" column="25" selection-start-line="139" selection-start-column="25" selection-end-line="139" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -1915,7 +1897,6 @@
         <option value="$PROJECT_DIR$/app/src/main/java/sun/font/TextLineComponent.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/font/GraphicComponent.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/geom/AreaOp.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/geom/Area.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/image/PackedColorModel.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/Rectangle.java" />
@@ -1930,6 +1911,7 @@
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java" />
       </list>
     </option>
   </component>
@@ -2478,7 +2460,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481170507747</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="SkinJobVolatileImage and SkinJobBufferedImage are now Serializable.">
+      <created>1481173446578</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1481173446578</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2505,7 +2494,7 @@
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32998943" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32998943" sideWeight="0.49893898" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32998943" sideWeight="0.49893898" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -2581,7 +2570,8 @@
     <MESSAGE value="Enable --core-library, required by dex on Travis." />
     <MESSAGE value="Disable abort on lint error; update a @RequiresApi that was too low." />
     <MESSAGE value="Remove unused Context field from SkinJobGraphicsEnvironment (was linted as memory leak)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove unused Context field from SkinJobGraphicsEnvironment (was linted as memory leak)" />
+    <MESSAGE value="SkinJobVolatileImage and SkinJobBufferedImage are now Serializable." />
+    <option name="LAST_COMMIT_MESSAGE" value="SkinJobVolatileImage and SkinJobBufferedImage are now Serializable." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2834,8 +2824,8 @@
         <state relative-caret-position="524">
           <caret line="127" column="77" selection-start-line="127" selection-start-column="77" selection-end-line="127" selection-end-column="77" />
           <folding>
-            <element signature="e#3769#3770#0" expanded="true" />
-            <element signature="e#3808#3809#0" expanded="true" />
+            <element signature="e#3777#3778#0" expanded="true" />
+            <element signature="e#3816#3817#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2860,14 +2850,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="459">
           <caret line="147" column="0" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="366">
-          <caret line="122" column="33" selection-start-line="122" selection-start-column="33" selection-end-line="122" selection-end-column="33" />
           <folding />
         </state>
       </provider>
@@ -3029,6 +3011,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="32" column="10" selection-start-line="32" selection-start-column="10" selection-end-line="32" selection-end-column="10" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/java/awt/AWTKeyStroke.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1030">
+          <caret line="139" column="25" selection-start-line="139" selection-start-column="25" selection-end-line="139" selection-end-column="25" />
           <folding />
         </state>
       </provider>
