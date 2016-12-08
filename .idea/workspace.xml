@@ -10,10 +10,11 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Required by Travis.">
+    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Enable --core-library, required by dex on Travis.">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build.gradle" afterPath="$PROJECT_DIR$/app/build.gradle" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" />
     </list>
     <ignored path="SkinJobTransplant.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -69,8 +70,18 @@
       <file leaf-file-name="build.gradle" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/build.gradle">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="837">
-              <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
+            <state relative-caret-position="961">
+              <caret line="31" column="5" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SkinJobWindowPeer.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="273">
+              <caret line="81" column="43" selection-start-line="81" selection-start-column="43" selection-end-line="81" selection-end-column="43" />
               <folding />
             </state>
           </provider>
@@ -123,16 +134,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SkinJobRobotPeer.java" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="930">
-              <caret line="49" column="11" selection-start-line="49" selection-start-column="11" selection-end-line="49" selection-end-column="11" />
               <folding />
             </state>
           </provider>
@@ -1593,7 +1594,7 @@
     <option name="modificationStamps">
       <map>
         <entry key="C:\Users\chris\Documents\GitHub\SkinJob1" value="4443288405493" />
-        <entry key="C:\Users\chris\Documents\GitHub\skinjob" value="4443414036485" />
+        <entry key="C:\Users\chris\Documents\GitHub\skinjob" value="4443417251924" />
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1905,13 +1906,13 @@
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/DefaultMouseInfoPeer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/DataFlavor.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobRobotPeer.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/java/awt/datatransfer/SystemFlavorMap.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/datatransfer/DataTransferer.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/sun/awt/ExtendedKeyCodes.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/skinjob/SkinJobGlobals.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/gradle.properties" />
+        <option value="$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java" />
         <option value="$PROJECT_DIR$/app/build.gradle" />
       </list>
     </option>
@@ -2454,7 +2455,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481153613261</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Enable --core-library, required by dex on Travis.">
+      <created>1481166263291</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1481166263291</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2554,7 +2562,8 @@
     <MESSAGE value="Update Gradle Android plugin version (required by Travis)." />
     <MESSAGE value="Update Gradle Android plugin version from 2.2.0 to 2.2.2 (recommended by Android Studio)," />
     <MESSAGE value="Required by Travis." />
-    <option name="LAST_COMMIT_MESSAGE" value="Required by Travis." />
+    <MESSAGE value="Enable --core-library, required by dex on Travis." />
+    <option name="LAST_COMMIT_MESSAGE" value="Enable --core-library, required by dex on Travis." />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
@@ -2904,14 +2913,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="738">
-          <caret line="225" column="58" selection-start-line="225" selection-start-column="58" selection-end-line="225" selection-end-column="58" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$USER_HOME$/AppData/Local/Android/sdk/platforms/android-25/android.jar!/java/util/Objects.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="542">
@@ -2994,10 +2995,18 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/peer/SkinJobWindowPeer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="273">
+          <caret line="81" column="43" selection-start-line="81" selection-start-column="43" selection-end-line="81" selection-end-column="43" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/build.gradle">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="837">
-          <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
+        <state relative-caret-position="961">
+          <caret line="31" column="5" selection-start-line="31" selection-start-column="5" selection-end-line="31" selection-end-column="5" />
           <folding />
         </state>
       </provider>

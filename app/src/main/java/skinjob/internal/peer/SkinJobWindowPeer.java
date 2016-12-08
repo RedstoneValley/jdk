@@ -79,7 +79,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     setBounds(bounds.x, bounds.y, bounds.width, bounds.height, SET_BOUNDS);
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public void setBoundsPrivate(int x, int y, int width, int height) {
     WindowInsets insets = sjGetAndroidWindowInsets();
