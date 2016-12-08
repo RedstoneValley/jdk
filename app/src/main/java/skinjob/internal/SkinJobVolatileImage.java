@@ -30,7 +30,7 @@ public class SkinJobVolatileImage extends VolatileImage implements SkinJobAndroi
   private final int height;
   private final ImageCapabilities caps;
   private final int transparency;
-  private volatile Bitmap androidBitmap;
+  private transient Bitmap androidBitmap;
 
   public SkinJobVolatileImage(int width, int height, ImageCapabilities caps, int transparency) {
     this.width = width;

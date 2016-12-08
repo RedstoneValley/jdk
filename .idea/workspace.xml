@@ -10,9 +10,8 @@
     </shared>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Fix a syntax error">
+    <list default="true" id="924e1747-b458-46ba-aed0-8955a4f7d36f" name="Version gradle.properties and gradle-wrapper.properties" comment="Add defaultWriteObject &amp; defaultReadObject to SkinJob*Image">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java" afterPath="$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java" />
     </list>
     <ignored path="SkinJobTransplant.iws" />
@@ -78,11 +77,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobBufferedImage.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SkinJobBufferedImage.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="527">
-              <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="56" selection-end-column="3" />
+            <state relative-caret-position="341">
+              <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -98,7 +97,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SkinJobVolatileImage.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SkinJobVolatileImage.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="465">
@@ -2475,7 +2474,14 @@
       <option name="project" value="LOCAL" />
       <updated>1481173490109</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add defaultWriteObject &amp; defaultReadObject to SkinJob*Image">
+      <created>1481173810681</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1481173810681</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TodoView">
@@ -2580,7 +2586,8 @@
     <MESSAGE value="Remove unused Context field from SkinJobGraphicsEnvironment (was linted as memory leak)" />
     <MESSAGE value="SkinJobVolatileImage and SkinJobBufferedImage are now Serializable." />
     <MESSAGE value="Fix a syntax error" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix a syntax error" />
+    <MESSAGE value="Add defaultWriteObject &amp; defaultReadObject to SkinJob*Image" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add defaultWriteObject &amp; defaultReadObject to SkinJob*Image" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
@@ -3016,18 +3023,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="39" column="0" selection-start-line="39" selection-start-column="0" selection-end-line="56" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobVolatileImage.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="465">
           <caret line="32" column="19" selection-start-line="32" selection-start-column="19" selection-end-line="32" selection-end-column="19" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/skinjob/internal/SkinJobBufferedImage.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="341">
+          <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
           <folding />
         </state>
       </provider>
