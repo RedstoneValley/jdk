@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/RedstoneValley/skinjob.svg?branch=jdk8u%2Fjdk8u%2Fmaster)](https://travis-ci.org/RedstoneValley/skinjob)
+
 # What is SkinJob?
 
 SkinJob (an early work-in-progress) is a self-contained implementation of AWT for Android.
