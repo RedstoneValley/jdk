@@ -1,5 +1,6 @@
 package skinjob.internal.peer;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.view.Gravity;
@@ -27,6 +28,7 @@ public class SkinJobLabelPeer extends SkinJobComponentPeerForView<TextView> impl
     androidWidget.setText(spannableStringBuilder);
   }
 
+  @SuppressLint("RtlHardcoded")
   @Override
   public void setAlignment(int alignment) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -43,8 +45,7 @@ public class SkinJobLabelPeer extends SkinJobComponentPeerForView<TextView> impl
         androidWidget.setGravity(Gravity.RIGHT);
         return;
       default:
-        throw new IllegalArgumentException(String.format("No horizontal alignment number %d",
-            alignment));
+        throw new IllegalArgumentException("No horizontal alignment number " + alignment);
     }
   }
 }

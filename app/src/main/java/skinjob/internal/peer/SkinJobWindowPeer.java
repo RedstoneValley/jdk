@@ -95,7 +95,7 @@ public class SkinJobWindowPeer<T extends Window> extends SkinJobComponentPeer<T>
     return decorView.getRootWindowInsets();
   }
 
-  @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+  @RequiresApi(api = Build.VERSION_CODES.M)
   @Override
   public Rectangle getBoundsPrivate() {
     WindowInsets insets = sjGetAndroidWindowInsets();

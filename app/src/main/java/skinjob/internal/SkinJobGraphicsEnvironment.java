@@ -24,14 +24,12 @@ import sun.font.FontManager;
  * Created by cryoc on 2016-10-18.
  */
 public class SkinJobGraphicsEnvironment extends GraphicsEnvironment {
-  private final Context androidContext;
   private final Display defaultDisplay;
   private final Display[] displays;
   private final GraphicsDevice defaultDisplayDevice;
   private final GraphicsDevice[] displayDevices;
 
   public SkinJobGraphicsEnvironment(Context androidContext) {
-    this.androidContext = androidContext;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
       DisplayManager manager = (DisplayManager)
           androidContext.getSystemService(Context.DISPLAY_SERVICE);
