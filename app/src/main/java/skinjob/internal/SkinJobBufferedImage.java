@@ -19,7 +19,7 @@ import skinjob.SkinJobGlobals;
 public class SkinJobBufferedImage extends BufferedImage implements SkinJobAndroidBitmapWrapper,
     Serializable {
   private static final long serialVersionUID = -4732300791764352434L;
-  private Bitmap androidBitmap;
+  private transient Bitmap androidBitmap;
 
   public SkinJobBufferedImage(Bitmap androidBitmap) {
     super(androidBitmap.getWidth(), androidBitmap.getHeight(), TYPE_INT_ARGB);
@@ -38,18 +38,20 @@ public class SkinJobBufferedImage extends BufferedImage implements SkinJobAndroi
   }
 
   private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
     androidBitmap.compress(
         SkinJobGlobals.SERIAL_IMAGE_FORMAT, SkinJobGlobals.SERIAL_IMAGE_QUALITY, stream);
     out.writeObject(stream.toByteArray());
   }
 
-  private void readObject(ObjectInputStream in) throws IOException {
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
     try {
       byte[] androidBitmapBytes = (byte[]) in.readObject();
       androidBitmap = BitmapFactory
           .decodeByteArray(androidBitmapBytes, 0, androidBitmapBytes.length);
-    } catch (ClassNotFoundException | ClassCastException e) {
+    } catch (ClassCastException e) {
       throw new IOException(e);
     }
   }

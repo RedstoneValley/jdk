@@ -30,7 +30,7 @@ public class SkinJobVolatileImage extends VolatileImage implements SkinJobAndroi
   private final int height;
   private final ImageCapabilities caps;
   private final int transparency;
-  private Bitmap androidBitmap;
+  private volatile Bitmap androidBitmap;
 
   public SkinJobVolatileImage(int width, int height, ImageCapabilities caps, int transparency) {
     this.width = width;
@@ -103,18 +103,20 @@ public class SkinJobVolatileImage extends VolatileImage implements SkinJobAndroi
   }
 
   private void writeObject(ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    androidBitmap
-        .compress(SkinJobGlobals.SERIAL_IMAGE_FORMAT, SkinJobGlobals.SERIAL_IMAGE_QUALITY, stream);
+    androidBitmap.compress(
+        SkinJobGlobals.SERIAL_IMAGE_FORMAT, SkinJobGlobals.SERIAL_IMAGE_QUALITY, stream);
     out.writeObject(stream.toByteArray());
   }
 
-  private void readObject(ObjectInputStream in) throws IOException {
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
     try {
       byte[] androidBitmapBytes = (byte[]) in.readObject();
       androidBitmap = BitmapFactory
           .decodeByteArray(androidBitmapBytes, 0, androidBitmapBytes.length);
-    } catch (ClassNotFoundException | ClassCastException e) {
+    } catch (ClassCastException e) {
       throw new IOException(e);
     }
   }
