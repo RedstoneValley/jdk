@@ -88,6 +88,8 @@ public final class SkinJobGlobals {
    */
   public static final int inputMethodMenuY = 80;
   private static final Resources systemResources = Resources.getSystem();
+  public static final CompressFormat SERIAL_IMAGE_FORMAT = CompressFormat.PNG;
+  public static final int SERIAL_IMAGE_QUALITY = 100;
 
   /**
    * RGBA value of the foreground color used in AWT components when a color isn't specified.
@@ -152,12 +154,12 @@ public final class SkinJobGlobals {
   public static volatile float graphicItalicAngle = TextAttribute.POSTURE_OBLIQUE;
   private static volatile SkinJobGraphicsEnvironment graphicsEnvironment;
 
-  public static volatile CompressFormat imageOutputFormat = CompressFormat.PNG;
+  public static volatile CompressFormat imageOutputFormat = SERIAL_IMAGE_FORMAT;
 
   /**
    * See {@link android.graphics.Bitmap#compress}.
    */
-  public static volatile int imageQuality = 100;
+  public static volatile int imageQuality = SERIAL_IMAGE_QUALITY;
   private static final Class<?> activityThreadClass;
   private static final Method currentActivityMethod;
 

@@ -44,6 +44,7 @@ import java.text.AttributedCharacterIterator;
 import java.text.AttributedCharacterIterator.Attribute;
 import java.text.Bidi;
 import java.text.CharacterIterator;
+import java.util.Arrays;
 import java.util.Map;
 
 import sun.font.AttributeValues;
@@ -1487,6 +1488,45 @@ final class TextLine {
 
   LayoutPathImpl getLayoutPath() {
     return lp;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TextLine textLine = (TextLine) o;
+
+    if (fCharsStart != textLine.fCharsStart) {
+      return false;
+    }
+    if (fCharsLimit != textLine.fCharsLimit) {
+      return false;
+    }
+    if (fIsDirectionLTR != textLine.fIsDirectionLTR) {
+      return false;
+    }
+    // Probably incorrect - comparing Object[] arrays with Arrays.equals
+    if (!Arrays.equals(fComponents, textLine.fComponents)) {
+      return false;
+    }
+    if (!Arrays.equals(fComponentVisualOrder, textLine.fComponentVisualOrder)) {
+      return false;
+    }
+    if (!Arrays.equals(fChars, textLine.fChars)) {
+      return false;
+    }
+    if (!Arrays.equals(fCharLogicalOrder, textLine.fCharLogicalOrder)) {
+      return false;
+    }
+    if (!Arrays.equals(fCharLevels, textLine.fCharLevels)) {
+      return false;
+    }
+    return frc != null ? frc.equals(textLine.frc) : textLine.frc == null;
   }
 
   static final class TextLineMetrics {

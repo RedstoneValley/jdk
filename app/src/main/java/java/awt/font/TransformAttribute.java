@@ -139,16 +139,14 @@ public final class TransformAttribute implements Serializable {
    */
   @SuppressWarnings("NonFinalFieldReferenceInEquals")
   public boolean equals(Object rhs) {
-    if (rhs != null) {
-      try {
-        TransformAttribute that = (TransformAttribute) rhs;
-        if (transform == null) {
-          return that.transform == null;
-        }
-        return transform.equals(that.transform);
-      } catch (ClassCastException e) {
+    if (rhs instanceof TransformAttribute) {
+      TransformAttribute that = (TransformAttribute) rhs;
+      if (transform == null) {
+        return that.transform == null;
       }
+      return transform.equals(that.transform);
+    } else {
+      return false;
     }
-    return false;
   }
 }

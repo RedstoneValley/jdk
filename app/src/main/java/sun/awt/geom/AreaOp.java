@@ -141,7 +141,9 @@ public abstract class AreaOp {
                  * Strategy 2:
                  * Connect chains or links if they close off an open area...
                  */
+        //noinspection ConstantConditions
         connectchains = (curchain & 1) == 0 && chain.getX() == nextchain.getX();
+        //noinspection ConstantConditions
         connectlinks = (curlink & 1) == 0 && link.getX() == nextlink.getX();
 
         if (!connectchains && !connectlinks) {

@@ -135,9 +135,9 @@ public class Decoration {
       }
 
       DecorationImpl other = null;
-      try {
+      if (rhs instanceof DecorationImpl) {
         other = (DecorationImpl) rhs;
-      } catch (ClassCastException e) {
+      } else {
         return false;
       }
 
@@ -197,6 +197,7 @@ public class Decoration {
 
     public String toString() {
       StringBuffer buf = new StringBuffer();
+      //noinspection ObjectToString
       buf.append(super.toString());
       buf.append("[");
       if (fgPaint != null) {

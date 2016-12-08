@@ -27,6 +27,7 @@ package java.awt.image;
 
 import java.awt.Transparency;
 import java.awt.color.ColorSpace;
+import java.util.Arrays;
 
 /**
  * The {@code PackedColorModel} class is an abstract {@link ColorModel} class that works with pixel
@@ -428,5 +429,14 @@ public abstract class PackedColorModel extends ColorModel {
     int[] band = new int[1];
     band[0] = raster.getNumBands() - 1;
     return raster.createWritableChild(x, y, raster.getWidth(), raster.getHeight(), x, y, band);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + Arrays.hashCode(maskArray);
+    result = 31 * result + Arrays.hashCode(maskOffsets);
+    result = 31 * result + Arrays.hashCode(scaleFactors);
+    return result;
   }
 }

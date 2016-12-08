@@ -159,15 +159,15 @@ public final class GlyphLayout {
       }
 
       public boolean equals(Object o) {
-        try {
+        if (o instanceof SDKey) {
           SDKey rhs = (SDKey) o;
           return
               hash == rhs.hash &&
                   font.equals(rhs.font) &&
                   frc.equals(rhs.frc);
-        } catch (ClassCastException e) {
+        } else {
+          return false;
         }
-        return false;
       }
     }
 

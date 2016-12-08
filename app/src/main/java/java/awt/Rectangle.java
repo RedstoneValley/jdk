@@ -96,6 +96,7 @@ import java.io.Serializable;
  * @author Sami Shaio
  * @since 1.0
  */
+@SuppressWarnings("EqualsAndHashcode") // inherits Rectangle2D.hashCode()
 public class Rectangle extends Rectangle2D implements Serializable {
 
   /*

@@ -1530,4 +1530,13 @@ public class Raster {
         dArray,
         dataBuffer);
   }
+
+  @Override
+  public String toString() {
+    return "Raster{" +
+        "width=" + width +
+        ", height=" + height +
+        ", identityHashCode=" + System.identityHashCode(this) +
+        '}';
+  }
 }

@@ -669,6 +669,7 @@ public class DropTarget implements DropTargetListener, Serializable {
    * @param p the {@code Point}
    */
 
+  @SuppressWarnings("InstanceofIncompatibleInterface")
   protected void initializeAutoscrolling(Point p) {
     if (component instanceof Autoscroll) {
       autoScroller = createDropTargetAutoScroller(component, (Autoscroll) component, p);

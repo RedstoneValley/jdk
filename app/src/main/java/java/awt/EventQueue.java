@@ -816,6 +816,7 @@ public class EventQueue {
    * @since 1.2
    */
   public void push(EventQueue newEventQueue) {
+    //noinspection ObjectToString
     Log.d(TAG, "EventQueue.push(" + newEventQueue + ")");
 
     pushPopLock.lock();
@@ -1150,6 +1151,11 @@ public class EventQueue {
     } finally {
       pushPopLock.unlock();
     }
+  }
+
+  @Override
+  public String toString() {
+    return name;
   }
 
   /**

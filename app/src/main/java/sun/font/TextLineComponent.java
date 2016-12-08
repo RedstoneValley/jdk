@@ -201,4 +201,9 @@ public class TextLineComponent {
     }
     return font.equals(that.font) && getCoreMetrics().equals(that.getCoreMetrics());
   }
+
+  @Override
+  public String toString() {
+    return new String(chars);
+  }
 }

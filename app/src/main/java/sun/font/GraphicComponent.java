@@ -15,9 +15,11 @@ import skinjob.SkinJobGlobals;
 public class GraphicComponent extends TextLineComponent {
   /**
    * Best possible text representation of an arbitrary graphic, in case this somehow gets processed
-   * as text (although it shouldn't).
+   * as text (although it shouldn't) and for toString.
    */
   protected static final char[] OBJECT_REPLACEMENT = {'\uFFFC'};
+
+  private static final String STR_OBJECT_REPLACEMENT = new String(OBJECT_REPLACEMENT);
 
   protected static final char[] EMPTY_CHAR_ARRAY = new char[0];
   private final GraphicAttribute graphicAttribute;
@@ -121,6 +123,14 @@ public class GraphicComponent extends TextLineComponent {
     result = 31 * result + chunkLimit;
     result = 31 * result + (baseRot != null ? baseRot.hashCode() : 0);
     return result;
+  }
+
+  /**
+   * This should only be used when dumping a {@link java.awt.font.TextLine}.
+   */
+  @Override
+  public String toString() {
+    return STR_OBJECT_REPLACEMENT;
   }
 
   @Override

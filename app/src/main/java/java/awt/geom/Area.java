@@ -580,6 +580,11 @@ public class Area implements Shape, Cloneable {
     return false;
   }
 
+  @Override
+  public int hashCode() {
+    return getCachedBounds().hashCode();
+  }
+
   /**
    * Returns an exact copy of this {@code Area} object.
    *

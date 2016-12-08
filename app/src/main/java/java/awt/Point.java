@@ -35,6 +35,7 @@ import java.io.Serializable;
  * @author Sami Shaio
  * @since 1.0
  */
+@SuppressWarnings("EqualsAndHashcode") // inherits Point2D.hashCode()
 public class Point extends Point2D implements Serializable {
   /*
    * JDK 1.1 serialVersionUID

@@ -59,7 +59,6 @@ import sun.awt.image.ShortComponentRaster;
  * @see Raster
  * @see WritableRaster
  */
-
 public class BufferedImage extends Image implements WritableRenderedImage, Transparency {
   /**
    * Image type is not recognized so it must be a customized image.  This type is only used as a

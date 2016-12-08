@@ -116,7 +116,8 @@ public class AWTKeyStroke implements Serializable {
    * Must be called under locked AWTKeyStro
    */
   private static Class<AWTKeyStroke> getAWTKeyStrokeClass() {
-    Class<AWTKeyStroke> clazz = (Class) AppContext.getAppContext().get(AWTKeyStroke.class);
+    Class<AWTKeyStroke> clazz = (Class<AWTKeyStroke>)
+        (AppContext.getAppContext().get(AWTKeyStroke.class);
     if (clazz == null) {
       clazz = AWTKeyStroke.class;
       AppContext.getAppContext().put(AWTKeyStroke.class, AWTKeyStroke.class);
